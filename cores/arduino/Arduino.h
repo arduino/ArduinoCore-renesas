@@ -1,3 +1,7 @@
+#ifndef __ARDUINO__H__
+#define __ARDUINO__H__
+
+#include "usb/SerialUSB.h"
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
 #include "r_ioport.h"
@@ -31,3 +35,5 @@ typedef struct _PinDescription
 extern const PinDescription g_APinDescription[];
 
 #include "pins_arduino.h"
+
+#endif //__ARDUINO__H__

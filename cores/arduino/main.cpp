@@ -1,5 +1,7 @@
 #include "Arduino.h"
 
+USBSerial SerialUSB;
+
 void _init() {
    R_BSP_PinAccessEnable();
 }

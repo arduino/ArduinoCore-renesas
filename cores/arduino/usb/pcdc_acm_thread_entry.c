@@ -64,7 +64,7 @@ static void usbx_pcdc_operations(void);
  * and it is valid only if it with default USBX configurations. */
 static uint32_t g_ux_pool_memory[MEMPOOL_SIZE / BYTE_SIZE];
 static UX_SLAVE_CLASS_CDC_ACM_PARAMETER g_ux_device_class_cdc_acm0_parameter;
-static UX_SLAVE_CLASS_CDC_ACM * g_cdc;
+UX_SLAVE_CLASS_CDC_ACM * g_cdc;
 static ULONG g_actual_length;
 static uint8_t g_buf[DATA_LEN];
 static bool b_print_status = false;
