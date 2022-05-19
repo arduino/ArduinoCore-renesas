@@ -21,8 +21,9 @@
  * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
  ***********************************************************************************************************************/
 
-#include "Arduino.h"
-#include "r_usb_basic.h"
+#define _TIMEVAL_DEFINED
+#define _SYS_SELECT_H
+#include "main_thd.h"
 #include "ux_api.h"
 #include "ux_device_class_cdc_acm.h"
 #include "usbx_pcdc_acm_ep.h"
@@ -71,8 +72,8 @@ static bool b_print_status = false;
 #define ERROR_TRAP(x) do {} while (1);
 #define RESET_VALUE             (0x00)
 
-extern usb_instance_ctrl_t g_basic1_ctrl;
-extern const usb_cfg_t g_basic1_cfg;
+extern usb_instance_ctrl_t g_basic0_ctrl;
+extern const usb_cfg_t g_basic0_cfg;
 extern TX_EVENT_FLAGS_GROUP g_cdcacm_event_flags0;
 
 /* PCDC ACM Thread entry function */
@@ -126,12 +127,12 @@ void pcdc_acm_thread_entry(void)
     }
 
     /* Initialize the peripheral mode according to the USB speed selection */
-    if (USB_SPEED_FS == g_basic1_cfg.usb_speed)
+    if (USB_SPEED_FS == g_basic0_cfg.usb_speed)
     {
         /* Peri mode initialization with Full Speed */
         status = usb_peri_usbx_initialize (R_USB_FS0_BASE);
     }
-    else if (USB_SPEED_HS == g_basic1_cfg.usb_speed)
+    else if (USB_SPEED_HS == g_basic0_cfg.usb_speed)
     {
         /* Peri mode initialization with HIGH Speed */
         status = usb_peri_usbx_initialize (R_USB_HS0_BASE);
@@ -147,14 +148,14 @@ void pcdc_acm_thread_entry(void)
     }
 
     /* Open usb driver */
-    err = R_USB_Open(&g_basic1_ctrl, &g_basic1_cfg);
+    err = R_USB_Open(&g_basic0_ctrl, &g_basic0_cfg);
     /* Error Handle */
     if (FSP_SUCCESS != err)
     {
         ERROR_TRAP(status);
     }
 
-#ifdef BLOCKING_USB_CDC
+#if 0
     /* wait for enumeration event */
     status = tx_event_flags_get(&g_cdcacm_event_flags0, CDCACM_ACTIVATE_FLAG, TX_OR, &actual_flags, TX_WAIT_FOREVER);
     if((actual_flags & CDCACM_ACTIVATE_FLAG) && (TX_SUCCESS == status))
@@ -162,6 +163,18 @@ void pcdc_acm_thread_entry(void)
     }
     else if(!(actual_flags & CDCACM_ACTIVATE_FLAG))
     {
+    }
+
+    /* Verify the status of usb */
+    usb_connection_status_check ();
+
+    volatile UX_SLAVE_DEVICE *device;
+    device = &_ux_system_slave->ux_system_slave_device;
+
+    /* Wait until usb device is configured to slave */
+    while (device->ux_slave_device_state != UX_DEVICE_CONFIGURED)
+    {
+        ;/* wait until the slave device state is configured. */
     }
 #endif
 }
@@ -198,6 +211,12 @@ static void usb_connection_status_check(void)
         }
     }
 
+}
+
+bool usbx_pcdc_configured() {
+    volatile UX_SLAVE_DEVICE *device;
+    device = &_ux_system_slave->ux_system_slave_device;
+    return device->ux_slave_device_state == UX_DEVICE_CONFIGURED;
 }
 
 /*******************************************************************************************************************//**

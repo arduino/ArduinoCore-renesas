@@ -1,6 +1,6 @@
 #include "Arduino.h"
 
-void init() {
+void _init() {
    R_BSP_PinAccessEnable();
 }
 
@@ -8,7 +8,7 @@ extern "C" void pcdc_acm_thread_entry();
 
 void arduino_main(void)
 {
-   init();
+   _init();
    initVariant();
    pcdc_acm_thread_entry();
    setup();

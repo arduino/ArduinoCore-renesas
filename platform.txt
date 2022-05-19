@@ -31,6 +31,7 @@ compiler.elf2hex.flags=-O binary
 compiler.elf2hex.extra_flags=
 compiler.elf2hex.cmd={build.crossprefix}objcopy
 compiler.ldflags=
+compiler.libraries.ldflags=
 compiler.size.cmd={build.crossprefix}size
 compiler.define=-DARDUINO=
 # this can be overriden in boards.txt
@@ -60,7 +61,7 @@ recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -D
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" -Wl,--unresolved-symbols=report-all -Wl,--start-group {build.extra.startobjects} {compiler.fsp} {object_files} "{build.path}/{archive_file}" {build.extra.endobjects} -Wl,--end-group
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" {object_files} -Wl,--whole-archive "{build.path}/{archive_file}" {compiler.fsp} -Wl,--no-whole-archive -Wl,--start-group {compiler.fsp.extra_ldflags} {compiler.libraries.ldflags} -Wl,--end-group
 
 ## Create eeprom
 recipe.objcopy.eep.pattern=
