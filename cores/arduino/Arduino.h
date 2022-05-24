@@ -24,6 +24,7 @@ auto F(T1&& A)
 #define noInterrupts()      __disable_irq()
 
 // We provide analogReadResolution and analogWriteResolution APIs
+int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
 
@@ -32,7 +33,22 @@ typedef struct _PinDescription
   bsp_io_port_pin_t name;
 } PinDescription ;
 
+
+typedef struct _AnalogPinDescription
+{
+  bsp_io_port_pin_t name;
+  adc_channel_t ch;
+} AnalogPinDescription;
+
+typedef struct _AnalogOutPinDescription
+{
+  bsp_io_port_pin_t name;
+  int ch;
+} AnalogOutPinDescription;
+
 extern const PinDescription g_APinDescription[];
+extern const AnalogPinDescription g_AAnalogPinDescription[];
+extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 
 #include "pins_arduino.h"
 
