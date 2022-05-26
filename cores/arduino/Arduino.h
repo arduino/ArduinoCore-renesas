@@ -6,6 +6,7 @@
 #include "bsp_api.h"
 #include "r_ioport.h"
 #include "tx_api.h"
+#include "pwm.h"
 
 #if defined(__cplusplus)
 
@@ -46,9 +47,17 @@ typedef struct _AnalogOutPinDescription
   int ch;
 } AnalogOutPinDescription;
 
+
+typedef struct {
+    gpt_instance_ctrl_t* gpt_ctrl;
+    const timer_cfg_t* gpt_cfg;
+    gpt_io_pin_t gpt_pin;
+} pwmTable_t;
+
 extern const PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
+extern const pwmTable_t pwmTable[];
 
 #include "pins_arduino.h"
 

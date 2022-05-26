@@ -31,6 +31,17 @@ static const uint8_t A5 = PIN_A5;
 static const uint8_t A6 = PIN_A6;
 static const uint8_t A7 = PIN_A7;
 
+// Digital pins
+// -----------
+#define D0  (0u)
+#define D1  (1u)
+#define D2  (2u)
+#define D3  (3u)
+#define D4  (4u)
+#define D5  (5u)
+#define D6  (6u)
+#define D7  (7u)
+
 // LEDs
 // ----
 #define PIN_LED     (24u)
