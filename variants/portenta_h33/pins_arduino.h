@@ -49,3 +49,5 @@ static const uint8_t A7 = PIN_A7;
 #define LEDR        (23u)
 #define LEDG        (24u)
 #define LEDB        (25u)
+
+#define SERIAL_HOWMANY		5

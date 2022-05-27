@@ -7,6 +7,7 @@
 #include "r_ioport.h"
 #include "tx_api.h"
 #include "pwm.h"
+#include "Serial.h"
 
 #if defined(__cplusplus)
 
@@ -58,6 +59,12 @@ extern const PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 extern const pwmTable_t pwmTable[];
+
+#define Serial1 _UART1_
+#define Serial2 _UART2_
+#define Serial3 _UART3_
+#define Serial4 _UART4_
+#define Serial5 _UART5_
 
 #include "pins_arduino.h"
 
