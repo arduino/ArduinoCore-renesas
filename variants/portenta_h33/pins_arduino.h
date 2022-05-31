@@ -50,6 +50,13 @@ static const uint8_t A7 = PIN_A7;
 #define LEDG        (24u)
 #define LEDB        (25u)
 
+
+#define PIN_SPI_SS    (19)
+
+static const uint8_t SS   = PIN_SPI_SS;
+
 #define SERIAL_HOWMANY		5
 
 #define WIRE_HOWMANY      3
+
+#define SPI_HOWMANY       2
