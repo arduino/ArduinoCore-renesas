@@ -29,28 +29,34 @@ ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
 , _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
 , _clk_polarity(SPI_CLK_POLARITY_LOW)
 , _bit_order(SPI_BIT_ORDER_MSB_FIRST)
+, _is_sci(false)
 {
 }
 
 ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
                       ,const spi_cfg_t *g_spi_cfg
-                      /*,const sci_spi_extended_cfg_t *g_spi_ext_cfg*/):
+                      ,const sci_spi_extended_cfg_t *g_spi_ext_cfg):
   _g_spi_ctrl(g_spi_ctrl)
 , _g_spi_cfg(g_spi_cfg)
-//, _g_sci_spi_ext_cfg(g_spi_ext_cfg)
+, _g_sci_spi_ext_cfg(g_spi_ext_cfg)
 , _g_spi_callback_event(SPI_EVENT_TRANSFER_ABORTED)
 , _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
 , _clk_polarity(SPI_CLK_POLARITY_LOW)
 , _bit_order(SPI_BIT_ORDER_MSB_FIRST)
+, _is_sci(true)
 {
 }
 
 
 void ArduinoSPI::begin()
 {
-  if(!initialized){
+  if(!initialized) {
+    if (_is_sci) {
+      R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+    } else {
       R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-      initialized = true;
+    }
+    initialized = true;
   }
 }
 
@@ -70,18 +76,30 @@ void ArduinoSPI::notUsingInterrupt(int interruptNumber)
 
 uint8_t ArduinoSPI::transfer(uint8_t data) {
   uint8_t rxbuf;
-  R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  }
   return rxbuf;
 }
 
 uint16_t ArduinoSPI::transfer16(uint16_t data) {
   uint16_t rxbuf;
-  R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  }
   return rxbuf;
 }
 
 void ArduinoSPI::transfer(void *buf, size_t count) {
-  R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  }
 }
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
@@ -111,38 +129,74 @@ void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
       _bit_order = SPI_BIT_ORDER_MSB_FIRST;
   }
 
-  if(initialized){
-      R_SPI_Close(_g_spi_ctrl);
-  }
-
   // Clock settings
-  rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
-  R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+  if (_is_sci) {
 
-  R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+    if (initialized) {
+      R_SCI_SPI_Close(_g_spi_ctrl);
+    }
 
-  spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
-  uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
-  uint32_t spbr = p_ctrl->p_regs->SPBR;
+    sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
+    R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
 
-  /* Configure CPHA setting. */
-  spcmd0 |= (uint32_t) _clk_phase;
+    R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
 
-  /* Configure CPOL setting. */
-  spcmd0 |= (uint32_t) _clk_polarity << 1;
+    sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
+    uint32_t spmr = p_ctrl->p_reg->SPMR;
+    uint32_t scmr = p_ctrl->p_reg->SCMR;
+    uint32_t smr  = R_SCI0_SMR_CM_Msk;
 
-  /* Configure Bit Order (MSB,LSB) */
-  spcmd0 |= (uint32_t) _bit_order << 12;
+    /* Configure CPHA setting. */
+    spmr |= (uint32_t) _clk_phase << 7;
 
-  /* Configure the Bit Rate Division Setting */
-  spcmd0 |= (uint32_t) spck_div.brdv << 2;
+    /* Configure CPOL setting. */
+    spmr |= (uint32_t) _clk_polarity << 6;
 
-  p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
-  p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
+    /* Configure Bit Order (MSB,LSB) */
+    scmr |= (uint32_t) _bit_order << 3;
+  
+    /* Select the baud rate generator clock divider. */
+    smr |= (uint32_t) clk_div.cks;
 
-  // Update settings
-  spcmd0 = p_ctrl->p_regs->SPCMD[0];
-  spbr = p_ctrl->p_regs->SPBR;
+    // Update settings
+    p_ctrl->p_reg->SMR  = (uint8_t) smr;
+    p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
+    p_ctrl->p_reg->SPMR = spmr;
+    p_ctrl->p_reg->SCMR = scmr;
+
+  } else {
+
+    if (initialized) {
+      R_SPI_Close(_g_spi_ctrl);
+    }
+
+    rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
+    R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+
+    R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+
+    spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
+    uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
+    uint32_t spbr = p_ctrl->p_regs->SPBR;
+
+    /* Configure CPHA setting. */
+    spcmd0 |= (uint32_t) _clk_phase;
+
+    /* Configure CPOL setting. */
+    spcmd0 |= (uint32_t) _clk_polarity << 1;
+
+    /* Configure Bit Order (MSB,LSB) */
+    spcmd0 |= (uint32_t) _bit_order << 12;
+
+    /* Configure the Bit Rate Division Setting */
+    spcmd0 &= !(((uint32_t)0xFF) << 2);
+    spcmd0 |= (uint32_t) spck_div.brdv << 2;
+
+    // Update settings
+    p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
+    p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
+
+  }
 }
 
 void ArduinoSPI::endTransaction(void) {
@@ -168,7 +222,7 @@ void spi_callback(spi_callback_args_t *p_args)
 }
 #endif
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(&g_spi1_ctrl, &g_spi1_cfg/*, &g_spi1_cfg_extend*/);
+ArduinoSPI SPI1(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_cfg_extend);
 void spi1_callback(spi_callback_args_t *p_args)
 {
     if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
