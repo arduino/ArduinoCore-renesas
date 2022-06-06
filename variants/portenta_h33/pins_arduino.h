@@ -31,6 +31,28 @@ static const uint8_t A5 = PIN_A5;
 static const uint8_t A6 = PIN_A6;
 static const uint8_t A7 = PIN_A7;
 
+#define PIN_IRQ0   (23u)
+#define PIN_IRQ1   (24u)
+#define PIN_IRQ2   (25u)
+#define PIN_IRQ3   (26u)
+#define PIN_IRQ4   (27u)
+#define PIN_IRQ5   (28u)
+#define PIN_IRQ6   (29u)
+#define PIN_IRQ7   (30u)
+#define PIN_IRQ8   (31u)
+#define PIN_IRQ9   (32u)
+
+static const uint8_t IRQ0 = PIN_IRQ0;
+static const uint8_t IRQ1 = PIN_IRQ1;
+static const uint8_t IRQ2 = PIN_IRQ2;
+static const uint8_t IRQ3 = PIN_IRQ3;
+static const uint8_t IRQ4 = PIN_IRQ4;
+static const uint8_t IRQ5 = PIN_IRQ5;
+static const uint8_t IRQ6 = PIN_IRQ6;
+static const uint8_t IRQ7 = PIN_IRQ7;
+static const uint8_t IRQ8 = PIN_IRQ8;
+static const uint8_t IRQ9 = PIN_IRQ9;
+
 // Digital pins
 // -----------
 #define D0  (0u)
@@ -60,3 +82,5 @@ static const uint8_t SS   = PIN_SPI_SS;
 #define WIRE_HOWMANY      3
 
 #define SPI_HOWMANY       2
+
+#define EXT_INTERRUPTS_HOWMANY 10
