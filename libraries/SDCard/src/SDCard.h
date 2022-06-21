@@ -18,18 +18,19 @@ typedef enum {
 
 class SDCardBlockMedia {
 public:
-    SDCardBlockMedia(const rm_filex_block_media_instance_t *_block_media_instance,
-                     rm_filex_block_media_instance_ctrl_t *_block_media_ctrl,
-                     const rm_filex_block_media_cfg_t *_block_media_cfg,
-                     FX_MEDIA *_media_ptr);
+    SDCardBlockMedia(const rm_filex_block_media_instance_t *block_media_instance,
+                     rm_filex_block_media_instance_ctrl_t *block_media_ctrl,
+                     const rm_filex_block_media_cfg_t *block_media_cfg);
 
     /** Initialize a block device
      *
      *  @return         0 on success or a negative error code on failure
      */
-    int init();
+    int mount();
 
     int open();
+
+    int unmount();
 
     int format(char* volumeName, UINT numFat,
                UINT hiddenSectors, UINT totSectors, UINT bytesPerSector,
@@ -39,9 +40,9 @@ public:
 
     int deleteFile(char* file_name);
 
-    int openFile(char* file_name, FileAccessType access);
+    int openFile(FX_FILE *file_ptr, char* file_name, FileAccessType access);
 
-    int closeFile(char* file_name);
+    int closeFile(FX_FILE *file_ptr);
 
     /** Write content into a file
      *
@@ -50,9 +51,9 @@ public:
      *  @param len        Size of bytes to write
      *  @return           0 on success, error code on failure
      */
-    int writeFile(char* file_name, uint8_t *buf, uint8_t len);
+    int writeFile(FX_FILE *file_ptr, char* file_name, uint8_t *buf, ULONG len);
 
-    int readFile(char* file_name, uint8_t *buf, uint8_t len, uint32_t* read_size);
+    int readFile(FX_FILE *file_ptr, char* file_name, uint8_t *buf, ULONG len, ULONG* read_size);
 
     /** Deinitialize a block device
      *
@@ -65,24 +66,12 @@ public:
 private:
     sdmmc_card_type_t _card_type;
     bool _write_protected;    ///< true = Card is write protected
-    /*uint32_t _read_size;
-    uint32_t _program_size;
-    uint32_t _erase_size;
-    uint32_t _block_size;
-    uint32_t _capacity_in_blocks;*/
-    //BSP_SD_CardInfo _current_card_info;
     uint8_t _sd_state;
-
-    const sdmmc_cfg_t _sdmmc_cfg;
-    const sdmmc_ctrl_t _sdmmc_ctrl;
 
     const rm_filex_block_media_instance_t *_block_media_instance;
     rm_filex_block_media_instance_ctrl_t *_block_media_ctrl;
     const rm_filex_block_media_cfg_t *_block_media_cfg;
-    FX_MEDIA *_media_ptr;
     uint8_t _media_memory[SD_MEDIA_BLOCK_SIZE] BSP_ALIGN_VARIABLE(4);
-
-    FX_FILE *file;
 };
 
 extern SDCardBlockMedia SDCard;
