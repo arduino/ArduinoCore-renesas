@@ -8,6 +8,7 @@ SDCardBlockMedia::SDCardBlockMedia(const rm_filex_block_media_instance_t *block_
     _block_media_instance(block_media_instance),
     _block_media_ctrl(block_media_ctrl),
     _block_media_cfg(block_media_cfg),
+    _first_dir_entry_found(false),
     _sd_error(0)
 {
 }
@@ -126,6 +127,33 @@ int SDCardBlockMedia::readFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, u
         return handleError(err);
     }
     err = fx_file_close(filePtr);
+    return handleError(err);
+}
+
+int SDCardBlockMedia::createDirectory(char* dirName)
+{
+    fx_directory_default_set(&g_fx_media0, "firstdir");
+    uint8_t err = fx_directory_create(&g_fx_media0, dirName);
+    //return handleError(err);
+    return err;
+}
+
+int SDCardBlockMedia::deleteDirectory(char* dirName)
+{
+    uint8_t err = fx_directory_delete(&g_fx_media0, dirName);
+    return handleError(err);
+    return err;
+}
+
+int SDCardBlockMedia::getEntryName(char *entryName)
+{
+    uint8_t err = 0;
+    if (_first_dir_entry_found) {
+        err = fx_directory_next_entry_find(&g_fx_media0, entryName);
+    } else {
+        err = fx_directory_first_entry_find(&g_fx_media0, entryName);
+        _first_dir_entry_found = true;
+    }
     return handleError(err);
 }
 

@@ -9,6 +9,7 @@
 #ifdef __cplusplus
 
 #define SD_MEDIA_BLOCK_SIZE 512 /*!< Block size supported for SD card is 512 bytes  */
+#define FILE_NAME_MAX 255
 
 typedef enum {
   OPEN_FOR_WRITE     = 0,
@@ -131,6 +132,28 @@ public:
      */
     int readFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, uint32_t len, uint32_t* readSize);
 
+    /** Create a directory in the SD card block media
+     *
+     *  @param dirName           Name of the directory
+     *  @return                  1 on success or 0 on failure
+     */
+    int createDirectory(char* dirName);
+
+    /** Delete a directory from the SD card block media
+     *
+     *  @param dirName           Name of the directory
+     *  @return                  1 on success or 0 on failure
+     */
+    int deleteDirectory(char* dirName);
+
+    /** Get the name of an entry from the current working directory of the SD card block media
+     *  Entries are pointed in a sequential order.
+     *
+     *  @param entryName         Name of the detected entry
+     *  @return                  1 on success or 0 on failure
+     */
+    int getEntryName(char *entryName);
+
     /** Get the SD card status
      *
      *  @return                  SDCardStatus value
@@ -147,6 +170,7 @@ private:
     sdmmc_card_type_t _card_type;
     bool _write_protected;
     uint8_t _sd_state;
+    bool _first_dir_entry_found;
 
     const rm_filex_block_media_instance_t *_block_media_instance;
     rm_filex_block_media_instance_ctrl_t *_block_media_ctrl;
