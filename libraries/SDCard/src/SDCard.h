@@ -16,62 +16,147 @@ typedef enum {
   OPEN_FOR_READ_FAST = 2,
 } FileAccessType;
 
+typedef enum {
+  SD_IDLE            = 0,
+  SD_INITIALIZED     = 1,
+  SD_BUSY            = 2,
+  SD_INSERTED        = 3,
+  SD_ERROR           = 4,
+} SDCardStatus;
+
+typedef enum {
+  SD_OK                   = 0,
+  SD_BOOT_ERROR           = 1,
+  SD_FAT_READ_ERROR       = 2,
+  SD_FILE_ERROR           = 3,
+  SD_ACCESS_ERROR         = 4,
+  SD_FILE_CORRUPTED       = 5,
+  SD_END_OF_FILE          = 6,
+  SD_FULL                 = 7,
+  SD_FILE_ALREADY_CREATED = 8,
+  SD_INVALID_FILE_NAME    = 9,
+  SD_INVALID_PATH         = 10,
+  SD_BUFFER_ERROR         = 11,
+  SD_WRITE_PROTECT        = 12,
+  SD_INVALID_SECTOR       = 13,
+  SD_IO_ERROR             = 14,
+  SD_INVALID_STATE        = 15,
+  SD_GENERIC_ERROR        = 16,
+} SDCardError;
+
 class SDCardBlockMedia {
 public:
     SDCardBlockMedia(const rm_filex_block_media_instance_t *block_media_instance,
                      rm_filex_block_media_instance_ctrl_t *block_media_ctrl,
                      const rm_filex_block_media_cfg_t *block_media_cfg);
 
-    /** Initialize a block device
+    /** Initialize and mount the SD card block media
      *
-     *  @return         0 on success or a negative error code on failure
+     *  @return                  1 on success or 0 on failure
      */
     int mount();
 
-    int open();
-
+    /** Deinitialize and unmount the SD card block media
+     *
+     *  @return                  1 on success or 0 on failure
+     */
     int unmount();
 
+    /** Open the SD card block media
+     *
+     *  @return                  1 on success or 0 on failure
+     */
+    int open();
+
+    /** Format the SD card block media
+     *
+     *  @param volumeName        Volume name
+     *  @param numFat            Number of FAT tables
+     *  @param hiddenSectors     Number of hidden sectors
+     *  @param totSectors        Total number of sectors
+     *  @param bytesPerSector    Number of bytes per sector
+     *  @param sectorsPerCluster Number of sectors per cluster
+     *  @param heads             Number of heads
+     *  @param sectorsPerTrack   Number of sectors per track
+     *  @param dirEntries        Number of directory entries
+     *  @return                  1 on success or 0 on failure
+     */
     int format(char* volumeName, UINT numFat,
                UINT hiddenSectors, UINT totSectors, UINT bytesPerSector,
                UINT sectorsPerCluster = 1, UINT heads = 1, UINT sectorsPerTrack = 1, UINT dirEntries = 128);
 
-    int createFile(char* file_name);
-
-    int deleteFile(char* file_name);
-
-    int openFile(FX_FILE *file_ptr, char* file_name, FileAccessType access);
-
-    int closeFile(FX_FILE *file_ptr);
-
-    /** Write content into a file
+    /** Create a file in the SD card block media
      *
-     *  @param file_name  Name of the file
-     *  @param buff       Buffer of bytes to be written
-     *  @param len        Size of bytes to write
-     *  @return           0 on success, error code on failure
+     *  @param fileName          Name of the file
+     *  @return                  1 on success or 0 on failure
      */
-    int writeFile(FX_FILE *file_ptr, char* file_name, uint8_t *buf, ULONG len);
+    int createFile(char* fileName);
 
-    int readFile(FX_FILE *file_ptr, char* file_name, uint8_t *buf, ULONG len, ULONG* read_size);
-
-    /** Deinitialize a block device
+    /** Delete a file from the SD card block media
      *
-     *  @return         0 on success or an error code on failure
+     *  @param fileName          Name of the file
+     *  @return                  1 on success or 0 on failure
      */
-    int close();
+    int deleteFile(char* fileName);
 
-    int getStatus();
+    /** Open a file in the SD card block media
+     *
+     *  @param filePtr           File pointer
+     *  @param fileName          Name of the file
+     *  @param access            File access type
+     *  @return                  1 on success or 0 on failure
+     */
+    int openFile(FX_FILE *filePtr, char* fileName, FileAccessType access);
+
+    int closeFile(FX_FILE *filePtr);
+
+    /** Open the file, write content into it and close it
+     *
+     *  @param filePtr           File pointer
+     *  @param fileName          Name of the file
+     *  @param buf               Buffer of bytes to be written
+     *  @param len               NUmber of bytes to write
+     *  @return                  1 on success or 0 on failure
+     */
+    int writeFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, uint32_t len);
+
+    /** Open the file, read its content and close it
+     *
+     *  @param filePtr           File pointer
+     *  @param fileName          Name of the file
+     *  @param buf               Buffer of bytes read
+     *  @param len               Number of bytes to read
+     *  @param readSize          Actual number of bytes read
+     *  @return                  1 on success or 0 on failure
+     */
+    int readFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, uint32_t len, uint32_t* readSize);
+
+    /** Get the SD card status
+     *
+     *  @return                  SDCardStatus value
+     */
+    SDCardStatus getStatus();
+
+    /** Get the latest SD card error
+     *
+     *  @return                  SDCardError value
+     */
+    SDCardError getError();
 
 private:
     sdmmc_card_type_t _card_type;
-    bool _write_protected;    ///< true = Card is write protected
+    bool _write_protected;
     uint8_t _sd_state;
 
     const rm_filex_block_media_instance_t *_block_media_instance;
     rm_filex_block_media_instance_ctrl_t *_block_media_ctrl;
     const rm_filex_block_media_cfg_t *_block_media_cfg;
     uint8_t _media_memory[SD_MEDIA_BLOCK_SIZE] BSP_ALIGN_VARIABLE(4);
+
+    uint8_t _sd_error;
+
+    int handleError(uint8_t err);
+
 };
 
 extern SDCardBlockMedia SDCard;

@@ -9,52 +9,26 @@ void setup() {
   SerialUSB.begin(115200);
   while(!SerialUSB) {}
   delay(100);
-  SerialUSB.println("Start");
+  SerialUSB.println("*******Start SD Card test sketch*******");
   SerialUSB.println();
-  delay(100);
 
-  int status = 0;
-  
-  status = SDCard.mount();
-  if (status != FSP_SUCCESS) {
-    SerialUSB.print("SDCard.mount Error: ");
-    SerialUSB.println(status, HEX);
-    while(1) {}
-  } else {
-    SerialUSB.println("SDCard.mount OK :)");
+  SerialUSB.print("Mounting SD card... ");
+  if (!SDCard.mount()) {
+    printError();
   }
 
   delay(100);
 
-  status = SDCard.open();
-  if (status != FX_SUCCESS) {
-    SerialUSB.print("SDCard.open Error: ");
-    SerialUSB.println(status, HEX);
-    while(1) {}
-  } else {
-    SerialUSB.print("SDCard.open OK :)");
+  SerialUSB.print("\nOpening SD card... ");
+  if (!SDCard.open()) {
+    printError();
   }
 
   delay(100);
 
-  status = SDCard.deleteFile(FILE_NAME);
-  if (status != FX_SUCCESS) {
-    SerialUSB.print("SDCard.deleteFile Error: ");
-    SerialUSB.println(status, HEX);
-    //while(1) {}
-  } else {
-    SerialUSB.print("SDCard.deleteFile OK :)");
-  }
-
-  delay(100);
-
-  status = SDCard.createFile(FILE_NAME);
-  if (status != FX_SUCCESS && status != FX_ALREADY_CREATED) {
-    SerialUSB.print("SDCard.createFile Error: ");
-    SerialUSB.println(status, HEX);
-    while(1) {}
-  } else {
-    SerialUSB.print("SDCard.createFile OK :)");
+  SerialUSB.print("\nCreating file " + String(FILE_NAME) +"... ");
+  if (!SDCard.createFile(FILE_NAME) && SDCard.getError() != SD_FILE_ALREADY_CREATED) {
+    printError();
   }
 
   delay(100);
@@ -64,39 +38,55 @@ void setup() {
   }
 
   FX_FILE src_file;
-  status = SDCard.writeFile(&src_file, FILE_NAME, g_src_buffer, sizeof(g_src_buffer));
-  if (status != FX_SUCCESS) {
-    SerialUSB.print("SDCard.writeFile Error: ");
-    SerialUSB.println(status, HEX);
-    while(1) {}
-  } else {
-    SerialUSB.print("SDCard.writeFile OK :)");
+  SerialUSB.print("\nWriting content inside " + String(FILE_NAME) +"... ");
+  if (!SDCard.writeFile(&src_file, FILE_NAME, g_src_buffer, sizeof(g_src_buffer))) {
+    printError();
   }
 
   delay(100);
 
   uint32_t size;
-  status = SDCard.readFile(&src_file, FILE_NAME, g_read_buffer, sizeof(g_src_buffer), &size);
-  SerialUSB.print("SDCard.readFile returned ");
-  SerialUSB.println(status, HEX);
-  SerialUSB.print("Size read: ");
-  SerialUSB.println(size);
+  SerialUSB.print("\nReading back " + String(FILE_NAME) +" content... ");
+  if (!SDCard.readFile(&src_file, FILE_NAME, g_read_buffer, sizeof(g_src_buffer), &size)) {
+    printError();
+  }
 
+  SerialUSB.print("\nComparing buffers...");
   if (memcmp(g_src_buffer, g_read_buffer, 1024) != 0) {
-    SerialUSB.println("Buffers are different!");
-  } else {
-    SerialUSB.println("Write-Read OK :)");
+    SerialUSB.print("Buffers are different!");
+    printResult(false);
   }
+
+  SerialUSB.print("\nUnmounting SD card... ");
+  if (!SDCard.unmount()) {
+    printError();
+  }
+
+  printResult(true);
   
-  status = SDCard.unmount();
-  if (status != FX_SUCCESS) {
-    SerialUSB.print("SDCard.unmount Error: ");
-    SerialUSB.println(status, HEX);
-  } else {
-    SerialUSB.print("SDCard.unmount OK :)");
-  }
 }
 
 void loop() {
+  delay(1000);
+}
 
+
+void printResult(bool sd_pass) {
+  if (sd_pass) {
+    SerialUSB.println();
+    SerialUSB.println("\n*******SD Card test PASSED :) *******");
+    SerialUSB.println();
+  } else {
+    SerialUSB.println();
+    SerialUSB.println("\n*******SD Card test FAILED :( *******");
+    SerialUSB.println();
+  }
+}
+
+
+void printError() {
+  SerialUSB.print(" Error: ");
+  SerialUSB.println(SDCard.getError());
+  printResult(false);
+  while(1) {}
 }
