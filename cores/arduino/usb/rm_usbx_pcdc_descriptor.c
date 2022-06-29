@@ -23,6 +23,7 @@
 /******************************************************************************
  Includes   <System Includes> , "Project Includes"
  ******************************************************************************/
+#ifdef AZURE_RTOS_THREADX
 #include <r_usb_basic.h>
 #include <r_usb_basic_api.h>
 #include "r_usb_basic_cfg.h"
@@ -473,3 +474,4 @@ uint8_t g_language_id_framework[] =
 /******************************************************************************
  End  Of File
  ******************************************************************************/
+#endif  //AZURE_RTOS_THREADX

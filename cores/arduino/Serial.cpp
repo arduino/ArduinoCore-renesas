@@ -299,7 +299,7 @@ void isr_uart3(uart_callback_args_t *p_args)
 }
 
 #if SERIAL_HOWMANY > 4
-UART _UART5_(g_uart4_ctrl, &g_uart4_cfg, &g_transfer25_ctrl);
+UART _UART5_(g_uart4_ctrl, &g_uart4_cfg, &g_transfer18_ctrl);
 
 extern "C"
 void isr_uart4(uart_callback_args_t *p_args)

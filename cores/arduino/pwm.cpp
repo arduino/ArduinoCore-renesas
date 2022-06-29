@@ -39,7 +39,6 @@ bool PwmOut:: begin(uint32_t period_width, uint32_t pulse_width) {
 
 bool PwmOut::period(int ms) {
   pclkd_freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKD) >> pwmTable[_pin].gpt_cfg->source_div;
-  SerialUSB.println(pclkd_freq_hz);
   uint32_t period_counts = (uint32_t) ((uint64_t) pclkd_freq_hz/1000 * ms);
   if (R_GPT_PeriodSet(pwmTable[_pin].gpt_ctrl, period_counts) != FSP_SUCCESS) {
     return false;

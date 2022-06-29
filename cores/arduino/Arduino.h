@@ -1,11 +1,13 @@
 #ifndef __ARDUINO__H__
 #define __ARDUINO__H__
 
+#ifdef AZURE_RTOS_THREADX
 #include "usb/SerialUSB.h"
+#include "tx_api.h"
+#endif
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
 #include "r_ioport.h"
-#include "tx_api.h"
 #include "pwm.h"
 #include "Serial.h"
 

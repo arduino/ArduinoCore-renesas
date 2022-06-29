@@ -1,3 +1,4 @@
+#ifdef AZURE_RTOS_THREADX
 #define _TIMEVAL_DEFINED
 #define _SYS_SELECT_H
 #include "main_thd.h"
@@ -109,3 +110,4 @@ private:
 };
 
 extern USBSerial SerialUSB;
+#endif //AZURE_RTOS_THREADX

@@ -20,7 +20,7 @@
  *
  * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
  ***********************************************************************************************************************/
-
+#ifdef AZURE_RTOS_THREADX
 #define _TIMEVAL_DEFINED
 #define _SYS_SELECT_H
 #include "main_thd.h"
@@ -323,3 +323,4 @@ UINT usbx_status_callback (ULONG status)
     }
     return 0;
 }
+#endif  //AZURE_RTOS_THREADX
