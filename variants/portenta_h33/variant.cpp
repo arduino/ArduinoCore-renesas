@@ -18,24 +18,24 @@ const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
 
 const pwmTable_t pwmTable[] = {
   {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA}, // D0
-  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCB}, // D1
-  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCA}, // D2
-  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCB}, // D3
-  {&g_timer5_ctrl, &g_timer5_cfg, GPT_IO_PIN_GTIOCA}, // D4
-  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCA}, // D5
-  {&g_timer7_ctrl, &g_timer7_cfg, GPT_IO_PIN_GTIOCB}, // D6
-  {&g_timer8_ctrl, &g_timer8_cfg, GPT_IO_PIN_GTIOCA}, // D7
+  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA}, // D1
+  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB}, // D2
+  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCA}, // D3
+  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCB}, // D4
+  {&g_timer5_ctrl, &g_timer5_cfg, GPT_IO_PIN_GTIOCB}, // D5
+  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCA}, // D6
+  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCB}, // D7
 };
 
 const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_01_PIN_05 },    //D0
-    { BSP_IO_PORT_01_PIN_02 },    //D1
-    { BSP_IO_PORT_01_PIN_11 },    //D2
-    { BSP_IO_PORT_06_PIN_08 },    //D3
-    { BSP_IO_PORT_01_PIN_01 },    //D4
-    { BSP_IO_PORT_06_PIN_01 },    //D5
-    { BSP_IO_PORT_03_PIN_03 },    //D6
-    { BSP_IO_PORT_06_PIN_05 },    //D7
+    { BSP_IO_PORT_01_PIN_11 },    //D1
+    { BSP_IO_PORT_06_PIN_08 },    //D2
+    { BSP_IO_PORT_06_PIN_01 },    //D3
+    { BSP_IO_PORT_04_PIN_01 },    //D4
+    { BSP_IO_PORT_03_PIN_03 },    //D5
+    { BSP_IO_PORT_06_PIN_05 },    //D6
+    { BSP_IO_PORT_01_PIN_06 },    //D7
 
     { BSP_IO_PORT_00_PIN_00 },    //A0
     { BSP_IO_PORT_00_PIN_01 },    //A1
@@ -68,7 +68,6 @@ const PinDescription g_APinDescription[] = {
 
     { BSP_IO_PORT_01_PIN_00 },
     { BSP_IO_PORT_01_PIN_03 },
-    { BSP_IO_PORT_01_PIN_06 },
     { BSP_IO_PORT_01_PIN_07 },
     { BSP_IO_PORT_01_PIN_08 },
     { BSP_IO_PORT_01_PIN_09 },
