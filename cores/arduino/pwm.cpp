@@ -59,7 +59,8 @@ bool PwmOut::pulseWidth(int ms) {
 uint32_t PwmOut::getPeriod() {
   timer_info_t info;
   (void) R_GPT_InfoGet(pwmTable[_pin].gpt_ctrl, &info);
-  return info.period_counts;
+  uint32_t time_ms = info.period_counts/(pclkd_freq_hz/1000);
+  return time_ms;
 }
 
 uint32_t PwmOut::getPulseWidth() {
