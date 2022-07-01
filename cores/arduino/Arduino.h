@@ -45,8 +45,10 @@ typedef struct rtc_alarm_time
 
 void setRtcTime(rtc_time_t time);
 rtc_time_t getRtcTime();
-void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period, void (* func)(rtc_callback_args_t *));
-void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match, void (* func)(rtc_callback_args_t *));
+void onRtcInterrupt(void (*func)(rtc_callback_args_t *));
+void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period);
+void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match);
+bool isRtcRunning();
 
 typedef struct _PinDescription
 {
