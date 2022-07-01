@@ -51,3 +51,34 @@ unsigned long micros() {
 	uint32_t time_us = (status.counter*1000000)/pclkb_freq_hz + agt_time_us;
 	return time_us;
 }
+
+void setRtcTime(rtc_time_t time) {
+	time.tm_year -= 1900; // Start date 1900
+	R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
+	R_RTC_CalendarTimeSet(&g_rtc0_ctrl, &time);
+}
+
+rtc_time_t getRtcTime() {
+	rtc_time_t time_read;
+	R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
+	R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read);
+	time_read.tm_year += 1900; // Start date 1900
+	return time_read;
+}
+
+void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period, void (* func)(rtc_callback_args_t *)) {
+	R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
+	g_rtc0_ctrl.p_callback = func;
+	R_RTC_PeriodicIrqRateSet(&g_rtc0_ctrl, period);
+}
+
+void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match, void (* func)(rtc_callback_args_t *)) {
+	R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
+	g_rtc0_ctrl.p_callback = func;
+	rtc_alarm_time_t alarm_time;
+	alarm_time.time = time;
+	memcpy(&alarm_time.sec_match, &time_match, sizeof(RtcAlarmSettings));
+	R_RTC_CalendarAlarmSet(&g_rtc0_ctrl, &alarm_time);
+}
+
+void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {}

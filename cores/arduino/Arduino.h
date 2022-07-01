@@ -32,6 +32,22 @@ int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
 
+typedef struct rtc_alarm_time
+{
+    bool       sec_match;              ///< Enable the alarm based on a match of the seconds field
+    bool       min_match;              ///< Enable the alarm based on a match of the minutes field
+    bool       hour_match;             ///< Enable the alarm based on a match of the hours field
+    bool       mday_match;             ///< Enable the alarm based on a match of the days field
+    bool       mon_match;              ///< Enable the alarm based on a match of the months field
+    bool       year_match;             ///< Enable the alarm based on a match of the years field
+    bool       dayofweek_match;        ///< Enable the alarm based on a match of the dayofweek field
+} RtcAlarmSettings;
+
+void setRtcTime(rtc_time_t time);
+rtc_time_t getRtcTime();
+void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period, void (* func)(rtc_callback_args_t *));
+void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match, void (* func)(rtc_callback_args_t *));
+
 typedef struct _PinDescription
 {
   bsp_io_port_pin_t name;
