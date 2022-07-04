@@ -83,4 +83,6 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define SPI_HOWMANY       2
 
+#define CAN_HOWMANY       2
+
 #define EXT_INTERRUPTS_HOWMANY 10
