@@ -3188,6 +3188,24 @@ FSP Configuration
       Internal Output: Enabled by default
       ELC Trigger Source: Disabled
       
+    Instance "g_timer10 Timer, Low-Power (r_agt)"
+      General: Name: g_timer10
+      General: Channel: 1
+      General: Mode: Periodic
+      General: Period: 10
+      General: Period Unit: Milliseconds
+      Output: Duty Cycle Percent (only applicable in PWM mode): 50
+      General: Count Source: PCLKB
+      Output: AGTOA Output: Disabled
+      Output: AGTOB Output: Disabled
+      Output: AGTO Output: Disabled
+      Input: Measurement Mode: Measure Disabled
+      Input: Input Filter: No Filter
+      Input: Enable Pin: Enable Pin Not Used
+      Input: Trigger Edge: Trigger Edge Rising
+      Interrupts: Callback: timer10_callback
+      Interrupts: Underflow Interrupt Priority: Priority 12
+      
   Thread "MainThread"
     Symbol: main_thd
     Name: MainThread
