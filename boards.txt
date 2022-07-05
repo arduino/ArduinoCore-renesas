@@ -39,3 +39,43 @@ portenta_h33.upload.maximum_size=786432
 portenta_h33.upload.maximum_data_size=523624
 
 ##############################################################
+
+portenta_h33_new.name=Portenta H33 New (RA6M5)
+portenta_h33_new.build.core=arduino
+portenta_h33_new.build.crossprefix=arm-none-eabi-
+portenta_h33_new.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+
+portenta_h33_new.build.variant=PORTENTA_H33
+portenta_h33_new.build.mcu=cortex-m33
+portenta_h33_new.build.architecture=cortex-m33
+portenta_h33_new.build.fpu=-mfpu=fpv5-sp-d16
+portenta_h33_new.build.float-abi=-mfloat-abi=hard
+
+portenta_h33_new.build.board=PORTENTA_H33
+portenta_h33_new.build.defines=
+portenta_h33_new.vid.0=0x2341
+portenta_h33_new.pid.0=0x0366
+
+portenta_h33_new.compiler.fsp.defines={build.variant.path}/defines.txt
+portenta_h33_new.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+portenta_h33_new.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
+portenta_h33_new.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
+portenta_h33_new.compiler.fsp.includes={build.variant.path}/includes.txt
+portenta_h33_new.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+portenta_h33_new.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+
+portenta_h33_new.upload.tool=dfu-util
+portenta_h33_new.upload.tool.default=dfu-util
+portenta_h33_new.upload.protocol=
+portenta_h33_new.upload.transport=
+portenta_h33_new.upload.vid=0x2341
+portenta_h33_new.upload.pid=0x0366
+portenta_h33_new.upload.address=0x08040000
+portenta_h33_new.upload.interface=0
+portenta_h33_new.upload.use_1200bps_touch=true
+portenta_h33_new.upload.wait_for_upload_port=true
+portenta_h33_new.upload.native_usb=true
+portenta_h33_new.upload.maximum_size=786432
+portenta_h33_new.upload.maximum_data_size=523624
+
+##############################################################
