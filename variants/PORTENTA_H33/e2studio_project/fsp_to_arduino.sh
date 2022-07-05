@@ -1,15 +1,19 @@
 #!/bin/bash
 
-CORE_PATH=/tmp/aaa
-TARGET=UNO_R4
+CORE_PATH=$(pwd)
+TARGET=PORTENTA_H33
 
 LIBRARY=`find . | grep "\.a$"`
 
-echo Copying ${LIBRARY} to ${CORE_PATH}/variants/${TARGET}/libs/libfsp.a
-cp ${LIBRARY} ${CORE_PATH}/variants/${TARGET}/libs/libfsp.a
+echo Copying ${LIBRARY} to ${CORE_PATH}/../../${TARGET}/libs/libfsp.a
+if [ ! -d ${CORE_PATH}/../../${TARGET}/libs ]
+then
+    mkdir ${CORE_PATH}/../../${TARGET}/libs
+fi
+cp ${LIBRARY} ${CORE_PATH}/../../${TARGET}/libs/libfsp.a
 
 LINKER_SCRIPTS=`find . | grep "\.ld$"`
-cp ${LINKER_SCRIPTS} ${CORE_PATH}/variants/${TARGET}/
+cp ${LINKER_SCRIPTS} ${CORE_PATH}/../../${TARGET}/
 
 FILE_MK=`find . | grep subdir.mk | head -n1`
 
@@ -36,7 +40,7 @@ IFS=$OIFS
 
 for value in "${DEFINES[@]}"
 do
-    echo $value >> ${CORE_PATH}/variants/${TARGET}/defines.txt
+    echo $value >> ${CORE_PATH}/../../${TARGET}/defines.txt
 done
 
 for value in "${INCLUDES[@]}"
@@ -46,13 +50,13 @@ do
     # temporarily, copy everything staring with "ra_" in variant/includes/ , everything with ra in core folder
     if [[ $INCLUDE_PATH == $PWD/ra_* ]]; then
         INCLUDE_PATH_REL=${INCLUDE_PATH#"$PWD/"}
-        cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/variants/${TARGET}/includes/
-        echo "\"-I{build.variant.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/variants/${TARGET}/includes.txt
+        cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/../../${TARGET}/includes/
+        echo "\"-I{build.variant.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/../../${TARGET}/includes.txt
     else
         if [[ $INCLUDE_PATH == $PWD/ra* ]]; then
             INCLUDE_PATH_REL=${INCLUDE_PATH#"$PWD/"}
             cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/cores/arduino/fsp/
-            echo "\"-I{build.core.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/variants/${TARGET}/includes.txt
+            echo "\"-I{build.core.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/../../${TARGET}/includes.txt
 
         fi
     fi
@@ -64,6 +68,6 @@ done
 
 for value in "${FLAGS[@]}"
 do
-    echo $value >> ${CORE_PATH}/variants/${TARGET}/cflags.txt
-    echo $value >> ${CORE_PATH}/variants/${TARGET}/cxxflags.txt
+    echo $value >> ${CORE_PATH}/../../${TARGET}/cflags.txt
+    echo $value >> ${CORE_PATH}/../../${TARGET}/cxxflags.txt
 done
