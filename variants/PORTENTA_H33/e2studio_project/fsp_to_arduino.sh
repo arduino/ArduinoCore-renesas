@@ -38,33 +38,46 @@ do
 done
 IFS=$OIFS
 
+# Clean files
+rm ${CORE_PATH}/../../${TARGET}/defines.txt
+rm ${CORE_PATH}/../../${TARGET}/includes.txt
+rm ${CORE_PATH}/../../${TARGET}/cflags.txt
+rm ${CORE_PATH}/../../${TARGET}/cxxflags.txt
+
 for value in "${DEFINES[@]}"
 do
     echo $value >> ${CORE_PATH}/../../${TARGET}/defines.txt
 done
+
+echo ${INCLUDES[@]}
+
+if [ ! -d ${CORE_PATH}/../../${TARGET}/includes/ ]
+then
+    mkdir ${CORE_PATH}/../../${TARGET}/includes/
+else
+    rm -r ${CORE_PATH}/../../${TARGET}/includes/*
+fi
 
 for value in "${INCLUDES[@]}"
 do
     INCLUDE_PATH=`echo $value | cut -f2 -d"\"" | cut -f1 -d"\""`
     echo $INCLUDE_PATH
     # temporarily, copy everything staring with "ra_" in variant/includes/ , everything with ra in core folder
-    if [[ $INCLUDE_PATH == $PWD/ra_* ]]; then
+    if [[ $INCLUDE_PATH == $PWD/ra* ]]; then
         INCLUDE_PATH_REL=${INCLUDE_PATH#"$PWD/"}
         cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/../../${TARGET}/includes/
-        echo "\"-I{build.variant.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/../../${TARGET}/includes.txt
-    else
-        if [[ $INCLUDE_PATH == $PWD/ra* ]]; then
-            INCLUDE_PATH_REL=${INCLUDE_PATH#"$PWD/"}
-            cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/cores/arduino/fsp/
-            echo "\"-I{build.core.path}/$INCLUDE_PATH_REL\"" >> ${CORE_PATH}/../../${TARGET}/includes.txt
-
-        fi
+        echo "-iwithprefixbefore/variants/${TARGET}/includes/$INCLUDE_PATH_REL" >> ${CORE_PATH}/../../${TARGET}/includes.txt
     fi
     #rel_path=`echo $value | sed -e "s#-I$PWD#-iwithprefixbefore/fsp#g"`
     #echo $rel_path >> ${CORE_PATH}/variants/${TARGET}/includes.txt
 
     # TODO: check how many include folders are generated and if it makes sense to track them manually
 done
+
+rm -r ${CORE_PATH}/../../${TARGET}/includes/ra/*
+
+RA_INCLUDES=`find ra/ -iname *.h`
+cp --parent $RA_INCLUDES ${CORE_PATH}/../../${TARGET}/includes/
 
 for value in "${FLAGS[@]}"
 do
