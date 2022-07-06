@@ -58,8 +58,8 @@ portenta_h33_new.pid.0=0x0366
 
 portenta_h33_new.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33_new.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33_new.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
-portenta_h33_new.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
+portenta_h33_new.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
+portenta_h33_new.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
 portenta_h33_new.compiler.fsp.includes={build.variant.path}/includes.txt
 portenta_h33_new.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 portenta_h33_new.compiler.fsp="{build.variant.path}/libs/libfsp.a"
