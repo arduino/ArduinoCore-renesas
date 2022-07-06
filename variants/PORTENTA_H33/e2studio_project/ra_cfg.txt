@@ -199,7 +199,7 @@ FSP Configuration
       P606 J1 SCI8_CTSRTS8 - Low - "Peripheral mode" CMOS None "RTC0: RTCOUT; SCI8: CTSRTS8" - IO - - 
       P607 J4 SCI8_RXD8 - Low - "Peripheral mode" CMOS None "SCI8: RXD8; SCI8: SCL8" - IO - - 
       P608 D2 GPT4_GTIOC4B - Low - "Peripheral mode" CMOS None "BUS_ASYNCH0: A00; GPT4: GTIOC4B" - IO - - 
-      P609 D1 CANFD1_CTX1 CAN_TXD Low - "Peripheral mode" CMOS None "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - IO - - 
+      P609 D1 CANFD1_CTX1 CAN_TXD Medium - "Peripheral mode" CMOS None "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - IO - - 
       P610 F3 CANFD1_CRX1 CAN_RDX Low - "Peripheral mode" CMOS None "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - IO - - 
       P611 E2 SCI7_CTSRTS7 - Low - "Peripheral mode" CMOS None "AGT3: AGTO3; CAC0: CACREF; CGC0: CLKOUT; SCI7: CTSRTS7" - IO - - 
       P612 E1 AGT2_AGTO2 - Low - "Peripheral mode" CMOS None "AGT2: AGTO2; BUS_ASYNCH0: D08; SCI7: SCK7" - IO - - 
@@ -684,7 +684,7 @@ FSP Configuration
     Flexible Data (FD): FD Frame Format: ISO 11898-1
     Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
     Flexible Data (FD): Payload Overflow: Reject
-    Reception: Message Buffers: Number of Buffers: 0
+    Reception: Message Buffers: Number of Buffers: 1
     Reception: Message Buffers: Payload Size: 8 bytes
     Reception: FIFOs: Interrupt Priority: Priority 12
     Reception: FIFOs: FIFO 0: Enable: Enabled
@@ -692,7 +692,7 @@ FSP Configuration
     Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
     Reception: FIFOs: FIFO 0: Depth: 16 stages
-    Reception: FIFOs: FIFO 1: Enable: Disabled
+    Reception: FIFOs: FIFO 1: Enable: Enabled
     Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
     Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
@@ -2175,7 +2175,7 @@ FSP Configuration
       General: Name: g_canfd0
       General: Channel: 0
       Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 2000000
+      Bitrate: Automatic: Data Rate (bps): 500000
       Bitrate: Automatic: Sample Point (%): 75
       Bitrate: Delay Compensation: Enable
       Bitrate: Manual: Nominal: Prescaler (divisor): 1
@@ -2792,7 +2792,7 @@ FSP Configuration
       General: Name: g_canfd1
       General: Channel: 1
       Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 2000000
+      Bitrate: Automatic: Data Rate (bps): 500000
       Bitrate: Automatic: Sample Point (%): 75
       Bitrate: Delay Compensation: Enable
       Bitrate: Manual: Nominal: Prescaler (divisor): 1
@@ -2805,7 +2805,7 @@ FSP Configuration
       Bitrate: Manual: Data: Sync Jump Width (Tq): 1
       Bitrate: Manual: Use manual settings: No
       Interrupts: Callback: canfd1_callback
-      Transmit Interrupts: 
+      Transmit Interrupts: TXMB 0
       Channel Error Interrupts: 
       Interrupts: Channel Interrupt Priority Level: Priority 12
       Filter List Array: p_canfd1_afl
