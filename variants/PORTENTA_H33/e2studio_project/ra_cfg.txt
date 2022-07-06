@@ -2136,9 +2136,9 @@ FSP Configuration
       Automatic Adjustment Period: 10 Seconds
       Adjustment Type (Plus-Minus): NONE
       Error Adjustment Value: 0
-      Callback: NULL
-      Alarm Interrupt Priority: Disabled
-      Period Interrupt Priority: Disabled
+      Callback: rtc_callback
+      Alarm Interrupt Priority: Priority 12
+      Period Interrupt Priority: Priority 12
       Carry Interrupt Priority: Priority 12
       
     Instance "g_cgc0 Clock Generation Circuit (r_cgc)"

@@ -457,6 +457,10 @@
       <description>USB Peripheral Mass Storage Class</description>
       <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
+    <component apiversion="" class="Projects" condition="" group="all" subgroup="threadx_blinky" variant="" vendor="Renesas" version="3.7.0">
+      <description>Simple application that blinks an LED using Azure RTOS ThreadX.</description>
+      <originalPack>Renesas.RA_threadx_blinky.3.7.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
@@ -597,9 +601,9 @@
       <property id="module.driver.rtc.err_adjustment_period" value="module.driver.rtc.err_adjustment_period.p1"/>
       <property id="module.driver.rtc.err_adjustment_type" value="module.driver.rtc.err_adjustment_type.t1"/>
       <property id="module.driver.rtc.err_adjustment_value" value="0"/>
-      <property id="module.driver.rtc.p_callback" value="NULL"/>
-      <property id="module.driver.rtc.alarm_ipl" value="_disabled"/>
-      <property id="module.driver.rtc.periodic_ipl" value="_disabled"/>
+      <property id="module.driver.rtc.p_callback" value="rtc_callback"/>
+      <property id="module.driver.rtc.alarm_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.rtc.periodic_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.rtc.carry_ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.driver.cgc_on_cgc.2033111043">
@@ -1908,7 +1912,7 @@
       <property id="module.driver.transfer.offset" value="1"/>
       <property id="module.driver.transfer.src.buffer" value="1"/>
     </module>
-    <module id="module.driver.timer_on_agt.208620344">
+    <module id="module.driver.timer_on_agt.1677762611">
       <property id="module.driver.timer.name" value="g_timer10"/>
       <property id="module.driver.timer.channel" value="1"/>
       <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_periodic"/>
@@ -2003,7 +2007,7 @@
         <stack module="module.driver.transfer_on_dtc.2112509196" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
       </stack>
       <stack module="module.driver.dac_on_dac.1908892612"/>
-      <stack module="module.driver.timer_on_agt.208620344"/>
+      <stack module="module.driver.timer_on_agt.1677762611"/>
     </context>
     <context id="rtos.threadx.thread.249927555">
       <property id="_symbol" value="main_thd"/>
