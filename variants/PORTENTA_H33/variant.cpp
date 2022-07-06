@@ -66,6 +66,7 @@ const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_00_PIN_09 },
     { BSP_IO_PORT_05_PIN_05 },
 
+    { BSP_IO_PORT_06_PIN_11 },
     { BSP_IO_PORT_01_PIN_00 },
     { BSP_IO_PORT_01_PIN_03 },
     { BSP_IO_PORT_01_PIN_07 },
@@ -150,7 +151,6 @@ const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_06_PIN_07 },
     { BSP_IO_PORT_06_PIN_09 },
     { BSP_IO_PORT_06_PIN_10 },
-    { BSP_IO_PORT_06_PIN_11 },
     { BSP_IO_PORT_06_PIN_12 },
     { BSP_IO_PORT_06_PIN_13 },
     { BSP_IO_PORT_06_PIN_14 },

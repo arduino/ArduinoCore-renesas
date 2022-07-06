@@ -18,6 +18,8 @@ ArduinoCAN::ArduinoCAN(can_ctrl_t *g_can_ctrl,
 }
 
 bool ArduinoCAN::begin() {
+  pinMode(CAN_STDBY, OUTPUT);
+  digitalWrite(CAN_STDBY, LOW);
   if (R_CANFD_Open(g_can_ctrl, g_can_cfg) != FSP_SUCCESS) {
     return false;
   }
