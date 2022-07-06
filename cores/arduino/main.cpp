@@ -23,3 +23,11 @@ void arduino_main(void)
       loop();
    }
 }
+
+#ifdef AZURE_RTOS_THREADX
+extern "C" {
+   void main_thd_entry(void) {
+      arduino_main();
+   }
+}
+#endif
