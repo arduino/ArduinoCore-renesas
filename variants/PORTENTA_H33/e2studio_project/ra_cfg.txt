@@ -674,62 +674,6 @@ FSP Configuration
   Module "ADPCM Decoder (rm_adpcm_decoder)"
     Parameter Checking: Default (BSP)
     
-  Module "CAN FD (r_canfd)"
-    Parameter Checking: Default (BSP)
-    Global Error Interrupt: Priority: Priority 12
-    Global Error Interrupt: Sources: 
-    Global Error Interrupt: Callback Channel: Channel 1
-    Transmission Priority: Buffer Number
-    DLC Check: Disabled
-    Flexible Data (FD): FD Frame Format: ISO 11898-1
-    Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
-    Flexible Data (FD): Payload Overflow: Reject
-    Reception: Message Buffers: Number of Buffers: 1
-    Reception: Message Buffers: Payload Size: 8 bytes
-    Reception: FIFOs: Interrupt Priority: Priority 12
-    Reception: FIFOs: FIFO 0: Enable: Enabled
-    Reception: FIFOs: FIFO 0: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 0: Depth: 16 stages
-    Reception: FIFOs: FIFO 1: Enable: Enabled
-    Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 1: Depth: 16 stages
-    Reception: FIFOs: FIFO 2: Enable: Disabled
-    Reception: FIFOs: FIFO 2: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 2: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 2: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 2: Depth: 16 stages
-    Reception: FIFOs: FIFO 3: Enable: Disabled
-    Reception: FIFOs: FIFO 3: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 3: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 3: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 3: Depth: 16 stages
-    Reception: FIFOs: FIFO 4: Enable: Disabled
-    Reception: FIFOs: FIFO 4: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 4: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 4: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 4: Depth: 16 stages
-    Reception: FIFOs: FIFO 5: Enable: Disabled
-    Reception: FIFOs: FIFO 5: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 5: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 5: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 5: Depth: 16 stages
-    Reception: FIFOs: FIFO 6: Enable: Disabled
-    Reception: FIFOs: FIFO 6: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 6: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 6: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 6: Depth: 16 stages
-    Reception: FIFOs: FIFO 7: Enable: Disabled
-    Reception: FIFOs: FIFO 7: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 7: Depth: 16 stages
-    Reception: Acceptance Filtering: Channel 0 Rule Count: 32
-    Reception: Acceptance Filtering: Channel 1 Rule Count: 32
-    
   Module "UART (r_sci_uart)"
     Parameter Checking: Default (BSP)
     FIFO Support: Enable
@@ -1898,6 +1842,62 @@ FSP Configuration
     Code Flash Programming Enable: Disabled
     Data Flash Programming Enable: Enabled
     
+  Module "CAN FD (r_canfd)"
+    Parameter Checking: Default (BSP)
+    Global Error Interrupt: Priority: Priority 12
+    Global Error Interrupt: Sources: 
+    Global Error Interrupt: Callback Channel: Channel 1
+    Transmission Priority: Buffer Number
+    DLC Check: Disabled
+    Flexible Data (FD): FD Frame Format: ISO 11898-1
+    Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
+    Flexible Data (FD): Payload Overflow: Reject
+    Reception: Message Buffers: Number of Buffers: 1
+    Reception: Message Buffers: Payload Size: 8 bytes
+    Reception: FIFOs: Interrupt Priority: Priority 12
+    Reception: FIFOs: FIFO 0: Enable: Enabled
+    Reception: FIFOs: FIFO 0: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 0: Depth: 16 stages
+    Reception: FIFOs: FIFO 1: Enable: Disabled
+    Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 1: Depth: 16 stages
+    Reception: FIFOs: FIFO 2: Enable: Disabled
+    Reception: FIFOs: FIFO 2: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 2: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 2: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 2: Depth: 16 stages
+    Reception: FIFOs: FIFO 3: Enable: Disabled
+    Reception: FIFOs: FIFO 3: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 3: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 3: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 3: Depth: 16 stages
+    Reception: FIFOs: FIFO 4: Enable: Disabled
+    Reception: FIFOs: FIFO 4: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 4: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 4: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 4: Depth: 16 stages
+    Reception: FIFOs: FIFO 5: Enable: Disabled
+    Reception: FIFOs: FIFO 5: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 5: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 5: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 5: Depth: 16 stages
+    Reception: FIFOs: FIFO 6: Enable: Disabled
+    Reception: FIFOs: FIFO 6: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 6: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 6: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 6: Depth: 16 stages
+    Reception: FIFOs: FIFO 7: Enable: Disabled
+    Reception: FIFOs: FIFO 7: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 7: Depth: 16 stages
+    Reception: Acceptance Filtering: Channel 0 Rule Count: 8
+    Reception: Acceptance Filtering: Channel 1 Rule Count: 8
+    
   Module "SPI (r_spi)"
     Parameter Checking: Default (BSP)
     Enable Support for using DTC: Enabled
@@ -2170,28 +2170,6 @@ FSP Configuration
       
     Instance "g_adpcm_decoder0 ADPCM Decoder (rm_adpcm_decoder)"
       Name: g_adpcm_decoder0
-      
-    Instance "g_canfd0 CAN FD (r_canfd)"
-      General: Name: g_canfd0
-      General: Channel: 0
-      Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 500000
-      Bitrate: Automatic: Sample Point (%): 75
-      Bitrate: Delay Compensation: Enable
-      Bitrate: Manual: Nominal: Prescaler (divisor): 1
-      Bitrate: Manual: Nominal: Time Segment 1 (Tq): 29
-      Bitrate: Manual: Nominal: Time Segment 2 (Tq): 10
-      Bitrate: Manual: Nominal: Sync Jump Width (Tq): 4
-      Bitrate: Manual: Data: Prescaler (divisor): 1
-      Bitrate: Manual: Data: Time Segment 1 (Tq): 5
-      Bitrate: Manual: Data: Time Segment 2 (Tq): 2
-      Bitrate: Manual: Data: Sync Jump Width (Tq): 1
-      Bitrate: Manual: Use manual settings: No
-      Interrupts: Callback: canfd0_callback
-      Transmit Interrupts: TXMB 1
-      Channel Error Interrupts: 
-      Interrupts: Channel Interrupt Priority Level: Priority 12
-      Filter List Array: p_canfd0_afl
       
     Instance "g_uart0 UART (r_sci_uart)"
       General: Name: g_uart0
@@ -2806,7 +2784,7 @@ FSP Configuration
       Bitrate: Manual: Use manual settings: No
       Interrupts: Callback: canfd1_callback
       Transmit Interrupts: TXMB 0
-      Channel Error Interrupts: 
+      Channel Error Interrupts: Error Warning, Error Passive, Bus-Off Entry, Bus-Off Recovery, Overload
       Interrupts: Channel Interrupt Priority Level: Priority 12
       Filter List Array: p_canfd1_afl
       

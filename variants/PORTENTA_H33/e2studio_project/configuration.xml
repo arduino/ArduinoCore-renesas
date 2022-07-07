@@ -636,28 +636,6 @@
     <module id="module.middleware.adpcm_decoder_on_adpcm_decoder.1363443486">
       <property id="module.middleware.adpcm_decoder.name" value="g_adpcm_decoder0"/>
     </module>
-    <module id="module.driver.canfd_on_canfd.2113027663">
-      <property id="module.driver.canfd.name" value="g_canfd0"/>
-      <property id="module.driver.canfd.channel" value="0"/>
-      <property id="module.driver.canfd.bitrate.automatic.nominal_rate" value="500000"/>
-      <property id="module.driver.canfd.bitrate.automatic.data_rate" value="500000"/>
-      <property id="module.driver.canfd.bitrate.automatic.sample_point" value="75"/>
-      <property id="module.driver.canfd.bitrate.automatic.delay_compensation" value="module.driver.canfd.bitrate.automatic.delay_compensation.enabled"/>
-      <property id="module.driver.canfd.manual.nominal.prescaler" value="1"/>
-      <property id="module.driver.canfd.manual.nominal.time_segment_1" value="29"/>
-      <property id="module.driver.canfd.manual.nominal.time_segment_2" value="10"/>
-      <property id="module.driver.canfd.manual.nominal.sync_jump_width" value="4"/>
-      <property id="module.driver.canfd.manual.data.prescaler" value="1"/>
-      <property id="module.driver.canfd.manual.data.time_segment_1" value="5"/>
-      <property id="module.driver.canfd.manual.data.time_segment_2" value="2"/>
-      <property id="module.driver.canfd.manual.data.sync_jump_width" value="1"/>
-      <property id="module.driver.canfd.bitrate.manual.use_manual" value="module.driver.canfd.bitrate.manual.use_manual.disabled"/>
-      <property id="module.driver.canfd.p_callback" value="canfd0_callback"/>
-      <property id="module.driver.canfd.txmb.int" value="module.driver.canfd.txmb.int.1"/>
-      <property id="module.driver.canfd.ch_err.int" value=""/>
-      <property id="module.driver.canfd.ipl" value="board.icu.common.irq.priority12"/>
-      <property id="module.driver.canfd.afl_array" value="p_canfd0_afl"/>
-    </module>
     <module id="module.driver.uart_on_sci_uart.246478418">
       <property id="module.driver.uart.name" value="g_uart0"/>
       <property id="module.driver.uart.channel" value="5"/>
@@ -1328,7 +1306,7 @@
       <property id="module.driver.canfd.bitrate.manual.use_manual" value="module.driver.canfd.bitrate.manual.use_manual.disabled"/>
       <property id="module.driver.canfd.p_callback" value="canfd1_callback"/>
       <property id="module.driver.canfd.txmb.int" value="module.driver.canfd.txmb.int.0"/>
-      <property id="module.driver.canfd.ch_err.int" value=""/>
+      <property id="module.driver.canfd.ch_err.int" value="module.driver.canfd.ch_err.int.err_warning,module.driver.canfd.ch_err.int.err_passive,module.driver.canfd.ch_err.int.bus_off_entry,module.driver.canfd.ch_err.int.bus_off_recovery,module.driver.canfd.ch_err.int.overload"/>
       <property id="module.driver.canfd.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.canfd.afl_array" value="p_canfd1_afl"/>
     </module>
@@ -1946,7 +1924,6 @@
       <stack module="module.driver.external_irq_on_icu.1193024523"/>
       <stack module="module.driver.i2c_on_iic_master.1333952917"/>
       <stack module="module.middleware.adpcm_decoder_on_adpcm_decoder.1363443486"/>
-      <stack module="module.driver.canfd_on_canfd.2113027663"/>
       <stack module="module.driver.uart_on_sci_uart.246478418">
         <stack module="module.driver.transfer_on_dtc.40634815" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.441004446" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
@@ -2684,7 +2661,7 @@
       <property id="config.driver.canfd.rxfifo.0.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.0.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.0.depth" value="enum.driver.canfd.fifo.depth.16"/>
-      <property id="config.driver.canfd.rxfifo.1.enable" value="config.driver.canfd.rxfifo.1.enable.enabled"/>
+      <property id="config.driver.canfd.rxfifo.1.enable" value="config.driver.canfd.rxfifo.1.enable.disabled"/>
       <property id="config.driver.canfd.rxfifo.1.int_mode" value="enum.driver.canfd.fifo.int_mode.every_frame"/>
       <property id="config.driver.canfd.rxfifo.1.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.1.payload" value="enum.driver.canfd.fifo.payload.8"/>
@@ -2719,8 +2696,8 @@
       <property id="config.driver.canfd.rxfifo.7.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.7.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.7.depth" value="enum.driver.canfd.fifo.depth.16"/>
-      <property id="config.driver.canfd.afl.ch0_num" value="32"/>
-      <property id="config.driver.canfd.afl.ch1_num" value="32"/>
+      <property id="config.driver.canfd.afl.ch0_num" value="8"/>
+      <property id="config.driver.canfd.afl.ch1_num" value="8"/>
     </config>
     <config id="config.driver.gpt">
       <property id="config.driver.gpt.param_checking_enable" value="config.driver.gpt.param_checking_enable.enabled"/>
