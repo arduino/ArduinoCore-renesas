@@ -653,7 +653,7 @@
       <property id="module.driver.canfd.manual.data.sync_jump_width" value="1"/>
       <property id="module.driver.canfd.bitrate.manual.use_manual" value="module.driver.canfd.bitrate.manual.use_manual.disabled"/>
       <property id="module.driver.canfd.p_callback" value="canfd0_callback"/>
-      <property id="module.driver.canfd.txmb.int" value=""/>
+      <property id="module.driver.canfd.txmb.int" value="module.driver.canfd.txmb.int.1"/>
       <property id="module.driver.canfd.ch_err.int" value=""/>
       <property id="module.driver.canfd.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.canfd.afl_array" value="p_canfd0_afl"/>
