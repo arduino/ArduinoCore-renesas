@@ -2657,7 +2657,7 @@
       <property id="config.driver.canfd.rxmb.size" value="config.driver.canfd.rxmb.size.8"/>
       <property id="config.driver.canfd.rxfifo.ipl" value="board.icu.common.irq.priority12"/>
       <property id="config.driver.canfd.rxfifo.0.enable" value="config.driver.canfd.rxfifo.0.enable.enabled"/>
-      <property id="config.driver.canfd.rxfifo.0.int_mode" value="enum.driver.canfd.fifo.int_mode.every_frame"/>
+      <property id="config.driver.canfd.rxfifo.0.int_mode" value="enum.driver.canfd.fifo.int_mode.threshold"/>
       <property id="config.driver.canfd.rxfifo.0.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.0.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.0.depth" value="enum.driver.canfd.fifo.depth.16"/>
@@ -2846,9 +2846,6 @@
       <configSetting altId="agt3.mode.custom" configurationId="agt3.mode"/>
       <configSetting altId="agt4.mode.custom" configurationId="agt4.mode"/>
       <configSetting altId="agt5.mode.custom" configurationId="agt5.mode"/>
-      <configSetting altId="can0.crx.p202" configurationId="can0.crx"/>
-      <configSetting altId="can0.ctx.p203" configurationId="can0.ctx"/>
-      <configSetting altId="can0.mode.enabled.free" configurationId="can0.mode"/>
       <configSetting altId="can1.crx.p610" configurationId="can1.crx"/>
       <configSetting altId="can1.ctx.p609" configurationId="can1.ctx"/>
       <configSetting altId="can1.mode.enabled.free" configurationId="can1.mode"/>
@@ -2959,10 +2956,6 @@
       <configSetting altId="p114.gpio_mode.gpio_mode_peripheral" configurationId="p114.gpio_mode"/>
       <configSetting altId="p115.ssi0.ssitxd" configurationId="p115"/>
       <configSetting altId="p115.gpio_mode.gpio_mode_peripheral" configurationId="p115.gpio_mode"/>
-      <configSetting altId="p202.can0.crx" configurationId="p202"/>
-      <configSetting altId="p202.gpio_mode.gpio_mode_peripheral" configurationId="p202.gpio_mode"/>
-      <configSetting altId="p203.can0.ctx" configurationId="p203"/>
-      <configSetting altId="p203.gpio_mode.gpio_mode_peripheral" configurationId="p203.gpio_mode"/>
       <configSetting altId="p204.sci4.sck" configurationId="p204"/>
       <configSetting altId="p204.gpio_mode.gpio_mode_peripheral" configurationId="p204.gpio_mode"/>
       <configSetting altId="p205.sdhi0.dat3" configurationId="p205"/>
