@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "usb/USB.h"
 
+void startAgt();
+
 void _init() {
    R_BSP_PinAccessEnable();
 }
@@ -9,6 +11,7 @@ void startAgt(void);
 
 void arduino_main(void)
 {
+   //__enable_irq();
    _init();
    initVariant();
    __USBStart();

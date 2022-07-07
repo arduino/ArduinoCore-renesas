@@ -14,7 +14,9 @@ portenta_h33.build.float-abi=-mfloat-abi=hard
 portenta_h33.build.board=PORTENTA_H33
 portenta_h33.build.defines=
 portenta_h33.vid.0=0x2341
-portenta_h33.pid.0=0x0366
+portenta_h33.pid.0=0x0368
+portenta_h33.vid.1=0x2341
+portenta_h33.pid.1=0x0068
 
 portenta_h33.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -29,8 +31,8 @@ portenta_h33.upload.tool.default=dfu-util
 portenta_h33.upload.protocol=
 portenta_h33.upload.transport=
 portenta_h33.upload.vid=0x2341
-portenta_h33.upload.pid=0x0366
-portenta_h33.upload.address=0x08040000
+portenta_h33.upload.pid=0x0368
+portenta_h33.upload.address=0x00010000
 portenta_h33.upload.interface=0
 portenta_h33.upload.use_1200bps_touch=true
 portenta_h33.upload.wait_for_upload_port=true
@@ -54,7 +56,9 @@ portenta_h33_new.build.float-abi=-mfloat-abi=hard
 portenta_h33_new.build.board=PORTENTA_H33
 portenta_h33_new.build.defines=
 portenta_h33_new.vid.0=0x2341
-portenta_h33_new.pid.0=0x0366
+portenta_h33_new.pid.0=0x0368
+portenta_h33_new.vid.1=0x2341
+portenta_h33_new.pid.1=0x0068
 
 portenta_h33_new.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33_new.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -71,11 +75,11 @@ portenta_h33_new.upload.tool.default=dfu-util
 portenta_h33_new.upload.protocol=
 portenta_h33_new.upload.transport=
 portenta_h33_new.upload.vid=0x2341
-portenta_h33_new.upload.pid=0x0366
+portenta_h33_new.upload.pid=0x0368
 portenta_h33_new.upload.address=0x08040000
 portenta_h33_new.upload.interface=0
 portenta_h33_new.upload.use_1200bps_touch=true
-portenta_h33_new.upload.wait_for_upload_port=true
+portenta_h33_new.upload.wait_for_upload_port=false
 portenta_h33_new.upload.native_usb=true
 portenta_h33_new.upload.maximum_size=786432
 portenta_h33_new.upload.maximum_data_size=523624

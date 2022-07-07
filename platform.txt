@@ -27,7 +27,7 @@ compiler.ar.flags=rcs
 compiler.ar.extra_flags=
 compiler.objcopy.cmd=
 compiler.objcopy.eep.flags=
-compiler.elf2hex.flags=-O binary
+compiler.elf2hex.bin.flags=-O binary -j .text -j .data
 compiler.elf2hex.extra_flags=
 compiler.elf2hex.cmd={build.crossprefix}objcopy
 compiler.ldflags=
@@ -64,8 +64,8 @@ recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compil
 ## Combine gc-sections, archives, and objects
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" {object_files} -Wl,--whole-archive "{build.path}/{archive_file}" {compiler.fsp} -Wl,--no-whole-archive -Wl,--start-group {compiler.fsp.extra_ldflags} {compiler.libraries.ldflags} -Wl,--end-group
 
-## Create eeprom
-recipe.objcopy.eep.pattern=
+## Create bin
+recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.bin.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
 
 ## Create hex
 recipe.objcopy.hex.pattern=
@@ -78,10 +78,11 @@ recipe.size.regex=\.text\s+([0-9]+).*
 recipe.output.tmp_file={build.project_name}.elf
 recipe.output.save_file={build.project_name}.{build.variant}.elf
 
-# Linux Uploader tools
+# Uploader tools
 # ---------------------
 
-tools.linuxuploader.upload.params.verbose=verbose
-tools.linuxuploader.upload.params.quiet=quiet
-
-tools.linuxuploader.upload.pattern="{runtime.tools.linuxuploader.path}/linuxloader" {build.path}/{build.project_name}.elf "{upload.verbose}" {serial.port.iserial}
+tools.dfu-util.path={runtime.tools.dfu-util.path}
+tools.dfu-util.cmd=dfu-util
+tools.dfu-util.upload.params.verbose=-d
+tools.dfu-util.upload.params.quiet=
+tools.dfu-util.upload.pattern="{path}/{cmd}" --device {upload.vid}:{upload.pid} -D "{build.path}/{build.project_name}.bin" -a{upload.interface} -R
