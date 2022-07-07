@@ -56,22 +56,29 @@ uint8_t ArduinoCAN::write(CanMessage msg) {
 }
 
 uint8_t ArduinoCAN::read(CanMessage &msg) {
-  do {
-    /* Get the status information for CAN transmission */
+  uint32_t rx_status = 0;
+  while(!rx_status && (time_out--)) {
+    // Get the status information for CAN transmission
     if (R_CANFD_InfoGet(g_can_ctrl, &rx_info) != FSP_SUCCESS) {
+    time_out = 500;
       return 0;
     }
-  } while(!rx_info.rx_mb_status);
-
-  /* Read the input frame received */
-  can_frame_t can_msg;
-  if (R_CANFD_Read(g_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
-    return 0;
+    rx_status = rx_info.rx_mb_status;
   }
-  msg.id = can_msg.id;
-  msg.data_length = can_msg.data_length_code;
-  msg.data = can_msg.data;
-  return 1;
+  time_out = 500;
+
+  if (rx_status) {
+    /* Read the input frame received */
+    can_frame_t can_msg;
+    if (R_CANFD_Read(g_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
+      return 0;
+    }
+    msg.id = can_msg.id;
+    msg.data_length = can_msg.data_length_code;
+    msg.data = can_msg.data;
+    return 1;
+  }
+  return 0;
 }
 
 
