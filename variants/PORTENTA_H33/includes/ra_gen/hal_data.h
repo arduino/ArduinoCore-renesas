@@ -403,19 +403,6 @@ extern const sci_uart_extended_cfg_t g_uart0_cfg_extend;
 #ifndef isr_uart0
 void isr_uart0(uart_callback_args_t *p_args);
 #endif
-/** CANFD on CANFD Instance. */
-extern const can_instance_t g_canfd0;
-/** Access the CANFD instance using these structures when calling API functions directly (::p_api is not used). */
-extern canfd_instance_ctrl_t g_canfd0_ctrl;
-extern const can_cfg_t g_canfd0_cfg;
-extern const canfd_extended_cfg_t g_canfd0_cfg_extend;
-
-#ifndef canfd0_callback
-void canfd0_callback(can_callback_args_t *p_args);
-#endif
-
-/* Global configuration (referenced by all instances) */
-extern canfd_global_cfg_t g_canfd_global_cfg;
 /** ADPCM Audio Decoder Instance */
 extern const adpcm_decoder_instance_t g_adpcm_decoder0;
 
