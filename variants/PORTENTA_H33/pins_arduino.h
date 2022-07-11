@@ -31,16 +31,14 @@ static const uint8_t A5 = PIN_A5;
 static const uint8_t A6 = PIN_A6;
 static const uint8_t A7 = PIN_A7;
 
-#define PIN_IRQ0   (23u)
-#define PIN_IRQ1   (24u)
-#define PIN_IRQ2   (25u)
-#define PIN_IRQ3   (26u)
-#define PIN_IRQ4   (27u)
-#define PIN_IRQ5   (28u)
-#define PIN_IRQ6   (29u)
-#define PIN_IRQ7   (30u)
-#define PIN_IRQ8   (31u)
-#define PIN_IRQ9   (32u)
+#define PIN_IRQ0   (16u)
+#define PIN_IRQ1   (17u)
+#define PIN_IRQ2   (18u)
+#define PIN_IRQ3   (19u)
+#define PIN_IRQ4   (20u)
+#define PIN_IRQ5   (21u)
+#define PIN_IRQ6   (22u)
+#define PIN_IRQ7   (23u)
 
 static const uint8_t IRQ0 = PIN_IRQ0;
 static const uint8_t IRQ1 = PIN_IRQ1;
@@ -50,8 +48,6 @@ static const uint8_t IRQ4 = PIN_IRQ4;
 static const uint8_t IRQ5 = PIN_IRQ5;
 static const uint8_t IRQ6 = PIN_IRQ6;
 static const uint8_t IRQ7 = PIN_IRQ7;
-static const uint8_t IRQ8 = PIN_IRQ8;
-static const uint8_t IRQ9 = PIN_IRQ9;
 
 // Digital pins
 // -----------
@@ -66,16 +62,16 @@ static const uint8_t IRQ9 = PIN_IRQ9;
 
 // LEDs
 // ----
-#define PIN_LED     (24u)
+#define PIN_LED     (25u)
 #define LED_BUILTIN PIN_LED
-#define LEDR        (23u)
-#define LEDG        (24u)
-#define LEDB        (25u)
+#define LEDR        (24u)
+#define LEDG        (25u)
+#define LEDB        (26u)
 
 
-#define CAN_STDBY   (33u)
+#define CAN_STDBY   (27u)
 
-#define PIN_SPI_SS    (19)
+#define PIN_SPI_SS    (28u)
 
 static const uint8_t SS   = PIN_SPI_SS;
 
@@ -87,4 +83,4 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define CAN_HOWMANY       2
 
-#define EXT_INTERRUPTS_HOWMANY 10
+#define EXT_INTERRUPTS_HOWMANY 8

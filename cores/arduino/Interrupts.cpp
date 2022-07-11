@@ -36,8 +36,6 @@ static irqTable_t irqTable[] = {
     {&g_external_irq5_ctrl, &g_external_irq5_cfg}, // ext_int5
     {&g_external_irq6_ctrl, &g_external_irq6_cfg}, // ext_int6
     {&g_external_irq7_ctrl, &g_external_irq7_cfg}, // ext_int7
-    {&g_external_irq8_ctrl, &g_external_irq8_cfg}, // ext_int8
-    {&g_external_irq9_ctrl, &g_external_irq9_cfg}, // ext_int9
 #endif
     {NULL, NULL}, // not implemented
 };

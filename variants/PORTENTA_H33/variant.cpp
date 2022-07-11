@@ -28,25 +28,43 @@ const pwmTable_t pwmTable[] = {
 };
 
 const PinDescription g_APinDescription[] = {
-    { BSP_IO_PORT_01_PIN_05 },    //D0
-    { BSP_IO_PORT_01_PIN_11 },    //D1
-    { BSP_IO_PORT_06_PIN_08 },    //D2
-    { BSP_IO_PORT_06_PIN_01 },    //D3
-    { BSP_IO_PORT_04_PIN_01 },    //D4
-    { BSP_IO_PORT_03_PIN_03 },    //D5
-    { BSP_IO_PORT_06_PIN_05 },    //D6
-    { BSP_IO_PORT_01_PIN_06 },    //D7
+    // Digital -- PWMs
+    { BSP_IO_PORT_01_PIN_05 },    //D0  --  PWM0
+    { BSP_IO_PORT_01_PIN_11 },    //D1  --  PWM1
+    { BSP_IO_PORT_06_PIN_08 },    //D2  --  PWM2
+    { BSP_IO_PORT_06_PIN_01 },    //D3  --  PWM3
+    { BSP_IO_PORT_04_PIN_01 },    //D4  --  PWM4
+    { BSP_IO_PORT_03_PIN_03 },    //D5  --  PWM5
+    { BSP_IO_PORT_06_PIN_05 },    //D6  --  PWM6
+    { BSP_IO_PORT_01_PIN_06 },    //D7  --  PWM7
 
+    // Analog
     { BSP_IO_PORT_00_PIN_00 },    //A0
     { BSP_IO_PORT_00_PIN_01 },    //A1
     { BSP_IO_PORT_00_PIN_02 },    //A2
     { BSP_IO_PORT_00_PIN_04 },    //A3
     { BSP_IO_PORT_00_PIN_05 },    //A4
     { BSP_IO_PORT_00_PIN_06 },    //A5
-    { BSP_IO_PORT_00_PIN_14 },    //A6
-    { BSP_IO_PORT_00_PIN_15 },    //A7
+    { BSP_IO_PORT_00_PIN_14 },    //A6  --  DAC0
+    { BSP_IO_PORT_00_PIN_15 },    //A7  --  DAC1
 
-    { BSP_IO_PORT_00_PIN_03 },
+    // EXT_Interrupts
+    { BSP_IO_PORT_08_PIN_03 },    //EXT_IRQ0
+    { BSP_IO_PORT_08_PIN_02 },    //EXT_IRQ1
+    { BSP_IO_PORT_10_PIN_10 },    //EXT_IRQ2
+    { BSP_IO_PORT_04_PIN_09 },    //EXT_IRQ3
+    { BSP_IO_PORT_07_PIN_07 },    //EXT_IRQ4
+    { BSP_IO_PORT_07_PIN_08 },    //EXT_IRQ5
+    { BSP_IO_PORT_00_PIN_09 },    //EXT_IRQ6
+    { BSP_IO_PORT_05_PIN_05 },    //EXT_IRQ7
+
+    // RGB LED
+    { BSP_IO_PORT_00_PIN_08 },    //LEDR
+    { BSP_IO_PORT_00_PIN_07 },    //LEDG
+    { BSP_IO_PORT_00_PIN_06 },    //LEDB
+
+    { BSP_IO_PORT_06_PIN_11 },    //CAN_STDBY
+    { BSP_IO_PORT_01_PIN_03 },    //SPI_SS
     { BSP_IO_PORT_00_PIN_07 },
     { BSP_IO_PORT_00_PIN_08 },
     { BSP_IO_PORT_00_PIN_10 },
@@ -54,21 +72,7 @@ const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_00_PIN_12 },
     { BSP_IO_PORT_00_PIN_13 },
 
-    // EXT_Interrupts
-    { BSP_IO_PORT_08_PIN_06 },
-    { BSP_IO_PORT_01_PIN_04 },
-    { BSP_IO_PORT_08_PIN_03 },
-    { BSP_IO_PORT_08_PIN_02 },
-    { BSP_IO_PORT_10_PIN_10 },
-    { BSP_IO_PORT_04_PIN_09 },
-    { BSP_IO_PORT_07_PIN_07 },
-    { BSP_IO_PORT_07_PIN_08 },
-    { BSP_IO_PORT_00_PIN_09 },
-    { BSP_IO_PORT_05_PIN_05 },
-
-    { BSP_IO_PORT_06_PIN_11 },
     { BSP_IO_PORT_01_PIN_00 },
-    { BSP_IO_PORT_01_PIN_03 },
     { BSP_IO_PORT_01_PIN_07 },
     { BSP_IO_PORT_01_PIN_08 },
     { BSP_IO_PORT_01_PIN_09 },
