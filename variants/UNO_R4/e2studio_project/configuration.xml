@@ -217,6 +217,10 @@
       <description>Arm CMSIS Version 5 - Core (M)</description>
       <originalPack>Arm.CMSIS5.5.8.0+renesas.0.fsp.3.7.0.pack</originalPack>
     </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="3.7.0">
+      <description>Asynchronous General Purpose Timer</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
@@ -715,6 +719,24 @@
       <property id="module.driver.timer.gtioca_disable_setting" value="module.driver.timer.gtioca_disable_setting.gtioc_disable_prohibited"/>
       <property id="module.driver.timer.gtiocb_disable_setting" value="module.driver.timer.gtiocb_disable_setting.gtioc_disable_prohibited"/>
     </module>
+    <module id="module.driver.timer_on_agt.1932111416">
+      <property id="module.driver.timer.name" value="g_timer10"/>
+      <property id="module.driver.timer.channel" value="0"/>
+      <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_periodic"/>
+      <property id="module.driver.timer.period" value="10"/>
+      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_period_msec"/>
+      <property id="module.driver.timer.duty_cycle" value="50"/>
+      <property id="module.driver.timer.count_source" value="module.driver.timer.count_source.clock_pclkb"/>
+      <property id="module.driver.timer.agtoa_output_enable" value="module.driver.timer.agtoa_output_enable.false"/>
+      <property id="module.driver.timer.agtob_output_enable" value="module.driver.timer.agtob_output_enable.false"/>
+      <property id="module.driver.timer.agto_output_enable" value="module.driver.timer.agto_output_enable.false"/>
+      <property id="module.driver.timer.measurement_mode" value="module.driver.timer.measurement_mode.measure_disabled"/>
+      <property id="module.driver.timer.agtio_filter" value="module.driver.timer.agtio_filter.agtio_filter_none"/>
+      <property id="module.driver.timer.enable_pin" value="module.driver.timer.enable_pin.enable_pin_not_used"/>
+      <property id="module.driver.timer.trigger_edge" value="module.driver.timer.trigger_edge.trigger_edge_rising"/>
+      <property id="module.driver.timer.p_callback" value="timer10_callback"/>
+      <property id="module.driver.timer.ipl" value="board.icu.common.irq.priority12"/>
+    </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.driver.adc_on_adc.1770866487"/>
@@ -744,6 +766,7 @@
       <stack module="module.driver.timer_on_gpt.1755638968"/>
       <stack module="module.driver.timer_on_gpt.532979125"/>
       <stack module="module.driver.timer_on_gpt.1707712319"/>
+      <stack module="module.driver.timer_on_agt.1932111416"/>
     </context>
     <config id="config.driver.wdt">
       <property id="config.driver.wdt.param_checking_enable" value="config.driver.wdt.param_checking_enable.bsp"/>
@@ -784,6 +807,11 @@
       <property id="config.driver.usb_basic.dest_address" value="config.driver.usb_basic.dest_address.fs_use"/>
       <property id="config.driver.usb_basic.compliance_mode" value="config.driver.usb_basic.compliance_mode.disable"/>
       <property id="config.driver.usb_basic.tpl_table" value="NULL"/>
+    </config>
+    <config id="config.driver.agt">
+      <property id="config.driver.agt.param_checking_enable" value="config.driver.agt.param_checking_enable.bsp"/>
+      <property id="config.driver.agt.output_support_enable" value="config.driver.agt.output_support_enable.disabled"/>
+      <property id="config.driver.agt.input_support_enable" value="config.driver.agt.input_support_enable.disabled"/>
     </config>
     <config id="config.driver.dtc">
       <property id="config.driver.dtc.param_checking_enable" value="config.driver.dtc.param_checking_enable.bsp"/>
@@ -837,6 +865,7 @@
       <configSetting altId="adc0.an21.p101" configurationId="adc0.an21"/>
       <configSetting altId="adc0.an22.p100" configurationId="adc0.an22"/>
       <configSetting altId="adc0.mode.custom" configurationId="adc0.mode"/>
+      <configSetting altId="agt0.agtoa.p500" configurationId="agt0.agtoa"/>
       <configSetting altId="agt0.mode.custom" configurationId="agt0.mode"/>
       <configSetting altId="agt1.mode.custom" configurationId="agt1.mode"/>
       <configSetting altId="cgc0.extal.p212" configurationId="cgc0.extal"/>
@@ -932,6 +961,8 @@
       <configSetting altId="p408.gpio_mode.gpio_mode_irq" configurationId="p408.gpio_mode"/>
       <configSetting altId="p409.gpt5.gtioca" configurationId="p409"/>
       <configSetting altId="p409.gpio_mode.gpio_mode_peripheral" configurationId="p409.gpio_mode"/>
+      <configSetting altId="p500.agt0.agtoa" configurationId="p500"/>
+      <configSetting altId="p500.gpio_mode.gpio_mode_peripheral" configurationId="p500.gpio_mode"/>
       <configSetting altId="p914.usbfs0.usbdp" configurationId="p914"/>
       <configSetting altId="p914.gpio_mode.gpio_mode_peripheral" configurationId="p914.gpio_mode"/>
       <configSetting altId="p915.usbfs0.usbdm" configurationId="p915"/>

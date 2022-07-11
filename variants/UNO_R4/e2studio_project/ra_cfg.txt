@@ -122,7 +122,7 @@ FSP Configuration
       P407 12 USBFS0_VBUS - Low - "Peripheral mode" CMOS None "ADC0: ADTRG; AGT0: AGTIO; CTSU0: TS03; IIC0: SDA; RTC0: RTCOUT; SCI0: CTS_RTS_SS; SLCDC0: SEG11; SPI1: SSL3; USBFS0: VBUS" - IO - - 
       P408 11 IRQ0_IRQ07 - - IRQ7 "IRQ mode" - None "CTSU0: TS04; GPT5: GTIOCB; IIC0: SCL; IRQ0: IRQ07; OPS0: GTOWLO; SCI1: CTS_RTS_SS; SCI9: RXD_MISO; SCI9: SCL; SLCDC0: SEG10; USBFS0: ID" - IO - - 
       P409 10 GPT5_GTIOCA - Low None "Peripheral mode" CMOS None "CTSU0: TS05; GPT5: GTIOCA; IRQ0: IRQ06; OPS0: GTOWUP; SCI9: SDA; SCI9: TXD_MOSI; SLCDC0: SEG09; USBFS0: EXICEN" - IO - - 
-      P500 37 - - - - Disabled - - "ADC0: AN16; AGT0: AGTOA; CMP0: CMPREF1; GPT2: GTIOCA; OPS0: GTIU; SLCDC0: SEG34; USBFS0: VBUSEN" - None - - 
+      P500 37 AGT0_AGTOA - Low - "Peripheral mode" CMOS None "ADC0: AN16; AGT0: AGTOA; CMP0: CMPREF1; GPT2: GTIOCA; OPS0: GTIU; SLCDC0: SEG34; USBFS0: VBUSEN" - IO - - 
       P914 15 USBFS0_USBDP - - - "Peripheral mode" - - "USBFS0: USBDP" - IO - - 
       P915 14 USBFS0_USBDM - - - "Peripheral mode" - - "USBFS0: USBDM" - IO - - 
       RES 19 - - - - - - - - - - "Read only" - 
@@ -220,6 +220,11 @@ FSP Configuration
     Pin Output Support: Enabled with Extra Features
     Write Protect Enable: Disabled
     Clock Source: PCLKD
+    
+  Module "Timer, Low-Power (r_agt)"
+    Parameter Checking: Default (BSP)
+    Pin Output Support: Disabled
+    Pin Input Support: Disabled
     
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
@@ -715,4 +720,22 @@ FSP Configuration
       Extra Features: Interrupt Skipping (Channels with GTITC only): Skip ADC Events: None
       Extra Features: Output Disable: GTIOCA Disable Setting: Disable Prohibited
       Extra Features: Output Disable: GTIOCB Disable Setting: Disable Prohibited
+      
+    Instance "g_timer10 Timer, Low-Power (r_agt)"
+      General: Name: g_timer10
+      General: Channel: 0
+      General: Mode: Periodic
+      General: Period: 10
+      General: Period Unit: Milliseconds
+      Output: Duty Cycle Percent (only applicable in PWM mode): 50
+      General: Count Source: PCLKB
+      Output: AGTOA Output: Disabled
+      Output: AGTOB Output: Disabled
+      Output: AGTO Output: Disabled
+      Input: Measurement Mode: Measure Disabled
+      Input: Input Filter: No Filter
+      Input: Enable Pin: Enable Pin Not Used
+      Input: Trigger Edge: Trigger Edge Rising
+      Interrupts: Callback: timer10_callback
+      Interrupts: Underflow Interrupt Priority: Priority 12
       
