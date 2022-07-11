@@ -133,8 +133,8 @@ FSP Configuration
       P115 C1 SSI0_SSITXD0 - Low - "Peripheral mode" CMOS None "BUS_ASYNCH0: A01; GPT4: GTIOC4A; SSI0: SSITXD0" - IO - - 
       P200 C8 - - - - Disabled - - "ICU0: NMI" - None - - 
       P201 B8 - - - - Disabled - - "SYSTEM0: MD" - None - - 
-      P202 B12 CANFD0_CRX0 - Low None "Peripheral mode" CMOS None "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - IO - - 
-      P203 D11 CANFD0_CTX0 - Low None "Peripheral mode" CMOS None "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - IO - - 
+      P202 B12 - - - - Disabled - - "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - None - - 
+      P203 D11 - - - - Disabled - - "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - None - - 
       P204 A13 SCI4_SCK4 - Low - "Peripheral mode" CMOS None "AGT1: AGTIO1; BUS_ASYNCH0: A18; CAC0: CACREF; CTSU0: TS00; ETHERC_MII0: ET0_RX_DV; GPT_OPS0: GTIW; GPT4: GTIOC4B; SCI4: SCK4; SCI9: SCK9; SDHI0: SD0DAT4; SPI0: RSPCKA; SSI0: SSIBCK0; USB_FS0: USB_OVRCURB" - IO - - 
       P205 E12 SDHI0_SD0DAT3 - Low None "Peripheral mode" CMOS None "AGT1: AGTO1; BUS_ASYNCH0: A16; CGC0: CLKOUT; CTSU0: TS01; ETHERC_MII0: ET0_WOL; ETHERC_RMII0: ET0_WOL; GPT_OPS0: GTIV; GPT4: GTIOC4A; ICU0: IRQ01; IIC1: SCL1; SCI4: SDA4; SCI4: TXD4; SCI9: CTSRTS9; SDHI0: SD0DAT3; SPI0: SSLA0; SSI0: SSILRCK0; USB_FS0: USB_OVRCURA" - IO - - 
       P206 D12 SDHI0_SD0DAT2 - Low None "Peripheral mode" CMOS None "BUS_ASYNCH0: WAIT; CEC0: CECIO; CTSU0: TS02; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT_OPS0: GTIU; ICU0: IRQ00; IIC1: SDA1; SCI4: RXD4; SCI4: SCL4; SCI9: CTS9; SDHI0: SD0DAT2; SPI0: SSLA1; SSI0: SSIDATA0; USB_FS0: USB_VBUSEN" - IO - - 
@@ -199,7 +199,7 @@ FSP Configuration
       P606 J1 SCI8_CTSRTS8 - Low - "Peripheral mode" CMOS None "RTC0: RTCOUT; SCI8: CTSRTS8" - IO - - 
       P607 J4 SCI8_RXD8 - Low - "Peripheral mode" CMOS None "SCI8: RXD8; SCI8: SCL8" - IO - - 
       P608 D2 GPT4_GTIOC4B - Low - "Peripheral mode" CMOS None "BUS_ASYNCH0: A00; GPT4: GTIOC4B" - IO - - 
-      P609 D1 CANFD1_CTX1 CAN_TXD Low - "Peripheral mode" CMOS None "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - IO - - 
+      P609 D1 CANFD1_CTX1 CAN_TXD Medium - "Peripheral mode" CMOS None "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - IO - - 
       P610 F3 CANFD1_CRX1 CAN_RDX Low - "Peripheral mode" CMOS None "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - IO - - 
       P611 E2 SCI7_CTSRTS7 - Low - "Peripheral mode" CMOS None "AGT3: AGTO3; CAC0: CACREF; CGC0: CLKOUT; SCI7: CTSRTS7" - IO - - 
       P612 E1 AGT2_AGTO2 - Low - "Peripheral mode" CMOS None "AGT2: AGTO2; BUS_ASYNCH0: D08; SCI7: SCK7" - IO - - 
@@ -310,8 +310,8 @@ FSP Configuration
       P115 C1 GPIO - High - "Output mode (Initial Low)" CMOS None "BUS_ASYNCH0: A01; GPT4: GTIOC4A; SSI0: SSITXD0" - IO - - 
       P200 C8 - - - - Disabled - - "ICU0: NMI" - None - - 
       P201 B8 - - - - Disabled - - "SYSTEM0: MD" - None - - 
-      P202 B12 SPI0_MISOA - High None "Peripheral mode" CMOS None "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - IO - - 
-      P203 D11 SPI0_MOSIA - High None "Peripheral mode" CMOS None "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - IO - - 
+      P202 B12 SPI0_MISOA - - - "Peripheral mode" - - "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - None - - 
+      P203 D11 SPI0_MOSIA - - - "Peripheral mode" - - "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - None - - 
       P204 A13 SPI0_RSPCKA - High - "Peripheral mode" CMOS None "AGT1: AGTIO1; BUS_ASYNCH0: A18; CAC0: CACREF; CTSU0: TS00; ETHERC_MII0: ET0_RX_DV; GPT_OPS0: GTIW; GPT4: GTIOC4B; SCI4: SCK4; SCI9: SCK9; SDHI0: SD0DAT4; SPI0: RSPCKA; SSI0: SSIBCK0; USB_FS0: USB_OVRCURB" - IO - - 
       P205 E12 SPI0_SSLA0 - High None "Peripheral mode" CMOS None "AGT1: AGTO1; BUS_ASYNCH0: A16; CGC0: CLKOUT; CTSU0: TS01; ETHERC_MII0: ET0_WOL; ETHERC_RMII0: ET0_WOL; GPT_OPS0: GTIV; GPT4: GTIOC4A; ICU0: IRQ01; IIC1: SCL1; SCI4: SDA4; SCI4: TXD4; SCI9: CTSRTS9; SDHI0: SD0DAT3; SPI0: SSLA0; SSI0: SSILRCK0; USB_FS0: USB_OVRCURA" - IO - - 
       P206 D12 SPI0_SSLA1 - High None "Peripheral mode" CMOS None "BUS_ASYNCH0: WAIT; CEC0: CECIO; CTSU0: TS02; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT_OPS0: GTIU; ICU0: IRQ00; IIC1: SDA1; SCI4: RXD4; SCI4: SCL4; SCI9: CTS9; SDHI0: SD0DAT2; SPI0: SSLA1; SSI0: SSIDATA0; USB_FS0: USB_VBUSEN" - IO - - 
@@ -487,8 +487,8 @@ FSP Configuration
       P115 C1 - - Low - Disabled CMOS None "BUS_ASYNCH0: A01; GPT4: GTIOC4A; SSI0: SSITXD0" - IO - - 
       P200 C8 - - - - Disabled - - "ICU0: NMI" - None - - 
       P201 B8 - - - - Disabled - - "SYSTEM0: MD" - None - - 
-      P202 B12 - - Low None Disabled CMOS None "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - IO - - 
-      P203 D11 - - Low None Disabled CMOS None "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - IO - - 
+      P202 B12 - - - - Disabled - - "AGT3: AGTOB3; BUS_ASYNCH0: BC1; CAN0: CRX0; CTSU0: TS19; ETHERC_MII0: ET0_ERXD2; GPT5: GTIOC5B; ICU0: IRQ03; SCI2: SCK2; SCI9: RXD9; SCI9: SCL9; SDHI0: SD0DAT6; SPI0: MISOA" - None - - 
+      P203 D11 - - - - Disabled - - "AGT3: AGTOA3; BUS_ASYNCH0: A19; CAN0: CTX0; CTSU0: TS18; ETHERC_MII0: ET0_COL; GPT5: GTIOC5A; ICU0: IRQ02; SCI2: CTSRTS2; SCI9: SDA9; SCI9: TXD9; SDHI0: SD0DAT5; SPI0: MOSIA" - None - - 
       P204 A13 - - Low - Disabled CMOS None "AGT1: AGTIO1; BUS_ASYNCH0: A18; CAC0: CACREF; CTSU0: TS00; ETHERC_MII0: ET0_RX_DV; GPT_OPS0: GTIW; GPT4: GTIOC4B; SCI4: SCK4; SCI9: SCK9; SDHI0: SD0DAT4; SPI0: RSPCKA; SSI0: SSIBCK0; USB_FS0: USB_OVRCURB" - IO - - 
       P205 E12 - - Low None Disabled CMOS None "AGT1: AGTO1; BUS_ASYNCH0: A16; CGC0: CLKOUT; CTSU0: TS01; ETHERC_MII0: ET0_WOL; ETHERC_RMII0: ET0_WOL; GPT_OPS0: GTIV; GPT4: GTIOC4A; ICU0: IRQ01; IIC1: SCL1; SCI4: SDA4; SCI4: TXD4; SCI9: CTSRTS9; SDHI0: SD0DAT3; SPI0: SSLA0; SSI0: SSILRCK0; USB_FS0: USB_OVRCURA" - IO - - 
       P206 D12 - - Low None Disabled CMOS None "BUS_ASYNCH0: WAIT; CEC0: CECIO; CTSU0: TS02; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT_OPS0: GTIU; ICU0: IRQ00; IIC1: SDA1; SCI4: RXD4; SCI4: SCL4; SCI9: CTS9; SDHI0: SD0DAT2; SPI0: SSLA1; SSI0: SSIDATA0; USB_FS0: USB_VBUSEN" - IO - - 
@@ -673,62 +673,6 @@ FSP Configuration
     
   Module "ADPCM Decoder (rm_adpcm_decoder)"
     Parameter Checking: Default (BSP)
-    
-  Module "CAN FD (r_canfd)"
-    Parameter Checking: Default (BSP)
-    Global Error Interrupt: Priority: Priority 12
-    Global Error Interrupt: Sources: 
-    Global Error Interrupt: Callback Channel: Channel 1
-    Transmission Priority: Buffer Number
-    DLC Check: Disabled
-    Flexible Data (FD): FD Frame Format: ISO 11898-1
-    Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
-    Flexible Data (FD): Payload Overflow: Reject
-    Reception: Message Buffers: Number of Buffers: 0
-    Reception: Message Buffers: Payload Size: 8 bytes
-    Reception: FIFOs: Interrupt Priority: Priority 12
-    Reception: FIFOs: FIFO 0: Enable: Enabled
-    Reception: FIFOs: FIFO 0: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 0: Depth: 16 stages
-    Reception: FIFOs: FIFO 1: Enable: Disabled
-    Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 1: Depth: 16 stages
-    Reception: FIFOs: FIFO 2: Enable: Disabled
-    Reception: FIFOs: FIFO 2: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 2: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 2: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 2: Depth: 16 stages
-    Reception: FIFOs: FIFO 3: Enable: Disabled
-    Reception: FIFOs: FIFO 3: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 3: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 3: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 3: Depth: 16 stages
-    Reception: FIFOs: FIFO 4: Enable: Disabled
-    Reception: FIFOs: FIFO 4: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 4: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 4: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 4: Depth: 16 stages
-    Reception: FIFOs: FIFO 5: Enable: Disabled
-    Reception: FIFOs: FIFO 5: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 5: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 5: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 5: Depth: 16 stages
-    Reception: FIFOs: FIFO 6: Enable: Disabled
-    Reception: FIFOs: FIFO 6: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 6: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 6: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 6: Depth: 16 stages
-    Reception: FIFOs: FIFO 7: Enable: Disabled
-    Reception: FIFOs: FIFO 7: Interrupt Mode: Every Frame
-    Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
-    Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 7: Depth: 16 stages
-    Reception: Acceptance Filtering: Channel 0 Rule Count: 32
-    Reception: Acceptance Filtering: Channel 1 Rule Count: 32
     
   Module "UART (r_sci_uart)"
     Parameter Checking: Default (BSP)
@@ -1898,6 +1842,62 @@ FSP Configuration
     Code Flash Programming Enable: Disabled
     Data Flash Programming Enable: Enabled
     
+  Module "CAN FD (r_canfd)"
+    Parameter Checking: Default (BSP)
+    Global Error Interrupt: Priority: Priority 12
+    Global Error Interrupt: Sources: 
+    Global Error Interrupt: Callback Channel: Channel 1
+    Transmission Priority: Buffer Number
+    DLC Check: Disabled
+    Flexible Data (FD): FD Frame Format: ISO 11898-1
+    Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
+    Flexible Data (FD): Payload Overflow: Reject
+    Reception: Message Buffers: Number of Buffers: 1
+    Reception: Message Buffers: Payload Size: 8 bytes
+    Reception: FIFOs: Interrupt Priority: Priority 12
+    Reception: FIFOs: FIFO 0: Enable: Enabled
+    Reception: FIFOs: FIFO 0: Interrupt Mode: At Threshold Value
+    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 0: Depth: 16 stages
+    Reception: FIFOs: FIFO 1: Enable: Disabled
+    Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 1: Depth: 16 stages
+    Reception: FIFOs: FIFO 2: Enable: Disabled
+    Reception: FIFOs: FIFO 2: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 2: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 2: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 2: Depth: 16 stages
+    Reception: FIFOs: FIFO 3: Enable: Disabled
+    Reception: FIFOs: FIFO 3: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 3: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 3: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 3: Depth: 16 stages
+    Reception: FIFOs: FIFO 4: Enable: Disabled
+    Reception: FIFOs: FIFO 4: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 4: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 4: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 4: Depth: 16 stages
+    Reception: FIFOs: FIFO 5: Enable: Disabled
+    Reception: FIFOs: FIFO 5: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 5: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 5: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 5: Depth: 16 stages
+    Reception: FIFOs: FIFO 6: Enable: Disabled
+    Reception: FIFOs: FIFO 6: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 6: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 6: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 6: Depth: 16 stages
+    Reception: FIFOs: FIFO 7: Enable: Disabled
+    Reception: FIFOs: FIFO 7: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
+    Reception: FIFOs: FIFO 7: Depth: 16 stages
+    Reception: Acceptance Filtering: Channel 0 Rule Count: 8
+    Reception: Acceptance Filtering: Channel 1 Rule Count: 8
+    
   Module "SPI (r_spi)"
     Parameter Checking: Default (BSP)
     Enable Support for using DTC: Enabled
@@ -2136,9 +2136,9 @@ FSP Configuration
       Automatic Adjustment Period: 10 Seconds
       Adjustment Type (Plus-Minus): NONE
       Error Adjustment Value: 0
-      Callback: NULL
-      Alarm Interrupt Priority: Disabled
-      Period Interrupt Priority: Disabled
+      Callback: rtc_callback
+      Alarm Interrupt Priority: Priority 12
+      Period Interrupt Priority: Priority 12
       Carry Interrupt Priority: Priority 12
       
     Instance "g_cgc0 Clock Generation Circuit (r_cgc)"
@@ -2170,28 +2170,6 @@ FSP Configuration
       
     Instance "g_adpcm_decoder0 ADPCM Decoder (rm_adpcm_decoder)"
       Name: g_adpcm_decoder0
-      
-    Instance "g_canfd0 CAN FD (r_canfd)"
-      General: Name: g_canfd0
-      General: Channel: 0
-      Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 2000000
-      Bitrate: Automatic: Sample Point (%): 75
-      Bitrate: Delay Compensation: Enable
-      Bitrate: Manual: Nominal: Prescaler (divisor): 1
-      Bitrate: Manual: Nominal: Time Segment 1 (Tq): 29
-      Bitrate: Manual: Nominal: Time Segment 2 (Tq): 10
-      Bitrate: Manual: Nominal: Sync Jump Width (Tq): 4
-      Bitrate: Manual: Data: Prescaler (divisor): 1
-      Bitrate: Manual: Data: Time Segment 1 (Tq): 5
-      Bitrate: Manual: Data: Time Segment 2 (Tq): 2
-      Bitrate: Manual: Data: Sync Jump Width (Tq): 1
-      Bitrate: Manual: Use manual settings: No
-      Interrupts: Callback: canfd0_callback
-      Transmit Interrupts: 
-      Channel Error Interrupts: 
-      Interrupts: Channel Interrupt Priority Level: Priority 12
-      Filter List Array: p_canfd0_afl
       
     Instance "g_uart0 UART (r_sci_uart)"
       General: Name: g_uart0
@@ -2792,7 +2770,7 @@ FSP Configuration
       General: Name: g_canfd1
       General: Channel: 1
       Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 2000000
+      Bitrate: Automatic: Data Rate (bps): 500000
       Bitrate: Automatic: Sample Point (%): 75
       Bitrate: Delay Compensation: Enable
       Bitrate: Manual: Nominal: Prescaler (divisor): 1
@@ -2805,8 +2783,8 @@ FSP Configuration
       Bitrate: Manual: Data: Sync Jump Width (Tq): 1
       Bitrate: Manual: Use manual settings: No
       Interrupts: Callback: canfd1_callback
-      Transmit Interrupts: 
-      Channel Error Interrupts: 
+      Transmit Interrupts: TXMB 0
+      Channel Error Interrupts: Error Warning, Error Passive, Bus-Off Entry, Bus-Off Recovery, Overload
       Interrupts: Channel Interrupt Priority Level: Priority 12
       Filter List Array: p_canfd1_afl
       
@@ -3187,6 +3165,24 @@ FSP Configuration
       Charge Pump (Requires MOCO active): Disabled
       Internal Output: Enabled by default
       ELC Trigger Source: Disabled
+      
+    Instance "g_timer10 Timer, Low-Power (r_agt)"
+      General: Name: g_timer10
+      General: Channel: 1
+      General: Mode: Periodic
+      General: Period: 10
+      General: Period Unit: Milliseconds
+      Output: Duty Cycle Percent (only applicable in PWM mode): 50
+      General: Count Source: PCLKB
+      Output: AGTOA Output: Disabled
+      Output: AGTOB Output: Disabled
+      Output: AGTO Output: Disabled
+      Input: Measurement Mode: Measure Disabled
+      Input: Input Filter: No Filter
+      Input: Enable Pin: Enable Pin Not Used
+      Input: Trigger Edge: Trigger Edge Rising
+      Interrupts: Callback: timer10_callback
+      Interrupts: Underflow Interrupt Priority: Priority 12
       
   Thread "MainThread"
     Symbol: main_thd

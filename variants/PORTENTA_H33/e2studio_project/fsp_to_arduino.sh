@@ -75,8 +75,12 @@ do
 done
 
 rm -r ${CORE_PATH}/../../${TARGET}/includes/ra/*
+rm -r ${CORE_PATH}/../../${TARGET}/includes/ra_gen/*
 
 RA_INCLUDES=`find ra/ -iname *.h`
+cp --parent $RA_INCLUDES ${CORE_PATH}/../../${TARGET}/includes/
+
+RA_INCLUDES=`find ra_gen/ -iname *.h`
 cp --parent $RA_INCLUDES ${CORE_PATH}/../../${TARGET}/includes/
 
 for value in "${FLAGS[@]}"
