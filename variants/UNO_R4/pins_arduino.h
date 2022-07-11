@@ -72,6 +72,7 @@ static const uint8_t IRQ9 = PIN_IRQ9;
 #define LEDG        (24u)
 #define LEDB        (25u)
 
+#define CAN_STDBY   (33u)
 
 #define PIN_SPI_SS    (19)
 
