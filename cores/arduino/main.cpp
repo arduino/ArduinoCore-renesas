@@ -32,4 +32,10 @@ extern "C" {
       arduino_main();
    }
 }
+#else
+extern "C" {
+   void hal_entry(void) {
+      arduino_main();
+   }
+}
 #endif
