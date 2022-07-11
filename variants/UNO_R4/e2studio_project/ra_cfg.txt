@@ -102,7 +102,7 @@ FSP Configuration
       P101 35 ADC0_AN21 - Low None "Peripheral mode" CMOS None "ADC0: AN21; AGT0: AGTEE; CMP0: CMPREF0; GPT5: GTIOCA; IIC1: SDA; IRQ0: IRQ01; KINT0: KRM1; POEG1: GTETRG; SCI0: SDA; SCI0: TXD_MOSI; SCI1: CTS_RTS_SS; SLCDC0: VL2; SPI0: MOSI" - IO - - 
       P102 34 SCI2_TXD_MOSI - Low - "Peripheral mode" CMOS None "ADC0: ADTRG; ADC0: AN20; AGT0: AGTO; CAN0: CRX; CMP0: CMPIN1; GPT2: GTIOCB; KINT0: KRM2; OPS0: GTOWLO; SCI0: SCK; SCI2: SDA; SCI2: TXD_MOSI; SLCDC0: VL3; SPI0: RSPCK" - IO - - 
       P103 33 GPT2_GTIOCA - Low - "Peripheral mode" CMOS None "ADC0: AN19; CAN0: CTX; CMP0: CMPREF1; GPT2: GTIOCA; KINT0: KRM3; OPS0: GTOWUP; SCI0: CTS_RTS_SS; SLCDC0: VL4; SPI0: SSL0" - IO - - 
-      P104 32 GPT1_GTIOCB - Low None "Peripheral mode" CMOS None "CTSU0: TS13; GPT1: GTIOCB; IRQ0: IRQ01; KINT0: KRM4; POEG1: GTETRG; SCI0: RXD_MISO; SCI0: SCL; SLCDC0: COM0; SPI0: SSL1" - IO - - 
+      P104 32 GPT1_GTIOCB - Low IRQ1 "Peripheral mode" CMOS None "CTSU0: TS13; GPT1: GTIOCB; IRQ0: IRQ01; KINT0: KRM4; POEG1: GTETRG; SCI0: RXD_MISO; SCI0: SCL; SLCDC0: COM0; SPI0: SSL1" - IO - - 
       P108 25 SPI1_SSL0 - Low - "Peripheral mode" CMOS None "DEBUG0: SWDIO; DEBUG0: TMS; GPT0: GTIOCB; OPS0: GTOULO; SCI9: CTS_RTS_SS; SPI1: SSL0" - IO - - 
       P109 26 SPI1_MOSI - Low - "Peripheral mode" CMOS None "CAN0: CTX; CGC0: CLKOUT; CTSU0: TS10; DEBUG0: SWO; DEBUG0: TDO; GPT1: GTIOCA; OPS0: GTOVUP; SCI1: SCK; SCI9: SDA; SCI9: TXD_MOSI; SLCDC0: SEG23; SPI1: MOSI" - IO - - 
       P110 27 SPI1_MISO - Low None "Peripheral mode" CMOS None "CAN0: CRX; CMP0: VCOUT; DEBUG0: TDI; GPT1: GTIOCB; IRQ0: IRQ03; OPS0: GTOVLO; SCI2: CTS_RTS_SS; SCI9: RXD_MISO; SCI9: SCL; SLCDC0: SEG24; SPI1: MISO" - IO - - 
@@ -210,6 +210,10 @@ FSP Configuration
     DTC Support: Enable
     Flow Control Support: Disable
     RS-485 Support: Disable
+    
+  Module "Realtime Clock (r_rtc)"
+    Parameter Checking: Default (BSP)
+    Set Source Clock in Open: Enabled
     
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
@@ -501,3 +505,16 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SCI2 RXI (Received data full)
         
+    Instance "g_rtc0 Realtime Clock (r_rtc)"
+      Name: g_rtc0
+      Clock Source: LOCO
+      Frequency Comparision Value (LOCO): 255
+      Automatic Adjustment Mode: Enabled
+      Automatic Adjustment Period: 10 Seconds
+      Adjustment Type (Plus-Minus): NONE
+      Error Adjustment Value: 0
+      Callback: rtc_callback
+      Alarm Interrupt Priority: Priority 12
+      Period Interrupt Priority: Priority 12
+      Carry Interrupt Priority: Priority 12
+      
