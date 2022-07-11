@@ -206,9 +206,9 @@ FSP Configuration
     
   Module "UART (r_sci_uart)"
     Parameter Checking: Default (BSP)
-    FIFO Support: Disable
+    FIFO Support: Enable
     DTC Support: Enable
-    Flow Control Support: Disable
+    Flow Control Support: Enable
     RS-485 Support: Disable
     
   Module "Realtime Clock (r_rtc)"
@@ -482,7 +482,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: NULL
+      Interrupts: Callback: isr_uart0
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12

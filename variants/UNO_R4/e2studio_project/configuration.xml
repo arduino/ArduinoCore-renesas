@@ -480,7 +480,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="NULL"/>
+      <property id="module.driver.uart.callback" value="isr_uart0"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -835,9 +835,9 @@
     </config>
     <config id="config.driver.sci_uart">
       <property id="config.driver.sci_uart.param_checking_enable" value="config.driver.sci_uart.param_checking_enable.bsp"/>
-      <property id="config.driver.sci_uart.fifo_support" value="config.driver.sci_uart.fifo_support.disabled"/>
+      <property id="config.driver.sci_uart.fifo_support" value="config.driver.sci_uart.fifo_support.enabled"/>
       <property id="config.driver.sci_uart.dtc_support" value="config.driver.sci_uart.dtc_support.enabled"/>
-      <property id="config.driver.sci_uart.flow_control" value="config.driver.sci_uart.flow_control.disabled"/>
+      <property id="config.driver.sci_uart.flow_control" value="config.driver.sci_uart.flow_control.enabled"/>
       <property id="config.driver.sci_uart.rs485" value="config.driver.sci_uart.rs485.disabled"/>
     </config>
     <config id="config.driver.gpt">
@@ -968,7 +968,7 @@
       <configSetting altId="p915.usbfs0.usbdm" configurationId="p915"/>
       <configSetting altId="p915.gpio_mode.gpio_mode_peripheral" configurationId="p915.gpio_mode"/>
       <configSetting altId="sci0.pairing.a" configurationId="sci0.pairing"/>
-      <configSetting altId="sci2.mode.asynchronous.free" configurationId="sci2.mode"/>
+      <configSetting altId="sci2.mode.custom.free" configurationId="sci2.mode"/>
       <configSetting altId="sci2.rxd.p301" configurationId="sci2.rxd"/>
       <configSetting altId="sci2.txd.p102" configurationId="sci2.txd"/>
       <configSetting altId="spi1.miso.p110" configurationId="spi1.miso"/>
