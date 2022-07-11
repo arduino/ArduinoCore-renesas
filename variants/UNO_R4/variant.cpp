@@ -1,70 +1,57 @@
 #include "Arduino.h"
 
 const AnalogPinDescription g_AAnalogPinDescription[] = {
-  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_0 },    // A0    ADC2_INP0
-  { BSP_IO_PORT_00_PIN_01,   ADC_CHANNEL_1 },    // A1    ADC2_INP1
-  { BSP_IO_PORT_00_PIN_02,   ADC_CHANNEL_2 },    // A2    ADC3_INP0
-  { BSP_IO_PORT_00_PIN_04,   ADC_CHANNEL_4 },    // A3    ADC3_INP1
-  { BSP_IO_PORT_00_PIN_05,   ADC_CHANNEL_5 },    // A4    ADC1_INP12
-  { BSP_IO_PORT_00_PIN_06,   ADC_CHANNEL_6 },    // A5    ADC2_INP13
-  { BSP_IO_PORT_00_PIN_14,   ADC_CHANNEL_14 },   // A6    ADC1_INP18
-  { BSP_IO_PORT_00_PIN_15,   ADC_CHANNEL_15 }    // A7    ADC1_INP7
+  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_0 },    // A0    ADC0_AN0
+  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_1 },    // A1    ADC0_AN1
+  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_2 },    // A2    ADC0_AN2
+  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_14},    // A3    ADC3_AN9
+  { BSP_IO_PORT_00_PIN_01,   ADC_CHANNEL_1 },    // A4    ADC1_AN21
+  { BSP_IO_PORT_00_PIN_01,   ADC_CHANNEL_0 }     // A5    ADC2_AN22
 };
 
 const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
-  { BSP_IO_PORT_00_PIN_14,   0 },                // A6    DAC_CH0
-  { BSP_IO_PORT_00_PIN_15,   1 }                 // A7    DAC_CH1
+  { BSP_IO_PORT_00_PIN_14,   0 }                 // A3
 };
 
 const pwmTable_t pwmTable[] = {
-  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA}, // D0
-  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA}, // D1
-  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB}, // D2
-  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCA}, // D3
-  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCB}, // D4
-  {&g_timer5_ctrl, &g_timer5_cfg, GPT_IO_PIN_GTIOCB}, // D5
-  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCA}, // D6
-  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCB}, // D7
+  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCB}, // D3
+  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA}, // D5
+  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB}, // D6
+  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA}, // D9
+  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCB}, // D10
+  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCA}, // D11
 };
 
 const PinDescription g_APinDescription[] = {
-    { BSP_IO_PORT_01_PIN_05 },    //D0
-    { BSP_IO_PORT_01_PIN_11 },    //D1
-    { BSP_IO_PORT_06_PIN_08 },    //D2
-    { BSP_IO_PORT_06_PIN_01 },    //D3
-    { BSP_IO_PORT_04_PIN_01 },    //D4
-    { BSP_IO_PORT_03_PIN_03 },    //D5
-    { BSP_IO_PORT_06_PIN_05 },    //D6
-    { BSP_IO_PORT_01_PIN_06 },    //D7
+    // Digital
+    { BSP_IO_PORT_01_PIN_02 },    //D0      //UART TX
+    { BSP_IO_PORT_03_PIN_01 },    //D1      //UART RX
+    { BSP_IO_PORT_02_PIN_06 },    //D2      //IRQ0
+    { BSP_IO_PORT_01_PIN_04 },    //D3      //IRQ1  --  PWM0
+    { BSP_IO_PORT_04_PIN_00 },    //D4
+    { BSP_IO_PORT_01_PIN_03 },    //D5      //PWM1
+    { BSP_IO_PORT_01_PIN_12 },    //D6      //PWM2
+    { BSP_IO_PORT_04_PIN_09 },    //D7
+    { BSP_IO_PORT_03_PIN_02 },    //D8
+    { BSP_IO_PORT_03_PIN_00 },    //D9      //PWM3
+    { BSP_IO_PORT_01_PIN_08 },    //D10     //CS    --  PWM4
+    { BSP_IO_PORT_01_PIN_09 },    //D11     //MOSI  --  PWM4
+    { BSP_IO_PORT_01_PIN_00 },    //D12     //MISO
+    { BSP_IO_PORT_01_PIN_11 },    //D13     //SCK   --  LEDG
+    { BSP_IO_PORT_01_PIN_01 },    //D14     //SDA
+    { BSP_IO_PORT_01_PIN_00 },    //D15     //SCL
 
+    // Analog
     { BSP_IO_PORT_00_PIN_00 },    //A0
     { BSP_IO_PORT_00_PIN_01 },    //A1
     { BSP_IO_PORT_00_PIN_02 },    //A2
-    { BSP_IO_PORT_00_PIN_04 },    //A3
-    { BSP_IO_PORT_00_PIN_05 },    //A4
-    { BSP_IO_PORT_00_PIN_06 },    //A5
-    { BSP_IO_PORT_00_PIN_14 },    //A6
-    { BSP_IO_PORT_00_PIN_15 },    //A7
+    { BSP_IO_PORT_00_PIN_14 },    //A3
+    { BSP_IO_PORT_01_PIN_01 },    //A4
+    { BSP_IO_PORT_01_PIN_00 },    //A5
 
-    { BSP_IO_PORT_00_PIN_03 },
-    { BSP_IO_PORT_00_PIN_07 },
-    { BSP_IO_PORT_00_PIN_08 },
-    { BSP_IO_PORT_00_PIN_10 },
-    { BSP_IO_PORT_00_PIN_11 },
-    { BSP_IO_PORT_00_PIN_12 },
-    { BSP_IO_PORT_00_PIN_13 },
-
-    // EXT_Interrupts
-    { BSP_IO_PORT_08_PIN_06 },
-    { BSP_IO_PORT_01_PIN_04 },
-    { BSP_IO_PORT_08_PIN_03 },
-    { BSP_IO_PORT_08_PIN_02 },
-    { BSP_IO_PORT_10_PIN_10 },
-    { BSP_IO_PORT_04_PIN_09 },
-    { BSP_IO_PORT_07_PIN_07 },
-    { BSP_IO_PORT_07_PIN_08 },
-    { BSP_IO_PORT_00_PIN_09 },
-    { BSP_IO_PORT_05_PIN_05 },
+    // RGB LED
+    { BSP_IO_PORT_05_PIN_00 },    //LEDR
+    { BSP_IO_PORT_00_PIN_11 },    //LEDB
 
     { BSP_IO_PORT_06_PIN_11 },
     { BSP_IO_PORT_01_PIN_00 },
