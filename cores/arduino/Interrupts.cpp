@@ -25,9 +25,11 @@ typedef struct {
     icu_instance_ctrl_t* icu_ctrl;
     const external_irq_cfg_t* irq_cfg;
 } irqTable_t;
+
 static irqTable_t irqTable[] = {
     {&g_external_irq0_ctrl, &g_external_irq0_cfg}, // ext_int0
     {&g_external_irq1_ctrl, &g_external_irq1_cfg}, // ext_int1
+#if EXT_INTERRUPTS_HOWMANY > 2
     {&g_external_irq2_ctrl, &g_external_irq2_cfg}, // ext_int2
     {&g_external_irq3_ctrl, &g_external_irq3_cfg}, // ext_int3
     {&g_external_irq4_ctrl, &g_external_irq4_cfg}, // ext_int4
@@ -36,6 +38,7 @@ static irqTable_t irqTable[] = {
     {&g_external_irq7_ctrl, &g_external_irq7_cfg}, // ext_int7
     {&g_external_irq8_ctrl, &g_external_irq8_cfg}, // ext_int8
     {&g_external_irq9_ctrl, &g_external_irq9_cfg}, // ext_int9
+#endif
     {NULL, NULL}, // not implemented
 };
 
