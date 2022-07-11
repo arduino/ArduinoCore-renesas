@@ -281,7 +281,7 @@
       <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
       <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
       <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
-      <property id="module.driver.i2c_master.p_callback" value="NULL"/>
+      <property id="module.driver.i2c_master.p_callback" value="isr_i2c0"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.driver.spi_on_spi.1919007958">
@@ -310,7 +310,7 @@
       <property id="module.driver.spi.next_access_delay" value="module.driver.spi.next_access_delay.one"/>
     </module>
     <module id="module.driver.transfer_on_dtc.1948090828">
-      <property id="module.driver.transfer.name" value="g_transfer0"/>
+      <property id="module.driver.transfer.name" value="g_transfer9"/>
       <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
       <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
       <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
@@ -324,7 +324,7 @@
       <property id="module.driver.transfer.activation_source" value="_disabled"/>
     </module>
     <module id="module.driver.transfer_on_dtc.2147337867">
-      <property id="module.driver.transfer.name" value="g_transfer1"/>
+      <property id="module.driver.transfer.name" value="g_transfer10"/>
       <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
       <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
       <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
@@ -497,7 +497,7 @@
       <property id="module.driver.transfer.activation_source" value="_disabled"/>
     </module>
     <module id="module.driver.transfer_on_dtc.126038555">
-      <property id="module.driver.transfer.name" value="g_transfer5"/>
+      <property id="module.driver.transfer.name" value="g_transfer21"/>
       <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
       <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
       <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>

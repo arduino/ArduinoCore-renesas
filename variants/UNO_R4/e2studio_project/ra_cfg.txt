@@ -282,7 +282,7 @@ FSP Configuration
       Address Mode: 7-Bit
       Timeout Mode: Short Mode
       Timeout during SCL Low: Enabled
-      Callback: NULL
+      Callback: isr_i2c0
       Interrupt Priority Level: Priority 12
       
     Instance "g_spi0 SPI (r_spi)"
@@ -310,8 +310,8 @@ FSP Configuration
       SSL Negation Delay: 1 Clock
       Next Access Delay: 1 Clock
       
-      Instance "g_transfer0 Transfer (r_dtc) SPI1 TXI (Transmit buffer empty)"
-        Name: g_transfer0
+      Instance "g_transfer9 Transfer (r_dtc) SPI1 TXI (Transmit buffer empty)"
+        Name: g_transfer9
         Mode: Normal
         Transfer Size: 2 Bytes
         Destination Address Mode: Fixed
@@ -324,8 +324,8 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SPI1 TXI (Transmit buffer empty)
         
-      Instance "g_transfer1 Transfer (r_dtc) SPI1 RXI (Receive buffer full)"
-        Name: g_transfer1
+      Instance "g_transfer10 Transfer (r_dtc) SPI1 RXI (Receive buffer full)"
+        Name: g_transfer10
         Mode: Normal
         Transfer Size: 2 Bytes
         Destination Address Mode: Incremented
@@ -497,8 +497,8 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SCI2 TXI (Transmit data empty)
         
-      Instance "g_transfer5 Transfer (r_dtc) SCI2 RXI (Received data full)"
-        Name: g_transfer5
+      Instance "g_transfer21 Transfer (r_dtc) SCI2 RXI (Received data full)"
+        Name: g_transfer21
         Mode: Normal
         Transfer Size: 1 Byte
         Destination Address Mode: Incremented
