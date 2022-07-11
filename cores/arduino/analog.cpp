@@ -35,11 +35,14 @@ void analogWrite(pin_size_t pinNumber, int value)
     R_DAC_Open(&g_dac0_ctrl, &g_dac0_cfg);
     R_DAC_Start(&g_dac0_ctrl);
     R_DAC_Write(&g_dac0_ctrl, value);
-  } else if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 1) {
+  }
+#if NUM_ANALOG_OUTPUTS > 1
+   else if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 1) {
     R_DAC_Open(&g_dac1_ctrl, &g_dac1_cfg);
     R_DAC_Start(&g_dac1_ctrl);
     R_DAC_Write(&g_dac1_ctrl, value);
   }
+#endif
 }
 
 

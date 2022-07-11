@@ -9,7 +9,7 @@ extern "C" unsigned int PINCOUNT_fn();
 #define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (7u)
-#define NUM_ANALOG_OUTPUTS   (1u)
+#define NUM_ANALOG_OUTPUTS   (2u)
 
 #define PIN_A0   (0u)
 #define PIN_A1   (1u)
