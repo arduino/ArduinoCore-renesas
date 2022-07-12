@@ -4,24 +4,37 @@
 #define CAN_FRAME_LEN       8
 
 void setup() {
-  Serial5.begin(115200);
+  SerialUSB.begin(115200);
   delay(1000);
-  Serial5.println("Start CAN Read test over CAN1");
+  SerialUSB.println("Start CAN Read test over CAN1");
 
-  Serial5.print("Opening CAN1...");
+  SerialUSB.print("Opening CAN1...");
   if (!CAN1.begin()) {
-    Serial5.println(" failed :(");
+    SerialUSB.println(" failed :(");
     while(1) {}
   }
-  Serial5.println(" OK :)");
+  SerialUSB.println(" OK :)");
 }
 
 void loop() {
+  
   CanMessage msg;
-  if (!CAN1.read(msg)) {
-    Serial5.println("Message read failed :(");
-    while(1) {}
+  if (CAN1.read(msg)) {
+    SerialUSB.println("Message received :)");
+    SerialUSB.print("ID: 0x");
+    SerialUSB.println(msg.id, HEX);
+    SerialUSB.print("Length: ");
+    SerialUSB.println(msg.data_length);
+    SerialUSB.print("Data: ");
+    
+    for (int i=0; i<CAN_FRAME_LEN; i++) {
+      SerialUSB.print("0x");
+      SerialUSB.print(msg.data[i], HEX);
+      SerialUSB.print(", ");
+    } 
+    SerialUSB.println();
+
   }
-  Serial5.println(msg.data[0]);
-  delay(3000);
+  delay(1000);
+  
 }
