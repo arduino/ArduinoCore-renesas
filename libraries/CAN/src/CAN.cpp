@@ -75,7 +75,7 @@ uint8_t ArduinoCAN::read(CanMessage &msg) {
     }
     msg.id = can_msg.id;
     msg.data_length = can_msg.data_length_code;
-    msg.data = can_msg.data;
+    memcpy((uint8_t*)&msg.data[0], (uint8_t*)&can_msg.data[0], can_msg.data_length_code);
     return 1;
   }
   return 0;

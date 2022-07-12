@@ -10,7 +10,7 @@ typedef struct can_msg
 {
     uint32_t         id;             // CAN ID.
     uint8_t          data_length;    // CAN Data Length Code (DLC).
-    uint8_t*         data;           // CAN data.
+    uint8_t          data[CAN_DATA_BUFFER_LENGTH];           // CAN data.
 } CanMessage;
 
 class ArduinoCAN
