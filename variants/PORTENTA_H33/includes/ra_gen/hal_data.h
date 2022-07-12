@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_canfd.h"
+#include "r_can_api.h"
 #include "r_agt.h"
 #include "r_timer_api.h"
 #include "r_dac.h"
@@ -19,8 +21,6 @@
 #include "r_spi.h"
 #include "r_iic_master.h"
 #include "r_i2c_master_api.h"
-#include "r_canfd.h"
-#include "r_can_api.h"
 #include "r_flash_hp.h"
 #include "r_flash_api.h"
 #include "rm_vee_flash.h"
@@ -36,6 +36,19 @@
 #include "r_rtc.h"
 #include "r_rtc_api.h"
 FSP_HEADER
+/** CANFD on CANFD Instance. */
+extern const can_instance_t g_canfd0;
+/** Access the CANFD instance using these structures when calling API functions directly (::p_api is not used). */
+extern canfd_instance_ctrl_t g_canfd0_ctrl;
+extern const can_cfg_t g_canfd0_cfg;
+extern const canfd_extended_cfg_t g_canfd0_cfg_extend;
+
+#ifndef canfd0_callback
+void canfd0_callback(can_callback_args_t *p_args);
+#endif
+
+/* Global configuration (referenced by all instances) */
+extern canfd_global_cfg_t g_canfd_global_cfg;
 /** AGT Timer Instance */
 extern const timer_instance_t g_timer10;
 
