@@ -200,7 +200,7 @@ FSP Configuration
       P607 J4 SCI8_RXD8 - Low - "Peripheral mode" CMOS None "SCI8: RXD8; SCI8: SCL8" - IO - - 
       P608 D2 GPT4_GTIOC4B - Low - "Peripheral mode" CMOS None "BUS_ASYNCH0: A00; GPT4: GTIOC4B" - IO - - 
       P609 D1 CANFD1_CTX1 CAN_TXD Medium - "Peripheral mode" CMOS None "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - IO - - 
-      P610 F3 CANFD1_CRX1 CAN_RDX Low - "Peripheral mode" CMOS None "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - IO - - 
+      P610 F3 CANFD1_CRX1 CAN_RDX Medium - "Peripheral mode" CMOS None "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - IO - - 
       P611 E2 SCI7_CTSRTS7 - Low - "Peripheral mode" CMOS None "AGT3: AGTO3; CAC0: CACREF; CGC0: CLKOUT; SCI7: CTSRTS7" - IO - - 
       P612 E1 AGT2_AGTO2 - Low - "Peripheral mode" CMOS None "AGT2: AGTO2; BUS_ASYNCH0: D08; SCI7: SCK7" - IO - - 
       P613 F4 SCI7_TXD7 - Low - "Peripheral mode" CMOS None "AGT1: AGTO1; BUS_ASYNCH0: D09; SCI7: SDA7; SCI7: TXD7" - IO - - 
@@ -1843,23 +1843,23 @@ FSP Configuration
     Data Flash Programming Enable: Enabled
     
   Module "CAN FD (r_canfd)"
-    Parameter Checking: Default (BSP)
+    Parameter Checking: Disabled
     Global Error Interrupt: Priority: Priority 12
-    Global Error Interrupt: Sources: 
+    Global Error Interrupt: Sources: DLC Check, Message Lost
     Global Error Interrupt: Callback Channel: Channel 1
-    Transmission Priority: Buffer Number
-    DLC Check: Disabled
+    Transmission Priority: Message ID
+    DLC Check: Enabled
     Flexible Data (FD): FD Frame Format: ISO 11898-1
     Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
     Flexible Data (FD): Payload Overflow: Reject
-    Reception: Message Buffers: Number of Buffers: 1
+    Reception: Message Buffers: Number of Buffers: 4
     Reception: Message Buffers: Payload Size: 8 bytes
     Reception: FIFOs: Interrupt Priority: Priority 12
     Reception: FIFOs: FIFO 0: Enable: Enabled
-    Reception: FIFOs: FIFO 0: Interrupt Mode: At Threshold Value
-    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
+    Reception: FIFOs: FIFO 0: Interrupt Mode: Every Frame
+    Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/4 full
     Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
-    Reception: FIFOs: FIFO 0: Depth: 16 stages
+    Reception: FIFOs: FIFO 0: Depth: 4 stages
     Reception: FIFOs: FIFO 1: Enable: Disabled
     Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
     Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
@@ -1895,8 +1895,8 @@ FSP Configuration
     Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
     Reception: FIFOs: FIFO 7: Depth: 16 stages
-    Reception: Acceptance Filtering: Channel 0 Rule Count: 8
-    Reception: Acceptance Filtering: Channel 1 Rule Count: 8
+    Reception: Acceptance Filtering: Channel 0 Rule Count: 0
+    Reception: Acceptance Filtering: Channel 1 Rule Count: 1
     
   Module "SPI (r_spi)"
     Parameter Checking: Default (BSP)
