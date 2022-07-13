@@ -15,6 +15,9 @@ SDCardBlockMedia::SDCardBlockMedia(const rm_filex_block_media_instance_t *block_
 
 int SDCardBlockMedia::mount()
 {
+#ifndef USE_4BIT_SDCARD
+    return 0;
+#endif
     uint8_t err = RM_FILEX_BLOCK_MEDIA_Open(_block_media_ctrl, _block_media_cfg);
 
     /* Initialize FileX */
