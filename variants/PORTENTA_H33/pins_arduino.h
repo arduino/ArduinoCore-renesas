@@ -69,6 +69,8 @@ static const uint8_t IRQ7 = PIN_IRQ7;
 #define LEDB        (26u)
 
 
+#define USE_4BIT_SDCARD   1
+
 #define CAN_STDBY   (27u)
 
 #define PIN_SPI_SS    (28u)
