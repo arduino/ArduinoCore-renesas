@@ -33,10 +33,20 @@ void analogWrite(pin_size_t pinNumber, int value)
 {
   if (g_APinDescription[pinNumber].PWMChannel != NOT_ON_PWM) {
     //PWM pin
-    PwmOut pwm(pinNumber);
     uint32_t pulse_width = (value*100)/65536;
-    //Start a PWM with 100ms period
-    pwm.begin(100, pulse_width);
+    PwmOut* pwm = digitalPinToPwmObj(pinNumber);
+    if (pwm == NULL) {
+      pwm = new PwmOut(pinNumber);
+      digitalPinToPwmObj(pinNumber) = pwm;
+      //pwmTable[digitalPinToPwmPin(pinNumber)].pwm = pwm;
+      //Start a PWM with 100ms period
+      pwm->begin(100, pulse_width);
+    } else {
+      pwm->suspend();
+      pwm->pulseWidth_us(pulse_width);
+      pwm->period_us(100);
+      pwm->resume();
+    }
   } else {
 #ifdef DAC
     //DAC pin

@@ -111,6 +111,7 @@ typedef struct {
     gpt_instance_ctrl_t* gpt_ctrl;
     const timer_cfg_t* gpt_cfg;
     gpt_io_pin_t gpt_pin;
+    PwmOut* pwm;
 } pwmTable_t;
 
 typedef struct {
@@ -121,12 +122,13 @@ typedef struct {
 extern const PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
-extern const pwmTable_t pwmTable[];
+extern pwmTable_t pwmTable[];
 extern const irqTable_t irqTable[];
 
 #define analogPinToPinName(P)       (P >= PINS_COUNT ? NC : P < A0 ? g_APinDescription[P+A0].name : g_APinDescription[P].name)
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
+#define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)
 
 #define Serial1 _UART1_
 #define Serial2 _UART2_

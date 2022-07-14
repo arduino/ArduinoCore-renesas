@@ -13,15 +13,15 @@ const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
   {&g_dac0_ctrl, &g_dac0_cfg }                // A3
 };
 
-const pwmTable_t pwmTable[] = {
-  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA}, // D9
-  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCB}, // D10
-  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCA}, // D11
-  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCB}, // D3
-  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA}, // D5
-  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCB}, // D5
-  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCA}, // D6
-  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB}, // D6
+pwmTable_t pwmTable[] = {
+  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D9
+  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D10
+  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D11
+  {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D3
+  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D5
+  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D5
+  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D6
+  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D6
 };
 
 const irqTable_t irqTable[] = {
