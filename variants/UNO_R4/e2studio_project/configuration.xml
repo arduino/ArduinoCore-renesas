@@ -857,7 +857,37 @@
     </config>
   </raModuleConfiguration>
   <raPinConfiguration>
+    <symbolicName propertyId="p000.symbolic_name" value="A0"/>
+    <symbolicName propertyId="p001.symbolic_name" value="A1"/>
+    <symbolicName propertyId="p002.symbolic_name" value="A2"/>
+    <symbolicName propertyId="p011.symbolic_name" value="LED_RED"/>
+    <symbolicName propertyId="p012.symbolic_name" value="TX_LED"/>
+    <symbolicName propertyId="p013.symbolic_name" value="LED_BLUE"/>
+    <symbolicName propertyId="p014.symbolic_name" value="A3"/>
+    <symbolicName propertyId="p015.symbolic_name" value="FUSB_INT"/>
+    <symbolicName propertyId="p100.symbolic_name" value="A5_SCL"/>
+    <symbolicName propertyId="p101.symbolic_name" value="A4_SDA"/>
+    <symbolicName propertyId="p102.symbolic_name" value="D1_TX"/>
+    <symbolicName propertyId="p103.symbolic_name" value="D5"/>
+    <symbolicName propertyId="p104.symbolic_name" value="D3"/>
+    <symbolicName propertyId="p108.symbolic_name" value="D10"/>
+    <symbolicName propertyId="p109.symbolic_name" value="D11_MOSI"/>
+    <symbolicName propertyId="p110.symbolic_name" value="D12_MISO"/>
+    <symbolicName propertyId="p111.symbolic_name" value="D13_SCK"/>
+    <symbolicName propertyId="p112.symbolic_name" value="D6"/>
+    <symbolicName propertyId="p201.symbolic_name" value="RX_LED"/>
+    <symbolicName propertyId="p206.symbolic_name" value="D2"/>
+    <symbolicName propertyId="p300.symbolic_name" value="D9"/>
+    <symbolicName propertyId="p301.symbolic_name" value="D0_RX"/>
+    <symbolicName propertyId="p302.symbolic_name" value="D8"/>
+    <symbolicName propertyId="p400.symbolic_name" value="D4"/>
+    <symbolicName propertyId="p407.symbolic_name" value="USB_VBUS"/>
+    <symbolicName propertyId="p408.symbolic_name" value="USB_ID"/>
+    <symbolicName propertyId="p409.symbolic_name" value="D7"/>
+    <symbolicName propertyId="p500.symbolic_name" value="VBUS_HOST_EN"/>
     <pincfg active="true" name="R7FA4M1AB3CNE.pincfg" selected="true" symbol="g_bsp_pin_cfg">
+      <configSetting altId="adc.mode.custom" configurationId="adc.mode"/>
+      <configSetting altId="adc.vrefh0.p010" configurationId="adc.vrefh0"/>
       <configSetting altId="adc0.an00.p000" configurationId="adc0.an00"/>
       <configSetting altId="adc0.an01.p001" configurationId="adc0.an01"/>
       <configSetting altId="adc0.an02.p002" configurationId="adc0.an02"/>
@@ -865,7 +895,6 @@
       <configSetting altId="adc0.an21.p101" configurationId="adc0.an21"/>
       <configSetting altId="adc0.an22.p100" configurationId="adc0.an22"/>
       <configSetting altId="adc0.mode.custom" configurationId="adc0.mode"/>
-      <configSetting altId="agt0.agtoa.p500" configurationId="agt0.agtoa"/>
       <configSetting altId="agt0.mode.custom" configurationId="agt0.mode"/>
       <configSetting altId="agt1.mode.custom" configurationId="agt1.mode"/>
       <configSetting altId="cgc0.extal.p212" configurationId="cgc0.extal"/>
@@ -900,8 +929,7 @@
       <configSetting altId="iic1.sda.p101" configurationId="iic1.sda"/>
       <configSetting altId="irq0.irq00.p206" configurationId="irq0.irq00"/>
       <configSetting altId="irq0.irq01.p104" configurationId="irq0.irq01"/>
-      <configSetting altId="irq0.irq07.p408" configurationId="irq0.irq07"/>
-      <configSetting altId="irq0.irq15.p011" configurationId="irq0.irq15"/>
+      <configSetting altId="irq0.irq07.p015" configurationId="irq0.irq07"/>
       <configSetting altId="irq0.mode.enabled" configurationId="irq0.mode"/>
       <configSetting altId="p000.adc0.an00" configurationId="p000"/>
       <configSetting altId="p000.gpio_mode.gpio_mode_an" configurationId="p000.gpio_mode"/>
@@ -909,11 +937,20 @@
       <configSetting altId="p001.gpio_mode.gpio_mode_an" configurationId="p001.gpio_mode"/>
       <configSetting altId="p002.adc0.an02" configurationId="p002"/>
       <configSetting altId="p002.gpio_mode.gpio_mode_an" configurationId="p002.gpio_mode"/>
-      <configSetting altId="p011.irq0.irq15" configurationId="p011"/>
-      <configSetting altId="p011.gpio_irq.gpio_irq_enabled" configurationId="p011.gpio_irq"/>
-      <configSetting altId="p011.gpio_mode.gpio_mode_irq" configurationId="p011.gpio_mode"/>
+      <configSetting altId="p010.adc.vrefh0" configurationId="p010"/>
+      <configSetting altId="p010.gpio_mode.gpio_mode_an" configurationId="p010.gpio_mode"/>
+      <configSetting altId="p011.output.low" configurationId="p011"/>
+      <configSetting altId="p011.gpio_mode.gpio_mode_out.low" configurationId="p011.gpio_mode"/>
+      <configSetting altId="p012.output.high" configurationId="p012"/>
+      <configSetting altId="p012.gpio_speed.gpio_speed_medium" configurationId="p012.gpio_drivecapacity"/>
+      <configSetting altId="p012.gpio_mode.gpio_mode_out.high" configurationId="p012.gpio_mode"/>
+      <configSetting altId="p013.output.low" configurationId="p013"/>
+      <configSetting altId="p013.gpio_mode.gpio_mode_out.low" configurationId="p013.gpio_mode"/>
       <configSetting altId="p014.adc0.an09" configurationId="p014"/>
       <configSetting altId="p014.gpio_mode.gpio_mode_an" configurationId="p014.gpio_mode"/>
+      <configSetting altId="p015.irq0.irq07" configurationId="p015"/>
+      <configSetting altId="p015.gpio_irq.gpio_irq_enabled" configurationId="p015.gpio_irq"/>
+      <configSetting altId="p015.gpio_mode.gpio_mode_irq" configurationId="p015.gpio_mode"/>
       <configSetting altId="p100.adc0.an22" configurationId="p100"/>
       <configSetting altId="p100.gpio_mode.gpio_mode_peripheral" configurationId="p100.gpio_mode"/>
       <configSetting altId="p101.adc0.an21" configurationId="p101"/>
@@ -935,6 +972,8 @@
       <configSetting altId="p111.gpio_mode.gpio_mode_peripheral" configurationId="p111.gpio_mode"/>
       <configSetting altId="p112.gpt3.gtiocb" configurationId="p112"/>
       <configSetting altId="p112.gpio_mode.gpio_mode_peripheral" configurationId="p112.gpio_mode"/>
+      <configSetting altId="p201.output.high" configurationId="p201"/>
+      <configSetting altId="p201.gpio_mode.gpio_mode_out.high" configurationId="p201.gpio_mode"/>
       <configSetting altId="p206.irq0.irq00" configurationId="p206"/>
       <configSetting altId="p206.gpio_irq.gpio_irq_enabled" configurationId="p206.gpio_irq"/>
       <configSetting altId="p206.gpio_mode.gpio_mode_irq" configurationId="p206.gpio_mode"/>
@@ -956,12 +995,11 @@
       <configSetting altId="p400.gpio_mode.gpio_mode_peripheral" configurationId="p400.gpio_mode"/>
       <configSetting altId="p407.usbfs0.vbus" configurationId="p407"/>
       <configSetting altId="p407.gpio_mode.gpio_mode_peripheral" configurationId="p407.gpio_mode"/>
-      <configSetting altId="p408.irq0.irq07" configurationId="p408"/>
-      <configSetting altId="p408.gpio_irq.gpio_irq_enabled" configurationId="p408.gpio_irq"/>
-      <configSetting altId="p408.gpio_mode.gpio_mode_irq" configurationId="p408.gpio_mode"/>
+      <configSetting altId="p408.usbfs0.id" configurationId="p408"/>
+      <configSetting altId="p408.gpio_mode.gpio_mode_peripheral" configurationId="p408.gpio_mode"/>
       <configSetting altId="p409.gpt5.gtioca" configurationId="p409"/>
       <configSetting altId="p409.gpio_mode.gpio_mode_peripheral" configurationId="p409.gpio_mode"/>
-      <configSetting altId="p500.agt0.agtoa" configurationId="p500"/>
+      <configSetting altId="p500.usbfs0.vbusen" configurationId="p500"/>
       <configSetting altId="p500.gpio_mode.gpio_mode_peripheral" configurationId="p500.gpio_mode"/>
       <configSetting altId="p914.usbfs0.usbdp" configurationId="p914"/>
       <configSetting altId="p914.gpio_mode.gpio_mode_peripheral" configurationId="p914.gpio_mode"/>
@@ -976,10 +1014,12 @@
       <configSetting altId="spi1.mosi.p109" configurationId="spi1.mosi"/>
       <configSetting altId="spi1.rspck.p111" configurationId="spi1.rspck"/>
       <configSetting altId="spi1.ssl0.p108" configurationId="spi1.ssl0"/>
-      <configSetting altId="usbfs0.mode.device" configurationId="usbfs0.mode"/>
+      <configSetting altId="usbfs0.id.p408" configurationId="usbfs0.id"/>
+      <configSetting altId="usbfs0.mode.custom" configurationId="usbfs0.mode"/>
       <configSetting altId="usbfs0.usbdm.p915" configurationId="usbfs0.usbdm"/>
       <configSetting altId="usbfs0.usbdp.p914" configurationId="usbfs0.usbdp"/>
       <configSetting altId="usbfs0.vbus.p407" configurationId="usbfs0.vbus"/>
+      <configSetting altId="usbfs0.vbusen.p500" configurationId="usbfs0.vbusen"/>
     </pincfg>
   </raPinConfiguration>
 </raConfiguration>
