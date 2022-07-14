@@ -308,26 +308,6 @@ extern const timer_cfg_t g_timer9_cfg;
 void NULL(timer_callback_args_t *p_args);
 #endif
 /** Timer on GPT Instance. */
-extern const timer_instance_t g_timer8;
-
-/** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
-extern gpt_instance_ctrl_t g_timer8_ctrl;
-extern const timer_cfg_t g_timer8_cfg;
-
-#ifndef NULL
-void NULL(timer_callback_args_t *p_args);
-#endif
-/** Timer on GPT Instance. */
-extern const timer_instance_t g_timer7;
-
-/** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
-extern gpt_instance_ctrl_t g_timer7_ctrl;
-extern const timer_cfg_t g_timer7_cfg;
-
-#ifndef NULL
-void NULL(timer_callback_args_t *p_args);
-#endif
-/** Timer on GPT Instance. */
 extern const timer_instance_t g_timer6;
 
 /** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
