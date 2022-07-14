@@ -7,10 +7,6 @@ static uint32_t pclkd_freq_hz = 0;
 PwmOut::PwmOut(pin_size_t pinNumber) : 
   _pin(pinNumber),
   _pwm_idx(0),
-  _period(0),
-  _period_us(0),
-  _pulse_width(0),
-  _pulse_width_us(0),
   _enabled(false)
 {
 
@@ -51,7 +47,6 @@ bool PwmOut::period(int ms) {
   if (R_GPT_PeriodSet(pwmTable[_pwm_idx].gpt_ctrl, period_counts_ms) != FSP_SUCCESS) {
     return false;
   }
-  _period_ms = ms*1000;
   return true;
 }
 
@@ -60,7 +55,6 @@ bool PwmOut::pulseWidth(int ms) {
   if (R_GPT_DutyCycleSet(pwmTable[_pwm_idx].gpt_ctrl, pulse_counts_ms, pwmTable[_pwm_idx].gpt_pin) != FSP_SUCCESS) {
     return false;
   }
-  _pulse_width_ms = ms*1000;
   return true;
 }
 
@@ -70,7 +64,6 @@ bool PwmOut::period_us(int us) {
   if (R_GPT_PeriodSet(pwmTable[_pwm_idx].gpt_ctrl, period_counts_us) != FSP_SUCCESS) {
     return false;
   }
-  _period_us = us;
   return true;
 }
 
@@ -79,19 +72,7 @@ bool PwmOut::pulseWidth_us(int us) {
   if (R_GPT_DutyCycleSet(pwmTable[_pwm_idx].gpt_ctrl, pulse_counts_us, pwmTable[_pwm_idx].gpt_pin) != FSP_SUCCESS) {
     return false;
   }
-  _pulse_width_us = us;
   return true;
-}
-
-uint32_t PwmOut::getPeriod() {
-  timer_info_t info;
-  (void) R_GPT_InfoGet(pwmTable[_pwm_idx].gpt_ctrl, &info);
-  uint32_t time_ms = info.period_counts/(pclkd_freq_hz/1000);
-  return time_ms;
-}
-
-uint32_t PwmOut::getPulseWidth() {
-  return _pulse_width;
 }
 
 void PwmOut::suspend() {
