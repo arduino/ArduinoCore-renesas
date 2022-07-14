@@ -96,7 +96,8 @@ typedef struct _PinDescription
 
 typedef struct _AnalogPinDescription
 {
-  bsp_io_port_pin_t name;
+  adc_ctrl_t* adc_ctrl;
+  const adc_cfg_t* adc_cfg;
   adc_channel_t ch;
 } AnalogPinDescription;
 
@@ -125,7 +126,7 @@ extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 extern pwmTable_t pwmTable[];
 extern const irqTable_t irqTable[];
 
-#define analogPinToPinName(P)       (P >= PINS_COUNT ? NC : P < A0 ? g_APinDescription[P+A0].name : g_APinDescription[P].name)
+#define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
 #define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)

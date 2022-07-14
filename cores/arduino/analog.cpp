@@ -5,25 +5,31 @@
 
 int analogRead(pin_size_t pinNumber)
 {
-	static bool begin = false;
+  static bool begin = false;
+  pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
 
 	if(begin == false)
 	{
-	    R_ADC_Open(&g_adc0_ctrl, &g_adc0_cfg);
-	    R_ADC_ScanCfg(&g_adc0_ctrl, &g_adc0_channel_cfg);
+	    R_ADC_Open(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].adc_cfg);
 	    begin = true;
 	}
 
-  (void) R_ADC_ScanStart(&g_adc0_ctrl);
+  //Clear Scan Mask
+  adc_channel_cfg_t adc_channel_cfg = g_adc0_channel_cfg;
+  adc_channel_cfg.scan_mask = 0;
+  //Enable scan only for the current pin
+  adc_channel_cfg.scan_mask |= (1 << g_AAnalogPinDescription[adc_idx].ch);
+	R_ADC_ScanCfg(g_AAnalogPinDescription[adc_idx].adc_ctrl, &adc_channel_cfg);
+  R_ADC_ScanStart(g_AAnalogPinDescription[adc_idx].adc_ctrl);
   adc_status_t status;
   status.state = ADC_STATE_SCAN_IN_PROGRESS;
   while (ADC_STATE_SCAN_IN_PROGRESS == status.state)
   {
-      (void) R_ADC_StatusGet(&g_adc0_ctrl, &status);
+      R_ADC_StatusGet(g_AAnalogPinDescription[adc_idx].adc_ctrl, &status);
   }
 
   uint16_t result;
-  R_ADC_Read(&g_adc0_ctrl, g_AAnalogPinDescription[pinNumber - A0].ch, &result);
+  R_ADC_Read(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].ch, &result);
   return (int)result;
 
 }

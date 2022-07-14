@@ -1,12 +1,12 @@
 #include "Arduino.h"
 
 const AnalogPinDescription g_AAnalogPinDescription[] = {
-  { BSP_IO_PORT_00_PIN_00,   ADC_CHANNEL_0 },    // A0    ADC0_AN0
-  { BSP_IO_PORT_00_PIN_01,   ADC_CHANNEL_1 },    // A1    ADC0_AN1
-  { BSP_IO_PORT_00_PIN_02,   ADC_CHANNEL_2 },    // A2    ADC0_AN2
-  { BSP_IO_PORT_00_PIN_14,   ADC_CHANNEL_14},    // A3    ADC3_AN9
-  { BSP_IO_PORT_01_PIN_01,   ADC_CHANNEL_1 },    // A4    ADC1_AN21
-  { BSP_IO_PORT_01_PIN_00,   ADC_CHANNEL_0 }     // A5    ADC2_AN22
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_0 },    // A0    ADC0_AN0
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_1 },    // A1    ADC0_AN1
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_2 },    // A2    ADC0_AN2
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_14},    // A3    ADC3_AN9
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_1 },    // A4    ADC1_AN21
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_0 }     // A5    ADC2_AN22
 };
 
 const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
