@@ -11,14 +11,14 @@ extern "C" unsigned int PINCOUNT_fn();
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (2u)
 
-#define PIN_A0   (0u)
-#define PIN_A1   (1u)
-#define PIN_A2   (2u)
-#define PIN_A3   (3u)
-#define PIN_A4   (4u)
-#define PIN_A5   (5u)
-#define PIN_A6   (6u)
-#define PIN_A7   (7u)
+#define PIN_A0   (8u)
+#define PIN_A1   (9u)
+#define PIN_A2   (10u)
+#define PIN_A3   (11u)
+#define PIN_A4   (12u)
+#define PIN_A5   (13u)
+#define PIN_A6   (14u)
+#define PIN_A7   (15u)
 
 #define DAC      (A6)
 
@@ -30,24 +30,6 @@ static const uint8_t A4 = PIN_A4;
 static const uint8_t A5 = PIN_A5;
 static const uint8_t A6 = PIN_A6;
 static const uint8_t A7 = PIN_A7;
-
-#define PIN_IRQ0   (16u)
-#define PIN_IRQ1   (17u)
-#define PIN_IRQ2   (18u)
-#define PIN_IRQ3   (19u)
-#define PIN_IRQ4   (20u)
-#define PIN_IRQ5   (21u)
-#define PIN_IRQ6   (22u)
-#define PIN_IRQ7   (23u)
-
-static const uint8_t IRQ0 = PIN_IRQ0;
-static const uint8_t IRQ1 = PIN_IRQ1;
-static const uint8_t IRQ2 = PIN_IRQ2;
-static const uint8_t IRQ3 = PIN_IRQ3;
-static const uint8_t IRQ4 = PIN_IRQ4;
-static const uint8_t IRQ5 = PIN_IRQ5;
-static const uint8_t IRQ6 = PIN_IRQ6;
-static const uint8_t IRQ7 = PIN_IRQ7;
 
 // Digital pins
 // -----------
@@ -71,9 +53,9 @@ static const uint8_t IRQ7 = PIN_IRQ7;
 
 #define USE_4BIT_SDCARD   1
 
-#define CAN_STDBY   (27u)
+#define CAN_STDBY     (52u)
 
-#define PIN_SPI_SS    (28u)
+#define PIN_SPI_SS    (44u)
 
 static const uint8_t SS   = PIN_SPI_SS;
 

@@ -20,6 +20,7 @@ class PwmOut {
   private:
     bool _enabled;
     pin_size_t _pin;
+    pin_size_t _pwm_idx;
     uint32_t _period;
     uint32_t _pulse_width;
 };

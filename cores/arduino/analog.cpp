@@ -31,18 +31,28 @@ int analogRead(pin_size_t pinNumber)
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
-  if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 0) {
-    R_DAC_Open(&g_dac0_ctrl, &g_dac0_cfg);
-    R_DAC_Start(&g_dac0_ctrl);
-    R_DAC_Write(&g_dac0_ctrl, value);
+  if (g_APinDescription[pinNumber].PWMChannel != NOT_ON_PWM) {
+    //PWM pin
+    PwmOut pwm(pinNumber);
+    uint32_t pulse_width = (value*100)/65536;
+    //Start a PWM with 100ms period
+    pwm.begin(100, pulse_width);
+  } else {
+#ifdef DAC
+    //DAC pin
+    //Check if it is a valid DAC pin
+    if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
+      //R_DAC_Stop(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
+      R_DAC_Open(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, g_AAnalogOutPinDescription[pinNumber - DAC].dac_cfg);
+      if (value > 4096) {
+        // Saturate to MAX ADC value
+        value = 4096;
+      }
+      R_DAC_Write(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, value);
+      R_DAC_Start(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
+    }
+#endif //DAC
   }
-#if NUM_ANALOG_OUTPUTS > 1
-   else if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 1) {
-    R_DAC_Open(&g_dac1_ctrl, &g_dac1_cfg);
-    R_DAC_Start(&g_dac1_ctrl);
-    R_DAC_Write(&g_dac1_ctrl, value);
-  }
-#endif
 }
 
 
