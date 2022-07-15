@@ -176,8 +176,8 @@ FSP Configuration
       P411 C15 SDHI0_SD0DAT0 - Low None "Peripheral mode" CMOS None "AGT1: AGTOA1; CTSU0: TS07; ETHERC_MII0: ET0_ERXD1; ETHERC_RMII0: RMII_RXD0; GPT_OPS0: GTOVUP; GPT9: GTIOC9A; ICU0: IRQ04; SCI0: SDA0; SCI0: TXD0; SCI3: CTSRTS3; SDHI0: SD0DAT0; SPI1: MOSIB" - IO - - 
       P412 D14 SDHI0_SD0CMD - Low - "Peripheral mode" CMOS None "AGT1: AGTEE1; CTSU0: TS08; ETHERC_MII0: ET0_ETXD0; ETHERC_RMII0: REF50CK; GPT_OPS0: GTOULO; SCI0: SCK0; SCI3: CTS3; SDHI0: SD0CMD; SPI1: RSPCKB" - IO - - 
       P413 E13 SDHI0_SD0CLK - Low - "Peripheral mode" CMOS None "AGT3: AGTEE3; CTSU0: TS09; ETHERC_MII0: ET0_ETXD1; ETHERC_RMII0: RMII_TXD0; GPT_OPS0: GTOUUP; SCI0: CTSRTS0; SDHI0: SD0CLK; SPI1: SSLB0" - IO - - 
-      P414 D15 - - - - Disabled - - "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - None - - 
-      P415 E14 - - - - Disabled - - "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - None - - 
+      P414 D15 IIC2_SDA2 - Medium None "Peripheral mode" CMOS None "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - IO - - 
+      P415 E14 IIC2_SCL2 - Medium None "Peripheral mode" CMOS None "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - IO - - 
       P500 R3 SCI5_CTS5 - Low - "Peripheral mode" CMOS None "ADC1: AN116; AGT0: AGTOA0; CAC0: CACREF; GPT_OPS0: GTIU; QSPI0: QSPCLK; SCI5: CTS5; USB_FS0: USB_VBUSEN" - IO - - 
       P501 P4 USB_FS0_USB_OVRCURA - Low None "Peripheral mode" CMOS None "ADC1: AN117; AGT0: AGTOB0; GPT_OPS0: GTIV; ICU0: IRQ11; QSPI0: QSSL; SCI5: SDA5; SCI5: TXD5; USB_FS0: USB_OVRCURA" - IO - - 
       P502 R4 SCI6_CTS6 - Low None "Peripheral mode" CMOS None "ADC1: AN118; AGT2: AGTOA2; GPT_OPS0: GTIW; ICU0: IRQ12; QSPI0: QIO0; SCI5: RXD5; SCI5: SCL5; SCI6: CTS6; USB_FS0: USB_OVRCURB" - IO - - 
@@ -353,8 +353,8 @@ FSP Configuration
       P411 C15 SPI1_MOSIB - High None "Peripheral mode" CMOS None "AGT1: AGTOA1; CTSU0: TS07; ETHERC_MII0: ET0_ERXD1; ETHERC_RMII0: RMII_RXD0; GPT_OPS0: GTOVUP; GPT9: GTIOC9A; ICU0: IRQ04; SCI0: SDA0; SCI0: TXD0; SCI3: CTSRTS3; SDHI0: SD0DAT0; SPI1: MOSIB" - IO - - 
       P412 D14 SPI1_RSPCKB - High - "Peripheral mode" CMOS None "AGT1: AGTEE1; CTSU0: TS08; ETHERC_MII0: ET0_ETXD0; ETHERC_RMII0: REF50CK; GPT_OPS0: GTOULO; SCI0: SCK0; SCI3: CTS3; SDHI0: SD0CMD; SPI1: RSPCKB" - IO - - 
       P413 E13 SPI1_SSLB0 - High - "Peripheral mode" CMOS None "AGT3: AGTEE3; CTSU0: TS09; ETHERC_MII0: ET0_ETXD1; ETHERC_RMII0: RMII_TXD0; GPT_OPS0: GTOUUP; SCI0: CTSRTS0; SDHI0: SD0CLK; SPI1: SSLB0" - IO - - 
-      P414 D15 IIC2_SDA2 - - - "Peripheral mode" - - "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - None - - 
-      P415 E14 IIC2_SCL2 - - - "Peripheral mode" - - "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - None - - 
+      P414 D15 IIC2_SDA2 - High None "Peripheral mode" CMOS None "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - IO - - 
+      P415 E14 IIC2_SCL2 - High None "Peripheral mode" CMOS None "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - IO - - 
       P500 R3 USB_FS0_USB_VBUSEN - High - "Peripheral mode" CMOS None "ADC1: AN116; AGT0: AGTOA0; CAC0: CACREF; GPT_OPS0: GTIU; QSPI0: QSPCLK; SCI5: CTS5; USB_FS0: USB_VBUSEN" - IO - - 
       P501 P4 USB_FS0_USB_OVRCURA - High None "Peripheral mode" CMOS None "ADC1: AN117; AGT0: AGTOB0; GPT_OPS0: GTIV; ICU0: IRQ11; QSPI0: QSSL; SCI5: SDA5; SCI5: TXD5; USB_FS0: USB_OVRCURA" - IO - - 
       P502 R4 - - Low None Disabled CMOS None "ADC1: AN118; AGT2: AGTOA2; GPT_OPS0: GTIW; ICU0: IRQ12; QSPI0: QIO0; SCI5: RXD5; SCI5: SCL5; SCI6: CTS6; USB_FS0: USB_OVRCURB" - IO - - 
@@ -530,8 +530,8 @@ FSP Configuration
       P411 C15 - - Low None Disabled CMOS None "AGT1: AGTOA1; CTSU0: TS07; ETHERC_MII0: ET0_ERXD1; ETHERC_RMII0: RMII_RXD0; GPT_OPS0: GTOVUP; GPT9: GTIOC9A; ICU0: IRQ04; SCI0: SDA0; SCI0: TXD0; SCI3: CTSRTS3; SDHI0: SD0DAT0; SPI1: MOSIB" - IO - - 
       P412 D14 - - Low - Disabled CMOS None "AGT1: AGTEE1; CTSU0: TS08; ETHERC_MII0: ET0_ETXD0; ETHERC_RMII0: REF50CK; GPT_OPS0: GTOULO; SCI0: SCK0; SCI3: CTS3; SDHI0: SD0CMD; SPI1: RSPCKB" - IO - - 
       P413 E13 - - Low - Disabled CMOS None "AGT3: AGTEE3; CTSU0: TS09; ETHERC_MII0: ET0_ETXD1; ETHERC_RMII0: RMII_TXD0; GPT_OPS0: GTOUUP; SCI0: CTSRTS0; SDHI0: SD0CLK; SPI1: SSLB0" - IO - - 
-      P414 D15 - - - - Disabled - - "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - None - - 
-      P415 E14 - - - - Disabled - - "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - None - - 
+      P414 D15 - - Low None Disabled CMOS None "AGT5: AGTIO5; CTSU0: TS10; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT0: GTIOC0B; ICU0: IRQ09; IIC2: SDA2; SCI0: CTS0; SDHI0: SD0WP; SPI1: SSLB1" - IO - - 
+      P415 E14 - - Low None Disabled CMOS None "AGT4: AGTIO4; CTSU0: TS11; ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT0: GTIOC0A; ICU0: IRQ08; IIC2: SCL2; SDHI0: SD0CD; SPI1: SSLB2; USB_FS0: USB_VBUSEN" - IO - - 
       P500 R3 - - Low - Disabled CMOS None "ADC1: AN116; AGT0: AGTOA0; CAC0: CACREF; GPT_OPS0: GTIU; QSPI0: QSPCLK; SCI5: CTS5; USB_FS0: USB_VBUSEN" - IO - - 
       P501 P4 - - Low None Disabled CMOS None "ADC1: AN117; AGT0: AGTOB0; GPT_OPS0: GTIV; ICU0: IRQ11; QSPI0: QSSL; SCI5: SDA5; SCI5: TXD5; USB_FS0: USB_OVRCURA" - IO - - 
       P502 R4 - - Low None Disabled CMOS None "ADC1: AN118; AGT2: AGTOA2; GPT_OPS0: GTIW; ICU0: IRQ12; QSPI0: QIO0; SCI5: RXD5; SCI5: SCL5; SCI6: CTS6; USB_FS0: USB_OVRCURB" - IO - - 
@@ -2057,7 +2057,7 @@ FSP Configuration
       Channel: 0
       Synchronize with ADC: Disabled
       Data Format: Right Justified
-      Output Amplifier: Disabled
+      Output Amplifier: Enabled
       Charge Pump (Requires MOCO active): Disabled
       Internal Output: Enabled by default
       ELC Trigger Source: Disabled
@@ -2168,6 +2168,34 @@ FSP Configuration
       Callback: isr_i2c0
       Interrupt Priority Level: Priority 12
       
+      Instance "g_transfer5 Transfer (r_dtc) IIC0 TXI (Transmit data empty)"
+        Name: g_transfer5
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: IIC0 TXI (Transmit data empty)
+        
+      Instance "g_transfer7 Transfer (r_dtc) IIC0 RXI (Receive data full)"
+        Name: g_transfer7
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: IIC0 RXI (Receive data full)
+        
     Instance "g_adpcm_decoder0 ADPCM Decoder (rm_adpcm_decoder)"
       Name: g_adpcm_decoder0
       
@@ -2262,6 +2290,34 @@ FSP Configuration
       Callback: isr_i2c1
       Interrupt Priority Level: Priority 12
       
+      Instance "g_transfer8 Transfer (r_dtc) IIC1 TXI (Transmit data empty)"
+        Name: g_transfer8
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: IIC1 TXI (Transmit data empty)
+        
+      Instance "g_transfer13 Transfer (r_dtc) IIC1 RXI (Receive data full)"
+        Name: g_transfer13
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: IIC1 RXI (Receive data full)
+        
     Instance "Azure RTOS NetX Duo Common"
     Instance "g_timer2 Timer, General PWM (r_gpt)"
       General: Name: g_timer2
