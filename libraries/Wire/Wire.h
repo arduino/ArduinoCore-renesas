@@ -33,7 +33,7 @@
 #ifndef __ARDUINO_WIRE_IMPLEMENTATION__
 #define __ARDUINO_WIRE_IMPLEMENTATION__
 
-#define BUFFER_LENGTH 32
+#define BUFFER_LENGTH 256
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -44,7 +44,9 @@ class TwoWire : public arduino::HardwareI2C
 {
   public:
     TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
-           ,const i2c_master_cfg_t *g_i2c_master_cfg);
+           ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch);
+    TwoWire(int sda, int scl, int ch);
+    TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch);
     void begin();
     void begin(uint8_t);
     void begin(int);
@@ -75,6 +77,9 @@ class TwoWire : public arduino::HardwareI2C
     using Print::write;
 
   private:
+
+    void configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch);
+
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
@@ -89,7 +94,12 @@ class TwoWire : public arduino::HardwareI2C
     i2c_master_cfg_t _i2c_config;
     dtc_instance_ctrl_t* _dtc_ctrl;
 
-    i2c_master_event_t _g_i2c_callback_event;
+    bsp_io_port_pin_t _sda;
+    bsp_io_port_pin_t _scl;
+    int               _channel;
+
+    iic_master_instance_ctrl_t _i2c_master_ctrl;
+    i2c_master_cfg_t           _i2c_master_cfg;
 
     static uint8_t transmitting;
     static void (*user_onRequest)(void);

@@ -91,6 +91,7 @@ typedef struct _PinDescription
   bsp_io_port_pin_t name;
   EPWMChannel       PWMChannel;
   EExt_Interrupts   ExtInt;
+  uint32_t          PeripheralConfig;
 } PinDescription ;
 
 
@@ -120,16 +121,20 @@ typedef struct {
     const external_irq_cfg_t* irq_cfg;
 } irqTable_t;
 
-extern const PinDescription g_APinDescription[];
+extern PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 extern pwmTable_t pwmTable[];
 extern const irqTable_t irqTable[];
 
+#define digitalPinToBspPin(P)       (g_APinDescription[P].name)
 #define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
 #define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)
+
+void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
+void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 
 #define Serial1 _UART1_
 #define Serial2 _UART2_

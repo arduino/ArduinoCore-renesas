@@ -45,14 +45,51 @@ void (*TwoWire::user_onReceive)(int);
 
 static uint32_t timeout_ms = 1000;
 
+static i2c_master_event_t _i2c_cb_event[3] = {I2C_MASTER_EVENT_ABORTED};
+
 // Constructors ////////////////////////////////////////////////////////////////
 
 TwoWire::TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
-                 ,const i2c_master_cfg_t *g_i2c_master_cfg):
+                 ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch):
   _g_i2c_master_ctrl(g_i2c_master_ctrl)
 , _g_i2c_master_cfg(g_i2c_master_cfg)
-, _g_i2c_callback_event(I2C_MASTER_EVENT_ABORTED)
+, _channel(ch)
 {
+}
+
+TwoWire::TwoWire(int sda, int scl, int ch):
+  _sda(digitalPinToBspPin(sda)),
+  _scl(digitalPinToBspPin(scl)),
+  _channel(ch)
+{
+  configureI2C(digitalPinToBspPin(sda), digitalPinToBspPin(scl), ch);
+}
+
+TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
+  _sda(sda),
+  _scl(scl),
+  _channel(ch)
+{
+  configureI2C(sda, scl, ch);
+}
+
+void TwoWire::configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch) {
+  pinPeripheral(sda, (uint32_t) IOPORT_CFG_DRIVE_MID |
+                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN |
+                     (uint32_t) IOPORT_PERIPHERAL_IIC);
+  pinPeripheral(scl, (uint32_t) IOPORT_CFG_DRIVE_MID |
+                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN |
+                     (uint32_t) IOPORT_PERIPHERAL_IIC);
+  if (ch==0) {
+    _g_i2c_master_ctrl = &g_i2c_master0_ctrl;
+    _g_i2c_master_cfg = &g_i2c_master0_cfg;
+  } else if (ch==1) {
+    _g_i2c_master_ctrl = &g_i2c_master1_ctrl;
+    _g_i2c_master_cfg = &g_i2c_master1_cfg;
+  } else if (ch==2) {
+    _g_i2c_master_ctrl = &g_i2c_master2_ctrl;
+    _g_i2c_master_cfg = &g_i2c_master2_cfg;
+  }
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -321,12 +358,12 @@ void TwoWire::onRequest( void (*function)(void) )
 {
   user_onRequest = function;
 }
-
-void TwoWire::setCallbackEvent(i2c_master_event_t cb_event)
+/*
+void TwoWire::setCallbackEvent(i2c_master_event_t cb_event, int ch)
 {
   _g_i2c_callback_event = cb_event;
 }
-
+*/
 
 /* 
  * Function twi_readFrom
@@ -342,7 +379,7 @@ uint8_t TwoWire::twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, ui
 {
   R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
   R_IIC_MASTER_Read(_g_i2c_master_ctrl, data, length, !sendStop);
-  while ((I2C_MASTER_EVENT_RX_COMPLETE != _g_i2c_callback_event) && timeout_ms)
+  while ((I2C_MASTER_EVENT_RX_COMPLETE != _i2c_cb_event[_channel]) && timeout_ms)
   {
       timeout_ms--;
       delay(1);
@@ -368,17 +405,17 @@ uint8_t TwoWire::twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, ui
 uint8_t TwoWire::twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
   fsp_err_t err;
-  _g_i2c_callback_event = I2C_MASTER_EVENT_ABORTED;
+  _i2c_cb_event[_channel] = I2C_MASTER_EVENT_ABORTED;
   R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
   err = R_IIC_MASTER_Write(_g_i2c_master_ctrl, data, length, !sendStop);
-  while ((I2C_MASTER_EVENT_TX_COMPLETE != _g_i2c_callback_event) && timeout_ms)
+  while ((I2C_MASTER_EVENT_TX_COMPLETE != _i2c_cb_event[_channel]) && timeout_ms)
   {
       timeout_ms--;
       delay(1);
   }
   if (err == FSP_ERR_IN_USE){
       return 2;
-  } else if (I2C_MASTER_EVENT_ABORTED == _g_i2c_callback_event)
+  } else if (I2C_MASTER_EVENT_ABORTED == _i2c_cb_event[_channel])
   {
       return 4;
   }
@@ -386,24 +423,25 @@ uint8_t TwoWire::twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uin
 }
 
 #if WIRE_HOWMANY > 0
-TwoWire Wire(&g_i2c_master0_ctrl, &g_i2c_master0_cfg);
+TwoWire Wire(&g_i2c_master0_ctrl, &g_i2c_master0_cfg, 0);
+#endif
 void isr_i2c0 (i2c_master_callback_args_t * p_args)
 {
-    Wire.setCallbackEvent(p_args->event);
+  _i2c_cb_event[0] = p_args->event;
 }
-#endif
 #if WIRE_HOWMANY > 1
-TwoWire Wire1(&g_i2c_master1_ctrl, &g_i2c_master1_cfg);
+TwoWire Wire1(&g_i2c_master1_ctrl, &g_i2c_master1_cfg, 1);
+#endif
 void isr_i2c1 (i2c_master_callback_args_t * p_args)
 {
-    Wire1.setCallbackEvent(p_args->event);
+  _i2c_cb_event[1] = p_args->event;
 }
-#endif
 #if WIRE_HOWMANY > 2
-TwoWire Wire2(&g_i2c_master2_ctrl, &g_i2c_master2_cfg);
+TwoWire Wire2(&g_i2c_master2_ctrl, &g_i2c_master2_cfg, 2);
+#endif
 void isr_i2c2 (i2c_master_callback_args_t * p_args)
 {
-    Wire2.setCallbackEvent(p_args->event);
+  _i2c_cb_event[2] = p_args->event;
 }
-#endif
+
 

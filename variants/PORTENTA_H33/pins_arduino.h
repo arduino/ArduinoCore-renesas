@@ -61,7 +61,7 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define SERIAL_HOWMANY		5
 
-#define WIRE_HOWMANY      3
+#define WIRE_HOWMANY      2
 
 #define SPI_HOWMANY       2
 
