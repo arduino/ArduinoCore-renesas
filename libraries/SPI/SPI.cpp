@@ -13,6 +13,9 @@
 
 #include "SPI.h"
 
+extern const spi_extended_cfg_t g_spi0_ext_cfg;
+extern const spi_extended_cfg_t g_spi1_ext_cfg;
+extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
 
 uint8_t ArduinoSPI::initialized = 0;
 uint8_t ArduinoSPI::interruptMode = 0;
@@ -45,6 +48,83 @@ ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
 , _bit_order(SPI_BIT_ORDER_MSB_FIRST)
 , _is_sci(true)
 {
+}
+
+ArduinoSPI::ArduinoSPI(int miso, int mosi, int sck, int cs, int ch, bool isSci):
+  _miso(digitalPinToBspPin(miso)),
+  _mosi(digitalPinToBspPin(mosi)),
+  _sck(digitalPinToBspPin(sck)),
+  _cs(digitalPinToBspPin(cs)),
+  _channel(ch),
+  _is_sci(isSci)
+{
+  configureSPI(digitalPinToBspPin(miso), digitalPinToBspPin(mosi),
+               digitalPinToBspPin(sck), digitalPinToBspPin(cs), ch, isSci);
+}
+
+ArduinoSPI::ArduinoSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
+                       bsp_io_port_pin_t sck, bsp_io_port_pin_t cs, int ch, bool isSci):
+  _miso(miso),
+  _mosi(mosi),
+  _sck(sck),
+  _cs(cs),
+  _channel(ch),
+  _is_sci(isSci)
+{
+  configureSPI(miso, mosi, sck, cs, ch, isSci);
+}
+
+void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
+                              bsp_io_port_pin_t sck, bsp_io_port_pin_t cs, int ch, bool isSci) {
+  uint32_t peripheralCfg = 0;
+  if (isSci) {
+    if (ch%2 == 0) {
+      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI0_2_4_6_8;
+    } else {
+      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+    }
+    pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(cs, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    // TO DO
+    /*
+    if (ch==0) {
+      _g_spi_ctrl = &g_spi0_ctrl;
+      _g_spi_cfg = &g_spi0_cfg;
+      _g_spi_ext_cfg = &g_spi0_ext_cfg;
+    } else if (ch==1) {
+      _g_spi_ctrl = &g_spi1_ctrl;
+      _g_spi_cfg = &g_i2c_master1_cfg;
+      _g_sci_spi_ext_cfg = &g_spi1_cfg_extend;
+    } else if (ch==2) {
+      _g_spi_ctrl = &g_i2c_master2_ctrl;
+      _g_i2c_master_cfg = &g_i2c_master2_cfg;
+    }
+    */
+  } else {
+    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SPI;
+
+    pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(cs, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+
+    if (ch==0) {
+      _g_spi_ctrl = &g_spi0_ctrl;
+      _g_spi_cfg = &g_spi0_cfg;
+      _g_spi_ext_cfg = &g_spi0_ext_cfg;
+    } else if (ch==1) {
+      _g_spi_ctrl = &g_spi1_ctrl;
+      _g_spi_cfg = &g_spi1_cfg;
+      _g_spi_ext_cfg = &g_spi1_ext_cfg;
+      /*
+      _g_spi_ctrl = &g_spi1_ctrl;
+      _g_spi_cfg = &g_i2c_master1_cfg;
+      _g_sci_spi_ext_cfg = &g_spi1_cfg_extend;
+      */
+    }
+  }
 }
 
 
@@ -212,18 +292,21 @@ void ArduinoSPI::detachInterrupt() {
 }
 
 
+void __attribute__((weak)) spi0_callback(spi_callback_args_t *p_args) {}
+
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(&g_spi0_ctrl, &g_spi0_cfg, &g_spi0_ext_cfg);
-void spi_callback(spi_callback_args_t *p_args)
+ArduinoSPI SPI(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_ext_cfg);
+void __attribute__((weak)) spi1_callback(spi_callback_args_t *p_args)
 {
     if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
     {
     }
 }
 #endif
+
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_cfg_extend);
-void spi1_callback(spi_callback_args_t *p_args)
+ArduinoSPI SPI1(&g_spi2_ctrl, &g_spi2_cfg, &g_spi2_cfg_extend);
+void __attribute__((weak)) spi2_callback(spi_callback_args_t *p_args)
 {
     if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
     {
