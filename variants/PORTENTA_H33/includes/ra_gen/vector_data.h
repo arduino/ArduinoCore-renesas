@@ -6,7 +6,7 @@
         #endif
 /* Number of interrupts allocated */
 #ifndef VECTOR_DATA_IRQ_COUNT
-#define VECTOR_DATA_IRQ_COUNT    (76)
+#define VECTOR_DATA_IRQ_COUNT    (80)
 #endif
 /* ISR prototypes */
 void rtc_alarm_periodic_isr(void);
@@ -176,32 +176,40 @@ void sdhimmc_card_isr(void);
 #define CAN0_CHERR_IRQn          ((IRQn_Type) 61) /* CAN0 CHERR (Channel error) */
 #define VECTOR_NUMBER_CAN0_TX ((IRQn_Type) 62) /* CAN0 TX (Transmit interrupt) */
 #define CAN0_TX_IRQn          ((IRQn_Type) 62) /* CAN0 TX (Transmit interrupt) */
-#define VECTOR_NUMBER_EDMAC0_EINT ((IRQn_Type) 63) /* EDMAC0 EINT (EDMAC 0 interrupt) */
-#define EDMAC0_EINT_IRQn          ((IRQn_Type) 63) /* EDMAC0 EINT (EDMAC 0 interrupt) */
-#define VECTOR_NUMBER_USBFS_INT ((IRQn_Type) 64) /* USBFS INT (USBFS interrupt) */
-#define USBFS_INT_IRQn          ((IRQn_Type) 64) /* USBFS INT (USBFS interrupt) */
-#define VECTOR_NUMBER_USBFS_RESUME ((IRQn_Type) 65) /* USBFS RESUME (USBFS resume interrupt) */
-#define USBFS_RESUME_IRQn          ((IRQn_Type) 65) /* USBFS RESUME (USBFS resume interrupt) */
-#define VECTOR_NUMBER_USBFS_FIFO_0 ((IRQn_Type) 66) /* USBFS FIFO 0 (DMA transfer request 0) */
-#define USBFS_FIFO_0_IRQn          ((IRQn_Type) 66) /* USBFS FIFO 0 (DMA transfer request 0) */
-#define VECTOR_NUMBER_USBFS_FIFO_1 ((IRQn_Type) 67) /* USBFS FIFO 1 (DMA transfer request 1) */
-#define USBFS_FIFO_1_IRQn          ((IRQn_Type) 67) /* USBFS FIFO 1 (DMA transfer request 1) */
-#define VECTOR_NUMBER_USBHS_USB_INT_RESUME ((IRQn_Type) 68) /* USBHS USB INT RESUME (USBHS interrupt) */
-#define USBHS_USB_INT_RESUME_IRQn          ((IRQn_Type) 68) /* USBHS USB INT RESUME (USBHS interrupt) */
-#define VECTOR_NUMBER_USBHS_FIFO_0 ((IRQn_Type) 69) /* USBHS FIFO 0 (DMA transfer request 0) */
-#define USBHS_FIFO_0_IRQn          ((IRQn_Type) 69) /* USBHS FIFO 0 (DMA transfer request 0) */
-#define VECTOR_NUMBER_USBHS_FIFO_1 ((IRQn_Type) 70) /* USBHS FIFO 1 (DMA transfer request 1) */
-#define USBHS_FIFO_1_IRQn          ((IRQn_Type) 70) /* USBHS FIFO 1 (DMA transfer request 1) */
-#define VECTOR_NUMBER_DMAC0_INT ((IRQn_Type) 71) /* DMAC0 INT (DMAC transfer end 0) */
-#define DMAC0_INT_IRQn          ((IRQn_Type) 71) /* DMAC0 INT (DMAC transfer end 0) */
-#define VECTOR_NUMBER_DMAC1_INT ((IRQn_Type) 72) /* DMAC1 INT (DMAC transfer end 1) */
-#define DMAC1_INT_IRQn          ((IRQn_Type) 72) /* DMAC1 INT (DMAC transfer end 1) */
-#define VECTOR_NUMBER_SDHIMMC0_ACCS ((IRQn_Type) 73) /* SDHIMMC0 ACCS (Card access) */
-#define SDHIMMC0_ACCS_IRQn          ((IRQn_Type) 73) /* SDHIMMC0 ACCS (Card access) */
-#define VECTOR_NUMBER_SDHIMMC0_CARD ((IRQn_Type) 74) /* SDHIMMC0 CARD (Card detect) */
-#define SDHIMMC0_CARD_IRQn          ((IRQn_Type) 74) /* SDHIMMC0 CARD (Card detect) */
-#define VECTOR_NUMBER_DMAC2_INT ((IRQn_Type) 75) /* DMAC2 INT (DMAC transfer end 2) */
-#define DMAC2_INT_IRQn          ((IRQn_Type) 75) /* DMAC2 INT (DMAC transfer end 2) */
+#define VECTOR_NUMBER_SPI0_RXI ((IRQn_Type) 63) /* SPI0 RXI (Receive buffer full) */
+#define SPI0_RXI_IRQn          ((IRQn_Type) 63) /* SPI0 RXI (Receive buffer full) */
+#define VECTOR_NUMBER_SPI0_TXI ((IRQn_Type) 64) /* SPI0 TXI (Transmit buffer empty) */
+#define SPI0_TXI_IRQn          ((IRQn_Type) 64) /* SPI0 TXI (Transmit buffer empty) */
+#define VECTOR_NUMBER_SPI0_TEI ((IRQn_Type) 65) /* SPI0 TEI (Transmission complete event) */
+#define SPI0_TEI_IRQn          ((IRQn_Type) 65) /* SPI0 TEI (Transmission complete event) */
+#define VECTOR_NUMBER_SPI0_ERI ((IRQn_Type) 66) /* SPI0 ERI (Error) */
+#define SPI0_ERI_IRQn          ((IRQn_Type) 66) /* SPI0 ERI (Error) */
+#define VECTOR_NUMBER_EDMAC0_EINT ((IRQn_Type) 67) /* EDMAC0 EINT (EDMAC 0 interrupt) */
+#define EDMAC0_EINT_IRQn          ((IRQn_Type) 67) /* EDMAC0 EINT (EDMAC 0 interrupt) */
+#define VECTOR_NUMBER_USBFS_INT ((IRQn_Type) 68) /* USBFS INT (USBFS interrupt) */
+#define USBFS_INT_IRQn          ((IRQn_Type) 68) /* USBFS INT (USBFS interrupt) */
+#define VECTOR_NUMBER_USBFS_RESUME ((IRQn_Type) 69) /* USBFS RESUME (USBFS resume interrupt) */
+#define USBFS_RESUME_IRQn          ((IRQn_Type) 69) /* USBFS RESUME (USBFS resume interrupt) */
+#define VECTOR_NUMBER_USBFS_FIFO_0 ((IRQn_Type) 70) /* USBFS FIFO 0 (DMA transfer request 0) */
+#define USBFS_FIFO_0_IRQn          ((IRQn_Type) 70) /* USBFS FIFO 0 (DMA transfer request 0) */
+#define VECTOR_NUMBER_USBFS_FIFO_1 ((IRQn_Type) 71) /* USBFS FIFO 1 (DMA transfer request 1) */
+#define USBFS_FIFO_1_IRQn          ((IRQn_Type) 71) /* USBFS FIFO 1 (DMA transfer request 1) */
+#define VECTOR_NUMBER_USBHS_USB_INT_RESUME ((IRQn_Type) 72) /* USBHS USB INT RESUME (USBHS interrupt) */
+#define USBHS_USB_INT_RESUME_IRQn          ((IRQn_Type) 72) /* USBHS USB INT RESUME (USBHS interrupt) */
+#define VECTOR_NUMBER_USBHS_FIFO_0 ((IRQn_Type) 73) /* USBHS FIFO 0 (DMA transfer request 0) */
+#define USBHS_FIFO_0_IRQn          ((IRQn_Type) 73) /* USBHS FIFO 0 (DMA transfer request 0) */
+#define VECTOR_NUMBER_USBHS_FIFO_1 ((IRQn_Type) 74) /* USBHS FIFO 1 (DMA transfer request 1) */
+#define USBHS_FIFO_1_IRQn          ((IRQn_Type) 74) /* USBHS FIFO 1 (DMA transfer request 1) */
+#define VECTOR_NUMBER_DMAC0_INT ((IRQn_Type) 75) /* DMAC0 INT (DMAC transfer end 0) */
+#define DMAC0_INT_IRQn          ((IRQn_Type) 75) /* DMAC0 INT (DMAC transfer end 0) */
+#define VECTOR_NUMBER_DMAC1_INT ((IRQn_Type) 76) /* DMAC1 INT (DMAC transfer end 1) */
+#define DMAC1_INT_IRQn          ((IRQn_Type) 76) /* DMAC1 INT (DMAC transfer end 1) */
+#define VECTOR_NUMBER_SDHIMMC0_ACCS ((IRQn_Type) 77) /* SDHIMMC0 ACCS (Card access) */
+#define SDHIMMC0_ACCS_IRQn          ((IRQn_Type) 77) /* SDHIMMC0 ACCS (Card access) */
+#define VECTOR_NUMBER_SDHIMMC0_CARD ((IRQn_Type) 78) /* SDHIMMC0 CARD (Card detect) */
+#define SDHIMMC0_CARD_IRQn          ((IRQn_Type) 78) /* SDHIMMC0 CARD (Card detect) */
+#define VECTOR_NUMBER_DMAC2_INT ((IRQn_Type) 79) /* DMAC2 INT (DMAC transfer end 2) */
+#define DMAC2_INT_IRQn          ((IRQn_Type) 79) /* DMAC2 INT (DMAC transfer end 2) */
 #ifdef __cplusplus
         }
         #endif
