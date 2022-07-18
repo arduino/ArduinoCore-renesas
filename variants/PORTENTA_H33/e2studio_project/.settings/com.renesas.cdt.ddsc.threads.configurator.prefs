@@ -11,6 +11,7 @@ collapse/module.driver.i2s_on_ssi.1763083514=false
 collapse/module.driver.rm_block_media_on_rm_block_media_sdmmc.952629612=false
 collapse/module.driver.sdmmc_on_sdmmc.1455045922=false
 collapse/module.driver.spi_on_sci_spi.1779778885=false
+collapse/module.driver.spi_on_spi.70474099=false
 collapse/module.driver.spi_on_spi.894590866=false
 collapse/module.driver.uart_on_sci_uart.1340099104=false
 collapse/module.driver.uart_on_sci_uart.1511980899=false

@@ -2790,8 +2790,8 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: IIC2 RXI (Receive data full)
         
-    Instance "g_spi0 SPI (r_spi)"
-      Name: g_spi0
+    Instance "g_spi1 SPI (r_spi)"
+      Name: g_spi1
       Channel: 1
       Receive Interrupt Priority: Priority 12
       Transmit Buffer Empty Interrupt Priority: Priority 12
@@ -2802,7 +2802,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi_callback
+      Callback: spi1_callback
       SPI Mode: Clock Synchronous Operation
       Full or Transmit Only Mode: Full Duplex
       Slave Select Polarity: Active Low
@@ -2884,15 +2884,15 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SSI0 RXI (Receive data full)
         
-    Instance "g_spi1 SPI (r_sci_spi)"
-      Name: g_spi1
+    Instance "g_spi2 SPI (r_sci_spi)"
+      Name: g_spi2
       Channel: 4
       Operating Mode: Master
       Clock Phase: Data sampling on odd edge, data variation on even edge
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi1_callback
+      Callback: spi2_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -3166,6 +3166,59 @@ FSP Configuration
       Interrupts: Channel Interrupt Priority Level: Priority 12
       Filter List Array: p_canfd0_afl
       
+    Instance "g_spi0 SPI (r_spi)"
+      Name: g_spi0
+      Channel: 0
+      Receive Interrupt Priority: Priority 12
+      Transmit Buffer Empty Interrupt Priority: Priority 12
+      Transfer Complete Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: spi0_callback
+      SPI Mode: Clock Synchronous Operation
+      Full or Transmit Only Mode: Full Duplex
+      Slave Select Polarity: Active Low
+      Select SSL(Slave Select): SSL0
+      MOSI Idle State: MOSI Idle Value Fixing Disable
+      Parity Mode: Disabled
+      Byte Swapping: Disable
+      Bitrate: 1000000
+      Clock Delay: 1 Clock
+      SSL Negation Delay: 1 Clock
+      Next Access Delay: 1 Clock
+      
+      Instance "g_transfer14 Transfer (r_dtc) SPI0 TXI (Transmit buffer empty)"
+        Name: g_transfer14
+        Mode: Normal
+        Transfer Size: 2 Bytes
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SPI0 TXI (Transmit buffer empty)
+        
+      Instance "g_transfer26 Transfer (r_dtc) SPI0 RXI (Receive buffer full)"
+        Name: g_transfer26
+        Mode: Normal
+        Transfer Size: 2 Bytes
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SPI0 RXI (Receive buffer full)
+        
   Thread "MainThread"
     Symbol: main_thd
     Name: MainThread
