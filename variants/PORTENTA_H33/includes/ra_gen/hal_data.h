@@ -308,26 +308,6 @@ extern const timer_cfg_t g_timer9_cfg;
 void NULL(timer_callback_args_t *p_args);
 #endif
 /** Timer on GPT Instance. */
-extern const timer_instance_t g_timer8;
-
-/** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
-extern gpt_instance_ctrl_t g_timer8_ctrl;
-extern const timer_cfg_t g_timer8_cfg;
-
-#ifndef NULL
-void NULL(timer_callback_args_t *p_args);
-#endif
-/** Timer on GPT Instance. */
-extern const timer_instance_t g_timer7;
-
-/** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
-extern gpt_instance_ctrl_t g_timer7_ctrl;
-extern const timer_cfg_t g_timer7_cfg;
-
-#ifndef NULL
-void NULL(timer_callback_args_t *p_args);
-#endif
-/** Timer on GPT Instance. */
 extern const timer_instance_t g_timer6;
 
 /** Access the GPT instance using these structures when calling API functions directly (::p_api is not used). */
@@ -377,6 +357,18 @@ extern const timer_cfg_t g_timer2_cfg;
 #ifndef NULL
 void NULL(timer_callback_args_t *p_args);
 #endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer13;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer13_ctrl;
+extern const transfer_cfg_t g_transfer13_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer8;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer8_ctrl;
+extern const transfer_cfg_t g_transfer8_cfg;
 /* I2C Master on IIC Instance. */
 extern const i2c_master_instance_t g_i2c_master1;
 
@@ -424,6 +416,18 @@ extern const adpcm_decoder_instance_t g_adpcm_decoder0;
 extern adpcm_decoder_instance_ctrl_t g_adpcm_decoder0_ctrl;
 
 extern const adpcm_decoder_cfg_t g_adpcm_decoder0_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer7;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer7_ctrl;
+extern const transfer_cfg_t g_transfer7_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer5;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer5_ctrl;
+extern const transfer_cfg_t g_transfer5_cfg;
 /* I2C Master on IIC Instance. */
 extern const i2c_master_instance_t g_i2c_master0;
 

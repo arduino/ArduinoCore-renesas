@@ -27,12 +27,6 @@ static const uint8_t A3 = PIN_A3;
 static const uint8_t A4 = PIN_A4;
 static const uint8_t A5 = PIN_A5;
 
-#define PIN_IRQ0   (2u)
-#define PIN_IRQ1   (3u)
-
-static const uint8_t IRQ0 = PIN_IRQ0;
-static const uint8_t IRQ1 = PIN_IRQ1;
-
 // Digital pins
 // -----------
 #define D0  (0u)

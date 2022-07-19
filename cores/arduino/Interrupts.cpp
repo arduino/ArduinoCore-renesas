@@ -21,47 +21,21 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
-typedef struct {
-    icu_instance_ctrl_t* icu_ctrl;
-    const external_irq_cfg_t* irq_cfg;
-} irqTable_t;
-
-static irqTable_t irqTable[] = {
-    {&g_external_irq0_ctrl, &g_external_irq0_cfg}, // ext_int0
-    {&g_external_irq1_ctrl, &g_external_irq1_cfg}, // ext_int1
-#if EXT_INTERRUPTS_HOWMANY > 2
-    {&g_external_irq2_ctrl, &g_external_irq2_cfg}, // ext_int2
-    {&g_external_irq3_ctrl, &g_external_irq3_cfg}, // ext_int3
-    {&g_external_irq4_ctrl, &g_external_irq4_cfg}, // ext_int4
-    {&g_external_irq5_ctrl, &g_external_irq5_cfg}, // ext_int5
-    {&g_external_irq6_ctrl, &g_external_irq6_cfg}, // ext_int6
-    {&g_external_irq7_ctrl, &g_external_irq7_cfg}, // ext_int7
-#endif
-    {NULL, NULL}, // not implemented
-};
-
 static volatile voidFuncPtrParam intFunc[EXT_INTERRUPTS_HOWMANY];
 
-void detachInterrupt(pin_size_t interruptNum) {
-  pin_size_t irq_idx = interruptNum - IRQ0;
-  if(irq_idx < EXT_INTERRUPTS_HOWMANY) {
-    R_ICU_ExternalIrqDisable(irqTable[irq_idx].icu_ctrl);
-    R_ICU_ExternalIrqClose(irqTable[irq_idx].icu_ctrl);
-    intFunc[irq_idx] = nullptr;
-  }
+void detachInterrupt(pin_size_t pinNumber) {
+    if (digitalPinToInterruptPin(pinNumber) != NOT_AN_INTERRUPT) {
+        R_ICU_ExternalIrqDisable(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
+        R_ICU_ExternalIrqClose(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
+        intFunc[digitalPinToInterruptPin(pinNumber)] = nullptr;
+    }
 }
 
 
-void attachInterruptParam(pin_size_t interruptNum, voidFuncPtrParam func, PinStatus mode, void* param) {
-  if (interruptNum >= PINS_COUNT) {
-    return;
-  }
+void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
+    intFunc[digitalPinToInterruptPin(pinNumber)] = func;
 
-  pin_size_t irq_idx = interruptNum - IRQ0;
-  if(irq_idx < EXT_INTERRUPTS_HOWMANY) {
-    intFunc[irq_idx] = func;
-
-    external_irq_cfg_t cfg = *irqTable[irq_idx].irq_cfg;
+    external_irq_cfg_t cfg = *irqTable[digitalPinToInterruptPin(pinNumber)].irq_cfg;
     switch (mode)
     {
     case LOW:
@@ -79,13 +53,14 @@ void attachInterruptParam(pin_size_t interruptNum, voidFuncPtrParam func, PinSta
     }
 
     // Enable the interrupt.
-    R_ICU_ExternalIrqOpen(irqTable[irq_idx].icu_ctrl, &cfg);
-    R_ICU_ExternalIrqEnable(irqTable[irq_idx].icu_ctrl);
-  }
+    R_ICU_ExternalIrqOpen(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl, &cfg);
+    R_ICU_ExternalIrqEnable(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
 }
 
-void attachInterrupt(pin_size_t interruptNum, voidFuncPtr func, PinStatus mode) {
-  attachInterruptParam(interruptNum, (voidFuncPtrParam)func, mode, NULL);
+void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
+    if (digitalPinToInterruptPin(pinNumber) != NOT_AN_INTERRUPT) {
+        attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
+    }
 }
 
 void isr_irq0(external_irq_callback_args_t *p_args){

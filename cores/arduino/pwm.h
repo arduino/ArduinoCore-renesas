@@ -12,16 +12,15 @@ class PwmOut {
     void end();
     bool period(int ms);
     bool pulseWidth(int ms);
-    uint32_t getPeriod();
-    uint32_t getPulseWidth();
+    bool period_us(int us);
+    bool pulseWidth_us(int us);
     void suspend();
     void resume();
 
   private:
     bool _enabled;
     pin_size_t _pin;
-    uint32_t _period;
-    uint32_t _pulse_width;
+    pin_size_t _pwm_idx;
 };
 
 #endif //__ARDUINO_PWM_H__

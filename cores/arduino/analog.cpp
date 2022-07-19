@@ -5,25 +5,31 @@
 
 int analogRead(pin_size_t pinNumber)
 {
-	static bool begin = false;
+  static bool begin = false;
+  pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
 
 	if(begin == false)
 	{
-	    R_ADC_Open(&g_adc0_ctrl, &g_adc0_cfg);
-	    R_ADC_ScanCfg(&g_adc0_ctrl, &g_adc0_channel_cfg);
+	    R_ADC_Open(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].adc_cfg);
 	    begin = true;
 	}
 
-  (void) R_ADC_ScanStart(&g_adc0_ctrl);
+  //Clear Scan Mask
+  adc_channel_cfg_t adc_channel_cfg = g_adc0_channel_cfg;
+  adc_channel_cfg.scan_mask = 0;
+  //Enable scan only for the current pin
+  adc_channel_cfg.scan_mask |= (1 << g_AAnalogPinDescription[adc_idx].ch);
+	R_ADC_ScanCfg(g_AAnalogPinDescription[adc_idx].adc_ctrl, &adc_channel_cfg);
+  R_ADC_ScanStart(g_AAnalogPinDescription[adc_idx].adc_ctrl);
   adc_status_t status;
   status.state = ADC_STATE_SCAN_IN_PROGRESS;
   while (ADC_STATE_SCAN_IN_PROGRESS == status.state)
   {
-      (void) R_ADC_StatusGet(&g_adc0_ctrl, &status);
+      R_ADC_StatusGet(g_AAnalogPinDescription[adc_idx].adc_ctrl, &status);
   }
 
   uint16_t result;
-  R_ADC_Read(&g_adc0_ctrl, g_AAnalogPinDescription[pinNumber - A0].ch, &result);
+  R_ADC_Read(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].ch, &result);
   return (int)result;
 
 }
@@ -31,18 +37,38 @@ int analogRead(pin_size_t pinNumber)
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
-  if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 0) {
-    R_DAC_Open(&g_dac0_ctrl, &g_dac0_cfg);
-    R_DAC_Start(&g_dac0_ctrl);
-    R_DAC_Write(&g_dac0_ctrl, value);
+  if (g_APinDescription[pinNumber].PWMChannel != NOT_ON_PWM) {
+    //PWM pin
+    uint32_t pulse_width = (value*100)/65536;
+    PwmOut* pwm = digitalPinToPwmObj(pinNumber);
+    if (pwm == NULL) {
+      pwm = new PwmOut(pinNumber);
+      digitalPinToPwmObj(pinNumber) = pwm;
+      //pwmTable[digitalPinToPwmPin(pinNumber)].pwm = pwm;
+      //Start a PWM with 100ms period
+      pwm->begin(100, pulse_width);
+    } else {
+      pwm->suspend();
+      pwm->pulseWidth_us(pulse_width);
+      pwm->period_us(100);
+      pwm->resume();
+    }
+  } else {
+#ifdef DAC
+    //DAC pin
+    //Check if it is a valid DAC pin
+    if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
+      //R_DAC_Stop(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
+      R_DAC_Open(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, g_AAnalogOutPinDescription[pinNumber - DAC].dac_cfg);
+      if (value > 4096) {
+        // Saturate to MAX ADC value
+        value = 4096;
+      }
+      R_DAC_Write(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, value);
+      R_DAC_Start(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
+    }
+#endif //DAC
   }
-#if NUM_ANALOG_OUTPUTS > 1
-   else if (g_AAnalogOutPinDescription[pinNumber - DAC].ch == 1) {
-    R_DAC_Open(&g_dac1_ctrl, &g_dac1_cfg);
-    R_DAC_Start(&g_dac1_ctrl);
-    R_DAC_Write(&g_dac1_ctrl, value);
-  }
-#endif
 }
 
 
