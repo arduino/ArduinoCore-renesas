@@ -45,12 +45,13 @@ class TwoWire : public arduino::HardwareI2C
   public:
     TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
            ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch);
-    TwoWire(int sda, int scl, int ch);
-    TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch);
+    TwoWire(int ch, bool isSci = false);
     void begin();
     void begin(uint8_t);
     void begin(int);
     void end();
+    void setPins(int sda, int scl);
+    void setPins(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl);
     void setClock(uint32_t);
     void beginTransmission(uint8_t);
     void beginTransmission(int);
@@ -97,6 +98,7 @@ class TwoWire : public arduino::HardwareI2C
     bsp_io_port_pin_t _sda;
     bsp_io_port_pin_t _scl;
     int               _channel;
+    bool              _is_sci;
 
     iic_master_instance_ctrl_t _i2c_master_ctrl;
     i2c_master_cfg_t           _i2c_master_cfg;

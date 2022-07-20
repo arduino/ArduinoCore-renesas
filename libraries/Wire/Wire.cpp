@@ -57,17 +57,9 @@ TwoWire::TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
 {
 }
 
-TwoWire::TwoWire(int sda, int scl, int ch):
-  _sda(digitalPinToBspPin(sda)),
-  _scl(digitalPinToBspPin(scl)),
-  _channel(ch)
-{
-}
-
-TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
-  _sda(sda),
-  _scl(scl),
-  _channel(ch)
+TwoWire::TwoWire(int ch, bool isSci):
+  _channel(ch),
+  _is_sci(isSci)
 {
 }
 
@@ -122,6 +114,17 @@ void TwoWire::begin(int address)
 void TwoWire::end(void)
 {
   R_IIC_MASTER_Close(_g_i2c_master_ctrl);
+}
+
+void TwoWire::setPins(int sda, int scl)
+{
+  setPins(digitalPinToBspPin(sda), digitalPinToBspPin(scl));
+}
+
+void TwoWire::setPins(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl)
+{
+  pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_IIC);
+  pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_IIC);
 }
 
 void TwoWire::setClock(uint32_t clock)
