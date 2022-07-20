@@ -58,8 +58,6 @@ ArduinoSPI::ArduinoSPI(int miso, int mosi, int sck, int cs, int ch, bool isSci):
   _channel(ch),
   _is_sci(isSci)
 {
-  configureSPI(digitalPinToBspPin(miso), digitalPinToBspPin(mosi),
-               digitalPinToBspPin(sck), digitalPinToBspPin(cs), ch, isSci);
 }
 
 ArduinoSPI::ArduinoSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
@@ -71,7 +69,6 @@ ArduinoSPI::ArduinoSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
   _channel(ch),
   _is_sci(isSci)
 {
-  configureSPI(miso, mosi, sck, cs, ch, isSci);
 }
 
 void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
@@ -86,7 +83,6 @@ void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
     pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
     pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
     pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-    pinPeripheral(cs, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
     // TO DO
     /*
     if (ch==0) {
@@ -108,7 +104,6 @@ void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
     pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
     pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
     pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-    pinPeripheral(cs, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
 
     if (ch==0) {
       _g_spi_ctrl = &g_spi0_ctrl;
@@ -118,11 +113,6 @@ void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
       _g_spi_ctrl = &g_spi1_ctrl;
       _g_spi_cfg = &g_spi1_cfg;
       _g_spi_ext_cfg = &g_spi1_ext_cfg;
-      /*
-      _g_spi_ctrl = &g_spi1_ctrl;
-      _g_spi_cfg = &g_i2c_master1_cfg;
-      _g_sci_spi_ext_cfg = &g_spi1_cfg_extend;
-      */
     }
   }
 }
@@ -130,6 +120,7 @@ void ArduinoSPI::configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
 
 void ArduinoSPI::begin()
 {
+  configureSPI(_miso, _mosi, _sck, _cs, _channel, _is_sci);
   if(!initialized) {
     if (_is_sci) {
       R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);

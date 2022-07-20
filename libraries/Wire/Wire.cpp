@@ -62,7 +62,6 @@ TwoWire::TwoWire(int sda, int scl, int ch):
   _scl(digitalPinToBspPin(scl)),
   _channel(ch)
 {
-  configureI2C(digitalPinToBspPin(sda), digitalPinToBspPin(scl), ch);
 }
 
 TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
@@ -70,7 +69,6 @@ TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
   _scl(scl),
   _channel(ch)
 {
-  configureI2C(sda, scl, ch);
 }
 
 void TwoWire::configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch) {
@@ -103,6 +101,8 @@ void TwoWire::begin(void)
   txBufferLength = 0;
 
   _i2c_config = *_g_i2c_master_cfg;
+
+  configureI2C(_sda, _scl, _channel);
 
   R_IIC_MASTER_Open(_g_i2c_master_ctrl, &_i2c_config);
 }
