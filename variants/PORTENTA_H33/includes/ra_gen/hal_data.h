@@ -6,6 +6,10 @@
 #include "common_data.h"
 #include "r_dtc.h"
 #include "r_transfer_api.h"
+#include "r_sci_i2c.h"
+#include "r_i2c_master_api.h"
+#include "r_sci_spi.h"
+#include "r_spi_api.h"
 #include "r_spi.h"
 #include "r_canfd.h"
 #include "r_can_api.h"
@@ -15,8 +19,6 @@
 #include "r_dac_api.h"
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
-#include "r_sci_spi.h"
-#include "r_spi_api.h"
 #include "r_i2s_api.h"
 #include "r_ssi.h"
 #include "r_iic_master.h"
@@ -36,6 +38,92 @@
 #include "r_rtc.h"
 #include "r_rtc_api.h"
 FSP_HEADER
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer34;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer34_ctrl;
+extern const transfer_cfg_t g_transfer34_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer33;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer33_ctrl;
+extern const transfer_cfg_t g_transfer33_cfg;
+extern const i2c_master_cfg_t g_i2c5_cfg;
+/* I2C on SCI Instance. */
+extern const i2c_master_instance_t g_i2c5;
+#ifndef isr_i2c5
+void isr_i2c5(i2c_master_callback_args_t *p_args);
+#endif
+
+extern const sci_i2c_extended_cfg_t g_i2c5_cfg_extend;
+extern sci_i2c_instance_ctrl_t g_i2c5_ctrl;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer32;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer32_ctrl;
+extern const transfer_cfg_t g_transfer32_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer31;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer31_ctrl;
+extern const transfer_cfg_t g_transfer31_cfg;
+extern const i2c_master_cfg_t g_i2c4_cfg;
+/* I2C on SCI Instance. */
+extern const i2c_master_instance_t g_i2c4;
+#ifndef isr_i2c4
+void isr_i2c4(i2c_master_callback_args_t *p_args);
+#endif
+
+extern const sci_i2c_extended_cfg_t g_i2c4_cfg_extend;
+extern sci_i2c_instance_ctrl_t g_i2c4_ctrl;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer30;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer30_ctrl;
+extern const transfer_cfg_t g_transfer30_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer29;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer29_ctrl;
+extern const transfer_cfg_t g_transfer29_cfg;
+extern const i2c_master_cfg_t g_i2c3_cfg;
+/* I2C on SCI Instance. */
+extern const i2c_master_instance_t g_i2c3;
+#ifndef isr_i2c3
+void isr_i2c3(i2c_master_callback_args_t *p_args);
+#endif
+
+extern const sci_i2c_extended_cfg_t g_i2c3_cfg_extend;
+extern sci_i2c_instance_ctrl_t g_i2c3_ctrl;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer28;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer28_ctrl;
+extern const transfer_cfg_t g_transfer28_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer27;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer27_ctrl;
+extern const transfer_cfg_t g_transfer27_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi3;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi3_ctrl;
+extern const spi_cfg_t g_spi3_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef spi3_callback
+void spi3_callback(spi_callback_args_t *p_args);
+#endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer26;
 
