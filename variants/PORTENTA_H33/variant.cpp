@@ -44,6 +44,55 @@ const irqTable_t irqTable[] = {
     {&g_external_irq7_ctrl, &g_external_irq7_cfg},    // ext_int7
 };
 
+uart_instance_t UartTable[] = {
+  {&g_uart0_ctrl, &g_uart0_cfg, &g_uart_on_sci},
+  {&g_uart1_ctrl, &g_uart1_cfg, &g_uart_on_sci},
+  {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
+  {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
+  {&g_uart4_ctrl, &g_uart4_cfg, &g_uart_on_sci},
+};
+
+void __attribute__((weak)) isr_i2c0 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c1 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c2 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c3 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c4 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c5 (i2c_master_callback_args_t * p_args) {}
+
+i2c_master_instance_t I2CMasterTable[] = {
+  {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},
+  {&g_i2c_master1_ctrl, &g_i2c_master1_cfg, &g_i2c_master_on_iic},
+  {&g_i2c_master2_ctrl, &g_i2c_master2_cfg, &g_i2c_master_on_iic},
+  {&g_i2c3_ctrl,        &g_i2c3_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c4_ctrl,        &g_i2c4_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c5_ctrl,        &g_i2c5_cfg,        &g_i2c_master_on_sci},
+};
+
+spi_instance_t SpiTable[] = {
+  {&g_spi0_ctrl, &g_spi0_cfg, &g_spi_on_spi},
+  {&g_spi1_ctrl, &g_spi1_cfg, &g_spi_on_spi},
+  {&g_spi2_ctrl, &g_spi2_cfg, &g_spi_on_sci},
+  {&g_spi3_ctrl, &g_spi3_cfg, &g_spi_on_sci},
+};
+
+sciTable_t SciTable[] {
+/*
+    +-----------------+------------------- +-------------------+
+    |      UART       |        I2C         |        SPI        |
+    +-----------------+------------------- +-------------------+
+ */
+  { nullptr           , nullptr            , &SpiTable[3]      },
+  { nullptr           , &I2CMasterTable[3] , nullptr           },
+  { nullptr           , &I2CMasterTable[4] , nullptr           },
+  { nullptr           , &I2CMasterTable[5] , nullptr           },
+  { nullptr           , nullptr            , &SpiTable[2]      },
+  { &UartTable[0]     , nullptr            , nullptr           },
+  { &UartTable[1]     , nullptr            , nullptr           },
+  { &UartTable[2]     , nullptr            , nullptr           },
+  { &UartTable[3]     , nullptr            , nullptr           },
+  { &UartTable[4]     , nullptr            , nullptr           },
+};
+
 PinDescription g_APinDescription[] = {
 /*
     +------------------------+---------------+---------------------+--------------------------+

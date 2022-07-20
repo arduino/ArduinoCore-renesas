@@ -32,9 +32,8 @@ public:
     ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
               ,const spi_cfg_t *g_spi_cfg
               ,const sci_spi_extended_cfg_t *g_spi_ext_cfg);
-    ArduinoSPI(int miso, int mosi, int sck, int cs, int ch, bool isSci = false);
-    ArduinoSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
-               bsp_io_port_pin_t sck, bsp_io_port_pin_t cs, int ch, bool isSci = false);
+    ArduinoSPI(int ch, bool isSci = false);
+
     virtual uint8_t transfer(uint8_t data);
     virtual uint16_t transfer16(uint16_t data);
     virtual void transfer(void *buf, size_t count);
@@ -51,10 +50,11 @@ public:
 
     virtual void begin();
     virtual void end();
+    void setPins(int miso, int mosi, int sck, int cs = 0);
+    void setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
+               bsp_io_port_pin_t sck, bsp_io_port_pin_t cs = (bsp_io_port_pin_t)0);
 
 private:
-    void configureSPI(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
-                      bsp_io_port_pin_t sck, bsp_io_port_pin_t cs, int ch, bool isSci = false);
 
     arduino::SPISettings settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
