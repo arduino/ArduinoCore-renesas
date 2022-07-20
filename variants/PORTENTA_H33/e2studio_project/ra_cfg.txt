@@ -215,7 +215,7 @@ FSP Configuration
       P706 L14 GPIO - Low IRQ07 "Peripheral mode" "n-ch open drain" None "ICU0: IRQ07; SCI3: RXD3; SCI3: SCL3; USB_HS0: USBHS_OVRCURB" - IO - - 
       P707 L15 ICU0_IRQ08 - - IRQ08 "IRQ mode" - None "ICU0: IRQ08; SCI3: SDA3; SCI3: TXD3; USB_HS0: USBHS_OVRCURA" - IO - - 
       P708 E15 ICU0_IRQ11 - - IRQ11 "IRQ mode" - None "CAC0: CACREF; CEC0: CECIO; CTSU0: TS12; ETHERC_MII0: ET0_ETXD3; ICU0: IRQ11; SCI1: RXD1; SCI1: SCL1; SPI1: SSLB3; SSI_COMMON0: AUDIO_CLK" - IO - - 
-      P800 N3 - - - - Disabled - - "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - None - - 
+      P800 N3 SCI0_CTS0 - Low - "Peripheral mode" CMOS None "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - IO - - 
       P801 R1 SCI8_CTS8 - Low - "Peripheral mode" CMOS None "ADC1: AN126; AGT4: AGTOB4; BUS_ASYNCH0: D15; SCI8: CTS8" - IO - - 
       P802 P2 ICU0_IRQ03 - - IRQ03 "IRQ mode" - None "ADC1: AN127; ICU0: IRQ03" - IO - - 
       P803 R2 ICU0_IRQ02 - - IRQ02 "IRQ mode" - None "ADC1: AN128; ICU0: IRQ02" - IO - - 
@@ -392,7 +392,7 @@ FSP Configuration
       P706 L14 GPIO - Low IRQ07 "Input mode" CMOS None "ICU0: IRQ07; SCI3: RXD3; SCI3: SCL3; USB_HS0: USBHS_OVRCURB" - IO - - 
       P707 L15 USB_HS0_USBHS_OVRCURA - - None "Peripheral mode" - None "ICU0: IRQ08; SCI3: SDA3; SCI3: TXD3; USB_HS0: USBHS_OVRCURA" - IO - - 
       P708 E15 SPI1_SSLB3 - - None "Peripheral mode" - None "CAC0: CACREF; CEC0: CECIO; CTSU0: TS12; ETHERC_MII0: ET0_ETXD3; ICU0: IRQ11; SCI1: RXD1; SCI1: SCL1; SPI1: SSLB3; SSI_COMMON0: AUDIO_CLK" - IO - - 
-      P800 N3 - - - - Disabled - - "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - None - - 
+      P800 N3 - - Low - Disabled CMOS None "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - IO - - 
       P801 R1 - - Low - Disabled CMOS None "ADC1: AN126; AGT4: AGTOB4; BUS_ASYNCH0: D15; SCI8: CTS8" - IO - - 
       P802 P2 - - - None Disabled - None "ADC1: AN127; ICU0: IRQ03" - IO - - 
       P803 R2 - - - None Disabled - None "ADC1: AN128; ICU0: IRQ02" - IO - - 
@@ -569,7 +569,7 @@ FSP Configuration
       P706 L14 - - Low None Disabled CMOS None "ICU0: IRQ07; SCI3: RXD3; SCI3: SCL3; USB_HS0: USBHS_OVRCURB" - IO - - 
       P707 L15 - - - None Disabled - None "ICU0: IRQ08; SCI3: SDA3; SCI3: TXD3; USB_HS0: USBHS_OVRCURA" - IO - - 
       P708 E15 - - - None Disabled - None "CAC0: CACREF; CEC0: CECIO; CTSU0: TS12; ETHERC_MII0: ET0_ETXD3; ICU0: IRQ11; SCI1: RXD1; SCI1: SCL1; SPI1: SSLB3; SSI_COMMON0: AUDIO_CLK" - IO - - 
-      P800 N3 - - - - Disabled - - "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - None - - 
+      P800 N3 - - Low - Disabled CMOS None "ADC1: AN125; AGT4: AGTOA4; BUS_ASYNCH0: D14; SCI0: CTS0" - IO - - 
       P801 R1 - - Low - Disabled CMOS None "ADC1: AN126; AGT4: AGTOB4; BUS_ASYNCH0: D15; SCI8: CTS8" - IO - - 
       P802 P2 - - - None Disabled - None "ADC1: AN127; ICU0: IRQ03" - IO - - 
       P803 R2 - - - None Disabled - None "ADC1: AN128; ICU0: IRQ02" - IO - - 
@@ -1965,6 +1965,11 @@ FSP Configuration
     SD Support: Enabled
     eMMC Support: Disabled
     
+  Module "I2C Master (r_sci_i2c)"
+    Parameter Checking: Default (BSP)
+    DTC on Transmission and Reception: Enabled
+    10-bit slave addressing: Disabled
+    
   Azure RTOS ThreadX
     General: Custom tx_user.h: 
     General: Error Checking: Enabled
@@ -3218,6 +3223,173 @@ FSP Configuration
         Number of Transfers: 0
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SPI0 RXI (Receive buffer full)
+        
+    Instance "g_spi3 SPI (r_sci_spi)"
+      Name: g_spi3
+      Channel: 0
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: spi3_callback
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer27 Transfer (r_dtc) SCI0 TXI (Transmit data empty)"
+        Name: g_transfer27
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 TXI (Transmit data empty)
+        
+      Instance "g_transfer28 Transfer (r_dtc) SCI0 RXI (Receive data full)"
+        Name: g_transfer28
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 RXI (Receive data full)
+        
+    Instance "g_i2c3 I2C Master (r_sci_i2c)"
+      Name: g_i2c3
+      Channel: 1
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c3
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer29 Transfer (r_dtc) SCI1 TXI (Transmit data empty)"
+        Name: g_transfer29
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 TXI (Transmit data empty)
+        
+      Instance "g_transfer30 Transfer (r_dtc) SCI1 RXI (Received data full)"
+        Name: g_transfer30
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 RXI (Received data full)
+        
+    Instance "g_i2c4 I2C Master (r_sci_i2c)"
+      Name: g_i2c4
+      Channel: 2
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c4
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer31 Transfer (r_dtc) SCI2 TXI (Transmit data empty)"
+        Name: g_transfer31
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 TXI (Transmit data empty)
+        
+      Instance "g_transfer32 Transfer (r_dtc) SCI2 RXI (Received data full)"
+        Name: g_transfer32
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 RXI (Received data full)
+        
+    Instance "g_i2c5 I2C Master (r_sci_i2c)"
+      Name: g_i2c5
+      Channel: 3
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c5
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer33 Transfer (r_dtc) SCI3 TXI (Transmit data empty)"
+        Name: g_transfer33
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 TXI (Transmit data empty)
+        
+      Instance "g_transfer34 Transfer (r_dtc) SCI3 RXI (Received data full)"
+        Name: g_transfer34
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 RXI (Received data full)
         
   Thread "MainThread"
     Symbol: main_thd
