@@ -7,11 +7,19 @@ void _init() {
    R_BSP_PinAccessEnable();
 }
 
+static uint32_t* vectors[256];
+
 void startAgt(void);
+
+extern uint32_t __ROM_Start;
 
 void arduino_main(void)
 {
-   //__enable_irq();
+   __disable_irq();
+   memcpy(vectors, (void*)__ROM_Start, sizeof(vectors)*sizeof(vectors[0]));
+   SCB->VTOR = (uint32_t)vectors;
+   __enable_irq();
+
    _init();
    initVariant();
    __USBStart();
@@ -19,7 +27,6 @@ void arduino_main(void)
    setup();
    while (1)
    {
-      //tud_task();
       loop();
    }
 }

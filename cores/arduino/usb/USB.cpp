@@ -270,16 +270,80 @@ const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
 
 void __USBStart() __attribute__((weak));
 
+/* Key code for writing PRCR register. */
+#define BSP_PRV_PRCR_KEY	 (0xA500U)
+#define BSP_PRV_PRCR_PRC1_UNLOCK ((BSP_PRV_PRCR_KEY) | 0x2U)
+#define BSP_PRV_PRCR_LOCK	 ((BSP_PRV_PRCR_KEY) | 0x0U)
+
+static void tud_task_forever(ULONG thread_input) {
+    while (1) {
+        tud_task();
+        delay(100);
+    }
+}
+static TX_BLOCK_POOL block_pool_0;
+static TX_THREAD thread;
+
+void _usbfs_interrupt_handler(void)
+{
+  IRQn_Type irq = R_FSP_CurrentIrqGet();
+  R_BSP_IrqStatusClear(irq);
+
+#if CFG_TUSB_RHPORT1_MODE & OPT_MODE_HOST
+  tuh_int_handler(0);
+#endif
+
+#if CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE
+  tud_int_handler(0);
+#endif
+}
+
+void _usbhs_interrupt_handler(void)
+{
+  IRQn_Type irq = R_FSP_CurrentIrqGet();
+  R_BSP_IrqStatusClear(irq);
+
+#if CFG_TUSB_RHPORT1_MODE & OPT_MODE_HOST
+  tuh_int_handler(1);
+#endif
+
+#if CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE
+  tud_int_handler(1);
+#endif
+}
+
 void __USBStart() {
     if (tusb_inited()) {
         // Already called
         return;
     }
 
+    /* Enable USB_BASE */
+    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
+    R_MSTP->MSTPCRB &= ~(1U << 11U);
+    R_MSTP->MSTPCRB &= ~(1U << 12U);
+    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
+
+    NVIC_SetVector(USBFS_INT_IRQn, (uint32_t)_usbfs_interrupt_handler);
+    NVIC_SetVector(USBFS_RESUME_IRQn, (uint32_t)_usbfs_interrupt_handler);
+    NVIC_SetVector(USBFS_FIFO_0_IRQn, (uint32_t)_usbfs_interrupt_handler);
+    NVIC_SetVector(USBFS_FIFO_1_IRQn, (uint32_t)_usbfs_interrupt_handler);
+    NVIC_SetVector(USBHS_USB_INT_RESUME_IRQn, (uint32_t)_usbhs_interrupt_handler);
+    NVIC_SetVector(USBHS_FIFO_0_IRQn, (uint32_t)_usbhs_interrupt_handler);
+    NVIC_SetVector(USBHS_FIFO_1_IRQn, (uint32_t)_usbhs_interrupt_handler);
+
     __SetupDescHIDReport();
     __SetupUSBDescriptor();
 
     tud_init(BOARD_TUD_RHPORT);
+
+#if defined(AZURE_RTOS_THREADX)
+    CHAR *pointer;
+    tx_block_pool_create(&block_pool_0, "block pool 0", sizeof(ULONG), pointer, 1024);
+
+    tx_thread_create(&thread, "tud_task", tud_task_forever, 1,
+        pointer, 1024, 16, 16, 4, TX_AUTO_START);
+#endif
 }
 
 
