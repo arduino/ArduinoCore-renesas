@@ -250,27 +250,10 @@ void ArduinoSPI::detachInterrupt() {
 
 }
 
-
-void __attribute__((weak)) spi0_callback(spi_callback_args_t *p_args) {}
-
 #if SPI_HOWMANY > 0
 ArduinoSPI SPI(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_ext_cfg);
-void __attribute__((weak)) spi1_callback(spi_callback_args_t *p_args)
-{
-    if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
-    {
-    }
-}
 #endif
 
 #if SPI_HOWMANY > 1
 ArduinoSPI SPI1(&g_spi2_ctrl, &g_spi2_cfg, &g_spi2_cfg_extend);
-void __attribute__((weak)) spi2_callback(spi_callback_args_t *p_args)
-{
-    if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
-    {
-    }
-}
 #endif
-
-void __attribute__((weak)) spi3_callback(spi_callback_args_t *p_args) {}
