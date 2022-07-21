@@ -163,7 +163,7 @@ FSP Configuration
       P314 C11 - - - - Disabled - - "ADC0: ADTRG0; BUS_ASYNCH0: A21" - None - - 
       P315 B11 SCI4_RXD4 - Low - "Peripheral mode" CMOS None "BUS_ASYNCH0: A22; SCI4: RXD4; SCI4: SCL4" - IO - - 
       P400 N13 SSI_COMMON0_AUDIO_CLK - Medium None "Peripheral mode" CMOS None "ADC1: ADTRG1; AGT1: AGTIO1; ETHERC_MII0: ET0_WOL; ETHERC_RMII0: ET0_WOL; GPT6: GTIOC6A; ICU0: IRQ00; IIC0: SCL0; SCI4: SCK4; SCI7: SCK7; SSI_COMMON0: AUDIO_CLK" - IO - - 
-      P401 R15 GPT6_GTIOC6B ETH_MDC Low None "Peripheral mode" CMOS None "CAN0: CTX0; ETHERC_MII0: ET0_MDC; ETHERC_RMII0: ET0_MDC; GPT_POEG0: GTETRGA; GPT6: GTIOC6B; ICU0: IRQ05; IIC0: SDA0; SCI4: CTSRTS4; SCI7: SDA7; SCI7: TXD7" - IO - - 
+      P401 R15 GPT6_GTIOC6B ETH_MDC Medium None "Peripheral mode" CMOS None "CAN0: CTX0; ETHERC_MII0: ET0_MDC; ETHERC_RMII0: ET0_MDC; GPT_POEG0: GTETRGA; GPT6: GTIOC6B; ICU0: IRQ05; IIC0: SDA0; SCI4: CTSRTS4; SCI7: SDA7; SCI7: TXD7" - IO - - 
       P402 P14 SCI4_CTS4 ETH_MDIO Low None "Peripheral mode" CMOS None "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; CAC0: CACREF; CAN0: CRX0; ETHERC_MII0: ET0_MDIO; ETHERC_RMII0: ET0_MDIO; ICU0: IRQ04; RTC0: RTCIC0; SCI4: CTS4; SCI7: RXD7; SCI7: SCL7; SSI_COMMON0: AUDIO_CLK" - IO - - 
       P403 M12 - - - - Disabled - - "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT3: GTIOC3A; ICU0: IRQ14; RTC0: RTCIC1; SCI7: CTSRTS7; SSI0: SSIBCK0" - None - - 
       P404 M13 SCI7_CTS7 - Low None "Peripheral mode" CMOS None "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; ETHERC_MII0: ET0_EXOUT; ETHERC_RMII0: ET0_EXOUT; GPT3: GTIOC3B; ICU0: IRQ15; RTC0: RTCIC2; SCI7: CTS7; SSI0: SSILRCK0" - IO - - 
@@ -2897,7 +2897,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi2_callback
+      Callback: NULL
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -3232,7 +3232,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi3_callback
+      Callback: NULL
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -3390,6 +3390,563 @@ FSP Configuration
         Number of Transfers: 0
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SCI3 RXI (Received data full)
+        
+    Instance "g_uart5 UART (r_sci_uart)"
+      General: Name: g_uart5
+      General: Channel: 0
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: NULL
+      Interrupts: Receive Interrupt Priority: Priority 12
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
+      Interrupts: Transmit End Interrupt Priority: Priority 12
+      Interrupts: Error Interrupt Priority: Priority 12
+      
+      Instance "g_transfer35 Transfer (r_dtc) SCI0 TXI (Transmit data empty)"
+        Name: g_transfer35
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 TXI (Transmit data empty)
+        
+      Instance "g_transfer36 Transfer (r_dtc) SCI0 RXI (Receive data full)"
+        Name: g_transfer36
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 RXI (Receive data full)
+        
+    Instance "g_i2c6 I2C Master (r_sci_i2c)"
+      Name: g_i2c6
+      Channel: 0
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c6
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer37 Transfer (r_dtc) SCI0 TXI (Transmit data empty)"
+        Name: g_transfer37
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 TXI (Transmit data empty)
+        
+      Instance "g_transfer38 Transfer (r_dtc) SCI0 RXI (Receive data full)"
+        Name: g_transfer38
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI0 RXI (Receive data full)
+        
+    Instance "g_i2c7 I2C Master (r_sci_i2c)"
+      Name: g_i2c7
+      Channel: 4
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c7
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer39 Transfer (r_dtc) SCI4 TXI (Transmit data empty)"
+        Name: g_transfer39
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 TXI (Transmit data empty)
+        
+      Instance "g_transfer40 Transfer (r_dtc) SCI4 RXI (Received data full)"
+        Name: g_transfer40
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 RXI (Received data full)
+        
+    Instance "g_i2c8 I2C Master (r_sci_i2c)"
+      Name: g_i2c8
+      Channel: 5
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c8
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer41 Transfer (r_dtc) SCI5 TXI (Transmit data empty)"
+        Name: g_transfer41
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI5 TXI (Transmit data empty)
+        
+      Instance "g_transfer42 Transfer (r_dtc) SCI5 RXI (Received data full)"
+        Name: g_transfer42
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI5 RXI (Received data full)
+        
+    Instance "g_i2c9 I2C Master (r_sci_i2c)"
+      Name: g_i2c9
+      Channel: 6
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c9
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer43 Transfer (r_dtc) SCI6 TXI (Transmit data empty)"
+        Name: g_transfer43
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI6 TXI (Transmit data empty)
+        
+      Instance "g_transfer44 Transfer (r_dtc) SCI6 RXI (Received data full)"
+        Name: g_transfer44
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI6 RXI (Received data full)
+        
+    Instance "g_i2c10 I2C Master (r_sci_i2c)"
+      Name: g_i2c10
+      Channel: 7
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c10
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer45 Transfer (r_dtc) SCI7 TXI (Transmit data empty)"
+        Name: g_transfer45
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI7 TXI (Transmit data empty)
+        
+      Instance "g_transfer46 Transfer (r_dtc) SCI7 RXI (Received data full)"
+        Name: g_transfer46
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI7 RXI (Received data full)
+        
+    Instance "g_i2c11 I2C Master (r_sci_i2c)"
+      Name: g_i2c11
+      Channel: 8
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c11
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer47 Transfer (r_dtc) SCI8 TXI (Transmit data empty)"
+        Name: g_transfer47
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI8 TXI (Transmit data empty)
+        
+      Instance "g_transfer48 Transfer (r_dtc) SCI8 RXI (Received data full)"
+        Name: g_transfer48
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI8 RXI (Received data full)
+        
+    Instance "g_i2c12 I2C Master (r_sci_i2c)"
+      Name: g_i2c12
+      Channel: 9
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: isr_i2c12
+      Interrupt Priority Level: Priority 12
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
+      
+      Instance "g_transfer49 Transfer (r_dtc) SCI9 TXI (Transmit data empty)"
+        Name: g_transfer49
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI9 TXI (Transmit data empty)
+        
+      Instance "g_transfer50 Transfer (r_dtc) SCI9 RXI (Received data full)"
+        Name: g_transfer50
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI9 RXI (Received data full)
+        
+    Instance "g_uart6 UART (r_sci_uart)"
+      General: Name: g_uart6
+      General: Channel: 1
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: isr_uart6
+      Interrupts: Receive Interrupt Priority: Priority 12
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
+      Interrupts: Transmit End Interrupt Priority: Priority 12
+      Interrupts: Error Interrupt Priority: Priority 12
+      
+      Instance "g_transfer51 Transfer (r_dtc) SCI1 TXI (Transmit data empty)"
+        Name: g_transfer51
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 TXI (Transmit data empty)
+        
+      Instance "g_transfer52 Transfer (r_dtc) SCI1 RXI (Received data full)"
+        Name: g_transfer52
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 RXI (Received data full)
+        
+    Instance "g_uart7 UART (r_sci_uart)"
+      General: Name: g_uart7
+      General: Channel: 2
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: isr_uart7
+      Interrupts: Receive Interrupt Priority: Priority 12
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
+      Interrupts: Transmit End Interrupt Priority: Priority 12
+      Interrupts: Error Interrupt Priority: Priority 12
+      
+      Instance "g_transfer53 Transfer (r_dtc) SCI2 TXI (Transmit data empty)"
+        Name: g_transfer53
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 TXI (Transmit data empty)
+        
+      Instance "g_transfer54 Transfer (r_dtc) SCI2 RXI (Received data full)"
+        Name: g_transfer54
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 RXI (Received data full)
+        
+    Instance "g_uart8 UART (r_sci_uart)"
+      General: Name: g_uart8
+      General: Channel: 3
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: isr_uart8
+      Interrupts: Receive Interrupt Priority: Priority 12
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
+      Interrupts: Transmit End Interrupt Priority: Priority 12
+      Interrupts: Error Interrupt Priority: Priority 12
+      
+      Instance "g_transfer55 Transfer (r_dtc) SCI3 TXI (Transmit data empty)"
+        Name: g_transfer55
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 TXI (Transmit data empty)
+        
+      Instance "g_transfer56 Transfer (r_dtc) SCI3 RXI (Received data full)"
+        Name: g_transfer56
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 RXI (Received data full)
+        
+    Instance "g_uart9 UART (r_sci_uart)"
+      General: Name: g_uart9
+      General: Channel: 4
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: isr_uart9
+      Interrupts: Receive Interrupt Priority: Priority 12
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
+      Interrupts: Transmit End Interrupt Priority: Priority 12
+      Interrupts: Error Interrupt Priority: Priority 12
+      
+      Instance "g_transfer57 Transfer (r_dtc) SCI4 TXI (Transmit data empty)"
+        Name: g_transfer57
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 TXI (Transmit data empty)
+        
+      Instance "g_transfer58 Transfer (r_dtc) SCI4 RXI (Received data full)"
+        Name: g_transfer58
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 RXI (Received data full)
         
   Thread "MainThread"
     Symbol: main_thd
