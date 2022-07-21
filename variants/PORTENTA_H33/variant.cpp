@@ -378,6 +378,15 @@ extern "C" {
   unsigned int PINCOUNT_fn() {
     return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
   }
+  unsigned int I2C_COUNT_fn() {
+    return (sizeof(I2CMasterTable) / sizeof(I2CMasterTable[0]));
+  }
+  unsigned int SPI_COUNT_fn() {
+    return (sizeof(SpiTable) / sizeof(SpiTable[0]));
+  }
+  unsigned int UART_COUNT_fn() {
+    return (sizeof(UartTable) / sizeof(UartTable[0]));
+  }
 }
 
 void initVariant() {

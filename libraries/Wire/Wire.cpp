@@ -30,6 +30,7 @@ extern "C" {
 
 // Initialize Class Variables //////////////////////////////////////////////////
 
+uint8_t TwoWire::initialized = 0;
 uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
 uint8_t TwoWire::rxBufferIndex = 0;
 uint8_t TwoWire::rxBufferLength = 0;
@@ -50,10 +51,11 @@ static i2c_master_event_t _i2c_cb_event[6] = {I2C_MASTER_EVENT_ABORTED};
 // Constructors ////////////////////////////////////////////////////////////////
 
 TwoWire::TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
-                 ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch):
+                 ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch, bool isSci):
   _g_i2c_master_ctrl(g_i2c_master_ctrl)
 , _g_i2c_master_cfg(g_i2c_master_cfg)
 , _channel(ch)
+, _is_sci(isSci)
 {
 }
 
@@ -61,25 +63,6 @@ TwoWire::TwoWire(int ch, bool isSci):
   _channel(ch),
   _is_sci(isSci)
 {
-}
-
-void TwoWire::configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch) {
-  pinPeripheral(sda, (uint32_t) IOPORT_CFG_DRIVE_MID |
-                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN |
-                     (uint32_t) IOPORT_PERIPHERAL_IIC);
-  pinPeripheral(scl, (uint32_t) IOPORT_CFG_DRIVE_MID |
-                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN |
-                     (uint32_t) IOPORT_PERIPHERAL_IIC);
-  if (ch==0) {
-    _g_i2c_master_ctrl = &g_i2c_master0_ctrl;
-    _g_i2c_master_cfg = &g_i2c_master0_cfg;
-  } else if (ch==1) {
-    _g_i2c_master_ctrl = &g_i2c_master1_ctrl;
-    _g_i2c_master_cfg = &g_i2c_master1_cfg;
-  } else if (ch==2) {
-    _g_i2c_master_ctrl = &g_i2c_master2_ctrl;
-    _g_i2c_master_cfg = &g_i2c_master2_cfg;
-  }
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -92,11 +75,33 @@ void TwoWire::begin(void)
   txBufferIndex = 0;
   txBufferLength = 0;
 
-  _i2c_config = *_g_i2c_master_cfg;
+  _cb_event_idx = _channel;
 
-  configureI2C(_sda, _scl, _channel);
+  if (_is_sci) {
+    _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(SciTable[_channel].i2c_instance->p_ctrl);
+    _g_i2c_master_cfg = (const i2c_master_cfg_t *)(SciTable[_channel].i2c_instance->p_cfg);
+    for (int i=0; i<I2C_COUNT; i++) {
+      //Adjust callback event index to be referred to I2CMasterTable table
+      if ((i2c_master_ctrl_t*)SciTable[_channel].i2c_instance == &I2CMasterTable[i]) {
+        _cb_event_idx = i;
+        break;
+      }
+    }
+  } else {
+    _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(I2CMasterTable[_channel].p_ctrl);
+    _g_i2c_master_cfg = (const i2c_master_cfg_t *)(I2CMasterTable[_channel].p_cfg);
+  }
 
-  R_IIC_MASTER_Open(_g_i2c_master_ctrl, &_i2c_config);
+  if(!initialized) {
+    if (_is_sci) {
+      if (R_SCI_I2C_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg) != FSP_SUCCESS) {
+        SerialUSB.println("Open SCI error");
+      }
+    } else {
+      R_IIC_MASTER_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg);
+    }
+    initialized = true;
+  }
 }
 
 void TwoWire::begin(uint8_t address)
@@ -113,7 +118,14 @@ void TwoWire::begin(int address)
 
 void TwoWire::end(void)
 {
-  R_IIC_MASTER_Close(_g_i2c_master_ctrl);
+  if(initialized) {
+    if (_is_sci) {
+      R_SCI_I2C_Close(_g_i2c_master_ctrl);
+    } else {
+      R_IIC_MASTER_Close(_g_i2c_master_ctrl);
+    }
+    initialized = false;
+  }
 }
 
 void TwoWire::setPins(int sda, int scl)
@@ -123,8 +135,20 @@ void TwoWire::setPins(int sda, int scl)
 
 void TwoWire::setPins(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl)
 {
-  pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_IIC);
-  pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_IIC);
+  uint32_t peripheralCfg = 0;
+  if (_is_sci) {
+    if (_channel%2 == 0) {
+      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI0_2_4_6_8;
+    } else {
+      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+    }
+  } else {
+    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_IIC;
+  }
+  pinPeripheral(sda, (uint32_t) IOPORT_CFG_DRIVE_MID |
+                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+  pinPeripheral(scl, (uint32_t) IOPORT_CFG_DRIVE_MID |
+                     (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
 }
 
 void TwoWire::setClock(uint32_t clock)
@@ -177,13 +201,15 @@ size_t TwoWire::requestFrom(uint8_t address, size_t quantity)
 
 void TwoWire::beginTransmission(uint8_t address)
 {
-  // indicate that we are transmitting
-  transmitting = 1;
-  // set address of targeted slave
-  txAddress = address;
-  // reset tx buffer iterator vars
-  txBufferIndex = 0;
-  txBufferLength = 0;
+  if (initialized) {
+    // indicate that we are transmitting
+    transmitting = 1;
+    // set address of targeted slave
+    txAddress = address;
+    // reset tx buffer iterator vars
+    txBufferIndex = 0;
+    txBufferLength = 0;
+  }
 }
 
 void TwoWire::beginTransmission(int address)
@@ -380,9 +406,14 @@ void TwoWire::setCallbackEvent(i2c_master_event_t cb_event, int ch)
  */
 uint8_t TwoWire::twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sendStop)
 {
-  R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-  R_IIC_MASTER_Read(_g_i2c_master_ctrl, data, length, !sendStop);
-  while ((I2C_MASTER_EVENT_RX_COMPLETE != _i2c_cb_event[_channel]) && timeout_ms)
+  if (_is_sci) {
+    R_SCI_I2C_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
+    R_SCI_I2C_Read(_g_i2c_master_ctrl, data, length, !sendStop);
+  } else {
+    R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
+    R_IIC_MASTER_Read(_g_i2c_master_ctrl, data, length, !sendStop);
+  }
+  while ((I2C_MASTER_EVENT_RX_COMPLETE != _i2c_cb_event[_cb_event_idx]) && timeout_ms)
   {
       timeout_ms--;
       delay(1);
@@ -408,17 +439,22 @@ uint8_t TwoWire::twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, ui
 uint8_t TwoWire::twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
   fsp_err_t err;
-  _i2c_cb_event[_channel] = I2C_MASTER_EVENT_ABORTED;
-  R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-  err = R_IIC_MASTER_Write(_g_i2c_master_ctrl, data, length, !sendStop);
-  while ((I2C_MASTER_EVENT_TX_COMPLETE != _i2c_cb_event[_channel]) && timeout_ms)
+  _i2c_cb_event[_cb_event_idx] = I2C_MASTER_EVENT_ABORTED;
+  if (_is_sci) {
+    R_SCI_I2C_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
+    err = R_SCI_I2C_Write(_g_i2c_master_ctrl, data, length, !sendStop);
+  } else {
+    R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
+    err = R_IIC_MASTER_Write(_g_i2c_master_ctrl, data, length, !sendStop);
+  }
+  while ((I2C_MASTER_EVENT_TX_COMPLETE != _i2c_cb_event[_cb_event_idx]) && timeout_ms)
   {
       timeout_ms--;
       delay(1);
   }
   if (err == FSP_ERR_IN_USE){
       return 2;
-  } else if (I2C_MASTER_EVENT_ABORTED == _i2c_cb_event[_channel])
+  } else if (I2C_MASTER_EVENT_ABORTED == _i2c_cb_event[_cb_event_idx])
   {
       return 4;
   }

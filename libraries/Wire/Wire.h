@@ -44,7 +44,7 @@ class TwoWire : public arduino::HardwareI2C
 {
   public:
     TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
-           ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch);
+           ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch, bool isSci = false);
     TwoWire(int ch, bool isSci = false);
     void begin();
     void begin(uint8_t);
@@ -79,7 +79,7 @@ class TwoWire : public arduino::HardwareI2C
 
   private:
 
-    void configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch);
+    static uint8_t initialized;
 
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
@@ -99,6 +99,7 @@ class TwoWire : public arduino::HardwareI2C
     bsp_io_port_pin_t _scl;
     int               _channel;
     bool              _is_sci;
+    int               _cb_event_idx;
 
     iic_master_instance_ctrl_t _i2c_master_ctrl;
     i2c_master_cfg_t           _i2c_master_cfg;

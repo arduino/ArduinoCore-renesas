@@ -1,5 +1,8 @@
 #ifdef __cplusplus
 extern "C" unsigned int PINCOUNT_fn();
+extern "C" unsigned int I2C_COUNT_fn();
+extern "C" unsigned int SPI_COUNT_fn();
+extern "C" unsigned int UART_COUNT_fn();
 #endif
 
 #define PIN(X,Y) (X * 16 + Y)
@@ -10,6 +13,10 @@ extern "C" unsigned int PINCOUNT_fn();
 #define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (2u)
+
+#define I2C_COUNT           (I2C_COUNT_fn())
+#define SPI_COUNT           (SPI_COUNT_fn())
+#define UART_COUNT          (UART_COUNT_fn())
 
 #define PIN_A0   (8u)
 #define PIN_A1   (9u)
