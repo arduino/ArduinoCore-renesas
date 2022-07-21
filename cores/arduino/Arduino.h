@@ -91,7 +91,6 @@ typedef struct _PinDescription
   bsp_io_port_pin_t name;
   EPWMChannel       PWMChannel;
   EExt_Interrupts   ExtInt;
-  uint32_t          PeripheralConfig;
 } PinDescription ;
 
 

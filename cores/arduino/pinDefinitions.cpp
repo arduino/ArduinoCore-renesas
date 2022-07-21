@@ -13,7 +13,7 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral) {
 
     R_BSP_PinAccessEnable();           // Protect PWPR from re-entrancy
 
-    g_APinDescription[bspPin].PeripheralConfig = bspPeripheral;
+    //g_APinDescription[bspPin].PeripheralConfig = bspPeripheral;
     pin = g_APinDescription[bspPin].name;
 
     /* PMR bits should be cleared before specifying PSEL. Reference section "20.7 Notes on the PmnPFS Register Setting"
