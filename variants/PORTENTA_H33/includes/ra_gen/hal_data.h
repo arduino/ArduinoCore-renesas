@@ -121,8 +121,8 @@ extern sci_spi_instance_ctrl_t g_spi3_ctrl;
 extern const spi_cfg_t g_spi3_cfg;
 
 /** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
-#ifndef spi3_callback
-void spi3_callback(spi_callback_args_t *p_args);
+#ifndef NULL
+void NULL(spi_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer26;
@@ -144,8 +144,8 @@ extern spi_instance_ctrl_t g_spi0_ctrl;
 extern const spi_cfg_t g_spi0_cfg;
 
 /** Callback used by SPI Instance. */
-#ifndef spi0_callback
-void spi0_callback(spi_callback_args_t *p_args);
+#ifndef NULL
+void NULL(spi_callback_args_t *p_args);
 #endif
 
 #define RA_NOT_DEFINED (1)
@@ -289,8 +289,8 @@ extern sci_spi_instance_ctrl_t g_spi2_ctrl;
 extern const spi_cfg_t g_spi2_cfg;
 
 /** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
-#ifndef spi2_callback
-void spi2_callback(spi_callback_args_t *p_args);
+#ifndef NULL
+void NULL(spi_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer12;
@@ -334,8 +334,8 @@ extern spi_instance_ctrl_t g_spi1_ctrl;
 extern const spi_cfg_t g_spi1_cfg;
 
 /** Callback used by SPI Instance. */
-#ifndef spi1_callback
-void spi1_callback(spi_callback_args_t *p_args);
+#ifndef NULL
+void NULL(spi_callback_args_t *p_args);
 #endif
 
 #define RA_NOT_DEFINED (1)
