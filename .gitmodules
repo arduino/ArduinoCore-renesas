@@ -1,0 +1,3 @@
+[submodule "extras/tinyusb"]
+	path = extras/tinyusb
+	url = git@github.com:bcmi-labs/tinyusb.git

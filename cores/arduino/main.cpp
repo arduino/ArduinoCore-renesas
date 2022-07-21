@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "usb/USB.h"
 
 void _init() {
    R_BSP_PinAccessEnable();
@@ -6,22 +7,16 @@ void _init() {
 
 void startAgt(void);
 
-#ifdef AZURE_RTOS_THREADX
-USBSerial SerialUSB;
-extern "C" void pcdc_acm_thread_entry();
-#endif
-
 void arduino_main(void)
 {
    _init();
    initVariant();
-#ifdef AZURE_RTOS_THREADX
-   pcdc_acm_thread_entry();
-#endif
+   __USBStart();
    startAgt();
    setup();
    while (1)
    {
+      //tud_task();
       loop();
    }
 }

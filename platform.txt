@@ -16,12 +16,12 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={build.compiler_path}
 compiler.c.cmd={build.crossprefix}gcc
-compiler.c.flags=-c -I. {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections
+compiler.c.flags=-c {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections
 compiler.c.elf.cmd={build.crossprefix}g++
 compiler.c.elf.flags=-Wl,--gc-sections {compiler.warning_flags} -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -g3
 compiler.S.flags=-c -g -x assembler-with-cpp -O3 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.cpp.cmd={build.crossprefix}g++
-compiler.cpp.flags=-c -I. {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu++11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
+compiler.cpp.flags=-c {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu++11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.ar.cmd={build.crossprefix}ar
 compiler.ar.flags=rcs
 compiler.ar.extra_flags=
@@ -38,6 +38,7 @@ compiler.define=-DARDUINO=
 build.extra_flags=
 build.extra.startobjects=
 build.extra.endobjects=
+tinyusb.includes=-I{runtime.platform.path}/cores/arduino/tinyusb
 
 # USB Flags
 # ---------
@@ -52,10 +53,10 @@ build.usb_flags=
 # -----------------------
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cflags} {build.extra_flags} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.tinyusb.cflags}  {build.extra_flags} {tinyusb.includes} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {build.extra_flags} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
 
 ## Create archives
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
