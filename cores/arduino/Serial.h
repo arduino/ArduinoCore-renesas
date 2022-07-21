@@ -55,6 +55,31 @@ typedef uint8_t tx_buffer_index_t;
 
 typedef uint8_t rx_buffer_index_t;
 
+#undef SERIAL_5N1
+#undef SERIAL_6N1
+#undef SERIAL_7N1
+#undef SERIAL_8N1
+#undef SERIAL_5N2
+#undef SERIAL_6N2
+#undef SERIAL_7N2
+#undef SERIAL_8N2
+#undef SERIAL_5E1
+#undef SERIAL_6E1
+#undef SERIAL_7E1
+#undef SERIAL_8E1
+#undef SERIAL_5E2
+#undef SERIAL_6E2
+#undef SERIAL_7E2
+#undef SERIAL_8E2
+#undef SERIAL_5O1
+#undef SERIAL_6O1
+#undef SERIAL_7O1
+#undef SERIAL_8O1
+#undef SERIAL_5O2
+#undef SERIAL_6O2
+#undef SERIAL_7O2
+#undef SERIAL_8O2
+
 // Define config for Serial.begin(baud, config);
 #define SERIAL_5N1 0x00
 #define SERIAL_6N1 0x02
