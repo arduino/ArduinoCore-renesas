@@ -2807,7 +2807,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi1_callback
+      Callback: NULL
       SPI Mode: Clock Synchronous Operation
       Full or Transmit Only Mode: Full Duplex
       Slave Select Polarity: Active Low
@@ -3183,7 +3183,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: spi0_callback
+      Callback: NULL
       SPI Mode: Clock Synchronous Operation
       Full or Transmit Only Mode: Full Duplex
       Slave Select Polarity: Active Low
