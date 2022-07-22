@@ -50,6 +50,11 @@ uart_instance_t UartTable[] = {
   {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
   {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
   {&g_uart4_ctrl, &g_uart4_cfg, &g_uart_on_sci},
+  {&g_uart5_ctrl, &g_uart5_cfg, &g_uart_on_sci},
+  {&g_uart6_ctrl, &g_uart6_cfg, &g_uart_on_sci},
+  {&g_uart7_ctrl, &g_uart7_cfg, &g_uart_on_sci},
+  {&g_uart8_ctrl, &g_uart8_cfg, &g_uart_on_sci},
+  {&g_uart9_ctrl, &g_uart9_cfg, &g_uart_on_sci},
 };
 
 void __attribute__((weak)) isr_i2c0 (i2c_master_callback_args_t * p_args) {}
@@ -58,6 +63,13 @@ void __attribute__((weak)) isr_i2c2 (i2c_master_callback_args_t * p_args) {}
 void __attribute__((weak)) isr_i2c3 (i2c_master_callback_args_t * p_args) {}
 void __attribute__((weak)) isr_i2c4 (i2c_master_callback_args_t * p_args) {}
 void __attribute__((weak)) isr_i2c5 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c6 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c7 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c8 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c9 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c10 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c11 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) isr_i2c12 (i2c_master_callback_args_t * p_args) {}
 
 i2c_master_instance_t I2CMasterTable[] = {
   {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},
@@ -66,6 +78,13 @@ i2c_master_instance_t I2CMasterTable[] = {
   {&g_i2c3_ctrl,        &g_i2c3_cfg,        &g_i2c_master_on_sci},
   {&g_i2c4_ctrl,        &g_i2c4_cfg,        &g_i2c_master_on_sci},
   {&g_i2c5_ctrl,        &g_i2c5_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c6_ctrl,        &g_i2c6_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c7_ctrl,        &g_i2c7_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c8_ctrl,        &g_i2c8_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c9_ctrl,        &g_i2c9_cfg,        &g_i2c_master_on_sci},
+  {&g_i2c10_ctrl,       &g_i2c10_cfg,       &g_i2c_master_on_sci},
+  {&g_i2c11_ctrl,       &g_i2c11_cfg,       &g_i2c_master_on_sci},
+  {&g_i2c12_ctrl,       &g_i2c12_cfg,       &g_i2c_master_on_sci},
 };
 
 spi_instance_t SpiTable[] = {
@@ -81,16 +100,16 @@ sciTable_t SciTable[] {
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { nullptr           , nullptr            , &SpiTable[3]      },
-  { nullptr           , &I2CMasterTable[3] , nullptr           },
-  { nullptr           , &I2CMasterTable[4] , nullptr           },
-  { nullptr           , &I2CMasterTable[5] , nullptr           },
-  { nullptr           , nullptr            , &SpiTable[2]      },
-  { &UartTable[0]     , nullptr            , nullptr           },
-  { &UartTable[1]     , nullptr            , nullptr           },
-  { &UartTable[2]     , nullptr            , nullptr           },
-  { &UartTable[3]     , nullptr            , nullptr           },
-  { &UartTable[4]     , nullptr            , nullptr           },
+  { &UartTable[5]     , &I2CMasterTable[6] , &SpiTable[3]      },
+  { &UartTable[6]     , &I2CMasterTable[3] , nullptr           },
+  { &UartTable[7]     , &I2CMasterTable[4] , nullptr           },
+  { &UartTable[8]     , &I2CMasterTable[5] , nullptr           },
+  { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[2]      },
+  { &UartTable[0]     , &I2CMasterTable[8] , nullptr           },
+  { &UartTable[1]     , &I2CMasterTable[9] , nullptr           },
+  { &UartTable[2]     , &I2CMasterTable[10], nullptr           },
+  { &UartTable[3]     , &I2CMasterTable[11], nullptr           },
+  { &UartTable[4]     , &I2CMasterTable[12], nullptr           },
 };
 
 PinDescription g_APinDescription[] = {

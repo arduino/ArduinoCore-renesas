@@ -46,7 +46,7 @@ void (*TwoWire::user_onReceive)(int);
 
 static uint32_t timeout_ms = 1000;
 
-static i2c_master_event_t _i2c_cb_event[6] = {I2C_MASTER_EVENT_ABORTED};
+static i2c_master_event_t _i2c_cb_event[13] = {I2C_MASTER_EVENT_ABORTED};
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -496,6 +496,41 @@ void isr_i2c4 (i2c_master_callback_args_t * p_args)
 void isr_i2c5 (i2c_master_callback_args_t * p_args)
 {
   _i2c_cb_event[5] = p_args->event;
+}
+
+void isr_i2c6 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[6] = p_args->event;
+}
+
+void isr_i2c7 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[7] = p_args->event;
+}
+
+void isr_i2c8 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[8] = p_args->event;
+}
+
+void isr_i2c9 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[9] = p_args->event;
+}
+
+void isr_i2c10 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[10] = p_args->event;
+}
+
+void isr_i2c11 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[11] = p_args->event;
+}
+
+void isr_i2c12 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[12] = p_args->event;
 }
 
 
