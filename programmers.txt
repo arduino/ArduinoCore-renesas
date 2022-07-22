@@ -1,0 +1,23 @@
+cmsis-dap.name=ARM CMSIS-DAP compatible
+cmsis-dap.communication=USB
+cmsis-dap.protocol=
+cmsis-dap.program.protocol=
+cmsis-dap.program.tool=openocd
+cmsis-dap.program.tool.default=openocd
+cmsis-dap.program.extra_params=
+
+stlink.name=STMicroelectronics STLINK
+stlink.communication=USB
+stlink.protocol=
+stlink.program.protocol=
+stlink.program.tool=openocd
+stlink.program.tool.default=openocd
+stlink.program.extra_params=
+
+rfp.name=Renesas Flash Programmer
+rfp.communication=USB
+rfp.protocol=
+rfp.program.protocol=
+rfp.program.tool=rfp-cli
+rfp.program.tool.default=rfp-cli
+rfp.program.extra_params=-device RA -port {port} -p 

@@ -5,7 +5,7 @@
 name=Arduino Renesas fsp Boards
 version=0.0.1
 
-# Linux compile variables
+# Compile variables
 # ------------------------
 
 compiler.warning_flags=-w
@@ -19,6 +19,7 @@ compiler.c.cmd={build.crossprefix}gcc
 compiler.c.flags=-c {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections
 compiler.c.elf.cmd={build.crossprefix}g++
 compiler.c.elf.flags=-Wl,--gc-sections {compiler.warning_flags} -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -g3
+compiler.S.cmd={build.crossprefix}g++
 compiler.S.flags=-c -g -x assembler-with-cpp -O3 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.cpp.cmd={build.crossprefix}g++
 compiler.cpp.flags=-c {compiler.warning_flags} -g3 -nostdlib {build.defines} -MMD -std=gnu++11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
@@ -28,6 +29,7 @@ compiler.ar.extra_flags=
 compiler.objcopy.cmd=
 compiler.objcopy.eep.flags=
 compiler.elf2hex.bin.flags=-O binary -j .text -j .data
+compiler.elf2hex.hex.flags=-O ihex -j .text -j .data
 compiler.elf2hex.extra_flags=
 compiler.elf2hex.cmd={build.crossprefix}objcopy
 compiler.ldflags=
@@ -36,8 +38,17 @@ compiler.size.cmd={build.crossprefix}size
 compiler.define=-DARDUINO=
 # this can be overriden in boards.txt
 build.extra_flags=
-build.extra.startobjects=
-build.extra.endobjects=
+build.extra_ldflags=
+
+# These can be overridden in platform.local.txt
+compiler.c.extra_flags=
+compiler.c.elf.extra_flags=
+compiler.S.extra_flags=
+compiler.cpp.extra_flags=
+compiler.ar.extra_flags=
+compiler.objcopy.eep.extra_flags=
+compiler.elf2hex.extra_flags=
+
 tinyusb.includes=-I{runtime.platform.path}/cores/arduino/tinyusb
 
 # USB Flags
@@ -53,10 +64,10 @@ build.usb_flags=
 # -----------------------
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.tinyusb.cflags}  {build.extra_flags} {tinyusb.includes} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.tinyusb.cflags}  {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
 
 ## Create archives
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
@@ -64,19 +75,20 @@ recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compil
 ## Combine gc-sections, archives, and objects
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" {object_files} -Wl,--whole-archive "{build.path}/{archive_file}" {compiler.fsp} -Wl,--no-whole-archive -Wl,--start-group {compiler.fsp.extra_ldflags} {compiler.libraries.ldflags} -Wl,--end-group
 
-## Create bin
+## Create output (bin file)
 recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.bin.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
 
-## Create hex
-recipe.objcopy.hex.pattern=
+## Create output (hex file)
+recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
-recipe.size.regex=\.text\s+([0-9]+).*
+recipe.size.regex.data=^(?:\.data|\.bss)\s+([0-9]+).*
+recipe.size.regex=^(?:\.data|\.text|\.rodata)\S*?\s+([0-9]+).*
 
 ## Save hex
-recipe.output.tmp_file={build.project_name}.elf
-recipe.output.save_file={build.project_name}.{build.variant}.elf
+recipe.output.tmp_file={build.project_name}.bin
+recipe.output.save_file={build.project_name}.{build.variant}.bin
 
 # Uploader tools
 # ---------------------

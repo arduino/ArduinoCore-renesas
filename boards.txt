@@ -5,7 +5,7 @@ portenta_h33.build.core=arduino
 portenta_h33.build.crossprefix=arm-none-eabi-
 portenta_h33.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 
-portenta_h33.build.variant=portenta_h33
+portenta_h33.build.variant=PORTENTA_H33
 portenta_h33.build.mcu=cortex-m33
 portenta_h33.build.architecture=cortex-m33
 portenta_h33.build.fpu=-mfpu=fpv5-sp-d16
@@ -17,14 +17,20 @@ portenta_h33.vid.0=0x2341
 portenta_h33.pid.0=0x0368
 portenta_h33.vid.1=0x2341
 portenta_h33.pid.1=0x0068
+portenta_h33.upload_port.0.vid=0x2341
+portenta_h33.upload_port.0.pid=0x0068
+portenta_h33.upload_port.1.vid=0x2341
+portenta_h33.upload_port.1.pid=0x0368
 
 portenta_h33.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
-portenta_h33.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_
+portenta_h33.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
+portenta_h33.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
+portenta_h33.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+portenta_h33.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 portenta_h33.compiler.fsp.includes={build.variant.path}/includes.txt
 portenta_h33.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-portenta_h33.compiler.fsp="{build.variant.path}/libs/libarduino.a"
+portenta_h33.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
 portenta_h33.upload.tool=dfu-util
 portenta_h33.upload.tool.default=dfu-util
@@ -37,91 +43,53 @@ portenta_h33.upload.interface=0
 portenta_h33.upload.use_1200bps_touch=true
 portenta_h33.upload.wait_for_upload_port=true
 portenta_h33.upload.native_usb=true
-portenta_h33.upload.maximum_size=786432
+portenta_h33.upload.maximum_size=2097152
 portenta_h33.upload.maximum_data_size=523624
 
 ##############################################################
 
-portenta_h33_new.name=Portenta H33 New (RA6M5)
-portenta_h33_new.build.core=arduino
-portenta_h33_new.build.crossprefix=arm-none-eabi-
-portenta_h33_new.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+santiago.name=Santiago (RA4M1)
+santiago.build.core=arduino
+santiago.build.crossprefix=arm-none-eabi-
+santiago.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 
-portenta_h33_new.build.variant=PORTENTA_H33
-portenta_h33_new.build.mcu=cortex-m33
-portenta_h33_new.build.architecture=cortex-m33
-portenta_h33_new.build.fpu=-mfpu=fpv5-sp-d16
-portenta_h33_new.build.float-abi=-mfloat-abi=hard
+santiago.build.variant=SANTIAGO
+santiago.build.mcu=cortex-m4
+santiago.build.architecture=cortex-m4
+santiago.build.fpu=-mfpu=fpv5-sp-d16
+santiago.build.float-abi=-mfloat-abi=hard
 
-portenta_h33_new.build.board=PORTENTA_H33
-portenta_h33_new.build.defines=
-portenta_h33_new.vid.0=0x2341
-portenta_h33_new.pid.0=0x0368
-portenta_h33_new.vid.1=0x2341
-portenta_h33_new.pid.1=0x0068
+santiago.build.board=SANTIAGO
+santiago.build.defines=
+santiago.vid.0=0x2341
+santiago.pid.0=0x0069
+santiago.vid.1=0x2341
+santiago.pid.1=0x0369
+santiago.upload_port.0.vid=0x2341
+santiago.upload_port.0.pid=0x0068
+santiago.upload_port.1.vid=0x2341
+santiago.upload_port.1.pid=0x0368
 
-portenta_h33_new.compiler.fsp.defines={build.variant.path}/defines.txt
-portenta_h33_new.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33_new.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
-portenta_h33_new.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAZURE_RTOS_THREADX
-portenta_h33_new.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-portenta_h33_new.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-portenta_h33_new.compiler.fsp.includes={build.variant.path}/includes.txt
-portenta_h33_new.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-portenta_h33_new.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+santiago.compiler.fsp.defines={build.variant.path}/defines.txt
+santiago.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+santiago.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
+santiago.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
+santiago.compiler.fsp.includes={build.variant.path}/includes.txt
+santiago.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+santiago.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
-portenta_h33_new.upload.tool=dfu-util
-portenta_h33_new.upload.tool.default=dfu-util
-portenta_h33_new.upload.protocol=
-portenta_h33_new.upload.transport=
-portenta_h33_new.upload.vid=0x2341
-portenta_h33_new.upload.pid=0x0368
-portenta_h33_new.upload.address=0x08040000
-portenta_h33_new.upload.interface=0
-portenta_h33_new.upload.use_1200bps_touch=true
-portenta_h33_new.upload.wait_for_upload_port=false
-portenta_h33_new.upload.native_usb=true
-portenta_h33_new.upload.maximum_size=786432
-portenta_h33_new.upload.maximum_data_size=523624
-
-##############################################################
-
-uno_r4.name=Uno Rev4 (RA6M5)
-uno_r4.build.core=arduino
-uno_r4.build.crossprefix=arm-none-eabi-
-uno_r4.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
-
-uno_r4.build.variant=UNO_R4
-uno_r4.build.mcu=cortex-m4
-uno_r4.build.architecture=cortex-m4
-uno_r4.build.fpu=-mfpu=fpv5-sp-d16
-uno_r4.build.float-abi=-mfloat-abi=hard
-
-uno_r4.build.board=UNO_R4
-uno_r4.build.defines=
-uno_r4.vid.0=0x2341
-uno_r4.pid.0=0x0366
-
-uno_r4.compiler.fsp.defines={build.variant.path}/defines.txt
-uno_r4.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-uno_r4.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
-uno_r4.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
-uno_r4.compiler.fsp.includes={build.variant.path}/includes.txt
-uno_r4.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-uno_r4.compiler.fsp="{build.variant.path}/libs/libfsp.a"
-
-uno_r4.upload.tool=dfu-util
-uno_r4.upload.tool.default=dfu-util
-uno_r4.upload.protocol=
-uno_r4.upload.transport=
-uno_r4.upload.vid=0x2341
-uno_r4.upload.pid=0x0366
-uno_r4.upload.address=0x08040000
-uno_r4.upload.interface=0
-uno_r4.upload.use_1200bps_touch=true
-uno_r4.upload.wait_for_upload_port=true
-uno_r4.upload.native_usb=true
-uno_r4.upload.maximum_size=786432
-uno_r4.upload.maximum_data_size=523624
+santiago.upload.tool=dfu-util
+santiago.upload.tool.default=dfu-util
+santiago.upload.protocol=
+santiago.upload.transport=
+santiago.upload.vid=0x2341
+santiago.upload.pid=0x0369
+santiago.upload.address=0x00010000
+santiago.upload.interface=0
+santiago.upload.use_1200bps_touch=true
+santiago.upload.wait_for_upload_port=true
+santiago.upload.native_usb=true
+santiago.upload.maximum_size=262144
+santiago.upload.maximum_data_size=32768
 
 ##############################################################
