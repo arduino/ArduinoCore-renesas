@@ -120,11 +120,22 @@ typedef struct {
     const external_irq_cfg_t* irq_cfg;
 } irqTable_t;
 
+typedef struct {
+    uart_instance_t *uart_instance;
+    i2c_master_instance_t *i2c_instance;
+    spi_instance_t *spi_instance;
+} sciTable_t;
+
 extern PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 extern pwmTable_t pwmTable[];
 extern const irqTable_t irqTable[];
+
+extern uart_instance_t UartTable[];
+extern i2c_master_instance_t I2CMasterTable[];
+extern spi_instance_t SpiTable[];
+extern sciTable_t SciTable[];
 
 #define digitalPinToBspPin(P)       (g_APinDescription[P].name)
 #define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))

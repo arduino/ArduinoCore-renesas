@@ -45,7 +45,7 @@ void (*TwoWire::user_onReceive)(int);
 
 static uint32_t timeout_ms = 1000;
 
-static i2c_master_event_t _i2c_cb_event[3] = {I2C_MASTER_EVENT_ABORTED};
+static i2c_master_event_t _i2c_cb_event[6] = {I2C_MASTER_EVENT_ABORTED};
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,6 @@ TwoWire::TwoWire(int sda, int scl, int ch):
   _scl(digitalPinToBspPin(scl)),
   _channel(ch)
 {
-  configureI2C(digitalPinToBspPin(sda), digitalPinToBspPin(scl), ch);
 }
 
 TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
@@ -70,7 +69,6 @@ TwoWire::TwoWire(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch):
   _scl(scl),
   _channel(ch)
 {
-  configureI2C(sda, scl, ch);
 }
 
 void TwoWire::configureI2C(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl, int ch) {
@@ -103,6 +101,8 @@ void TwoWire::begin(void)
   txBufferLength = 0;
 
   _i2c_config = *_g_i2c_master_cfg;
+
+  configureI2C(_sda, _scl, _channel);
 
   R_IIC_MASTER_Open(_g_i2c_master_ctrl, &_i2c_config);
 }
@@ -443,5 +443,22 @@ void isr_i2c2 (i2c_master_callback_args_t * p_args)
 {
   _i2c_cb_event[2] = p_args->event;
 }
+
+void isr_i2c3 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[3] = p_args->event;
+}
+
+void isr_i2c4 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[4] = p_args->event;
+}
+
+void isr_i2c5 (i2c_master_callback_args_t * p_args)
+{
+  _i2c_cb_event[5] = p_args->event;
+}
+
+
 
 

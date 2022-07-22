@@ -20,8 +20,8 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
-extern const spi_extended_cfg_t g_spi0_ext_cfg;
-extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
+//extern const spi_extended_cfg_t g_spi0_ext_cfg;
+//extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
 
 class ArduinoSPI : public arduino::SPIClass
 {
@@ -32,6 +32,8 @@ public:
     ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
               ,const spi_cfg_t *g_spi_cfg
               ,const sci_spi_extended_cfg_t *g_spi_ext_cfg);
+    ArduinoSPI(int ch, bool isSci = false);
+
     virtual uint8_t transfer(uint8_t data);
     virtual uint16_t transfer16(uint16_t data);
     virtual void transfer(void *buf, size_t count);
@@ -48,8 +50,12 @@ public:
 
     virtual void begin();
     virtual void end();
+    void setPins(int miso, int mosi, int sck, int cs = 0);
+    void setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
+               bsp_io_port_pin_t sck, bsp_io_port_pin_t cs = (bsp_io_port_pin_t)0);
 
 private:
+
     arduino::SPISettings settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
     static uint8_t interruptMode; // 0=none, 1=mask, 2=global
@@ -65,6 +71,9 @@ private:
     spi_clk_phase_t _clk_phase;
     spi_clk_polarity_t _clk_polarity;
     spi_bit_order_t _bit_order;
+
+    bsp_io_port_pin_t _miso, _mosi, _sck, _cs;
+    int _channel;
 
     bool _is_sci;
 };
