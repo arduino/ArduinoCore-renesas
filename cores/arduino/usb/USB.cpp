@@ -227,7 +227,7 @@ static void utox8(uint32_t val, char* s) {
 
 const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     (void) langid;
-#define DESC_STR_MAX (20)
+#define DESC_STR_MAX (33)
     static uint16_t desc_str[DESC_STR_MAX];
 
     static char idString[32 * 2 + 1];
@@ -245,7 +245,7 @@ const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         utox8(t->unique_id_words[0], &idString[0]);
         utox8(t->unique_id_words[1], &idString[8]);
         utox8(t->unique_id_words[2], &idString[16]);
-        utox8(t->unique_id_words[3], &idString[32]);
+        utox8(t->unique_id_words[3], &idString[24]);
     }
 
     uint8_t len;

@@ -123,13 +123,17 @@ SerialUSB::operator bool() {
     return tud_cdc_connected();
 }
 
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x20018f48ul)
+#define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
+#define DOUBLE_TAP_MAGIC                  0x07738135
 
 static bool _dtr = false;
 static bool _rts = false;
 static int _bps = 115200;
 static void CheckSerialReset() {
     if ((_bps == 1200) && (!_dtr)) {
-        //reset_usb_boot(0, 0);
+        BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+        NVIC_SystemReset();
         while (1); // WDT will fire here
     }
 }
