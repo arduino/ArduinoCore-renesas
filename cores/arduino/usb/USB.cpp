@@ -322,13 +322,22 @@ void __USBStart() {
     R_MSTP->MSTPCRB &= ~(1U << 12U);
     R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
 
+#ifdef CFG_TUSB_RHPORT0_MODE
+#if (CFG_TUSB_RHPORT0_MODE != 0)
     __NVIC_SetVector(USBFS_INT_IRQn, (uint32_t)_usbfs_interrupt_handler);
     __NVIC_SetVector(USBFS_RESUME_IRQn, (uint32_t)_usbfs_interrupt_handler);
     __NVIC_SetVector(USBFS_FIFO_0_IRQn, (uint32_t)_usbfs_interrupt_handler);
     __NVIC_SetVector(USBFS_FIFO_1_IRQn, (uint32_t)_usbfs_interrupt_handler);
+#endif
+#endif
+
+#ifdef CFG_TUSB_RHPORT1_MODE
+#if (CFG_TUSB_RHPORT1_MODE != 0)
     __NVIC_SetVector(USBHS_USB_INT_RESUME_IRQn, (uint32_t)_usbhs_interrupt_handler);
     __NVIC_SetVector(USBHS_FIFO_0_IRQn, (uint32_t)_usbhs_interrupt_handler);
     __NVIC_SetVector(USBHS_FIFO_1_IRQn, (uint32_t)_usbhs_interrupt_handler);
+#endif
+#endif
 
     __SetupDescHIDReport();
     __SetupUSBDescriptor();
