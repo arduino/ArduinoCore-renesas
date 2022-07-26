@@ -25,6 +25,8 @@
 #include "r_flash_api.h"
 #include "r_lpm.h"
 #include "r_lpm_api.h"
+#include "r_icu.h"
+#include "r_external_irq_api.h"
 #include "r_wdt.h"
 #include "r_wdt_api.h"
 #include "r_spi.h"
@@ -175,6 +177,26 @@ extern const lpm_instance_t g_lpm0;
 /** Access the LPM instance using these structures when calling API functions directly (::p_api is not used). */
 extern lpm_instance_ctrl_t g_lpm0_ctrl;
 extern const lpm_cfg_t g_lpm0_cfg;
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq1;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq1_ctrl;
+extern const external_irq_cfg_t g_external_irq1_cfg;
+
+#ifndef NULL
+void NULL(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq0;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq0_ctrl;
+extern const external_irq_cfg_t g_external_irq0_cfg;
+
+#ifndef NULL
+void NULL(external_irq_callback_args_t *p_args);
+#endif
 /** WDT on WDT Instance. */
 extern const wdt_instance_t g_wdt0;
 
@@ -246,11 +268,7 @@ void NULL(adc_callback_args_t *p_args);
 #ifndef NULL
 #define ADC_DMAC_CHANNELS_PER_BLOCK_NULL  6
 #endif
-#ifdef __cplusplus
-    extern "C" void hal_entry(void);
-#else
-extern void hal_entry(void);
-#endif
+void hal_entry(void);
 void g_hal_init(void);
 FSP_FOOTER
 #endif /* HAL_DATA_H_ */

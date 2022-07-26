@@ -46,9 +46,6 @@ extern const uint16_t NULL[];
             #define USB_CFG_PCDC_USE
             #endif
 #if (RA_NOT_DEFINED != RA_NOT_DEFINED)
-            #define USB_CFG_PPRN_USE
-            #endif
-#if (RA_NOT_DEFINED != RA_NOT_DEFINED)
             #define USB_CFG_PHID_USE
             #endif
 #if (RA_NOT_DEFINED != RA_NOT_DEFINED)
@@ -66,7 +63,7 @@ extern const uint16_t NULL[];
 #define USB_CFG_HOST_MODE 0
 #endif
 
-#if (defined(USB_CFG_PCDC_USE) || defined(USB_CFG_PPRN_USE) || defined(USB_CFG_PMSC_USE) || defined(USB_CFG_PHID_USE) || defined(USB_CFG_PVND_USE) || defined(USB_CFG_PAUD_USE))
+#if (defined(USB_CFG_PCDC_USE) || defined(USB_CFG_PMSC_USE) || defined(USB_CFG_PHID_USE) || defined(USB_CFG_PVND_USE) || defined(USB_CFG_PAUD_USE))
 #define USB_CFG_PERI_MODE 2
 #else
             #define USB_CFG_PERI_MODE 0

@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #define RTC_CFG_PARAM_CHECKING_ENABLE (BSP_CFG_PARAM_CHECKING_ENABLE)
-#define RTC_CFG_OPEN_SET_CLOCK_SOURCE RA_NOT_DEFINED
 
 #ifdef __cplusplus
 }

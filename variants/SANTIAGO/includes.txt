@@ -1,8 +1,8 @@
--iwithprefixbefore/variants/UNO_R4/includes/ra/fsp/inc
--iwithprefixbefore/variants/UNO_R4/includes/ra/fsp/inc/api
--iwithprefixbefore/variants/UNO_R4/includes/ra/fsp/inc/instances
--iwithprefixbefore/variants/UNO_R4/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
--iwithprefixbefore/variants/UNO_R4/includes/ra_gen
--iwithprefixbefore/variants/UNO_R4/includes/ra_cfg/fsp_cfg/bsp
--iwithprefixbefore/variants/UNO_R4/includes/ra_cfg/fsp_cfg
--iwithprefixbefore/variants/UNO_R4/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/SANTIAGO/includes/ra/fsp/inc
+-iwithprefixbefore/variants/SANTIAGO/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/SANTIAGO/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/SANTIAGO/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/SANTIAGO/includes/ra_gen
+-iwithprefixbefore/variants/SANTIAGO/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/SANTIAGO/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/SANTIAGO/includes/ra/fsp/src/r_usb_basic/src/driver/inc
