@@ -112,7 +112,7 @@ sciTable_t SciTable[] {
   { &UartTable[4]     , &I2CMasterTable[12], nullptr           },
 };
 
-PinDescription g_APinDescription[] = {
+const PinDescription g_APinDescription[] = {
 /*
     +------------------------+---------------+---------------------+--------------------------+
     |       PIN Name         |      PWM      |    EXT INTERRUPT    |          Notes           |

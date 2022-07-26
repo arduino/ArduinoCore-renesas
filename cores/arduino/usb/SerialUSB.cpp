@@ -1,6 +1,5 @@
 
-#include <Arduino.h>
-
+#include "SerialUSB.h"
 #include "tusb.h"
 
 #ifndef DISABLE_USB_SERIAL

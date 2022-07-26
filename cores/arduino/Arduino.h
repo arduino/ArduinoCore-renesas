@@ -127,7 +127,7 @@ typedef struct {
     spi_instance_t *spi_instance;
 } sciTable_t;
 
-extern PinDescription g_APinDescription[];
+extern const PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
 extern pwmTable_t pwmTable[];

@@ -29,7 +29,7 @@ const irqTable_t irqTable[] = {
     {&g_external_irq1_ctrl, &g_external_irq1_cfg},    // ext_int1
 };
 
-PinDescription g_APinDescription[] = {
+const PinDescription g_APinDescription[] = {
 /*
     +------------------------+---------------+---------------------+--------------------------+
     |       PIN Name         |      PWM      |    EXT INTERRUPT    |          Notes           |
