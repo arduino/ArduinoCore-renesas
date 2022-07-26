@@ -31,8 +31,8 @@ static tx_buffer_index_t _tx_buffer_head[10];
 static tx_buffer_index_t _tx_buffer_tail[10];
 static rx_buffer_index_t _rx_buffer_tail[10];
 
-static unsigned char _rx_buffer[10][SERIAL_RX_BUFFER_SIZE];
-static unsigned char _tx_buffer[10][SERIAL_TX_BUFFER_SIZE];
+static unsigned char *_rx_buffer[10];
+static unsigned char *_tx_buffer[10];
 
 static bool _sending[10];
 
@@ -98,6 +98,12 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   const uint32_t err_rate = 5;
 
   enableUartIrqs();
+
+  uint8_t *tx_array = new uint8_t[SERIAL_TX_BUFFER_SIZE];
+  uint8_t *rx_array = new uint8_t[SERIAL_RX_BUFFER_SIZE];
+
+  _tx_buffer[_channel] = tx_array;
+  _rx_buffer[_channel] = rx_array;
 
   err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &_baud);
   err = R_SCI_UART_Open (_uart_ctrl, &_config);
