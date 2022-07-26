@@ -20,6 +20,12 @@ extern "C" unsigned int PINCOUNT_fn();
 
 #define DAC      (A3)
 
+#undef A0
+#undef A1
+#undef A2
+#undef A3
+#undef A4
+#undef A5
 static const uint8_t A0 = PIN_A0;
 static const uint8_t A1 = PIN_A1;
 static const uint8_t A2 = PIN_A2;
@@ -29,6 +35,22 @@ static const uint8_t A5 = PIN_A5;
 
 // Digital pins
 // -----------
+#undef D0
+#undef D1
+#undef D2
+#undef D3
+#undef D4
+#undef D5
+#undef D6
+#undef D7
+#undef D8
+#undef D9
+#undef D10
+#undef D11
+#undef D12
+#undef D13
+#undef D14
+#undef D15
 #define D0  (0u)
 #define D1  (1u)
 #define D2  (2u)
