@@ -97,6 +97,8 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   const bool bit_mod = true;
   const uint32_t err_rate = 5;
 
+  enableUartIrqs();
+
   err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &_baud);
   err = R_SCI_UART_Open (_uart_ctrl, &_config);
   if(err != FSP_SUCCESS) while(1);
@@ -205,6 +207,68 @@ rx_buffer_index_t UART::get_rx_buffer_head()
   err = R_DTC_InfoGet(_dtc_ctrl, &p_properties);
   if(err != FSP_SUCCESS) while(1);
   return (rx_buffer_index_t)(SERIAL_RX_BUFFER_SIZE - p_properties.transfer_length_remaining);
+}
+
+
+void UART::enableUartIrqs() {
+
+  switch (_channel)
+  {
+  case 0:
+    __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 1:
+    __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 2:
+    __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 3:
+    __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 4:
+    __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 5:
+    __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 6:
+    __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 7:
+    __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 8:
+    __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  case 9:
+    __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_uart_rxi_isr);
+    __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_uart_txi_isr);
+    __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_uart_tei_isr);
+    break;
+  
+  default:
+    break;
+  }
+
 }
 
 

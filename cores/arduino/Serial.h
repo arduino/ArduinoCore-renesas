@@ -147,6 +147,7 @@ class UART : public arduino::HardwareSerial {
     volatile bool _begin;
 
   private:
+    void          enableUartIrqs();
     int           _channel;
 };
 

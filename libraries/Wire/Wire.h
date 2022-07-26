@@ -112,6 +112,7 @@ class TwoWire : public arduino::HardwareI2C
 
     uint8_t twi_readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
     uint8_t twi_writeTo(uint8_t, uint8_t*, uint8_t, uint8_t, uint8_t);
+    void enableI2CIrqs();
 };
 
 #if WIRE_HOWMANY > 0

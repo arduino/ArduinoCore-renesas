@@ -77,6 +77,8 @@ void TwoWire::begin(void)
 
   _cb_event_idx = _channel;
 
+  enableI2CIrqs();
+
   if (_is_sci) {
     _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(SciTable[_channel].i2c_instance->p_ctrl);
     _g_i2c_master_cfg = (const i2c_master_cfg_t *)(SciTable[_channel].i2c_instance->p_cfg);
@@ -457,6 +459,67 @@ uint8_t TwoWire::twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uin
       return 4;
   }
   return 0;
+}
+
+void TwoWire::enableI2CIrqs() {
+
+  switch (_channel)
+  {
+  case 0:
+    __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 1:
+    __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 2:
+    __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 3:
+    __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 4:
+    __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 5:
+    __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 6:
+    __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 7:
+    __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 8:
+    __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  case 9:
+    __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
+    __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
+    __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
+    break;
+  
+  default:
+    break;
+  }
+
 }
 
 #if WIRE_HOWMANY > 0
