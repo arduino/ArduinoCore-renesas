@@ -108,13 +108,17 @@ typedef uint8_t rx_buffer_index_t;
 
 class UART : public arduino::HardwareSerial {
   public:
-    UART(sci_uart_instance_ctrl_t _uart_ctrl,
+    UART(sci_uart_instance_ctrl_t *_uart_ctrl,
          const uart_cfg_t* _uart_config,
-         dtc_instance_ctrl_t* _dtc_ctrl);
+         dtc_instance_ctrl_t* _dtc_ctrl, int ch);
+    UART(int ch);
 
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
     void end();
+    void setPins(int tx, int rx, int rts = 0, int cts = 0);
+    void setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
+                 bsp_io_port_pin_t rts = (bsp_io_port_pin_t)0, bsp_io_port_pin_t cts = (bsp_io_port_pin_t)0);
     int available(void);
     int peek(void);
     int read(void);
@@ -131,24 +135,19 @@ class UART : public arduino::HardwareSerial {
 
     void _tx_udr_empty_irq(void);
     rx_buffer_index_t get_rx_buffer_head();
-    sci_uart_instance_ctrl_t _uart_ctrl; // Notes: in case of using pointer to the sci instance,
-                                         // a problem occurs when restart sci after receiving the size of buf
+
+    uart_ctrl_t* _uart_ctrl;
     const uart_cfg_t* _uart_config;
     uart_cfg_t _config;
     baud_setting_t _baud;
     dtc_instance_ctrl_t* _dtc_ctrl;
-    unsigned char _rx_buffer[SERIAL_RX_BUFFER_SIZE];
-    unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
   protected:
     bool _written;
     volatile bool _begin;
-    volatile bool _sending;
 
-    volatile tx_buffer_index_t _tx_buffer_head;
-    volatile tx_buffer_index_t _tx_buffer_tail;
-    volatile rx_buffer_index_t _rx_buffer_tail;
-
+  private:
+    int           _channel;
 };
 
 extern UART _UART1_;
