@@ -94,9 +94,7 @@ void TwoWire::begin(void)
 
   if(!initialized) {
     if (_is_sci) {
-      if (R_SCI_I2C_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg) != FSP_SUCCESS) {
-        SerialUSB.println("Open SCI error");
-      }
+      R_SCI_I2C_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg);
     } else {
       R_IIC_MASTER_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg);
     }
