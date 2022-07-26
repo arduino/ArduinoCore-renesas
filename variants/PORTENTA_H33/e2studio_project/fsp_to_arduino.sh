@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CORE_PATH=$(pwd)
+CORE_PATH=$(pwd -P)
 TARGET=PORTENTA_H33
 
 LIBRARY=`find . | grep "\.a$"`
@@ -63,8 +63,8 @@ do
     INCLUDE_PATH=`echo $value | cut -f2 -d"\"" | cut -f1 -d"\""`
     echo $INCLUDE_PATH
     # temporarily, copy everything staring with "ra_" in variant/includes/ , everything with ra in core folder
-    if [[ $INCLUDE_PATH == $PWD/ra* ]]; then
-        INCLUDE_PATH_REL=${INCLUDE_PATH#"$PWD/"}
+    if [[ $INCLUDE_PATH == $CORE_PATH/ra* ]]; then
+        INCLUDE_PATH_REL=${INCLUDE_PATH#"$CORE_PATH/"}
         cp -r --parent $INCLUDE_PATH_REL ${CORE_PATH}/../../${TARGET}/includes/
         echo "-iwithprefixbefore/variants/${TARGET}/includes/$INCLUDE_PATH_REL" >> ${CORE_PATH}/../../${TARGET}/includes.txt
     fi
