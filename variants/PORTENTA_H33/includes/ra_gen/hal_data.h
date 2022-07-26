@@ -297,8 +297,8 @@ extern sci_uart_instance_ctrl_t g_uart5_ctrl;
 extern const uart_cfg_t g_uart5_cfg;
 extern const sci_uart_extended_cfg_t g_uart5_cfg_extend;
 
-#ifndef NULL
-void NULL(uart_callback_args_t *p_args);
+#ifndef isr_uart5
+void isr_uart5(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer34;
