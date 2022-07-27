@@ -4,12 +4,18 @@
 #ifdef AZURE_RTOS_THREADX
 #include "tx_api.h"
 #endif
-#include "usb/SerialUSB.h"
+
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
-#include "r_ioport.h"
+#include "hal_data.h"
+
+
+#if defined(__cplusplus)
+#include "usb/SerialUSB.h"
 #include "pwm.h"
 #include "Serial.h"
+#endif
+
 
 #if defined(__cplusplus)
 
@@ -108,13 +114,16 @@ typedef struct _AnalogOutPinDescription
   const dac_cfg_t* dac_cfg;
 } AnalogOutPinDescription;
 
-
+#if defined(__cplusplus)
 typedef struct {
     gpt_instance_ctrl_t* gpt_ctrl;
     const timer_cfg_t* gpt_cfg;
     gpt_io_pin_t gpt_pin;
     PwmOut* pwm;
 } pwmTable_t;
+
+extern pwmTable_t pwmTable[];
+#endif
 
 typedef struct {
     icu_instance_ctrl_t* icu_ctrl;
@@ -130,7 +139,6 @@ typedef struct {
 extern const PinDescription g_APinDescription[];
 extern const AnalogPinDescription g_AAnalogPinDescription[];
 extern const AnalogOutPinDescription g_AAnalogOutPinDescription[];
-extern pwmTable_t pwmTable[];
 extern const irqTable_t irqTable[];
 
 extern uart_instance_t UartTable[];
@@ -145,7 +153,9 @@ extern sciTable_t SciTable[];
 #define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)
 
 void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
+#if defined(__cplusplus)
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
+#endif
 
 #define Serial1 _UART1_
 #define Serial2 _UART2_

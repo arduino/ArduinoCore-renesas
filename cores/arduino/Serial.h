@@ -28,9 +28,6 @@
 #include "Arduino.h"
 #include "api/HardwareSerial.h"
 
-#include "bsp_api.h"
-#include "hal_data.h"
-
 #ifdef __cplusplus
 
 #ifndef __ARDUINO_UART_IMPLEMENTATION__
