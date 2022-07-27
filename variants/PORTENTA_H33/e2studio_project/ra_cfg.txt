@@ -3948,6 +3948,358 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SCI4 RXI (Received data full)
         
+    Instance "g_spi4 SPI (r_sci_spi)"
+      Name: g_spi4
+      Channel: 1
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer59 Transfer (r_dtc) SCI1 TXI (Transmit data empty)"
+        Name: g_transfer59
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 TXI (Transmit data empty)
+        
+      Instance "g_transfer60 Transfer (r_dtc) SCI1 RXI (Received data full)"
+        Name: g_transfer60
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI1 RXI (Received data full)
+        
+    Instance "g_spi5 SPI (r_sci_spi)"
+      Name: g_spi5
+      Channel: 2
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer61 Transfer (r_dtc) SCI2 TXI (Transmit data empty)"
+        Name: g_transfer61
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 TXI (Transmit data empty)
+        
+      Instance "g_transfer62 Transfer (r_dtc) SCI2 RXI (Received data full)"
+        Name: g_transfer62
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI2 RXI (Received data full)
+        
+    Instance "g_spi6 SPI (r_sci_spi)"
+      Name: g_spi6
+      Channel: 3
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer63 Transfer (r_dtc) SCI3 TXI (Transmit data empty)"
+        Name: g_transfer63
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 TXI (Transmit data empty)
+        
+      Instance "g_transfer64 Transfer (r_dtc) SCI3 RXI (Received data full)"
+        Name: g_transfer64
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI3 RXI (Received data full)
+        
+    Instance "g_spi7 SPI (r_sci_spi)"
+      Name: g_spi7
+      Channel: 5
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer65 Transfer (r_dtc) SCI5 TXI (Transmit data empty)"
+        Name: g_transfer65
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI5 TXI (Transmit data empty)
+        
+      Instance "g_transfer66 Transfer (r_dtc) SCI5 RXI (Received data full)"
+        Name: g_transfer66
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI5 RXI (Received data full)
+        
+    Instance "g_spi8 SPI (r_sci_spi)"
+      Name: g_spi8
+      Channel: 6
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer67 Transfer (r_dtc) SCI6 TXI (Transmit data empty)"
+        Name: g_transfer67
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI6 TXI (Transmit data empty)
+        
+      Instance "g_transfer68 Transfer (r_dtc) SCI6 RXI (Received data full)"
+        Name: g_transfer68
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI6 RXI (Received data full)
+        
+    Instance "g_spi9 SPI (r_sci_spi)"
+      Name: g_spi9
+      Channel: 7
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer69 Transfer (r_dtc) SCI7 TXI (Transmit data empty)"
+        Name: g_transfer69
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI7 TXI (Transmit data empty)
+        
+      Instance "g_transfer70 Transfer (r_dtc) SCI7 RXI (Received data full)"
+        Name: g_transfer70
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI7 RXI (Received data full)
+        
+    Instance "g_spi10 SPI (r_sci_spi)"
+      Name: g_spi10
+      Channel: 8
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer71 Transfer (r_dtc) SCI8 TXI (Transmit data empty)"
+        Name: g_transfer71
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI8 TXI (Transmit data empty)
+        
+      Instance "g_transfer72 Transfer (r_dtc) SCI8 RXI (Received data full)"
+        Name: g_transfer72
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI8 RXI (Received data full)
+        
+    Instance "g_spi11 SPI (r_sci_spi)"
+      Name: g_spi11
+      Channel: 9
+      Operating Mode: Master
+      Clock Phase: Data sampling on odd edge, data variation on even edge
+      Clock Polarity: Low when idle
+      Mode Fault Error: Disable
+      Bit Order: MSB First
+      Callback: NULL
+      Receive Interrupt Priority: Priority 12
+      Transmit Interrupt Priority: Priority 12
+      Transmit End Interrupt Priority: Priority 12
+      Error Interrupt Priority: Priority 12
+      Bitrate: 1000000
+      Bitrate Modulation: Enabled
+      
+      Instance "g_transfer73 Transfer (r_dtc) SCI9 TXI (Transmit data empty)"
+        Name: g_transfer73
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI9 TXI (Transmit data empty)
+        
+      Instance "g_transfer74 Transfer (r_dtc) SCI9 RXI (Received data full)"
+        Name: g_transfer74
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI9 RXI (Received data full)
+        
   Thread "MainThread"
     Symbol: main_thd
     Name: MainThread
