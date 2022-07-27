@@ -87,14 +87,17 @@ i2c_master_instance_t I2CMasterTable[] = {
   {&g_i2c12_ctrl,       &g_i2c12_cfg,       &g_i2c_master_on_sci},
 };
 
+void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
+void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
+
 spi_instance_t SpiTable[] = {
   {&g_spi0_ctrl, &g_spi0_cfg, &g_spi_on_spi},
   {&g_spi1_ctrl, &g_spi1_cfg, &g_spi_on_spi},
-  {&g_spi2_ctrl, &g_spi2_cfg, &g_spi_on_sci},
   {&g_spi3_ctrl, &g_spi3_cfg, &g_spi_on_sci},
   {&g_spi4_ctrl, &g_spi4_cfg, &g_spi_on_sci},
   {&g_spi5_ctrl, &g_spi5_cfg, &g_spi_on_sci},
   {&g_spi6_ctrl, &g_spi6_cfg, &g_spi_on_sci},
+  {&g_spi2_ctrl, &g_spi2_cfg, &g_spi_on_sci},
   {&g_spi7_ctrl, &g_spi7_cfg, &g_spi_on_sci},
   {&g_spi8_ctrl, &g_spi8_cfg, &g_spi_on_sci},
   {&g_spi9_ctrl, &g_spi9_cfg, &g_spi_on_sci},
@@ -108,11 +111,11 @@ sciTable_t SciTable[] {
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { &UartTable[5]     , &I2CMasterTable[6] , &SpiTable[3]      },
-  { &UartTable[6]     , &I2CMasterTable[3] , &SpiTable[4]      },
-  { &UartTable[7]     , &I2CMasterTable[4] , &SpiTable[5]      },
-  { &UartTable[8]     , &I2CMasterTable[5] , &SpiTable[6]      },
-  { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[2]      },
+  { &UartTable[5]     , &I2CMasterTable[6] , &SpiTable[2]      },
+  { &UartTable[6]     , &I2CMasterTable[3] , &SpiTable[3]      },
+  { &UartTable[7]     , &I2CMasterTable[4] , &SpiTable[4]      },
+  { &UartTable[8]     , &I2CMasterTable[5] , &SpiTable[5]      },
+  { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[6]      },
   { &UartTable[0]     , &I2CMasterTable[8] , &SpiTable[7]      },
   { &UartTable[1]     , &I2CMasterTable[9] , &SpiTable[8]      },
   { &UartTable[2]     , &I2CMasterTable[10], &SpiTable[9]      },
@@ -413,6 +416,9 @@ extern "C" {
   }
   unsigned int UART_COUNT_fn() {
     return (sizeof(UartTable) / sizeof(UartTable[0]));
+  }
+  unsigned int SCI_COUNT_fn() {
+    return (sizeof(SciTable) / sizeof(SciTable[0]));
   }
 }
 

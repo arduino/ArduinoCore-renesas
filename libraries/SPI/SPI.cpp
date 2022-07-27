@@ -22,30 +22,33 @@ uint8_t ArduinoSPI::interruptMode = 0;
 uint8_t ArduinoSPI::interruptMask = 0;
 uint8_t ArduinoSPI::interruptSave = 0;
 
+static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
+static uint32_t timeout_ms = 1000;
+
 ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
                       ,const spi_cfg_t *g_spi_cfg
-                      ,const spi_extended_cfg_t *g_spi_ext_cfg):
+                      ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch):
   _g_spi_ctrl(g_spi_ctrl)
 , _g_spi_cfg(g_spi_cfg)
 , _g_spi_ext_cfg(g_spi_ext_cfg)
-, _g_spi_callback_event(SPI_EVENT_TRANSFER_ABORTED)
 , _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
 , _clk_polarity(SPI_CLK_POLARITY_LOW)
 , _bit_order(SPI_BIT_ORDER_MSB_FIRST)
+, _channel(ch)
 , _is_sci(false)
 {
 }
 
 ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
                       ,const spi_cfg_t *g_spi_cfg
-                      ,const sci_spi_extended_cfg_t *g_spi_ext_cfg):
+                      ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch):
   _g_spi_ctrl(g_spi_ctrl)
 , _g_spi_cfg(g_spi_cfg)
 , _g_sci_spi_ext_cfg(g_spi_ext_cfg)
-, _g_spi_callback_event(SPI_EVENT_TRANSFER_ABORTED)
 , _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
 , _clk_polarity(SPI_CLK_POLARITY_LOW)
 , _bit_order(SPI_BIT_ORDER_MSB_FIRST)
+, _channel(ch)
 , _is_sci(true)
 {
 }
@@ -58,9 +61,20 @@ ArduinoSPI::ArduinoSPI(int ch, bool isSci):
 
 void ArduinoSPI::begin()
 {
+  _cb_event_idx = _channel;
+
   if (_is_sci) {
+    //Enable Isr from vector table for this SCI SPI channel
+    enableSciSpiIrqs();
     _g_spi_ctrl = (spi_ctrl_t*)(SciTable[_channel].spi_instance->p_ctrl);
     _g_spi_cfg = (const spi_cfg_t *)(SciTable[_channel].spi_instance->p_cfg);
+    for (int i=0; i<SPI_COUNT; i++) {
+      //Adjust callback event index to be referred to I2CMasterTable table
+      if ((spi_instance_t*)SciTable[_channel].spi_instance == &SpiTable[i]) {
+        _cb_event_idx = i;
+        break;
+      }
+    }
   } else {
     _g_spi_ctrl = (spi_ctrl_t*)(SpiTable[_channel].p_ctrl);
     _g_spi_cfg = (const spi_cfg_t *)(SpiTable[_channel].p_cfg);
@@ -81,6 +95,11 @@ void ArduinoSPI::begin()
 void ArduinoSPI::end() {
   if (initialized){
       initialized = false;
+  }
+  if (_is_sci) {
+    R_SCI_SPI_Close(_g_spi_ctrl);
+  } else {
+    R_SPI_Close(_g_spi_ctrl);
   }
 }
 
@@ -115,29 +134,61 @@ void ArduinoSPI::notUsingInterrupt(int interruptNumber)
 
 uint8_t ArduinoSPI::transfer(uint8_t data) {
   uint8_t rxbuf;
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
   if (_is_sci) {
     R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  }
+  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+  {
+      timeout_ms--;
+      delay(1);
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
+      return 0;
   }
   return rxbuf;
 }
 
 uint16_t ArduinoSPI::transfer16(uint16_t data) {
   uint16_t rxbuf;
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
   if (_is_sci) {
     R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
   }
+  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+  {
+      timeout_ms--;
+      delay(1);
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
+      return 0;
+  }
   return rxbuf;
 }
 
 void ArduinoSPI::transfer(void *buf, size_t count) {
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
   if (_is_sci) {
     R_SCI_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  }
+  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+  {
+      timeout_ms--;
+      delay(1);
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
   }
 }
 
@@ -250,10 +301,92 @@ void ArduinoSPI::detachInterrupt() {
 
 }
 
+void ArduinoSPI::enableSciSpiIrqs() {
+
+  switch (_channel)
+  {
+  case 0:
+    __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 1:
+    __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 2:
+    __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 3:
+    __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 4:
+    __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 5:
+    __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 6:
+    __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 7:
+    __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 8:
+    __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  case 9:
+    __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
+    __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
+    __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+    break;
+  
+  default:
+    break;
+  }
+
+}
+
+void spi_callback(spi_callback_args_t *p_args) {
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
+  }else
+  {
+    /* Updating the flag here to capture and handle all other error events */
+    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_ABORTED;
+  }
+}
+
+void sci_spi_callback(spi_callback_args_t *p_args) {
+  int spi_master_offset = SPI_COUNT - SCI_COUNT;
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+    _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_COMPLETE;
+  }else
+  {
+    /* Updating the flag here to capture and handle all other error events */
+    _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_ABORTED;
+  }
+}
+
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_ext_cfg);
+ArduinoSPI SPI(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_ext_cfg, 1);
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(&g_spi2_ctrl, &g_spi2_cfg, &g_spi2_cfg_extend);
+ArduinoSPI SPI1(&g_spi2_ctrl, &g_spi2_cfg, &g_spi2_cfg_extend, 4);
 #endif

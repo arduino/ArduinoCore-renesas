@@ -28,10 +28,10 @@ class ArduinoSPI : public arduino::SPIClass
 public:
     ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
               ,const spi_cfg_t *g_spi_cfg
-              ,const spi_extended_cfg_t *g_spi_ext_cfg);
+              ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch);
     ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
               ,const spi_cfg_t *g_spi_cfg
-              ,const sci_spi_extended_cfg_t *g_spi_ext_cfg);
+              ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch);
     ArduinoSPI(int ch, bool isSci = false);
 
     virtual uint8_t transfer(uint8_t data);
@@ -55,6 +55,7 @@ public:
                bsp_io_port_pin_t sck, bsp_io_port_pin_t cs = (bsp_io_port_pin_t)0);
 
 private:
+    void enableSciSpiIrqs();
 
     arduino::SPISettings settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
@@ -66,7 +67,6 @@ private:
     const spi_cfg_t *_g_spi_cfg;
     const spi_extended_cfg_t *_g_spi_ext_cfg;
     const sci_spi_extended_cfg_t *_g_sci_spi_ext_cfg;
-    spi_event_t _g_spi_callback_event;
 
     spi_clk_phase_t _clk_phase;
     spi_clk_polarity_t _clk_polarity;
@@ -74,6 +74,7 @@ private:
 
     bsp_io_port_pin_t _miso, _mosi, _sck, _cs;
     int _channel;
+    int _cb_event_idx;
 
     bool _is_sci;
 };
