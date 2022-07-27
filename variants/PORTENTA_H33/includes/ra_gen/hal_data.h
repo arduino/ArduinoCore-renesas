@@ -6,12 +6,12 @@
 #include "common_data.h"
 #include "r_dtc.h"
 #include "r_transfer_api.h"
+#include "r_sci_spi.h"
+#include "r_spi_api.h"
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 #include "r_sci_i2c.h"
 #include "r_i2c_master_api.h"
-#include "r_sci_spi.h"
-#include "r_spi_api.h"
 #include "r_spi.h"
 #include "r_canfd.h"
 #include "r_can_api.h"
@@ -39,6 +39,190 @@
 #include "r_rtc_api.h"
 FSP_HEADER
 /* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer74;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer74_ctrl;
+extern const transfer_cfg_t g_transfer74_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer73;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer73_ctrl;
+extern const transfer_cfg_t g_transfer73_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi11;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi11_ctrl;
+extern const spi_cfg_t g_spi11_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer72;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer72_ctrl;
+extern const transfer_cfg_t g_transfer72_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer71;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer71_ctrl;
+extern const transfer_cfg_t g_transfer71_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi10;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi10_ctrl;
+extern const spi_cfg_t g_spi10_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer70;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer70_ctrl;
+extern const transfer_cfg_t g_transfer70_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer69;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer69_ctrl;
+extern const transfer_cfg_t g_transfer69_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi9;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi9_ctrl;
+extern const spi_cfg_t g_spi9_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer68;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer68_ctrl;
+extern const transfer_cfg_t g_transfer68_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer67;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer67_ctrl;
+extern const transfer_cfg_t g_transfer67_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi8;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi8_ctrl;
+extern const spi_cfg_t g_spi8_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer66;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer66_ctrl;
+extern const transfer_cfg_t g_transfer66_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer65;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer65_ctrl;
+extern const transfer_cfg_t g_transfer65_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi7;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi7_ctrl;
+extern const spi_cfg_t g_spi7_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer64;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer64_ctrl;
+extern const transfer_cfg_t g_transfer64_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer63;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer63_ctrl;
+extern const transfer_cfg_t g_transfer63_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi6;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi6_ctrl;
+extern const spi_cfg_t g_spi6_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer62;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer62_ctrl;
+extern const transfer_cfg_t g_transfer62_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer61;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer61_ctrl;
+extern const transfer_cfg_t g_transfer61_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi5;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi5_ctrl;
+extern const spi_cfg_t g_spi5_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer60;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer60_ctrl;
+extern const transfer_cfg_t g_transfer60_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer59;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer59_ctrl;
+extern const transfer_cfg_t g_transfer59_cfg;
+/** SPI on SCI Instance. */
+extern const spi_instance_t g_spi4;
+
+/** Access the SCI_SPI instance using these structures when calling API functions directly (::p_api is not used). */
+extern sci_spi_instance_ctrl_t g_spi4_ctrl;
+extern const spi_cfg_t g_spi4_cfg;
+
+/** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
+#endif
+/* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer58;
 
 /** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
@@ -58,8 +242,8 @@ extern sci_uart_instance_ctrl_t g_uart9_ctrl;
 extern const uart_cfg_t g_uart9_cfg;
 extern const sci_uart_extended_cfg_t g_uart9_cfg_extend;
 
-#ifndef isr_uart9
-void isr_uart9(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer56;
@@ -81,8 +265,8 @@ extern sci_uart_instance_ctrl_t g_uart8_ctrl;
 extern const uart_cfg_t g_uart8_cfg;
 extern const sci_uart_extended_cfg_t g_uart8_cfg_extend;
 
-#ifndef isr_uart8
-void isr_uart8(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer54;
@@ -104,8 +288,8 @@ extern sci_uart_instance_ctrl_t g_uart7_ctrl;
 extern const uart_cfg_t g_uart7_cfg;
 extern const sci_uart_extended_cfg_t g_uart7_cfg_extend;
 
-#ifndef isr_uart7
-void isr_uart7(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer52;
@@ -127,8 +311,8 @@ extern sci_uart_instance_ctrl_t g_uart6_ctrl;
 extern const uart_cfg_t g_uart6_cfg;
 extern const sci_uart_extended_cfg_t g_uart6_cfg_extend;
 
-#ifndef isr_uart6
-void isr_uart6(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer50;
@@ -145,8 +329,8 @@ extern const transfer_cfg_t g_transfer49_cfg;
 extern const i2c_master_cfg_t g_i2c12_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c12;
-#ifndef isr_i2c12
-void isr_i2c12(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c12_cfg_extend;
@@ -166,8 +350,8 @@ extern const transfer_cfg_t g_transfer47_cfg;
 extern const i2c_master_cfg_t g_i2c11_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c11;
-#ifndef isr_i2c11
-void isr_i2c11(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c11_cfg_extend;
@@ -187,8 +371,8 @@ extern const transfer_cfg_t g_transfer45_cfg;
 extern const i2c_master_cfg_t g_i2c10_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c10;
-#ifndef isr_i2c10
-void isr_i2c10(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c10_cfg_extend;
@@ -208,8 +392,8 @@ extern const transfer_cfg_t g_transfer43_cfg;
 extern const i2c_master_cfg_t g_i2c9_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c9;
-#ifndef isr_i2c9
-void isr_i2c9(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c9_cfg_extend;
@@ -229,8 +413,8 @@ extern const transfer_cfg_t g_transfer41_cfg;
 extern const i2c_master_cfg_t g_i2c8_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c8;
-#ifndef isr_i2c8
-void isr_i2c8(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c8_cfg_extend;
@@ -250,8 +434,8 @@ extern const transfer_cfg_t g_transfer39_cfg;
 extern const i2c_master_cfg_t g_i2c7_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c7;
-#ifndef isr_i2c7
-void isr_i2c7(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c7_cfg_extend;
@@ -271,8 +455,8 @@ extern const transfer_cfg_t g_transfer37_cfg;
 extern const i2c_master_cfg_t g_i2c6_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c6;
-#ifndef isr_i2c6
-void isr_i2c6(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c6_cfg_extend;
@@ -297,8 +481,8 @@ extern sci_uart_instance_ctrl_t g_uart5_ctrl;
 extern const uart_cfg_t g_uart5_cfg;
 extern const sci_uart_extended_cfg_t g_uart5_cfg_extend;
 
-#ifndef isr_uart5
-void isr_uart5(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer34;
@@ -315,8 +499,8 @@ extern const transfer_cfg_t g_transfer33_cfg;
 extern const i2c_master_cfg_t g_i2c5_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c5;
-#ifndef isr_i2c5
-void isr_i2c5(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c5_cfg_extend;
@@ -336,8 +520,8 @@ extern const transfer_cfg_t g_transfer31_cfg;
 extern const i2c_master_cfg_t g_i2c4_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c4;
-#ifndef isr_i2c4
-void isr_i2c4(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c4_cfg_extend;
@@ -357,8 +541,8 @@ extern const transfer_cfg_t g_transfer29_cfg;
 extern const i2c_master_cfg_t g_i2c3_cfg;
 /* I2C on SCI Instance. */
 extern const i2c_master_instance_t g_i2c3;
-#ifndef isr_i2c3
-void isr_i2c3(i2c_master_callback_args_t *p_args);
+#ifndef sci_i2c_callback
+void sci_i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 
 extern const sci_i2c_extended_cfg_t g_i2c3_cfg_extend;
@@ -383,8 +567,8 @@ extern sci_spi_instance_ctrl_t g_spi3_ctrl;
 extern const spi_cfg_t g_spi3_cfg;
 
 /** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
-#ifndef NULL
-void NULL(spi_callback_args_t *p_args);
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer26;
@@ -406,8 +590,8 @@ extern spi_instance_ctrl_t g_spi0_ctrl;
 extern const spi_cfg_t g_spi0_cfg;
 
 /** Callback used by SPI Instance. */
-#ifndef NULL
-void NULL(spi_callback_args_t *p_args);
+#ifndef spi_callback
+void spi_callback(spi_callback_args_t *p_args);
 #endif
 
 #define RA_NOT_DEFINED (1)
@@ -471,8 +655,8 @@ extern sci_uart_instance_ctrl_t g_uart4_ctrl;
 extern const uart_cfg_t g_uart4_cfg;
 extern const sci_uart_extended_cfg_t g_uart4_cfg_extend;
 
-#ifndef isr_uart4
-void isr_uart4(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer24;
@@ -494,8 +678,8 @@ extern sci_uart_instance_ctrl_t g_uart3_ctrl;
 extern const uart_cfg_t g_uart3_cfg;
 extern const sci_uart_extended_cfg_t g_uart3_cfg_extend;
 
-#ifndef isr_uart3
-void isr_uart3(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer23;
@@ -517,8 +701,8 @@ extern sci_uart_instance_ctrl_t g_uart2_ctrl;
 extern const uart_cfg_t g_uart2_cfg;
 extern const sci_uart_extended_cfg_t g_uart2_cfg_extend;
 
-#ifndef isr_uart2
-void isr_uart2(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer22;
@@ -540,9 +724,21 @@ extern sci_uart_instance_ctrl_t g_uart1_ctrl;
 extern const uart_cfg_t g_uart1_cfg;
 extern const sci_uart_extended_cfg_t g_uart1_cfg_extend;
 
-#ifndef isr_uart1
-void isr_uart1(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer76;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer76_ctrl;
+extern const transfer_cfg_t g_transfer76_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer75;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer75_ctrl;
+extern const transfer_cfg_t g_transfer75_cfg;
 /** SPI on SCI Instance. */
 extern const spi_instance_t g_spi2;
 
@@ -551,8 +747,8 @@ extern sci_spi_instance_ctrl_t g_spi2_ctrl;
 extern const spi_cfg_t g_spi2_cfg;
 
 /** Called by the driver when a transfer has completed or an error has occurred (Must be implemented by the user). */
-#ifndef NULL
-void NULL(spi_callback_args_t *p_args);
+#ifndef sci_spi_callback
+void sci_spi_callback(spi_callback_args_t *p_args);
 #endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer12;
@@ -596,8 +792,8 @@ extern spi_instance_ctrl_t g_spi1_ctrl;
 extern const spi_cfg_t g_spi1_cfg;
 
 /** Callback used by SPI Instance. */
-#ifndef NULL
-void NULL(spi_callback_args_t *p_args);
+#ifndef spi_callback
+void spi_callback(spi_callback_args_t *p_args);
 #endif
 
 #define RA_NOT_DEFINED (1)
@@ -631,8 +827,8 @@ extern const i2c_master_instance_t g_i2c_master2;
 extern iic_master_instance_ctrl_t g_i2c_master2_ctrl;
 extern const i2c_master_cfg_t g_i2c_master2_cfg;
 
-#ifndef isr_i2c2
-void isr_i2c2(i2c_master_callback_args_t *p_args);
+#ifndef i2c_callback
+void i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 /** CANFD on CANFD Instance. */
 extern const can_instance_t g_canfd1;
@@ -762,8 +958,8 @@ extern const i2c_master_instance_t g_i2c_master1;
 extern iic_master_instance_ctrl_t g_i2c_master1_ctrl;
 extern const i2c_master_cfg_t g_i2c_master1_cfg;
 
-#ifndef isr_i2c1
-void isr_i2c1(i2c_master_callback_args_t *p_args);
+#ifndef i2c_callback
+void i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 /** lpm Instance */
 extern const lpm_instance_t g_lpm0;
@@ -791,8 +987,8 @@ extern sci_uart_instance_ctrl_t g_uart0_ctrl;
 extern const uart_cfg_t g_uart0_cfg;
 extern const sci_uart_extended_cfg_t g_uart0_cfg_extend;
 
-#ifndef isr_uart0
-void isr_uart0(uart_callback_args_t *p_args);
+#ifndef uart_callback
+void uart_callback(uart_callback_args_t *p_args);
 #endif
 /** ADPCM Audio Decoder Instance */
 extern const adpcm_decoder_instance_t g_adpcm_decoder0;
@@ -821,8 +1017,8 @@ extern const i2c_master_instance_t g_i2c_master0;
 extern iic_master_instance_ctrl_t g_i2c_master0_ctrl;
 extern const i2c_master_cfg_t g_i2c_master0_cfg;
 
-#ifndef isr_i2c0
-void isr_i2c0(i2c_master_callback_args_t *p_args);
+#ifndef i2c_callback
+void i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
 /* RTC Instance. */
 extern const rtc_instance_t g_rtc0;

@@ -81,15 +81,15 @@ extern "C" {
             (((3 > 0) ? 0U : 1U) << 11) /* USBFS */ | \
             (((1 > 0) ? 0U : 1U) << 18) /* SPI1 */ | \
             (((1 > 0) ? 0U : 1U) << 19) /* SPI0 */ | \
-            (((2 > 0) ? 0U : 1U) << 22) /* SCI9 */ | \
-            (((2 > 0) ? 0U : 1U) << 23) /* SCI8 */ | \
-            (((2 > 0) ? 0U : 1U) << 24) /* SCI7 */ | \
-            (((2 > 0) ? 0U : 1U) << 25) /* SCI6 */ | \
-            (((2 > 0) ? 0U : 1U) << 26) /* SCI5 */ | \
+            (((3 > 0) ? 0U : 1U) << 22) /* SCI9 */ | \
+            (((3 > 0) ? 0U : 1U) << 23) /* SCI8 */ | \
+            (((3 > 0) ? 0U : 1U) << 24) /* SCI7 */ | \
+            (((3 > 0) ? 0U : 1U) << 25) /* SCI6 */ | \
+            (((3 > 0) ? 0U : 1U) << 26) /* SCI5 */ | \
             (((3 > 0) ? 0U : 1U) << 27) /* SCI4 */ | \
-            (((2 > 0) ? 0U : 1U) << 28) /* SCI3 */ | \
-            (((2 > 0) ? 0U : 1U) << 29) /* SCI2 */ | \
-            (((2 > 0) ? 0U : 1U) << 30) /* SCI1 */ | \
+            (((3 > 0) ? 0U : 1U) << 28) /* SCI3 */ | \
+            (((3 > 0) ? 0U : 1U) << 29) /* SCI2 */ | \
+            (((3 > 0) ? 0U : 1U) << 30) /* SCI1 */ | \
             (((3 > 0) ? 0U : 1U) << 31) /* SCI0 */ | \
             0x33f4f9) /* Unused */
 #endif
@@ -142,7 +142,7 @@ extern "C" {
 #ifndef BSP_TZ_CFG_MSSAR
 #define BSP_TZ_CFG_MSSAR (\
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 0) /* ELC */ | \
-            (((59 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
+            (((77 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
             0xfffffffc) /* Unused */
 #endif
 
@@ -248,7 +248,7 @@ extern "C" {
 #endif
 
 /* Set DTCSTSAR if the Secure program uses the DTC. */
-#if 54 == RA_NOT_DEFINED
+#if 72 == RA_NOT_DEFINED
  #define BSP_TZ_CFG_DTC_USED (0U)
 #else
 #define BSP_TZ_CFG_DTC_USED (1U)
