@@ -92,6 +92,14 @@ spi_instance_t SpiTable[] = {
   {&g_spi1_ctrl, &g_spi1_cfg, &g_spi_on_spi},
   {&g_spi2_ctrl, &g_spi2_cfg, &g_spi_on_sci},
   {&g_spi3_ctrl, &g_spi3_cfg, &g_spi_on_sci},
+  {&g_spi4_ctrl, &g_spi4_cfg, &g_spi_on_sci},
+  {&g_spi5_ctrl, &g_spi5_cfg, &g_spi_on_sci},
+  {&g_spi6_ctrl, &g_spi6_cfg, &g_spi_on_sci},
+  {&g_spi7_ctrl, &g_spi7_cfg, &g_spi_on_sci},
+  {&g_spi8_ctrl, &g_spi8_cfg, &g_spi_on_sci},
+  {&g_spi9_ctrl, &g_spi9_cfg, &g_spi_on_sci},
+  {&g_spi10_ctrl, &g_spi10_cfg, &g_spi_on_sci},
+  {&g_spi11_ctrl, &g_spi11_cfg, &g_spi_on_sci},
 };
 
 sciTable_t SciTable[] {
@@ -101,15 +109,15 @@ sciTable_t SciTable[] {
     +-----------------+------------------- +-------------------+
  */
   { &UartTable[5]     , &I2CMasterTable[6] , &SpiTable[3]      },
-  { &UartTable[6]     , &I2CMasterTable[3] , nullptr           },
-  { &UartTable[7]     , &I2CMasterTable[4] , nullptr           },
-  { &UartTable[8]     , &I2CMasterTable[5] , nullptr           },
+  { &UartTable[6]     , &I2CMasterTable[3] , &SpiTable[4]      },
+  { &UartTable[7]     , &I2CMasterTable[4] , &SpiTable[5]      },
+  { &UartTable[8]     , &I2CMasterTable[5] , &SpiTable[6]      },
   { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[2]      },
-  { &UartTable[0]     , &I2CMasterTable[8] , nullptr           },
-  { &UartTable[1]     , &I2CMasterTable[9] , nullptr           },
-  { &UartTable[2]     , &I2CMasterTable[10], nullptr           },
-  { &UartTable[3]     , &I2CMasterTable[11], nullptr           },
-  { &UartTable[4]     , &I2CMasterTable[12], nullptr           },
+  { &UartTable[0]     , &I2CMasterTable[8] , &SpiTable[7]      },
+  { &UartTable[1]     , &I2CMasterTable[9] , &SpiTable[8]      },
+  { &UartTable[2]     , &I2CMasterTable[10], &SpiTable[9]      },
+  { &UartTable[3]     , &I2CMasterTable[11], &SpiTable[10]     },
+  { &UartTable[4]     , &I2CMasterTable[12], &SpiTable[11]     },
 };
 
 const PinDescription g_APinDescription[] = {
