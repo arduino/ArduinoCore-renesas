@@ -408,6 +408,13 @@ extern "C" {
   }
 }
 
-void initVariant() {
+extern "C" const timer_instance_t g_timer;
+void startETHClock() {
+  pinPeripheral(AGT_PIN_FOR_25MHZ, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
+  R_AGT_Open(g_timer.p_ctrl, g_timer.p_cfg);
+  R_AGT_Start(g_timer.p_ctrl);
+}
 
+void initVariant() {
+  //startETHClock();
 }
