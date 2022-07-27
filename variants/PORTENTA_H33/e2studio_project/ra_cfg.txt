@@ -2807,7 +2807,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: spi_callback
       SPI Mode: Clock Synchronous Operation
       Full or Transmit Only Mode: Full Duplex
       Slave Select Polarity: Active Low
@@ -2897,7 +2897,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -2905,6 +2905,34 @@ FSP Configuration
       Bitrate: 1000000
       Bitrate Modulation: Enabled
       
+      Instance "g_transfer75 Transfer (r_dtc) SCI4 TXI (Transmit data empty)"
+        Name: g_transfer75
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Fixed
+        Source Address Mode: Incremented
+        Repeat Area (Unused in Normal Mode): Source
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 TXI (Transmit data empty)
+        
+      Instance "g_transfer76 Transfer (r_dtc) SCI4 RXI (Received data full)"
+        Name: g_transfer76
+        Mode: Normal
+        Transfer Size: 1 Byte
+        Destination Address Mode: Incremented
+        Source Address Mode: Fixed
+        Repeat Area (Unused in Normal Mode): Destination
+        Destination Pointer: NULL
+        Source Pointer: NULL
+        Interrupt Frequency: After all transfers have completed
+        Number of Transfers: 0
+        Number of Blocks (Valid only in Block Mode): 0
+        Activation Source: SCI4 RXI (Received data full)
+        
     Instance "g_uart1 UART (r_sci_uart)"
       General: Name: g_uart1
       General: Channel: 6
@@ -3183,7 +3211,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: spi_callback
       SPI Mode: Clock Synchronous Operation
       Full or Transmit Only Mode: Full Duplex
       Slave Select Polarity: Active Low
@@ -3232,7 +3260,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -3956,7 +3984,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4000,7 +4028,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4044,7 +4072,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4088,7 +4116,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4132,7 +4160,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4176,7 +4204,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4220,7 +4248,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12
@@ -4264,7 +4292,7 @@ FSP Configuration
       Clock Polarity: Low when idle
       Mode Fault Error: Disable
       Bit Order: MSB First
-      Callback: NULL
+      Callback: sci_spi_callback
       Receive Interrupt Priority: Priority 12
       Transmit Interrupt Priority: Priority 12
       Transmit End Interrupt Priority: Priority 12

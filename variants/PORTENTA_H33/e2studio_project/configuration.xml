@@ -1272,7 +1272,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="spi_callback"/>
       <property id="module.driver.spi.spi_clksyn" value="module.driver.spi.spi_clksyn.spi_clksyn"/>
       <property id="module.driver.spi.spi_comm" value="module.driver.spi.spi_comm.full_duplex"/>
       <property id="module.driver.spi.ssl_polarity" value="module.driver.spi.ssl_polarity.low"/>
@@ -1362,7 +1362,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -1906,7 +1906,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="spi_callback"/>
       <property id="module.driver.spi.spi_clksyn" value="module.driver.spi.spi_clksyn.spi_clksyn"/>
       <property id="module.driver.spi.spi_comm" value="module.driver.spi.spi_comm.full_duplex"/>
       <property id="module.driver.spi.ssl_polarity" value="module.driver.spi.ssl_polarity.low"/>
@@ -1955,7 +1955,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2679,7 +2679,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2723,7 +2723,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2767,7 +2767,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2811,7 +2811,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2855,7 +2855,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2899,7 +2899,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2943,7 +2943,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2987,7 +2987,7 @@
       <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
       <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
       <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
-      <property id="module.driver.spi.p_callback" value="NULL"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
       <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -3011,6 +3011,34 @@
     </module>
     <module id="module.driver.transfer_on_dtc.1737930342">
       <property id="module.driver.transfer.name" value="g_transfer74"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1800713919">
+      <property id="module.driver.transfer.name" value="g_transfer75"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1292994521">
+      <property id="module.driver.transfer.name" value="g_transfer76"/>
       <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
       <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
       <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
@@ -3085,7 +3113,10 @@
         <stack module="module.driver.transfer_on_dtc.1686005140" requires="module.driver.i2s_on_ssi.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.1352192150" requires="module.driver.i2s_on_ssi.requires.transfer_rx"/>
       </stack>
-      <stack module="module.driver.spi_on_sci_spi.1779778885"/>
+      <stack module="module.driver.spi_on_sci_spi.1779778885">
+        <stack module="module.driver.transfer_on_dtc.1800713919" requires="module.driver.spi_on_sci_spi.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1292994521" requires="module.driver.spi_on_sci_spi.requires.transfer_rx"/>
+      </stack>
       <stack module="module.driver.uart_on_sci_uart.547624343">
         <stack module="module.driver.transfer_on_dtc.890317528" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.2056416070" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
@@ -4403,11 +4434,11 @@
       <configSetting altId="sci0.rxd.p100" configurationId="sci0.rxd"/>
       <configSetting altId="sci0.sck.p102" configurationId="sci0.sck"/>
       <configSetting altId="sci0.txd.p101" configurationId="sci0.txd"/>
-      <configSetting altId="sci1.mode.iic.free" configurationId="sci1.mode"/>
-      <configSetting altId="sci2.mode.iic.free" configurationId="sci2.mode"/>
+      <configSetting altId="sci1.mode.custom.free" configurationId="sci1.mode"/>
+      <configSetting altId="sci2.mode.custom.free" configurationId="sci2.mode"/>
       <configSetting altId="sci2.scl.p301" configurationId="sci2.scl"/>
       <configSetting altId="sci2.sda.p302" configurationId="sci2.sda"/>
-      <configSetting altId="sci3.mode.iic.free" configurationId="sci3.mode"/>
+      <configSetting altId="sci3.mode.custom.free" configurationId="sci3.mode"/>
       <configSetting altId="sci3.scl.p309" configurationId="sci3.scl"/>
       <configSetting altId="sci3.sda.p310" configurationId="sci3.sda"/>
       <configSetting altId="sci4.cts.p402" configurationId="sci4.cts"/>
