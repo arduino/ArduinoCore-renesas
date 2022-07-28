@@ -45,16 +45,16 @@ const irqTable_t irqTable[] = {
 };
 
 uart_instance_t UartTable[] = {
-  {&g_uart0_ctrl, &g_uart0_cfg, &g_uart_on_sci},
-  {&g_uart1_ctrl, &g_uart1_cfg, &g_uart_on_sci},
-  {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
-  {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
-  {&g_uart4_ctrl, &g_uart4_cfg, &g_uart_on_sci},
   {&g_uart5_ctrl, &g_uart5_cfg, &g_uart_on_sci},
   {&g_uart6_ctrl, &g_uart6_cfg, &g_uart_on_sci},
   {&g_uart7_ctrl, &g_uart7_cfg, &g_uart_on_sci},
   {&g_uart8_ctrl, &g_uart8_cfg, &g_uart_on_sci},
   {&g_uart9_ctrl, &g_uart9_cfg, &g_uart_on_sci},
+  {&g_uart0_ctrl, &g_uart0_cfg, &g_uart_on_sci},
+  {&g_uart1_ctrl, &g_uart1_cfg, &g_uart_on_sci},
+  {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
+  {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
+  {&g_uart4_ctrl, &g_uart4_cfg, &g_uart_on_sci},
 };
 
 void __attribute__((weak)) i2c_callback (i2c_master_callback_args_t * p_args) {}
@@ -100,16 +100,16 @@ sciTable_t SciTable[] {
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { &UartTable[5]     , &I2CMasterTable[3] , &SpiTable[2]      },
-  { &UartTable[6]     , &I2CMasterTable[4] , &SpiTable[3]      },
-  { &UartTable[7]     , &I2CMasterTable[5] , &SpiTable[4]      },
-  { &UartTable[8]     , &I2CMasterTable[6] , &SpiTable[5]      },
-  { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[6]      },
-  { &UartTable[0]     , &I2CMasterTable[8] , &SpiTable[7]      },
-  { &UartTable[1]     , &I2CMasterTable[9] , &SpiTable[8]      },
-  { &UartTable[2]     , &I2CMasterTable[10], &SpiTable[9]      },
-  { &UartTable[3]     , &I2CMasterTable[11], &SpiTable[10]     },
-  { &UartTable[4]     , &I2CMasterTable[12], &SpiTable[11]     },
+  { &UartTable[0]     , &I2CMasterTable[3] , &SpiTable[2]      },
+  { &UartTable[1]     , &I2CMasterTable[4] , &SpiTable[3]      },
+  { &UartTable[2]     , &I2CMasterTable[5] , &SpiTable[4]      },
+  { &UartTable[3]     , &I2CMasterTable[6] , &SpiTable[5]      },
+  { &UartTable[4]     , &I2CMasterTable[7] , &SpiTable[6]      },
+  { &UartTable[5]     , &I2CMasterTable[8] , &SpiTable[7]      },
+  { &UartTable[6]     , &I2CMasterTable[9] , &SpiTable[8]      },
+  { &UartTable[7]     , &I2CMasterTable[10], &SpiTable[9]      },
+  { &UartTable[8]     , &I2CMasterTable[11], &SpiTable[10]     },
+  { &UartTable[9]     , &I2CMasterTable[12], &SpiTable[11]     },
 };
 
 const PinDescription g_APinDescription[] = {

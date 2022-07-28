@@ -278,17 +278,13 @@ void UART::enableUartIrqs() {
 }
 
 
-#if SERIAL_HOWMANY > 0
-
-UART _UART1_(&g_uart0_ctrl, &g_uart0_cfg, &g_transfer21_ctrl, 5);
-
-extern "C"
-void isr_uart0(uart_callback_args_t *p_args)
+void uart_callback(uart_callback_args_t *p_args)
 {
+    uint32_t channel = p_args->channel;
     switch (p_args->event){
         case UART_EVENT_RX_COMPLETE:
         {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[5].uart_instance->p_ctrl), _rx_buffer[5], SERIAL_RX_BUFFER_SIZE);
+            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
             break;
         }
         case UART_EVENT_ERR_PARITY:
@@ -299,11 +295,11 @@ void isr_uart0(uart_callback_args_t *p_args)
         }
         case UART_EVENT_TX_COMPLETE:
         {
-          if (_tx_buffer_head[5] != _tx_buffer_tail[5]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[5].uart_instance->p_ctrl), &_tx_buffer[5][_tx_buffer_tail[5]], 1);
-            _tx_buffer_tail[5] = (tx_buffer_index_t)((_tx_buffer_tail[5] + 1) % SERIAL_TX_BUFFER_SIZE);
+          if (_tx_buffer_head[channel] != _tx_buffer_tail[channel]) {
+              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), &_tx_buffer[channel][_tx_buffer_tail[channel]], 1);
+            _tx_buffer_tail[channel] = (tx_buffer_index_t)((_tx_buffer_tail[channel] + 1) % SERIAL_TX_BUFFER_SIZE);
           } else {
-            _sending[5] = false;
+            _sending[channel] = false;
           }
             break;
         }
@@ -315,326 +311,24 @@ void isr_uart0(uart_callback_args_t *p_args)
         }
     }
 }
+
+
+#if SERIAL_HOWMANY > 0
+UART _UART1_(&g_uart0_ctrl, &g_uart0_cfg, &g_transfer21_ctrl, 5);
+#endif
 
 #if SERIAL_HOWMANY > 1
 UART _UART2_(&g_uart1_ctrl, &g_uart1_cfg, &g_transfer22_ctrl, 6);
-
-extern "C"
-void isr_uart1(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[6].uart_instance->p_ctrl), _rx_buffer[6], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[6] != _tx_buffer_tail[6]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[6].uart_instance->p_ctrl), &_tx_buffer[6][_tx_buffer_tail[6]], 1);
-            _tx_buffer_tail[6] = (tx_buffer_index_t)((_tx_buffer_tail[6] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[6] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
+#endif
 
 #if SERIAL_HOWMANY > 2
 UART _UART3_(&g_uart2_ctrl, &g_uart2_cfg, &g_transfer23_ctrl, 7);
-
-extern "C"
-void isr_uart2(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[7].uart_instance->p_ctrl), _rx_buffer[7], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[7] != _tx_buffer_tail[7]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[7].uart_instance->p_ctrl), &_tx_buffer[7][_tx_buffer_tail[7]], 1);
-            _tx_buffer_tail[7] = (tx_buffer_index_t)((_tx_buffer_tail[7] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[7] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
+#endif
 
 #if SERIAL_HOWMANY > 3
 UART _UART4_(&g_uart3_ctrl, &g_uart3_cfg, &g_transfer24_ctrl, 8);
-
-extern "C"
-void isr_uart3(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[8].uart_instance->p_ctrl), _rx_buffer[8], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[8] != _tx_buffer_tail[8]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[8].uart_instance->p_ctrl), &_tx_buffer[8][_tx_buffer_tail[8]], 1);
-            _tx_buffer_tail[8] = (tx_buffer_index_t)((_tx_buffer_tail[8] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[8] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
+#endif
 
 #if SERIAL_HOWMANY > 4
 UART _UART5_(&g_uart4_ctrl, &g_uart4_cfg, &g_transfer18_ctrl, 9);
-
-extern "C"
-void isr_uart4(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[9].uart_instance->p_ctrl), _rx_buffer[9], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[9] != _tx_buffer_tail[9]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[9].uart_instance->p_ctrl), &_tx_buffer[9][_tx_buffer_tail[9]], 1);
-            _tx_buffer_tail[9] = (tx_buffer_index_t)((_tx_buffer_tail[9] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[9] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
-
 #endif
-
-#endif
-
-#endif
-
-#endif
-
-#endif
-
-void isr_uart5(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[0].uart_instance->p_ctrl), _rx_buffer[0], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[0] != _tx_buffer_tail[0]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[0].uart_instance->p_ctrl), &_tx_buffer[0][_tx_buffer_tail[0]], 1);
-            _tx_buffer_tail[0] = (tx_buffer_index_t)((_tx_buffer_tail[0] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[0] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
-
-void isr_uart6(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[1].uart_instance->p_ctrl), _rx_buffer[1], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[1] != _tx_buffer_tail[1]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[1].uart_instance->p_ctrl), &_tx_buffer[1][_tx_buffer_tail[1]], 1);
-            _tx_buffer_tail[1] = (tx_buffer_index_t)((_tx_buffer_tail[1] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[1] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
-
-void isr_uart7(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[2].uart_instance->p_ctrl), _rx_buffer[2], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[2] != _tx_buffer_tail[2]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[2].uart_instance->p_ctrl), &_tx_buffer[2][_tx_buffer_tail[2]], 1);
-            _tx_buffer_tail[2] = (tx_buffer_index_t)((_tx_buffer_tail[2] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[2] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
-
-void isr_uart8(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[3].uart_instance->p_ctrl), _rx_buffer[3], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[3] != _tx_buffer_tail[3]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[3].uart_instance->p_ctrl), &_tx_buffer[3][_tx_buffer_tail[3]], 1);
-            _tx_buffer_tail[3] = (tx_buffer_index_t)((_tx_buffer_tail[3] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[3] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
-
-void isr_uart9(uart_callback_args_t *p_args)
-{
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[4].uart_instance->p_ctrl), _rx_buffer[4], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[4] != _tx_buffer_tail[4]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[4].uart_instance->p_ctrl), &_tx_buffer[4][_tx_buffer_tail[4]], 1);
-            _tx_buffer_tail[4] = (tx_buffer_index_t)((_tx_buffer_tail[4] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[4] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
