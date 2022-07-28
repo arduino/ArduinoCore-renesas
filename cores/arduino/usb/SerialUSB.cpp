@@ -122,7 +122,6 @@ SerialUSB::operator bool() {
     return tud_cdc_connected();
 }
 
-#define BOOT_DOUBLE_TAP_ADDRESS           (0x20018f48ul)
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 #define DOUBLE_TAP_MAGIC                  0x07738135
 

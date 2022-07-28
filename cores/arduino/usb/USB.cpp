@@ -25,15 +25,6 @@
 #include "class/audio/audio.h"
 #include "class/midi/midi.h"
 
-// USB VID/PID (note that PID can change depending on the add'l interfaces)
-#define USBD_VID (0x2E8A) // Raspberry Pi
-
-#ifdef SERIALUSB_PID
-#define USBD_PID (SERIALUSB_PID)
-#else
-#define USBD_PID (0x000a) // Raspberry Pi Pico SDK CDC
-#endif
-
 #define USBD_DESC_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN)
 
 #define USBD_ITF_CDC (0) // needs 2 interfaces
@@ -66,8 +57,8 @@ const uint8_t *tud_descriptor_device_cb(void) {
         .bDeviceSubClass = MISC_SUBCLASS_COMMON,
         .bDeviceProtocol = MISC_PROTOCOL_IAD,
         .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
-        .idVendor = USBD_VID,
-        .idProduct = USBD_PID,
+        .idVendor = USB_VID,
+        .idProduct = USB_PID,
         .bcdDevice = 0x0100,
         .iManufacturer = USBD_STR_MANUF,
         .iProduct = USBD_STR_PRODUCT,
@@ -191,7 +182,7 @@ void __SetupUSBDescriptor() {
 
         uint8_t tud_cfg_desc[TUD_CONFIG_DESC_LEN] = {
             // Config number, interface count, string index, total length, attribute, power in mA
-            TUD_CONFIG_DESCRIPTOR(1, interface_count, USBD_STR_0, usbd_desc_len, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100)
+            TUD_CONFIG_DESCRIPTOR(1, interface_count, USBD_STR_0, usbd_desc_len, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500)
         };
 
         // Combine to one descriptor
@@ -235,7 +226,7 @@ const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     static const char *const usbd_desc_str[] = {
         [USBD_STR_0] = "",
         [USBD_STR_MANUF] = "Arduino",
-        [USBD_STR_PRODUCT] = "UNO R4",
+        [USBD_STR_PRODUCT] = USB_NAME,
         [USBD_STR_SERIAL] = idString,
         [USBD_STR_CDC] = "CDC Port",
     };

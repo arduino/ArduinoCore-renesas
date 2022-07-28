@@ -75,3 +75,9 @@ static const uint8_t SS   = PIN_SPI_SS;
 #define CAN_HOWMANY       2
 
 #define EXT_INTERRUPTS_HOWMANY 8
+
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x20018f48ul)
+
+#define USB_VID           (0x2341)
+#define USB_PID           (0x0068)
+#define USB_NAME          "Portenta H33"
