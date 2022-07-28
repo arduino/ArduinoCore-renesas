@@ -314,21 +314,21 @@ void uart_callback(uart_callback_args_t *p_args)
 
 
 #if SERIAL_HOWMANY > 0
-UART _UART1_(&g_uart0_ctrl, &g_uart0_cfg, &g_transfer21_ctrl, 5);
+UART _UART1_(UART1_CHANNEL);
 #endif
 
 #if SERIAL_HOWMANY > 1
-UART _UART2_(&g_uart1_ctrl, &g_uart1_cfg, &g_transfer22_ctrl, 6);
+UART _UART2_(UART2_CHANNEL);
 #endif
 
 #if SERIAL_HOWMANY > 2
-UART _UART3_(&g_uart2_ctrl, &g_uart2_cfg, &g_transfer23_ctrl, 7);
+UART _UART3_(UART3_CHANNEL);
 #endif
 
 #if SERIAL_HOWMANY > 3
-UART _UART4_(&g_uart3_ctrl, &g_uart3_cfg, &g_transfer24_ctrl, 8);
+UART _UART4_(UART4_CHANNEL);
 #endif
 
 #if SERIAL_HOWMANY > 4
-UART _UART5_(&g_uart4_ctrl, &g_uart4_cfg, &g_transfer18_ctrl, 9);
+UART _UART5_(UART5_CHANNEL);
 #endif

@@ -60,23 +60,55 @@ static const uint8_t A7 = PIN_A7;
 #define LEDB        (26u)
 
 
-#define USE_4BIT_SDCARD   1
 
-#define CAN_STDBY     (52u)
+/****** UART CORE DEFINES ******/
+
+#define SERIAL_HOWMANY		5
+
+#define UART1_CHANNEL     5
+#define UART2_CHANNEL     6
+#define UART3_CHANNEL     7
+#define UART4_CHANNEL     8
+#define UART5_CHANNEL     9
+
+/****** WIRE CORE DEFINES ******/
+
+#define WIRE_HOWMANY      2
+
+#define WIRE_CHANNEL      0
+#define IS_WIRE_SCI       0
+
+#define WIRE1_CHANNEL     1
+#define IS_WIRE1_SCI      0
+
+#define WIRE2_CHANNEL     2
+#define IS_WIRE2_SCI      0
+
+/****** SPI CORE DEFINES ******/
+
+#define SPI_HOWMANY       2
+
+#define SPI_CHANNEL       1
+#define IS_SPI_SCI        0
+
+#define SPI1_CHANNEL      4
+#define IS_SPI1_SCI       1
 
 #define PIN_SPI_SS    (44u)
 
 static const uint8_t SS   = PIN_SPI_SS;
 
-#define SERIAL_HOWMANY		5
-
-#define WIRE_HOWMANY      2
-
-#define SPI_HOWMANY       2
+/****** CAN CORE DEFINES ******/
 
 #define CAN_HOWMANY       2
 
+#define CAN_STDBY     (52u)
+
+
+
 #define EXT_INTERRUPTS_HOWMANY 8
+
+#define USE_4BIT_SDCARD   1
 
 #define BOOT_DOUBLE_TAP_ADDRESS           (0x20018f48ul)
 

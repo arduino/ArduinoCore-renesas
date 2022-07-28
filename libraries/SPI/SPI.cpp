@@ -384,9 +384,9 @@ void sci_spi_callback(spi_callback_args_t *p_args) {
 }
 
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(&g_spi1_ctrl, &g_spi1_cfg, &g_spi1_ext_cfg, 1);
+ArduinoSPI SPI(SPI_CHANNEL, (bool)IS_SPI_SCI);
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(&g_spi2_ctrl, &g_spi2_cfg, &g_spi2_cfg_extend, 4);
+ArduinoSPI SPI1(SPI1_CHANNEL, (bool)IS_SPI1_SCI);
 #endif

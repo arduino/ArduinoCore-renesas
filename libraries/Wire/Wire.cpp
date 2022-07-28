@@ -534,15 +534,15 @@ void sci_i2c_callback(i2c_master_callback_args_t *p_args) {
 }
 
 #if WIRE_HOWMANY > 0
-TwoWire Wire(&g_i2c_master0_ctrl, &g_i2c_master0_cfg, 0);
+TwoWire Wire(WIRE_CHANNEL, (bool)IS_WIRE_SCI);
 #endif
 
 #if WIRE_HOWMANY > 1
-TwoWire Wire1(&g_i2c_master1_ctrl, &g_i2c_master1_cfg, 1);
+TwoWire Wire1(WIRE1_CHANNEL, (bool)IS_WIRE1_SCI);
 #endif
 
 #if WIRE_HOWMANY > 2
-TwoWire Wire2(&g_i2c_master2_ctrl, &g_i2c_master2_cfg, 2);
+TwoWire Wire2(WIRE2_CHANNEL, (bool)IS_WIRE2_SCI);
 #endif
 
 
