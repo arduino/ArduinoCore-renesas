@@ -93,12 +93,14 @@ void TwoWire::begin(void)
     _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(I2CMasterTable[_channel].p_ctrl);
     _g_i2c_master_cfg = (const i2c_master_cfg_t *)(I2CMasterTable[_channel].p_cfg);
   }
+  _i2c_config = *_g_i2c_master_cfg;
+  _i2c_config.p_context = (void*)_channel;
 
   if(!initialized) {
     if (_is_sci) {
-      R_SCI_I2C_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg);
+      R_SCI_I2C_Open(_g_i2c_master_ctrl, &_i2c_config);
     } else {
-      R_IIC_MASTER_Open(_g_i2c_master_ctrl, _g_i2c_master_cfg);
+      R_IIC_MASTER_Open(_g_i2c_master_ctrl, &_i2c_config);
     }
     initialized = true;
   }
@@ -522,78 +524,26 @@ void TwoWire::enableI2CIrqs() {
 
 }
 
+void i2c_callback(i2c_master_callback_args_t *p_args) {
+  _i2c_cb_event[(uint32_t)(p_args->p_context)] = p_args->event;
+}
+
+void sci_i2c_callback(i2c_master_callback_args_t *p_args) {
+  int i2c_master_offset = I2C_COUNT - SCI_COUNT;
+  _i2c_cb_event[(uint32_t)(p_args->p_context) + i2c_master_offset] = p_args->event;
+}
+
 #if WIRE_HOWMANY > 0
 TwoWire Wire(&g_i2c_master0_ctrl, &g_i2c_master0_cfg, 0);
 #endif
-void isr_i2c0 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[0] = p_args->event;
-}
+
 #if WIRE_HOWMANY > 1
 TwoWire Wire1(&g_i2c_master1_ctrl, &g_i2c_master1_cfg, 1);
 #endif
-void isr_i2c1 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[1] = p_args->event;
-}
+
 #if WIRE_HOWMANY > 2
 TwoWire Wire2(&g_i2c_master2_ctrl, &g_i2c_master2_cfg, 2);
 #endif
-void isr_i2c2 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[2] = p_args->event;
-}
-
-void isr_i2c3 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[3] = p_args->event;
-}
-
-void isr_i2c4 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[4] = p_args->event;
-}
-
-void isr_i2c5 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[5] = p_args->event;
-}
-
-void isr_i2c6 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[6] = p_args->event;
-}
-
-void isr_i2c7 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[7] = p_args->event;
-}
-
-void isr_i2c8 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[8] = p_args->event;
-}
-
-void isr_i2c9 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[9] = p_args->event;
-}
-
-void isr_i2c10 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[10] = p_args->event;
-}
-
-void isr_i2c11 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[11] = p_args->event;
-}
-
-void isr_i2c12 (i2c_master_callback_args_t * p_args)
-{
-  _i2c_cb_event[12] = p_args->event;
-}
-
 
 
 

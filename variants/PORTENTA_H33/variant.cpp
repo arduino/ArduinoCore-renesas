@@ -57,28 +57,17 @@ uart_instance_t UartTable[] = {
   {&g_uart9_ctrl, &g_uart9_cfg, &g_uart_on_sci},
 };
 
-void __attribute__((weak)) isr_i2c0 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c1 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c2 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c3 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c4 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c5 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c6 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c7 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c8 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c9 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c10 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c11 (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) isr_i2c12 (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) i2c_callback (i2c_master_callback_args_t * p_args) {}
+void __attribute__((weak)) sci_i2c_callback (i2c_master_callback_args_t * p_args) {}
 
 i2c_master_instance_t I2CMasterTable[] = {
   {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},
   {&g_i2c_master1_ctrl, &g_i2c_master1_cfg, &g_i2c_master_on_iic},
   {&g_i2c_master2_ctrl, &g_i2c_master2_cfg, &g_i2c_master_on_iic},
+  {&g_i2c6_ctrl,        &g_i2c6_cfg,        &g_i2c_master_on_sci},
   {&g_i2c3_ctrl,        &g_i2c3_cfg,        &g_i2c_master_on_sci},
   {&g_i2c4_ctrl,        &g_i2c4_cfg,        &g_i2c_master_on_sci},
   {&g_i2c5_ctrl,        &g_i2c5_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c6_ctrl,        &g_i2c6_cfg,        &g_i2c_master_on_sci},
   {&g_i2c7_ctrl,        &g_i2c7_cfg,        &g_i2c_master_on_sci},
   {&g_i2c8_ctrl,        &g_i2c8_cfg,        &g_i2c_master_on_sci},
   {&g_i2c9_ctrl,        &g_i2c9_cfg,        &g_i2c_master_on_sci},
@@ -111,10 +100,10 @@ sciTable_t SciTable[] {
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { &UartTable[5]     , &I2CMasterTable[6] , &SpiTable[2]      },
-  { &UartTable[6]     , &I2CMasterTable[3] , &SpiTable[3]      },
-  { &UartTable[7]     , &I2CMasterTable[4] , &SpiTable[4]      },
-  { &UartTable[8]     , &I2CMasterTable[5] , &SpiTable[5]      },
+  { &UartTable[5]     , &I2CMasterTable[3] , &SpiTable[2]      },
+  { &UartTable[6]     , &I2CMasterTable[4] , &SpiTable[3]      },
+  { &UartTable[7]     , &I2CMasterTable[5] , &SpiTable[4]      },
+  { &UartTable[8]     , &I2CMasterTable[6] , &SpiTable[5]      },
   { &UartTable[9]     , &I2CMasterTable[7] , &SpiTable[6]      },
   { &UartTable[0]     , &I2CMasterTable[8] , &SpiTable[7]      },
   { &UartTable[1]     , &I2CMasterTable[9] , &SpiTable[8]      },

@@ -101,9 +101,6 @@ class TwoWire : public arduino::HardwareI2C
     bool              _is_sci;
     int               _cb_event_idx;
 
-    iic_master_instance_ctrl_t _i2c_master_ctrl;
-    i2c_master_cfg_t           _i2c_master_cfg;
-
     static uint8_t transmitting;
     static void (*user_onRequest)(void);
     static void (*user_onReceive)(int);
