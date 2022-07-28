@@ -35,6 +35,8 @@ void detachInterrupt(pin_size_t pinNumber) {
 void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
     intFunc[digitalPinToInterruptPin(pinNumber)] = func;
 
+    uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE;
+
     external_irq_cfg_t cfg = *irqTable[digitalPinToInterruptPin(pinNumber)].irq_cfg;
     switch (mode)
     {
@@ -46,11 +48,14 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
         break;
     case RISING:
         cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
+        pullup_enabled = 0;
         break;
     case CHANGE:
         cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
         break;
     }
+
+    pinPeripheral(digitalPinToBspPin(pinNumber), IOPORT_CFG_IRQ_ENABLE | pullup_enabled);
 
     // Enable the interrupt.
     R_ICU_ExternalIrqOpen(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl, &cfg);
