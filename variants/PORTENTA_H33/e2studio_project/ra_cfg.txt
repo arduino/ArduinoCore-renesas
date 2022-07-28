@@ -2071,8 +2071,8 @@ FSP Configuration
       General: Name: g_timer0
       General: Channel: 1
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2328,8 +2328,8 @@ FSP Configuration
       General: Name: g_timer2
       General: Channel: 3
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2340,9 +2340,9 @@ FSP Configuration
       Output: Custom Waveform: GTIOB: Retain Output Level at Count Stop: Disabled
       Output: Custom Waveform: Custom Waveform Enable: Disabled
       Output: Duty Cycle Percent (only applicable in PWM mode): 50
-      Output: GTIOCA Output Enabled: False
+      Output: GTIOCA Output Enabled: True
       Output: GTIOCA Stop Level: Pin Level Low
-      Output: GTIOCB Output Enabled: True
+      Output: GTIOCB Output Enabled: False
       Output: GTIOCB Stop Level: Pin Level Low
       Input: Count Up Source: 
       Input: Count Down Source: 
@@ -2376,8 +2376,8 @@ FSP Configuration
       General: Name: g_timer3
       General: Channel: 4
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2388,9 +2388,9 @@ FSP Configuration
       Output: Custom Waveform: GTIOB: Retain Output Level at Count Stop: Disabled
       Output: Custom Waveform: Custom Waveform Enable: Disabled
       Output: Duty Cycle Percent (only applicable in PWM mode): 50
-      Output: GTIOCA Output Enabled: True
+      Output: GTIOCA Output Enabled: False
       Output: GTIOCA Stop Level: Pin Level Low
-      Output: GTIOCB Output Enabled: False
+      Output: GTIOCB Output Enabled: True
       Output: GTIOCB Stop Level: Pin Level Low
       Input: Count Up Source: 
       Input: Count Down Source: 
@@ -2424,8 +2424,8 @@ FSP Configuration
       General: Name: g_timer4
       General: Channel: 6
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2436,7 +2436,7 @@ FSP Configuration
       Output: Custom Waveform: GTIOB: Retain Output Level at Count Stop: Disabled
       Output: Custom Waveform: Custom Waveform Enable: Disabled
       Output: Duty Cycle Percent (only applicable in PWM mode): 50
-      Output: GTIOCA Output Enabled: False
+      Output: GTIOCA Output Enabled: True
       Output: GTIOCA Stop Level: Pin Level Low
       Output: GTIOCB Output Enabled: True
       Output: GTIOCB Stop Level: Pin Level Low
@@ -2472,8 +2472,8 @@ FSP Configuration
       General: Name: g_timer5
       General: Channel: 7
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2484,9 +2484,9 @@ FSP Configuration
       Output: Custom Waveform: GTIOB: Retain Output Level at Count Stop: Disabled
       Output: Custom Waveform: Custom Waveform Enable: Disabled
       Output: Duty Cycle Percent (only applicable in PWM mode): 50
-      Output: GTIOCA Output Enabled: True
+      Output: GTIOCA Output Enabled: False
       Output: GTIOCA Stop Level: Pin Level Low
-      Output: GTIOCB Output Enabled: False
+      Output: GTIOCB Output Enabled: True
       Output: GTIOCB Stop Level: Pin Level Low
       Input: Count Up Source: 
       Input: Count Down Source: 
@@ -2520,8 +2520,8 @@ FSP Configuration
       General: Name: g_timer6
       General: Channel: 8
       General: Mode: PWM
-      General: Period: 100
-      General: Period Unit: Milliseconds
+      General: Period: 490
+      General: Period Unit: Hertz
       Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
       Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
       Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
@@ -2534,7 +2534,7 @@ FSP Configuration
       Output: Duty Cycle Percent (only applicable in PWM mode): 50
       Output: GTIOCA Output Enabled: True
       Output: GTIOCA Stop Level: Pin Level Low
-      Output: GTIOCB Output Enabled: False
+      Output: GTIOCB Output Enabled: True
       Output: GTIOCB Stop Level: Pin Level Low
       Input: Count Up Source: 
       Input: Count Down Source: 
