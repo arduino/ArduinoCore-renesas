@@ -294,6 +294,7 @@ void _usbfs_interrupt_handler(void)
 #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_DEVICE
   tud_int_handler(0);
 #endif
+  tud_task();
 }
 
 void _usbhs_interrupt_handler(void)
@@ -308,6 +309,7 @@ void _usbhs_interrupt_handler(void)
 #if CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE
   tud_int_handler(1);
 #endif
+  tud_task();
 }
 
 void __USBStart() {
@@ -344,7 +346,7 @@ void __USBStart() {
 
     tud_init(BOARD_TUD_RHPORT);
 
-#if defined(AZURE_RTOS_THREADX)
+#if 0 //defined(AZURE_RTOS_THREADX)
     static TX_BYTE_POOL byte_pool_0;
     static TX_THREAD thread;
     static uint8_t memory_area[1024];
@@ -352,8 +354,7 @@ void __USBStart() {
     tx_byte_pool_create(&byte_pool_0, "byte pool 0", memory_area, sizeof(memory_area));
     tx_byte_allocate(&byte_pool_0, (void**)&pointer, 512, TX_NO_WAIT);
 
-    tx_thread_create(&thread, "tud_task", tud_task_forever, 1,
-        pointer, 1024, 16, 16, 4, TX_AUTO_START);
+    tx_thread_create(&thread, "tud_task", tud_task_forever, 1, pointer, 1024, 6, 6, 4, TX_AUTO_START);
 #endif
 }
 
