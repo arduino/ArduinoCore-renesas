@@ -2224,7 +2224,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart0
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -2953,7 +2953,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart1
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3007,7 +3007,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart2
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3061,7 +3061,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart3
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3115,7 +3115,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart4
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3439,7 +3439,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart5
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3780,7 +3780,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart6
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3834,7 +3834,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart7
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3888,7 +3888,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart8
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
@@ -3942,7 +3942,7 @@ FSP Configuration
       Extra: RS-485: DE Pin Polarity: Active High
       Extra: RS-485: DE Port Number: Disabled
       Extra: RS-485: DE Pin Number: Disabled
-      Interrupts: Callback: isr_uart9
+      Interrupts: Callback: uart_callback
       Interrupts: Receive Interrupt Priority: Priority 12
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12

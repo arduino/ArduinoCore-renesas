@@ -660,7 +660,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart0"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -1390,7 +1390,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart1"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -1430,7 +1430,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart2"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -1456,7 +1456,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart3"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -1510,7 +1510,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart4"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2134,7 +2134,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart5"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2475,7 +2475,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart6"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2529,7 +2529,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart7"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2583,7 +2583,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart8"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
@@ -2637,7 +2637,7 @@
       <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
       <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
       <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart9"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
       <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
