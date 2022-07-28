@@ -634,7 +634,7 @@
       <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
       <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
       <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
-      <property id="module.driver.i2c_master.p_callback" value="isr_i2c0"/>
+      <property id="module.driver.i2c_master.p_callback" value="i2c_callback"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.middleware.adpcm_decoder_on_adpcm_decoder.1363443486">
@@ -714,7 +714,7 @@
       <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
       <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
       <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
-      <property id="module.driver.i2c_master.p_callback" value="isr_i2c1"/>
+      <property id="module.driver.i2c_master.p_callback" value="i2c_callback"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.azure.nxd.common.1881196622"/>
@@ -1229,7 +1229,7 @@
       <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
       <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
       <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
-      <property id="module.driver.i2c_master.p_callback" value="isr_i2c2"/>
+      <property id="module.driver.i2c_master.p_callback" value="i2c_callback"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.driver.transfer_on_dtc.454531675">
@@ -2000,7 +2000,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c3"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2041,7 +2041,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c4"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2082,7 +2082,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c5"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2177,7 +2177,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c6"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2218,7 +2218,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c7"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2259,7 +2259,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c8"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2300,7 +2300,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c9"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2341,7 +2341,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c10"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2382,7 +2382,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c11"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>
@@ -2423,7 +2423,7 @@
       <property id="module.driver.i2c.sda_delay" value="300"/>
       <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
       <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
-      <property id="module.driver.i2c.p_callback" value="isr_i2c12"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
       <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
     </module>

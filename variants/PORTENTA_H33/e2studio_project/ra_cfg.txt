@@ -2170,7 +2170,7 @@ FSP Configuration
       Address Mode: 7-Bit
       Timeout Mode: Short Mode
       Timeout during SCL Low: Enabled
-      Callback: isr_i2c0
+      Callback: i2c_callback
       Interrupt Priority Level: Priority 12
       
       Instance "g_transfer5 Transfer (r_dtc) IIC0 TXI (Transmit data empty)"
@@ -2292,7 +2292,7 @@ FSP Configuration
       Address Mode: 7-Bit
       Timeout Mode: Short Mode
       Timeout during SCL Low: Enabled
-      Callback: isr_i2c1
+      Callback: i2c_callback
       Interrupt Priority Level: Priority 12
       
       Instance "g_transfer8 Transfer (r_dtc) IIC1 TXI (Transmit data empty)"
@@ -2764,7 +2764,7 @@ FSP Configuration
       Address Mode: 7-Bit
       Timeout Mode: Short Mode
       Timeout during SCL Low: Enabled
-      Callback: isr_i2c2
+      Callback: i2c_callback
       Interrupt Priority Level: Priority 12
       
       Instance "g_transfer4 Transfer (r_dtc) IIC2 TXI (Transmit data empty)"
@@ -3305,7 +3305,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c3
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3346,7 +3346,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c4
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3387,7 +3387,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c5
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3482,7 +3482,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c6
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3523,7 +3523,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c7
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3564,7 +3564,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c8
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3605,7 +3605,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c9
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3646,7 +3646,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c10
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3687,7 +3687,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c11
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
@@ -3728,7 +3728,7 @@ FSP Configuration
       SDA Output Delay (nano seconds): 300
       Noise filter setting: Use clock signal divided by 1 with noise filter
       Bit Rate Modulation: Enable
-      Callback: isr_i2c12
+      Callback: sci_i2c_callback
       Interrupt Priority Level: Priority 12
       RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
