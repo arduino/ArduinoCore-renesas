@@ -3,6 +3,8 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
+static int _writeResolution = 8;
+
 int analogRead(pin_size_t pinNumber)
 {
   static bool begin = false;
@@ -34,24 +36,33 @@ int analogRead(pin_size_t pinNumber)
 
 }
 
+void analogWriteResolution(int bits) {
+  _writeResolution = bits;
+}
+
+int getAnalogWriteResolution() {
+  return _writeResolution;
+}
+
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
+  uint32_t pwmPeriod = 0;
+  uint32_t pulse_width = 0;
   if (g_APinDescription[pinNumber].PWMChannel != NOT_ON_PWM) {
     //PWM pin
-    uint32_t pulse_width = (value*100)/65536;
     PwmOut* pwm = digitalPinToPwmObj(pinNumber);
     if (pwm == NULL) {
       pwm = new PwmOut(pinNumber);
       digitalPinToPwmObj(pinNumber) = pwm;
-      //pwmTable[digitalPinToPwmPin(pinNumber)].pwm = pwm;
-      //Start a PWM with 100ms period
-      pwm->begin(100, pulse_width);
+      pwmPeriod = pwmTable[digitalPinToPwmPin(pinNumber)].gpt_cfg->period_counts;
+      pulse_width = pwmPeriod*value/pow(2,_writeResolution);
+      pwm->begin(pwmPeriod, pulse_width, true);
     } else {
-      pwm->suspend();
-      pwm->pulseWidth_us(pulse_width);
-      pwm->period_us(100);
-      pwm->resume();
+      pwmPeriod = pwmTable[digitalPinToPwmPin(pinNumber)].gpt_cfg->period_counts;
+      pulse_width = pwmPeriod*value/pow(2,_writeResolution);
+      pwm->period_raw(pwmPeriod);
+      pwm->pulseWidth_raw(pulse_width);
     }
   } else {
 #ifdef DAC

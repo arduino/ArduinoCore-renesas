@@ -37,6 +37,7 @@ auto F(T1&& A)
 int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
+int getAnalogWriteResolution();
 
 typedef struct rtc_alarm_time
 {
@@ -63,18 +64,18 @@ typedef enum _EPWMChannel
   NOT_ON_PWM=-1,
   PWM_TIM0_CHA=0,
   PWM_TIM0_CHB=1,
-  PWM_TIM1_CHA=2,
-  PWM_TIM1_CHB=3,
-  PWM_TIM2_CHA=4,
-  PWM_TIM2_CHB=5,
-  PWM_TIM3_CHA=6,
-  PWM_TIM3_CHB=7,
-  PWM_TIM4_CHA=6,
-  PWM_TIM4_CHB=7,
-  PWM_TIM5_CHA=6,
-  PWM_TIM5_CHB=7,
-  PWM_TIM6_CHA=6,
-  PWM_TIM6_CHB=7,
+  PWM_TIM1_CHA,
+  PWM_TIM1_CHB,
+  PWM_TIM2_CHA,
+  PWM_TIM2_CHB,
+  PWM_TIM3_CHA,
+  PWM_TIM3_CHB,
+  PWM_TIM4_CHA,
+  PWM_TIM4_CHB,
+  PWM_TIM5_CHA,
+  PWM_TIM5_CHB,
+  PWM_TIM6_CHA,
+  PWM_TIM6_CHB,
 } EPWMChannel ;
 
 typedef enum
