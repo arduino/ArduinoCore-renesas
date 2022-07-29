@@ -306,54 +306,74 @@ void ArduinoSPI::enableSciSpiIrqs() {
   switch (_channel)
   {
   case 0:
+#ifdef SCI0_RXI_IRQn
     __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 1:
+#ifdef SCI1_RXI_IRQn
     __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 2:
+#ifdef SCI2_RXI_IRQn
     __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 3:
+#ifdef SCI3_RXI_IRQn
     __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 4:
+#ifdef SCI4_RXI_IRQn
     __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 5:
+#ifdef SCI5_RXI_IRQn
     __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 6:
+#ifdef SCI6_RXI_IRQn
     __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 7:
+#ifdef SCI7_RXI_IRQn
     __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 8:
+#ifdef SCI8_RXI_IRQn
     __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   case 9:
+#ifdef SCI9_RXI_IRQn
     __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
     __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
     __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
+#endif
     break;
   
   default:
