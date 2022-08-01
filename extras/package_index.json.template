@@ -1,0 +1,55 @@
+{
+  "packages": [
+    {
+      "name": "arduino",
+      "maintainer": "Arduino",
+      "websiteURL": "http://www.arduino.cc/",
+      "email": "packages@arduino.cc",
+      "help": {
+        "online": "http://www.arduino.cc/en/Reference/HomePage"
+      },
+      "platforms": [
+        {
+          "name": "Arduino Renesas Boards",
+          "architecture": "renesas",
+          "version": "%%VERSION%%",
+          "deprecated": true,
+          "category": "Arduino",
+          "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME%%",
+          "archiveFileName": "%%FILENAME%%",
+          "checksum": "SHA-256:%%CHECKSUM%%",
+          "size": "%%SIZE%%",
+          "help": {
+            "online": "https://github.com/arduino/ArduinoCore-renesas/issues"
+          },
+          "boards": [
+            {
+              "name": "Arduino Santiago"
+            },
+            {
+              "name": "Arduino Portenta H33"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "openocd",
+              "version": "0.11.0-arduino2"
+            },
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "7-2017q4"
+            },
+            {
+              "packager": "arduino",
+              "version": "0.11.0-arduino1",
+              "name": "dfu-util"
+            }
+          ]
+        }
+      ],
+      "tools": []
+    }
+  ]
+}
