@@ -66,9 +66,9 @@ santiago.pid.0=0x0069
 santiago.vid.1=0x2341
 santiago.pid.1=0x0369
 santiago.upload_port.0.vid=0x2341
-santiago.upload_port.0.pid=0x0068
+santiago.upload_port.0.pid=0x0069
 santiago.upload_port.1.vid=0x2341
-santiago.upload_port.1.pid=0x0368
+santiago.upload_port.1.pid=0x0369
 
 santiago.compiler.fsp.defines={build.variant.path}/defines.txt
 santiago.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
