@@ -18,47 +18,63 @@
  * OF SUCH LOSS, DAMAGES, CLAIMS OR COSTS.
  **********************************************************************************************************************/
 
-#ifndef R_RTC_H
-#define R_RTC_H
-
-/*******************************************************************************************************************//**
- * @addtogroup RTC RTC
- * @{
- **********************************************************************************************************************/
+#ifndef R_SCI_SPI_H
+#define R_SCI_SPI_H
 
 /***********************************************************************************************************************
  * Includes
  **********************************************************************************************************************/
-#include "bsp_api.h"
-#include "r_rtc_cfg.h"
-#include "r_rtc_api.h"
+#include "r_spi_api.h"
 
 /* Common macro for FSP header files. There is also a corresponding FSP_FOOTER macro at the end of this file. */
 FSP_HEADER
+
+/*****************************************************************************************************************//**
+ * @ingroup SCI_SPI
+ * @{
+ ********************************************************************************************************************/
 
 /***********************************************************************************************************************
  * Macro definitions
  **********************************************************************************************************************/
 
-/* Counting mode */
-#define RTC_CALENDAR_MODE    (0)
-
 /***********************************************************************************************************************
  * Typedef definitions
  **********************************************************************************************************************/
 
-/** Channel control block. DO NOT INITIALIZE.  Initialization occurs when @ref rtc_api_t::open is called */
-typedef struct st_rtc_ctrl
+/** Settings for adjusting the SPI CLK. */
+typedef struct
 {
-    uint32_t          open;                     ///< Whether or not driver is open
-    const rtc_cfg_t * p_cfg;                    ///< Pointer to initial configurations
-    volatile bool     carry_isr_triggered;      ///< Was the carry isr triggered
+    uint8_t brr;
+    uint8_t cks : 2;
+    uint8_t mddr;                      ///< Set to 0 to disable MDDR.
+} sci_spi_div_setting_t;
 
-    void (* p_callback)(rtc_callback_args_t *); // Pointer to callback that is called when a rtc_event_t occurs.
-    rtc_callback_args_t * p_callback_memory;    // Pointer to non-secure memory that can be used to pass arguments to a callback in non-secure memory.
+/** SCI SPI extended configuration */
+typedef struct st_sci_spi_extended_cfg
+{
+    sci_spi_div_setting_t clk_div;
+} sci_spi_extended_cfg_t;
 
-    void const * p_context;                     // Pointer to context to be passed into callback function
-} rtc_instance_ctrl_t;
+/** SPI instance control block. DO NOT INITIALIZE. */
+typedef struct st_sci_spi_instance_ctrl
+{
+    uint32_t          open;
+    spi_cfg_t const * p_cfg;
+    R_SCI0_Type     * p_reg;
+    uint8_t         * p_src;
+    uint8_t         * p_dest;
+    uint32_t          tx_count;
+    uint32_t          rx_count;
+    uint32_t          count;
+
+    /* Pointer to callback and optional working memory */
+    void (* p_callback)(spi_callback_args_t *);
+    spi_callback_args_t * p_callback_memory;
+
+    /* Pointer to context to be passed into callback function */
+    void const * p_context;
+} sci_spi_instance_ctrl_t;
 
 /**********************************************************************************************************************
  * Exported global variables
@@ -66,33 +82,39 @@ typedef struct st_rtc_ctrl
 
 /** @cond INC_HEADER_DEFS_SEC */
 /** Filled in Interface API structure for this Instance. */
-extern const rtc_api_t g_rtc_on_rtc;
+extern const spi_api_t g_spi_on_sci;
 
 /** @endcond */
 
-/***********************************************************************************************************************
- * Public APIs
+/**********************************************************************************************************************
+ * Public Function Prototypes
  **********************************************************************************************************************/
-fsp_err_t R_RTC_Open(rtc_ctrl_t * const p_ctrl, rtc_cfg_t const * const p_cfg);
-fsp_err_t R_RTC_Close(rtc_ctrl_t * const p_ctrl);
-fsp_err_t R_RTC_ClockSourceSet(rtc_ctrl_t * const p_ctrl);
-fsp_err_t R_RTC_CalendarTimeSet(rtc_ctrl_t * const p_ctrl, rtc_time_t * const p_time);
-fsp_err_t R_RTC_CalendarTimeGet(rtc_ctrl_t * const p_ctrl, rtc_time_t * const p_time);
-fsp_err_t R_RTC_CalendarAlarmSet(rtc_ctrl_t * const p_ctrl, rtc_alarm_time_t * const p_alarm);
-fsp_err_t R_RTC_CalendarAlarmGet(rtc_ctrl_t * const p_ctrl, rtc_alarm_time_t * const p_alarm);
-fsp_err_t R_RTC_PeriodicIrqRateSet(rtc_ctrl_t * const p_ctrl, rtc_periodic_irq_select_t const rate);
-fsp_err_t R_RTC_ErrorAdjustmentSet(rtc_ctrl_t * const p_ctrl, rtc_error_adjustment_cfg_t const * const err_adj_cfg);
-fsp_err_t R_RTC_InfoGet(rtc_ctrl_t * const p_ctrl, rtc_info_t * const p_rtc_info);
-fsp_err_t R_RTC_CallbackSet(rtc_ctrl_t * const          p_ctrl,
-                            void (                    * p_callback)(rtc_callback_args_t *),
-                            void const * const          p_context,
-                            rtc_callback_args_t * const p_callback_memory);
+fsp_err_t R_SCI_SPI_Open(spi_ctrl_t * p_api_ctrl, spi_cfg_t const * const p_cfg);
+fsp_err_t R_SCI_SPI_Read(spi_ctrl_t * const    p_api_ctrl,
+                         void                * p_dest,
+                         uint32_t const        length,
+                         spi_bit_width_t const bit_width);
+fsp_err_t R_SCI_SPI_Write(spi_ctrl_t * const    p_api_ctrl,
+                          void const          * p_src,
+                          uint32_t const        length,
+                          spi_bit_width_t const bit_width);
+fsp_err_t R_SCI_SPI_WriteRead(spi_ctrl_t * const    p_api_ctrl,
+                              void const          * p_src,
+                              void                * p_dest,
+                              uint32_t const        length,
+                              spi_bit_width_t const bit_width);
+fsp_err_t R_SCI_SPI_Close(spi_ctrl_t * const p_api_ctrl);
+fsp_err_t R_SCI_SPI_CalculateBitrate(uint32_t bitrate, sci_spi_div_setting_t * sclk_div, bool use_mddr);
+fsp_err_t R_SCI_SPI_CallbackSet(spi_ctrl_t * const          p_api_ctrl,
+                                void (                    * p_callback)(spi_callback_args_t *),
+                                void const * const          p_context,
+                                spi_callback_args_t * const p_callback_memory);
 
 /* Common macro for FSP header files. There is also a corresponding FSP_HEADER macro at the top of this file. */
 FSP_FOOTER
 
-#endif                                 // R_RTC_H
+#endif
 
 /*******************************************************************************************************************//**
- * @} (end addtogroup RTC)
+ * @} (end ingroup SCI_SPI)
  **********************************************************************************************************************/

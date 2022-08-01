@@ -314,9 +314,15 @@ SECTIONS
 
 
     /* TrustZone Secure Gateway Stubs Section. */
-    .gnu.sgstubs : ALIGN (1024)
+
+    /* Some arithmetic is needed to eliminate unnecessary FILL for secure projects. */
+    /* 1. Get the address to the next block after the .data section in FLASH. */
+    DATA_END = LOADADDR(.data) + SIZEOF(.data);
+    /* 2. Determine the secure gateway stubs address either by the provided linker variable or the next 1024-byte block after .data */
+    SGSTUBS_LOC = (DEFINED(PROJECT_SECURE) && DEFINED(FLASH_NSC_START)) ? ABSOLUTE(FLASH_NSC_START) : ALIGN(DATA_END, 1024);
+    /* 3. Manually specify the start location for .gnu.sgstubs */
+    .gnu.sgstubs SGSTUBS_LOC : ALIGN(1024)
     {
-        . = (DEFINED(PROJECT_SECURE) && DEFINED(FLASH_NSC_START)) ? ABSOLUTE(FLASH_NSC_START) : ALIGN(1024);
         __tz_FLASH_C = DEFINED(FLASH_NSC_START) ? ABSOLUTE(FLASH_NSC_START) : __RESERVE_NS_RAM ? ABSOLUTE(FLASH_START + FLASH_LENGTH) : ALIGN(1024);
         _start_sg = .;
         *(.gnu.sgstubs*)
