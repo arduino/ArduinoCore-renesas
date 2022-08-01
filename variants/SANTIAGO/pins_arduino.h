@@ -1,5 +1,9 @@
 #ifdef __cplusplus
 extern "C" unsigned int PINCOUNT_fn();
+extern "C" unsigned int I2C_COUNT_fn();
+extern "C" unsigned int SPI_COUNT_fn();
+extern "C" unsigned int UART_COUNT_fn();
+extern "C" unsigned int SCI_COUNT_fn();
 #endif
 
 #define PIN(X,Y) (X * 16 + Y)
@@ -11,6 +15,11 @@ extern "C" unsigned int PINCOUNT_fn();
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
+#define I2C_COUNT           (I2C_COUNT_fn())
+#define SPI_COUNT           (SPI_COUNT_fn())
+#define UART_COUNT          (UART_COUNT_fn())
+#define SCI_COUNT           (SCI_COUNT_fn())
+
 #define PIN_A0   (16u)
 #define PIN_A1   (17u)
 #define PIN_A2   (18u)
@@ -18,7 +27,7 @@ extern "C" unsigned int PINCOUNT_fn();
 #define PIN_A4   (20u)
 #define PIN_A5   (21u)
 
-#define DAC      (A3)
+#define DAC      (A0)
 
 #undef A0
 #undef A1
@@ -76,15 +85,38 @@ static const uint8_t A5 = PIN_A5;
 #define LEDG        (13u)
 #define LEDB        (23u)
 
-#define PIN_SPI_SS    (10)
-
-static const uint8_t SS   = PIN_SPI_SS;
 
 #define SERIAL_HOWMANY		1
 
 #define WIRE_HOWMANY      1
 
 #define SPI_HOWMANY       1
+
+
+/****** UART CORE DEFINES ******/
+
+#define SERIAL_HOWMANY		1
+
+#define UART1_CHANNEL     2
+
+/****** WIRE CORE DEFINES ******/
+
+#define WIRE_HOWMANY      1
+
+#define WIRE_CHANNEL      1
+#define IS_WIRE_SCI       0
+
+/****** SPI CORE DEFINES ******/
+
+#define SPI_HOWMANY       1
+
+#define SPI_CHANNEL       1
+#define IS_SPI_SCI        0
+
+#define PIN_SPI_SS    (10)
+
+static const uint8_t SS   = PIN_SPI_SS;
+
 
 #define EXT_INTERRUPTS_HOWMANY 2
 

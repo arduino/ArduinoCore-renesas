@@ -19,8 +19,8 @@ pwmTable_t pwmTable[] = {
   {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D11
   {&g_timer1_ctrl, &g_timer1_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D3
   {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D5
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCB, NULL}, // D5
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCA, NULL}, // D6
+  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCB, NULL},
+  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCA, NULL},
   {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D6
 };
 
@@ -30,28 +30,52 @@ const irqTable_t irqTable[] = {
 };
 
 uart_instance_t UartTable[] = {
-  {&g_uart1_ctrl, &g_uart1_cfg, &g_uart_on_sci},
-  {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
-  {&g_uart0_ctrl, &g_uart0_cfg, &g_uart_on_sci},
-  {nullptr,       nullptr,      nullptr       },
-  {nullptr,       nullptr,      nullptr       },
-  {nullptr,       nullptr,      nullptr       },
-  {nullptr,       nullptr,      nullptr       },
-  {nullptr,       nullptr,      nullptr       },
-  {nullptr,       nullptr,      nullptr       },
-  {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
+  {&g_uart1_ctrl      , &g_uart1_cfg      , &g_uart_on_sci},          //SCI0
+  {&g_uart2_ctrl      , &g_uart2_cfg      , &g_uart_on_sci},          //SCI1
+  {&g_uart0_ctrl      , &g_uart0_cfg      , &g_uart_on_sci},          //SCI2
+  {nullptr            , nullptr           , nullptr       },          //SCI3
+  {nullptr            , nullptr           , nullptr       },          //SCI4
+  {nullptr            , nullptr           , nullptr       },          //SCI5
+  {nullptr            , nullptr           , nullptr       },          //SCI6
+  {nullptr            , nullptr           , nullptr       },          //SCI7
+  {nullptr            , nullptr           , nullptr       },          //SCI8
+  {nullptr            , nullptr           , nullptr       },          //SCI9
 };
 
 void __attribute__((weak)) i2c_callback (i2c_master_callback_args_t * p_args) {}
 void __attribute__((weak)) sci_i2c_callback (i2c_master_callback_args_t * p_args) {}
 
 i2c_master_instance_t I2CMasterTable[] = {
-  {&g_i2c_master1_ctrl, &g_i2c_master1_cfg, &g_i2c_master_on_iic},
-  {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},
-  {&g_i2c2_ctrl,        &g_i2c2_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c3_ctrl,        &g_i2c3_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c4_ctrl,        &g_i2c4_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c5_ctrl,        &g_i2c5_cfg,        &g_i2c_master_on_sci},
+  {nullptr            , nullptr           , nullptr             },    //IIC0
+  {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},    //IIC1
+  {&g_i2c1_ctrl       , &g_i2c1_cfg       , &g_i2c_master_on_sci},    //SCI0
+  {&g_i2c2_ctrl       , &g_i2c2_cfg       , &g_i2c_master_on_sci},    //SCI1
+  {&g_i2c3_ctrl       , &g_i2c3_cfg       , &g_i2c_master_on_sci},    //SCI2
+  {nullptr            , nullptr           , nullptr             },    //SCI3
+  {nullptr            , nullptr           , nullptr             },    //SCI4
+  {nullptr            , nullptr           , nullptr             },    //SCI5
+  {nullptr            , nullptr           , nullptr             },    //SCI6
+  {nullptr            , nullptr           , nullptr             },    //SCI7
+  {nullptr            , nullptr           , nullptr             },    //SCI8
+  {nullptr            , nullptr           , nullptr             },    //SCI9
+};
+
+void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
+void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
+
+spi_instance_t SpiTable[] = {
+  {nullptr            , nullptr           , nullptr             },    //SPI0
+  {&g_spi0_ctrl       , &g_spi0_cfg       , &g_spi_on_spi       },    //SPI1
+  {&g_spi1_ctrl       , &g_spi1_cfg       , &g_spi_on_sci       },    //SCI0
+  {&g_spi2_ctrl       , &g_spi2_cfg       , &g_spi_on_sci       },    //SCI1
+  {&g_spi3_ctrl       , &g_spi3_cfg       , &g_spi_on_sci       },    //SCI2
+  {nullptr            , nullptr           , nullptr             },    //SCI3
+  {nullptr            , nullptr           , nullptr             },    //SCI4
+  {nullptr            , nullptr           , nullptr             },    //SCI5
+  {nullptr            , nullptr           , nullptr             },    //SCI6
+  {nullptr            , nullptr           , nullptr             },    //SCI7
+  {nullptr            , nullptr           , nullptr             },    //SCI8
+  {nullptr            , nullptr           , nullptr             },    //SCI9
 };
 
 sciTable_t SciTable[] {
@@ -60,16 +84,16 @@ sciTable_t SciTable[] {
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { &UartTable[0]     , &I2CMasterTable[3] , &SpiTable[2]      },
-  { &UartTable[1]     , &I2CMasterTable[4] , &SpiTable[3]      },
-  { &UartTable[2]     , &I2CMasterTable[5] , &SpiTable[4]      },
+  { &UartTable[0]     , &I2CMasterTable[2] , &SpiTable[2]      },
+  { &UartTable[1]     , &I2CMasterTable[3] , &SpiTable[3]      },
+  { &UartTable[2]     , &I2CMasterTable[4] , &SpiTable[4]      },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
-  { &UartTable[9]     , &I2CMasterTable[12], &SpiTable[11]     },
+  { nullptr           , nullptr            , nullptr           },
 };
 
 const PinDescription g_APinDescription[] = {
@@ -238,6 +262,18 @@ const PinDescription g_APinDescription[] = {
 extern "C" {
   unsigned int PINCOUNT_fn() {
     return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+  }
+  unsigned int I2C_COUNT_fn() {
+    return (sizeof(I2CMasterTable) / sizeof(I2CMasterTable[1]));
+  }
+  unsigned int SPI_COUNT_fn() {
+    return (sizeof(SpiTable) / sizeof(SpiTable[1]));
+  }
+  unsigned int UART_COUNT_fn() {
+    return (sizeof(UartTable) / sizeof(UartTable[0]));
+  }
+  unsigned int SCI_COUNT_fn() {
+    return (sizeof(SciTable) / sizeof(SciTable[0]));
   }
 }
 
