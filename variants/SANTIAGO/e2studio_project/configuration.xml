@@ -9,7 +9,7 @@
     <option key="#DeviceCommand#" value="R7FA4M1AB"/>
     <option key="#RTOS#" value="_none"/>
     <option key="#pinconfiguration#" value="R7FA4M1AB3CNE.pincfg"/>
-    <option key="#FSPVersion#" value="3.6.0"/>
+    <option key="#FSPVersion#" value="3.7.0"/>
     <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
     <option key="#ToolchainVersion#" value="10.3.1.20210824"/>
   </generalSettings>
@@ -129,97 +129,97 @@
     <node id="board.clock.uclk.display" option="board.clock.clkout.display.value"/>
   </raClockConfiguration>
   <raComponentSelection>
-    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="device" variant="R7FA4M1AB3CNE" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="device" variant="R7FA4M1AB3CNE" vendor="Renesas" version="3.7.0">
       <description>Board support package for R7FA4M1AB3CNE</description>
-      <originalPack>Renesas.RA_mcu_ra4m1.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra4m1.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="device" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="device" variant="" vendor="Renesas" version="3.7.0">
       <description>Board support package for RA4M1</description>
-      <originalPack>Renesas.RA_mcu_ra4m1.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra4m1.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="fsp" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="BSP" condition="" group="ra4m1" subgroup="fsp" variant="" vendor="Renesas" version="3.7.0">
       <description>Board support package for RA4M1 - FSP Data</description>
-      <originalPack>Renesas.RA_mcu_ra4m1.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra4m1.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="3.6.0">
-      <description>Custom Board Support Files</description>
-      <originalPack>Renesas.RA_board_custom.3.6.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.8.0+renesas.0.fsp.3.6.0">
-      <description>Arm CMSIS Version 5 - Core (M)</description>
-      <originalPack>Arm.CMSIS5.5.8.0+renesas.0.fsp.3.6.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="3.7.0">
       <description>Board Support Package Common Files</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="3.7.0">
       <description>A/D Converter</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="3.7.0">
       <description>Asynchronous General Purpose Timer</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="3.7.0">
       <description>12-bit D/A Converter</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="3.6.0">
-      <description>Direct Memory Access Controller</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="3.7.0">
       <description>Data Transfer Controller</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_flash_lp" variant="" vendor="Renesas" version="3.6.0">
-      <description>Flash Memory Low Power</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="3.7.0">
       <description>General PWM Timer</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="3.7.0">
       <description>External Interrupt</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="3.7.0">
       <description>I2C Master Interface</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="3.7.0">
       <description>I/O Port</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="3.7.0">
       <description>Low Power Modes</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="3.7.0">
       <description>Real Time Clock</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="3.7.0">
+      <description>SCI I2C Master Interface</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="3.7.0">
       <description>SCI UART</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="3.7.0">
       <description>Serial Peripheral Interface</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="3.7.0">
       <description>USB Basic</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pcdc" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pcdc" variant="" vendor="Renesas" version="3.7.0">
       <description>USB Peripheral Communications Device Class</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="3.6.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="3.7.0">
       <description>Watchdog Timer</description>
-      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="3.7.0">
+      <description>Custom Board Support Files</description>
+      <originalPack>Renesas.RA_board_custom.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.8.0+renesas.0.fsp.3.7.0">
+      <description>Arm CMSIS Version 5 - Core (M)</description>
+      <originalPack>Arm.CMSIS5.5.8.0+renesas.0.fsp.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_spi" variant="" vendor="Renesas" version="3.7.0">
+      <description>Serial Peripheral Interface on Serial Communications Interface</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
   </raComponentSelection>
   <raElcConfiguration/>
@@ -285,7 +285,7 @@
       <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
       <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
       <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
-      <property id="module.driver.i2c_master.p_callback" value="isr_i2c0"/>
+      <property id="module.driver.i2c_master.p_callback" value="i2c_callback"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
     <module id="module.driver.spi_on_spi.1919007958">
@@ -383,12 +383,6 @@
       <property id="module.driver.lpm.deep_standby_cancel_sources" value=""/>
       <property id="module.driver.lpm.deep_standby_cancel_edges" value=""/>
     </module>
-    <module id="module.driver.flash_on_flash_lp.1861373071">
-      <property id="module.driver.flash.name" value="g_flash0"/>
-      <property id="module.driver.flash.data_flash_bgo" value="module.driver.flash.data_flash_bgo.disabled"/>
-      <property id="module.driver.flash.p_callback" value="NULL"/>
-      <property id="module.driver.flash.ipl" value="board.icu.common.irq.priority14"/>
-    </module>
     <module id="module.driver.pcdc_on_usb.98913785">
       <property id="module.driver.pcdc.name" value="g_pcdc0"/>
     </module>
@@ -410,46 +404,6 @@
       <property id="module.driver.usb_basic.rtos_callback" value="NULL"/>
       <property id="module.driver.usb_basic.other_context" value="NULL"/>
     </module>
-    <module id="module.driver.transfer_on_dmac.735544732">
-      <property id="module.driver.transfer.name" value="g_transfer2"/>
-      <property id="module.driver.transfer.channel" value="0"/>
-      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
-      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
-      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
-      <property id="module.driver.transfer.p_dest" value="NULL"/>
-      <property id="module.driver.transfer.p_src" value="NULL"/>
-      <property id="module.driver.transfer.length" value="1"/>
-      <property id="module.driver.transfer.num_blocks" value="0"/>
-      <property id="module.driver.transfer.activation_event" value="_signal.event.usbfs.fifo.1"/>
-      <property id="module.driver.transfer.p_callback" value="NULL"/>
-      <property id="module.driver.transfer.p_context" value="NULL"/>
-      <property id="module.driver.transfer.ipl" value="_disabled"/>
-      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
-      <property id="module.driver.transfer.offset" value="1"/>
-      <property id="module.driver.transfer.src.buffer" value="1"/>
-    </module>
-    <module id="module.driver.transfer_on_dmac.1011913044">
-      <property id="module.driver.transfer.name" value="g_transfer3"/>
-      <property id="module.driver.transfer.channel" value="1"/>
-      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
-      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
-      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
-      <property id="module.driver.transfer.p_dest" value="NULL"/>
-      <property id="module.driver.transfer.p_src" value="NULL"/>
-      <property id="module.driver.transfer.length" value="1"/>
-      <property id="module.driver.transfer.num_blocks" value="0"/>
-      <property id="module.driver.transfer.activation_event" value="_signal.event.usbfs.fifo.0"/>
-      <property id="module.driver.transfer.p_callback" value="NULL"/>
-      <property id="module.driver.transfer.p_context" value="NULL"/>
-      <property id="module.driver.transfer.ipl" value="_disabled"/>
-      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
-      <property id="module.driver.transfer.offset" value="1"/>
-      <property id="module.driver.transfer.src.buffer" value="1"/>
-    </module>
     <module id="module.driver.dac_on_dac.68557421">
       <property id="module.driver.dac.name" value="g_dac0"/>
       <property id="module.driver.dac.channel_id" value="0"/>
@@ -459,60 +413,6 @@
       <property id="module.driver.dac.charge_pump_enabled" value="enum.mcu.dac.charge_pump.disabled"/>
       <property id="module.driver.dac.internal_output" value="enum.mcu.dac.internal_output.disabled"/>
       <property id="module.driver.dac.elc_trigger" value="_disabled"/>
-    </module>
-    <module id="module.driver.uart_on_sci_uart.1441556926">
-      <property id="module.driver.uart.name" value="g_uart0"/>
-      <property id="module.driver.uart.channel" value="2"/>
-      <property id="module.driver.uart.data_bits" value="module.driver.uart.data_bits.data_bits_8"/>
-      <property id="module.driver.uart.parity" value="module.driver.uart.parity.parity_off"/>
-      <property id="module.driver.uart.stop_bits" value="module.driver.uart.stop_bits.stop_bits_1"/>
-      <property id="module.driver.uart.baud" value="115200"/>
-      <property id="module.driver.uart.baudrate_modulation" value="module.driver.uart.baudrate_modulation.disabled"/>
-      <property id="module.driver.uart.baudrate_max_err" value="5"/>
-      <property id="module.driver.uart.flow_control" value="module.driver.uart.flow_control.rts"/>
-      <property id="module.driver.uart.pin_control_port" value="module.driver.uart.pin_control_port.PORT_DISABLE"/>
-      <property id="module.driver.uart.pin_control_pin" value="module.driver.uart.pin_control_pin.PIN_DISABLE"/>
-      <property id="module.driver.uart.clk_src" value="module.driver.uart.clk_src.int_clk"/>
-      <property id="module.driver.uart.rx_edge_start" value="module.driver.uart.rx_edge_start.falling_edge"/>
-      <property id="module.driver.uart.noisecancel_en" value="module.driver.uart.noisecancel_en.disabled"/>
-      <property id="module.driver.uart.rx_fifo_trigger" value="module.driver.uart.rx_fifo_trigger.max"/>
-      <property id="module.driver.uart.rs485.de_enable" value="module.driver.uart.rs485.de_enable.disabled"/>
-      <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
-      <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
-      <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
-      <property id="module.driver.uart.callback" value="isr_uart0"/>
-      <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
-      <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
-      <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
-      <property id="module.driver.uart.eri_ipl" value="board.icu.common.irq.priority12"/>
-    </module>
-    <module id="module.driver.transfer_on_dtc.1318848447">
-      <property id="module.driver.transfer.name" value="g_transfer4"/>
-      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
-      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
-      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
-      <property id="module.driver.transfer.p_dest" value="NULL"/>
-      <property id="module.driver.transfer.p_src" value="NULL"/>
-      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
-      <property id="module.driver.transfer.length" value="0"/>
-      <property id="module.driver.transfer.num_blocks" value="0"/>
-      <property id="module.driver.transfer.activation_source" value="_disabled"/>
-    </module>
-    <module id="module.driver.transfer_on_dtc.126038555">
-      <property id="module.driver.transfer.name" value="g_transfer21"/>
-      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
-      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
-      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
-      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
-      <property id="module.driver.transfer.p_dest" value="NULL"/>
-      <property id="module.driver.transfer.p_src" value="NULL"/>
-      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
-      <property id="module.driver.transfer.length" value="0"/>
-      <property id="module.driver.transfer.num_blocks" value="0"/>
-      <property id="module.driver.transfer.activation_source" value="_disabled"/>
     </module>
     <module id="module.driver.rtc_on_rtc.1641057552">
       <property id="module.driver.rtc.name" value="g_rtc0"/>
@@ -531,8 +431,8 @@
       <property id="module.driver.timer.name" value="g_timer0"/>
       <property id="module.driver.timer.channel" value="0"/>
       <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_pwm"/>
-      <property id="module.driver.timer.period" value="100"/>
-      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_period_msec"/>
+      <property id="module.driver.timer.period" value="490"/>
+      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_frequency_hz"/>
       <property id="module.driver.timer.gtior.gtioa.initial_output_level" value="module.driver.timer.gtior.gtioa.initial_output_level.low"/>
       <property id="module.driver.timer.gtior.gtioa.cycle_end_output_level" value="module.driver.timer.gtior.gtioa.cycle_end_output_level.retain"/>
       <property id="module.driver.timer.gtior.gtioa.compare_match_output_level" value="module.driver.timer.gtior.gtioa.compare_match_output_level.retain"/>
@@ -579,8 +479,8 @@
       <property id="module.driver.timer.name" value="g_timer1"/>
       <property id="module.driver.timer.channel" value="1"/>
       <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_pwm"/>
-      <property id="module.driver.timer.period" value="100"/>
-      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_period_msec"/>
+      <property id="module.driver.timer.period" value="490"/>
+      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_frequency_hz"/>
       <property id="module.driver.timer.gtior.gtioa.initial_output_level" value="module.driver.timer.gtior.gtioa.initial_output_level.low"/>
       <property id="module.driver.timer.gtior.gtioa.cycle_end_output_level" value="module.driver.timer.gtior.gtioa.cycle_end_output_level.retain"/>
       <property id="module.driver.timer.gtior.gtioa.compare_match_output_level" value="module.driver.timer.gtior.gtioa.compare_match_output_level.retain"/>
@@ -627,8 +527,8 @@
       <property id="module.driver.timer.name" value="g_timer2"/>
       <property id="module.driver.timer.channel" value="2"/>
       <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_pwm"/>
-      <property id="module.driver.timer.period" value="100"/>
-      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_period_msec"/>
+      <property id="module.driver.timer.period" value="490"/>
+      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_frequency_hz"/>
       <property id="module.driver.timer.gtior.gtioa.initial_output_level" value="module.driver.timer.gtior.gtioa.initial_output_level.low"/>
       <property id="module.driver.timer.gtior.gtioa.cycle_end_output_level" value="module.driver.timer.gtior.gtioa.cycle_end_output_level.retain"/>
       <property id="module.driver.timer.gtior.gtioa.compare_match_output_level" value="module.driver.timer.gtior.gtioa.compare_match_output_level.retain"/>
@@ -675,8 +575,8 @@
       <property id="module.driver.timer.name" value="g_timer3"/>
       <property id="module.driver.timer.channel" value="3"/>
       <property id="module.driver.timer.mode" value="module.driver.timer.mode.mode_pwm"/>
-      <property id="module.driver.timer.period" value="100"/>
-      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_period_msec"/>
+      <property id="module.driver.timer.period" value="490"/>
+      <property id="module.driver.timer.unit" value="module.driver.timer.unit.unit_frequency_hz"/>
       <property id="module.driver.timer.gtior.gtioa.initial_output_level" value="module.driver.timer.gtior.gtioa.initial_output_level.low"/>
       <property id="module.driver.timer.gtior.gtioa.cycle_end_output_level" value="module.driver.timer.gtior.gtioa.cycle_end_output_level.retain"/>
       <property id="module.driver.timer.gtior.gtioa.compare_match_output_level" value="module.driver.timer.gtior.gtioa.compare_match_output_level.retain"/>
@@ -737,10 +637,458 @@
       <property id="module.driver.timer.p_callback" value="timer10_callback"/>
       <property id="module.driver.timer.ipl" value="board.icu.common.irq.priority12"/>
     </module>
+    <module id="module.driver.uart_on_sci_uart.488173617">
+      <property id="module.driver.uart.name" value="g_uart1"/>
+      <property id="module.driver.uart.channel" value="0"/>
+      <property id="module.driver.uart.data_bits" value="module.driver.uart.data_bits.data_bits_8"/>
+      <property id="module.driver.uart.parity" value="module.driver.uart.parity.parity_off"/>
+      <property id="module.driver.uart.stop_bits" value="module.driver.uart.stop_bits.stop_bits_1"/>
+      <property id="module.driver.uart.baud" value="115200"/>
+      <property id="module.driver.uart.baudrate_modulation" value="module.driver.uart.baudrate_modulation.disabled"/>
+      <property id="module.driver.uart.baudrate_max_err" value="5"/>
+      <property id="module.driver.uart.flow_control" value="module.driver.uart.flow_control.rts"/>
+      <property id="module.driver.uart.pin_control_port" value="module.driver.uart.pin_control_port.PORT_DISABLE"/>
+      <property id="module.driver.uart.pin_control_pin" value="module.driver.uart.pin_control_pin.PIN_DISABLE"/>
+      <property id="module.driver.uart.clk_src" value="module.driver.uart.clk_src.int_clk"/>
+      <property id="module.driver.uart.rx_edge_start" value="module.driver.uart.rx_edge_start.falling_edge"/>
+      <property id="module.driver.uart.noisecancel_en" value="module.driver.uart.noisecancel_en.disabled"/>
+      <property id="module.driver.uart.rx_fifo_trigger" value="module.driver.uart.rx_fifo_trigger.max"/>
+      <property id="module.driver.uart.rs485.de_enable" value="module.driver.uart.rs485.de_enable.disabled"/>
+      <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
+      <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
+      <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
+      <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.eri_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.uart_on_sci_uart.1216293200">
+      <property id="module.driver.uart.name" value="g_uart2"/>
+      <property id="module.driver.uart.channel" value="1"/>
+      <property id="module.driver.uart.data_bits" value="module.driver.uart.data_bits.data_bits_8"/>
+      <property id="module.driver.uart.parity" value="module.driver.uart.parity.parity_off"/>
+      <property id="module.driver.uart.stop_bits" value="module.driver.uart.stop_bits.stop_bits_1"/>
+      <property id="module.driver.uart.baud" value="115200"/>
+      <property id="module.driver.uart.baudrate_modulation" value="module.driver.uart.baudrate_modulation.disabled"/>
+      <property id="module.driver.uart.baudrate_max_err" value="5"/>
+      <property id="module.driver.uart.flow_control" value="module.driver.uart.flow_control.rts"/>
+      <property id="module.driver.uart.pin_control_port" value="module.driver.uart.pin_control_port.PORT_DISABLE"/>
+      <property id="module.driver.uart.pin_control_pin" value="module.driver.uart.pin_control_pin.PIN_DISABLE"/>
+      <property id="module.driver.uart.clk_src" value="module.driver.uart.clk_src.int_clk"/>
+      <property id="module.driver.uart.rx_edge_start" value="module.driver.uart.rx_edge_start.falling_edge"/>
+      <property id="module.driver.uart.noisecancel_en" value="module.driver.uart.noisecancel_en.disabled"/>
+      <property id="module.driver.uart.rx_fifo_trigger" value="module.driver.uart.rx_fifo_trigger.max"/>
+      <property id="module.driver.uart.rs485.de_enable" value="module.driver.uart.rs485.de_enable.disabled"/>
+      <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
+      <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
+      <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
+      <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.eri_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1076341154">
+      <property id="module.driver.transfer.name" value="g_transfer13"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1330090974">
+      <property id="module.driver.transfer.name" value="g_transfer14"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.i2c_on_sci_i2c.135549707">
+      <property id="module.driver.i2c.name" value="g_i2c1"/>
+      <property id="module.driver.i2c.channel" value="0"/>
+      <property id="module.driver.i2c.slave" value="0x00"/>
+      <property id="module.driver.i2c.addr_mode" value="module.driver.i2c.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c.rate" value="module.driver.i2c.rate.rate_standard"/>
+      <property id="module.driver.i2c.sda_delay" value="300"/>
+      <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
+      <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
+      <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1335909776">
+      <property id="module.driver.transfer.name" value="g_transfer0"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1381591515">
+      <property id="module.driver.transfer.name" value="g_transfer1"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.543032762">
+      <property id="module.driver.transfer.name" value="g_transfer2"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.481909956">
+      <property id="module.driver.transfer.name" value="g_transfer3"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1822527722">
+      <property id="module.driver.transfer.name" value="g_transfer5"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.66425904">
+      <property id="module.driver.transfer.name" value="g_transfer6"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.i2c_on_sci_i2c.1761674266">
+      <property id="module.driver.i2c.name" value="g_i2c3"/>
+      <property id="module.driver.i2c.channel" value="2"/>
+      <property id="module.driver.i2c.slave" value="0x00"/>
+      <property id="module.driver.i2c.addr_mode" value="module.driver.i2c.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c.rate" value="module.driver.i2c.rate.rate_standard"/>
+      <property id="module.driver.i2c.sda_delay" value="300"/>
+      <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
+      <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
+      <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.2096239940">
+      <property id="module.driver.transfer.name" value="g_transfer11"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1419093470">
+      <property id="module.driver.transfer.name" value="g_transfer12"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.spi_on_sci_spi.1043859902">
+      <property id="module.driver.spi.name" value="g_spi1"/>
+      <property id="module.driver.spi.channel" value="0"/>
+      <property id="module.driver.spi.operating_mode" value="module.driver.spi.operating_mode.mode_master"/>
+      <property id="module.driver.spi.clk_phase" value="module.driver.spi.clk_phase.clk_phase_edge_odd"/>
+      <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
+      <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
+      <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
+      <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.eri_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.bitrate" value="1000000"/>
+      <property id="module.driver.spi.bitrate_modulation" value="module.driver.spi.bitrate_modulation.enabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.89688526">
+      <property id="module.driver.transfer.name" value="g_transfer15"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1545464844">
+      <property id="module.driver.transfer.name" value="g_transfer16"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.spi_on_sci_spi.1198734165">
+      <property id="module.driver.spi.name" value="g_spi2"/>
+      <property id="module.driver.spi.channel" value="1"/>
+      <property id="module.driver.spi.operating_mode" value="module.driver.spi.operating_mode.mode_master"/>
+      <property id="module.driver.spi.clk_phase" value="module.driver.spi.clk_phase.clk_phase_edge_odd"/>
+      <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
+      <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
+      <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
+      <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.eri_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.bitrate" value="1000000"/>
+      <property id="module.driver.spi.bitrate_modulation" value="module.driver.spi.bitrate_modulation.enabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1838461649">
+      <property id="module.driver.transfer.name" value="g_transfer17"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.305101788">
+      <property id="module.driver.transfer.name" value="g_transfer18"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.spi_on_sci_spi.1751120214">
+      <property id="module.driver.spi.name" value="g_spi3"/>
+      <property id="module.driver.spi.channel" value="2"/>
+      <property id="module.driver.spi.operating_mode" value="module.driver.spi.operating_mode.mode_master"/>
+      <property id="module.driver.spi.clk_phase" value="module.driver.spi.clk_phase.clk_phase_edge_odd"/>
+      <property id="module.driver.spi.clk_polarity" value="module.driver.spi.clk_polarity.clk_polarity_low"/>
+      <property id="module.driver.spi.mode_fault" value="module.driver.spi.mode_fault.mode_fault_error_disable"/>
+      <property id="module.driver.spi.bit_order" value="module.driver.spi.bit_order.bit_order_msb_first"/>
+      <property id="module.driver.spi.p_callback" value="sci_spi_callback"/>
+      <property id="module.driver.spi.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.eri_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.spi.bitrate" value="1000000"/>
+      <property id="module.driver.spi.bitrate_modulation" value="module.driver.spi.bitrate_modulation.enabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.961677238">
+      <property id="module.driver.transfer.name" value="g_transfer19"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.821110745">
+      <property id="module.driver.transfer.name" value="g_transfer20"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.uart_on_sci_uart.1863600149">
+      <property id="module.driver.uart.name" value="g_uart0"/>
+      <property id="module.driver.uart.channel" value="2"/>
+      <property id="module.driver.uart.data_bits" value="module.driver.uart.data_bits.data_bits_8"/>
+      <property id="module.driver.uart.parity" value="module.driver.uart.parity.parity_off"/>
+      <property id="module.driver.uart.stop_bits" value="module.driver.uart.stop_bits.stop_bits_1"/>
+      <property id="module.driver.uart.baud" value="115200"/>
+      <property id="module.driver.uart.baudrate_modulation" value="module.driver.uart.baudrate_modulation.disabled"/>
+      <property id="module.driver.uart.baudrate_max_err" value="5"/>
+      <property id="module.driver.uart.flow_control" value="module.driver.uart.flow_control.rts"/>
+      <property id="module.driver.uart.pin_control_port" value="module.driver.uart.pin_control_port.PORT_DISABLE"/>
+      <property id="module.driver.uart.pin_control_pin" value="module.driver.uart.pin_control_pin.PIN_DISABLE"/>
+      <property id="module.driver.uart.clk_src" value="module.driver.uart.clk_src.int_clk"/>
+      <property id="module.driver.uart.rx_edge_start" value="module.driver.uart.rx_edge_start.falling_edge"/>
+      <property id="module.driver.uart.noisecancel_en" value="module.driver.uart.noisecancel_en.disabled"/>
+      <property id="module.driver.uart.rx_fifo_trigger" value="module.driver.uart.rx_fifo_trigger.max"/>
+      <property id="module.driver.uart.rs485.de_enable" value="module.driver.uart.rs485.de_enable.disabled"/>
+      <property id="module.driver.uart.rs485.de_polarity" value="module.driver.uart.rs485.de_polarity.high"/>
+      <property id="module.driver.uart.rs485.de_port_number" value="module.driver.uart.rs485.de_port_number.PORT_DISABLE"/>
+      <property id="module.driver.uart.rs485.de_pin_number" value="module.driver.uart.rs485.de_pin_number.PIN_DISABLE"/>
+      <property id="module.driver.uart.callback" value="uart_callback"/>
+      <property id="module.driver.uart.rxi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.txi_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.tei_ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.uart.eri_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.483653776">
+      <property id="module.driver.transfer.name" value="g_transfer4"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1581256557">
+      <property id="module.driver.transfer.name" value="g_transfer21"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.i2c_on_sci_i2c.1608101811">
+      <property id="module.driver.i2c.name" value="g_i2c2"/>
+      <property id="module.driver.i2c.channel" value="1"/>
+      <property id="module.driver.i2c.slave" value="0x00"/>
+      <property id="module.driver.i2c.addr_mode" value="module.driver.i2c.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c.rate" value="module.driver.i2c.rate.rate_standard"/>
+      <property id="module.driver.i2c.sda_delay" value="300"/>
+      <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
+      <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_callback"/>
+      <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.i2c.rx_ipl" value="board.icu.common.irq.priority12"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.444622945">
+      <property id="module.driver.transfer.name" value="g_transfer7"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.1247774984">
+      <property id="module.driver.transfer.name" value="g_transfer8"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.driver.adc_on_adc.1770866487"/>
-      <stack module="module.driver.i2c_on_iic_master.1346523762"/>
+      <stack module="module.driver.i2c_on_iic_master.1346523762">
+        <stack module="module.driver.transfer_on_dtc.1076341154" requires="module.driver.i2c_on_iic_master.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1330090974" requires="module.driver.i2c_on_iic_master.requires.transfer_rx"/>
+      </stack>
       <stack module="module.driver.spi_on_spi.1919007958">
         <stack module="module.driver.transfer_on_dtc.1948090828" requires="module.driver.spi_on_spi.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.2147337867" requires="module.driver.spi_on_spi.requires.transfer_rx"/>
@@ -749,24 +1097,52 @@
       <stack module="module.driver.external_irq_on_icu.304567925"/>
       <stack module="module.driver.external_irq_on_icu.1959226024"/>
       <stack module="module.driver.lpm.869559342"/>
-      <stack module="module.driver.flash_on_flash_lp.1861373071"/>
       <stack module="module.driver.pcdc_on_usb.98913785">
-        <stack module="module.driver.basic_on_usb.508110614" requires="module.driver.basic_on_usb.requires.basic">
-          <stack module="module.driver.transfer_on_dmac.735544732" requires="module.driver.basic_on_usb.requires.transfer_tx"/>
-          <stack module="module.driver.transfer_on_dmac.1011913044" requires="module.driver.basic_on_usb.requires.transfer_rx"/>
-        </stack>
+        <stack module="module.driver.basic_on_usb.508110614" requires="module.driver.basic_on_usb.requires.basic"/>
       </stack>
       <stack module="module.driver.dac_on_dac.68557421"/>
-      <stack module="module.driver.uart_on_sci_uart.1441556926">
-        <stack module="module.driver.transfer_on_dtc.1318848447" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
-        <stack module="module.driver.transfer_on_dtc.126038555" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
-      </stack>
       <stack module="module.driver.rtc_on_rtc.1641057552"/>
       <stack module="module.driver.timer_on_gpt.1113787937"/>
       <stack module="module.driver.timer_on_gpt.1755638968"/>
       <stack module="module.driver.timer_on_gpt.532979125"/>
       <stack module="module.driver.timer_on_gpt.1707712319"/>
       <stack module="module.driver.timer_on_agt.1932111416"/>
+      <stack module="module.driver.uart_on_sci_uart.488173617">
+        <stack module="module.driver.transfer_on_dtc.1335909776" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1381591515" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.uart_on_sci_uart.1216293200">
+        <stack module="module.driver.transfer_on_dtc.543032762" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.481909956" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.i2c_on_sci_i2c.135549707">
+        <stack module="module.driver.transfer_on_dtc.1822527722" requires="module.driver.i2c_on_sci_i2c.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.66425904" requires="module.driver.i2c_on_sci_i2c.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.i2c_on_sci_i2c.1761674266">
+        <stack module="module.driver.transfer_on_dtc.2096239940" requires="module.driver.i2c_on_sci_i2c.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1419093470" requires="module.driver.i2c_on_sci_i2c.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.spi_on_sci_spi.1043859902">
+        <stack module="module.driver.transfer_on_dtc.89688526" requires="module.driver.spi_on_sci_spi.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1545464844" requires="module.driver.spi_on_sci_spi.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.spi_on_sci_spi.1198734165">
+        <stack module="module.driver.transfer_on_dtc.1838461649" requires="module.driver.spi_on_sci_spi.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.305101788" requires="module.driver.spi_on_sci_spi.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.spi_on_sci_spi.1751120214">
+        <stack module="module.driver.transfer_on_dtc.961677238" requires="module.driver.spi_on_sci_spi.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.821110745" requires="module.driver.spi_on_sci_spi.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.uart_on_sci_uart.1863600149">
+        <stack module="module.driver.transfer_on_dtc.483653776" requires="module.driver.uart_on_sci_uart.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1581256557" requires="module.driver.uart_on_sci_uart.requires.transfer_rx"/>
+      </stack>
+      <stack module="module.driver.i2c_on_sci_i2c.1608101811">
+        <stack module="module.driver.transfer_on_dtc.444622945" requires="module.driver.i2c_on_sci_i2c.requires.transfer_tx"/>
+        <stack module="module.driver.transfer_on_dtc.1247774984" requires="module.driver.i2c_on_sci_i2c.requires.transfer_rx"/>
+      </stack>
     </context>
     <config id="config.driver.wdt">
       <property id="config.driver.wdt.param_checking_enable" value="config.driver.wdt.param_checking_enable.bsp"/>
@@ -788,6 +1164,11 @@
     <config id="config.driver.adc">
       <property id="config.driver.adc.param_checking_enable" value="config.driver.adc.param_checking_enable.bsp"/>
     </config>
+    <config id="config.driver.sci_i2c">
+      <property id="config.driver.sci_i2c.param_checking_enable" value="config.driver.sci_i2c.param_checking_enable.bsp"/>
+      <property id="config.driver.sci_i2c.dtc_enable" value="config.driver.sci_i2c.dtc_enable.enabled"/>
+      <property id="config.driver.sci_i2c.addr_mode_10_bit_enable" value="config.driver.sci_i2c.addr_mode_10_bit_enable.disabled"/>
+    </config>
     <config id="config.driver.icu">
       <property id="config.driver.icu.param_checking_enable" value="config.driver.icu.param_checking_enable.bsp"/>
     </config>
@@ -802,9 +1183,9 @@
       <property id="config.driver.usb_basic.dblb" value="config.driver.usb_basic.dblb.enable"/>
       <property id="config.driver.usb_basic.cntmd" value="config.driver.usb_basic.cntmd.disable"/>
       <property id="config.driver.usb_basic.ldo_regulator" value="config.driver.usb_basic.ldo_regulator.disable"/>
-      <property id="config.driver.usb_basic.dma" value="config.driver.usb_basic.dma.enable"/>
-      <property id="config.driver.usb_basic.source_address" value="config.driver.usb_basic.source_address.fs_use"/>
-      <property id="config.driver.usb_basic.dest_address" value="config.driver.usb_basic.dest_address.fs_use"/>
+      <property id="config.driver.usb_basic.dma" value="config.driver.usb_basic.dma.disable"/>
+      <property id="config.driver.usb_basic.source_address" value="config.driver.usb_basic.source_address.none"/>
+      <property id="config.driver.usb_basic.dest_address" value="config.driver.usb_basic.dest_address.none"/>
       <property id="config.driver.usb_basic.compliance_mode" value="config.driver.usb_basic.compliance_mode.disable"/>
       <property id="config.driver.usb_basic.tpl_table" value="NULL"/>
     </config>
@@ -813,12 +1194,13 @@
       <property id="config.driver.agt.output_support_enable" value="config.driver.agt.output_support_enable.disabled"/>
       <property id="config.driver.agt.input_support_enable" value="config.driver.agt.input_support_enable.disabled"/>
     </config>
+    <config id="config.driver.sci_spi">
+      <property id="config.driver.sci_spi.param_checking_enable" value="config.driver.sci_spi.param_checking_enable.bsp"/>
+      <property id="config.driver.sci_spi.dtc_support_enable" value="config.driver.sci_spi.dtc_support_enable.enabled"/>
+    </config>
     <config id="config.driver.dtc">
       <property id="config.driver.dtc.param_checking_enable" value="config.driver.dtc.param_checking_enable.bsp"/>
       <property id="config.driver.dtc.vector_table" value=".fsp_dtc_vector_table"/>
-    </config>
-    <config id="config.driver.dmac">
-      <property id="config.driver.dmac.param_checking_enable" value="config.driver.dmac.param_checking_enable.bsp"/>
     </config>
     <config id="config.driver.dac">
       <property id="config.driver.dac.param_checking_enable" value="config.driver.dac.param_checking_enable.bsp"/>
@@ -827,11 +1209,6 @@
       <property id="config.driver.iic_master.param_checking_enable" value="config.driver.iic_master.param_checking_enable.bsp"/>
       <property id="config.driver.iic_master.dtc_enable" value="config.driver.iic_master.dtc_enable.disabled"/>
       <property id="config.driver.iic_master.addr_mode_10_bit_enable" value="config.driver.iic_master.addr_mode_10_bit_enable.disabled"/>
-    </config>
-    <config id="config.driver.flash_lp">
-      <property id="config.driver.flash_lp.param_checking_enable" value="config.flash_lp.param_checking_enable.bsp"/>
-      <property id="config.driver.flash_lp.param_code_flash_programming_enable" value="config.driver.flash_lp.param_code_flash_programming_enable.enabled"/>
-      <property id="config.driver.flash_lp.param_data_flash_programming_enable" value="config.driver.flash_lp.param_data_flash_programming_enable.enabled"/>
     </config>
     <config id="config.driver.sci_uart">
       <property id="config.driver.sci_uart.param_checking_enable" value="config.driver.sci_uart.param_checking_enable.bsp"/>
@@ -848,6 +1225,7 @@
     </config>
     <config id="config.driver.rtc">
       <property id="config.driver.rtc.param_checking_enable" value="config.driver.rtc.param_checking_enable.bsp"/>
+      <property id="config.driver.rtc.open_set_source_clock" value="config.driver.rtc.open_set_source_clock.enabled"/>
     </config>
     <config id="config.driver.spi">
       <property id="config.driver.spi.param_checking_enable" value="config.driver.spi.param_checking_enable.bsp"/>
@@ -922,6 +1300,9 @@
       <configSetting altId="gpt5.mode.gtiocaorgtiocb.free" configurationId="gpt5.mode"/>
       <configSetting altId="gpt6.gtioca.p400" configurationId="gpt6.gtioca"/>
       <configSetting altId="gpt6.mode.gtiocaorgtiocb.free" configurationId="gpt6.mode"/>
+      <configSetting altId="iic0.mode.enabled.free" configurationId="iic0.mode"/>
+      <configSetting altId="iic0.scl.p408" configurationId="iic0.scl"/>
+      <configSetting altId="iic0.sda.p407" configurationId="iic0.sda"/>
       <configSetting altId="iic1.mode.enabled.free" configurationId="iic1.mode"/>
       <configSetting altId="iic1.pairing.free" configurationId="iic1.pairing"/>
       <configSetting altId="iic1.scl.p100" configurationId="iic1.scl"/>
@@ -993,8 +1374,10 @@
       <configSetting altId="p400.gpt6.gtioca" configurationId="p400"/>
       <configSetting altId="p400.gpio_mode.gpio_mode_peripheral" configurationId="p400.gpio_mode"/>
       <configSetting altId="p407.usbfs0.vbus" configurationId="p407"/>
+      <configSetting altId="p407.gpio_speed.gpio_speed_medium" configurationId="p407.gpio_drivecapacity"/>
       <configSetting altId="p407.gpio_mode.gpio_mode_peripheral" configurationId="p407.gpio_mode"/>
       <configSetting altId="p408.usbfs0.id" configurationId="p408"/>
+      <configSetting altId="p408.gpio_speed.gpio_speed_mediumiic" configurationId="p408.gpio_drivecapacity"/>
       <configSetting altId="p408.gpio_mode.gpio_mode_peripheral" configurationId="p408.gpio_mode"/>
       <configSetting altId="p409.gpt5.gtioca" configurationId="p409"/>
       <configSetting altId="p409.gpio_mode.gpio_mode_peripheral" configurationId="p409.gpio_mode"/>
@@ -1004,10 +1387,12 @@
       <configSetting altId="p914.gpio_mode.gpio_mode_peripheral" configurationId="p914.gpio_mode"/>
       <configSetting altId="p915.usbfs0.usbdm" configurationId="p915"/>
       <configSetting altId="p915.gpio_mode.gpio_mode_peripheral" configurationId="p915.gpio_mode"/>
-      <configSetting altId="sci0.pairing.a" configurationId="sci0.pairing"/>
+      <configSetting altId="sci0.mode.custom.free" configurationId="sci0.mode"/>
+      <configSetting altId="sci1.mode.custom.free" configurationId="sci1.mode"/>
       <configSetting altId="sci2.mode.custom.free" configurationId="sci2.mode"/>
       <configSetting altId="sci2.rxd.p301" configurationId="sci2.rxd"/>
       <configSetting altId="sci2.txd.p102" configurationId="sci2.txd"/>
+      <configSetting altId="sci9.mode.custom.free" configurationId="sci9.mode"/>
       <configSetting altId="spi1.miso.p110" configurationId="spi1.miso"/>
       <configSetting altId="spi1.mode.enabled.b" configurationId="spi1.mode"/>
       <configSetting altId="spi1.mosi.p109" configurationId="spi1.mosi"/>
