@@ -8,17 +8,16 @@ Signature   = "$Windows NT$"
 Class       = USBDevice
 ClassGUID   = {88BAE032-5A81-49f0-BC3D-A4FF138216D6}
 Provider    = %ManufacturerName%
-CatalogFile = renesas.cat
-DriverVer   = 03/03/2020,10.48.00.000
+CatalogFile = portentah33.cat
+DriverVer   = 01/08/2022,10.55.00.000
 
 ; ========== Manufacturer/Models sections ===========
 
 [Manufacturer]
 %ManufacturerName% = Standard,NTamd64
 
-[DeviceList.NTamd64]
-"Portenta H33 Bootloader"=USB_Install, USB\VID_2341&PID_0368&MI_00
-"Santiago Bootloader"=USB_Install, USB\VID_2341&PID_0369&MI_00
+[Standard.NTamd64]
+%DeviceName%=USB_Install, USB\VID_2341&PID_0368&MI_00
 
 ; ========== Class definition ===========
 
@@ -55,5 +54,6 @@ HKR,,DeviceInterfaceGUIDs,0x10000,"{51de5bfa-d59d-4f3e-9b36-0b4b210dd53f}"
 
 [Strings]
 ManufacturerName="Arduino"
+DeviceName="Arduino Portenta H33"
 ClassName="Universal Serial Bus devices"
 REG_MULTI_SZ = 0x00010000
