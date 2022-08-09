@@ -77,6 +77,42 @@ void TwoWire::begin(void)
 
   _cb_event_idx = _channel;
 
+  bool isWireObject = false;
+
+  EPeripheralBus periphBusCfg = NOT_A_BUS;
+
+#if WIRE_HOWMANY > 0
+  if (_channel == WIRE_CHANNEL && _is_sci == IS_WIRE_SCI) {
+    isWireObject = true;
+    periphBusCfg = WIRE_BUS;
+  }
+#endif
+#if WIRE_HOWMNAY > 1
+  if (_channel == WIRE1_CHANNEL && _is_sci == IS_WIRE1_SCI) {
+    isWireObject = true;
+    periphBusCfg = WIRE1_BUS;
+  }
+#endif
+#if WIRE_HOWMNAY > 2
+  if (_channel == WIRE2_CHANNEL && _is_sci == IS_WIRE2_SCI) {
+    isWireObject = true;
+    periphBusCfg = WIRE2_BUS;
+  }
+#endif
+
+  if (isWireObject) {
+    int pin_count = 0;
+    bsp_io_port_pin_t wire_pins[2];
+    for (int i=0; i<PINCOUNT_fn(); i++) {
+      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
+        wire_pins[pin_count] = g_APinDescription[i].name;
+        pin_count++;
+      }
+      if (pin_count == 2) break;
+    }
+    setPins(wire_pins[0], wire_pins[1]);
+  }
+
   enableI2CIrqs();
 
   if (_is_sci) {

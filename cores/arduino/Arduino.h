@@ -93,12 +93,28 @@ typedef enum
   EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
 } EExt_Interrupts ;
 
+typedef enum
+{
+  NOT_A_BUS = -1,
+  WIRE_BUS = 0,
+  WIRE1_BUS,
+  WIRE2_BUS,
+  SERIAL_BUS,
+  SERIAL1_BUS,
+  SERIAL2_BUS,
+  SERIAL3_BUS,
+  SERIAL4_BUS,
+  SERIAL5_BUS,
+  SPI_BUS,
+  SPI1_BUS,
+} EPeripheralBus ;
+
 typedef struct _PinDescription
 {
   bsp_io_port_pin_t name;
   EPWMChannel       PWMChannel;
   EExt_Interrupts   ExtInt;
-  uint32_t          PeripheralConfig;
+  EPeripheralBus    PeripheralConfig;
 } PinDescription ;
 
 
