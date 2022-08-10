@@ -54,6 +54,53 @@ UART::UART(int ch) :
 
 
 void UART::begin(unsigned long baudrate, uint16_t config) {
+  bool isSerialObject = false;
+
+  EPeripheralBus periphBusCfg = NOT_A_BUS;
+
+#if SERIAL_HOWMANY > 0
+  if (_channel == UART1_CHANNEL) {
+    isSerialObject = true;
+    periphBusCfg = SERIAL_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 1
+  if (_channel == UART2_CHANNEL) {
+    isSerialObject = true;
+    periphBusCfg = SERIAL1_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 2
+  if (_channel == UART3_CHANNEL) {
+    isSerialObject = true;
+    periphBusCfg = SERIAL2_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 3
+  if (_channel == UART4_CHANNEL) {
+    isSerialObject = true;
+    periphBusCfg = SERIAL3_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 4
+  if (_channel == UART5_CHANNEL) {
+    isSerialObject = true;
+    periphBusCfg = SERIAL4_BUS;
+  }
+#endif
+
+  if (isSerialObject) {
+    int pin_count = 0;
+    bsp_io_port_pin_t serial_pins[4];
+    for (int i=0; i<PINCOUNT_fn(); i++) {
+      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
+        serial_pins[pin_count] = g_APinDescription[i].name;
+        pin_count++;
+      }
+      if (pin_count == 2) break;
+    }
+    setPins(serial_pins[0], serial_pins[1]);
+  }
 
   _uart_ctrl = (uart_ctrl_t*)(SciTable[_channel].uart_instance->p_ctrl);
   _uart_config = (const uart_cfg_t *)(SciTable[_channel].uart_instance->p_cfg);
@@ -140,8 +187,10 @@ void UART::setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
   }
   pinPeripheral(tx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
   pinPeripheral(rx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-  pinPeripheral(rts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-  pinPeripheral(cts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+  if (rts != (bsp_io_port_pin_t)0) {
+    pinPeripheral(rts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(cts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+  }
 }
 
 int UART::available() {
