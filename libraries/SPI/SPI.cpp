@@ -61,6 +61,41 @@ ArduinoSPI::ArduinoSPI(int ch, bool isSci):
 
 void ArduinoSPI::begin()
 {
+  bool isSPIObject = false;
+
+  EPeripheralBus periphBusCfg = NOT_A_BUS;
+
+#if SPI_HOWMANY > 0
+  if (_channel == SPI_CHANNEL) {
+    isSPIObject = true;
+    periphBusCfg = SPI_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 1
+  if (_channel == SPI1_CHANNEL) {
+    isSPIObject = true;
+    periphBusCfg = SPI1_BUS;
+  }
+#endif
+#if SERIAL_HOWMANY > 2
+  if (_channel == SPI2_CHANNEL) {
+    isSPIObject = true;
+    periphBusCfg = SPI2_BUS;
+  }
+#endif
+
+  if (isSPIObject) {
+    int pin_count = 0;
+    bsp_io_port_pin_t spi_pins[3];
+    for (int i=0; i<PINCOUNT_fn(); i++) {
+      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
+        spi_pins[pin_count] = g_APinDescription[i].name;
+        pin_count++;
+      }
+      if (pin_count == 3) break;
+    }
+    setPins(spi_pins[0], spi_pins[1], spi_pins[2]);
+  }
   _cb_event_idx = _channel;
 
   if (_is_sci) {
