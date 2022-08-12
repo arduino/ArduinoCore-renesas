@@ -1,12 +1,12 @@
 #include "Arduino.h"
 
 const AnalogPinDescription g_AAnalogPinDescription[] = {
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_7 },    // A0    ADC0_AN9
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_9 },    // A0    ADC0_AN9
   {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_0 },    // A1    ADC0_AN0
   {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_1 },    // A2    ADC0_AN1
   {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_2 },    // A3    ADC3_AN2
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_12},    // A4    ADC1_AN21
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_13}     // A5    ADC2_AN22
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_21},    // A4    ADC1_AN21
+  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_22}     // A5    ADC2_AN22
 };
 
 const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
@@ -114,7 +114,7 @@ const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_04_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D7     |             */
     { BSP_IO_PORT_03_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D8     |             */
     { BSP_IO_PORT_03_PIN_00,    PWM_TIM0_CHA,   NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D9     |             */
-    { BSP_IO_PORT_01_PIN_08,    PWM_TIM0_CHB,   NOT_AN_INTERRUPT,     SPI_BUS       }, /*   D10    |     CS      */
+    { BSP_IO_PORT_01_PIN_08,    PWM_TIM0_CHB,   NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D10    |     CS      */
     { BSP_IO_PORT_01_PIN_09,    PWM_TIM1_CHA,   NOT_AN_INTERRUPT,     SPI_BUS       }, /*   D11    |     MOSI    */
     { BSP_IO_PORT_01_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SPI_BUS       }, /*   D12    |     MISO    */
     { BSP_IO_PORT_01_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SPI_BUS       }, /*   D13    |     SCK     */

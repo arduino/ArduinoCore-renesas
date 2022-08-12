@@ -10,6 +10,8 @@ int analogRead(pin_size_t pinNumber)
   static bool begin = false;
   pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
 
+  pinPeripheral(digitalPinToBspPin(pinNumber), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+
 	if(begin == false)
 	{
 	    R_ADC_Open(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].adc_cfg);
