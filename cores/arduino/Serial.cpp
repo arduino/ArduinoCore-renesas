@@ -179,17 +179,11 @@ void UART::setPins(int tx, int rx, int rts, int cts)
 void UART::setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
                       bsp_io_port_pin_t rts, bsp_io_port_pin_t cts)
 {
-  uint32_t peripheralCfg = 0;
-  if (_channel%2 == 0) {
-    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI0_2_4_6_8;
-  } else {
-    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI1_3_5_7_9;
-  }
-  pinPeripheral(tx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-  pinPeripheral(rx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+  pinPeripheral(tx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(tx));
+  pinPeripheral(rx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(rx));
   if (rts != (bsp_io_port_pin_t)0) {
-    pinPeripheral(rts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-    pinPeripheral(cts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+    pinPeripheral(rts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(rts));
+    pinPeripheral(cts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(cts));
   }
 }
 

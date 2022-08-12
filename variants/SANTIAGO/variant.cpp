@@ -104,8 +104,8 @@ const PinDescription g_APinDescription[] = {
     +------------------------+---------------+---------------------+----------------+--------------------------+
  */
     // Digital
-    { BSP_IO_PORT_03_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SERIAL_BUS    }, /*   D0     |   UART RX   */
-    { BSP_IO_PORT_01_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SERIAL_BUS    }, /*   D1     |   UART TX   */
+    { BSP_IO_PORT_03_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SERIAL_BUS,    IOPORT_PERIPHERAL_SCI0_2_4_6_8}, /*   D0     |   UART RX   */
+    { BSP_IO_PORT_01_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     SERIAL_BUS,    IOPORT_PERIPHERAL_SCI1_3_5_7_9}, /*   D1     |   UART TX   */
     { BSP_IO_PORT_02_PIN_06,    NOT_ON_PWM,     EXTERNAL_INT_0,       NOT_A_BUS     }, /*   D2     |             */
     { BSP_IO_PORT_01_PIN_04,    PWM_TIM1_CHB,   EXTERNAL_INT_1,       NOT_A_BUS     }, /*   D3     |             */
     { BSP_IO_PORT_04_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D4     |             */

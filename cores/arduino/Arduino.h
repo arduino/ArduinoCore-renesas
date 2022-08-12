@@ -38,6 +38,7 @@ int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
 int getAnalogWriteResolution();
+ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin);
 
 typedef struct rtc_alarm_time
 {
@@ -115,6 +116,7 @@ typedef struct _PinDescription
   EPWMChannel       PWMChannel;
   EExt_Interrupts   ExtInt;
   EPeripheralBus    PeripheralConfig;
+  ioport_peripheral_t pinCfg;
 } PinDescription ;
 
 
