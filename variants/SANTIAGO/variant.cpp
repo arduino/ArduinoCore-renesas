@@ -132,6 +132,10 @@ const PinDescription g_APinDescription[] = {
     // RGB LED
     { BSP_IO_PORT_00_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D22    |     LEDR    */
     { BSP_IO_PORT_00_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D23    |     LEDB    */
+    // TX and RX LEDS
+    { BSP_IO_PORT_00_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D24    |     TX LED  */
+    { BSP_IO_PORT_02_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     }, /*   D25    |     RX LED  */
+
 
     { BSP_IO_PORT_01_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
     { BSP_IO_PORT_01_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
@@ -139,7 +143,7 @@ const PinDescription g_APinDescription[] = {
     { BSP_IO_PORT_01_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
 
     { BSP_IO_PORT_02_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
-    { BSP_IO_PORT_02_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
+    
     { BSP_IO_PORT_02_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
     { BSP_IO_PORT_02_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
     { BSP_IO_PORT_02_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT,     NOT_A_BUS     },
