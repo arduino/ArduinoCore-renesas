@@ -15,7 +15,7 @@ cp ${LIBRARY} ${CORE_PATH}/../../${TARGET}/libs/libfsp.a
 LINKER_SCRIPTS=`find . | grep "\.ld$"`
 cp ${LINKER_SCRIPTS} ${CORE_PATH}/../../${TARGET}/
 
-FILE_MK=`find . | grep subdir.mk | head -n1`
+FILE_MK=`find . | grep all/subdir.mk`
 
 CCCOMMAND=`cat $FILE_MK | grep \$\(file | cut -f2 -d","`
 
