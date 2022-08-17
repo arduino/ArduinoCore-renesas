@@ -22,7 +22,6 @@ RAM_NS_BUFFER_START = RAM_START + RAM_LENGTH - RAM_NS_BUFFER_LENGTH;
 RAM_NS_BUFFER_BLOCK_START = RAM_START + RAM_LENGTH - RAM_NS_BUFFER_BLOCK_LENGTH;
 
 OPTION_SETTING_START_NS = 0x0100A180;
-STACK_MAX_SIZE = 0x400;
 
 /* This definition is used to avoid moving the counter in OPTION_SETTING regions for projects that should not configure option settings.
  * Bootloader images do not configure option settings because they are owned by the bootloader.
@@ -470,7 +469,6 @@ SECTIONS
         __HeapBase = .;
         /* Place the STD heap here. */
         KEEP(*(.heap))
-        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_MAX_SIZE;
         __HeapLimit = .;
     } > RAM
 
