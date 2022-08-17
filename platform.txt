@@ -73,7 +73,7 @@ recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -D
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" {object_files} -Wl,--whole-archive "{build.path}/{archive_file}" {compiler.fsp} -Wl,--no-whole-archive -Wl,--start-group {compiler.fsp.extra_ldflags} {compiler.libraries.ldflags} -Wl,--end-group
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {build.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" "-L{build.variant.path}" "-T{build.variant.path}/fsp.ld" {object_files} -Wl,--whole-archive "{build.path}/{archive_file}" {compiler.fsp} -Wl,--no-whole-archive -Wl,--start-group {compiler.fsp.extra_ldflags} {compiler.libraries.ldflags} -Wl,-Map,{build.path}/{build.project_name}.map -Wl,--end-group
 
 ## Create output (bin file)
 recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.bin.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
