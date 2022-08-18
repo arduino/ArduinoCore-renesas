@@ -86,13 +86,6 @@ static const uint8_t A5 = PIN_A5;
 #define LEDB        (23u)
 
 
-#define SERIAL_HOWMANY		1
-
-#define WIRE_HOWMANY      1
-
-#define SPI_HOWMANY       1
-
-
 /****** UART CORE DEFINES ******/
 
 #define SERIAL_HOWMANY		1
