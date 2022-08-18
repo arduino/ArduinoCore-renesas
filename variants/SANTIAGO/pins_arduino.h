@@ -120,7 +120,7 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
-#define BOOT_DOUBLE_TAP_ADDRESS           (0x20001000ul)
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x20007f48ul)
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
