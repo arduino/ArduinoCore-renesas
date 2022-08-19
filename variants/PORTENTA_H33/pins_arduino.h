@@ -110,8 +110,6 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define USE_4BIT_SDCARD   1
 
-#define BOOT_DOUBLE_TAP_ADDRESS           (0x20018f48ul)
-
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0068)
 #define USB_NAME          "Portenta H33"
