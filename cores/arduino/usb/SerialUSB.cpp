@@ -122,7 +122,12 @@ SerialUSB::operator bool() {
     return tud_cdc_connected();
 }
 
-#define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
+/* Key code for writing PRCR register. */
+#define BSP_PRV_PRCR_KEY	              (0xA500U)
+#define BSP_PRV_PRCR_PRC1_UNLOCK          ((BSP_PRV_PRCR_KEY) | 0x2U)
+#define BSP_PRV_PRCR_LOCK	              ((BSP_PRV_PRCR_KEY) | 0x0U)
+
+#define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[0]))
 #define DOUBLE_TAP_MAGIC                  0x07738135
 
 static bool _dtr = false;
@@ -130,7 +135,9 @@ static bool _rts = false;
 static int _bps = 115200;
 static void CheckSerialReset() {
     if ((_bps == 1200) && (!_dtr)) {
+        R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
         BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+        R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
         NVIC_SystemReset();
         while (1); // WDT will fire here
     }
