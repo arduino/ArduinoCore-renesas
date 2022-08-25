@@ -98,14 +98,14 @@ void setRtcAlarmClbk(rtc_simple_cbk_t f) {
   alarm_func = f;
 }
 
-void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {} {
-  if(arg->event == RTC_EVENT_ALARM_IRQ) {
+void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {
+  if(p_args->event == RTC_EVENT_ALARM_IRQ) {
     if(alarm_func != nullptr) {
       alarm_func();
     }
   }
 
-  if(arg->event == RTC_EVENT_PERIODIC_IRQ) {
+  if(p_args->event == RTC_EVENT_PERIODIC_IRQ) {
     if(periodic_func != nullptr) {
       periodic_func();
     }
@@ -143,7 +143,7 @@ bool isRtcRunning() {
 bool getRtcTime(struct tm &t) {
   rtc_time_t time_read;
   if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read)) {
-    memcpy(t,&time_read,sizeof(struct tm));
+    memcpy(&t,&time_read,sizeof(struct tm));
     return true;
   }
   return false;
@@ -162,12 +162,10 @@ bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
 }
 
 bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
-  
   if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&g_rtc0_ctrl, &alarm_time) ) {
     return true;
   }
   return false;
-
 }
 
 

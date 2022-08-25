@@ -7,19 +7,22 @@ using stime_t = struct tm;
 using rtc_cbk_t = void (*)();
 
 enum class Month : uint8_t {
-    JAN = 0,
-    FEB,
-    MAR,
-    APR,
+    JANUARY = 0,
+    FEBRUARY,
+    MARCH,
+    APRIL,
     MAY,
-    JUN,
-    JUL,
-    AUG,
-    SEP,
-    OCT,
-    NOV,
-    DEC
+    JUNE,
+    JULY,
+    AUGUST,
+    SEPTEMBER,
+    OCTOBER,
+    NOVEMBER,
+    DECEMBER
 };
+
+int Month2int(Month m);
+
 
 enum class DayOfWeek : uint8_t {
     MONDAY = 1,
@@ -31,25 +34,15 @@ enum class DayOfWeek : uint8_t {
     SUNDAY = 0
 };
 
+int DayOfWeek2int(DayOfWeek dow, bool sunday_first);
+
 enum class SaveLight : uint8_t {
     SAVING_TIME_INACTIVE = 0,
     SAVING_TIME_ACTIVE
 
 };
 
-/*
-
-  tm_sec	int	seconds after the minute	0-60*
-tm_min	int	minutes after the hour	0-59
-tm_hour	int	hours since midnight	0-23
-tm_mday	int	day of the month	1-31
-tm_mon	int	months since January	0-11
-tm_year	int	years since 1900	
-tm_wday	int	days since Sunday	0-6
-tm_yday	int	days since January 1	0-365
-tm_isdst	int	Daylight Saving Time flag	
-*/
-
+bool SaveLigth2bool(SaveLight sl);
 
 class RTCTime {
     private:
@@ -83,7 +76,7 @@ class RTCTime {
     void setTM(struct tm &t);
     /* getters */
     int getDayOfMonth();
-    Month getMont();
+    Month getMonth();
     int getYear();
     int getHour();
     int getMinutes();
