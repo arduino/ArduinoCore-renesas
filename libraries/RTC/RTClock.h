@@ -6,11 +6,11 @@
 using stime_t = struct tm;
 using rtc_cbk_t = void (*)();
 
-
 enum class Month : uint8_t {
     JAN = 0,
     FEB,
     MAR,
+    APR,
     MAY,
     JUN,
     JUL,
@@ -18,7 +18,7 @@ enum class Month : uint8_t {
     SEP,
     OCT,
     NOV,
-    DIC
+    DEC
 };
 
 enum class DayOfWeek : uint8_t {
@@ -53,18 +53,20 @@ tm_isdst	int	Daylight Saving Time flag
 
 class RTCTime {
     private:
-    time_t utime;
     stime_t stime;
 
     int day;
-    int month;
+    Month month;
     int year;
     int hours;
     int minutes;
     int seconds;
-    
+    DayOfWeek day_of_week;
+    SaveLight save_light;
+
     public:
     RTCTime();
+    RTCTime(struct tm &t);
     RTCTime(int _day, Month _m, int _year, int _hours, int _minutes, int _seconds, DayOfWeek _dof, SaveLight _sl);
     ~RTCTime();
     
@@ -75,7 +77,10 @@ class RTCTime {
     bool setHour(int hour); /* from 0 (midnight) to 23 */
     bool setMinute(int minute); /* from 0 to 59 */
     bool setSecond(int second); /* from 0 to 59 */
-    void setDayOfWeek(DayOfWeek d);
+    bool setDayOfWeek(DayOfWeek d);
+    bool setSaveLight(SaveLight sl);
+
+    void setTM(struct tm &t);
     /* getters */
     int getDayOfMonth();
     Month getMont();
@@ -144,10 +149,11 @@ class RTClock {
     ~RTClock();
 
     bool begin();
-    RTCTime getTime();
+    
+    bool getTime(RTCTime &t);
 
-    void setPeriodicCallback(rtc_cbk_t fnc, Period p);
-    void setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m);
+    bool setPeriodicCallback(rtc_cbk_t fnc, Period p);
+    bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m);
     bool isRunning();
     bool setTime(RTCTime &t); 
     bool setTimeIfNotRunning(RTCTime &t);

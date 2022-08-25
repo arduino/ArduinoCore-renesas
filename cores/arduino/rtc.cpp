@@ -86,55 +86,49 @@ void set_time(time_t t)
 }
 #endif
 
+using rtc_simple_cbk_t = void (*)();
 
+rtc_simple_cbk_t alarm_func = nullptr;
+rtc_simple_cbk_t periodic_func = nullptr;
 
-volatile bool rtc_open = false;
-
-void setRtcTime(rtc_time_t time) {
-  time.tm_year -= 1900; // Start date 1900
-  if (!rtc_open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
-    rtc_open = true;
-  }
-  R_RTC_CalendarTimeSet(&g_rtc0_ctrl, &time);
+void setRtcPeriodicClbk(rtc_simple_cbk_t f) {
+  periodic_func = f;
+}
+void setRtcAlarmClbk(rtc_simple_cbk_t f) {
+  alarm_func = f;
 }
 
-rtc_time_t getRtcTime() {
-  rtc_time_t time_read;
-  if (!rtc_open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
-    rtc_open = true;
+void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {} {
+  if(arg->event == RTC_EVENT_ALARM_IRQ) {
+    if(alarm_func != nullptr) {
+      alarm_func();
+    }
   }
-  R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read);
-  time_read.tm_year += 1900; // Start date 1900
-  return time_read;
+
+  if(arg->event == RTC_EVENT_PERIODIC_IRQ) {
+    if(periodic_func != nullptr) {
+      periodic_func();
+    }
+  }
 }
 
-void onRtcInterrupt(void (*func)(rtc_callback_args_t *)) {
-  if (!rtc_open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
-    rtc_open = true;
+
+bool openRtc() {
+  if(!g_rtc0_ctrl.open) {
+    if(FSP_SUCCESS == R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg)) {
+      return true;
+    }
   }
-  g_rtc0_ctrl.p_callback = func;
+  else {
+    return true;
+  }
+  return false;
 }
 
-void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
-  if (!rtc_open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
-    rtc_open = true;
+bool setRtcTime(rtc_time_t time) {
+  if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&g_rtc0_ctrl, &time) ) {
+    return true;
   }
-  R_RTC_PeriodicIrqRateSet(&g_rtc0_ctrl, period);
-}
-
-void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match) {
-  if (!rtc_open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
-    rtc_open = true;
-  }
-  rtc_alarm_time_t alarm_time;
-  alarm_time.time = time;
-  memcpy(&alarm_time.sec_match, &time_match, sizeof(RtcAlarmSettings));
-  R_RTC_CalendarAlarmSet(&g_rtc0_ctrl, &alarm_time);
 }
 
 bool isRtcRunning() {
@@ -146,4 +140,34 @@ bool isRtcRunning() {
   return false;
 }
 
-void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {}
+bool getRtcTime(struct tm &t) {
+  rtc_time_t time_read;
+  if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read)) {
+    memcpy(t,&time_read,sizeof(struct tm));
+    return true;
+  }
+  return false;
+}
+
+void onRtcInterrupt() {
+  g_rtc0_ctrl.p_callback = rtc_callback;
+}
+
+bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
+  
+  if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&g_rtc0_ctrl, period)) {
+    return true;
+  }
+  return false;
+}
+
+bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
+  
+  if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&g_rtc0_ctrl, &alarm_time) ) {
+    return true;
+  }
+  return false;
+
+}
+
+

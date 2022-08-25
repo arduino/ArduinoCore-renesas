@@ -40,23 +40,16 @@ void analogWriteResolution(int bits);
 int getAnalogWriteResolution();
 ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin);
 
-typedef struct rtc_alarm_time
-{
-    bool       sec_match;              ///< Enable the alarm based on a match of the seconds field
-    bool       min_match;              ///< Enable the alarm based on a match of the minutes field
-    bool       hour_match;             ///< Enable the alarm based on a match of the hours field
-    bool       mday_match;             ///< Enable the alarm based on a match of the days field
-    bool       mon_match;              ///< Enable the alarm based on a match of the months field
-    bool       year_match;             ///< Enable the alarm based on a match of the years field
-    bool       dayofweek_match;        ///< Enable the alarm based on a match of the dayofweek field
-} RtcAlarmSettings;
-
-void setRtcTime(rtc_time_t time);
-rtc_time_t getRtcTime();
-void onRtcInterrupt(void (*func)(rtc_callback_args_t *));
-void setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period);
-void setRtcAlarm(rtc_time_t time, RtcAlarmSettings time_match);
+using rtc_simple_cbk_t = void (*)();
+bool openRtc();
+bool setRtcTime(rtc_time_t time);
+bool getRtcTime(struct tm &t);
+void onRtcInterrupt();
+bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period);
+bool setRtcAlarm(rtc_alarm_time_t alarm_time);
 bool isRtcRunning();
+void setRtcPeriodicClbk(rtc_simple_cbk_t f);
+void setRtcAlarmClbk(rtc_simple_cbk_t f);
 
 
 // Definitions for PWM channels
