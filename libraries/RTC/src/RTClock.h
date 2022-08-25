@@ -153,6 +153,6 @@ class RTClock {
 
 };
 
-
+extern RTClock RTC;
 
 #endif

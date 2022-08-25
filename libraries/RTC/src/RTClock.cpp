@@ -445,7 +445,7 @@ bool RTClock::setTimeIfNotRunning(RTCTime &t) {
 }
 
 #if RTC_HOWMANY > 0
-//RTClock RTC;
+RTClock RTC;
 #endif
 
 
