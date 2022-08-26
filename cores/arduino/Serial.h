@@ -129,7 +129,6 @@ class UART : public arduino::HardwareSerial {
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool(); // { return true; }
 
-
     void _tx_udr_empty_irq(void);
     rx_buffer_index_t get_rx_buffer_head();
 
@@ -141,11 +140,11 @@ class UART : public arduino::HardwareSerial {
 
   protected:
     bool _written;
-    volatile bool _begin;
+    bool _begin;
 
   private:
     void          enableUartIrqs();
-    int           _channel;
+    const int     _channel;
 };
 
 extern UART _UART1_;

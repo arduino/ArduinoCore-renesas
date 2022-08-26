@@ -7,7 +7,7 @@ void _init() {
    R_BSP_PinAccessEnable();
 }
 
-static uint32_t vectors[BSP_CORTEX_VECTOR_TABLE_ENTRIES+BSP_ICU_VECTOR_MAX_ENTRIES] __attribute__((aligned (0x1000U)));
+static uint32_t vectors[BSP_CORTEX_VECTOR_TABLE_ENTRIES+BSP_ICU_VECTOR_MAX_ENTRIES] __attribute__((aligned (0x100U), section(".relocate_vtors")));
 
 void startAgt(void);
 
@@ -32,6 +32,7 @@ void arduino_main(void)
    _init();
    initVariant();
    __USBStart();
+   Serial.begin(115200);
    startAgt();
    setup();
    while (1)
@@ -53,6 +54,3 @@ extern "C" {
    }
 }
 #endif
-
-extern "C" void __cxa_pure_virtual() { while(1); }
-extern "C" void __cxa_deleted_virtual() { while(1); }

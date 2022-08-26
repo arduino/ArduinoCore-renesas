@@ -374,24 +374,3 @@ void uart_callback(uart_callback_args_t *p_args)
         }
     }
 }
-
-
-#if SERIAL_HOWMANY > 0
-UART _UART1_(UART1_CHANNEL);
-#endif
-
-#if SERIAL_HOWMANY > 1
-UART _UART2_(UART2_CHANNEL);
-#endif
-
-#if SERIAL_HOWMANY > 2
-UART _UART3_(UART3_CHANNEL);
-#endif
-
-#if SERIAL_HOWMANY > 3
-UART _UART4_(UART4_CHANNEL);
-#endif
-
-#if SERIAL_HOWMANY > 4
-UART _UART5_(UART5_CHANNEL);
-#endif

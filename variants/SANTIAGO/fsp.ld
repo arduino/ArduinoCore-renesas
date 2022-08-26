@@ -277,6 +277,7 @@ SECTIONS
         KEEP(*(.code_in_ram*))
         __Code_In_RAM_End = .;
 
+        *(.relocate_vtors)
         *(vtable)
         /* Don't use *(.data*) because it will place data meant for .data_flash in this section. */
         *(.data.*)
@@ -467,9 +468,13 @@ SECTIONS
     {
         . = ALIGN(8);
         __HeapBase = .;
-        /* Place the STD heap here. */
+        __heap_start__ = .;
+        end = __heap_start__;
+        _end = end;
+        __end = end;
         KEEP(*(.heap))
-        __HeapLimit = .;
+        __heap_end__ = .;
+        __HeapLimit = __heap_end__;
     } > RAM
 
     /* Stacks are stored in this section. */
