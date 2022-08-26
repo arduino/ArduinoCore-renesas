@@ -71,13 +71,13 @@ void ArduinoSPI::begin()
     periphBusCfg = SPI_BUS;
   }
 #endif
-#if SERIAL_HOWMANY > 1
+#if SPI_HOWMANY > 1
   if (_channel == SPI1_CHANNEL) {
     isSPIObject = true;
     periphBusCfg = SPI1_BUS;
   }
 #endif
-#if SERIAL_HOWMANY > 2
+#if SPI_HOWMANY > 2
   if (_channel == SPI2_CHANNEL) {
     isSPIObject = true;
     periphBusCfg = SPI2_BUS;
