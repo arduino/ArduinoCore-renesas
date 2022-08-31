@@ -6,7 +6,7 @@
         #endif
 /* Number of interrupts allocated */
 #ifndef VECTOR_DATA_IRQ_COUNT
-#define VECTOR_DATA_IRQ_COUNT    (30)
+#define VECTOR_DATA_IRQ_COUNT    (32)
 #endif
 /* ISR prototypes */
 void iic_master_rxi_isr(void);
@@ -36,6 +36,8 @@ void sci_uart_txi_isr(void);
 void sci_uart_tei_isr(void);
 void sci_uart_rxi_isr(void);
 void sci_uart_eri_isr(void);
+void iic_slave_rxi_isr(void);
+void iic_slave_txi_isr(void);
 
 /* Vector table allocations */
 #define VECTOR_NUMBER_IIC1_RXI ((IRQn_Type) 0) /* IIC1 RXI (Receive data full) */
@@ -98,6 +100,10 @@ void sci_uart_eri_isr(void);
 #define SCI2_RXI_IRQn          ((IRQn_Type) 28) /* SCI2 RXI (Received data full) */
 #define VECTOR_NUMBER_SCI2_ERI ((IRQn_Type) 29) /* SCI2 ERI (Receive error) */
 #define SCI2_ERI_IRQn          ((IRQn_Type) 29) /* SCI2 ERI (Receive error) */
+#define VECTOR_NUMBER_IIC0_RXI ((IRQn_Type) 30) /* IIC0 RXI (Receive data full) */
+#define IIC0_RXI_IRQn          ((IRQn_Type) 30) /* IIC0 RXI (Receive data full) */
+#define VECTOR_NUMBER_IIC0_TXI ((IRQn_Type) 31) /* IIC0 TXI (Transmit data empty) */
+#define IIC0_TXI_IRQn          ((IRQn_Type) 31) /* IIC0 TXI (Transmit data empty) */
 #ifdef __cplusplus
         }
         #endif
