@@ -18,7 +18,7 @@ __RESERVE_NS_RAM = !DEFINED(PROJECT_NONSECURE) && DEFINED(RAM_NS_BUFFER_LENGTH) 
 
 RAM_NS_BUFFER_BLOCK_LENGTH = DEFINED(RAM_NS_BUFFER_LENGTH) ? ALIGN(RAM_NS_BUFFER_LENGTH, 8192) : 0;
 RAM_NS_BUFFER_LENGTH = DEFINED(RAM_NS_BUFFER_LENGTH) ? RAM_NS_BUFFER_LENGTH : 0;
-RAM_NS_BUFFER_START = RAM_START + RAM_LENGTH - RAM_NS_BUFFER_LENGTH;
+RAM_NS_BUFFER_START = RAM_START + RAM_LENGTH - RAM_NS_BUFFER_LENGTH - VECTOR_TABLE_LENGTH;
 RAM_NS_BUFFER_BLOCK_START = RAM_START + RAM_LENGTH - RAM_NS_BUFFER_BLOCK_LENGTH;
 
 OPTION_SETTING_START_NS = 0x0100A180;
@@ -485,11 +485,29 @@ SECTIONS
         __StackTopAll = .;
     } > RAM
 
+
+
+    VECTOR_BEGIN = RAM_START + RAM_LENGTH - VECTOR_TABLE_LENGTH;
+    
+    
+    .vector_table VECTOR_BEGIN (NOLOAD):
+    {  
+        . = ALIGN(4);
+        . = . + VECTOR_TABLE_LENGTH;
+    } > RAM
+    
+    
+
     PROVIDE(__stack = __StackTopAll);
+
+    
+
+    
+
 
     /* This symbol represents the end of user allocated RAM. The RAM after this symbol can be used
        at run time for things such as ThreadX memory pool allocations. */
-    __RAM_segment_used_end__ = ALIGN(__StackTopAll , 4);
+    __RAM_segment_used_end__ = RAM_START + RAM_LENGTH; /*ALIGN(__StackTopAll , 4);*/
 
     /* RAM_NSC_START can be used to set a fixed address for non-secure callable RAM in secure projects.
      * If it is not specified, the address for NSC RAM is the end of RAM aligned to a 1K boundary.
@@ -504,13 +522,22 @@ SECTIONS
 
     /* Non-secure buffers must be in non-secure RAM. This is primarily used for the EDMAC in flat projects.
      * The EDMAC is a non-secure bus master and can only access non-secure RAM. */
+    
+
+
+    
+
+
     .ns_buffer (NOLOAD):
-    {
+    { 
         /* Allocate RAM on a 32-byte boundary to help with placement of Ethernet buffers. */
         . = __RESERVE_NS_RAM ? ABSOLUTE(RAM_NS_BUFFER_START & 0xFFFFFFE0) : .;
 
         KEEP(*(.ns_buffer*))
     } > RAM
+    
+    
+
 
     /* Data flash. */
     .data_flash :
