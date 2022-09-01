@@ -13,7 +13,19 @@ fi
 cp ${LIBRARY} ${CORE_PATH}/../../../variants/${TARGET}/libs/libfsp.a
 
 LINKER_SCRIPTS=`find . | grep "\.ld$"`
-cp ${LINKER_SCRIPTS} ${CORE_PATH}/../../../variants/${TARGET}/
+# cp ${LINKER_SCRIPTS} ${CORE_PATH}/../../../variants/${TARGET}/
+
+#-----------------------------------------------------------------------
+# TEMPORARY CHANGE - TO BE REMOVED
+#------------------------------------------------------------------------
+if [ ! -d ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files ]
+then
+    mkdir ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files
+fi
+
+cp ./ra_gen/*.c ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/
+#-------------------------------------------------------------------------
+
 
 FILE_MK=`find . | grep all/subdir.mk`
 
