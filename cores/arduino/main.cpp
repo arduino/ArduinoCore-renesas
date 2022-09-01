@@ -17,15 +17,7 @@ extern const fsp_vector_t g_vector_table[];
 
 void arduino_main(void)
 {
-   int _i;
-   for (_i=0; _i<BSP_CORTEX_VECTOR_TABLE_ENTRIES; _i++) {
-      vectors[_i] = (uint32_t)__VECTOR_TABLE[_i];
-   }
-   for (_i=0; _i<BSP_ICU_VECTOR_MAX_ENTRIES; _i++) {
-      vectors[_i+BSP_CORTEX_VECTOR_TABLE_ENTRIES] = (uint32_t)g_vector_table[_i];
-   }
    __disable_irq();
-   SCB->VTOR = (uint32_t)vectors;
    __DSB();
    __enable_irq();
 
