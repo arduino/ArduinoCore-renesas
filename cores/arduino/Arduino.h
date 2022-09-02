@@ -11,11 +11,13 @@
 
 
 #if defined(__cplusplus)
+
+using namespace arduino;
+
 #include "usb/SerialUSB.h"
 #include "pwm.h"
 #include "Serial.h"
 #endif
-
 
 #if defined(__cplusplus)
 
@@ -170,6 +172,14 @@ extern sciTable_t SciTable[];
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
 #define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)
+
+#define IOPORT_PRV_PORT_ADDRESS(port_number)    ((uint32_t) (R_PORT1 - R_PORT0) * (port_number) + R_PORT0)
+
+#define digitalPinToPort(P)		      (digitalPinToBspPin(P) >> 8)
+#define digitalPinToBitMask(P)      (1 << (digitalPinToBspPin(P) & 0xFF))
+#define portOutputRegister(port)    &(((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(port))->PODR)
+#define portInputRegister(port)     &(((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(port))->PIDR)
+#define portModeRegister(port)      &(((R_PORT0_Type *)IOPORT_PRV_PORT_ADDRESS(port))->PDR)
 
 void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
 #if defined(__cplusplus)

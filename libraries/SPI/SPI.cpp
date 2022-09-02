@@ -13,6 +13,8 @@
 
 #include "SPI.h"
 
+using namespace arduino;
+
 extern const spi_extended_cfg_t g_spi0_ext_cfg;
 extern const spi_extended_cfg_t g_spi1_ext_cfg;
 extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
