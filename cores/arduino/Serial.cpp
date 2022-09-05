@@ -139,10 +139,17 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
 /* -------------------------------------------------------------------------- */  
 #if SERIAL_HOWMANY > 0
   if (channel == UART1_CHANNEL) {
-    /* TX pin */
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_01_PIN_02, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI1_3_5_7_9);
-    /* RX pin */
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_03_PIN_01, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8);
+    /* configuring PIN */
+    int pin_count = 0;
+    bsp_io_port_pin_t serial_pins[4];
+    for (int i=0; i<PINCOUNT_fn(); i++) {
+      if (g_APinDescription[i].PeripheralConfig == SERIAL_BUS) {
+        serial_pins[pin_count] = g_APinDescription[i].name;
+        pin_count++;
+      }
+      if (pin_count == 2) break;
+    }
+    setPins(serial_pins[0], serial_pins[1]);
   
     uart_cfg.channel = UART1_CHANNEL; 
     uart_cfg.p_context = NULL;
