@@ -29,23 +29,7 @@
 #undef Serial
 #endif
 
-static tx_buffer_index_t _tx_buffer_head[10];
-static tx_buffer_index_t _tx_buffer_tail[10];
-static rx_buffer_index_t _rx_buffer_tail[10];
-
-static unsigned char *_rx_buffer[10];
-static unsigned char *_tx_buffer[10];
-
 static bool _sending[10];
-
-
-uint8_t              tx_buff[SERIAL_TX_BUFFER_SIZE];
-int                  to_send_i = -1;
-int                  send_i = -1;
-
-
-
-TxStatus_t tx_status = TX_STOPPED;
 
 #define MAX_UARTS    10
 
@@ -64,12 +48,12 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 
   uint32_t channel = p_args->channel;
   
+  UART *uart_prt = _uarts[channel];
+
+  uint8_t myrx[2];
+
     switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
+        case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
         case UART_EVENT_ERR_PARITY:
         case UART_EVENT_ERR_FRAMING:
         case UART_EVENT_ERR_OVERFLOW:
@@ -78,16 +62,26 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
         }
         case UART_EVENT_TX_COMPLETE:
         {
-          if(send_i != to_send_i) {
-            inc(send_i, SERIAL_TX_BUFFER_SIZE);
-            R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), (tx_buff + send_i), 1);
+          if(uart_prt->get_tx_tail_index() != uart_prt->get_tx_head_index() ) {
+            uart_prt->inc_tx_tail_index();
+            R_SCI_UART_Write (uart_prt->get_ctrl(), uart_prt->get_next_ptr_to_tx(), 1);
           }
           else {
-            tx_status = TX_STOPPED;
+            uart_prt->set_tx_status(TX_STOPPED);
           }
           break;
         }
         case UART_EVENT_RX_CHAR:
+        {
+          if(uart_prt->get_rx_head_index() == uart_prt->get_prev_of_rx_tail()) {
+            // drop receiving byte... not enough space in the buffer...
+          }
+          else {
+            uart_prt->put_in_rx_buffer(p_args->data);
+            uart_prt->inc_rx_head_index();
+          }
+          break;
+        }
         case UART_EVENT_BREAK_DETECT:
         case UART_EVENT_TX_DATA_EMPTY:
         {
@@ -100,168 +94,150 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 UART::UART(int ch) :
   tx_st(TX_STOPPED),
-  _channel(ch)
+  channel(ch)
 /* -------------------------------------------------------------------------- */
 { 
-  _uarts[_channel] = this;
+  _uarts[channel] = this;
 }
-
-
-
-
-
-
-
-UART::UART(
-  sci_uart_instance_ctrl_t *uart_ctrl,
-  const uart_cfg_t* uart_config,
-  dtc_instance_ctrl_t* dtc_ctrl, int ch) :
-        _uart_ctrl(uart_ctrl),
-        _uart_config(uart_config),
-        _dtc_ctrl(dtc_ctrl),
-        _channel(ch)
-{ }
-
-
-
 
 /* -------------------------------------------------------------------------- */
 bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 /* -------------------------------------------------------------------------- */  
   bool rv = false;
 
-  
-  if(_channel == 2) {
+  if(channel == UART1_CHANNEL) {
     rv = IRQManager::getInstance().addPeripheral(UART_SCI2,cfg);
   }
   
   return rv;
-
 } 
 
+/* -------------------------------------------------------------------------- */
+size_t UART::write(uint8_t c) {
+/* -------------------------------------------------------------------------- */  
+  
+  while(tx_head_index == previous(tx_tail_index, SERIAL_TX_BUFFER_SIZE)) { }
+  inc(tx_head_index, SERIAL_TX_BUFFER_SIZE);
+  tx_buffer[tx_head_index] = c;
+  if(get_tx_status() == TX_STOPPED) {
+    set_tx_status(TX_STARTED);
+    inc(tx_tail_index, SERIAL_TX_BUFFER_SIZE);
+    R_SCI_UART_Write (&uart_ctrl, tx_buffer + tx_tail_index, 1);
+  }
 
+  return 1;
+}
+
+/* -------------------------------------------------------------------------- */
+UART::operator bool() {
+/* -------------------------------------------------------------------------- */  
+	return true;
+}
+
+/* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate, uint16_t config) {
-  bool isSerialObject = false;
-
-  EPeripheralBus periphBusCfg = NOT_A_BUS;
-
+/* -------------------------------------------------------------------------- */  
 #if SERIAL_HOWMANY > 0
-  if (_channel == UART1_CHANNEL) {
-    isSerialObject = true;
-    periphBusCfg = SERIAL_BUS;
+  if (channel == UART1_CHANNEL) {
+    /* TX pin */
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_01_PIN_02, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI1_3_5_7_9);
+    /* RX pin */
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_03_PIN_01, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8);
+  
+    uart_cfg.channel = UART1_CHANNEL; 
+    uart_cfg.p_context = NULL;
+    uart_cfg.p_extend = &g_uart0_cfg_extend;
+    #define RA_NOT_DEFINED (1)
+    #if (RA_NOT_DEFINED == g_transfer4)
+      uart_cfg.p_transfer_tx       = NULL;
+    #else
+      uart_cfg.p_transfer_tx = &g_transfer4;
+    #endif
+    #if (RA_NOT_DEFINED == g_transfer21)
+      uart_cfg.p_transfer_rx       = NULL;
+    #else
+      uart_cfg.p_transfer_rx = &g_transfer21;
+    #endif
+    uart_cfg.p_transfer_rx       = NULL;
   }
 #endif
 #if SERIAL_HOWMANY > 1
-  if (_channel == UART2_CHANNEL) {
-    isSerialObject = true;
-    periphBusCfg = SERIAL1_BUS;
-  }
+  if (channel == UART2_CHANNEL) { }
 #endif
 #if SERIAL_HOWMANY > 2
-  if (_channel == UART3_CHANNEL) {
-    isSerialObject = true;
-    periphBusCfg = SERIAL2_BUS;
-  }
+  if (channel == UART3_CHANNEL) { }
 #endif
 #if SERIAL_HOWMANY > 3
-  if (_channel == UART4_CHANNEL) {
-    isSerialObject = true;
-    periphBusCfg = SERIAL3_BUS;
-  }
+  if (channel == UART4_CHANNEL) { }
 #endif
 #if SERIAL_HOWMANY > 4
-  if (_channel == UART5_CHANNEL) {
-    isSerialObject = true;
-    periphBusCfg = SERIAL4_BUS;
-  }
+  if (channel == UART5_CHANNEL) { }
 #endif
 
-  if (isSerialObject) {
-    int pin_count = 0;
-    bsp_io_port_pin_t serial_pins[4];
-    for (int i=0; i<PINCOUNT_fn(); i++) {
-      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
-        serial_pins[pin_count] = g_APinDescription[i].name;
-        pin_count++;
-      }
-      if (pin_count == 2) break;
-    }
-    setPins(serial_pins[0], serial_pins[1]);
-  }
-
-  
-
-  _uart_ctrl = (uart_ctrl_t*)(SciTable[_channel].uart_instance->p_ctrl);
-  _uart_config = (const uart_cfg_t *)(SciTable[_channel].uart_instance->p_cfg);
-
-  fsp_err_t err;
-
-  _config = *_uart_config;
-
-  _config.p_callback = UART::WrapperCallback;
 
   switch(config){
       case SERIAL_8N1:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_OFF;
-          _config.stop_bits = UART_STOP_BITS_1;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
           break;
       case SERIAL_8N2:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_OFF;
-          _config.stop_bits = UART_STOP_BITS_2;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
       case SERIAL_8E1:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_EVEN;
-          _config.stop_bits = UART_STOP_BITS_1;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_EVEN;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
           break;
       case SERIAL_8E2:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_EVEN;
-          _config.stop_bits = UART_STOP_BITS_2;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_EVEN;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
       case SERIAL_8O1:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_ODD;
-          _config.stop_bits = UART_STOP_BITS_1;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_ODD;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
           break;
       case SERIAL_8O2:
-          _config.data_bits = UART_DATA_BITS_8;
-          _config.parity = UART_PARITY_ODD;
-          _config.stop_bits = UART_STOP_BITS_2;
+          uart_cfg.data_bits = UART_DATA_BITS_8;
+          uart_cfg.parity = UART_PARITY_ODD;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
   }
-
+  
+  uart_cfg.p_callback = UART::WrapperCallback;
+  setUpUartIrqs(uart_cfg);
+  
+  fsp_err_t err;
   const bool bit_mod = true;
   const uint32_t err_rate = 5;
 
-  //enableUartIrqs();
-  setUpUartIrqs(_config);
-
-  uint8_t *tx_array = new uint8_t[SERIAL_TX_BUFFER_SIZE];
-  uint8_t *rx_array = new uint8_t[SERIAL_RX_BUFFER_SIZE];
-
-  _tx_buffer[_channel] = tx_array;
-  _rx_buffer[_channel] = rx_array;
-
-  err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &_baud);
-  err = R_SCI_UART_Open (_uart_ctrl, &_config);
+  err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &baud);
+  err = R_SCI_UART_Open (&uart_ctrl, &uart_cfg);
   if(err != FSP_SUCCESS) while(1);
-  err = R_SCI_UART_BaudSet(_uart_ctrl, (void *) &_baud);
+  err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &baud);
   if(err != FSP_SUCCESS) while(1);
-  err = R_SCI_UART_Read(_uart_ctrl, _rx_buffer[_channel], SERIAL_RX_BUFFER_SIZE);
+  err = R_SCI_UART_Read(&uart_ctrl, rx_buffer, 0);
   if(err != FSP_SUCCESS) while(1);
   _begin = true;
 }
 
+/* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate) {
+/* -------------------------------------------------------------------------- */  
   begin(baudrate, SERIAL_8N1);
 }
 
+/* -------------------------------------------------------------------------- */
 void UART::end() {
-  R_SCI_UART_Close (_uart_ctrl);
+/* -------------------------------------------------------------------------- */  
+  R_SCI_UART_Close (&uart_cfg);
 }
+
+
 
 void UART::setPins(int tx, int rx, int rts, int cts)
 {
@@ -280,80 +256,42 @@ void UART::setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
   }
 }
 
+/* -------------------------------------------------------------------------- */
 int UART::available() {
-  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + get_rx_buffer_head() - _rx_buffer_tail[_channel])) % SERIAL_RX_BUFFER_SIZE;
+/* -------------------------------------------------------------------------- */  
+  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + rx_head_index - rx_tail_index)) % SERIAL_RX_BUFFER_SIZE;
 }
 
+/* -------------------------------------------------------------------------- */
 int UART::peek() {
-  if (get_rx_buffer_head() == _rx_buffer_tail[_channel]) {
+/* -------------------------------------------------------------------------- */  
+  if(rx_head_index == rx_tail_index) {
     return -1;
-  } else {
-    return _rx_buffer[_channel][_rx_buffer_tail[_channel]];
   }
-}
-
-int UART::read() {
-  if (get_rx_buffer_head() == _rx_buffer_tail[_channel]) {
-    return -1;
-  } else {
-    unsigned char c = _rx_buffer[_channel][_rx_buffer_tail[_channel]];
-    _rx_buffer_tail[_channel] = (rx_buffer_index_t)(_rx_buffer_tail[_channel] + 1) % SERIAL_RX_BUFFER_SIZE;
+  else {
+    unsigned char c = rx_buffer[rx_tail_index];
     return c;
   }
 }
 
+/* -------------------------------------------------------------------------- */
+int UART::read() {
+/* -------------------------------------------------------------------------- */  
+  if(rx_head_index == rx_tail_index) {
+    return -1;
+  }
+  else {
+    unsigned char c = rx_buffer[rx_tail_index];
+    inc_rx_tail_index();
+    return c;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 void UART::flush() {
-  while (_tx_buffer_head[_channel] != _tx_buffer_tail[_channel]){};
-  while (_sending[_channel]){};
+/* -------------------------------------------------------------------------- */  
+  while (tx_st == TX_STARTED){};
 }
-
-
-
-
-
-
-
-
-
-size_t UART::write(uint8_t c) {
-  
-  while(to_send_i == previous(send_i, SERIAL_TX_BUFFER_SIZE)) { }
-  inc(to_send_i, SERIAL_TX_BUFFER_SIZE);
-  tx_buff[to_send_i] = c;
-  if(tx_status == TX_STOPPED) {
-    tx_status = TX_STARTED;
-    inc(send_i, SERIAL_TX_BUFFER_SIZE);
-    R_SCI_UART_Write (_uart_ctrl, tx_buff + send_i, 1);
-  }
-
-  return 1;
-}
-
-UART::operator bool() {
-	return true;
-}
-
-void UART::_tx_udr_empty_irq(void)
-{
-  if (_tx_buffer_head[_channel] != _tx_buffer_tail[_channel]) {
-      
-    _tx_buffer_tail[_channel] = (tx_buffer_index_t)((_tx_buffer_tail[_channel] + 1) % SERIAL_TX_BUFFER_SIZE);
-  } else {
-    _sending[_channel] = false;
-  }
-}
-
-
-rx_buffer_index_t UART::get_rx_buffer_head()
-{
-  transfer_properties_t p_properties;
-  fsp_err_t err;
-  err = R_DTC_InfoGet(_dtc_ctrl, &p_properties);
-  if(err != FSP_SUCCESS) while(1);
-  return (rx_buffer_index_t)(SERIAL_RX_BUFFER_SIZE - p_properties.transfer_length_remaining);
-}
-
-
 
 
 #if SERIAL_HOWMANY > 0

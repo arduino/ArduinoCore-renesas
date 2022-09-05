@@ -113,11 +113,7 @@ typedef enum {
 class UART : public arduino::HardwareSerial {
   public:
     static void WrapperCallback(uart_callback_args_t *p_args);
-    UART(sci_uart_instance_ctrl_t *_uart_ctrl,
-         const uart_cfg_t* _uart_config,
-         dtc_instance_ctrl_t* _dtc_ctrl, int ch);
     UART(int ch);
-
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
     void end();
@@ -127,53 +123,54 @@ class UART : public arduino::HardwareSerial {
     int available(void);
     int peek(void);
     int read(void);
-    //int availableForWrite(void);
     void flush(void);
     size_t write(uint8_t c);
-    //size_t write(unsigned long n) { return write((uint8_t)n); }
-    //size_t write(long n) { return write((uint8_t)n); }
-    //size_t write(unsigned int n) { return write((uint8_t)n); }
-    //size_t write(int n) { return write((uint8_t)n); }
-    using Print::write; // pull in write(str) and write(buf, size) from Print
+    using Print::write; 
     operator bool(); // { return true; }
 
-
-    void _tx_udr_empty_irq(void);
-    rx_buffer_index_t get_rx_buffer_head();
-
-    uart_ctrl_t* _uart_ctrl;
-    const uart_cfg_t* _uart_config;
-    uart_cfg_t _config;
-    baud_setting_t _baud;
-    dtc_instance_ctrl_t* _dtc_ctrl;
-
   protected:
-    bool _written;
     volatile bool _begin;
 
   private:
-    TxStatus_t   tx_st;
-    uint8_t      tx_buffer[SERIAL_TX_BUFFER_SIZE];
-    uint8_t      rx_buffer[SERIAL_RX_BUFFER_SIZE];
-    
-    
-    
-    sci_uart_instance_ctrl_t  uart_ctrl;
-    uart_cfg_t                uart_cfg;
-    int                       _channel;
-    
-    
-
-    
-    bool setUpUartIrqs(uart_cfg_t &cfg);
-    
-    
-    
-};
-
     inline void               inc(int &x,int _max) { x = ++x % _max; } 
     inline int                previous(int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
-    inline int                next(int x, int _max) {return (++x % _max); } 
+    
+    int                       channel;
+    TxStatus_t                tx_st;
+    void                      set_tx_status(TxStatus_t st) { tx_st = st; }
+    TxStatus_t                get_tx_status() { return tx_st; }
+    /* rx STUFF.... */
+    int                       rx_head_index = 0;
+    int                       rx_tail_index = 0;
+    int                       get_rx_head_index() { return rx_head_index; }
+    int                       get_rx_tail_index() { return rx_tail_index; }
+    void                      inc_rx_head_index() { inc(rx_head_index,SERIAL_RX_BUFFER_SIZE); }
+    void                      inc_rx_tail_index() { inc(rx_tail_index,SERIAL_RX_BUFFER_SIZE); }
+    int                       get_prev_of_rx_tail() { return previous(rx_tail_index,SERIAL_TX_BUFFER_SIZE); }
+    void                      put_in_rx_buffer(uint8_t c) {rx_buffer[rx_head_index] = c;}
+    uint8_t                   rx_buffer[SERIAL_RX_BUFFER_SIZE];
+    /* tx STUFF.... */
+    uint8_t                   tx_buffer[SERIAL_TX_BUFFER_SIZE];
+    int                       tx_head_index = -1;
+    int                       tx_tail_index = -1;
+    int                       get_tx_head_index() { return tx_head_index; }
+    int                       get_tx_tail_index() { return tx_tail_index; }
+    void                      inc_tx_head_index() { inc(tx_head_index,SERIAL_TX_BUFFER_SIZE); }
+    void                      inc_tx_tail_index() { inc(tx_tail_index,SERIAL_TX_BUFFER_SIZE); }
+    int                       get_prev_of_tx_tail() { return previous(tx_tail_index,SERIAL_TX_BUFFER_SIZE); }
+    void                      put_in_tx_buffer(uint8_t c) {tx_buffer[tx_head_index] = c;}
+    uint8_t                   *get_next_ptr_to_tx() { return (tx_buffer + tx_tail_index); }
+    sci_uart_instance_ctrl_t  uart_ctrl;
+    uart_cfg_t                uart_cfg;
+    baud_setting_t            baud;
+
+    uart_ctrl_t* get_ctrl() { return &uart_ctrl; }
+    
+    bool setUpUartIrqs(uart_cfg_t &cfg);
+};
+
+    
+   
     
     
     
