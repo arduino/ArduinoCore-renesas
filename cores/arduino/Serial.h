@@ -45,6 +45,7 @@
 // often work, but occasionally a race condition can occur that makes
 // Serial behave erratically. See https://github.com/arduino/Arduino/issues/2405
 
+
 #define SERIAL_TX_BUFFER_SIZE 512
 #define SERIAL_RX_BUFFER_SIZE 512
 
@@ -103,13 +104,15 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-void irq_callback(uart_callback_args_t *p_args);
-
-
+typedef enum {
+  TX_STARTED,
+  TX_STOPPED
+} TxStatus_t;
 
 
 class UART : public arduino::HardwareSerial {
   public:
+    static void WrapperCallback(uart_callback_args_t *p_args);
     UART(sci_uart_instance_ctrl_t *_uart_ctrl,
          const uart_cfg_t* _uart_config,
          dtc_instance_ctrl_t* _dtc_ctrl, int ch);
@@ -149,9 +152,16 @@ class UART : public arduino::HardwareSerial {
     volatile bool _begin;
 
   private:
+    TxStatus_t   tx_st;
+    uint8_t      tx_buffer[SERIAL_TX_BUFFER_SIZE];
+    uint8_t      rx_buffer[SERIAL_RX_BUFFER_SIZE];
+    
+    
+    
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
     int                       _channel;
+    
     
 
     
@@ -162,8 +172,8 @@ class UART : public arduino::HardwareSerial {
 };
 
     inline void               inc(int &x,int _max) { x = ++x % _max; } 
-    inline int            previous(int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
-    inline int            next(int x, int _max) {return (++x % _max); } 
+    inline int                previous(int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
+    inline int                next(int x, int _max) {return (++x % _max); } 
     
     
     

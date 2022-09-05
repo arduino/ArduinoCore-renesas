@@ -29,19 +29,6 @@
 #undef Serial
 #endif
 
-
-uint8_t              tx_buff[SERIAL_TX_BUFFER_SIZE];
-int                  to_send_i = -1;
-int                  send_i = -1;
-
-typedef enum {
-  TX_STARTED,
-  TX_STOPPED
-} TxStatus_t;
-
-TxStatus_t tx_status = TX_STOPPED;
-
-
 static tx_buffer_index_t _tx_buffer_head[10];
 static tx_buffer_index_t _tx_buffer_tail[10];
 static rx_buffer_index_t _rx_buffer_tail[10];
@@ -50,6 +37,79 @@ static unsigned char *_rx_buffer[10];
 static unsigned char *_tx_buffer[10];
 
 static bool _sending[10];
+
+
+uint8_t              tx_buff[SERIAL_TX_BUFFER_SIZE];
+int                  to_send_i = -1;
+int                  send_i = -1;
+
+
+
+TxStatus_t tx_status = TX_STOPPED;
+
+#define MAX_UARTS    10
+
+static UART *_uarts[MAX_UARTS];
+
+
+void uart_callback(uart_callback_args_t *p_args)
+{
+    /* This callback function is not used but it is referenced into 
+       FSP configuration so that (for the moment it is necessary to keep it) */
+}
+
+/* -------------------------------------------------------------------------- */
+void UART::WrapperCallback(uart_callback_args_t *p_args) {
+/* -------------------------------------------------------------------------- */  
+
+  uint32_t channel = p_args->channel;
+  
+    switch (p_args->event){
+        case UART_EVENT_RX_COMPLETE:
+        {
+            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
+            break;
+        }
+        case UART_EVENT_ERR_PARITY:
+        case UART_EVENT_ERR_FRAMING:
+        case UART_EVENT_ERR_OVERFLOW:
+        {
+            break;
+        }
+        case UART_EVENT_TX_COMPLETE:
+        {
+          if(send_i != to_send_i) {
+            inc(send_i, SERIAL_TX_BUFFER_SIZE);
+            R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), (tx_buff + send_i), 1);
+          }
+          else {
+            tx_status = TX_STOPPED;
+          }
+          break;
+        }
+        case UART_EVENT_RX_CHAR:
+        case UART_EVENT_BREAK_DETECT:
+        case UART_EVENT_TX_DATA_EMPTY:
+        {
+            break;
+        }
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+UART::UART(int ch) :
+  tx_st(TX_STOPPED),
+  _channel(ch)
+/* -------------------------------------------------------------------------- */
+{ 
+  _uarts[_channel] = this;
+}
+
+
+
+
+
 
 
 UART::UART(
@@ -63,9 +123,7 @@ UART::UART(
 { }
 
 
-UART::UART(int ch) :
-  _channel(ch)
-{ }
+
 
 /* -------------------------------------------------------------------------- */
 bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
@@ -140,7 +198,7 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
 
   _config = *_uart_config;
 
-  _config.p_callback = irq_callback;
+  _config.p_callback = UART::WrapperCallback;
 
   switch(config){
       case SERIAL_8N1:
@@ -253,49 +311,7 @@ void UART::flush() {
 
 
 
-void irq_callback(uart_callback_args_t *p_args) {
-  uint32_t channel = p_args->channel;
-  
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if(send_i != to_send_i) {
-            inc(send_i, SERIAL_TX_BUFFER_SIZE);
-            R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), (tx_buff + send_i), 1);
-          }
-          else {
-            tx_status = TX_STOPPED;
-          }
-          break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
 
-bool is_write_buffer_possible(int to_send, int send, int _max ) {
-      int a = next(to_send,_max);
-      
-      if(a == send) {
-        return false;
-      }
-      return true;
-    }
 
 
 
@@ -419,40 +435,6 @@ void UART::enableUartIrqs() {
 
 }
 
-
-void uart_callback(uart_callback_args_t *p_args)
-{
-    uint32_t channel = p_args->channel;
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE:
-        {
-            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
-            break;
-        }
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if (_tx_buffer_head[channel] != _tx_buffer_tail[channel]) {
-              R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), &_tx_buffer[channel][_tx_buffer_tail[channel]], 1);
-            _tx_buffer_tail[channel] = (tx_buffer_index_t)((_tx_buffer_tail[channel] + 1) % SERIAL_TX_BUFFER_SIZE);
-          } else {
-            _sending[channel] = false;
-          }
-            break;
-        }
-        case UART_EVENT_RX_CHAR:
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
-}
 
 
 #if SERIAL_HOWMANY > 0
