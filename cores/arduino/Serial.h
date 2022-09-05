@@ -167,7 +167,7 @@ class UART : public arduino::HardwareSerial {
     
     bool setUpUartIrqs(uart_cfg_t &cfg);
     
-    void          enableUartIrqs();
+    
     
 };
 
