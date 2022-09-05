@@ -22,10 +22,25 @@
 
 #include "Arduino.h"
 #include "Serial.h"
+#include "IRQManager.h"
+
 
 #ifdef Serial
 #undef Serial
 #endif
+
+
+uint8_t              tx_buff[SERIAL_TX_BUFFER_SIZE];
+int                  to_send_i = -1;
+int                  send_i = -1;
+
+typedef enum {
+  TX_STARTED,
+  TX_STOPPED
+} TxStatus_t;
+
+TxStatus_t tx_status = TX_STOPPED;
+
 
 static tx_buffer_index_t _tx_buffer_head[10];
 static tx_buffer_index_t _tx_buffer_tail[10];
@@ -51,6 +66,20 @@ UART::UART(
 UART::UART(int ch) :
   _channel(ch)
 { }
+
+/* -------------------------------------------------------------------------- */
+bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
+/* -------------------------------------------------------------------------- */  
+  bool rv = false;
+
+  
+  if(_channel == 2) {
+    rv = IRQManager::getInstance().addPeripheral(UART_SCI2,cfg);
+  }
+  
+  return rv;
+
+} 
 
 
 void UART::begin(unsigned long baudrate, uint16_t config) {
@@ -102,12 +131,17 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     setPins(serial_pins[0], serial_pins[1]);
   }
 
+  
+
   _uart_ctrl = (uart_ctrl_t*)(SciTable[_channel].uart_instance->p_ctrl);
   _uart_config = (const uart_cfg_t *)(SciTable[_channel].uart_instance->p_cfg);
 
   fsp_err_t err;
 
   _config = *_uart_config;
+
+  _config.p_callback = irq_callback;
+
   switch(config){
       case SERIAL_8N1:
           _config.data_bits = UART_DATA_BITS_8;
@@ -144,7 +178,8 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   const bool bit_mod = true;
   const uint32_t err_rate = 5;
 
-  enableUartIrqs();
+  //enableUartIrqs();
+  setUpUartIrqs(_config);
 
   uint8_t *tx_array = new uint8_t[SERIAL_TX_BUFFER_SIZE];
   uint8_t *rx_array = new uint8_t[SERIAL_RX_BUFFER_SIZE];
@@ -214,23 +249,67 @@ void UART::flush() {
   while (_sending[_channel]){};
 }
 
-size_t UART::write(uint8_t c) {
-  tx_buffer_index_t i = (tx_buffer_index_t)((_tx_buffer_head[_channel] + 1) % SERIAL_TX_BUFFER_SIZE);
-  if (_begin) {
-    while (i == _tx_buffer_tail[_channel]){};
-    _tx_buffer[_channel][_tx_buffer_head[_channel]] = c;
-    _tx_buffer_head[_channel] = i;
 
-    if (!_sending[_channel]) {
-      _sending[_channel] = true;
-      _tx_udr_empty_irq();
+
+
+
+void irq_callback(uart_callback_args_t *p_args) {
+  uint32_t channel = p_args->channel;
+  
+    switch (p_args->event){
+        case UART_EVENT_RX_COMPLETE:
+        {
+            R_SCI_UART_Read((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), _rx_buffer[channel], SERIAL_RX_BUFFER_SIZE);
+            break;
+        }
+        case UART_EVENT_ERR_PARITY:
+        case UART_EVENT_ERR_FRAMING:
+        case UART_EVENT_ERR_OVERFLOW:
+        {
+            break;
+        }
+        case UART_EVENT_TX_COMPLETE:
+        {
+          if(send_i != to_send_i) {
+            inc(send_i, SERIAL_TX_BUFFER_SIZE);
+            R_SCI_UART_Write ((uart_ctrl_t*)(SciTable[channel].uart_instance->p_ctrl), (tx_buff + send_i), 1);
+          }
+          else {
+            tx_status = TX_STOPPED;
+          }
+          break;
+        }
+        case UART_EVENT_RX_CHAR:
+        case UART_EVENT_BREAK_DETECT:
+        case UART_EVENT_TX_DATA_EMPTY:
+        {
+            break;
+        }
     }
-  } else {
-    if (i != _tx_buffer_tail[_channel]) {
-      _tx_buffer[_channel][_tx_buffer_head[_channel]] = c;
-      _tx_buffer_head[_channel] = i;
+}
+
+bool is_write_buffer_possible(int to_send, int send, int _max ) {
+      int a = next(to_send,_max);
+      
+      if(a == send) {
+        return false;
+      }
+      return true;
     }
+
+
+
+size_t UART::write(uint8_t c) {
+  
+  while(to_send_i == previous(send_i, SERIAL_TX_BUFFER_SIZE)) { }
+  inc(to_send_i, SERIAL_TX_BUFFER_SIZE);
+  tx_buff[to_send_i] = c;
+  if(tx_status == TX_STOPPED) {
+    tx_status = TX_STARTED;
+    inc(send_i, SERIAL_TX_BUFFER_SIZE);
+    R_SCI_UART_Write (_uart_ctrl, tx_buff + send_i, 1);
   }
+
   return 1;
 }
 
@@ -241,7 +320,7 @@ UART::operator bool() {
 void UART::_tx_udr_empty_irq(void)
 {
   if (_tx_buffer_head[_channel] != _tx_buffer_tail[_channel]) {
-      R_SCI_UART_Write (_uart_ctrl, &_tx_buffer[_channel][_tx_buffer_tail[_channel]], 1);
+      
     _tx_buffer_tail[_channel] = (tx_buffer_index_t)((_tx_buffer_tail[_channel] + 1) % SERIAL_TX_BUFFER_SIZE);
   } else {
     _sending[_channel] = false;

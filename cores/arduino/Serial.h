@@ -103,6 +103,11 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
+void irq_callback(uart_callback_args_t *p_args);
+
+
+
+
 class UART : public arduino::HardwareSerial {
   public:
     UART(sci_uart_instance_ctrl_t *_uart_ctrl,
@@ -144,9 +149,25 @@ class UART : public arduino::HardwareSerial {
     volatile bool _begin;
 
   private:
+    sci_uart_instance_ctrl_t  uart_ctrl;
+    uart_cfg_t                uart_cfg;
+    int                       _channel;
+    
+
+    
+    bool setUpUartIrqs(uart_cfg_t &cfg);
+    
     void          enableUartIrqs();
-    int           _channel;
+    
 };
+
+    inline void               inc(int &x,int _max) { x = ++x % _max; } 
+    inline int            previous(int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
+    inline int            next(int x, int _max) {return (++x % _max); } 
+    
+    
+    
+
 
 extern UART _UART1_;
 extern UART _UART2_;
