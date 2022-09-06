@@ -132,9 +132,9 @@ class UART : public arduino::HardwareSerial {
     volatile bool _begin;
 
   private:
-    inline void               inc(int &x,int _max) { x = ++x % _max; } 
+    inline void               inc(volatile int &x,int _max) { x = ++x % _max; }
     inline int                previous(int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
-    
+
     int                       channel;
     TxStatus_t                tx_st;
     void                      set_tx_status(TxStatus_t st) { tx_st = st; }
@@ -151,8 +151,8 @@ class UART : public arduino::HardwareSerial {
     uint8_t                   rx_buffer[SERIAL_RX_BUFFER_SIZE];
     /* tx STUFF.... */
     uint8_t                   tx_buffer[SERIAL_TX_BUFFER_SIZE];
-    int                       tx_head_index = -1;
-    int                       tx_tail_index = -1;
+    volatile int              tx_head_index = -1;
+    volatile int              tx_tail_index = -1;
     int                       get_tx_head_index() { return tx_head_index; }
     int                       get_tx_tail_index() { return tx_tail_index; }
     void                      inc_tx_head_index() { inc(tx_head_index,SERIAL_TX_BUFFER_SIZE); }
