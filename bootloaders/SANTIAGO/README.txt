@@ -2,6 +2,6 @@ Sources at git@github.com:bcmi-labs/tinyusb.git , commit b56afef9a86339a326cb208
 
 Compiled with 
 
-  cd examples/dfu && make BOARD=ek_ra4m1
+  cd examples/device/dfu && make BOARD=ek_ra4m1
 
 
