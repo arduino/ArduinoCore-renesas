@@ -23,7 +23,9 @@
 //extern const spi_extended_cfg_t g_spi0_ext_cfg;
 //extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
 
-class ArduinoSPI : public arduino::SPIClass
+namespace arduino {
+
+class ArduinoSPI : public SPIClass
 {
 public:
     ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
@@ -79,14 +81,16 @@ private:
     bool _is_sci;
 };
 
+}
+
 #if SPI_HOWMANY > 0
-extern ArduinoSPI SPI;
+extern arduino::ArduinoSPI SPI;
 #endif
 #if SPI_HOWMANY > 1
 #ifdef SPI1
 #undef SPI1
 #endif
-extern ArduinoSPI SPI1;
+extern arduino::ArduinoSPI SPI1;
 #endif
 
 #endif

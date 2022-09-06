@@ -37,6 +37,7 @@ void arduino_main(void)
    _init();
    initVariant();
    __USBStart();
+   Serial.begin(115200);
    startAgt();
    setup();
    while (1)
@@ -58,6 +59,3 @@ extern "C" {
    }
 }
 #endif
-
-extern "C" void __cxa_pure_virtual() { while(1); }
-extern "C" void __cxa_deleted_virtual() { while(1); }

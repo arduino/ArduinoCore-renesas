@@ -13,6 +13,8 @@
 
 #include "SPI.h"
 
+using namespace arduino;
+
 extern const spi_extended_cfg_t g_spi0_ext_cfg;
 extern const spi_extended_cfg_t g_spi1_ext_cfg;
 extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
@@ -71,13 +73,13 @@ void ArduinoSPI::begin()
     periphBusCfg = SPI_BUS;
   }
 #endif
-#if SERIAL_HOWMANY > 1
+#if SPI_HOWMANY > 1
   if (_channel == SPI1_CHANNEL) {
     isSPIObject = true;
     periphBusCfg = SPI1_BUS;
   }
 #endif
-#if SERIAL_HOWMANY > 2
+#if SPI_HOWMANY > 2
   if (_channel == SPI2_CHANNEL) {
     isSPIObject = true;
     periphBusCfg = SPI2_BUS;

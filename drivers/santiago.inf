@@ -18,6 +18,7 @@ DriverVer   = 01/08/2022,10.55.00.000
 
 [Standard.NTamd64]
 %DeviceName%=USB_Install, USB\VID_2341&PID_0369&MI_00
+%DeviceNameDFUOnly%=USB_Install, USB\VID_2341&PID_0369
 
 ; ========== Class definition ===========
 
@@ -55,5 +56,6 @@ HKR,,DeviceInterfaceGUIDs,0x10000,"{51de5bfa-d59d-4f3e-9b36-0b4b210dd53f}"
 [Strings]
 ManufacturerName="Arduino"
 DeviceName="Arduino Santiago"
+DeviceNameDFUOnly="Arduino Santiago"
 ClassName="Universal Serial Bus devices"
 REG_MULTI_SZ = 0x00010000

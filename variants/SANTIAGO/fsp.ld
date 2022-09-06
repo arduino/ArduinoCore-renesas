@@ -467,6 +467,7 @@ SECTIONS
     {
         . = ALIGN(8);
         __HeapBase = .;
+        end = .;
         /* Place the STD heap here. */
         KEEP(*(.heap))
         __HeapLimit = .;

@@ -13,7 +13,6 @@
           "name": "Arduino Renesas Boards",
           "architecture": "renesas",
           "version": "%%VERSION%%",
-          "deprecated": true,
           "category": "Arduino",
           "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME%%",
           "archiveFileName": "%%FILENAME%%",
@@ -43,7 +42,7 @@
             },
             {
               "packager": "arduino",
-              "version": "0.11.0-arduino1",
+              "version": "0.11.0-arduino3",
               "name": "dfu-util"
             }
           ]
