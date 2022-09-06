@@ -5,11 +5,18 @@
 #include "r_uart_api.h"
 
 typedef enum {
-    RTC,
-    UART_SCI2,
-    I2C_MASTER,
-    I2C_SLAVE
+    IRQ_RTC,
+    IRQ_USB,
+    IRQ_AGT,
+    IRQ_UART_SCI2,
+    IRQ_I2C_MASTER,
+    IRQ_I2C_SLAVE
 } Peripheral_t;
+
+typedef struct usb {
+    uint32_t num_of_irqs_required;
+    uint32_t address_of_handler;
+} USBIrqCfg_t;
 
 
 class IRQManager {
