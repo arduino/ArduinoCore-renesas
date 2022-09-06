@@ -18,6 +18,7 @@
 #if !defined(USE_TINYUSB) && !defined(NO_USB)
 
 #include <Arduino.h>
+#include "IRQManager.h"
 #include "USB.h"
 
 #include "tusb.h"
@@ -308,6 +309,8 @@ void _usbhs_interrupt_handler(void)
 }
 
 void __USBStart() {
+    USBIrqCfg_t usb_irq_cfg;
+
     if (tusb_inited()) {
         // Already called
         return;
@@ -321,18 +324,17 @@ void __USBStart() {
 
 #ifdef CFG_TUSB_RHPORT0_MODE
 #if (CFG_TUSB_RHPORT0_MODE != 0)
-    __NVIC_SetVector(USBFS_INT_IRQn, (uint32_t)_usbfs_interrupt_handler);
-    __NVIC_SetVector(USBFS_RESUME_IRQn, (uint32_t)_usbfs_interrupt_handler);
-    __NVIC_SetVector(USBFS_FIFO_0_IRQn, (uint32_t)_usbfs_interrupt_handler);
-    __NVIC_SetVector(USBFS_FIFO_1_IRQn, (uint32_t)_usbfs_interrupt_handler);
+    usb_irq_cfg.num_of_irqs_required = 4;
+    usb_irq_cfg.address_of_handler = (uint32_t)_usbfs_interrupt_handler;
+    IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
 #endif
 #endif
 
 #ifdef CFG_TUSB_RHPORT1_MODE
 #if (CFG_TUSB_RHPORT1_MODE != 0)
-    __NVIC_SetVector(USBHS_USB_INT_RESUME_IRQn, (uint32_t)_usbhs_interrupt_handler);
-    __NVIC_SetVector(USBHS_FIFO_0_IRQn, (uint32_t)_usbhs_interrupt_handler);
-    __NVIC_SetVector(USBHS_FIFO_1_IRQn, (uint32_t)_usbhs_interrupt_handler);
+    usb_irq_cfg.num_of_irqs_required = 3;
+    usb_irq_cfg.address_of_handler = (uint32_t)_usbhs_interrupt_handler;
+    IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
 #endif
 #endif
 
