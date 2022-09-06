@@ -14,7 +14,7 @@ typedef enum {
 
 class IRQManager {
     public:
-    bool addPeripheral(Peripheral_t p, uart_cfg_t &cfg);
+    bool addPeripheral(Peripheral_t p, void *cfg);
     static IRQManager& getInstance();
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
