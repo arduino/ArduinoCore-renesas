@@ -250,7 +250,7 @@ SECTIONS
 	/* .stack_dummy section doesn't contains any symbols. It is only
 	 * used for linker to calculate size of stack sections, and assign
 	 * values to stack symbols later */
-	.stack_dummy (NOLOAD):
+	.stack_dummy ABSOLUTE(__StackTop - BSP_CFG_STACK_MAIN_BYTES) (NOLOAD):
 	{
         . = ALIGN(8);
         KEEP(*(.stack))
