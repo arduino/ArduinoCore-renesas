@@ -1,4 +1,5 @@
 #include "RTClock.h"
+#include "IRQManager.h"
 #include <Arduino.h>
 
 /* -------------------------------------------------------------------------- */
@@ -349,7 +350,34 @@ struct tm RTCTime::getTmTime() { return (struct tm)stime; }
 /*                             RTClass                                        */
 /* -------------------------------------------------------------------------- */
 
-RTClock::RTClock() : is_initialized{false} { }
+ 
+
+rtc_instance_ctrl_t rtc_ctrl;
+const rtc_error_adjustment_cfg_t rtc_err_cfg = { 
+    .adjustment_mode = RTC_ERROR_ADJUSTMENT_MODE_AUTOMATIC,
+    .adjustment_period = RTC_ERROR_ADJUSTMENT_PERIOD_10_SECOND,
+    .adjustment_type = RTC_ERROR_ADJUSTMENT_NONE,
+    .adjustment_value = 0, };
+rtc_cfg_t rtc_cfg  = { 
+    .clock_source = RTC_CLOCK_SOURCE_LOCO, 
+    .freq_compare_value_loco = 255, 
+    .p_err_cfg = &rtc_err_cfg, 
+    .alarm_ipl = (12), 
+    .alarm_irq = FSP_INVALID_VECTOR,
+    .periodic_ipl = (12), 
+    .periodic_irq = FSP_INVALID_VECTOR,
+    .carry_ipl = (12),
+    .carry_irq = FSP_INVALID_VECTOR,
+    .p_callback = rtc_callback,
+    .p_context = NULL, 
+    
+};
+
+
+
+RTClock::RTClock() : is_initialized{false} {     
+}
+
 RTClock::~RTClock() { }
 
 bool RTClock::begin() {
@@ -373,15 +401,30 @@ bool RTClock::getTime(RTCTime &t) {
 }
 
 bool RTClock::setPeriodicCallback(rtc_cbk_t fnc, Period p) {
+    
+    RTCIrqCfg_t rtc_irq_cfg;
+
+    rtc_irq_cfg.req = RTC_PERIODIC;
+    rtc_irq_cfg.cfg = &rtc_cfg;
+    rtc_irq_cfg.ctrl = &rtc_ctrl;
+
     if(is_initialized) {
         onRtcInterrupt();
         setRtcPeriodicClbk(fnc);
-        return setRtcPeriodicInterrupt(Periodic2RtcPeriodic(p)); 
+        if(IRQManager::getInstance().addPeripheral(IRQ_RTC,&rtc_irq_cfg)) {
+            return setRtcPeriodicInterrupt(Periodic2RtcPeriodic(p)); 
+        }
     }
     return false;
 }
 
 bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
+    
+    RTCIrqCfg_t rtc_irq_cfg;
+    rtc_irq_cfg.req = RTC_ALARM;
+    rtc_irq_cfg.cfg = &rtc_cfg;
+    rtc_irq_cfg.ctrl = &rtc_ctrl;
+    
     if(is_initialized) {
         onRtcInterrupt();
         setRtcAlarmClbk(fnc);
@@ -396,7 +439,9 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
 
         struct tm alrm = t.getTmTime();
         
-        memcpy(&at.time, &alrm, sizeof(struct tm));
+        size_t cpy_size = (sizeof(at.time) <= sizeof(struct tm)) ? sizeof(at.time) : sizeof(struct tm);
+        
+        memcpy(&at.time, &alrm, cpy_size);
         if(m.isMatchingSecond()) {
             at.sec_match = true;
         }
@@ -418,8 +463,9 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
         else if(m.isMatchingDayOfWeek()) {
             at.dayofweek_match = true;
         }
-        
-        return setRtcAlarm(at);
+        if(IRQManager::getInstance().addPeripheral(IRQ_RTC,&rtc_irq_cfg)) {
+            return setRtcAlarm(at);
+        }
     }
     return false;
 }

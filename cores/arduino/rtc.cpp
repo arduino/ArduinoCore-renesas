@@ -9,15 +9,21 @@
 extern "C" {
 #endif
 
+extern rtc_instance_ctrl_t rtc_ctrl;
+extern rtc_cfg_t rtc_cfg;
+
+
+
 static void rtc_init(void) {
-  if(!g_rtc0_ctrl.open) {
-    R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg);
+  if(!rtc_ctrl.open) {
+    
+    R_RTC_Open(&rtc_ctrl, &rtc_cfg);
   }
 }
 
 static int rtc_isenabled(void) {
   rtc_info_t rtc_info;
-  R_RTC_InfoGet(&g_rtc0_ctrl, &rtc_info);
+  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
   if (rtc_info.status == RTC_STATUS_RUNNING) {
     return (int)RTC_IS_ENABLED;
   }
@@ -27,7 +33,7 @@ static int rtc_isenabled(void) {
 static time_t rtc_read(void) {
   rtc_time_t time_read;
   rtc_init();
-  R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read);
+  R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read);
   time_t rv = mktime ( (struct tm *) &time_read);
   return rv;
 }
@@ -36,7 +42,7 @@ static void rtc_write(time_t t) {
   rtc_init();
   struct tm * timeinfo;
   timeinfo = localtime (&t);
-  R_RTC_CalendarTimeSet(&g_rtc0_ctrl, timeinfo);
+  R_RTC_CalendarTimeSet(&rtc_ctrl, timeinfo);
 }
 
 
@@ -114,8 +120,8 @@ void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {
 
 
 bool openRtc() {
-  if(!g_rtc0_ctrl.open) {
-    if(FSP_SUCCESS == R_RTC_Open(&g_rtc0_ctrl, &g_rtc0_cfg)) {
+  if(!rtc_ctrl.open) {
+    if(FSP_SUCCESS == R_RTC_Open(&rtc_ctrl, &rtc_cfg)) {
       return true;
     }
   }
@@ -126,14 +132,14 @@ bool openRtc() {
 }
 
 bool setRtcTime(rtc_time_t time) {
-  if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&g_rtc0_ctrl, &time) ) {
+  if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&rtc_ctrl, &time) ) {
     return true;
   }
 }
 
 bool isRtcRunning() {
   rtc_info_t rtc_info;
-  R_RTC_InfoGet(&g_rtc0_ctrl, &rtc_info);
+  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
   if (rtc_info.status == RTC_STATUS_RUNNING) {
     return true;
   }
@@ -142,7 +148,7 @@ bool isRtcRunning() {
 
 bool getRtcTime(struct tm &t) {
   rtc_time_t time_read;
-  if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &time_read)) {
+  if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read)) {
     memcpy(&t,&time_read,sizeof(struct tm));
     return true;
   }
@@ -150,19 +156,19 @@ bool getRtcTime(struct tm &t) {
 }
 
 void onRtcInterrupt() {
-  g_rtc0_ctrl.p_callback = rtc_callback;
+  rtc_ctrl.p_callback = rtc_callback;
 }
 
 bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
   
-  if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&g_rtc0_ctrl, period)) {
+  if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&rtc_ctrl, period)) {
     return true;
   }
   return false;
 }
 
 bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
-  if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&g_rtc0_ctrl, &alarm_time) ) {
+  if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&rtc_ctrl, &alarm_time) ) {
     return true;
   }
   return false;

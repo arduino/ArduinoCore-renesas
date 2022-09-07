@@ -11,6 +11,7 @@
 #define UART_SCI2_PRIORITY 12
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
+#define RTC_PRIORITY  12
 
 #define FIRST_INT_SLOT_FREE 0
 
@@ -140,6 +141,47 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SCI2_ERI);
             last_interrupt_index++;
+        }
+        else {
+            rv = false;
+        }
+    }
+    /* **********************************************************************
+                                      RTC
+       ********************************************************************** */
+    else if(p == IRQ_RTC && cfg != NULL) {
+        RTCIrqCfg_t *p_cfg = (RTCIrqCfg_t *)cfg;
+        /* rtc interrupts are added once a time and not all three together */
+        if( (last_interrupt_index) < PROG_IRQ_NUM ) {
+            
+            if(p_cfg->req == RTC_ALARM) {
+                p_cfg->cfg->alarm_ipl = RTC_PRIORITY;
+                p_cfg->cfg->alarm_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_alarm_periodic_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_ALARM);
+
+                R_BSP_IrqCfg(p_cfg->cfg->alarm_irq, p_cfg->cfg->alarm_ipl, p_cfg->ctrl);
+                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+                last_interrupt_index++;
+            }
+            else if(p_cfg->req == RTC_PERIODIC) {
+                p_cfg->cfg->periodic_ipl = RTC_PRIORITY;
+                p_cfg->cfg->periodic_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_alarm_periodic_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_PERIOD);
+                R_BSP_IrqCfg(p_cfg->cfg->periodic_irq, p_cfg->cfg->periodic_ipl, p_cfg->ctrl);
+                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+                last_interrupt_index++;
+            }
+            else if(p_cfg->req == RTC_CARRY) {
+                p_cfg->cfg->carry_ipl = RTC_PRIORITY;
+                p_cfg->cfg->carry_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_carry_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_CARRY);
+                R_BSP_IrqCfg(p_cfg->cfg->carry_irq, p_cfg->cfg->carry_ipl, p_cfg->ctrl);
+                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+                last_interrupt_index++;
+            }
         }
         else {
             rv = false;

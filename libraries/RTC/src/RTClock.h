@@ -2,6 +2,7 @@
 #define ARDUINO_REAL_TIME_CLOCK
 
 #include <ctime>
+#include "r_rtc_api.h"
 
 using stime_t = struct tm;
 using rtc_cbk_t = void (*)();
@@ -136,7 +137,9 @@ class AlarmMatch {
 class RTClock {
     private:
     bool is_initialized;
-    
+
+   
+
     public:
     RTClock();
     ~RTClock();
