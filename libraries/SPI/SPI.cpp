@@ -180,7 +180,7 @@ uint8_t ArduinoSPI::transfer(uint8_t data) {
   while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
   {
       timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
@@ -201,7 +201,7 @@ uint16_t ArduinoSPI::transfer16(uint16_t data) {
   while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
   {
       timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
@@ -221,7 +221,7 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
   while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
   {
       timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
