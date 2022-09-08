@@ -25,7 +25,6 @@ uint8_t ArduinoSPI::interruptMask = 0;
 uint8_t ArduinoSPI::interruptSave = 0;
 
 static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
-static uint32_t timeout_ms = 1000;
 
 ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
                       ,const spi_cfg_t *g_spi_cfg
@@ -177,9 +176,10 @@ uint8_t ArduinoSPI::transfer(uint8_t data) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
       __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
@@ -198,9 +198,10 @@ uint16_t ArduinoSPI::transfer16(uint16_t data) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
       __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
@@ -218,9 +219,10 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
       __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
