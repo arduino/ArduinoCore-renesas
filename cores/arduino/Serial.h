@@ -49,9 +49,7 @@
 #define SERIAL_TX_BUFFER_SIZE 512
 #define SERIAL_RX_BUFFER_SIZE 512
 
-typedef uint8_t tx_buffer_index_t;
-
-typedef uint8_t rx_buffer_index_t;
+#define MAX_UARTS    10
 
 #undef SERIAL_5N1
 #undef SERIAL_6N1
@@ -112,8 +110,10 @@ typedef enum {
 
 class UART : public arduino::HardwareSerial {
   public:
+    static UART *g_uarts[MAX_UARTS]; 
     static void WrapperCallback(uart_callback_args_t *p_args);
-    UART(int ch);
+    
+    UART(uint8_t _pin_tx, uint8_t _pin_rx);
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
     void end();
@@ -129,14 +129,23 @@ class UART : public arduino::HardwareSerial {
     operator bool(); // { return true; }
 
   protected:
-    volatile bool _begin;
+    bool                      init_ok;
 
   private:
+               
+    uint8_t                   tx_pin;
+    uint8_t                   rx_pin;
+    
+
+    bool                      cfg_pins(int max_index);
+    
+
+
     inline void               inc(volatile int &x,int _max) { x = ++x % _max; } 
     inline int                previous(volatile int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
     
     int                       channel;
-    volatile TxStatus_t                tx_st;
+    volatile TxStatus_t       tx_st;
     void                      set_tx_status(TxStatus_t st) { tx_st = st; }
     TxStatus_t                get_tx_status() { return tx_st; }
     /* rx STUFF.... */
@@ -162,7 +171,8 @@ class UART : public arduino::HardwareSerial {
     uint8_t                   *get_next_ptr_to_tx() { return (tx_buffer + tx_tail_index); }
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
-    baud_setting_t            baud;
+    baud_setting_t            uart_baud;
+    sci_uart_extended_cfg_t   uart_cfg_extend;
 
     uart_ctrl_t* get_ctrl() { return &uart_ctrl; }
     

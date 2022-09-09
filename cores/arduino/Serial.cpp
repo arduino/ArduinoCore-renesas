@@ -29,12 +29,11 @@
 #undef Serial
 #endif
 
-static bool _sending[10];
+UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
-#define MAX_UARTS    10
 
-static UART *_uarts[MAX_UARTS];
-
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
 
 void uart_callback(uart_callback_args_t *p_args)
 {
@@ -48,57 +47,62 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 
   uint32_t channel = p_args->channel;
   
-  UART *uart_prt = _uarts[channel];
+  UART *uart_ptr = UART::g_uarts[channel];
 
-  uint8_t myrx[2];
+  if(uart_ptr == nullptr) {
+    return;
+  }
+  
 
-    switch (p_args->event){
-        case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
-        case UART_EVENT_ERR_PARITY:
-        case UART_EVENT_ERR_FRAMING:
-        case UART_EVENT_ERR_OVERFLOW:
-        {
-            break;
-        }
-        case UART_EVENT_TX_COMPLETE:
-        {
-          if(uart_prt->get_tx_tail_index() != uart_prt->get_tx_head_index() ) {
-            uart_prt->inc_tx_tail_index();
-            R_SCI_UART_Write (uart_prt->get_ctrl(), uart_prt->get_next_ptr_to_tx(), 1);
-          }
-          else {
-            uart_prt->set_tx_status(TX_STOPPED);
-          }
+  switch (p_args->event){
+      case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
+      case UART_EVENT_ERR_PARITY:
+      case UART_EVENT_ERR_FRAMING:
+      case UART_EVENT_ERR_OVERFLOW:
+      {
           break;
+      }
+      case UART_EVENT_TX_COMPLETE:
+      {
+        if(uart_ptr->get_tx_tail_index() != uart_ptr->get_tx_head_index() ) {
+          uart_ptr->inc_tx_tail_index();
+          R_SCI_UART_Write (uart_ptr->get_ctrl(), uart_ptr->get_next_ptr_to_tx(), 1);
         }
-        case UART_EVENT_RX_CHAR:
-        {
-          if(uart_prt->get_rx_head_index() == uart_prt->get_prev_of_rx_tail()) {
-            // drop receiving byte... not enough space in the buffer...
-          }
-          else {
-            uart_prt->put_in_rx_buffer(p_args->data);
-            uart_prt->inc_rx_head_index();
-          }
+        else {
+          uart_ptr->set_tx_status(TX_STOPPED);
+        }
+        break;
+      }
+      case UART_EVENT_RX_CHAR:
+      {
+        if(uart_ptr->get_rx_head_index() == uart_ptr->get_prev_of_rx_tail()) {
+          // drop receiving byte... not enough space in the buffer...
+        }
+        else {
+          uart_ptr->put_in_rx_buffer(p_args->data);
+          uart_ptr->inc_rx_head_index();
+        }
+        break;
+      }
+      case UART_EVENT_BREAK_DETECT:
+      case UART_EVENT_TX_DATA_EMPTY:
+      {
           break;
-        }
-        case UART_EVENT_BREAK_DETECT:
-        case UART_EVENT_TX_DATA_EMPTY:
-        {
-            break;
-        }
-    }
+      }
+  }
 
 }
 
-/* -------------------------------------------------------------------------- */
-UART::UART(int ch) :
-  tx_st(TX_STOPPED),
-  channel(ch)
-/* -------------------------------------------------------------------------- */
-{ 
-  _uarts[channel] = this;
+UART::UART(uint8_t _pin_tx, uint8_t _pin_rx) : 
+  tx_pin(_pin_tx),
+  rx_pin(_pin_rx),
+  tx_st(TX_STOPPED), 
+  init_ok(false) {
+
 }
+
+
+
 
 /* -------------------------------------------------------------------------- */
 bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
@@ -115,17 +119,20 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 /* -------------------------------------------------------------------------- */
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
-  
-  while(tx_head_index == previous(tx_tail_index, SERIAL_TX_BUFFER_SIZE)) { }
-  inc(tx_head_index, SERIAL_TX_BUFFER_SIZE);
-  tx_buffer[tx_head_index] = c;
-  if(get_tx_status() == TX_STOPPED) {
-    set_tx_status(TX_STARTED);
-    inc(tx_tail_index, SERIAL_TX_BUFFER_SIZE);
-    R_SCI_UART_Write (&uart_ctrl, tx_buffer + tx_tail_index, 1);
+  if(init_ok) {
+    while(tx_head_index == previous(tx_tail_index, SERIAL_TX_BUFFER_SIZE)) { }
+    inc(tx_head_index, SERIAL_TX_BUFFER_SIZE);
+    tx_buffer[tx_head_index] = c;
+    if(get_tx_status() == TX_STOPPED) {
+      set_tx_status(TX_STARTED);
+      inc(tx_tail_index, SERIAL_TX_BUFFER_SIZE);
+      R_SCI_UART_Write (&uart_ctrl, tx_buffer + tx_tail_index, 1);
+    }
+    return 1;
   }
-
-  return 1;
+  else {
+    return 0;
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -135,45 +142,80 @@ UART::operator bool() {
 }
 
 /* -------------------------------------------------------------------------- */
+bool  UART::cfg_pins(int max_index) {
+/* -------------------------------------------------------------------------- */  
+  /* verify index are good */
+  if(tx_pin < 0 || rx_pin < 0 || tx_pin >= max_index || rx_pin >= max_index) {
+    return false;
+  }
+  /* getting configuration from table */
+  const uint16_t *cfg = g_pin_cfg[tx_pin].list;
+  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX);
+  cfg = g_pin_cfg[rx_pin].list;
+  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX);
+  /* verify configuration are good */
+  if(cfg_tx == 0 || cfg_rx == 0 ) {
+    return false;
+  }
+  /* verify channel are the same for both pins */
+  if(GET_CHANNEL(cfg_tx) != GET_CHANNEL(cfg_rx) ) {
+    return false;
+  }
+  /* verify channel does not exceed max possible uart channels */
+  if(channel >= MAX_UARTS) {
+    return false;
+  }
+  /* setting channel */
+  channel = GET_CHANNEL(cfg_tx);
+  
+  /* actually configuring PIN function */
+  ioport_peripheral_t ioport_tx = USE_SCI_EVEN_CFG(cfg_tx) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+  ioport_peripheral_t ioport_rx = USE_SCI_EVEN_CFG(cfg_rx) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+  
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[tx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_tx));
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[rx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_rx));
+
+  return true;
+}
+
+/* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate, uint16_t config) {
 /* -------------------------------------------------------------------------- */  
-#if SERIAL_HOWMANY > 0
-  if (channel == UART1_CHANNEL) {
-    /* configuring PIN */
-    int pin_count = 0;
-    bsp_io_port_pin_t serial_pins[4];
-    for (int i=0; i<PINCOUNT_fn(); i++) {
-      if (g_APinDescription[i].PeripheralConfig == SERIAL_BUS) {
-        serial_pins[pin_count] = g_APinDescription[i].name;
-        pin_count++;
-      }
-      if (pin_count == 2) break;
-    }
-    setPins(serial_pins[0], serial_pins[1]);
+  init_ok = true;
+  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+
+  init_ok &= cfg_pins(max_index);
   
-    uart_cfg.channel = UART1_CHANNEL; 
-    uart_cfg.p_context = NULL;
-    uart_cfg.p_extend = &g_uart0_cfg_extend;
+  if(init_ok) {
+    UART::g_uarts[channel]        = this;
+
+    uart_baud.semr_baudrate_bits_b.abcse          = 0;
+    uart_baud.semr_baudrate_bits_b.abcs           = 0;
+    uart_baud.semr_baudrate_bits_b.bgdm           = 1;
+    uart_baud.cks                                 = 0;
+    uart_baud.brr                                 = 25;
+    uart_baud.mddr                                = (uint8_t) 256;
+    uart_baud.semr_baudrate_bits_b.brme           = false;
+
+    uart_cfg_extend.clock                         = SCI_UART_CLOCK_INT;
+    uart_cfg_extend.rx_edge_start                 = SCI_UART_START_BIT_FALLING_EDGE;
+    uart_cfg_extend.noise_cancel                  = SCI_UART_NOISE_CANCELLATION_DISABLE;
+    uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
+    uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
+    uart_cfg_extend.p_baud_setting                = &uart_baud;
+    uart_cfg_extend.flow_control                  = SCI_UART_FLOW_CONTROL_RTS;
+    uart_cfg_extend.flow_control_pin              = (bsp_io_port_pin_t) UINT16_MAX;
+    uart_cfg_extend.rs485_setting.enable          = SCI_UART_RS485_DISABLE;
+    uart_cfg_extend.rs485_setting.polarity        = SCI_UART_RS485_DE_POLARITY_HIGH;
+    uart_cfg_extend.rs485_setting.de_control_pin  = (bsp_io_port_pin_t) UINT16_MAX;
     
-    uart_cfg.p_transfer_tx       = NULL;
-    uart_cfg.p_transfer_rx       = NULL;
-  }
-#endif
-#if SERIAL_HOWMANY > 1
-  if (channel == UART2_CHANNEL) { }
-#endif
-#if SERIAL_HOWMANY > 2
-  if (channel == UART3_CHANNEL) { }
-#endif
-#if SERIAL_HOWMANY > 3
-  if (channel == UART4_CHANNEL) { }
-#endif
-#if SERIAL_HOWMANY > 4
-  if (channel == UART5_CHANNEL) { }
-#endif
-
-
-  switch(config){
+    uart_cfg.channel                              = channel; 
+    uart_cfg.p_context                            = NULL;
+    uart_cfg.p_extend                             = &uart_cfg_extend;
+    uart_cfg.p_transfer_tx                        = NULL;
+    uart_cfg.p_transfer_rx                        = NULL;
+  
+    switch(config){
       case SERIAL_8N1:
           uart_cfg.data_bits = UART_DATA_BITS_8;
           uart_cfg.parity = UART_PARITY_OFF;
@@ -204,23 +246,27 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
           uart_cfg.parity = UART_PARITY_ODD;
           uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
+    }
+    
+    uart_cfg.p_callback = UART::WrapperCallback;
   }
-  
-  uart_cfg.p_callback = UART::WrapperCallback;
-  setUpUartIrqs(uart_cfg);
+  else {
+    return;
+  }
+
+  init_ok &= setUpUartIrqs(uart_cfg);
   
   fsp_err_t err;
   const bool bit_mod = true;
   const uint32_t err_rate = 5;
 
-  err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &baud);
+  err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &uart_baud);
   err = R_SCI_UART_Open (&uart_ctrl, &uart_cfg);
   if(err != FSP_SUCCESS) while(1);
-  err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &baud);
+  err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &uart_baud);
   if(err != FSP_SUCCESS) while(1);
   err = R_SCI_UART_Read(&uart_ctrl, rx_buffer, 0);
   if(err != FSP_SUCCESS) while(1);
-  _begin = true;
 }
 
 /* -------------------------------------------------------------------------- */

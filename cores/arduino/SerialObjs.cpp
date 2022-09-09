@@ -1,7 +1,7 @@
 #include "Serial.h"
 
 #if SERIAL_HOWMANY > 0
-UART _UART1_(UART1_CHANNEL);
+UART _UART1_(1,0);
 #endif
 
 #if SERIAL_HOWMANY > 1
