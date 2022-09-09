@@ -5,10 +5,14 @@
 #include "tx_api.h"
 #endif
 
+
+
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
 #include "hal_data.h"
 
+
+#include "variant.h"
 
 #if defined(__cplusplus)
 

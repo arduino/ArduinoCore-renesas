@@ -1,0 +1,106 @@
+#ifndef ARDUINO_VARIANT_H
+#define ARDUINO_VARIANT_H
+
+typedef struct
+{
+  bsp_io_port_pin_t        pin;
+  const uint16_t          *list;
+} PinMuxCfg_t ;
+
+
+typedef enum {
+    PIN_CFG_REQ_UART_TX,
+    PIN_CFG_REQ_UART_RX,
+    PIN_CFG_REQ_SCL,
+    PIN_CFG_REQ_SDA,
+    PIN_CFG_REQ_MISO,
+    PIN_CFG_REQ_MOSI,
+    PIN_CFG_REQ_PWM
+    /* to be completed */
+} PinCfgReq_t;
+
+
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req);
+
+#define SCI_CHANNEL                 0x1
+#define NOT_SCI_CHANNEL             0x0
+#define IS_SCI(x)                   (x & SCI_CHANNEL)
+
+#define PIN_USE_POS                 (1)
+#define PIN_USE_MASK                (0x7E)
+
+#define PIN_UNAVAILABLE             (0 << PIN_USE_POS)
+#define PIN_INTERRUPT               (1 << PIN_USE_POS)
+#define PIN_SCL                     (2 << PIN_USE_POS)
+#define PIN_SDA                     (3 << PIN_USE_POS)
+#define PIN_RX_MISO_SCL             (4 << PIN_USE_POS)
+#define PIN_TX_MOSI_SDA             (5 << PIN_USE_POS)
+#define PIN_MISO                    (6 << PIN_USE_POS)
+#define PIN_MOSI                    (7 << PIN_USE_POS)
+#define PIN_SCK                     (8 << PIN_USE_POS)
+#define PIN_PWM                     (9 << PIN_USE_POS)
+/* ..... MAX TO 63 */
+
+#define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
+#define IS_PIN_INTERRUPT(x)         ((x & PIN_USE_MASK) ==  PIN_INTERRUPT)
+
+#define IS_PIN_UART_RX(x)           ((x & PIN_USE_MASK) ==  PIN_RX_MISO_SCL)
+#define IS_PIN_UART_TX(x)           ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA)
+
+#define IS_PIN_SCL(x)               (((x & PIN_USE_MASK) ==  PIN_SCL) || ((x & PIN_USE_MASK) ==  PIN_RX_MISO_SCL))
+#define IS_PIN_SDA(x)               (((x & PIN_USE_MASK) ==  PIN_SDA) || ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA))
+
+#define IS_PIN_MISO(x)              (((x & PIN_USE_MASK) ==  PIN_MISO) || ((x & PIN_USE_MASK) ==  PIN_RX_MISO_SCL))
+#define IS_PIN_MOSI(x)              (((x & PIN_USE_MASK) ==  PIN_MOSI) || ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA))
+
+#define IS_PIN_SCK(x)               ((x & PIN_USE_MASK) ==  PIN_SCK)
+#define IS_PIN_PWM(x)               ((x & PIN_USE_MASK) ==  PIN_PWM)
+
+#define CHANNEL_POS                 (7)
+#define CHANNEL_MASK                (0x780)
+#define CHANNEL_0                   (0 << CHANNEL_POS)
+#define CHANNEL_1                   (1 << CHANNEL_POS)
+#define CHANNEL_2                   (2 << CHANNEL_POS)
+#define CHANNEL_3                   (3 << CHANNEL_POS)
+#define CHANNEL_4                   (4 << CHANNEL_POS)
+#define CHANNEL_5                   (5 << CHANNEL_POS)
+#define CHANNEL_6                   (6 << CHANNEL_POS)
+#define CHANNEL_7                   (7 << CHANNEL_POS)
+#define CHANNEL_8                   (8 << CHANNEL_POS)
+#define CHANNEL_9                   (9 << CHANNEL_POS)
+#define CHANNEL_10                  (10 << CHANNEL_POS)
+#define CHANNEL_11                  (11 << CHANNEL_POS)
+#define CHANNEL_12                  (12 << CHANNEL_POS)
+#define CHANNEL_13                  (13 << CHANNEL_POS)
+#define CHANNEL_14                  (14 << CHANNEL_POS)
+#define CHANNEL_15                  (15 << CHANNEL_POS)
+
+#define GET_CHANNEL(x)              ((x & CHANNEL_MASK) >> CHANNEL_POS)
+/* no more */
+
+#define ADD_CONFIG_POS              (11)
+#define ADD_CONFIG_MASK             (0x7800)
+/* they depend upon the pin use ... max 15 cfg possible */
+
+#define PWM_CHANNEL_A               (0 << ADD_CONFIG_POS)
+#define IS_PWM_ON_A(x)              ((x & ADD_CONFIG_MASK) == PWM_CHANNEL_A)
+#define PWM_CHANNEL_B               (1 << ADD_CONFIG_POS)
+#define IS_PWM_ON_B(x)              ((x & ADD_CONFIG_MASK) == PWM_CHANNEL_B)
+
+#define SCI_EVEN_CFG                (0 << ADD_CONFIG_POS)
+#define USE_SCI_EVEN_CFG(x)         ((x & ADD_CONFIG_MASK) == SCI_EVEN_CFG)
+#define SCI_ODD_CFG                 (1 << ADD_CONFIG_POS)
+#define USE_SCI_ODD_CFG(x)          ((x & ADD_CONFIG_MASK) == SCI_ODD_CFG)
+
+#define ADD_CFG_DONT_CARE           (15 << ADD_CONFIG_POS)
+#define IS_ADD_CFG_DONT_CARE(x)     ((x & ADD_CONFIG_MASK) == ADD_CFG_DONT_CARE)
+
+#define LAST_ITEM_MASK              (0x8000)
+#define NOT_LAST_ITEM               (0 << 15)
+#define LAST_ITEM_GUARD             (1 << 15)
+#define IS_LAST_ITEM(x)             ((x & LAST_ITEM_MASK) ==  LAST_ITEM_GUARD)
+
+
+
+
+#endif
