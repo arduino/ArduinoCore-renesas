@@ -241,7 +241,11 @@ void UART::begin(unsigned long baudrate) {
 /* -------------------------------------------------------------------------- */
 void UART::end() {
 /* -------------------------------------------------------------------------- */  
-  R_SCI_UART_Close (&uart_cfg);
+  rx_head_index = 0;
+  rx_tail_index = 0;
+  tx_head_index = -1;
+  tx_tail_index = -1;
+  R_SCI_UART_Close (&uart_ctrl);
 }
 
 
