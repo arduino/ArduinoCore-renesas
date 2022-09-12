@@ -1,10 +1,5 @@
 #include "bsp_api.h"
 
-#define OLD_INITIALIZATION
-
-void defaltHandler() {
-   
-}
 #ifdef OLD_INITIALIZATION
 BSP_DONT_REMOVE const fsp_vector_t g_vector_table[BSP_ICU_VECTOR_MAX_ENTRIES] BSP_PLACE_IN_SECTION(BSP_SECTION_APPLICATION_VECTORS) =
 {
@@ -41,45 +36,7 @@ BSP_DONT_REMOVE const fsp_vector_t g_vector_table[BSP_ICU_VECTOR_MAX_ENTRIES] BS
     [30] = iic_slave_rxi_isr, /* IIC0 RXI (Receive data full) */
     [31] = iic_slave_txi_isr, /* IIC0 TXI (Transmit data empty) */
 };
-#else
-/* default EMPTY interrupt table - it in FLASH at the beginning of the space allowed for the sketch 
-   The bootloader is responsible to copy it in RAM and setting the Interrupt vector table to that */
-BSP_DONT_REMOVE const fsp_vector_t g_vector_table[BSP_ICU_VECTOR_MAX_ENTRIES] BSP_PLACE_IN_SECTION(BSP_SECTION_APPLICATION_VECTORS) =
-{
-    [0] = defaltHandler, 
-    [1] = defaltHandler, 
-    [2] = defaltHandler, 
-    [3] = defaltHandler, 
-    [4] = defaltHandler, 
-    [5] = defaltHandler, 
-    [6] = defaltHandler, 
-    [7] = defaltHandler, 
-    [8] = defaltHandler, 
-    [9] = defaltHandler, 
-    [10] = defaltHandler, 
-    [11] = defaltHandler, 
-    [12] = defaltHandler, 
-    [13] = defaltHandler, 
-    [14] = defaltHandler, 
-    [15] = defaltHandler, 
-    [16] = defaltHandler, 
-    [17] = defaltHandler, 
-    [18] = defaltHandler, 
-    [19] = defaltHandler, 
-    [20] = defaltHandler, 
-    [21] = defaltHandler, 
-    [22] = defaltHandler, 
-    [23] = defaltHandler, 
-    [24] = defaltHandler, 
-    [25] = defaltHandler, 
-    [26] = defaltHandler, 
-    [27] = defaltHandler, 
-    [28] = defaltHandler, 
-    [29] = defaltHandler, 
-    [30] = defaltHandler, 
-    [31] = defaltHandler, 
-};
-#endif
+
 const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_MAX_ENTRIES] =
 {
     [0] = BSP_PRV_IELS_ENUM(EVENT_IIC1_RXI), /* IIC1 RXI (Receive data full) */
@@ -115,3 +72,11 @@ const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_MAX_ENT
     [30] = BSP_PRV_IELS_ENUM(EVENT_IIC0_RXI), /* IIC0 RXI (Receive data full) */
     [31] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TXI), /* IIC0 TXI (Transmit data empty) */
 };
+
+#else
+/* default EMPTY interrupt table - it in FLASH at the beginning of the space allowed for the sketch 
+   The bootloader is responsible to copy it in RAM and setting the Interrupt vector table to that */
+BSP_DONT_REMOVE const fsp_vector_t g_vector_table[BSP_ICU_VECTOR_MAX_ENTRIES] BSP_PLACE_IN_SECTION(BSP_SECTION_APPLICATION_VECTORS) = {NULL};
+const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_MAX_ENTRIES] = {0};
+#endif
+

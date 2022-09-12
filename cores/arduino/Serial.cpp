@@ -106,7 +106,7 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
   bool rv = false;
 
   if(channel == UART1_CHANNEL) {
-    rv = IRQManager::getInstance().addPeripheral(UART_SCI2,cfg);
+    rv = IRQManager::getInstance().addPeripheral(IRQ_UART_SCI2,&cfg);
   }
   
   return rv;
@@ -154,17 +154,8 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     uart_cfg.channel = UART1_CHANNEL; 
     uart_cfg.p_context = NULL;
     uart_cfg.p_extend = &g_uart0_cfg_extend;
-    #define RA_NOT_DEFINED (1)
-    #if (RA_NOT_DEFINED == g_transfer4)
-      uart_cfg.p_transfer_tx       = NULL;
-    #else
-      uart_cfg.p_transfer_tx = &g_transfer4;
-    #endif
-    #if (RA_NOT_DEFINED == g_transfer21)
-      uart_cfg.p_transfer_rx       = NULL;
-    #else
-      uart_cfg.p_transfer_rx = &g_transfer21;
-    #endif
+    
+    uart_cfg.p_transfer_tx       = NULL;
     uart_cfg.p_transfer_rx       = NULL;
   }
 #endif
