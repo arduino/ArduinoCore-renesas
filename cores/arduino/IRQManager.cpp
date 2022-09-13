@@ -57,6 +57,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
                 NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
                 R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+                irqcfg->first_irq_number = last_interrupt_index;
                 last_interrupt_index++;
             }
 

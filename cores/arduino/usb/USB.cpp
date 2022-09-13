@@ -308,6 +308,11 @@ void _usbhs_interrupt_handler(void)
   tud_task();
 }
 
+extern "C" {
+    void tud_set_irq_usbfs(IRQn_Type q);
+    void tud_set_irq_usbhs(IRQn_Type q);
+}
+
 void __USBStart() {
     USBIrqCfg_t usb_irq_cfg;
 
@@ -327,6 +332,7 @@ void __USBStart() {
     usb_irq_cfg.num_of_irqs_required = 4;
     usb_irq_cfg.address_of_handler = (uint32_t)_usbfs_interrupt_handler;
     IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
+    tud_set_irq_usbfs((IRQn_Type)(usb_irq_cfg.first_irq_number));
 #endif
 #endif
 
@@ -335,6 +341,7 @@ void __USBStart() {
     usb_irq_cfg.num_of_irqs_required = 3;
     usb_irq_cfg.address_of_handler = (uint32_t)_usbhs_interrupt_handler;
     IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
+    tud_set_irq_usbhs((IRQn_Type)(usb_irq_cfg.first_irq_number));
 #endif
 #endif
 
