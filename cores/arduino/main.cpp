@@ -19,6 +19,12 @@ extern const fsp_vector_t g_vector_table[];
 
 void arduino_main(void)
 {
+   // Disable stack pointer protection
+   // TODO: the best thing would be keeping SPMON active but changing
+   // R_MPU_SPMON->SP[0].EA = __stack_top; on every call to malloc()
+   // When stack and heap would collide, we could signal the NMI with mbed style leds patterns
+   R_MPU_SPMON->SP[0].CTL = 0;
+
    __disable_irq();
    irq_vector_table = (volatile uint32_t *)APPLICATION_VECTOR_TABLE_ADDRESS_RAM;
    int _i;
