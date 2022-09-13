@@ -49,7 +49,7 @@ void startAgt() {
 	agt_cfg.p_callback = timer_micros_callback;
 	agt_cfg.p_context = NULL;
 	agt_cfg.p_extend = &agt_extend;
-	agt_cfg.cycle_end_ipl = (12);
+	agt_cfg.cycle_end_ipl = (2);
 	IRQManager::getInstance().addPeripheral(IRQ_AGT,(void*)&agt_cfg);
 	R_AGT_Open(&agt_ctrl, &agt_cfg);
 	timer_status_t status;
@@ -69,9 +69,9 @@ unsigned long millis()
 	timer_status_t status;
 	R_AGT_StatusGet(&agt_ctrl, &status);
 	// Convert time to ms
-	noInterrupts();
-	uint32_t time_ms = (_top_counter - status.counter) * 1000 / _freq_hz + agt_time_ms;
-	interrupts();
+	//NVIC_DisableIRQ(agt_cfg.cycle_end_irq);
+	uint32_t time_ms = ((agt_cfg.period_counts - status.counter) / agt_cfg.source_div)/1000 + agt_time_ms;
+	//NVIC_EnableIRQ(agt_cfg.cycle_end_irq);
 	return time_ms;
 #endif
 }
@@ -80,8 +80,8 @@ unsigned long micros() {
 	timer_status_t status;
 	R_AGT_StatusGet(&agt_ctrl, &status);
 	// Convert time to us
-	noInterrupts();
-	uint32_t time_us = (_top_counter - status.counter) * 1000000 / _freq_hz + agt_time_ms * 1000;
-	interrupts();
+	//NVIC_DisableIRQ(agt_cfg.cycle_end_irq);
+	uint32_t time_us = ((agt_cfg.period_counts - status.counter) / agt_cfg.source_div) +  agt_time_ms * 1000;
+	//NVIC_EnableIRQ(agt_cfg.cycle_end_irq);
 	return time_us;
 }

@@ -54,16 +54,12 @@ uint32_t pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout)
 	uint16_t stateMask = state ? bit : 0;
 
 	unsigned long startMicros = micros();
-    Serial.print("startMicros() ");
-    Serial.println(startMicros);
 
 	// wait for any previous pulse to end
 	while (((*portInputRegister(port)) & bit) == stateMask) {
 		if (micros() - startMicros > timeout)
 			return 0;
 	}
-    Serial.print("micros() ");
-    Serial.println(micros());
 
 	// wait for the pulse to start
 	while (((*portInputRegister(port)) & bit) != stateMask) {

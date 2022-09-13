@@ -96,12 +96,12 @@ size_t SerialUSB::write(const uint8_t *buf, size_t length) {
                 tud_cdc_write_flush();
                 i += n2;
                 written += n2;
-                last_avail_time = micros();
+                last_avail_time = millis();
             } else {
                 tud_task();
                 tud_cdc_write_flush();
                 if (!tud_cdc_connected() ||
-                        (!tud_cdc_write_available() && micros() > last_avail_time + 1000000 /* 1 second */)) {
+                        (!tud_cdc_write_available() && millis() > last_avail_time + 1000 /* 1 second */)) {
                     break;
                 }
             }
