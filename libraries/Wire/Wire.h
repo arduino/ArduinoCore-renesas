@@ -73,6 +73,14 @@ using I2C_onTxCallback_f        = void (*)(void);
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
+#define END_TX_OK      0
+#define END_TX_DATA_TOO_LONG 1
+#define END_TX_NACK_ON_ADD  2
+#define END_TX_NACK_ON_DATA 3
+#define END_TX_ERR_FSP 4
+#define END_TX_TIMEOUT 5
+
+
 typedef enum {
   ADDRESS_MODE_7_BITS,
   ADDRESS_MODE_10_BITS
@@ -140,6 +148,7 @@ class TwoWire : public arduino::HardwareI2C {
     static void WireSlaveCallback(i2c_slave_callback_args_t *);
     
     unsigned int timeout;
+    bool data_too_long; 
 
     bool init_ok;
     uint8_t scl_pin;

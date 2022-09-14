@@ -119,6 +119,7 @@ TwoWire::TwoWire(int scl, int sda, WireSpeed_t wp /*= SPEED_STANDARD*/, WireAddr
   address_mode(am),
   timeout(1000),
   transmission_begun(false),
+  data_too_long(false),
   require_sci(prefer_sci) {
 /* -------------------------------------------------------------------------- */    
 
@@ -375,6 +376,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
 /* -------------------------------------------------------------------------- */    
 uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
 /* -------------------------------------------------------------------------- */  
+  uint8_t rv = END_TX_OK;
   fsp_err_t err;
   if(init_ok) {
     err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
@@ -382,12 +384,26 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
       err = m_write(&m_i2c_ctrl,data,length,!sendStop);
     }
     bus_status = WIRE_STATUS_UNSET;
-    while(timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
+    while(err == FSP_SUCCESS && timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
       timeout_ms--;
       delay(1);
     }
   }
-
+  if(err != FSP_SUCCESS) {
+    rv = END_TX_ERR_FSP;
+  }
+  else if(data_too_long) {
+    rv = END_TX_DATA_TOO_LONG;
+  }
+  else if(bus_status == WIRE_STATUS_UNSET) {
+    rv = END_TX_TIMEOUT;
+  }
+  /* as far as I know is impossible to distinguish between NACK on ADDRESS and
+     NACK on DATA */
+  else if(bus_status == WIRE_STATUS_TRANSACTION_ABORTED) {
+    rv = END_TX_NACK_ON_ADD;
+  }
+  return rv;
 }
 
 /* -------------------------------------------------------------------------- */    
@@ -428,6 +444,7 @@ void TwoWire::setClock(uint32_t ws) {
 void TwoWire::beginTransmission(uint32_t address) {
 /* -------------------------------------------------------------------------- */  
   if (init_ok) {
+    data_too_long = false;
     master_tx_address = address;
     transmission_begun = true;
     tx_index = 0;
@@ -536,6 +553,7 @@ size_t TwoWire::write(uint8_t data) {
   if(is_master) {
     if(transmission_begun) {
       if(tx_index >= I2C_BUFFER_LENGTH) {
+        data_too_long = true;
         setWriteError();
         return 0;
       }
