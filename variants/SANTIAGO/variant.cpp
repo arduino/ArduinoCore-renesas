@@ -114,13 +114,27 @@ const uint16_t P100[] = { (NOT_SCI_CHANNEL | PIN_SCL         | CHANNEL_1  | ADD_
 
 
 
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
     return 0;
   }
   bool thats_all = false;
   uint8_t index = 0;
   while(!thats_all) {
+
+    /* usually not SCI peripheral have higher priority (they came
+       first in the table) but it is possible to prefer SCI peripheral */
+    if(prefer_sci && !IS_SCI(*(cfg + index))) {
+      if(IS_LAST_ITEM(*(cfg + index))) {
+        thats_all = true;
+      }
+      else {
+        index++;
+      }
+      continue;
+    }
+
+
     if(PIN_CFG_REQ_UART_TX == req && IS_PIN_UART_TX(*(cfg + index))) {
       return *(cfg + index);
     }
@@ -155,32 +169,32 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
-  { BSP_IO_PORT_03_PIN_01,    P301   }, /* D0  -------------------------  DIGITAL  */
-  { BSP_IO_PORT_01_PIN_02,    P102   }, /* D1  */
-  { BSP_IO_PORT_02_PIN_06,    nullptr}, /* D2  */
-  { BSP_IO_PORT_01_PIN_04,    nullptr}, /* D3  */
-  { BSP_IO_PORT_04_PIN_00,    nullptr}, /* D4  */
-  { BSP_IO_PORT_01_PIN_03,    nullptr}, /* D5  */
-  { BSP_IO_PORT_01_PIN_12,    nullptr}, /* D6  */
-  { BSP_IO_PORT_04_PIN_09,    nullptr}, /* D7  */
-  { BSP_IO_PORT_03_PIN_02,    nullptr}, /* D8  */
-  { BSP_IO_PORT_03_PIN_00,    nullptr}, /* D9  */
-  { BSP_IO_PORT_01_PIN_08,    nullptr}, /* D10 */
-  { BSP_IO_PORT_01_PIN_09,    nullptr}, /* D11 */
-  { BSP_IO_PORT_01_PIN_10,    nullptr}, /* D12 */
-  { BSP_IO_PORT_01_PIN_11,    nullptr}, /* D13 */
-  { BSP_IO_PORT_01_PIN_01,    nullptr}, /* D14 */
-  { BSP_IO_PORT_01_PIN_00,    nullptr}, /* D15 */
-  { BSP_IO_PORT_00_PIN_14,    nullptr}, /* A0  --------------------------  ANALOG  */
-  { BSP_IO_PORT_00_PIN_00,    nullptr}, /* A1  */
-  { BSP_IO_PORT_00_PIN_01,    nullptr}, /* A2  */
-  { BSP_IO_PORT_00_PIN_02,    nullptr}, /* A3  */
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* A4  */
-  { BSP_IO_PORT_01_PIN_00,    P100   }, /* A5  */
-  { BSP_IO_PORT_00_PIN_11,    nullptr}, /* D22 --------------------------- RGB LED */
-  { BSP_IO_PORT_00_PIN_13,    nullptr}, /* D23 */
-  { BSP_IO_PORT_00_PIN_12,    nullptr}, /* D24 ------------------------- TX/RX LED */
-  { BSP_IO_PORT_02_PIN_01,    nullptr}, /* D25 */
+  { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
+  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
+  { BSP_IO_PORT_02_PIN_06,    nullptr}, /* (2) D2  */
+  { BSP_IO_PORT_01_PIN_04,    nullptr}, /* (3) D3  */
+  { BSP_IO_PORT_04_PIN_00,    nullptr}, /* (4) D4  */
+  { BSP_IO_PORT_01_PIN_03,    nullptr}, /* (5) D5  */
+  { BSP_IO_PORT_01_PIN_12,    nullptr}, /* (6) D6  */
+  { BSP_IO_PORT_04_PIN_09,    nullptr}, /* (7) D7  */
+  { BSP_IO_PORT_03_PIN_02,    nullptr}, /* (8) D8  */
+  { BSP_IO_PORT_03_PIN_00,    nullptr}, /* (9) D9  */
+  { BSP_IO_PORT_01_PIN_08,    nullptr}, /* (10) D10 */
+  { BSP_IO_PORT_01_PIN_09,    nullptr}, /* (11) D11 */
+  { BSP_IO_PORT_01_PIN_10,    nullptr}, /* (12) D12 */
+  { BSP_IO_PORT_01_PIN_11,    nullptr}, /* (13) D13 */
+  { BSP_IO_PORT_01_PIN_01,    nullptr}, /* (14) D14 */
+  { BSP_IO_PORT_01_PIN_00,    nullptr}, /* (15) D15 */
+  { BSP_IO_PORT_00_PIN_14,    nullptr}, /* (16) A0  --------------------------  ANALOG  */
+  { BSP_IO_PORT_00_PIN_00,    nullptr}, /* (17) A1  */
+  { BSP_IO_PORT_00_PIN_01,    nullptr}, /* (18) A2  */
+  { BSP_IO_PORT_00_PIN_02,    nullptr}, /* (19) A3  */
+  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
+  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
+  { BSP_IO_PORT_00_PIN_11,    nullptr}, /* (22) D22 --------------------------- RGB LED */
+  { BSP_IO_PORT_00_PIN_13,    nullptr}, /* (23) D23 */
+  { BSP_IO_PORT_00_PIN_12,    nullptr}, /* (24) D24 ------------------------- TX/RX LED */
+  { BSP_IO_PORT_02_PIN_01,    nullptr}, /* (25) D25 */
   { BSP_IO_PORT_01_PIN_07,    nullptr},
   { BSP_IO_PORT_01_PIN_13,    nullptr},
   { BSP_IO_PORT_01_PIN_14,    nullptr},

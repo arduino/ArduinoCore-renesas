@@ -20,7 +20,7 @@ typedef enum {
 } PinCfgReq_t;
 
 
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req);
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 
 #define SCI_CHANNEL                 0x1
 #define NOT_SCI_CHANNEL             0x0
