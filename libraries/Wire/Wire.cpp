@@ -27,570 +27,618 @@ extern "C" {
 }
 
 #include "Wire.h"
+TwoWire *TwoWire::g_Wires[MAX_I2CS] = {nullptr};
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
 
-// Initialize Class Variables //////////////////////////////////////////////////
-
-uint8_t TwoWire::initialized = 0;
-uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
-uint8_t TwoWire::rxBufferIndex = 0;
-uint8_t TwoWire::rxBufferLength = 0;
-
-uint8_t TwoWire::txAddress = 0;
-uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
-uint8_t TwoWire::txBufferIndex = 0;
-uint8_t TwoWire::txBufferLength = 0;
-
-uint8_t TwoWire::transmitting = 0;
-void (*TwoWire::user_onRequest)(void);
-void (*TwoWire::user_onReceive)(int);
-
-static uint32_t timeout_ms = 1000;
-
-static i2c_master_event_t _i2c_cb_event[13] = {I2C_MASTER_EVENT_ABORTED};
-
-// Constructors ////////////////////////////////////////////////////////////////
-
-TwoWire::TwoWire(i2c_master_ctrl_t *g_i2c_master_ctrl
-                 ,const i2c_master_cfg_t *g_i2c_master_cfg, int ch, bool isSci):
-  _g_i2c_master_ctrl(g_i2c_master_ctrl)
-, _g_i2c_master_cfg(g_i2c_master_cfg)
-, _channel(ch)
-, _is_sci(isSci)
-{
+/* -------------------------------------------------------------------------- */
+void TwoWire::setBusStatus(WireStatus_t ws) {
+/* -------------------------------------------------------------------------- */  
+  bus_status = ws;
 }
 
-TwoWire::TwoWire(int ch, bool isSci):
-  _channel(ch),
-  _is_sci(isSci)
-{
-}
+/* -------------------------------------------------------------------------- */
+void TwoWire::WireMasterCallback(i2c_master_callback_args_t *arg) {
+/* -------------------------------------------------------------------------- */  
+  /* +++++ MASTER Callback ++++++ */
+  i2c_master_event_t event = arg->event;
+  i2c_master_cfg_t *cfg = (i2c_master_cfg_t *)arg->p_context;
 
-// Public Methods //////////////////////////////////////////////////////////////
+  TwoWire *ptr = g_Wires[cfg->channel];
 
-void TwoWire::begin(void)
-{
-  rxBufferIndex = 0;
-  rxBufferLength = 0;
-
-  txBufferIndex = 0;
-  txBufferLength = 0;
-
-  _cb_event_idx = _channel;
-
-  bool isWireObject = false;
-
-  EPeripheralBus periphBusCfg = NOT_A_BUS;
-
-#if WIRE_HOWMANY > 0
-  if (_channel == WIRE_CHANNEL && _is_sci == IS_WIRE_SCI) {
-    isWireObject = true;
-    periphBusCfg = WIRE_BUS;
-  }
-#endif
-#if WIRE_HOWMNAY > 1
-  if (_channel == WIRE1_CHANNEL && _is_sci == IS_WIRE1_SCI) {
-    isWireObject = true;
-    periphBusCfg = WIRE1_BUS;
-  }
-#endif
-#if WIRE_HOWMNAY > 2
-  if (_channel == WIRE2_CHANNEL && _is_sci == IS_WIRE2_SCI) {
-    isWireObject = true;
-    periphBusCfg = WIRE2_BUS;
-  }
-#endif
-
-  if (isWireObject) {
-    int pin_count = 0;
-    bsp_io_port_pin_t wire_pins[2];
-    for (int i=0; i<PINCOUNT_fn(); i++) {
-      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
-        wire_pins[pin_count] = g_APinDescription[i].name;
-        pin_count++;
-      }
-      if (pin_count == 2) break;
+  if(ptr != nullptr) {  
+    if(arg->event == I2C_MASTER_EVENT_ABORTED) {
+      ptr->setBusStatus(WIRE_STATUS_TRANSACTION_ABORTED);
     }
-    setPins(wire_pins[0], wire_pins[1]);
-  }
-
-  enableI2CIrqs();
-
-  if (_is_sci) {
-    _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(SciTable[_channel].i2c_instance->p_ctrl);
-    _g_i2c_master_cfg = (const i2c_master_cfg_t *)(SciTable[_channel].i2c_instance->p_cfg);
-    for (int i=0; i<I2C_COUNT; i++) {
-      //Adjust callback event index to be referred to I2CMasterTable table
-      if ((i2c_master_ctrl_t*)SciTable[_channel].i2c_instance == &I2CMasterTable[i]) {
-        _cb_event_idx = i;
-        break;
-      }
+    else if(arg->event == I2C_MASTER_EVENT_RX_COMPLETE) {
+      ptr->setBusStatus(WIRE_STATUS_RX_COMPLETED);
     }
-  } else {
-    _g_i2c_master_ctrl = (i2c_master_ctrl_t*)(I2CMasterTable[_channel].p_ctrl);
-    _g_i2c_master_cfg = (const i2c_master_cfg_t *)(I2CMasterTable[_channel].p_cfg);
-  }
-  _i2c_config = *_g_i2c_master_cfg;
-  _i2c_config.p_context = (void*)_channel;
-
-  if(!initialized) {
-    if (_is_sci) {
-      R_SCI_I2C_Open(_g_i2c_master_ctrl, &_i2c_config);
-    } else {
-      R_IIC_MASTER_Open(_g_i2c_master_ctrl, &_i2c_config);
+    else if(arg->event == I2C_MASTER_EVENT_TX_COMPLETE) {
+      ptr->setBusStatus(WIRE_STATUS_TX_COMPLETED);
     }
-    initialized = true;
   }
 }
 
-void TwoWire::begin(uint8_t address)
-{
-  begin();
-  // TO DO
-  //twi_setAddress(address);
-}
-
-void TwoWire::begin(int address)
-{
-  begin((uint8_t)address);
-}
-
-void TwoWire::end(void)
-{
-  if(initialized) {
-    if (_is_sci) {
-      R_SCI_I2C_Close(_g_i2c_master_ctrl);
-    } else {
-      R_IIC_MASTER_Close(_g_i2c_master_ctrl);
+/* -------------------------------------------------------------------------- */
+void TwoWire::WireSlaveCallback(i2c_slave_callback_args_t *arg) {
+/* -------------------------------------------------------------------------- */
+  /* +++++ SLAVE Callback ++++++ */
+  uint32_t bytes = arg->bytes;
+  i2c_slave_event_t event = arg->event;
+  
+  #ifdef NOT_USED_FOR_THE_MOMENT
+  
+  if(arg->event == I2C_SLAVE_EVENT_ABORTED) {
+    bus_status = WIRE_STATUS_TRANSACTION_ABORTED;
+  }
+  else if(arg->event == I2C_SLAVE_EVENT_RX_COMPLETE) {
+    bus_status = WIRE_STATUS_RX_COMPLETED;
+    if(rx_callback != nullptr) {
+      rx_callback(bytes);
     }
-    initialized = false;
   }
-}
-
-void TwoWire::setPins(int sda, int scl)
-{
-  setPins(digitalPinToBspPin(sda), digitalPinToBspPin(scl));
-}
-
-void TwoWire::setPins(bsp_io_port_pin_t sda, bsp_io_port_pin_t scl)
-{
-  uint32_t peripheralCfg = 0;
-  if (_is_sci) {
-    if (_channel%2 == 0) {
-      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI0_2_4_6_8;
-    } else {
-      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+  else if(arg->event == I2C_SLAVE_EVENT_TX_COMPLETE) {
+    bus_status = WIRE_STATUS_TX_COMPLETED;
+    if(tx_callback != nullptr) {
+      tx_callback();
     }
-  } else {
-    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_IIC;
   }
+  else if(arg->event == I2C_SLAVE_EVENT_RX_REQUEST) {
+    bus_status = WIRE_STATUS_RX_REQUEST;
+    if(rx_callback != nullptr) {
+      rx_callback(bytes);
+    }
+  }
+  else if(arg->event == I2C_SLAVE_EVENT_TX_REQUEST) {
+    bus_status = WIRE_STATUS_TX_REQUEST;
+    if(rx_callback != nullptr) {
+      rx_callback(bytes);
+    }
+  }
+  else if(arg->event == I2C_SLAVE_EVENT_RX_MORE_REQUEST) {
+    bus_status = WIRE_STATUS_RX_REQUEST;
+  }
+  else if(arg->event == I2C_SLAVE_EVENT_TX_MORE_REQUEST) {
+    bus_status = WIRE_STATUS_TX_REQUEST;
+  }
+  else if(arg->event == I2C_SLAVE_EVENT_GENERAL_CALL) {
+    bus_status = WIRE_STATUS_GENERAL_CALL;
+  }
+  #endif
+}
+
+
+/* -------------------------------------------------------------------------- */
+TwoWire::TwoWire(int scl, int sda, WireSpeed_t wp /*= SPEED_STANDARD*/, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*/, bool prefer_sci /*= false*/) : 
+  scl_pin(scl),
+  sda_pin(sda), 
+  init_ok(false),
+  is_master(true),
+  is_sci(false),
+  speed_mode(wp),
+  address_mode(am),
+  timeout(1000),
+  transmission_begun(false),
+  require_sci(prefer_sci) {
+/* -------------------------------------------------------------------------- */    
+
+}
+
+/* -------------------------------------------------------------------------- */ 
+bool TwoWire::cfg_pins(int max_index) {
+/* -------------------------------------------------------------------------- */   
+  /* verify index are good */
+  if(scl_pin < 0 || sda_pin < 0 || scl_pin >= max_index || sda_pin >= max_index) {
+    return false;
+  }
+  /* getting configuration from table */
+  const uint16_t *cfg = g_pin_cfg[scl_pin].list;
+  uint16_t cfg_scl = getPinCfg(cfg, PIN_CFG_REQ_SCL,require_sci);
+  cfg = g_pin_cfg[sda_pin].list;
+  uint16_t cfg_sda = getPinCfg(cfg, PIN_CFG_REQ_SDA,require_sci);
+  /* verify configuration are good */
+  if(cfg_scl == 0 || cfg_sda == 0 ) {
+    return false;
+  }
+  /* verify channel are the same for both pins */
+  if(GET_CHANNEL(cfg_scl) != GET_CHANNEL(cfg_sda) ) {
+    return false;
+  }
+  /* verify channel does not exceed max possible uart channels */
+  if(channel >= MAX_I2CS) {
+    return false;
+  }
+  /* setting channel */
+  channel = GET_CHANNEL(cfg_scl);
+  
+  /* actually configuring PIN function */
+  ioport_peripheral_t ioport_sda;
+  ioport_peripheral_t ioport_scl;
+  
+  if(IS_SCI(cfg_sda)) {
+    /* if is a SCI peripheral take into account*/
+    channel += SCI_I2C_CHANNEL_OFFSET;
+    is_sci = true;
+    ioport_sda = USE_SCI_EVEN_CFG(cfg_sda) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+    ioport_scl = USE_SCI_EVEN_CFG(cfg_scl) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+  }
+  else {
+    is_sci = false;
+    ioport_sda = IOPORT_PERIPHERAL_IIC;
+    ioport_scl = IOPORT_PERIPHERAL_IIC;
+  }
+  
+  /*
   pinPeripheral(sda, (uint32_t) IOPORT_CFG_DRIVE_MID |
                      (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
   pinPeripheral(scl, (uint32_t) IOPORT_CFG_DRIVE_MID |
                      (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
+  */
+
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+
+  return true;
 }
 
-void TwoWire::setClock(uint32_t clock)
-{
-  // TO DO
-  //twi_setFrequency(clock);
-}
+/* -------------------------------------------------------------------------- */
+void TwoWire::begin(void) {
+/* -------------------------------------------------------------------------- */  
+  init_ok = true;
+  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
 
-size_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
-{
-  if (isize > 0) {
-  // send internal address; this mode allows sending a repeated start to access
-  // some devices' internal registers. This function is executed by the hardware
-  // TWI module on other processors (for example Due's TWI_IADR and TWI_MMR registers)
+  init_ok &= cfg_pins(max_index);
 
-  beginTransmission(address);
+  if(init_ok) {
+    TwoWire::g_Wires[channel]        = this;
+    /* -----------------------------------
+        ->>>>>  MASTER initialization
+     * ----------------------------------- */
+    if(is_master) {
+      if(is_sci) {
+        m_open          = R_SCI_I2C_Open;
+        m_read          = R_SCI_I2C_Read;
+        m_write         = R_SCI_I2C_Write;
+        m_abort         = R_SCI_I2C_Abort;
+        m_setSlaveAdd   = R_SCI_I2C_SlaveAddressSet;
+        m_setCallback   = R_SCI_I2C_CallbackSet;
+        m_getStatus     = R_SCI_I2C_StatusGet;
+        m_close         = R_SCI_I2C_Close;
+      }
+      else {
+        m_open          = R_IIC_MASTER_Open;
+        m_read          = R_IIC_MASTER_Read;
+        m_write         = R_IIC_MASTER_Write;
+        m_abort         = R_IIC_MASTER_Abort;
+        m_setSlaveAdd   = R_IIC_MASTER_SlaveAddressSet;
+        m_setCallback   = R_IIC_MASTER_CallbackSet;
+        m_getStatus     = R_IIC_MASTER_StatusGet;
+        m_close         = R_IIC_MASTER_Close;
+      }
 
-  // the maximum size of internal address is 3 bytes
-  if (isize > 3){
-    isize = 3;
+      /* Actual calculated bitrate: 99272. Actual calculated duty cycle: 49%. */
+      m_i2c_extend.timeout_mode             = IIC_MASTER_TIMEOUT_MODE_SHORT;
+      m_i2c_extend.timeout_scl_low          = IIC_MASTER_TIMEOUT_SCL_LOW_DISABLED;
+      m_i2c_extend.clock_settings.brl_value = 27;
+      m_i2c_extend.clock_settings.brh_value = 26;
+      m_i2c_extend.clock_settings.cks_value = 2;
+
+      m_i2c_cfg.channel                     = channel; 
+      m_i2c_cfg.rate                        = I2C_MASTER_RATE_STANDARD;
+      if(speed_mode == SPEED_FAST) {
+          m_i2c_cfg.rate                    = I2C_MASTER_RATE_FAST;
+      }
+      else if(speed_mode == SPEED_VERY_FAST) {
+          m_i2c_cfg.rate                    = I2C_MASTER_RATE_FASTPLUS;
+      }
+      m_i2c_cfg.slave                       = 0x00;
+      m_i2c_cfg.addr_mode                   = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_MASTER_ADDR_MODE_7BIT : I2C_MASTER_ADDR_MODE_10BIT;
+      m_i2c_cfg.p_transfer_tx               = NULL;
+      m_i2c_cfg.p_transfer_rx               = NULL;
+      m_i2c_cfg.p_callback                  = WireMasterCallback;
+      m_i2c_cfg.p_context                   = &m_i2c_cfg;
+      m_i2c_cfg.rxi_irq                     = FSP_INVALID_VECTOR;
+      m_i2c_cfg.txi_irq                     = FSP_INVALID_VECTOR;
+      m_i2c_cfg.tei_irq                     = FSP_INVALID_VECTOR;
+      m_i2c_cfg.eri_irq                     = FSP_INVALID_VECTOR;
+      m_i2c_cfg.ipl                         = (12);
+      m_i2c_cfg.p_extend                    = &m_i2c_extend;
+    
+    } // if(is_master) {
+    /* -----------------------------------
+        ->>>>>  SLAVE initialization
+     * ----------------------------------- */
+    else {
+      s_open            = R_IIC_SLAVE_Open;
+      s_read            = R_IIC_SLAVE_Read;
+      s_write           = R_IIC_SLAVE_Write;
+      s_setCallback     = R_IIC_SLAVE_CallbackSet;
+      s_close           = R_IIC_SLAVE_Close;
+    
+      s_i2c_cfg.channel                 = channel;
+      s_i2c_cfg.rate                    = I2C_SLAVE_RATE_STANDARD;
+      if(speed_mode == SPEED_FAST) {
+        s_i2c_cfg.rate                  = I2C_SLAVE_RATE_FAST;
+      }
+      else if(speed_mode == SPEED_VERY_FAST) {
+        s_i2c_cfg.rate                  = I2C_SLAVE_RATE_FASTPLUS;
+      }
+      s_i2c_cfg.slave                   = 
+      s_i2c_cfg.addr_mode                = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_SLAVE_ADDR_MODE_7BIT : I2C_SLAVE_ADDR_MODE_10BIT;
+      s_i2c_cfg.general_call_enable     = false;
+      s_i2c_cfg.rxi_irq                 = FSP_INVALID_VECTOR;
+      s_i2c_cfg.txi_irq                 = FSP_INVALID_VECTOR;
+      s_i2c_cfg.tei_irq                 = FSP_INVALID_VECTOR;
+      s_i2c_cfg.tei_irq                 = FSP_INVALID_VECTOR;
+      s_i2c_cfg.ipl                     = (12);
+      s_i2c_cfg.eri_ipl                 = (12);
+      s_i2c_cfg.clock_stretching_enable = true;
+      s_i2c_cfg.p_callback              = WireSlaveCallback;
+    }
+  }
+  else {
+    return;
   }
 
-  // write internal register address - most significant byte first
-  while (isize-- > 0)
-    write((uint8_t)(iaddress >> (isize*8)));
-  endTransmission(false);
+  if(is_master) {
+      I2CIrqMasterReq_t irq_req;
+      irq_req.ctrl = &m_i2c_ctrl; 
+      irq_req.cfg = &m_i2c_cfg;
+      if(is_sci) {
+        init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_I2C_MASTER,&irq_req);
+      }
+      else {
+        init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_MASTER,&irq_req);
+      }
+      if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
+         init_ok &= true;
+      }
+      else {
+         init_ok = false;
+      }
+
+  }
+  else {
+      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_SLAVE,&s_i2c_cfg);
+      s_open(&s_i2c_ctrl, &s_i2c_cfg);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::begin(uint16_t address) {
+/* -------------------------------------------------------------------------- */  
+  is_master = false;
+  slave_address = address;
+  /* Address is set inside begin() using slave_address member variable */
+  begin();
+  
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::begin(int address) {
+/* -------------------------------------------------------------------------- */  
+  is_master = false;
+  slave_address = (uint16_t)address;
+  begin((uint16_t)address);
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::begin(uint8_t address) {
+/* -------------------------------------------------------------------------- */  
+  is_master = false;
+  slave_address = (uint16_t)address;
+  begin((uint16_t)address);
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::end(void) {
+/* -------------------------------------------------------------------------- */  
+
+  if(init_ok) {
+    if(is_master) {
+      m_close(&m_i2c_ctrl);  
+    }
+    else {
+      s_close(&s_i2c_ctrl);
+    }
+  }
+  init_ok = false;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+/* -------------------------------------------------------------------------- */  
+  /* ??? does this function make sense only for MASTER ???? */
+  
+  fsp_err_t err;
+  if(init_ok) {
+    err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
+    if(err == FSP_SUCCESS) {
+      err = m_read(&m_i2c_ctrl,data,length,!sendStop);
+    }
+    bus_status = WIRE_STATUS_UNSET;
+    while(timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
+      timeout_ms--;
+      delay(1);
+    }
+  }
+
+  if(bus_status == WIRE_STATUS_RX_COMPLETED) {
+    return length;
+  }
+  
+  return 0; /* ???????? return value ??????? */
+}
+
+/* -------------------------------------------------------------------------- */    
+uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+/* -------------------------------------------------------------------------- */  
+  fsp_err_t err;
+  if(init_ok) {
+    err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
+    if(err == FSP_SUCCESS) {
+      err = m_write(&m_i2c_ctrl,data,length,!sendStop);
+    }
+    bus_status = WIRE_STATUS_UNSET;
+    while(timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
+      timeout_ms--;
+      delay(1);
+    }
+  }
+
+}
+
+/* -------------------------------------------------------------------------- */    
+void TwoWire::setClock(uint32_t ws) {
+/* -------------------------------------------------------------------------- */      
+  if(init_ok && is_master) {
+    m_close(&m_i2c_ctrl); 
+  }
+
+  if(is_master) {
+    if((WireSpeed_t)ws == SPEED_STANDARD) {
+        m_i2c_cfg.rate                    = I2C_MASTER_RATE_STANDARD;
+    }
+    else if((WireSpeed_t)ws == SPEED_FAST) {
+        m_i2c_cfg.rate                    = I2C_MASTER_RATE_FAST;
+    }
+    else if((WireSpeed_t)ws == SPEED_VERY_FAST) {
+        m_i2c_cfg.rate                    = I2C_MASTER_RATE_FASTPLUS;
+    }
+
+  }
+
+  if(init_ok) {
+    if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
+        init_ok &= true;
+    }
+    else {
+        init_ok = false;
+    }
+  }
+}
+
+/*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *                           TRANSMISSION BEGIN
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::beginTransmission(uint32_t address) {
+/* -------------------------------------------------------------------------- */  
+  if (init_ok) {
+    master_tx_address = address;
+    transmission_begun = true;
+    tx_index = 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::beginTransmission(uint16_t address) {
+/* -------------------------------------------------------------------------- */
+  beginTransmission((uint32_t)address);
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::beginTransmission(uint8_t address){
+/* -------------------------------------------------------------------------- */  
+  beginTransmission((uint32_t)address);
+}
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::beginTransmission(int address) {
+/* -------------------------------------------------------------------------- */  
+  beginTransmission((uint32_t)address);
+}
+
+/*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *                            TRANSMISSION END
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+/* -------------------------------------------------------------------------- */
+uint8_t TwoWire::endTransmission(bool sendStop) {
+/* -------------------------------------------------------------------------- */  
+  uint8_t ret = write_to(master_tx_address, tx_buffer, tx_index, timeout, sendStop);
+  transmission_begun = false;
+  return ret;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t TwoWire::endTransmission(void) {
+/* -------------------------------------------------------------------------- */  
+  return endTransmission(true);
+}
+
+/*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *                             REQUEST FROM
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+
+/* -------------------------------------------------------------------------- */
+size_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop) {
+/* -------------------------------------------------------------------------- */  
+  if (isize > 0) {
+    // send internal address; this mode allows sending a repeated start to access
+    // some devices' internal registers. This function is executed by the hardware
+    // TWI module on other processors (for example Due's TWI_IADR and TWI_MMR registers)
+
+    beginTransmission(address);
+
+    // the maximum size of internal address is 3 bytes
+    if (isize > 3){
+      isize = 3;
+    }
+
+    // write internal register address - most significant byte first
+    while (isize-- > 0) {
+      write((uint8_t)(iaddress >> (isize*8)));
+    }
+
+    endTransmission(false);
   }
 
   // clamp to buffer length
-  if(quantity > BUFFER_LENGTH){
-    quantity = BUFFER_LENGTH;
+  if(quantity > I2C_BUFFER_LENGTH){
+    quantity = I2C_BUFFER_LENGTH;
   }
   // perform blocking read into buffer
-  uint8_t read = twi_readFrom(address, rxBuffer, quantity, sendStop);
+  uint8_t read = read_from(address, rx_buffer, quantity, timeout, sendStop);
   // set rx buffer iterator vars
-  rxBufferIndex = 0;
-  rxBufferLength = read;
+  rx_index = read;
+  rx_extract_index = 0;
 
   return (size_t)read;
 }
 
+/* -------------------------------------------------------------------------- */
 size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool sendStop) {
+/* -------------------------------------------------------------------------- */  
 	return requestFrom((uint8_t)address, quantity, (uint32_t)0, (uint8_t)0, sendStop);
 }
 
-size_t TwoWire::requestFrom(uint8_t address, size_t quantity)
-{
+/* -------------------------------------------------------------------------- */
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity) {
+/* -------------------------------------------------------------------------- */  
   return requestFrom((uint8_t)address, quantity, true);
 }
 
-void TwoWire::beginTransmission(uint8_t address)
-{
-  if (initialized) {
-    // indicate that we are transmitting
-    transmitting = 1;
-    // set address of targeted slave
-    txAddress = address;
-    // reset tx buffer iterator vars
-    txBufferIndex = 0;
-    txBufferLength = 0;
-  }
-}
-
-void TwoWire::beginTransmission(int address)
-{
-  beginTransmission((uint8_t)address);
-}
-
-//
-//	Originally, 'endTransmission' was an f(void) function.
-//	It has been modified to take one parameter indicating
-//	whether or not a STOP should be performed on the bus.
-//	Calling endTransmission(false) allows a sketch to 
-//	perform a repeated start. 
-//
-//	WARNING: Nothing in the library keeps track of whether
-//	the bus tenure has been properly ended with a STOP. It
-//	is very possible to leave the bus in a hung state if
-//	no call to endTransmission(true) is made. Some I2C
-//	devices will behave oddly if they do not see a STOP.
-//
-uint8_t TwoWire::endTransmission(bool sendStop)
-{
-  // transmit buffer (blocking)
-  uint8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, 1, sendStop);
-  // reset tx buffer iterator vars
-  txBufferIndex = 0;
-  txBufferLength = 0;
-  // indicate that we are done transmitting
-  transmitting = 0;
-  return ret;
-}
-
-//	This provides backwards compatibility with the original
-//	definition, and expected behaviour, of endTransmission
-//
-uint8_t TwoWire::endTransmission(void)
-{
-  return endTransmission(true);
-}
+/*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *                                 WRITE
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
 // must be called in:
 // slave tx event callback
 // or after beginTransmission(address)
-size_t TwoWire::write(uint8_t data)
-{
-  if(transmitting){
-  // in master transmitter mode
-    // don't bother if buffer is full
-    if(txBufferLength >= BUFFER_LENGTH){
-      setWriteError();
-      return 0;
+/* -------------------------------------------------------------------------- */
+size_t TwoWire::write(uint8_t data) {
+/* -------------------------------------------------------------------------- */  
+
+  if(is_master) {
+    if(transmission_begun) {
+      if(tx_index >= I2C_BUFFER_LENGTH) {
+        setWriteError();
+        return 0;
+      }
+      tx_buffer[tx_index] = data;
+      tx_index++;
     }
-    // put byte in tx buffer
-    txBuffer[txBufferIndex] = data;
-    ++txBufferIndex;
-    // update amount in buffer   
-    txBufferLength = txBufferIndex;
-  }else{
-  // in slave send mode
-    // reply to master
-    //twi_transmit(&data, 1);
   }
+  else {
+    s_write(&s_i2c_ctrl,(uint8_t *)&data,1);
+  }
+
   return 1;
 }
 
 // must be called in:
 // slave tx event callback
 // or after beginTransmission(address)
-size_t TwoWire::write(const uint8_t *data, size_t quantity)
-{
-  if(transmitting){
+/* -------------------------------------------------------------------------- */
+size_t TwoWire::write(const uint8_t *data, size_t quantity) {
+/* -------------------------------------------------------------------------- */  
+  if(transmission_begun){
   // in master transmitter mode
     for(size_t i = 0; i < quantity; ++i){
       write(data[i]);
     }
-  }else{
-  // in slave send mode
-    // reply to master
-    //twi_transmit(data, quantity);
+  }
+  else{
+    s_write(&s_i2c_ctrl,(uint8_t *)data,quantity);
   }
   return quantity;
 }
 
-// must be called in:
-// slave rx event callback
-// or after requestFrom(address, numBytes)
-int TwoWire::available(void)
-{
-  return rxBufferLength - rxBufferIndex;
-}
-
-// must be called in:
-// slave rx event callback
-// or after requestFrom(address, numBytes)
-int TwoWire::read(void)
-{
-  int value = -1;
-  
-  // get each successive byte on each call
-  if(rxBufferIndex < rxBufferLength){
-    value = rxBuffer[rxBufferIndex];
-    ++rxBufferIndex;
-  }
-
-  return value;
-}
-
-// must be called in:
-// slave rx event callback
-// or after requestFrom(address, numBytes)
-int TwoWire::peek(void)
-{
-  int value = -1;
-  
-  if(rxBufferIndex < rxBufferLength){
-    value = rxBuffer[rxBufferIndex];
-  }
-
-  return value;
-}
-
-void TwoWire::flush(void)
-{
-  // XXX: to be implemented.
-}
-
-// behind the scenes function that is called when data is received
-void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
-{
-  // don't bother if user hasn't registered a callback
-  if(!user_onReceive){
-    return;
-  }
-  // don't bother if rx buffer is in use by a master requestFrom() op
-  // i know this drops data, but it allows for slight stupidity
-  // meaning, they may not have read all the master requestFrom() data yet
-  if(rxBufferIndex < rxBufferLength){
-    return;
-  }
-  // copy twi rx buffer into local read buffer
-  // this enables new reads to happen in parallel
-  for(uint8_t i = 0; i < numBytes; ++i){
-    rxBuffer[i] = inBytes[i];    
-  }
-  // set rx iterator vars
-  rxBufferIndex = 0;
-  rxBufferLength = numBytes;
-  // alert user program
-  user_onReceive(numBytes);
-}
-
-// behind the scenes function that is called when data is requested
-void TwoWire::onRequestService(void)
-{
-  // don't bother if user hasn't registered a callback
-  if(!user_onRequest){
-    return;
-  }
-  // reset tx buffer iterator vars
-  // !!! this will kill any pending pre-master sendTo() activity
-  txBufferIndex = 0;
-  txBufferLength = 0;
-  // alert user program
-  user_onRequest();
-}
 
 // sets function called on slave write
-void TwoWire::onReceive( void (*function)(int) )
-{
-  user_onReceive = function;
+/* -------------------------------------------------------------------------- */
+void TwoWire::onReceive( I2C_onRxCallback_f f ) {
+/* -------------------------------------------------------------------------- */  
+  rx_callback = f;
 }
 
 // sets function called on slave read
-void TwoWire::onRequest( void (*function)(void) )
-{
-  user_onRequest = function;
-}
-/*
-void TwoWire::setCallbackEvent(i2c_master_event_t cb_event, int ch)
-{
-  _g_i2c_callback_event = cb_event;
-}
-*/
-
-/* 
- * Function twi_readFrom
- * Desc     attempts to become twi bus master and read a
- *          series of bytes from a device on the bus
- * Input    address: 7bit i2c device address
- *          data: pointer to byte array
- *          length: number of bytes to read into array
- *          sendStop: Boolean indicating whether to send a stop at the end
- * Output   number of bytes read
- */
-uint8_t TwoWire::twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sendStop)
-{
-  if (_is_sci) {
-    R_SCI_I2C_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-    R_SCI_I2C_Read(_g_i2c_master_ctrl, data, length, !sendStop);
-  } else {
-    R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-    R_IIC_MASTER_Read(_g_i2c_master_ctrl, data, length, !sendStop);
-  }
-  while ((I2C_MASTER_EVENT_RX_COMPLETE != _i2c_cb_event[_cb_event_idx]) && timeout_ms)
-  {
-      timeout_ms--;
-      delay(1);
-  }
-  return length;
+/* -------------------------------------------------------------------------- */
+void TwoWire::onRequest( I2C_onTxCallback_f f ) {
+/* -------------------------------------------------------------------------- */  
+  tx_callback = f;
 }
 
-/* 
- * Function twi_writeTo
- * Desc     attempts to become twi bus master and write a
- *          series of bytes to a device on the bus
- * Input    address: 7bit i2c device address
- *          data: pointer to byte array
- *          length: number of bytes in array
- *          wait: boolean indicating to wait for write or not
- *          sendStop: boolean indicating whether or not to send a stop at the end
- * Output   0 .. success
- *          1 .. length to long for buffer
- *          2 .. address send, NACK received
- *          3 .. data send, NACK received
- *          4 .. other twi error (lost bus arbitration, bus error, ..)
- */
-uint8_t TwoWire::twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
-{
-  fsp_err_t err;
-  _i2c_cb_event[_cb_event_idx] = I2C_MASTER_EVENT_ABORTED;
-  if (_is_sci) {
-    R_SCI_I2C_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-    err = R_SCI_I2C_Write(_g_i2c_master_ctrl, data, length, !sendStop);
-  } else {
-    R_IIC_MASTER_SlaveAddressSet (_g_i2c_master_ctrl, address, I2C_MASTER_ADDR_MODE_7BIT);
-    err = R_IIC_MASTER_Write(_g_i2c_master_ctrl, data, length, !sendStop);
-  }
-  while ((I2C_MASTER_EVENT_TX_COMPLETE != _i2c_cb_event[_cb_event_idx]) && timeout_ms)
-  {
-      timeout_ms--;
-      delay(1);
-  }
-  if (err == FSP_ERR_IN_USE){
-      return 2;
-  } else if (I2C_MASTER_EVENT_ABORTED == _i2c_cb_event[_cb_event_idx])
-  {
-      return 4;
-  }
-  return 0;
+
+
+// must be called in:
+// slave rx event callback
+// or after requestFrom(address, numBytes)
+
+/* -------------------------------------------------------------------------- */
+int TwoWire::available(void) {
+/* -------------------------------------------------------------------------- */  
+  return rx_index - rx_extract_index;
 }
 
-void TwoWire::enableI2CIrqs() {
-
-  switch (_channel)
-  {
-  case 0:
-#ifdef SCI0_RXI_IRQn
-    __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 1:
-#ifdef SCI1_RXI_IRQn
-    __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 2:
-#ifdef SCI2_RXI_IRQn
-    __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 3:
-#ifdef SCI3_RXI_IRQn
-    __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 4:
-#ifdef SCI4_RXI_IRQn
-    __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 5:
-#ifdef SCI5_RXI_IRQn
-    __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 6:
-#ifdef SCI6_RXI_IRQn
-    __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 7:
-#ifdef SCI7_RXI_IRQn
-    __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 8:
-#ifdef SCI8_RXI_IRQn
-    __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
-  case 9:
-#ifdef SCI9_RXI_IRQn
-    __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_i2c_rxi_isr);
-    __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_i2c_txi_isr);
-    __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_i2c_tei_isr);
-#endif
-    break;
+// must be called in:
+// slave rx event callback
+// or after requestFrom(address, numBytes)
+/* -------------------------------------------------------------------------- */
+int TwoWire::read(void) {
+/* -------------------------------------------------------------------------- */  
+  int rv = -1;
   
-  default:
-    break;
+  // get each successive byte on each call
+  if(rx_extract_index < rx_index){
+    rv = rx_buffer[rx_extract_index];
+    rx_extract_index++;
   }
 
+  return rv;
 }
 
-void i2c_callback(i2c_master_callback_args_t *p_args) {
-  _i2c_cb_event[(uint32_t)(p_args->p_context)] = p_args->event;
+// must be called in:
+// slave rx event callback
+// or after requestFrom(address, numBytes)
+/* -------------------------------------------------------------------------- */
+int TwoWire::peek(void) {
+/* -------------------------------------------------------------------------- */  
+  int rv = -1;
+  
+  // get each successive byte on each call
+  if(rx_extract_index < rx_index){
+    rv = rx_buffer[rx_extract_index];
+  }
+
+  return rv;
 }
 
-void sci_i2c_callback(i2c_master_callback_args_t *p_args) {
-  int i2c_master_offset = I2C_COUNT - SCI_COUNT;
-  _i2c_cb_event[(uint32_t)(p_args->p_context) + i2c_master_offset] = p_args->event;
+/* -------------------------------------------------------------------------- */
+void TwoWire::flush(void) {
+/* -------------------------------------------------------------------------- */  
+  // XXX: to be implemented.
 }
+
+
+
 
 #if WIRE_HOWMANY > 0
-TwoWire Wire(WIRE_CHANNEL, (bool)IS_WIRE_SCI);
+TwoWire Wire(A5, A4);
 #endif
 
 #if WIRE_HOWMANY > 1
