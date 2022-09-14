@@ -93,11 +93,14 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 
 }
 
+
+/* -------------------------------------------------------------------------- */
 UART::UART(uint8_t _pin_tx, uint8_t _pin_rx) : 
   tx_pin(_pin_tx),
   rx_pin(_pin_rx),
   tx_st(TX_STOPPED), 
   init_ok(false) {
+/* -------------------------------------------------------------------------- */    
 
 }
 
@@ -150,9 +153,9 @@ bool  UART::cfg_pins(int max_index) {
   }
   /* getting configuration from table */
   const uint16_t *cfg = g_pin_cfg[tx_pin].list;
-  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX);
+  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX,false);
   cfg = g_pin_cfg[rx_pin].list;
-  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX);
+  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX,false);
   /* verify configuration are good */
   if(cfg_tx == 0 || cfg_rx == 0 ) {
     return false;

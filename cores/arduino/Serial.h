@@ -131,16 +131,10 @@ class UART : public arduino::HardwareSerial {
   protected:
     bool                      init_ok;
 
-  private:
-               
+  private:          
     uint8_t                   tx_pin;
     uint8_t                   rx_pin;
-    
-
     bool                      cfg_pins(int max_index);
-    
-
-
     inline void               inc(volatile int &x,int _max) { x = ++x % _max; } 
     inline int                previous(volatile int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
     
@@ -174,9 +168,9 @@ class UART : public arduino::HardwareSerial {
     baud_setting_t            uart_baud;
     sci_uart_extended_cfg_t   uart_cfg_extend;
 
-    uart_ctrl_t* get_ctrl() { return &uart_ctrl; }
+    uart_ctrl_t*              get_ctrl() { return &uart_ctrl; }
     
-    bool setUpUartIrqs(uart_cfg_t &cfg);
+    bool                      setUpUartIrqs(uart_cfg_t &cfg);
 };
 
     
