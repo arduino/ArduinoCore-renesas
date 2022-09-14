@@ -151,7 +151,7 @@ class TwoWire : public arduino::HardwareI2C {
     WireAddressMode_t address_mode;
     WireSpeed_t speed_mode;
 
-    WireStatus_t bus_status;
+    volatile WireStatus_t bus_status;
     
     iic_master_extended_cfg_t m_i2c_extend;
     iic_master_instance_ctrl_t m_i2c_ctrl;
