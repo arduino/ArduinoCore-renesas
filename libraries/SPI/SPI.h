@@ -59,7 +59,7 @@ public:
 private:
     void enableSciSpiIrqs();
 
-    arduino::SPISettings settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
+    arduino::SPISettings settings = arduino::SPISettings(1000000, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
     static uint8_t interruptMode; // 0=none, 1=mask, 2=global
     static uint8_t interruptMask; // which interrupts to mask
