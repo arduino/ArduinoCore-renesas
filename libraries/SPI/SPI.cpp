@@ -126,6 +126,8 @@ void ArduinoSPI::begin()
     }
     initialized = true;
   }
+
+  beginTransaction(DEFAULT_SPI_SETTINGS);
 }
 
 void ArduinoSPI::end() {
