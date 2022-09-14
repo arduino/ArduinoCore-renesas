@@ -48,6 +48,7 @@ typedef struct i2c_slave_irq {
 typedef struct usb {
     uint32_t num_of_irqs_required;
     uint32_t address_of_handler;
+    uint32_t first_irq_number;
 } USBIrqCfg_t;
 
 
