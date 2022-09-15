@@ -20,6 +20,8 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
+#include <tuple>
+
 //extern const spi_extended_cfg_t g_spi0_ext_cfg;
 //extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
 
@@ -70,15 +72,13 @@ private:
     const spi_extended_cfg_t *_g_spi_ext_cfg;
     const sci_spi_extended_cfg_t *_g_sci_spi_ext_cfg;
 
-    spi_clk_phase_t _clk_phase;
-    spi_clk_polarity_t _clk_polarity;
-    spi_bit_order_t _bit_order;
-
     bsp_io_port_pin_t _miso, _mosi, _sck, _cs;
     int _channel;
     int _cb_event_idx;
 
     bool _is_sci;
+
+    static std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> toFspSpiConfig(arduino::SPISettings const & settings);
 };
 
 }
