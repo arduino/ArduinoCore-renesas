@@ -78,6 +78,7 @@ private:
 
     bool _is_sci;
 
+    void config(arduino::SPISettings const & settings);
     void configSpi(arduino::SPISettings const & settings);
     void configSpiSci(arduino::SPISettings const & settings);
     static std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> toFspSpiConfig(arduino::SPISettings const & settings);
