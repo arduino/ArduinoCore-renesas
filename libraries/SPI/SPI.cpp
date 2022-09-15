@@ -121,7 +121,7 @@ void ArduinoSPI::begin()
     initialized = true;
   }
 
-  beginTransaction(DEFAULT_SPI_SETTINGS);
+  config(DEFAULT_SPI_SETTINGS);
 }
 
 void ArduinoSPI::end() {
@@ -229,10 +229,7 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
-  if (_is_sci)
-    configSpiSci(settings);
-  else
-    configSpi(settings);
+  config(settings);
 }
 
 void ArduinoSPI::endTransaction(void) {
@@ -245,6 +242,14 @@ void ArduinoSPI::attachInterrupt() {
 
 void ArduinoSPI::detachInterrupt() {
 
+}
+
+void ArduinoSPI::config(arduino::SPISettings const & settings)
+{
+  if (_is_sci)
+    configSpiSci(settings);
+  else
+    configSpi(settings);
 }
 
 void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
