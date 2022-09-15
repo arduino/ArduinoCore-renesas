@@ -79,6 +79,7 @@ using I2C_onTxCallback_f        = void (*)(void);
 #define END_TX_NACK_ON_DATA 3
 #define END_TX_ERR_FSP 4
 #define END_TX_TIMEOUT 5
+#define END_TX_NOT_INIT 6
 
 
 typedef enum {
@@ -141,6 +142,20 @@ class TwoWire : public arduino::HardwareI2C {
     inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write;
 
+    volatile uint32_t tmp_i = 0;
+
+    void cpy_rx_buffer(uint32_t h) {
+      memcpy(rx_buffer,tmp_buff,h);
+      rx_index = h;
+      tmp_i = 0;
+      rx_extract_index = 0;
+      memset(tmp_buff, 0x00,I2C_BUFFER_LENGTH);
+    }
+    
+    fsp_err_t slave_read(volatile uint32_t d) {
+        return s_read(&s_i2c_ctrl,tmp_buff + tmp_i,d);
+    }
+
   private:
     
     static TwoWire *g_Wires[MAX_I2CS];
@@ -189,12 +204,14 @@ class TwoWire : public arduino::HardwareI2C {
     I2C_slaveWrite_f            s_write;
     I2C_slaveSetCallBack_f      s_setCallback;
     I2C_slaveClose_f            s_close;
-
-    uint8_t rx_buffer[I2C_BUFFER_LENGTH];
+    
+    uint8_t tmp_buff[I2C_BUFFER_LENGTH];
     uint8_t tx_buffer[I2C_BUFFER_LENGTH];
-    uint8_t tx_index;
+    uint8_t rx_buffer[I2C_BUFFER_LENGTH];
     uint8_t rx_index;
+    uint8_t tx_index;
     uint8_t rx_extract_index;
+    
 
     uint8_t read_from(uint8_t, uint8_t*, uint8_t, unsigned int, bool);
     uint8_t write_to(uint8_t, uint8_t*, uint8_t, unsigned int, bool);

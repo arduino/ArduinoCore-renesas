@@ -235,7 +235,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             /* RX ERROR interrupt */
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_master_eri_isr;
-            set_iic_rei_link_event(last_interrupt_index, mcfg->channel);
+            set_iic_eri_link_event(last_interrupt_index, mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
@@ -301,10 +301,24 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
-            /* TX interrupt */
+            /* RX interrupt */
             p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_rxi_isr;
             set_iic_rx_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            last_interrupt_index++;
+
+            /* TEI interrupt */
+            p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_tei_isr;
+            set_iic_tei_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            last_interrupt_index++;
+
+            /* ERI interrupt */
+            p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_eri_isr;
+            set_iic_eri_link_event(last_interrupt_index, p_cfg->channel);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
         }
@@ -335,7 +349,7 @@ void IRQManager::set_iic_tei_link_event(int li, int ch) {
 
 }
 
-void IRQManager::set_iic_rei_link_event(int li, int ch) {
+void IRQManager::set_iic_eri_link_event(int li, int ch) {
     if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_ERI);}
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC1_ERI);}
 }
