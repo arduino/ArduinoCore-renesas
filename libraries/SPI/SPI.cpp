@@ -156,6 +156,76 @@ void ArduinoSPI::setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
   pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
 }
 
+void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
+{
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+
+  if (initialized)
+    R_SPI_Close(_g_spi_ctrl);
+
+  rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
+  R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+
+  R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+
+  spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
+  uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
+  uint32_t spbr = p_ctrl->p_regs->SPBR;
+
+  /* Configure CPHA setting. */
+  spcmd0 |= (uint32_t) clk_phase;
+
+  /* Configure CPOL setting. */
+  spcmd0 |= (uint32_t) clk_polarity << 1;
+
+  /* Configure Bit Order (MSB,LSB) */
+  spcmd0 |= (uint32_t) bit_order << 12;
+
+  /* Configure the Bit Rate Division Setting */
+  spcmd0 &= !(((uint32_t)0xFF) << 2);
+  spcmd0 |= (uint32_t) spck_div.brdv << 2;
+
+  /* Update settings. */
+  p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
+  p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
+}
+
+void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
+{
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+
+  if (initialized)
+    R_SCI_SPI_Close(_g_spi_ctrl);
+
+  sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
+  R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
+
+  R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+
+  sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
+  uint32_t spmr = p_ctrl->p_reg->SPMR;
+  uint32_t scmr = p_ctrl->p_reg->SCMR;
+  uint32_t smr  = R_SCI0_SMR_CM_Msk;
+
+  /* Configure CPHA setting. */
+  spmr |= (uint32_t) clk_phase << 7;
+
+  /* Configure CPOL setting. */
+  spmr |= (uint32_t) clk_polarity << 6;
+
+  /* Configure Bit Order (MSB,LSB) */
+  scmr |= (uint32_t) bit_order << 3;
+
+  /* Select the baud rate generator clock divider. */
+  smr |= (uint32_t) clk_div.cks;
+
+  /* Update settings. */
+  p_ctrl->p_reg->SMR  = (uint8_t) smr;
+  p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
+  p_ctrl->p_reg->SPMR = spmr;
+  p_ctrl->p_reg->SCMR = scmr;
+}
+
 std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toFspSpiConfig(arduino::SPISettings const & settings)
 {
   spi_clk_phase_t clk_phase = SPI_CLK_PHASE_EDGE_ODD;
@@ -263,76 +333,10 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
-  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
-
-  // Clock settings
-  if (_is_sci) {
-
-    if (initialized) {
-      R_SCI_SPI_Close(_g_spi_ctrl);
-    }
-
-    sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
-    R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
-
-    R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-    sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
-    uint32_t spmr = p_ctrl->p_reg->SPMR;
-    uint32_t scmr = p_ctrl->p_reg->SCMR;
-    uint32_t smr  = R_SCI0_SMR_CM_Msk;
-
-    /* Configure CPHA setting. */
-    spmr |= (uint32_t) clk_phase << 7;
-
-    /* Configure CPOL setting. */
-    spmr |= (uint32_t) clk_polarity << 6;
-
-    /* Configure Bit Order (MSB,LSB) */
-    scmr |= (uint32_t) bit_order << 3;
-  
-    /* Select the baud rate generator clock divider. */
-    smr |= (uint32_t) clk_div.cks;
-
-    // Update settings
-    p_ctrl->p_reg->SMR  = (uint8_t) smr;
-    p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
-    p_ctrl->p_reg->SPMR = spmr;
-    p_ctrl->p_reg->SCMR = scmr;
-
-  } else {
-
-    if (initialized) {
-      R_SPI_Close(_g_spi_ctrl);
-    }
-
-    rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
-    R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
-
-    R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-    spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
-    uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
-    uint32_t spbr = p_ctrl->p_regs->SPBR;
-
-    /* Configure CPHA setting. */
-    spcmd0 |= (uint32_t) clk_phase;
-
-    /* Configure CPOL setting. */
-    spcmd0 |= (uint32_t) clk_polarity << 1;
-
-    /* Configure Bit Order (MSB,LSB) */
-    spcmd0 |= (uint32_t) bit_order << 12;
-
-    /* Configure the Bit Rate Division Setting */
-    spcmd0 &= !(((uint32_t)0xFF) << 2);
-    spcmd0 |= (uint32_t) spck_div.brdv << 2;
-
-    // Update settings
-    p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
-    p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
-
-  }
+  if (_is_sci)
+    configSpiSci(settings);
+  else
+    configSpi(settings);
 }
 
 void ArduinoSPI::endTransaction(void) {
