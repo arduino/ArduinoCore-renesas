@@ -156,6 +156,97 @@ void ArduinoSPI::setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
   pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
 }
 
+void ArduinoSPI::usingInterrupt(int interruptNumber)
+{
+}
+
+void ArduinoSPI::notUsingInterrupt(int interruptNumber)
+{
+}
+
+uint8_t ArduinoSPI::transfer(uint8_t data) {
+  uint8_t rxbuf;
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+  }
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+  {
+      __NOP();
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
+      return 0;
+  }
+  return rxbuf;
+}
+
+uint16_t ArduinoSPI::transfer16(uint16_t data) {
+  uint16_t rxbuf;
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  }
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+  {
+      __NOP();
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
+      return 0;
+  }
+  return rxbuf;
+}
+
+void ArduinoSPI::transfer(void *buf, size_t count) {
+  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+  if (_is_sci) {
+    R_SCI_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  } else {
+    R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+  }
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+  {
+      __NOP();
+  }
+  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+  {
+      end();
+  }
+}
+
+void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
+{
+  if (_is_sci)
+    configSpiSci(settings);
+  else
+    configSpi(settings);
+}
+
+void ArduinoSPI::endTransaction(void) {
+
+}
+
+void ArduinoSPI::attachInterrupt() {
+
+}
+
+void ArduinoSPI::detachInterrupt() {
+
+}
+
 void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 {
   auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
@@ -258,97 +349,6 @@ std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toF
     bit_order = SPI_BIT_ORDER_MSB_FIRST;
 
   return std::make_tuple(clk_phase, clk_polarity, bit_order);
-}
-
-void ArduinoSPI::usingInterrupt(int interruptNumber)
-{
-}
-
-void ArduinoSPI::notUsingInterrupt(int interruptNumber)
-{
-}
-
-uint8_t ArduinoSPI::transfer(uint8_t data) {
-  uint8_t rxbuf;
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  }
-
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-      return 0;
-  }
-  return rxbuf;
-}
-
-uint16_t ArduinoSPI::transfer16(uint16_t data) {
-  uint16_t rxbuf;
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
-  }
-
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-      return 0;
-  }
-  return rxbuf;
-}
-
-void ArduinoSPI::transfer(void *buf, size_t count) {
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  }
-
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-  }
-}
-
-void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
-{
-  if (_is_sci)
-    configSpiSci(settings);
-  else
-    configSpi(settings);
-}
-
-void ArduinoSPI::endTransaction(void) {
-
-}
-
-void ArduinoSPI::attachInterrupt() {
-
-}
-
-void ArduinoSPI::detachInterrupt() {
-
 }
 
 void ArduinoSPI::enableSciSpiIrqs() {
