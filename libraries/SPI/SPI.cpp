@@ -32,9 +32,6 @@ ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
   _g_spi_ctrl(g_spi_ctrl)
 , _g_spi_cfg(g_spi_cfg)
 , _g_spi_ext_cfg(g_spi_ext_cfg)
-, _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
-, _clk_polarity(SPI_CLK_POLARITY_LOW)
-, _bit_order(SPI_BIT_ORDER_MSB_FIRST)
 , _channel(ch)
 , _is_sci(false)
 {
@@ -46,9 +43,6 @@ ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
   _g_spi_ctrl(g_spi_ctrl)
 , _g_spi_cfg(g_spi_cfg)
 , _g_sci_spi_ext_cfg(g_spi_ext_cfg)
-, _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
-, _clk_polarity(SPI_CLK_POLARITY_LOW)
-, _bit_order(SPI_BIT_ORDER_MSB_FIRST)
 , _channel(ch)
 , _is_sci(true)
 {
@@ -162,6 +156,40 @@ void ArduinoSPI::setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
   pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
 }
 
+std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toFspSpiConfig(arduino::SPISettings const & settings)
+{
+  spi_clk_phase_t clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+  spi_clk_polarity_t clk_polarity = SPI_CLK_POLARITY_LOW;
+  spi_bit_order_t bit_order = SPI_BIT_ORDER_MSB_FIRST;
+
+  switch(settings.getDataMode())
+  {
+    case arduino::SPI_MODE0:
+      clk_polarity = SPI_CLK_POLARITY_LOW;
+      clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+    break;
+    case arduino::SPI_MODE1:
+     clk_polarity = SPI_CLK_POLARITY_LOW;
+     clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
+    break;
+    case arduino::SPI_MODE2:
+      clk_polarity = SPI_CLK_POLARITY_HIGH;
+      clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+    break;
+    case arduino::SPI_MODE3:
+      clk_polarity = SPI_CLK_POLARITY_HIGH;
+      clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
+    break;
+  }
+
+  if(settings.getBitOrder() == LSBFIRST)
+    bit_order = SPI_BIT_ORDER_LSB_FIRST;
+  else
+    bit_order = SPI_BIT_ORDER_MSB_FIRST;
+
+  return std::make_tuple(clk_phase, clk_polarity, bit_order);
+}
+
 void ArduinoSPI::usingInterrupt(int interruptNumber)
 {
 }
@@ -233,32 +261,9 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
   }
 }
 
-void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
-  // data mode
-  switch(settings.getDataMode()){
-      case arduino::SPI_MODE0:
-          _clk_polarity = SPI_CLK_POLARITY_LOW;
-          _clk_phase = SPI_CLK_PHASE_EDGE_ODD;
-          break;
-      case arduino::SPI_MODE1:
-          _clk_polarity = SPI_CLK_POLARITY_LOW;
-          _clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
-          break;
-      case arduino::SPI_MODE2:
-          _clk_polarity = SPI_CLK_POLARITY_HIGH;
-          _clk_phase = SPI_CLK_PHASE_EDGE_ODD;
-          break;
-      case arduino::SPI_MODE3:
-          _clk_polarity = SPI_CLK_POLARITY_HIGH;
-          _clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
-          break;
-  }
-  // bit order
-  if(settings.getBitOrder() == LSBFIRST){
-      _bit_order = SPI_BIT_ORDER_LSB_FIRST;
-  } else {
-      _bit_order = SPI_BIT_ORDER_MSB_FIRST;
-  }
+void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
+{
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
 
   // Clock settings
   if (_is_sci) {
@@ -278,13 +283,13 @@ void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
     uint32_t smr  = R_SCI0_SMR_CM_Msk;
 
     /* Configure CPHA setting. */
-    spmr |= (uint32_t) _clk_phase << 7;
+    spmr |= (uint32_t) clk_phase << 7;
 
     /* Configure CPOL setting. */
-    spmr |= (uint32_t) _clk_polarity << 6;
+    spmr |= (uint32_t) clk_polarity << 6;
 
     /* Configure Bit Order (MSB,LSB) */
-    scmr |= (uint32_t) _bit_order << 3;
+    scmr |= (uint32_t) bit_order << 3;
   
     /* Select the baud rate generator clock divider. */
     smr |= (uint32_t) clk_div.cks;
@@ -311,13 +316,13 @@ void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
     uint32_t spbr = p_ctrl->p_regs->SPBR;
 
     /* Configure CPHA setting. */
-    spcmd0 |= (uint32_t) _clk_phase;
+    spcmd0 |= (uint32_t) clk_phase;
 
     /* Configure CPOL setting. */
-    spcmd0 |= (uint32_t) _clk_polarity << 1;
+    spcmd0 |= (uint32_t) clk_polarity << 1;
 
     /* Configure Bit Order (MSB,LSB) */
-    spcmd0 |= (uint32_t) _bit_order << 12;
+    spcmd0 |= (uint32_t) bit_order << 12;
 
     /* Configure the Bit Rate Division Setting */
     spcmd0 &= !(((uint32_t)0xFF) << 2);
