@@ -35,6 +35,7 @@ typedef struct rtc_irq {
 typedef struct i2c_master_irq {
     iic_master_instance_ctrl_t *ctrl;
     i2c_master_cfg_t *cfg;
+    uint8_t hw_channel;
 
 } I2CIrqMasterReq_t;
 

@@ -54,21 +54,13 @@ using I2C_onTxCallback_f        = void (*)(void);
 
 #define I2C_BUFFER_LENGTH      256
 
-/* 11 channels are possible assuming 2 channels from "actual" I2C peripherals and
-   9 channesl from SCI I2C master peripherals 
-   This define is used to set up an array of pointer to Wire objects 
-   first 2 position of this array will be used for actual I2C peripherals and 
-   the following 9 for SCI I2C peripherals 
-   That is the meaning of SCI_I2C_CHANNEL_OFFSET */
-#define SCI_I2C_CHANNEL_OFFSET 2
-#define MAX_I2CS               11
+#define TWOWIRE_MAX_I2C_CHANNELS 2
+#define TWOWIRE_MAX_SCI_CHANNELS 9
 
 #ifdef __cplusplus
 
 #ifndef __ARDUINO_WIRE_IMPLEMENTATION__
 #define __ARDUINO_WIRE_IMPLEMENTATION__
-
-
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -115,6 +107,8 @@ class TwoWire : public arduino::HardwareI2C {
     void end();
     void setClock(uint32_t);
 
+    volatile bool isBeginOk() {return init_ok; }
+
     void beginTransmission(uint32_t);
     void beginTransmission(uint16_t);
     void beginTransmission(uint8_t);
@@ -153,19 +147,27 @@ class TwoWire : public arduino::HardwareI2C {
     }
     
     fsp_err_t slave_read(volatile uint32_t d) {
-        return s_read(&s_i2c_ctrl,tmp_buff + tmp_i,d);
+        if(s_read != nullptr) {
+          return s_read(&s_i2c_ctrl,tmp_buff + tmp_i,d);
+        }
+        else {
+          return FSP_ERR_ASSERTION;
+        }
     }
 
   private:
     
-    static TwoWire *g_Wires[MAX_I2CS];
+    static TwoWire *g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS];
+    static TwoWire *g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS];
+    
+    static void WireSCIMasterCallback(i2c_master_callback_args_t *);
     static void WireMasterCallback(i2c_master_callback_args_t *);
     static void WireSlaveCallback(i2c_slave_callback_args_t *);
     
     unsigned int timeout;
     bool data_too_long; 
 
-    bool init_ok;
+    volatile bool init_ok;
     uint8_t scl_pin;
     uint8_t sda_pin;
     bool is_master;
@@ -176,6 +178,9 @@ class TwoWire : public arduino::HardwareI2C {
     WireSpeed_t speed_mode;
 
     volatile WireStatus_t bus_status;
+    
+
+    sci_i2c_extended_cfg_t m_sci_i2c_extend;
     
     iic_master_extended_cfg_t m_i2c_extend;
     iic_master_instance_ctrl_t m_i2c_ctrl;
@@ -190,20 +195,20 @@ class TwoWire : public arduino::HardwareI2C {
     bool transmission_begun;
     
 
-    I2C_masterOpen_f            m_open;
-    I2C_masterRead_f            m_read;
-    I2C_masterWrite_f           m_write;
-    I2C_masterAbort_f           m_abort;
-    I2C_masterSetSlaveAdd_f     m_setSlaveAdd;
-    I2C_masterSetCallBack_f     m_setCallback;
-    I2C_masterGetStatus_f       m_getStatus;
-    I2C_masterClose_f           m_close;
+    I2C_masterOpen_f            m_open = nullptr;
+    I2C_masterRead_f            m_read = nullptr;
+    I2C_masterWrite_f           m_write = nullptr;
+    I2C_masterAbort_f           m_abort = nullptr;
+    I2C_masterSetSlaveAdd_f     m_setSlaveAdd = nullptr;
+    I2C_masterSetCallBack_f     m_setCallback = nullptr;
+    I2C_masterGetStatus_f       m_getStatus = nullptr;
+    I2C_masterClose_f           m_close = nullptr;
 
-    I2C_slaveOpen_f             s_open;
-    I2C_slaveRead_f             s_read;
-    I2C_slaveWrite_f            s_write;
-    I2C_slaveSetCallBack_f      s_setCallback;
-    I2C_slaveClose_f            s_close;
+    I2C_slaveOpen_f             s_open = nullptr;
+    I2C_slaveRead_f             s_read = nullptr;
+    I2C_slaveWrite_f            s_write = nullptr;
+    I2C_slaveSetCallBack_f      s_setCallback = nullptr;
+    I2C_slaveClose_f            s_close = nullptr;
     
     uint8_t tmp_buff[I2C_BUFFER_LENGTH];
     uint8_t tx_buffer[I2C_BUFFER_LENGTH];
