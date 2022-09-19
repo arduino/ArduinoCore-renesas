@@ -26,9 +26,6 @@
 
 #include <tuple>
 
-//extern const spi_extended_cfg_t g_spi0_ext_cfg;
-//extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
-
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
