@@ -11,20 +11,44 @@
  * published by the Free Software Foundation.
  */
 
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
 #include "SPI.h"
 
+/**************************************************************************************
+ * NAMESPACE
+ **************************************************************************************/
+
 using namespace arduino;
+
+/**************************************************************************************
+ * EXTERN GLOBAL CONSTANTS
+ **************************************************************************************/
 
 extern const spi_extended_cfg_t g_spi0_ext_cfg;
 extern const spi_extended_cfg_t g_spi1_ext_cfg;
 extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
+
+/**************************************************************************************
+ * STATIC MEMBER INITIALISATION
+ **************************************************************************************/
 
 uint8_t ArduinoSPI::initialized = 0;
 uint8_t ArduinoSPI::interruptMode = 0;
 uint8_t ArduinoSPI::interruptMask = 0;
 uint8_t ArduinoSPI::interruptSave = 0;
 
+/**************************************************************************************
+ * GLOBAL MEMBER VARIABLES
+ **************************************************************************************/
+
 static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
+
+/**************************************************************************************
+ * CTOR/DTOR
+ **************************************************************************************/
 
 ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
                       ,const spi_cfg_t *g_spi_cfg
@@ -53,6 +77,10 @@ ArduinoSPI::ArduinoSPI(int ch, bool isSci):
   _is_sci(isSci)
 {
 }
+
+/**************************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ **************************************************************************************/
 
 void ArduinoSPI::begin()
 {
@@ -243,6 +271,10 @@ void ArduinoSPI::attachInterrupt() {
 void ArduinoSPI::detachInterrupt() {
 
 }
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
 
 void ArduinoSPI::config(arduino::SPISettings const & settings)
 {
@@ -437,6 +469,10 @@ void ArduinoSPI::enableSciSpiIrqs() {
 
 }
 
+/**************************************************************************************
+ * CALLBACKS FOR FSP FRAMEWORK
+ **************************************************************************************/
+
 void spi_callback(spi_callback_args_t *p_args) {
   if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
@@ -457,6 +493,10 @@ void sci_spi_callback(spi_callback_args_t *p_args) {
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_ABORTED;
   }
 }
+
+/**************************************************************************************
+ * OBJECT INSTANTIATION
+ **************************************************************************************/
 
 #if SPI_HOWMANY > 0
 ArduinoSPI SPI(SPI_CHANNEL, (bool)IS_SPI_SCI);
