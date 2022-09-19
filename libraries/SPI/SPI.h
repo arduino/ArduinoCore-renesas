@@ -39,12 +39,6 @@ namespace arduino {
 class ArduinoSPI : public SPIClass
 {
 public:
-    ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
-              ,const spi_cfg_t *g_spi_cfg
-              ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch);
-    ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
-              ,const spi_cfg_t *g_spi_cfg
-              ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch);
     ArduinoSPI(int ch, bool isSci = false);
 
     virtual uint8_t transfer(uint8_t data);

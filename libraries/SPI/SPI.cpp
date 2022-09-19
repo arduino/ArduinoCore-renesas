@@ -50,28 +50,6 @@ static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
-                      ,const spi_cfg_t *g_spi_cfg
-                      ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch):
-  _g_spi_ctrl(g_spi_ctrl)
-, _g_spi_cfg(g_spi_cfg)
-, _g_spi_ext_cfg(g_spi_ext_cfg)
-, _channel(ch)
-, _is_sci(false)
-{
-}
-
-ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
-                      ,const spi_cfg_t *g_spi_cfg
-                      ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch):
-  _g_spi_ctrl(g_spi_ctrl)
-, _g_spi_cfg(g_spi_cfg)
-, _g_sci_spi_ext_cfg(g_spi_ext_cfg)
-, _channel(ch)
-, _is_sci(true)
-{
-}
-
 ArduinoSPI::ArduinoSPI(int ch, bool isSci):
   _channel(ch),
   _is_sci(isSci)
