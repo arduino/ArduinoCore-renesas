@@ -15,7 +15,9 @@ typedef enum {
     PIN_CFG_REQ_SDA,
     PIN_CFG_REQ_MISO,
     PIN_CFG_REQ_MOSI,
-    PIN_CFG_REQ_PWM
+    PIN_CFG_REQ_PWM,
+    PIN_CFG_REQ_INTERRUPT,
+    PIN_CFG_REQ_CTS_RTS,
     /* to be completed */
 } PinCfgReq_t;
 
@@ -27,7 +29,7 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define IS_SCI(x)                   (x & SCI_CHANNEL)
 
 #define PIN_USE_POS                 (1)
-#define PIN_USE_MASK                (0x7E)
+#define PIN_USE_MASK                (0x3E)
 
 #define PIN_UNAVAILABLE             (0 << PIN_USE_POS)
 #define PIN_INTERRUPT               (1 << PIN_USE_POS)
@@ -39,6 +41,8 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define PIN_MOSI                    (7 << PIN_USE_POS)
 #define PIN_SCK                     (8 << PIN_USE_POS)
 #define PIN_PWM                     (9 << PIN_USE_POS)
+#define PIN_ANALOG                  (10 << PIN_USE_POS)
+#define PIN_CTS_RTS_SS              (11 << PIN_USE_POS)
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -56,8 +60,8 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define IS_PIN_SCK(x)               ((x & PIN_USE_MASK) ==  PIN_SCK)
 #define IS_PIN_PWM(x)               ((x & PIN_USE_MASK) ==  PIN_PWM)
 
-#define CHANNEL_POS                 (7)
-#define CHANNEL_MASK                (0x780)
+#define CHANNEL_POS                 (6)
+#define CHANNEL_MASK                (0x740)
 #define CHANNEL_0                   (0 << CHANNEL_POS)
 #define CHANNEL_1                   (1 << CHANNEL_POS)
 #define CHANNEL_2                   (2 << CHANNEL_POS)
@@ -74,6 +78,13 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define CHANNEL_13                  (13 << CHANNEL_POS)
 #define CHANNEL_14                  (14 << CHANNEL_POS)
 #define CHANNEL_15                  (15 << CHANNEL_POS)
+#define CHANNEL_16                  (16 << CHANNEL_POS)
+#define CHANNEL_17                  (17 << CHANNEL_POS)
+#define CHANNEL_18                  (18 << CHANNEL_POS)
+#define CHANNEL_19                  (19 << CHANNEL_POS)
+#define CHANNEL_20                  (20 << CHANNEL_POS)
+#define CHANNEL_21                  (21 << CHANNEL_POS)
+#define CHANNEL_22                  (22 << CHANNEL_POS)
 
 #define GET_CHANNEL(x)              ((x & CHANNEL_MASK) >> CHANNEL_POS)
 /* no more */
@@ -91,6 +102,9 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define USE_SCI_EVEN_CFG(x)         ((x & ADD_CONFIG_MASK) == SCI_EVEN_CFG)
 #define SCI_ODD_CFG                 (1 << ADD_CONFIG_POS)
 #define USE_SCI_ODD_CFG(x)          ((x & ADD_CONFIG_MASK) == SCI_ODD_CFG)
+
+#define GPT_EVEN_CFG                SCI_EVEN_CFG
+#define GPT_ODD_CFG                 SCI_ODD_CFG
 
 #define ADD_CFG_DONT_CARE           (15 << ADD_CONFIG_POS)
 #define IS_ADD_CFG_DONT_CARE(x)     ((x & ADD_CONFIG_MASK) == ADD_CFG_DONT_CARE)
