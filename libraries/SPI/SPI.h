@@ -14,6 +14,10 @@
 #ifndef _SPI_H_INCLUDED
 #define _SPI_H_INCLUDED
 
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
 #include <Arduino.h>
 #include "api/HardwareSPI.h"
 
@@ -22,20 +26,19 @@
 
 #include <tuple>
 
-//extern const spi_extended_cfg_t g_spi0_ext_cfg;
-//extern const sci_spi_extended_cfg_t g_spi1_cfg_extend;
+/**************************************************************************************
+ * NAMESPACE
+ **************************************************************************************/
 
 namespace arduino {
+
+/**************************************************************************************
+ * CLASS DECLARATION
+ **************************************************************************************/
 
 class ArduinoSPI : public SPIClass
 {
 public:
-    ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
-              ,const spi_cfg_t *g_spi_cfg
-              ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch);
-    ArduinoSPI(spi_ctrl_t *g_spi_ctrl 
-              ,const spi_cfg_t *g_spi_cfg
-              ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch);
     ArduinoSPI(int ch, bool isSci = false);
 
     virtual uint8_t transfer(uint8_t data);
@@ -62,6 +65,7 @@ private:
     void enableSciSpiIrqs();
 
     arduino::SPISettings const DEFAULT_SPI_SETTINGS = arduino::SPISettings(1000000, MSBFIRST, arduino::SPI_MODE0);
+    arduino::SPISettings _settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
     static uint8_t interruptMode; // 0=none, 1=mask, 2=global
     static uint8_t interruptMask; // which interrupts to mask
@@ -84,7 +88,15 @@ private:
     static std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> toFspSpiConfig(arduino::SPISettings const & settings);
 };
 
-}
+/**************************************************************************************
+ * NAMESPACE
+ **************************************************************************************/
+
+} /* arduino */
+
+/**************************************************************************************
+ * EXTERN DECLARATION
+ **************************************************************************************/
 
 #if SPI_HOWMANY > 0
 extern arduino::ArduinoSPI SPI;
