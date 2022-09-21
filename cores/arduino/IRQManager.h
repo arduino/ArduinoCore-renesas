@@ -35,6 +35,7 @@ typedef struct rtc_irq {
 typedef struct i2c_master_irq {
     iic_master_instance_ctrl_t *ctrl;
     i2c_master_cfg_t *cfg;
+    uint8_t hw_channel;
 
 } I2CIrqMasterReq_t;
 
@@ -70,7 +71,7 @@ class IRQManager {
     void set_iic_tx_link_event(int li, int ch);
     void set_iic_rx_link_event(int li, int ch);
     void set_iic_tei_link_event(int li, int ch);
-    void set_iic_rei_link_event(int li, int ch);
+    void set_iic_eri_link_event(int li, int ch);
     IRQManager();
 
 };
