@@ -120,13 +120,13 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
   { BSP_IO_PORT_02_PIN_06,    P206   }, /* (2) D2  */
   { BSP_IO_PORT_01_PIN_04,    P104   }, /* (3) D3  */
-  { BSP_IO_PORT_04_PIN_00,    P105   }, /* (4) D4  */
-  { BSP_IO_PORT_01_PIN_03,    P113   }, /* (5) D5  */
+  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (4) D4  */
+  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (5) D5  */
   { BSP_IO_PORT_01_PIN_12,    P112   }, /* (6) D6  */
   { BSP_IO_PORT_04_PIN_09,    P409   }, /* (7) D7  */
   { BSP_IO_PORT_03_PIN_02,    P302   }, /* (8) D8  */
-  { BSP_IO_PORT_03_PIN_00,    P106   }, /* (9) D9  */
-  { BSP_IO_PORT_01_PIN_08,    P205   }, /* (10) D10 */
+  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (9) D9  */
+  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (10) D10 */
   { BSP_IO_PORT_01_PIN_09,    P109   }, /* (11) D11 */
   { BSP_IO_PORT_01_PIN_10,    P110   }, /* (12) D12 */
   { BSP_IO_PORT_01_PIN_11,    P111   }, /* (13) D13 */
