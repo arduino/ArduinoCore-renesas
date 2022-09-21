@@ -11,55 +11,54 @@
  * published by the Free Software Foundation.
  */
 
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
 #include "SPI.h"
 
+/**************************************************************************************
+ * NAMESPACE
+ **************************************************************************************/
+
 using namespace arduino;
+
+/**************************************************************************************
+ * EXTERN GLOBAL CONSTANTS
+ **************************************************************************************/
 
 extern const spi_extended_cfg_t g_spi0_ext_cfg;
 extern const spi_extended_cfg_t g_spi1_ext_cfg;
 extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
+
+/**************************************************************************************
+ * STATIC MEMBER INITIALISATION
+ **************************************************************************************/
 
 uint8_t ArduinoSPI::initialized = 0;
 uint8_t ArduinoSPI::interruptMode = 0;
 uint8_t ArduinoSPI::interruptMask = 0;
 uint8_t ArduinoSPI::interruptSave = 0;
 
+/**************************************************************************************
+ * GLOBAL MEMBER VARIABLES
+ **************************************************************************************/
+
 static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
-static uint32_t timeout_ms = 1000;
 
-ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
-                      ,const spi_cfg_t *g_spi_cfg
-                      ,const spi_extended_cfg_t *g_spi_ext_cfg, int ch):
-  _g_spi_ctrl(g_spi_ctrl)
-, _g_spi_cfg(g_spi_cfg)
-, _g_spi_ext_cfg(g_spi_ext_cfg)
-, _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
-, _clk_polarity(SPI_CLK_POLARITY_LOW)
-, _bit_order(SPI_BIT_ORDER_MSB_FIRST)
-, _channel(ch)
-, _is_sci(false)
-{
-}
-
-ArduinoSPI::ArduinoSPI(spi_ctrl_t *g_spi_ctrl
-                      ,const spi_cfg_t *g_spi_cfg
-                      ,const sci_spi_extended_cfg_t *g_spi_ext_cfg, int ch):
-  _g_spi_ctrl(g_spi_ctrl)
-, _g_spi_cfg(g_spi_cfg)
-, _g_sci_spi_ext_cfg(g_spi_ext_cfg)
-, _clk_phase(SPI_CLK_PHASE_EDGE_ODD)
-, _clk_polarity(SPI_CLK_POLARITY_LOW)
-, _bit_order(SPI_BIT_ORDER_MSB_FIRST)
-, _channel(ch)
-, _is_sci(true)
-{
-}
+/**************************************************************************************
+ * CTOR/DTOR
+ **************************************************************************************/
 
 ArduinoSPI::ArduinoSPI(int ch, bool isSci):
   _channel(ch),
   _is_sci(isSci)
 {
 }
+
+/**************************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ **************************************************************************************/
 
 void ArduinoSPI::begin()
 {
@@ -127,6 +126,8 @@ void ArduinoSPI::begin()
     }
     initialized = true;
   }
+
+  config(DEFAULT_SPI_SETTINGS);
 }
 
 void ArduinoSPI::end() {
@@ -177,10 +178,11 @@ uint8_t ArduinoSPI::transfer(uint8_t data) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
@@ -198,10 +200,11 @@ uint16_t ArduinoSPI::transfer16(uint16_t data) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
@@ -218,10 +221,11 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
   } else {
     R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
   }
-  while ((SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && timeout_ms)
+
+  for (auto const start = millis();
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
-      timeout_ms--;
-      delay(1);
+      __NOP();
   }
   if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
   {
@@ -229,101 +233,9 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
   }
 }
 
-void ArduinoSPI::beginTransaction(arduino::SPISettings settings) {
-  // data mode
-  switch(settings.getDataMode()){
-      case arduino::SPI_MODE0:
-          _clk_polarity = SPI_CLK_POLARITY_LOW;
-          _clk_phase = SPI_CLK_PHASE_EDGE_ODD;
-          break;
-      case arduino::SPI_MODE1:
-          _clk_polarity = SPI_CLK_POLARITY_LOW;
-          _clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
-          break;
-      case arduino::SPI_MODE2:
-          _clk_polarity = SPI_CLK_POLARITY_HIGH;
-          _clk_phase = SPI_CLK_PHASE_EDGE_ODD;
-          break;
-      case arduino::SPI_MODE3:
-          _clk_polarity = SPI_CLK_POLARITY_HIGH;
-          _clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
-          break;
-  }
-  // bit order
-  if(settings.getBitOrder() == LSBFIRST){
-      _bit_order = SPI_BIT_ORDER_LSB_FIRST;
-  } else {
-      _bit_order = SPI_BIT_ORDER_MSB_FIRST;
-  }
-
-  // Clock settings
-  if (_is_sci) {
-
-    if (initialized) {
-      R_SCI_SPI_Close(_g_spi_ctrl);
-    }
-
-    sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
-    R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
-
-    R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-    sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
-    uint32_t spmr = p_ctrl->p_reg->SPMR;
-    uint32_t scmr = p_ctrl->p_reg->SCMR;
-    uint32_t smr  = R_SCI0_SMR_CM_Msk;
-
-    /* Configure CPHA setting. */
-    spmr |= (uint32_t) _clk_phase << 7;
-
-    /* Configure CPOL setting. */
-    spmr |= (uint32_t) _clk_polarity << 6;
-
-    /* Configure Bit Order (MSB,LSB) */
-    scmr |= (uint32_t) _bit_order << 3;
-  
-    /* Select the baud rate generator clock divider. */
-    smr |= (uint32_t) clk_div.cks;
-
-    // Update settings
-    p_ctrl->p_reg->SMR  = (uint8_t) smr;
-    p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
-    p_ctrl->p_reg->SPMR = spmr;
-    p_ctrl->p_reg->SCMR = scmr;
-
-  } else {
-
-    if (initialized) {
-      R_SPI_Close(_g_spi_ctrl);
-    }
-
-    rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
-    R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
-
-    R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-    spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
-    uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
-    uint32_t spbr = p_ctrl->p_regs->SPBR;
-
-    /* Configure CPHA setting. */
-    spcmd0 |= (uint32_t) _clk_phase;
-
-    /* Configure CPOL setting. */
-    spcmd0 |= (uint32_t) _clk_polarity << 1;
-
-    /* Configure Bit Order (MSB,LSB) */
-    spcmd0 |= (uint32_t) _bit_order << 12;
-
-    /* Configure the Bit Rate Division Setting */
-    spcmd0 &= !(((uint32_t)0xFF) << 2);
-    spcmd0 |= (uint32_t) spck_div.brdv << 2;
-
-    // Update settings
-    p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
-    p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
-
-  }
+void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
+{
+  config(settings);
 }
 
 void ArduinoSPI::endTransaction(void) {
@@ -336,6 +248,122 @@ void ArduinoSPI::attachInterrupt() {
 
 void ArduinoSPI::detachInterrupt() {
 
+}
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
+
+void ArduinoSPI::config(arduino::SPISettings const & settings)
+{
+  if (_is_sci)
+    configSpiSci(settings);
+  else
+    configSpi(settings);
+}
+
+void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
+{
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+
+  if (initialized)
+    R_SPI_Close(_g_spi_ctrl);
+
+  rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
+  R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+
+  R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+
+  spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
+  uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
+  uint32_t spbr = p_ctrl->p_regs->SPBR;
+
+  /* Configure CPHA setting. */
+  spcmd0 |= (uint32_t) clk_phase;
+
+  /* Configure CPOL setting. */
+  spcmd0 |= (uint32_t) clk_polarity << 1;
+
+  /* Configure Bit Order (MSB,LSB) */
+  spcmd0 |= (uint32_t) bit_order << 12;
+
+  /* Configure the Bit Rate Division Setting */
+  spcmd0 &= !(((uint32_t)0xFF) << 2);
+  spcmd0 |= (uint32_t) spck_div.brdv << 2;
+
+  /* Update settings. */
+  p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
+  p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
+}
+
+void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
+{
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+
+  if (initialized)
+    R_SCI_SPI_Close(_g_spi_ctrl);
+
+  sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
+  R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
+
+  R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
+
+  sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
+  uint32_t spmr = p_ctrl->p_reg->SPMR;
+  uint32_t scmr = p_ctrl->p_reg->SCMR;
+  uint32_t smr  = R_SCI0_SMR_CM_Msk;
+
+  /* Configure CPHA setting. */
+  spmr |= (uint32_t) clk_phase << 7;
+
+  /* Configure CPOL setting. */
+  spmr |= (uint32_t) clk_polarity << 6;
+
+  /* Configure Bit Order (MSB,LSB) */
+  scmr |= (uint32_t) bit_order << 3;
+
+  /* Select the baud rate generator clock divider. */
+  smr |= (uint32_t) clk_div.cks;
+
+  /* Update settings. */
+  p_ctrl->p_reg->SMR  = (uint8_t) smr;
+  p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
+  p_ctrl->p_reg->SPMR = spmr;
+  p_ctrl->p_reg->SCMR = scmr;
+}
+
+std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toFspSpiConfig(arduino::SPISettings const & settings)
+{
+  spi_clk_phase_t clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+  spi_clk_polarity_t clk_polarity = SPI_CLK_POLARITY_LOW;
+  spi_bit_order_t bit_order = SPI_BIT_ORDER_MSB_FIRST;
+
+  switch(settings.getDataMode())
+  {
+    case arduino::SPI_MODE0:
+      clk_polarity = SPI_CLK_POLARITY_LOW;
+      clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+    break;
+    case arduino::SPI_MODE1:
+     clk_polarity = SPI_CLK_POLARITY_LOW;
+     clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
+    break;
+    case arduino::SPI_MODE2:
+      clk_polarity = SPI_CLK_POLARITY_HIGH;
+      clk_phase = SPI_CLK_PHASE_EDGE_ODD;
+    break;
+    case arduino::SPI_MODE3:
+      clk_polarity = SPI_CLK_POLARITY_HIGH;
+      clk_phase = SPI_CLK_PHASE_EDGE_EVEN;
+    break;
+  }
+
+  if(settings.getBitOrder() == LSBFIRST)
+    bit_order = SPI_BIT_ORDER_LSB_FIRST;
+  else
+    bit_order = SPI_BIT_ORDER_MSB_FIRST;
+
+  return std::make_tuple(clk_phase, clk_polarity, bit_order);
 }
 
 void ArduinoSPI::enableSciSpiIrqs() {
@@ -419,6 +447,10 @@ void ArduinoSPI::enableSciSpiIrqs() {
 
 }
 
+/**************************************************************************************
+ * CALLBACKS FOR FSP FRAMEWORK
+ **************************************************************************************/
+
 void spi_callback(spi_callback_args_t *p_args) {
   if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
@@ -439,6 +471,10 @@ void sci_spi_callback(spi_callback_args_t *p_args) {
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_ABORTED;
   }
 }
+
+/**************************************************************************************
+ * OBJECT INSTANTIATION
+ **************************************************************************************/
 
 #if SPI_HOWMANY > 0
 ArduinoSPI SPI(SPI_CHANNEL, (bool)IS_SPI_SCI);
