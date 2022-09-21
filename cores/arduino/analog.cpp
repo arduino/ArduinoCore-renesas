@@ -3,40 +3,129 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
-static int _writeResolution = 8;
+class ADC_Container {
+public:
+  ADC_Container() {
+    cfg_extend.clearing = ADC_CLEAR_AFTER_READ_ON;
+    cfg_extend.trigger_group_b = ADC_TRIGGER_SYNC_ELC;
+    cfg_extend.adc_vref_control = ADC_VREF_CONTROL_AVCC0_AVSS0;
+    cfg.mode = ADC_MODE_SINGLE_SCAN;
+    cfg.resolution = ADC_RESOLUTION_14_BIT;
+    cfg.p_extend = &cfg_extend;
+    channel_cfg.sample_hold_states = 24;
+  };
+  adc_instance_ctrl_t ctrl;
+  adc_extended_cfg_t cfg_extend;
+  adc_cfg_t cfg;
+  adc_channel_cfg_t channel_cfg;
+};
+
+static ADC_Container adc;
 
 int analogRead(pin_size_t pinNumber)
 {
   static bool begin = false;
   pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
 
-  pinPeripheral(digitalPinToBspPin(pinNumber), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+  pinPeripheral(digitalPinToBspPin(adc_idx), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
 
 	if(begin == false)
 	{
-	    R_ADC_Open(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].adc_cfg);
+	    R_ADC_Open(&adc.ctrl, &adc.cfg);
 	    begin = true;
 	}
 
-  //Clear Scan Mask
-  adc_channel_cfg_t adc_channel_cfg = g_adc0_channel_cfg;
-  adc_channel_cfg.scan_mask = 0;
+  const uint16_t *cfg = g_pin_cfg[adc_idx].list;
+  uint16_t cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
+
   //Enable scan only for the current pin
-  adc_channel_cfg.scan_mask |= (1 << g_AAnalogPinDescription[adc_idx].ch);
-	R_ADC_ScanCfg(g_AAnalogPinDescription[adc_idx].adc_ctrl, &adc_channel_cfg);
-  R_ADC_ScanStart(g_AAnalogPinDescription[adc_idx].adc_ctrl);
+  adc.channel_cfg.scan_mask = (1 << GET_CHANNEL(cfg_adc));
+	R_ADC_ScanCfg(&adc.ctrl, &adc.channel_cfg);
+  R_ADC_ScanStart(&adc.ctrl);
+
   adc_status_t status;
   status.state = ADC_STATE_SCAN_IN_PROGRESS;
   while (ADC_STATE_SCAN_IN_PROGRESS == status.state)
   {
-      R_ADC_StatusGet(g_AAnalogPinDescription[adc_idx].adc_ctrl, &status);
+    R_ADC_StatusGet(&adc.ctrl, &status);
   }
 
   uint16_t result;
-  R_ADC_Read(g_AAnalogPinDescription[adc_idx].adc_ctrl, g_AAnalogPinDescription[adc_idx].ch, &result);
+  R_ADC_Read(&adc.ctrl, (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
   return (int)result;
-
 }
+
+void analogReference(uint8_t mode) {
+  // TODO: in case VREFH is selected, please configure the pin accordingly
+  // something like
+  // pinPeripheral(digitalPinToBspPin(VREFH), (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | VREFH)
+  R_ADC_Close(&adc.ctrl);
+  adc.cfg_extend.adc_vref_control = (adc_vref_control_t)mode;
+  R_ADC_Open(&adc.ctrl, &adc.cfg);
+}
+
+void analogReadResolution(int bits) {
+  R_ADC_Close(&adc.ctrl);
+
+  adc_resolution_t read_resolution;
+
+  switch (bits) {
+    case 10:
+      read_resolution = ADC_RESOLUTION_10_BIT;
+      break;
+    case 8:
+      read_resolution = ADC_RESOLUTION_8_BIT;
+      break;
+    case 14:
+      read_resolution = ADC_RESOLUTION_14_BIT;
+      break;
+    case 16:
+      read_resolution = ADC_RESOLUTION_16_BIT;
+      break;
+    case 24:
+      read_resolution = ADC_RESOLUTION_24_BIT;
+      break;
+    case 12:
+    default:
+      read_resolution = ADC_RESOLUTION_12_BIT;
+      break;
+  }
+
+  adc.cfg.resolution = read_resolution;
+  R_ADC_Open(&adc.ctrl, &adc.cfg);
+}
+
+int analogReadResolution()
+{
+  int read_resolution = 0;
+  switch (adc.cfg.resolution)
+  {
+  case ADC_RESOLUTION_12_BIT:
+    read_resolution = 12;
+    break;
+  case ADC_RESOLUTION_10_BIT:
+    read_resolution = 10;
+    break;
+  case ADC_RESOLUTION_8_BIT:
+    read_resolution = 8;
+    break;
+  case ADC_RESOLUTION_14_BIT:
+    read_resolution = 14;
+    break;
+  case ADC_RESOLUTION_16_BIT:
+    read_resolution = 16;
+    break;
+  case ADC_RESOLUTION_24_BIT:
+    read_resolution = 24;
+    break;
+  default:
+    read_resolution = 0;
+    break;
+  }
+  return read_resolution;
+}
+
+static int _writeResolution = 8;
 
 void analogWriteResolution(int bits) {
   _writeResolution = bits;
@@ -136,36 +225,4 @@ void analogWrite(pin_size_t pinNumber, int value)
     }
 #endif //DAC
   }
-}
-
-
-int getAnalogReadResolution()
-{
-  int read_resolution = 0;
-  switch (g_adc0_cfg.resolution)
-  {
-  case ADC_RESOLUTION_12_BIT:
-    read_resolution = 12;
-    break;
-  case ADC_RESOLUTION_10_BIT:
-    read_resolution = 10;
-    break;
-  case ADC_RESOLUTION_8_BIT:
-    read_resolution = 8;
-    break;
-  case ADC_RESOLUTION_14_BIT:
-    read_resolution = 14;
-    break;
-  case ADC_RESOLUTION_16_BIT:
-    read_resolution = 16;
-    break;
-  case ADC_RESOLUTION_24_BIT:
-    read_resolution = 24;
-    break;
-  
-  default:
-    read_resolution = 0;
-    break;
-  }
-  return read_resolution;
 }

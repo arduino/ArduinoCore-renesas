@@ -43,6 +43,11 @@ auto F(T1&& A)
 int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
+#if defined(__cplusplus)
+// In c++ mode, we also provide analogReadResolution and analogWriteResolution getters
+int analogReadResolution();
+int analogWriteResolution();
+#endif
 int getAnalogWriteResolution();
 ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin);
 
@@ -165,8 +170,17 @@ extern i2c_master_instance_t I2CMasterTable[];
 extern spi_instance_t SpiTable[];
 extern sciTable_t SciTable[];
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
+#if defined(__cplusplus)
+}
+#endif
+
 #define digitalPinToBspPin(P)       (g_APinDescription[P].name)
-#define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))
+#define digitalPinToAnalogPin(P)    (P < A0 ? A0 + P : P)
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
 #define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)

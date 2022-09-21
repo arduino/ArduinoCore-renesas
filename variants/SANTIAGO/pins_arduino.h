@@ -27,6 +27,7 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define PIN_A4   (20u)
 #define PIN_A5   (21u)
 
+// #if BSP_FEATURE_DAC_MAX_CHANNELS > 0
 #define DAC      (A0)
 
 #undef A0

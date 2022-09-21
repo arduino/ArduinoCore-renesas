@@ -1,15 +1,6 @@
 #include "Arduino.h"
 #include "pinmux.inc"
 
-const AnalogPinDescription g_AAnalogPinDescription[] = {
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_9 },    // A0    ADC0_AN9
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_0 },    // A1    ADC0_AN0
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_1 },    // A2    ADC0_AN1
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_2 },    // A3    ADC3_AN2
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_21},    // A4    ADC1_AN21
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_22}     // A5    ADC2_AN22
-};
-
 const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
   {&g_dac0_ctrl, &g_dac0_cfg }                    // A0
 };
@@ -112,6 +103,9 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
       return *(cfg + index);
     }
     else if(PIN_CFG_REQ_INTERRUPT == req && IS_PIN_INTERRUPT(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_ADC == req && IS_PIN_ANALOG(*(cfg + index))) {
       return *(cfg + index);
     }
 
