@@ -18,7 +18,7 @@
 #define TICK_4              (float)(1.0/(float)FREQUENCY_4_PCLKD)
 #define TICK_5              (float)(1.0/(float)FREQUENCY_5_PCLKD)
 
-#define CH32BIT_MAX         (4294967296)
+#define CH32BIT_MAX         (4294967295)
 #define CH16BIT_MAX         (65535)
 
 #define GPT_TIMER           (0)

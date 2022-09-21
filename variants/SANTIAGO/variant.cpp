@@ -98,7 +98,7 @@ sciTable_t SciTable[] {
 
 
 const uint16_t P301[] = { (SCI_CHANNEL     | PIN_RX_MISO_SCL | CHANNEL_2  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
-                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_4  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) 
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_4  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) 
                             
                         };
 const uint16_t P102[] = { (SCI_CHANNEL     | PIN_TX_MOSI_SDA | CHANNEL_2  | SCI_ODD_CFG       | NOT_LAST_ITEM) ,
@@ -113,17 +113,17 @@ const uint16_t P112[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_3  | PWM_
 
 const uint16_t P101[] = { (NOT_SCI_CHANNEL | PIN_SDA         | CHANNEL_1  | ADD_CFG_DONT_CARE | NOT_LAST_ITEM) , 
                           (SCI_CHANNEL     | PIN_TX_MOSI_SDA | CHANNEL_0  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
-                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_B     | LAST_ITEM_GUARD )
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_A     | LAST_ITEM_GUARD )
                         };
 
 const uint16_t P108[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_0  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
-const uint16_t P109[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_0  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
+const uint16_t P109[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_1  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
 const uint16_t P110[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_1  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
 const uint16_t P111[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_3  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
 
 const uint16_t P100[] = { (NOT_SCI_CHANNEL | PIN_SCL         | CHANNEL_1  | ADD_CFG_DONT_CARE | NOT_LAST_ITEM) , 
                           (SCI_CHANNEL     | PIN_RX_MISO_SCL | CHANNEL_0  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
-                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_A     | LAST_ITEM_GUARD ) 
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_B     | LAST_ITEM_GUARD ) 
                         };                        
 
 const uint16_t P302[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_4  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
