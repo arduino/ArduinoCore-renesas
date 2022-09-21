@@ -1,10 +1,6 @@
 #include "Arduino.h"
 #include "pinmux.inc"
 
-const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
-  {&g_dac0_ctrl, &g_dac0_cfg }                    // A0
-};
-
 pwmTable_t pwmTable[] = {
   {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA, NULL}, // D9
   {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCB, NULL}, // D10

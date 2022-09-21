@@ -125,15 +125,55 @@ int analogReadResolution()
   return read_resolution;
 }
 
-static int _writeResolution = 8;
+static int _writeResolution = 12;
 
 void analogWriteResolution(int bits) {
   _writeResolution = bits;
 }
 
-int getAnalogWriteResolution() {
+int analogWriteResolution() {
   return _writeResolution;
 }
+
+#ifdef DAC
+class DAC_Container {
+public:
+  DAC_Container(int ch) {
+    ext_cfg.enable_charge_pump = 0;
+    ext_cfg.data_format = DAC_DATA_FORMAT_FLUSH_RIGHT;
+    ext_cfg.output_amplifier_enabled = 0;
+    ext_cfg.internal_output_enabled = false;
+    cfg.p_extend = &ext_cfg;
+    cfg.channel = ch;
+  }
+  dac_instance_ctrl_t ctrl;
+  dac_extended_cfg_t ext_cfg;
+  dac_cfg_t cfg;
+};
+
+static DAC_Container dac[] = {
+  DAC_Container(0),
+  #if NUM_ANALOG_OUTPUTS > 1
+  DAC_Container(1),
+  #endif
+  #if NUM_ANALOG_OUTPUTS > 2
+  DAC_Container(2),
+  #endif
+  #if NUM_ANALOG_OUTPUTS > 3
+  DAC_Container(3),
+  #endif
+};
+
+void analogWriteDAC(pin_size_t pinNumber, int value) {
+  R_DAC_Open(&dac[pinNumber - DAC].ctrl, &dac[pinNumber - DAC].cfg);
+
+  // DAC is 12 bit, so remap _writeResolution to (1 << 12)
+  value = map(value, 0, (1 << _writeResolution), 0, (1 << 12));
+
+  R_DAC_Write(&dac[pinNumber - DAC].ctrl, value);
+  R_DAC_Start(&dac[pinNumber - DAC].ctrl);
+}
+#endif
 
 #define MAX_PWM_ARDUINO_PIN    25
 #define DEFAULT_PERIOD_MSEC    (2)
@@ -180,8 +220,16 @@ static PwmArray pwms{};
 void analogWrite(pin_size_t pinNumber, int value)
 {
   uint32_t pwmPeriod = 0;
+
+#ifdef DAC
+  //Check if it is a valid DAC pin
+  if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
+    analogWriteDAC(pinNumber, value);
+    return;
+  }
+#endif //DAC
+
   uint32_t pulse_width = pwmPeriod*value/pow(2,_writeResolution);
-  
 
   if(pinNumber < MAX_PWM_ARDUINO_PIN) {
     PwmOut *ptr = nullptr;
@@ -208,21 +256,5 @@ void analogWrite(pin_size_t pinNumber, int value)
     if(ptr != nullptr) {
       ptr->pulse_perc( (float)value * 100.0 / (float)pow(2,_writeResolution)); 
     }
-  }
-  else {
-#ifdef DAC
-    //DAC pin
-    //Check if it is a valid DAC pin
-    if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
-      //R_DAC_Stop(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
-      R_DAC_Open(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, g_AAnalogOutPinDescription[pinNumber - DAC].dac_cfg);
-      if (value > 4096) {
-        // Saturate to MAX ADC value
-        value = 4096;
-      }
-      R_DAC_Write(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl, value);
-      R_DAC_Start(g_AAnalogOutPinDescription[pinNumber - DAC].dac_ctrl);
-    }
-#endif //DAC
   }
 }
