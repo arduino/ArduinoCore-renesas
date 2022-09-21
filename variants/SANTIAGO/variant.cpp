@@ -138,10 +138,9 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_00_PIN_02,    P002   }, /* (19) A3  */
   { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
   { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
-  { BSP_IO_PORT_03_PIN_03,    P303   }, /* (22) D22 --------------------------- RGB LED */
-  { BSP_IO_PORT_03_PIN_04,    P304   }, /* (23) D23 */
+  { BSP_IO_PORT_00_PIN_11,    P011   }, /* (22) D22 --------------------------- RGB LED */
+  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (23) D23 */
   { BSP_IO_PORT_00_PIN_12,    P012   }, /* (24) D24 ------------------------- TX/RX LED */
-  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (25) D25 */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
