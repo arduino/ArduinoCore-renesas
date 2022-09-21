@@ -91,8 +91,11 @@ void analogReadResolution(int bits) {
       break;
   }
 
-  adc.cfg.resolution = read_resolution;
-  R_ADC_Open(&adc.ctrl, &adc.cfg);
+  auto res = R_ADC_Open(&adc.ctrl, &adc.cfg);
+  if (res == FSP_SUCCESS) {
+    adc.cfg.resolution = read_resolution;
+  }
+  // oops, we selected an impossible resolution; don't change it in the structure to avoid misbehaviours
 }
 
 int analogReadResolution()
