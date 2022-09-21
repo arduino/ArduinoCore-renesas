@@ -38,7 +38,8 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define PIN_MISO                    (6 << PIN_USE_POS)
 #define PIN_MOSI                    (7 << PIN_USE_POS)
 #define PIN_SCK                     (8 << PIN_USE_POS)
-#define PIN_PWM                     (9 << PIN_USE_POS)
+#define PIN_PWM_GTI                 (9 << PIN_USE_POS)
+#define PIN_PWM_AGT                 (10 << PIN_USE_POS)
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -54,7 +55,9 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define IS_PIN_MOSI(x)              (((x & PIN_USE_MASK) ==  PIN_MOSI) || ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA))
 
 #define IS_PIN_SCK(x)               ((x & PIN_USE_MASK) ==  PIN_SCK)
-#define IS_PIN_PWM(x)               ((x & PIN_USE_MASK) ==  PIN_PWM)
+#define IS_PIN_PWM(x)               (((x & PIN_USE_MASK) ==  PIN_PWM_GTI) || ((x & PIN_USE_MASK) ==  PIN_PWM_AGT))
+#define IS_PIN_AGT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_AGT)
+#define IS_PIN_GTI_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GTI)
 
 #define CHANNEL_POS                 (7)
 #define CHANNEL_MASK                (0x780)

@@ -97,22 +97,37 @@ sciTable_t SciTable[] {
 };
 
 
+const uint16_t P301[] = { (SCI_CHANNEL     | PIN_RX_MISO_SCL | CHANNEL_2  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_4  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) 
+                            
+                        };
+const uint16_t P102[] = { (SCI_CHANNEL     | PIN_TX_MOSI_SDA | CHANNEL_2  | SCI_ODD_CFG       | NOT_LAST_ITEM) ,
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_2  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) 
+                        };
 
-const uint16_t P301[] = { (SCI_CHANNEL     | PIN_RX_MISO_SCL | CHANNEL_2  | SCI_EVEN_CFG      | LAST_ITEM_GUARD) };
-const uint16_t P102[] = { (SCI_CHANNEL     | PIN_TX_MOSI_SDA | CHANNEL_2  | SCI_ODD_CFG       | LAST_ITEM_GUARD) };
+const uint16_t P103[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_2  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
+
+const uint16_t P104[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_1  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
+
+const uint16_t P112[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_3  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
 
 const uint16_t P101[] = { (NOT_SCI_CHANNEL | PIN_SDA         | CHANNEL_1  | ADD_CFG_DONT_CARE | NOT_LAST_ITEM) , 
                           (SCI_CHANNEL     | PIN_TX_MOSI_SDA | CHANNEL_0  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
-                          (NOT_SCI_CHANNEL | PIN_PWM         | CHANNEL_5  | PWM_CHANNEL_B     | LAST_ITEM_GUARD )
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_B     | LAST_ITEM_GUARD )
                         };
+
+const uint16_t P108[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_0  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
+const uint16_t P109[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_0  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
+const uint16_t P110[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_1  | PWM_CHANNEL_B     | LAST_ITEM_GUARD) };
+const uint16_t P111[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_3  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
 
 const uint16_t P100[] = { (NOT_SCI_CHANNEL | PIN_SCL         | CHANNEL_1  | ADD_CFG_DONT_CARE | NOT_LAST_ITEM) , 
                           (SCI_CHANNEL     | PIN_RX_MISO_SCL | CHANNEL_0  | SCI_EVEN_CFG      | NOT_LAST_ITEM) ,
-                          (NOT_SCI_CHANNEL | PIN_PWM         | CHANNEL_5  | PWM_CHANNEL_A     | LAST_ITEM_GUARD ) 
+                          (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_5  | PWM_CHANNEL_A     | LAST_ITEM_GUARD ) 
                         };                        
 
-
-
+const uint16_t P302[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_4  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
+const uint16_t P300[] = { (NOT_SCI_CHANNEL | PIN_PWM_GTI     | CHANNEL_0  | PWM_CHANNEL_A     | LAST_ITEM_GUARD) };
 
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
@@ -172,19 +187,19 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
   { BSP_IO_PORT_02_PIN_06,    nullptr}, /* (2) D2  */
-  { BSP_IO_PORT_01_PIN_04,    nullptr}, /* (3) D3  */
+  { BSP_IO_PORT_01_PIN_04,    P104}, /* (3) D3  */
   { BSP_IO_PORT_04_PIN_00,    nullptr}, /* (4) D4  */
-  { BSP_IO_PORT_01_PIN_03,    nullptr}, /* (5) D5  */
-  { BSP_IO_PORT_01_PIN_12,    nullptr}, /* (6) D6  */
+  { BSP_IO_PORT_01_PIN_03,    P103}, /* (5) D5  */
+  { BSP_IO_PORT_01_PIN_12,    P112}, /* (6) D6  */
   { BSP_IO_PORT_04_PIN_09,    nullptr}, /* (7) D7  */
-  { BSP_IO_PORT_03_PIN_02,    nullptr}, /* (8) D8  */
-  { BSP_IO_PORT_03_PIN_00,    nullptr}, /* (9) D9  */
-  { BSP_IO_PORT_01_PIN_08,    nullptr}, /* (10) D10 */
-  { BSP_IO_PORT_01_PIN_09,    nullptr}, /* (11) D11 */
-  { BSP_IO_PORT_01_PIN_10,    nullptr}, /* (12) D12 */
-  { BSP_IO_PORT_01_PIN_11,    nullptr}, /* (13) D13 */
-  { BSP_IO_PORT_01_PIN_01,    nullptr}, /* (14) D14 */
-  { BSP_IO_PORT_01_PIN_00,    nullptr}, /* (15) D15 */
+  { BSP_IO_PORT_03_PIN_02,    P302}, /* (8) D8  */
+  { BSP_IO_PORT_03_PIN_00,    P300}, /* (9) D9  */
+  { BSP_IO_PORT_01_PIN_08,    P108}, /* (10) D10 */
+  { BSP_IO_PORT_01_PIN_09,    P109}, /* (11) D11 */
+  { BSP_IO_PORT_01_PIN_10,    P110}, /* (12) D12 */
+  { BSP_IO_PORT_01_PIN_11,    P111}, /* (13) D13 */
+  { BSP_IO_PORT_01_PIN_01,    P101}, /* (14) D14 */
+  { BSP_IO_PORT_01_PIN_00,    P100}, /* (15) D15 */
   { BSP_IO_PORT_00_PIN_14,    nullptr}, /* (16) A0  --------------------------  ANALOG  */
   { BSP_IO_PORT_00_PIN_00,    nullptr}, /* (17) A1  */
   { BSP_IO_PORT_00_PIN_01,    nullptr}, /* (18) A2  */
