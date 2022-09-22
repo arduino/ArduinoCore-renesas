@@ -60,7 +60,7 @@ santiago.build.fpu=-mfpu=fpv5-sp-d16
 santiago.build.float-abi=-mfloat-abi=hard
 
 santiago.build.board=SANTIAGO
-santiago.build.defines=
+santiago.build.defines=-DF_CPU=48000000
 santiago.vid.0=0x2341
 santiago.pid.0=0x0069
 santiago.vid.1=0x2341

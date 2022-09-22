@@ -179,7 +179,7 @@ extern const size_t g_pin_cfg_size;
 }
 #endif
 
-#define digitalPinToBspPin(P)       (g_APinDescription[P].name)
+#define digitalPinToBspPin(P)       (g_pin_cfg[P].pin)
 #define digitalPinToAnalogPin(P)    (P < A0 ? A0 + P : P)
 #define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
 #define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
@@ -197,6 +197,10 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
 #if defined(__cplusplus)
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 #endif
+
+#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
 #define Serial1 _UART1_
 #define Serial2 _UART2_
