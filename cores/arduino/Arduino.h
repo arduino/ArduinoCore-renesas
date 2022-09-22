@@ -167,9 +167,7 @@ extern sciTable_t SciTable[];
 
 #define digitalPinToBspPin(P)       (g_APinDescription[P].name)
 #define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))
-#define digitalPinToInterruptPin(P) (g_APinDescription[P].ExtInt)
-#define digitalPinToPwmPin(P)       (g_APinDescription[P].PWMChannel)
-#define digitalPinToPwmObj(P)       (pwmTable[digitalPinToPwmPin(P)].pwm)
+
 
 #define IOPORT_PRV_PORT_ADDRESS(port_number)    ((uint32_t) (R_PORT1 - R_PORT0) * (port_number) + R_PORT0)
 
