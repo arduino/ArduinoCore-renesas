@@ -115,8 +115,8 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define SCI_ODD_CFG                 (1 << ADD_CONFIG_POS)
 #define USE_SCI_ODD_CFG(x)          ((x & ADD_CONFIG_MASK) == SCI_ODD_CFG)
 
-#define GPT_EVEN_CFG                SCI_EVEN_CFG
-#define GPT_ODD_CFG                 SCI_ODD_CFG
+#define GPT_EVEN_CFG                0
+#define GPT_ODD_CFG                 0
 
 #define ADD_CFG_DONT_CARE           (15 << ADD_CONFIG_POS)
 #define IS_ADD_CFG_DONT_CARE(x)     ((x & ADD_CONFIG_MASK) == ADD_CFG_DONT_CARE)
