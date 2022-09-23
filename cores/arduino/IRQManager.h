@@ -17,7 +17,8 @@ typedef enum {
     IRQ_UART_SCI2,
     IRQ_I2C_MASTER,
     IRQ_SCI_I2C_MASTER,
-    IRQ_I2C_SLAVE
+    IRQ_I2C_SLAVE,
+    IRQ_EXTERNAL_PIN,
 } Peripheral_t;
 
 typedef enum {

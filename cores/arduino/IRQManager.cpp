@@ -1,6 +1,7 @@
 #include "IRQManager.h"
 #include "bsp_api.h"
 #include "r_timer_api.h"
+#include "r_external_irq_api.h"
 
 #define FIXED_IRQ_NUM   16
 #define PROG_IRQ_NUM    32
@@ -10,6 +11,8 @@
 #define I2C_SLAVE_REQ_NUM  2
 #define USB_REQ_NUM    4
 #define AGT_REQ_NUM    1
+#define EXTERNAL_PIN_NUM 1
+#define EXTERNAL_PIN_PRIORITY 12
 #define UART_SCI2_PRIORITY 12
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
@@ -325,6 +328,75 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         }
         else {
             rv = false;
+        }
+    }
+    /* **********************************************************************
+                             PIN EXTERNAL INTERRUPT
+       ********************************************************************** */
+    else if(p == IRQ_EXTERNAL_PIN && cfg != NULL) {
+        external_irq_cfg_t *p_cfg = (external_irq_cfg_t *)cfg;
+        if( (p_cfg->irq == FSP_INVALID_VECTOR) && (last_interrupt_index + EXTERNAL_PIN_NUM) < PROG_IRQ_NUM ) {
+            p_cfg->ipl = EXTERNAL_PIN_PRIORITY;
+            p_cfg->irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)r_icu_isr;
+            if(p_cfg->channel == 0) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ0);
+            }
+            else if(p_cfg->channel == 1) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ1);
+            }
+            else if(p_cfg->channel == 2) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ2);
+            }
+            else if(p_cfg->channel == 3) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ3);
+            }
+            else if(p_cfg->channel == 4) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ4);
+            }
+            else if(p_cfg->channel == 5) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ5);
+            }
+            else if(p_cfg->channel == 6) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ6);
+            }
+            else if(p_cfg->channel == 7) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ7);
+            }
+            else if(p_cfg->channel == 8) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ8);
+            }
+            else if(p_cfg->channel == 9) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ9);
+            }
+            else if(p_cfg->channel == 10) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ10);
+            }
+            else if(p_cfg->channel == 11) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ11);
+            }
+            else if(p_cfg->channel == 12) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ12);
+            }
+            else if(p_cfg->channel == 13) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ13);
+            }
+            else if(p_cfg->channel == 14) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ14);
+            }
+            else if(p_cfg->channel == 15) {
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ15);
+            }
+            
+            last_interrupt_index++;
+        }
+        else {
+            if(p_cfg->irq == FSP_INVALID_VECTOR) {
+                rv = false;
+            }
+            else {
+                rv = true;
+            }
         }
     }
     else {
