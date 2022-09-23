@@ -14,7 +14,7 @@ typedef enum {
     IRQ_RTC,
     IRQ_USB,
     IRQ_AGT,
-    IRQ_UART_SCI2,
+    IRQ_SCI_UART,
     IRQ_I2C_MASTER,
     IRQ_SCI_I2C_MASTER,
     IRQ_I2C_SLAVE,

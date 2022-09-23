@@ -118,7 +118,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     /* **********************************************************************
                                       UART
        ********************************************************************** */
-    else if(p == IRQ_UART_SCI2 && cfg != NULL) {
+    else if(p == IRQ_SCI_UART && cfg != NULL) {
         uart_cfg_t *p_cfg = (uart_cfg_t *)cfg;
         if( (last_interrupt_index +  UART_SCI2_REQ_NUM) < PROG_IRQ_NUM ) {
             /* TX interrupt */
