@@ -73,6 +73,9 @@ class IRQManager {
     void set_iic_rx_link_event(int li, int ch);
     void set_iic_tei_link_event(int li, int ch);
     void set_iic_eri_link_event(int li, int ch);
+
+    void set_ext_link_event(int li, int ch);
+
     IRQManager();
 
 };
