@@ -76,6 +76,8 @@ class IRQManager {
 
     void set_ext_link_event(int li, int ch);
 
+    void set_agt_link_event(int li, int ch);
+
     IRQManager();
 
 };

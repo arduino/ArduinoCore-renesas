@@ -108,7 +108,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             p_cfg->cycle_end_ipl = AGT_PRIORITY;
             p_cfg->cycle_end_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)agt_int_isr;
-            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_AGT0_INT);
+            set_agt_link_event(last_interrupt_index, p_cfg->channel);
             last_interrupt_index++;
         }
         else {
@@ -120,10 +120,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_UART_SCI2 && cfg != NULL) {
         uart_cfg_t *p_cfg = (uart_cfg_t *)cfg;
-        
-        
-
-
         if( (last_interrupt_index +  UART_SCI2_REQ_NUM) < PROG_IRQ_NUM ) {
             /* TX interrupt */
             p_cfg->txi_ipl = UART_SCI2_PRIORITY;
@@ -409,7 +405,35 @@ void IRQManager::set_ext_link_event(int li, int ch) {
 
 }
 
+void IRQManager::set_agt_link_event(int li, int ch) {
+    if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT0_INT);
+    }
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT1_INT);
+    }
+#ifdef ELC_EVENT_AGT2_INT
+    else if(ch == 2) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT2_INT);
+    }
+#endif  
+#ifdef ELC_EVENT_AGT3_INT
+    else if(ch == 3) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT3_INT);
+    }
+#endif    
+#ifdef ELC_EVENT_AGT4_INT
+    else if(ch == 4) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT4_INT);
+    }
+#endif  
+#ifdef ELC_EVENT_AGT5_INT
+    else if(ch == 5) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT5_INT);
+    }
+#endif  
 
+}
 
 void IRQManager::set_iic_tx_link_event(int li, int ch) {
     if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TXI);}
