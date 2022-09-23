@@ -338,7 +338,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         }
         else {
             if(p_cfg->irq == FSP_INVALID_VECTOR) {
-                rv = false;ch
+                rv = false;
             }
             else {
                 rv = true;
