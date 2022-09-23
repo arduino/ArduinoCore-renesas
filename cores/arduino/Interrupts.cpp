@@ -17,123 +17,178 @@
 */
 
 #include "Arduino.h"
-
+#include "IRQManager.h"
 #include "bsp_api.h"
 #include "hal_data.h"
 
-static volatile voidFuncPtrParam intFunc[EXT_INTERRUPTS_HOWMANY];
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
 
-void detachInterrupt(pin_size_t pinNumber) {
-    if (digitalPinToInterruptPin(pinNumber) != NOT_AN_INTERRUPT) {
-        R_ICU_ExternalIrqDisable(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
-        R_ICU_ExternalIrqClose(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
-        intFunc[digitalPinToInterruptPin(pinNumber)] = nullptr;
+#define MAX_IRQ_CHANNEL (15)
+
+using IrqFuncVoid_f          = void (*)();
+using IrqFuncParam_f         = void (*)(void *);
+
+class CIrq {
+    public:
+    CIrq() {cfg.irq = FSP_INVALID_VECTOR; }
+    volatile IrqFuncVoid_f fnc_void = nullptr;
+    volatile IrqFuncParam_f fnc_param = nullptr;
+    icu_instance_ctrl_t ctrl;
+    external_irq_cfg_t cfg;
+};
+
+class IrqPool {
+  public:
+  IrqPool() {}
+  ~IrqPool() {
+    for(int i = 0; i < MAX_IRQ_CHANNEL; i++) {
+      if(irqs[i] != nullptr){
+        delete irqs[i];
+        irqs[i] = nullptr;
+      }
     }
+  }
+  CIrq *get(int index, bool make) { 
+    if(index < MAX_IRQ_CHANNEL) {
+        if(irqs[index] == nullptr && make) {
+            irqs[index] = new CIrq{};
+        }
+        return irqs[index]; 
+    }
+    else {
+      return nullptr;
+    }
+  }
+  
+  private:
+  CIrq* irqs[MAX_IRQ_CHANNEL] = {nullptr};
+
+};
+
+static IrqPool IrqChannel{};
+
+int  digitalPinToInterrupt(int pin) { return pin; }
+
+/* -------------------------------------------------------------------------- */
+static int pin2IrqChannel(int pin) {
+/* -------------------------------------------------------------------------- */  
+  /* verify index are good */
+  if(pin < 0 || pin >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) {
+    return -1;
+  }
+  /* getting configuration from table */
+  const uint16_t *cfg = g_pin_cfg[pin].list;
+  uint16_t cfg_irq = getPinCfg(cfg, PIN_CFG_REQ_INTERRUPT,false);
+  
+  /* verify configuration are good */
+  if(cfg_irq == 0) {
+    return -1;
+  }
+ 
+  return GET_CHANNEL(cfg_irq);
 }
 
+/* -------------------------------------------------------------------------- */
+static void IrqCallback(external_irq_callback_args_t * p_args) {
+/* -------------------------------------------------------------------------- */    
+    void * param = (void *)p_args->p_context;
+    uint32_t ch = p_args->channel;
 
-void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
-    intFunc[digitalPinToInterruptPin(pinNumber)] = func;
+    CIrq *irq_contest = nullptr;
 
-    uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE;
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_contest = IrqChannel.get(ch,false);
+   
+        if(irq_contest != nullptr) {
+            R_BSP_IrqClearPending(irq_contest->cfg.irq);
+            
+            if(irq_contest->fnc_param != nullptr) {
+                irq_contest->fnc_param(param);
+            }
+            else if(irq_contest->fnc_void != nullptr) {
+                irq_contest->fnc_void();
+            }
+        }
+    }
+    
+}
 
-    external_irq_cfg_t cfg = *irqTable[digitalPinToInterruptPin(pinNumber)].irq_cfg;
-    switch (mode)
-    {
-    case LOW:
-        cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
-        break;
-    case FALLING:
-        cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
-        break;
-    case RISING:
-        cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
-        pullup_enabled = 0;
-        break;
-    case CHANGE:
-        cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
-        break;
+/* -------------------------------------------------------------------------- */
+void detachInterrupt(pin_size_t pinNumber) {
+/* -------------------------------------------------------------------------- */    
+
+    CIrq *irq_contest = nullptr;
+    int ch = pin2IrqChannel(pinNumber);
+    
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_contest = IrqChannel.get(ch,false);
     }
 
-    pinPeripheral(digitalPinToBspPin(pinNumber), IOPORT_CFG_IRQ_ENABLE | pullup_enabled);
+    if(irq_contest != nullptr) {
+        irq_contest->fnc_param      = nullptr;
+        irq_contest->fnc_void       = nullptr;
+        R_ICU_ExternalIrqDisable(&(irq_contest->ctrl));
+        R_ICU_ExternalIrqClose(&(irq_contest->ctrl));
+    } 
+}
 
-    // Enable the interrupt.
-    R_ICU_ExternalIrqOpen(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl, &cfg);
-    R_ICU_ExternalIrqEnable(irqTable[digitalPinToInterruptPin(pinNumber)].icu_ctrl);
+/* -------------------------------------------------------------------------- */
+void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
+/* -------------------------------------------------------------------------- */    
+
+    CIrq *irq_contest = nullptr;
+    int ch = pin2IrqChannel(pinNumber);
+    
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_contest = IrqChannel.get(ch,true);
+    }
+
+    if(irq_contest != nullptr) {
+    
+        irq_contest->cfg.channel            = ch;
+        irq_contest->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
+        irq_contest->cfg.filter_enable      = false;
+        irq_contest->cfg.p_callback         = IrqCallback;
+        irq_contest->cfg.p_context          = param;
+        irq_contest->cfg.p_extend           = nullptr;
+        if(param != nullptr) {
+            irq_contest->fnc_param      = func;
+        }
+        else {
+            irq_contest->fnc_void       = (voidFuncPtr)func;
+        }
+    
+        uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
+
+        switch (mode) {
+            case LOW:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
+            break;
+            case FALLING:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
+            break;
+            case RISING:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
+                pullup_enabled = 0;
+            break;
+            case CHANGE:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
+            break;
+        }
+    
+        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_contest->cfg))) {
+            /* Configure PIN */
+            R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
+            /* Enable Interrupt */ 
+            R_ICU_ExternalIrqOpen(&(irq_contest->ctrl), &(irq_contest->cfg));
+            R_ICU_ExternalIrqEnable(&(irq_contest->ctrl));
+        }
+
+    }
 }
 
 void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
-    if (digitalPinToInterruptPin(pinNumber) != NOT_AN_INTERRUPT) {
-        attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
-    }
+    attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
 }
 
-void isr_irq0(external_irq_callback_args_t *p_args){
-    if (intFunc[0] != NULL)
-    {
-        intFunc[0](p_args);
-    }
-}
-
-void isr_irq1(external_irq_callback_args_t *p_args){
-    if (intFunc[1] != NULL)
-    {
-        intFunc[1](p_args);
-    }
-}
-
-void isr_irq2(external_irq_callback_args_t *p_args){
-    if (intFunc[2] != NULL)
-    {
-        intFunc[2](p_args);
-    }
-}
-
-void isr_irq3(external_irq_callback_args_t *p_args){
-    if (intFunc[3] != NULL)
-    {
-        intFunc[3](p_args);
-    }
-}
-
-void isr_irq4(external_irq_callback_args_t *p_args){
-    if (intFunc[4] != NULL)
-    {
-        intFunc[4](p_args);
-    }
-}
-
-void isr_irq5(external_irq_callback_args_t *p_args){
-    if (intFunc[5] != NULL)
-    {
-        intFunc[5](p_args);
-    }
-}
-
-void isr_irq6(external_irq_callback_args_t *p_args){
-    if (intFunc[6] != NULL)
-    {
-        intFunc[6](p_args);
-    }
-}
-
-void isr_irq7(external_irq_callback_args_t *p_args){
-    if (intFunc[7] != NULL)
-    {
-        intFunc[7](p_args);
-    }
-}
-
-void isr_irq8(external_irq_callback_args_t *p_args){
-    if (intFunc[8] != NULL)
-    {
-        intFunc[8](p_args);
-    }
-}
-
-void isr_irq9(external_irq_callback_args_t *p_args){
-    if (intFunc[9] != NULL)
-    {
-        intFunc[9](p_args);
-    }
-}
