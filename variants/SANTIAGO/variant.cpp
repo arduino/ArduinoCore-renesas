@@ -15,15 +15,6 @@ const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
 };
 
 
-
-const irqTable_t irqTable[] = {
-    {&g_external_irq0_ctrl, &g_external_irq0_cfg},    // ext_int0
-    {&g_external_irq1_ctrl, &g_external_irq1_cfg},    // ext_int1
-};
-
-void __attribute__((weak)) i2c_callback (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) sci_i2c_callback (i2c_master_callback_args_t * p_args) {}
-
 void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
 void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
 
