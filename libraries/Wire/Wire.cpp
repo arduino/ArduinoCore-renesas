@@ -33,9 +33,6 @@ extern "C" {
 TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS] = {nullptr};
 TwoWire *TwoWire::g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
 
-extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
-
 /* -------------------------------------------------------------------------- */
 void TwoWire::setBusStatus(WireStatus_t ws) {
 /* -------------------------------------------------------------------------- */  

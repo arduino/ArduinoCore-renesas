@@ -18,11 +18,17 @@ typedef enum {
     PIN_CFG_REQ_PWM,
     PIN_CFG_REQ_INTERRUPT,
     PIN_CFG_REQ_CTS_RTS,
+    PIN_CFG_REQ_ADC,
     /* to be completed */
 } PinCfgReq_t;
 
 
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
+#ifdef __cplusplus
+static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
+  return getPinCfg(cfg, req, false);
+}
+#endif
 
 #define SCI_CHANNEL                 0x1
 #define NOT_SCI_CHANNEL             0x0
@@ -64,8 +70,10 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define IS_PIN_AGT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_AGT)
 #define IS_PIN_GTI_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GTI)
 
+#define IS_PIN_ANALOG(x)            ((x & PIN_USE_MASK) ==  PIN_ANALOG)
+
 #define CHANNEL_POS                 (6)
-#define CHANNEL_MASK                (0x740)
+#define CHANNEL_MASK                (0x7C0)
 #define CHANNEL_0                   (0 << CHANNEL_POS)
 #define CHANNEL_1                   (1 << CHANNEL_POS)
 #define CHANNEL_2                   (2 << CHANNEL_POS)
@@ -107,8 +115,8 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #define SCI_ODD_CFG                 (1 << ADD_CONFIG_POS)
 #define USE_SCI_ODD_CFG(x)          ((x & ADD_CONFIG_MASK) == SCI_ODD_CFG)
 
-#define GPT_EVEN_CFG                SCI_EVEN_CFG
-#define GPT_ODD_CFG                 SCI_ODD_CFG
+#define GPT_EVEN_CFG                0
+#define GPT_ODD_CFG                 0
 
 #define ADD_CFG_DONT_CARE           (15 << ADD_CONFIG_POS)
 #define IS_ADD_CFG_DONT_CARE(x)     ((x & ADD_CONFIG_MASK) == ADD_CFG_DONT_CARE)

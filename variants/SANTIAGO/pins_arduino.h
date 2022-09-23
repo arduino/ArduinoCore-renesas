@@ -27,6 +27,7 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define PIN_A4   (20u)
 #define PIN_A5   (21u)
 
+// #if BSP_FEATURE_DAC_MAX_CHANNELS > 0
 #define DAC      (A0)
 
 #undef A0
@@ -110,8 +111,14 @@ static const uint8_t A5 = PIN_A5;
 #define IS_SPI_SCI        0
 
 #define PIN_SPI_SS    (10)
+#define PIN_SPI_MOSI  (11)
+#define PIN_SPI_MISO  (12)
+#define PIN_SPI_SCK   (13)
 
 static const uint8_t SS   = PIN_SPI_SS;
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK  = PIN_SPI_SCK;
 
 
 #define EXT_INTERRUPTS_HOWMANY 2

@@ -43,6 +43,11 @@ auto F(T1&& A)
 int getAnalogReadResolution();
 void analogReadResolution(int bits);
 void analogWriteResolution(int bits);
+#if defined(__cplusplus)
+// In c++ mode, we also provide analogReadResolution and analogWriteResolution getters
+int analogReadResolution();
+int analogWriteResolution();
+#endif
 int getAnalogWriteResolution();
 ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin);
 
@@ -165,9 +170,17 @@ extern i2c_master_instance_t I2CMasterTable[];
 extern spi_instance_t SpiTable[];
 extern sciTable_t SciTable[];
 
-#define digitalPinToBspPin(P)       (g_APinDescription[P].name)
-#define digitalPinToAnalogPin(P)    (P >= PINS_COUNT ? -1 : P < A0 ? P : (P-A0))
+#if defined(__cplusplus)
+extern "C" {
+#endif
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
+#if defined(__cplusplus)
+}
+#endif
 
+#define digitalPinToBspPin(P)       (g_pin_cfg[P].pin)
+#define digitalPinToAnalogPin(P)    (P < A0 ? A0 + P : P)
 
 #define IOPORT_PRV_PORT_ADDRESS(port_number)    ((uint32_t) (R_PORT1 - R_PORT0) * (port_number) + R_PORT0)
 
@@ -181,6 +194,10 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
 #if defined(__cplusplus)
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 #endif
+
+#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
 #define Serial1 _UART1_
 #define Serial2 _UART2_
