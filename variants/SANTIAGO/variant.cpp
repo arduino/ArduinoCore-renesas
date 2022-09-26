@@ -90,6 +90,9 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
     else if(PIN_CFG_REQ_MOSI == req && IS_PIN_MOSI(*(cfg + index))) {
       return *(cfg + index);
     }
+    else if(PIN_CFG_REQ_SCK == req && IS_PIN_SCK(*(cfg + index))) {
+      return *(cfg + index);
+    }
     else if(PIN_CFG_REQ_PWM == req && IS_PIN_PWM(*(cfg + index))) {
       return *(cfg + index);
     }
