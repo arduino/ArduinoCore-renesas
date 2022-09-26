@@ -19,8 +19,11 @@ typedef enum {
     IRQ_I2C_MASTER,
     IRQ_SCI_I2C_MASTER,
     IRQ_I2C_SLAVE,
+<<<<<<< HEAD
     IRQ_EXTERNAL_PIN,
+=======
     IRQ_SPI_MASTER
+>>>>>>> Support SPI Master within IRQManager.
 } Peripheral_t;
 
 typedef enum {

@@ -11,9 +11,12 @@
 #define I2C_SLAVE_REQ_NUM  2
 #define USB_REQ_NUM    4
 #define AGT_REQ_NUM    1
+<<<<<<< HEAD
 #define EXTERNAL_PIN_NUM 1
 #define EXTERNAL_PIN_PRIORITY 12
+=======
 #define SPI_MASTER_REQ_NUM 4
+>>>>>>> Support SPI Master within IRQManager.
 #define UART_SCI2_PRIORITY 12
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
@@ -23,7 +26,6 @@
 #define SPI_MASTER_PRIORITY 12
 
 #define FIRST_INT_SLOT_FREE 0
-
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
 
@@ -402,6 +404,9 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             }
         }
     }
+    else {
+        rv = false;
+    }
     /* **********************************************************************
                                       SPI MASTER
        ********************************************************************** */
@@ -439,9 +444,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         R_BSP_IrqCfg(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
         last_interrupt_index++;
       }
-    }
-    else {
-        rv = false;
     }
     __enable_irq();
     return rv;
