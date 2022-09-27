@@ -31,10 +31,6 @@
 
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
-
-extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
-
 void uart_callback(uart_callback_args_t *p_args)
 {
     /* This callback function is not used but it is referenced into 
@@ -101,7 +97,10 @@ UART::UART(uint8_t _pin_tx, uint8_t _pin_rx) :
   tx_st(TX_STOPPED), 
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
-
+  uart_cfg.txi_irq = FSP_INVALID_VECTOR;
+  uart_cfg.tei_irq = FSP_INVALID_VECTOR;
+  uart_cfg.rxi_irq = FSP_INVALID_VECTOR;
+  uart_cfg.eri_irq = FSP_INVALID_VECTOR;
 }
 
 
