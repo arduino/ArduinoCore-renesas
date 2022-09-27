@@ -67,7 +67,12 @@ bool PwmOut::begin() {
     timer_pwm_extended_cfg.gtioca_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
     timer_pwm_extended_cfg.gtiocb_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
     
-    rv &= timer.begin_pwm(GPT_TIMER, timer_channel, &timer_pwm_extended_cfg, _pwm_channel);    
+    if(_is_gtp) {
+      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, &timer_pwm_extended_cfg, _pwm_channel);    
+    }
+    else {
+      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, nullptr, _pwm_channel);  
+    }
   }
   _enabled = rv;
   return rv;
@@ -83,11 +88,11 @@ bool begin_usec(uint32_t period_us, uint32_t pulse_us) {
 /* -------------------------------------------------------------------------- */
 bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= false */, timer_source_div_t sd /*= TIMER_SOURCE_DIV_1*/) {
 /* -------------------------------------------------------------------------- */
-  bool rv = true;
+  _enabled = true;
   int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
-  rv &= cfg_pin(max_index);
+  _enabled &= cfg_pin(max_index);
   
-  if(rv) {
+  if(_enabled) {
     /* extended PWM CFG*/
     timer_pwm_extended_cfg.trough_ipl               = (BSP_IRQ_DISABLED);
     timer_pwm_extended_cfg.trough_irq               = FSP_INVALID_VECTOR;
@@ -104,40 +109,26 @@ bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= fal
     timer_pwm_extended_cfg.gtioca_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
     timer_pwm_extended_cfg.gtiocb_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
     
-    
     if(raw) {
-      rv &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel,  period_width, pulse_width, sd);
+      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel,  period_width, pulse_width, sd);
     }
     else {
-      /* NOTE: I suppose period and pulse are expressed in ms */
+      /* NOTE: I suppose period and pulse are expressed in us */
       float freq_hz = (1000000.0 / (float)period_width);
       float duty_perc = ((float)pulse_width * 100.0 / (float)period_width);
-      rv &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel, freq_hz, duty_perc);
+      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel, freq_hz, duty_perc);
     }
 
     timer.set_pwm_extended_cfg(&timer_pwm_extended_cfg);
+    timer.enable_pwm_channel(_pwm_channel); 
     
-    if(_pwm_channel == CHANNEL_A) {
-      timer.enable_gtioc_CH_A();
-    } 
-    else {
-      timer.enable_gtioc_CH_B();
-    }
   }
-
-  if(rv) {
-    fsp_err_t err = R_GPT_Open(timer.get_ctrl_ptr(),timer.get_cfg_ptr());
-    if ((err != FSP_ERR_ALREADY_OPEN) && (err != FSP_SUCCESS)) {
-      return false;
-    }
+  if(_enabled) {
+    _enabled &= timer.open();
+    _enabled &= timer.start();
   }
   
-  if (R_GPT_Start(timer.get_ctrl_ptr()) != FSP_SUCCESS) {
-    return false;
-  }
-
-  _enabled = true;
-  return rv;
+  return _enabled;
 }
 
 bool PwmOut::period(int ms) {
@@ -145,12 +136,7 @@ bool PwmOut::period(int ms) {
 }
 
 bool PwmOut::pulseWidth(int ms) {
-  if(_pwm_channel == CHANNEL_A) {
-    return timer.set_pulse_ms((double)ms,GPT_IO_PIN_GTIOCA);
-  }
-  else {
-    return timer.set_pulse_ms((double)ms,GPT_IO_PIN_GTIOCB);
-  }  
+  return timer.set_pulse_ms((double)ms,_pwm_channel);  
 }
 
 bool PwmOut::period_us(int us) {
@@ -158,40 +144,19 @@ bool PwmOut::period_us(int us) {
 }
 
 bool PwmOut::pulseWidth_us(int us) {
-  if(_pwm_channel == CHANNEL_A) {
-    return timer.set_pulse_us((double)us,GPT_IO_PIN_GTIOCA);
-  }
-  else {
-    return timer.set_pulse_us((double)us,GPT_IO_PIN_GTIOCB);
-  }  
-  
+  return timer.set_pulse_us((double)us,_pwm_channel);
 }
 
 bool PwmOut::period_raw(int period) {
-  if (R_GPT_PeriodSet(timer.get_ctrl_ptr(), period) != FSP_SUCCESS) {
-    return false;
-  }
-  return true;
+  return timer.set_period(period);
 }
 
 bool PwmOut::pulseWidth_raw(int pulse) {
-  if(_pwm_channel == CHANNEL_A) {
-    if (R_GPT_DutyCycleSet(timer.get_ctrl_ptr(), pulse, GPT_IO_PIN_GTIOCA) != FSP_SUCCESS) {
-      return false;
-    }
-  }
-  else {
-    if (R_GPT_DutyCycleSet(timer.get_ctrl_ptr(), pulse, GPT_IO_PIN_GTIOCB) != FSP_SUCCESS) {
-      return false;
-    }
-  }  
-  return true;
+  return timer.set_duty_cycle(pulse, _pwm_channel); 
 }
 
 bool PwmOut::pulse_perc(float duty) {
-  timer_info_t info;
-  R_GPT_InfoGet(timer.get_ctrl_ptr(), &info);
-  float period = (float)info.period_counts;
+  float period = (float)timer.get_period_raw();
   float pulse = period * duty / 100.0;
   pulseWidth_raw((int)pulse);
 }
@@ -199,19 +164,19 @@ bool PwmOut::pulse_perc(float duty) {
 
 void PwmOut::suspend() {
   if (_enabled) {
-    R_GPT_Stop(timer.get_ctrl_ptr());
+    timer.stop();
     _enabled = false;
   }
 }
 
 void PwmOut::resume() {
   if (!_enabled) {
-    R_GPT_Start(timer.get_ctrl_ptr());
+    timer.start();
     _enabled = true;
   }
 }
 
 void PwmOut::end() {
-  R_GPT_Close(timer.get_ctrl_ptr());
+  timer.close();
   _enabled = false;
 }
