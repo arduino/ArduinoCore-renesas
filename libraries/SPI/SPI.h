@@ -33,21 +33,36 @@
 namespace arduino {
 
 /**************************************************************************************
+ * DEFINE
+ **************************************************************************************/
+
+#define SPI_MAX_SPI_CHANNELS 2
+#define SPI_MAX_SCI_CHANNELS 9
+
+/**************************************************************************************
+ * TYPEDEF
+ **************************************************************************************/
+
+using SPI_open_f          = fsp_err_t (*)(spi_ctrl_t * p_api_ctrl, spi_cfg_t const * const p_cfg);
+using SPI_close_f         = fsp_err_t (*)(spi_ctrl_t * const p_api_ctrl);
+using SPI_writeThenRead_f = fsp_err_t (*)(spi_ctrl_t * const p_api_ctrl, void const * p_src, void * p_dest, uint32_t const length, spi_bit_width_t const bit_width);
+
+/**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
 class ArduinoSPI : public SPIClass
 {
 public:
-    ArduinoSPI(int ch, bool isSci = false);
+    ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci = false);
 
     virtual uint8_t transfer(uint8_t data);
     virtual uint16_t transfer16(uint16_t data);
     virtual void transfer(void *buf, size_t count);
 
     // Transaction Functions
-    virtual void usingInterrupt(int interruptNumber);
-    virtual void notUsingInterrupt(int interruptNumber);
+    virtual void usingInterrupt(int interruptNumber) { }
+    virtual void notUsingInterrupt(int interruptNumber) { }
     virtual void beginTransaction(arduino::SPISettings settings);
     virtual void endTransaction(void);
 
@@ -57,32 +72,41 @@ public:
 
     virtual void begin();
     virtual void end();
-    void setPins(int miso, int mosi, int sck, int cs = 0);
-    void setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
-               bsp_io_port_pin_t sck, bsp_io_port_pin_t cs = (bsp_io_port_pin_t)0);
+
 
 private:
-    void enableSciSpiIrqs();
-
     arduino::SPISettings const DEFAULT_SPI_SETTINGS = arduino::SPISettings(1000000, MSBFIRST, arduino::SPI_MODE0);
+
     arduino::SPISettings _settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
     static uint8_t initialized;
     static uint8_t interruptMode; // 0=none, 1=mask, 2=global
     static uint8_t interruptMask; // which interrupts to mask
     static uint8_t interruptSave; // temp storage, to restore state
 
-    spi_ctrl_t *_g_spi_ctrl;
-    const spi_cfg_t *_g_spi_cfg;
-    const spi_extended_cfg_t *_g_spi_ext_cfg;
-    const sci_spi_extended_cfg_t *_g_sci_spi_ext_cfg;
+    spi_instance_ctrl_t _spi_ctrl;
+    sci_spi_instance_ctrl_t _spi_sci_ctrl;
 
-    bsp_io_port_pin_t _miso, _mosi, _sck, _cs;
+    spi_cfg_t _spi_cfg;
+    spi_extended_cfg_t _spi_ext_cfg;
+    sci_spi_extended_cfg_t _sci_spi_ext_cfg;
+
+
+    int const _miso_pin;
+    int const _mosi_pin;
+    int const _sck_pin;
+    bool const _prefer_sci;
+
     int _channel;
     int _cb_event_idx;
 
     bool _is_sci;
 
-    void config(arduino::SPISettings const & settings);
+    SPI_open_f _open;
+    SPI_close_f _close;
+    SPI_writeThenRead_f _write_then_read;
+
+    static std::tuple<bool, int, bool> cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci);
+    void configSpiSettings(arduino::SPISettings const & settings);
     void configSpi(arduino::SPISettings const & settings);
     void configSpiSci(arduino::SPISettings const & settings);
     static std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> toFspSpiConfig(arduino::SPISettings const & settings);
