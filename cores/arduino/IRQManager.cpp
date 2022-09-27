@@ -122,39 +122,41 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
            on the channel, to be evaluated the use of the same interrupt routine
            for different peripherals */
 
-
         if( (last_interrupt_index +  UART_SCI2_REQ_NUM) < PROG_IRQ_NUM ) {
-            /* TX interrupt */
-            p_cfg->txi_ipl = UART_SCI2_PRIORITY;
-            p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
-            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_txi_isr;
-            set_sci_tx_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
-            last_interrupt_index++;
-            
-            /* TX-ERROR interrupt */
-            p_cfg->tei_ipl = UART_SCI2_PRIORITY;
-            p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
-            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_tei_isr;
-            set_sci_tei_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
-            last_interrupt_index++;
-            
-            /* RX interrupt */
-            p_cfg->rxi_ipl = UART_SCI2_PRIORITY;
-            p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
-            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
-            set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
-            last_interrupt_index++;
-            /* RX-ERROR interrupt */
-            
-            p_cfg->eri_ipl = UART_SCI2_PRIORITY;
-            p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
-            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
-            set_sci_rei_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
-            last_interrupt_index++;
+
+            if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
+                /* TX interrupt */
+                p_cfg->txi_ipl = UART_SCI2_PRIORITY;
+                p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_txi_isr;
+                set_sci_tx_link_event(last_interrupt_index, p_cfg->channel);
+                last_interrupt_index++;
+
+                /* TX-ERROR interrupt */
+                p_cfg->tei_ipl = UART_SCI2_PRIORITY;
+                p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_tei_isr;
+                set_sci_tei_link_event(last_interrupt_index, p_cfg->channel);
+                last_interrupt_index++;
+
+                /* RX interrupt */
+                p_cfg->rxi_ipl = UART_SCI2_PRIORITY;
+                p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
+                set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
+                last_interrupt_index++;
+
+                /* RX-ERROR interrupt */
+                p_cfg->eri_ipl = UART_SCI2_PRIORITY;
+                p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
+                set_sci_rei_link_event(last_interrupt_index, p_cfg->channel);
+                last_interrupt_index++;
+            }
+            R_BSP_IrqEnable (p_cfg->txi_irq);
+            R_BSP_IrqEnable (p_cfg->tei_irq);
+            R_BSP_IrqEnable (p_cfg->rxi_irq);
+            R_BSP_IrqEnable (p_cfg->eri_irq);
         }
         else {
             rv = false;
