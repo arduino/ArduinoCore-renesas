@@ -91,18 +91,25 @@ void ArduinoSPI::begin()
    */
   if (_is_sci)
   {
-    _open            = R_SCI_SPI_Open;
-    _close           = R_SCI_SPI_Close;
-    _write_then_read = R_SCI_SPI_WriteRead;
+    _open               = R_SCI_SPI_Open;
+    _close              = R_SCI_SPI_Close;
+    _write_then_read    = R_SCI_SPI_WriteRead;
+
+    _spi_cfg.p_extend   = &_sci_spi_ext_cfg;
+    _spi_cfg.p_callback = sci_spi_callback;
   }
   else
   {
-    _open            = R_SPI_Open;
-    _close           = R_SPI_Close;
-    _write_then_read = R_SPI_WriteRead;
+    _open               = R_SPI_Open;
+    _close              = R_SPI_Close;
+    _write_then_read    = R_SPI_WriteRead;
+
+    _spi_cfg.p_extend   = &_spi_ext_cfg;
+    _spi_cfg.p_callback = spi_callback;
   }
 
   _cb_event_idx = _channel;
+
 
   /* SPI configuration for SPI HAL driver */
   _spi_cfg.channel        = _channel;
@@ -126,10 +133,8 @@ void ArduinoSPI::begin()
   _spi_cfg.bit_order      = SPI_BIT_ORDER_MSB_FIRST;
   _spi_cfg.p_transfer_tx  = NULL;
   _spi_cfg.p_transfer_rx  = NULL;
-  _spi_cfg.p_callback     = spi_callback;
+  _spi_cfg.p_context      = NULL;
 
-  _spi_cfg.p_context      = &_spi_cfg;
-  _spi_cfg.p_extend       = (void*) &_spi_ext_cfg;
 
   /** Extended SPI configuration for SPI HAL driver */
   _spi_ext_cfg.spi_clksyn         = SPI_SSL_MODE_CLK_SYN;
