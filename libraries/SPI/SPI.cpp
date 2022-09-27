@@ -321,9 +321,9 @@ std::tuple<bool, int, bool> ArduinoSPI::cfg_pins(int const max_index, int const 
 
 void ArduinoSPI::configSpiSettings(arduino::SPISettings const & settings)
 {
-  /*if (_is_sci)
+  if (_is_sci)
     configSpiSci(settings);
-  else*/
+  else
     configSpi(settings);
 }
 
