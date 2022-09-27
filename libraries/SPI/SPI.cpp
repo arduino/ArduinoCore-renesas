@@ -111,7 +111,7 @@ void ArduinoSPI::begin()
   _cb_event_idx = _channel;
 
 
-  /* SPI configuration for SPI HAL driver */
+  /* SPI configuration for SPI HAL driver. */
   _spi_cfg.channel        = _channel;
   
   _spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
@@ -136,7 +136,7 @@ void ArduinoSPI::begin()
   _spi_cfg.p_context      = NULL;
 
 
-  /** Extended SPI configuration for SPI HAL driver */
+  /** Extended SPI configuration for SPI HAL driver. */
   _spi_ext_cfg.spi_clksyn         = SPI_SSL_MODE_CLK_SYN;
   _spi_ext_cfg.spi_comm           = SPI_COMMUNICATION_FULL_DUPLEX;
   _spi_ext_cfg.ssl_polarity       = SPI_SSLP_LOW;
@@ -148,6 +148,13 @@ void ArduinoSPI::begin()
   _spi_ext_cfg.spck_delay         = SPI_DELAY_COUNT_1;
   _spi_ext_cfg.ssl_negation_delay = SPI_DELAY_COUNT_1;
   _spi_ext_cfg.next_access_delay  = SPI_DELAY_COUNT_1;
+
+
+  /** Extended SPI configuration for SPI SCI HAL driver. */
+  /* Actual calculated bitrate: 1000000. */
+  _sci_spi_ext_cfg.clk_div.cks  = 0;
+  _sci_spi_ext_cfg.clk_div.brr  = 11;
+  _sci_spi_ext_cfg.clk_div.mddr = 0;
 
 
   /* Configure the Interrupt Controller. */
