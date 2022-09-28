@@ -14,34 +14,15 @@ const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
   {&g_dac0_ctrl, &g_dac0_cfg }                    // A0
 };
 
-
-void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
-void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
-
-spi_instance_t SpiTable[] = {
-  {nullptr            , nullptr           , nullptr             },    //SPI0
-  {&g_spi0_ctrl       , &g_spi0_cfg       , &g_spi_on_spi       },    //SPI1
-  {&g_spi1_ctrl       , &g_spi1_cfg       , &g_spi_on_sci       },    //SCI0
-  {&g_spi2_ctrl       , &g_spi2_cfg       , &g_spi_on_sci       },    //SCI1
-  {&g_spi3_ctrl       , &g_spi3_cfg       , &g_spi_on_sci       },    //SCI2
-  {nullptr            , nullptr           , nullptr             },    //SCI3
-  {nullptr            , nullptr           , nullptr             },    //SCI4
-  {nullptr            , nullptr           , nullptr             },    //SCI5
-  {nullptr            , nullptr           , nullptr             },    //SCI6
-  {nullptr            , nullptr           , nullptr             },    //SCI7
-  {nullptr            , nullptr           , nullptr             },    //SCI8
-  {nullptr            , nullptr           , nullptr             },    //SCI9
-};
-
 sciTable_t SciTable[] {
 /*
     +-----------------+------------------- +-------------------+
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { nullptr           , nullptr            , &SpiTable[2]      },
-  { nullptr           , nullptr            , &SpiTable[3]      },
-  { nullptr           , nullptr            , &SpiTable[4]      },
+  { nullptr           , nullptr            , nullptr           },
+  { nullptr           , nullptr            , nullptr           },
+  { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
@@ -313,9 +294,6 @@ const PinDescription g_APinDescription[] = {
 extern "C" {
   unsigned int PINCOUNT_fn() {
     return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
-  }
-  unsigned int SPI_COUNT_fn() {
-    return (sizeof(SpiTable) / sizeof(SpiTable[1]));
   }
   unsigned int SCI_COUNT_fn() {
     return (sizeof(SciTable) / sizeof(SciTable[0]));

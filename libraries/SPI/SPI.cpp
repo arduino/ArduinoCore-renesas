@@ -29,27 +29,14 @@ using namespace arduino;
  * EXTERN GLOBAL CONSTANTS
  **************************************************************************************/
 
-extern const spi_extended_cfg_t g_spi0_ext_cfg;
-extern const spi_extended_cfg_t g_spi1_ext_cfg;
-extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
-
 extern const PinMuxCfg_t g_pin_cfg[];
 extern const size_t g_pin_cfg_size;
-
-/**************************************************************************************
- * STATIC MEMBER INITIALISATION
- **************************************************************************************/
-
-uint8_t ArduinoSPI::initialized = 0;
-uint8_t ArduinoSPI::interruptMode = 0;
-uint8_t ArduinoSPI::interruptMask = 0;
-uint8_t ArduinoSPI::interruptSave = 0;
 
 /**************************************************************************************
  * GLOBAL MEMBER VARIABLES
  **************************************************************************************/
 
-static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
+static spi_event_t _spi_cb_event[SPI_MAX_SPI_CHANNELS + SPI_MAX_SCI_CHANNELS] = {SPI_EVENT_TRANSFER_ABORTED};
 
 /**************************************************************************************
  * CTOR/DTOR
@@ -60,7 +47,8 @@ ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin
 , _mosi_pin{mosi_pin}
 , _sck_pin{sck_pin}
 , _prefer_sci{prefer_sci}
-, _channel(0)
+, _channel{0}
+, _cb_event_idx{0}
 , _is_sci(false)
 , _open{nullptr}
 , _close{nullptr}
@@ -95,6 +83,8 @@ void ArduinoSPI::begin()
     _close              = R_SCI_SPI_Close;
     _write_then_read    = R_SCI_SPI_WriteRead;
 
+    _cb_event_idx       = _channel; /* FIXME: This is definitely not right. */
+
     _spi_cfg.p_extend   = &_sci_spi_ext_cfg;
     _spi_cfg.p_callback = sci_spi_callback;
   }
@@ -104,12 +94,11 @@ void ArduinoSPI::begin()
     _close              = R_SPI_Close;
     _write_then_read    = R_SPI_WriteRead;
 
+    _cb_event_idx       = _channel;
+
     _spi_cfg.p_extend   = &_spi_ext_cfg;
     _spi_cfg.p_callback = spi_callback;
   }
-
-  _cb_event_idx = _channel;
-
 
   /* SPI configuration for SPI HAL driver. */
   _spi_cfg.channel        = _channel;
@@ -158,13 +147,26 @@ void ArduinoSPI::begin()
 
 
   /* Configure the Interrupt Controller. */
-  SpiMasterIrqReq_t irq_req
+  if (_is_sci)
   {
-    .ctrl = &_spi_ctrl,
-    .cfg = &_spi_cfg,
-    .hw_channel = _channel,
-  };
-  init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
+    SciSpiMasterIrqReq_t irq_req
+    {
+      .ctrl = &_spi_sci_ctrl,
+      .cfg = &_spi_cfg,
+      .hw_channel = _channel,
+    };
+    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_SPI_MASTER, &irq_req);
+  }
+  else
+  {
+    SpiMasterIrqReq_t irq_req
+    {
+      .ctrl = &_spi_ctrl,
+      .cfg = &_spi_cfg,
+      .hw_channel = _channel,
+    };
+    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
+  }
 
   /* Configure the SPI using the FSP HAL functionlity. */
   if (FSP_SUCCESS == _open(&_spi_ctrl, &_spi_cfg)) {
@@ -179,7 +181,6 @@ void ArduinoSPI::begin()
 void ArduinoSPI::end()
 {
   _close(&_spi_ctrl);
-  initialized = false;
 }
 
 uint8_t ArduinoSPI::transfer(uint8_t data)
@@ -243,18 +244,6 @@ void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
     configSpiSettings(settings);
     _settings = settings;
   }
-}
-
-void ArduinoSPI::endTransaction(void) {
-
-}
-
-void ArduinoSPI::attachInterrupt() {
-
-}
-
-void ArduinoSPI::detachInterrupt() {
-
 }
 
 /**************************************************************************************
@@ -450,7 +439,7 @@ void spi_callback(spi_callback_args_t *p_args)
 
 void sci_spi_callback(spi_callback_args_t *p_args)
 {
-  int const spi_master_offset = SPI_COUNT - SCI_COUNT;
+  int const spi_master_offset = SPI_MAX_SPI_CHANNELS;
   if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
   {
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_COMPLETE;
@@ -467,9 +456,9 @@ void sci_spi_callback(spi_callback_args_t *p_args)
  **************************************************************************************/
 
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(/* miso_pin = */ 12, /* mosi_pin = */ 11, /* sck_pin = */ 13, /* prefer_sci = */ false);
+ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, static_cast<bool>(IS_SPI_SCI));
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(SPI1_CHANNEL, (bool)IS_SPI1_SCI);
+ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, static_cast<bool>(IS_SPI1_SCI));
 #endif

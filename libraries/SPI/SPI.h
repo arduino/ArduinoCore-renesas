@@ -64,11 +64,11 @@ public:
     virtual void usingInterrupt(int interruptNumber) { }
     virtual void notUsingInterrupt(int interruptNumber) { }
     virtual void beginTransaction(arduino::SPISettings settings);
-    virtual void endTransaction(void);
+    virtual void endTransaction(void) { }
 
     // SPI Configuration methods
-    virtual void attachInterrupt();
-    virtual void detachInterrupt();
+    virtual void attachInterrupt() { }
+    virtual void detachInterrupt() { }
 
     virtual void begin();
     virtual void end();
@@ -76,20 +76,7 @@ public:
 
 private:
     arduino::SPISettings const DEFAULT_SPI_SETTINGS = arduino::SPISettings(1000000, MSBFIRST, arduino::SPI_MODE0);
-
     arduino::SPISettings _settings = arduino::SPISettings(0, MSBFIRST, arduino::SPI_MODE0);
-    static uint8_t initialized;
-    static uint8_t interruptMode; // 0=none, 1=mask, 2=global
-    static uint8_t interruptMask; // which interrupts to mask
-    static uint8_t interruptSave; // temp storage, to restore state
-
-    spi_instance_ctrl_t _spi_ctrl;
-    sci_spi_instance_ctrl_t _spi_sci_ctrl;
-
-    spi_cfg_t _spi_cfg;
-    spi_extended_cfg_t _spi_ext_cfg;
-    sci_spi_extended_cfg_t _sci_spi_ext_cfg;
-
 
     int const _miso_pin;
     int const _mosi_pin;
@@ -105,7 +92,16 @@ private:
     SPI_close_f _close;
     SPI_writeThenRead_f _write_then_read;
 
+    spi_instance_ctrl_t _spi_ctrl;
+    sci_spi_instance_ctrl_t _spi_sci_ctrl;
+
+    spi_cfg_t _spi_cfg;
+
+    spi_extended_cfg_t _spi_ext_cfg;
+    sci_spi_extended_cfg_t _sci_spi_ext_cfg;
+
     static std::tuple<bool, int, bool> cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci);
+
     void configSpiSettings(arduino::SPISettings const & settings);
     void configSpi(arduino::SPISettings const & settings);
     void configSpiSci(arduino::SPISettings const & settings);
