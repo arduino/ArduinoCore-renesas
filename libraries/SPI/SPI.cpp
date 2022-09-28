@@ -435,21 +435,27 @@ std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toF
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
 
-void spi_callback(spi_callback_args_t *p_args) {
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+void spi_callback(spi_callback_args_t *p_args)
+{
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
+  {
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
-  }else
+  }
+  else
   {
     /* Updating the flag here to capture and handle all other error events */
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_ABORTED;
   }
 }
 
-void sci_spi_callback(spi_callback_args_t *p_args) {
-  int spi_master_offset = SPI_COUNT - SCI_COUNT;
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+void sci_spi_callback(spi_callback_args_t *p_args)
+{
+  int const spi_master_offset = SPI_COUNT - SCI_COUNT;
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
+  {
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_COMPLETE;
-  }else
+  }
+  else
   {
     /* Updating the flag here to capture and handle all other error events */
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_ABORTED;
