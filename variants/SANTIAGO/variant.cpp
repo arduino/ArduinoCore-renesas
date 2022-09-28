@@ -32,7 +32,7 @@ sciTable_t SciTable[] {
   { nullptr           , nullptr            , nullptr           },
 };
 
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /* = false*/) {
   if(cfg == nullptr) {
     return 0;
   }
@@ -43,6 +43,16 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
     /* usually not SCI peripheral have higher priority (they came
        first in the table) but it is possible to prefer SCI peripheral */
     if(prefer_sci && !IS_SCI(*(cfg + index))) {
+      if(IS_LAST_ITEM(*(cfg + index))) {
+        thats_all = true;
+      }
+      else {
+        index++;
+      }
+      continue;
+    }
+
+    if(!prefer_sci && IS_SCI(*(cfg + index))) {
       if(IS_LAST_ITEM(*(cfg + index))) {
         thats_all = true;
       }
