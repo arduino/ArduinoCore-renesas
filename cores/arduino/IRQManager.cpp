@@ -4,7 +4,9 @@
 #include "r_external_irq_api.h"
 
 #define FIXED_IRQ_NUM   16
-#define PROG_IRQ_NUM    32
+
+
+#define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
 #define UART_SCI2_REQ_NUM   4
 #define I2C_MASTER_REQ_NUM 4
@@ -150,7 +152,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 p_cfg->eri_ipl = UART_SCI2_PRIORITY;
                 p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
-                set_sci_rei_link_event(last_interrupt_index, p_cfg->channel);
+                set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
                 last_interrupt_index++;
             }
             R_BSP_IrqEnable (p_cfg->txi_irq);

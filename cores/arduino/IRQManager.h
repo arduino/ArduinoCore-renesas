@@ -68,11 +68,57 @@ typedef struct usb {
     uint32_t first_irq_number;
 } USBIrqCfg_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+/* ISR prototypes */
+void iic_master_rxi_isr(void);
+void iic_master_txi_isr(void);
+void iic_master_tei_isr(void);
+void iic_master_eri_isr(void);
+void spi_rxi_isr(void);
+void spi_txi_isr(void);
+void spi_tei_isr(void);
+void spi_eri_isr(void);
+void r_icu_isr(void);
+void usbfs_interrupt_handler(void);
+void usbfs_resume_handler(void);
+void usbfs_d0fifo_handler(void);
+void usbfs_d1fifo_handler(void);
+void rtc_alarm_periodic_isr(void);
+void rtc_carry_isr(void);
+void agt_int_isr(void);
+void sci_spi_rxi_isr(void);
+void sci_spi_txi_isr(void);
+void sci_spi_tei_isr(void);
+void sci_spi_eri_isr(void);
+void sci_i2c_rxi_isr(void);
+void sci_i2c_txi_isr(void);
+void sci_i2c_tei_isr(void);
+void sci_uart_txi_isr(void);
+void sci_uart_tei_isr(void);
+void sci_uart_rxi_isr(void);
+void sci_uart_eri_isr(void);
+void iic_slave_rxi_isr(void);
+void iic_slave_txi_isr(void);
+void iic_slave_tei_isr(void);
+void iic_slave_eri_isr(void);
+#ifdef __cplusplus
+}
+#endif
+
+using Irq_f          = void (*)(void);
 
 class IRQManager {
     public:
     bool addPeripheral(Peripheral_t p, void *cfg);
     static IRQManager& getInstance();
+    
+    /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
+       if fnc is nullprt the "standar" dmac_int_isr is added 
+       it returns the number of the interrupt slot (if available) */
+    int addDMA(uint8_t channel, Irq_f fnc = nullptr);
+
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
     ~IRQManager();
