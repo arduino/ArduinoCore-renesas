@@ -150,9 +150,9 @@ bool  UART::cfg_pins(int max_index) {
   }
   /* getting configuration from table */
   const uint16_t *cfg = g_pin_cfg[tx_pin].list;
-  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX,false);
+  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX, true);
   cfg = g_pin_cfg[rx_pin].list;
-  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX,false);
+  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX, true);
   /* verify configuration are good */
   if(cfg_tx == 0 || cfg_rx == 0 ) {
     return false;
