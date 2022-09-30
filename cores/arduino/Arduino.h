@@ -80,6 +80,7 @@ void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
+#define Serial  SerialUSB
 #define Serial1 _UART1_
 #define Serial2 _UART2_
 #define Serial3 _UART3_

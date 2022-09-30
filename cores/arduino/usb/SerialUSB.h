@@ -20,9 +20,9 @@
 #include "api/HardwareSerial.h"
 #include <stdarg.h>
 
-class SerialUSB : public arduino::HardwareSerial {
+class _SerialUSB : public arduino::HardwareSerial {
 public:
-    SerialUSB() { }
+    _SerialUSB() { }
     void begin(unsigned long baud = 115200) override;
     void begin(unsigned long baud, uint16_t config) override {
         (void) config;
@@ -40,11 +40,33 @@ public:
     using Print::write;
     operator bool() override;
 
+    uint32_t baud() {
+        return _bps;
+    }
+    uint8_t stopbits() {
+        return _stop;
+    }
+    uint8_t paritytype() {
+        return _parity;
+    }
+    uint8_t numbits() {
+        return _bits;
+    }
+    bool dtr() {
+        return (_dtr != 0);
+    }
+    bool rts() {
+        return (_rts != 0);
+    }
+
+    static int _bps, _bits, _parity, _stop;
+    static bool _dtr, _rts;
+
 private:
     bool _running = false;
 };
 
-extern SerialUSB Serial;
+extern _SerialUSB SerialUSB;
 
 namespace arduino {
 extern void serialEventRun(void) __attribute__((weak));
