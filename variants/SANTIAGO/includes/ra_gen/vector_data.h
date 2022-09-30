@@ -38,8 +38,6 @@ void sci_uart_rxi_isr(void);
 void sci_uart_eri_isr(void);
 void iic_slave_rxi_isr(void);
 void iic_slave_txi_isr(void);
-void iic_slave_tei_isr(void);
-void iic_slave_eri_isr(void);
 
 /* Vector table allocations */
 #define VECTOR_NUMBER_IIC1_RXI ((IRQn_Type) 0) /* IIC1 RXI (Receive data full) */

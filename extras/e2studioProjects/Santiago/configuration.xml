@@ -221,12 +221,16 @@
       <description>Serial Peripheral Interface on Serial Communications Interface</description>
       <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="3.7.0">
-      <description>I2C Slave Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
     <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="3.7.0">
       <description>Event Link Controller</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="3.7.0">
+      <description>Direct Memory Access Controller</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="3.7.0">
+      <description>I2C Slave Interface</description>
       <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
   </raComponentSelection>
@@ -1090,7 +1094,30 @@
       <property id="module.driver.transfer.num_blocks" value="0"/>
       <property id="module.driver.transfer.activation_source" value="_disabled"/>
     </module>
-    <module id="module.driver.i2c_on_iic_slave.1030866339">
+    <module id="module.driver.elc_on_elc.1456446179">
+      <property id="module.driver.elc.name" value="g_elc"/>
+    </module>
+    <module id="module.driver.transfer_on_dmac.476176295">
+      <property id="module.driver.transfer.name" value="g_transfer22"/>
+      <property id="module.driver.transfer.channel" value="0"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.length" value="1"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_event" value="_signal.event.adc0.compare.mismatch"/>
+      <property id="module.driver.transfer.p_callback" value="pippo"/>
+      <property id="module.driver.transfer.p_context" value="NULL"/>
+      <property id="module.driver.transfer.ipl" value="_disabled"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.offset" value="1"/>
+      <property id="module.driver.transfer.src.buffer" value="1"/>
+    </module>
+    <module id="module.driver.i2c_on_iic_slave.299657713">
       <property id="module.driver.i2c_slave.name" value="g_i2c_slave0"/>
       <property id="module.driver.i2c_slave.channel" value="0"/>
       <property id="module.driver.i2c_slave.rate" value="module.driver.i2c_slave.rate.rate_standard"/>
@@ -1103,9 +1130,6 @@
       <property id="module.driver.i2c_slave.p_callback" value="NULL"/>
       <property id="module.driver.i2c_slave.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c_slave.eri_ipl" value="board.icu.common.irq.priority12"/>
-    </module>
-    <module id="module.driver.elc_on_elc.1456446179">
-      <property id="module.driver.elc.name" value="g_elc"/>
     </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
@@ -1168,8 +1192,9 @@
         <stack module="module.driver.transfer_on_dtc.444622945" requires="module.driver.i2c_on_sci_i2c.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.1247774984" requires="module.driver.i2c_on_sci_i2c.requires.transfer_rx"/>
       </stack>
-      <stack module="module.driver.i2c_on_iic_slave.1030866339"/>
       <stack module="module.driver.elc_on_elc.1456446179"/>
+      <stack module="module.driver.transfer_on_dmac.476176295"/>
+      <stack module="module.driver.i2c_on_iic_slave.299657713"/>
     </context>
     <config id="config.driver.wdt">
       <property id="config.driver.wdt.param_checking_enable" value="config.driver.wdt.param_checking_enable.bsp"/>
@@ -1231,6 +1256,9 @@
     <config id="config.driver.dtc">
       <property id="config.driver.dtc.param_checking_enable" value="config.driver.dtc.param_checking_enable.bsp"/>
       <property id="config.driver.dtc.vector_table" value=".fsp_dtc_vector_table"/>
+    </config>
+    <config id="config.driver.dmac">
+      <property id="config.driver.dmac.param_checking_enable" value="config.driver.dmac.param_checking_enable.bsp"/>
     </config>
     <config id="config.driver.dac">
       <property id="config.driver.dac.param_checking_enable" value="config.driver.dac.param_checking_enable.bsp"/>
