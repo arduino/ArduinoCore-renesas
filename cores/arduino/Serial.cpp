@@ -111,9 +111,7 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 /* -------------------------------------------------------------------------- */  
   bool rv = false;
 
-  if(channel == UART1_CHANNEL) {
-    rv = IRQManager::getInstance().addPeripheral(IRQ_SCI_UART,&cfg);
-  }
+  rv = IRQManager::getInstance().addPeripheral(IRQ_SCI_UART,&cfg);
   
   return rv;
 } 

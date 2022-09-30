@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "rtc.h"
 
+#if RTC_HOWMANY > 0
+
 #define RTC_IS_ENABLED      (0)
 #define RTC_IS_NOT_ENABLED  (1)
 
@@ -174,4 +176,4 @@ bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
   return false;
 }
 
-
+#endif

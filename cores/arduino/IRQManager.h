@@ -2,13 +2,17 @@
 #define ARDUINO_IRQ_MANAGER_H
 
 #include "bsp_api.h"
+#include "pins_arduino.h"
+
+#if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
-#include "r_rtc_api.h"
-#include "r_rtc.h"
-#include "r_i2c_slave_api.h"
-#include "r_i2c_master_api.h"
-#include "r_iic_master.h"
-#include "r_iic_slave.h"
+#endif
+
+#if EXT_INTERRUPTS_HOWMANY > 0
+#include "r_external_irq_api.h"
+#endif
+
+#include "r_timer_api.h"
 
 typedef enum {
     IRQ_RTC,
@@ -21,6 +25,10 @@ typedef enum {
     IRQ_EXTERNAL_PIN,
 } Peripheral_t;
 
+#if RTC_HOWMANY > 0
+#include "r_rtc_api.h"
+#include "r_rtc.h"
+
 typedef enum {
     RTC_ALARM,
     RTC_PERIODIC,
@@ -32,6 +40,13 @@ typedef struct rtc_irq {
     rtc_instance_ctrl_t *ctrl;
     RTCIrqReq_t req;
 } RTCIrqCfg_t;
+#endif
+
+#if WIRE_HOWMANY > 0
+#include "r_i2c_slave_api.h"
+#include "r_i2c_master_api.h"
+#include "r_iic_master.h"
+#include "r_iic_slave.h"
 
 typedef struct i2c_master_irq {
     iic_master_instance_ctrl_t *ctrl;
@@ -45,14 +60,13 @@ typedef struct i2c_slave_irq {
     i2c_slave_cfg_t  *cfg;
 
 } I2CIrqSlaveReq_t;
-
+#endif
 
 typedef struct usb {
     uint32_t num_of_irqs_required;
     uint32_t address_of_handler;
     uint32_t first_irq_number;
 } USBIrqCfg_t;
-
 
 class IRQManager {
     public:
@@ -79,11 +93,6 @@ class IRQManager {
     void set_agt_link_event(int li, int ch);
 
     IRQManager();
-
 };
-
-
-
-
 
 #endif
