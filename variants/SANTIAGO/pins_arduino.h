@@ -123,3 +123,13 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
 #define USB_NAME          "Santiago"
+
+// TODO: removeme
+#ifdef __cplusplus
+extern "C" {
+#endif
+void iic_slave_tei_isr(void);
+void iic_slave_eri_isr(void);
+#ifdef __cplusplus
+}
+#endif
