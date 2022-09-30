@@ -14,34 +14,15 @@ const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
   {&g_dac0_ctrl, &g_dac0_cfg }                    // A0
 };
 
-
-void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
-void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
-
-spi_instance_t SpiTable[] = {
-  {nullptr            , nullptr           , nullptr             },    //SPI0
-  {&g_spi0_ctrl       , &g_spi0_cfg       , &g_spi_on_spi       },    //SPI1
-  {&g_spi1_ctrl       , &g_spi1_cfg       , &g_spi_on_sci       },    //SCI0
-  {&g_spi2_ctrl       , &g_spi2_cfg       , &g_spi_on_sci       },    //SCI1
-  {&g_spi3_ctrl       , &g_spi3_cfg       , &g_spi_on_sci       },    //SCI2
-  {nullptr            , nullptr           , nullptr             },    //SCI3
-  {nullptr            , nullptr           , nullptr             },    //SCI4
-  {nullptr            , nullptr           , nullptr             },    //SCI5
-  {nullptr            , nullptr           , nullptr             },    //SCI6
-  {nullptr            , nullptr           , nullptr             },    //SCI7
-  {nullptr            , nullptr           , nullptr             },    //SCI8
-  {nullptr            , nullptr           , nullptr             },    //SCI9
-};
-
 sciTable_t SciTable[] {
 /*
     +-----------------+------------------- +-------------------+
     |      UART       |        I2C         |        SPI        |
     +-----------------+------------------- +-------------------+
  */
-  { nullptr           , nullptr            , &SpiTable[2]      },
-  { nullptr           , nullptr            , &SpiTable[3]      },
-  { nullptr           , nullptr            , &SpiTable[4]      },
+  { nullptr           , nullptr            , nullptr           },
+  { nullptr           , nullptr            , nullptr           },
+  { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
   { nullptr           , nullptr            , nullptr           },
@@ -51,7 +32,7 @@ sciTable_t SciTable[] {
   { nullptr           , nullptr            , nullptr           },
 };
 
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /* = false*/) {
   if(cfg == nullptr) {
     return 0;
   }
@@ -62,6 +43,16 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
     /* usually not SCI peripheral have higher priority (they came
        first in the table) but it is possible to prefer SCI peripheral */
     if(prefer_sci && !IS_SCI(*(cfg + index))) {
+      if(IS_LAST_ITEM(*(cfg + index))) {
+        thats_all = true;
+      }
+      else {
+        index++;
+      }
+      continue;
+    }
+
+    if(!prefer_sci && IS_SCI(*(cfg + index))) {
       if(IS_LAST_ITEM(*(cfg + index))) {
         thats_all = true;
       }
@@ -88,6 +79,9 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
       return *(cfg + index);
     }
     else if(PIN_CFG_REQ_MOSI == req && IS_PIN_MOSI(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_SCK == req && IS_PIN_SCK(*(cfg + index))) {
       return *(cfg + index);
     }
     else if(PIN_CFG_REQ_PWM == req && IS_PIN_PWM(*(cfg + index))) {
@@ -310,9 +304,6 @@ const PinDescription g_APinDescription[] = {
 extern "C" {
   unsigned int PINCOUNT_fn() {
     return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
-  }
-  unsigned int SPI_COUNT_fn() {
-    return (sizeof(SpiTable) / sizeof(SpiTable[1]));
   }
   unsigned int SCI_COUNT_fn() {
     return (sizeof(SciTable) / sizeof(SciTable[0]));
