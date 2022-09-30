@@ -1131,6 +1131,20 @@
       <property id="module.driver.i2c_slave.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c_slave.eri_ipl" value="board.icu.common.irq.priority12"/>
     </module>
+    <module id="module.driver.transfer_on_dtc.924638253">
+      <property id="module.driver.transfer.name" value="g_transfer23"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_interrupt.event.iic1.txi"/>
+    </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.driver.adc_on_adc.1770866487"/>
@@ -1195,6 +1209,7 @@
       <stack module="module.driver.elc_on_elc.1456446179"/>
       <stack module="module.driver.transfer_on_dmac.476176295"/>
       <stack module="module.driver.i2c_on_iic_slave.299657713"/>
+      <stack module="module.driver.transfer_on_dtc.924638253"/>
     </context>
     <config id="config.driver.wdt">
       <property id="config.driver.wdt.param_checking_enable" value="config.driver.wdt.param_checking_enable.bsp"/>

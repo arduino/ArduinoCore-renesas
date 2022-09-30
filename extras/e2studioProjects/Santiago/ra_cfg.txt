@@ -1131,3 +1131,17 @@ FSP Configuration
       Interrupt Priority Level: Transmit, Receive, and Transmit End: Priority 12
       Interrupt Priority Level: Error: Priority 12
       
+    Instance "g_transfer23 Transfer (r_dtc) IIC1 TXI (Transmit data empty)"
+      Name: g_transfer23
+      Mode: Normal
+      Transfer Size: 2 Bytes
+      Destination Address Mode: Fixed
+      Source Address Mode: Fixed
+      Repeat Area (Unused in Normal Mode): Source
+      Destination Pointer: NULL
+      Source Pointer: NULL
+      Interrupt Frequency: After all transfers have completed
+      Number of Transfers: 0
+      Number of Blocks (Valid only in Block Mode): 0
+      Activation Source: IIC1 TXI (Transmit data empty)
+      

@@ -6,6 +6,29 @@
 #define ADC_TRIGGER_ADC0_B      ADC_TRIGGER_SYNC_ELC
 #define ADC_TRIGGER_ADC1        ADC_TRIGGER_SYNC_ELC
 #define ADC_TRIGGER_ADC1_B      ADC_TRIGGER_SYNC_ELC
+dtc_instance_ctrl_t g_transfer23_ctrl;
+
+transfer_info_t g_transfer23_info =
+{ .transfer_settings_word_b.dest_addr_mode = TRANSFER_ADDR_MODE_FIXED,
+  .transfer_settings_word_b.repeat_area = TRANSFER_REPEAT_AREA_SOURCE,
+  .transfer_settings_word_b.irq = TRANSFER_IRQ_END,
+  .transfer_settings_word_b.chain_mode = TRANSFER_CHAIN_MODE_DISABLED,
+  .transfer_settings_word_b.src_addr_mode = TRANSFER_ADDR_MODE_FIXED,
+  .transfer_settings_word_b.size = TRANSFER_SIZE_2_BYTE,
+  .transfer_settings_word_b.mode = TRANSFER_MODE_NORMAL,
+  .p_dest = (void*) NULL,
+  .p_src = (void const*) NULL,
+  .num_blocks = 0,
+  .length = 0, };
+
+const dtc_extended_cfg_t g_transfer23_cfg_extend =
+{ .activation_source = VECTOR_NUMBER_IIC1_TXI, };
+const transfer_cfg_t g_transfer23_cfg =
+{ .p_info = &g_transfer23_info, .p_extend = &g_transfer23_cfg_extend, };
+
+/* Instance structure to use this module. */
+const transfer_instance_t g_transfer23 =
+{ .p_ctrl = &g_transfer23_ctrl, .p_cfg = &g_transfer23_cfg, .p_api = &g_transfer_on_dtc };
 iic_slave_instance_ctrl_t g_i2c_slave0_ctrl;
 const iic_slave_extended_cfg_t g_i2c_slave0_extend =
 {
