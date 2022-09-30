@@ -1,22 +1,21 @@
 #include "IRQManager.h"
 #include "bsp_api.h"
-#include "r_timer_api.h"
-#include "r_external_irq_api.h"
+#include "elc_defines.h"
 
 #define FIXED_IRQ_NUM   16
 
 
 #define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
-#define UART_SCI2_REQ_NUM   4
+#define UART_SCI_REQ_NUM   4
 #define I2C_MASTER_REQ_NUM 4
 #define I2C_SLAVE_REQ_NUM  2
 #define USB_REQ_NUM    4
 #define AGT_REQ_NUM    1
 #define EXTERNAL_PIN_NUM 1
 #define EXTERNAL_PIN_PRIORITY 12
+#define UART_SCI_PRIORITY 12
 #define SPI_MASTER_REQ_NUM 4
-#define UART_SCI2_PRIORITY 12
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
 #define RTC_PRIORITY  12
@@ -81,6 +80,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
+            #ifdef ELC_EVENT_USBFS_FIFO_0
             /* USBFS FIFO 0 (DMA transfer request 0) */
             *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBFS_FIFO_0);
@@ -89,7 +89,9 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
+            #endif
 
+            #ifdef ELC_EVENT_USBFS_FIFO_1
             /* USBFS FIFO 1 (DMA transfer request 1) */
             *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBFS_FIFO_1);
@@ -98,11 +100,13 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
+            #endif
         }
         else {
             rv = false;
         }
     }
+
     /* **********************************************************************
                                       AGT
        ********************************************************************** */
@@ -124,32 +128,32 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_SCI_UART && cfg != NULL) {
         uart_cfg_t *p_cfg = (uart_cfg_t *)cfg;
-        if( (last_interrupt_index +  UART_SCI2_REQ_NUM) < PROG_IRQ_NUM ) {
+        if( (last_interrupt_index +  UART_SCI_REQ_NUM) < PROG_IRQ_NUM ) {
 
             if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
                 /* TX interrupt */
-                p_cfg->txi_ipl = UART_SCI2_PRIORITY;
+                p_cfg->txi_ipl = UART_SCI_PRIORITY;
                 p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_txi_isr;
                 set_sci_tx_link_event(last_interrupt_index, p_cfg->channel);
                 last_interrupt_index++;
 
                 /* TX-ERROR interrupt */
-                p_cfg->tei_ipl = UART_SCI2_PRIORITY;
+                p_cfg->tei_ipl = UART_SCI_PRIORITY;
                 p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_tei_isr;
                 set_sci_tei_link_event(last_interrupt_index, p_cfg->channel);
                 last_interrupt_index++;
 
                 /* RX interrupt */
-                p_cfg->rxi_ipl = UART_SCI2_PRIORITY;
+                p_cfg->rxi_ipl = UART_SCI_PRIORITY;
                 p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
                 set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
                 last_interrupt_index++;
 
                 /* RX-ERROR interrupt */
-                p_cfg->eri_ipl = UART_SCI2_PRIORITY;
+                p_cfg->eri_ipl = UART_SCI_PRIORITY;
                 p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
                 set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
@@ -167,6 +171,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     /* **********************************************************************
                                       RTC
        ********************************************************************** */
+#if RTC_HOWMANY > 0
     else if(p == IRQ_RTC && cfg != NULL) {
         RTCIrqCfg_t *p_cfg = (RTCIrqCfg_t *)cfg;
         /* rtc interrupts are added once a time and not all three together */
@@ -204,7 +209,9 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             rv = false;
         }
     }
-    
+#endif
+
+#if WIRE_HOWMANY > 0
     else if(p == IRQ_I2C_MASTER && cfg != NULL) {
         I2CIrqMasterReq_t *p_cfg = (I2CIrqMasterReq_t *)cfg;
         iic_master_instance_ctrl_t *ctrl = (iic_master_instance_ctrl_t *)p_cfg->ctrl;
@@ -280,10 +287,10 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             last_interrupt_index++;
 
             /* RX ERROR interrupt */
-            #ifdef DO_NOT_USE
+            #if 0
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
-            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_rei_isr;
-            set_sci_tei_link_event(last_interrupt_index, hw_channel);
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_eri_isr;
+            set_sci_eri_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
@@ -331,6 +338,9 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             rv = false;
         }
     }
+#endif
+
+#if EXT_INTERRUPTS_HOWMANY > 0
     /* **********************************************************************
                              PIN EXTERNAL INTERRUPT
        ********************************************************************** */
@@ -352,10 +362,13 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             }
         }
     }
+#endif
+
+#if SPI_HOWMANY > 0
     /* **********************************************************************
                                       SPI MASTER
        ********************************************************************** */
-    if(p == IRQ_SPI_MASTER && cfg != NULL) {
+    else if(p == IRQ_SPI_MASTER && cfg != NULL) {
       if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->cfg;
@@ -395,10 +408,11 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         last_interrupt_index++;
       }
     }
+
     /* **********************************************************************
                                     SCI SPI MASTER
        ********************************************************************** */
-    if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
+    else if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
       if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         sci_spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->cfg;
@@ -437,6 +451,8 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         last_interrupt_index++;
       }
     }
+#endif
+
     else {
         rv = false;
     }
@@ -445,65 +461,101 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
 }
 
 void IRQManager::set_ext_link_event(int li, int ch) {
-    if(ch == 0) {
+    if (0) {}
+#ifdef ELC_EVENT_ICU_IRQ0
+    else if(ch == 0) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ0);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ1
     else if(ch == 1) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ1);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ2
     else if(ch == 2) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ2);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ3
     else if(ch == 3) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ3);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ4
     else if(ch == 4) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ4);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ5
     else if(ch == 5) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ5);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ6
     else if(ch == 6) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ6);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ7
     else if(ch == 7) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ7);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ8
     else if(ch == 8) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ8);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ9
     else if(ch == 9) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ9);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ10
     else if(ch == 10) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ10);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ11
     else if(ch == 11) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ11);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ12
     else if(ch == 12) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ12);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ13
     else if(ch == 13) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ13);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ14
     else if(ch == 14) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ14);
     }
+#endif
+#ifdef ELC_EVENT_ICU_IRQ15
     else if(ch == 15) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ15);
     }
-
-
+#endif
 }
 
 void IRQManager::set_agt_link_event(int li, int ch) {
-    if(ch == 0) {
+    if (0) {}
+#ifdef ELC_EVENT_AGT0_INT
+    else if(ch == 0) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT0_INT);
     }
+#endif
+#ifdef ELC_EVENT_AGT1_INT
     else if(ch == 1) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT1_INT);
     }
+#endif
 #ifdef ELC_EVENT_AGT2_INT
     else if(ch == 2) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT2_INT);
@@ -528,24 +580,39 @@ void IRQManager::set_agt_link_event(int li, int ch) {
 }
 
 void IRQManager::set_iic_tx_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TXI);}
+    if (0) {}
+#ifdef ELC_EVENT_IIC0_TXI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TXI);}
+#endif
+#ifdef ELC_EVENT_IIC1_TXI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC1_TXI);}
+#endif
 #ifdef ELC_EVENT_IIC2_TXI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC2_TXI);}
 #endif
 }
 
 void IRQManager::set_iic_rx_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_RXI);}
+    if (0) {}
+#ifdef ELC_EVENT_IIC0_RXI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_RXI);}
+#endif
+#ifdef ELC_EVENT_IIC1_RXI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC1_RXI);}
+#endif
 #ifdef ELC_EVENT_IIC2_RXI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC2_RXI);}
 #endif    
 }
 
 void IRQManager::set_iic_tei_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TEI);}
+    if (0) {}
+#ifdef ELC_EVENT_IIC0_TEI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_TEI);}
+#endif
+#ifdef ELC_EVENT_IIC1_TEI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC1_TEI);}
+#endif
 #ifdef ELC_EVENT_IIC2_TEI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC2_TEI);}
 #endif    
@@ -553,17 +620,29 @@ void IRQManager::set_iic_tei_link_event(int li, int ch) {
 }
 
 void IRQManager::set_iic_eri_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_ERI);}
+    if (0) {}
+#ifdef ELC_EVENT_IIC0_ERI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC0_ERI);}
+#endif
+#ifdef ELC_EVENT_IIC1_ERI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC1_ERI);}
+#endif
 #ifdef ELC_EVENT_IIC2_ERI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_IIC2_ERI);}
 #endif    
 }
 
 void IRQManager::set_sci_tx_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_TXI);}
+    if (0) {}
+#ifdef ELC_EVENT_SCI0_TXI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_TXI);}
+#endif
+#ifdef ELC_EVENT_SCI1_TXI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI1_TXI);}
+#endif
+#ifdef ELC_EVENT_SCI2_TXI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI2_TXI);}
+#endif
 #ifdef ELC_EVENT_SCI3_TXI
     else if(ch == 3) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI3_TXI);}
 #endif
@@ -582,13 +661,22 @@ void IRQManager::set_sci_tx_link_event(int li, int ch) {
 #ifdef ELC_EVENT_SCI8_TXI
     else if(ch == 8) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI8_TXI);}
 #endif
+#ifdef ELC_EVENT_SCI9_TXI
     else if(ch == 9) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI9_TXI);}
+#endif
 }
 
 void IRQManager::set_sci_rx_link_event(int li, int ch) {
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_RXI);}
+    if (0) {}
+#ifdef ELC_EVENT_SCI0_RXI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_RXI);}
+#endif
+#ifdef ELC_EVENT_SCI1_RXI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI1_RXI);}
+#endif
+#ifdef ELC_EVENT_SCI2_RXI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI2_RXI);}
+#endif
 #ifdef ELC_EVENT_SCI3_RXI
     else if(ch == 3) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI3_RXI);}
 #endif
@@ -607,13 +695,22 @@ void IRQManager::set_sci_rx_link_event(int li, int ch) {
 #ifdef ELC_EVENT_SCI8_RXI
     else if(ch == 8) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI8_RXI);}
 #endif
+#ifdef ELC_EVENT_SCI9_RXI
     else if(ch == 9) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI9_RXI);}
+#endif
 }
     
 void IRQManager::set_sci_tei_link_event(int li, int ch){
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_TEI);}
+    if (0) {}
+#ifdef ELC_EVENT_SCI0_TEI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_TEI);}
+#endif
+#ifdef ELC_EVENT_SCI1_TEI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI1_TEI);}
+#endif
+#ifdef ELC_EVENT_SCI2_TEI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI2_TEI);}
+#endif
 #ifdef ELC_EVENT_SCI3_TEI
     else if(ch == 3) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI3_TEI);}
 #endif
@@ -632,13 +729,22 @@ void IRQManager::set_sci_tei_link_event(int li, int ch){
 #ifdef ELC_EVENT_SCI8_TEI
     else if(ch == 8) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI8_TEI);}
 #endif
+#ifdef ELC_EVENT_SCI9_TEI
     else if(ch == 9) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI9_TEI);}
+#endif
 }
     
 void IRQManager::set_sci_eri_link_event(int li, int ch){
-    if(ch == 0) {      R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_ERI);}
+    if (0) {}
+#ifdef ELC_EVENT_SCI0_ERI
+    else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_ERI);}
+#endif
+#ifdef ELC_EVENT_SCI1_ERI
     else if(ch == 1) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI1_ERI);}
+#endif
+#ifdef ELC_EVENT_SCI2_ERI
     else if(ch == 2) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI2_ERI);}
+#endif
 #ifdef ELC_EVENT_SCI3_ERI
     else if(ch == 3) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI3_ERI);}
 #endif
@@ -657,29 +763,51 @@ void IRQManager::set_sci_eri_link_event(int li, int ch){
 #ifdef ELC_EVENT_SCI8_ERI
     else if(ch == 8) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI8_ERI);}
 #endif
+#ifdef ELC_EVENT_SCI9_ERI
     else if(ch == 9) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI9_ERI);}
+#endif
 }
 
 void IRQManager::set_spi_tx_link_event(int li, int ch)
 {
-  if     (ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TXI);}
-  else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI);}
+    if (0) {}
+#ifdef EVENT_SPI0_TXI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TXI);}
+#endif
+#ifdef EVENT_SPI1_TXI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI);}
+#endif
 }
 
 void IRQManager::set_spi_rx_link_event(int li, int ch)
 {
-  if     (ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_RXI);}
-  else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI);}
+    if (0) {}
+#ifdef EVENT_SPI0_RXI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_RXI);}
+#endif
+#ifdef EVENT_SPI1_RXI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI);}
+#endif
 }
 
 void IRQManager::set_spi_tei_link_event(int li, int ch)
 {
-  if     (ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TEI);}
-  else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI);}
+    if (0) {}
+#ifdef EVENT_SPI0_TEI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TEI);}
+#endif
+#ifdef EVENT_SPI1_TEI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI);}
+#endif
 }
 
 void IRQManager::set_spi_eri_link_event(int li, int ch)
 {
-  if     (ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_ERI);}
-  else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
+    if (0) {}
+#ifdef EVENT_SPI0_ERI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_ERI);}
+#endif
+#ifdef EVENT_SPI1_ERI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
+#endif
 }

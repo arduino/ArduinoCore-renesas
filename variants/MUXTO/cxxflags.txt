@@ -1,0 +1,17 @@
+-mcpu=cortex-m23
+-mthumb
+-fmessage-length=0
+-fsigned-char
+-ffunction-sections
+-fdata-sections
+-Wunused
+-Wuninitialized
+-Wall
+-Wextra
+-Wmissing-declarations
+-Wconversion
+-Wpointer-arith
+-Wshadow
+-Wlogical-op
+-Waggregate-return
+-Wfloat-equal

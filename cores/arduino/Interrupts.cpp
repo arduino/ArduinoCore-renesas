@@ -21,6 +21,8 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
+#if EXT_INTERRUPTS_HOWMANY > 0
+
 extern const PinMuxCfg_t g_pin_cfg[];
 extern const size_t g_pin_cfg_size;
 
@@ -192,3 +194,4 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
     attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
 }
 
+#endif

@@ -95,3 +95,47 @@ santiago.upload.maximum_size=262144
 santiago.upload.maximum_data_size=32768
 
 ##############################################################
+
+muxto.name=Muxto (RA2A1)
+muxto.build.core=arduino
+muxto.build.crossprefix=arm-none-eabi-
+muxto.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+
+muxto.build.variant=MUXTO
+muxto.build.mcu=cortex-m23
+muxto.build.architecture=cortex-m23
+muxto.build.fpu=
+muxto.build.float-abi=
+
+muxto.build.board=MUXTO
+muxto.build.defines=-DF_CPU=48000000
+muxto.vid.0=0x2341
+muxto.pid.0=0x0058
+muxto.upload_port.0.vid=0x2341
+muxto.upload_port.0.pid=0x0058
+
+muxto.compiler.fsp.defines={build.variant.path}/defines.txt
+muxto.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+muxto.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM23 -D_RENESAS_RA_
+muxto.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM23 -D_RENESAS_RA_
+muxto.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+muxto.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+muxto.compiler.fsp.includes={build.variant.path}/includes.txt
+muxto.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+muxto.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+
+muxto.upload.tool=dfu-util
+muxto.upload.tool.default=dfu-util
+muxto.upload.protocol=
+muxto.upload.transport=
+muxto.upload.vid=0x2341
+muxto.upload.pid=0x0058
+muxto.upload.address=0x00010000
+muxto.upload.interface=0
+muxto.upload.use_1200bps_touch=true
+muxto.upload.wait_for_upload_port=false
+muxto.upload.native_usb=true
+muxto.upload.maximum_size=262144
+muxto.upload.maximum_data_size=32768
+
+##############################################################

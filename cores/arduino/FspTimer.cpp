@@ -140,7 +140,7 @@ void FspTimer::set_period_counts(float period, uint32_t _max) {
             init_ok = false;
         }
     }
-    else if(type = AGT_TIMER) {
+    else if(type == AGT_TIMER) {
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
         if(period * (float) freq_hz / 1.0 < _max) {
             _period_counts = (uint32_t) (period * (float) freq_hz / 1.0);

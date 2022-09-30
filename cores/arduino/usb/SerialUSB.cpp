@@ -14,7 +14,7 @@ void __USBInstallSerial() { /* noop */ }
 // HardwareSerial instance if the user doesn't also refer to it.
 extern void serialEvent() __attribute__((weak));
 
-void SerialUSB::begin(unsigned long baud) {
+void _SerialUSB::begin(unsigned long baud) {
     (void) baud; //ignored
 
     if (_running) {
@@ -24,11 +24,11 @@ void SerialUSB::begin(unsigned long baud) {
     _running = true;
 }
 
-void SerialUSB::end() {
+void _SerialUSB::end() {
     // TODO
 }
 
-int SerialUSB::peek() {
+int _SerialUSB::peek() {
     if (!_running) {
         return 0;
     }
@@ -37,7 +37,7 @@ int SerialUSB::peek() {
     return tud_cdc_peek(&c) ? (int) c : -1;
 }
 
-int SerialUSB::read() {
+int _SerialUSB::read() {
     if (!_running) {
         return -1;
     }
@@ -48,7 +48,7 @@ int SerialUSB::read() {
     return -1;
 }
 
-int SerialUSB::available() {
+int _SerialUSB::available() {
     if (!_running) {
         return 0;
     }
@@ -56,7 +56,7 @@ int SerialUSB::available() {
     return tud_cdc_available();
 }
 
-int SerialUSB::availableForWrite() {
+int _SerialUSB::availableForWrite() {
     if (!_running) {
         return 0;
     }
@@ -64,7 +64,7 @@ int SerialUSB::availableForWrite() {
     return tud_cdc_write_available();
 }
 
-void SerialUSB::flush() {
+void _SerialUSB::flush() {
     if (!_running) {
         return;
     }
@@ -72,11 +72,11 @@ void SerialUSB::flush() {
     tud_cdc_write_flush();
 }
 
-size_t SerialUSB::write(uint8_t c) {
+size_t _SerialUSB::write(uint8_t c) {
     return write(&c, 1);
 }
 
-size_t SerialUSB::write(const uint8_t *buf, size_t length) {
+size_t _SerialUSB::write(const uint8_t *buf, size_t length) {
     if (!_running) {
         return 0;
     }
@@ -113,7 +113,7 @@ size_t SerialUSB::write(const uint8_t *buf, size_t length) {
     return written;
 }
 
-SerialUSB::operator bool() {
+_SerialUSB::operator bool() {
     if (!_running) {
         return false;
     }
@@ -130,11 +130,11 @@ SerialUSB::operator bool() {
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[0]))
 #define DOUBLE_TAP_MAGIC                  0x07738135
 
-static bool _dtr = false;
-static bool _rts = false;
-static int _bps = 115200;
+int _SerialUSB::_bps, _SerialUSB::_bits, _SerialUSB::_parity, _SerialUSB::_stop;
+bool _SerialUSB::_dtr, _SerialUSB::_rts;
+
 static void CheckSerialReset() {
-    if ((_bps == 1200) && (!_dtr)) {
+    if ((_SerialUSB::_bps == 1200) && (! _SerialUSB::_dtr)) {
         R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
         BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
         R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
@@ -146,21 +146,24 @@ static void CheckSerialReset() {
 
 extern "C" void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
     (void) itf;
-    _dtr = dtr ? true : false;
-    _rts = rts ? true : false;
+    _SerialUSB::_dtr = dtr ? true : false;
+    _SerialUSB::_rts = rts ? true : false;
     CheckSerialReset();
 }
 
 extern "C" void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* p_line_coding) {
     (void) itf;
-    _bps = p_line_coding->bit_rate;
+    _SerialUSB::_bps = p_line_coding->bit_rate;
+    _SerialUSB::_parity = p_line_coding->parity;
+    _SerialUSB::_stop = p_line_coding->stop_bits;
+    _SerialUSB::_bits = p_line_coding->data_bits;
     CheckSerialReset();
 }
 
-SerialUSB Serial;
+_SerialUSB SerialUSB;
 
 void arduino::serialEventRun(void) {
-    if (serialEvent && Serial.available()) {
+    if (serialEvent && SerialUSB.available()) {
         serialEvent();
     }
 }

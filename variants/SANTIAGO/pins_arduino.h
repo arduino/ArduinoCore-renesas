@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __cplusplus
 extern "C" unsigned int PINCOUNT_fn();
 extern "C" unsigned int I2C_COUNT_fn();
@@ -91,8 +93,8 @@ static const uint8_t A5 = PIN_A5;
 /****** UART CORE DEFINES ******/
 
 #define SERIAL_HOWMANY		1
-
-#define UART1_CHANNEL     2
+#define UART1_TX_PIN        1
+#define UART1_RX_PIN        0
 
 /****** WIRE CORE DEFINES ******/
 
@@ -121,3 +123,13 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
 #define USB_NAME          "Santiago"
+
+// TODO: removeme
+#ifdef __cplusplus
+extern "C" {
+#endif
+void iic_slave_tei_isr(void);
+void iic_slave_eri_isr(void);
+#ifdef __cplusplus
+}
+#endif
