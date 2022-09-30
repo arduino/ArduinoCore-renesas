@@ -1,0 +1,361 @@
+FSP Configuration
+  Board "Custom User Board (Any Device)"
+  R7FA2A1AB3CNF
+    part_number: R7FA2A1AB3CNF
+    rom_size_bytes: 262144
+    ram_size_bytes: 32768
+    data_flash_size_bytes: 8192
+    package_style: QFN
+    package_pins: 40
+    
+  RA2A1
+    series: 2
+    
+  RA2A1 Family
+    OFS0 register settings: Independent WDT: Start Mode: IWDT is Disabled
+    OFS0 register settings: Independent WDT: Timeout Period: 2048 cycles
+    OFS0 register settings: Independent WDT: Dedicated Clock Frequency Divisor: 128
+    OFS0 register settings: Independent WDT: Window End Position:  0% (no window end position)
+    OFS0 register settings: Independent WDT: Window Start Position: 100% (no window start position)
+    OFS0 register settings: Independent WDT: Reset Interrupt Request Select: Reset is enabled
+    OFS0 register settings: Independent WDT: Stop Control: Stop counting when in Sleep, Snooze mode, or Software Standby
+    OFS0 register settings: WDT: Start Mode Select: Stop WDT after a reset (register-start mode)
+    OFS0 register settings: WDT: Timeout Period: 16384 cycles
+    OFS0 register settings: WDT: Clock Frequency Division Ratio: 128
+    OFS0 register settings: WDT: Window End Position:  0% (no window end position)
+    OFS0 register settings: WDT: Window Start Position: 100% (no window start position)
+    OFS0 register settings: WDT: Reset Interrupt Request: Reset
+    OFS0 register settings: WDT: Stop Control: Stop counting when entering Sleep mode
+    OFS1 register settings: Voltage Detection 0 Circuit Start: Voltage monitor 0 reset is disabled after reset
+    OFS1 register settings: Voltage Detection 0 Level: 1.90 V
+    OFS1 register settings: HOCO Oscillation Enable: HOCO oscillation is enabled after reset
+    Use Low Voltage Mode: Disabled
+    MPU: Enable or disable PC Region 0: Disabled
+    MPU: PC0 Start: 0x000FFFFC
+    MPU: PC0 End: 0x000FFFFF
+    MPU: Enable or disable PC Region 1: Disabled
+    MPU: PC1 Start: 0x000FFFFC
+    MPU: PC1 End: 0x000FFFFF
+    MPU: Enable or disable Memory Region 0: Disabled
+    MPU: Memory Region 0 Start: 0x000FFFFC
+    MPU: Memory Region 0 End: 0x000FFFFF
+    MPU: Enable or disable Memory Region 1: Disabled
+    MPU: Memory Region 1 Start: 0x200FFFFC
+    MPU: Memory Region 1 End: 0x200FFFFF
+    MPU: Enable or disable Memory Region 2: Disabled
+    MPU: Memory Region 2 Start: 0x407FFFFC
+    MPU: Memory Region 2 End: 0x407FFFFF
+    MPU: Enable or disable Memory Region 3: Disabled
+    MPU: Memory Region 3 Start: 0x400DFFFC
+    MPU: Memory Region 3 End: 0x400DFFFF
+    Main Oscillator Wait Time: 262144 cycles
+    ID Code Mode: Unlocked (Ignore ID)
+    ID Code (32 Hex Characters): FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    
+  RA Common
+    Main stack size (bytes): 0x2000
+    Heap size (bytes): 0x4000
+    MCU Vcc (mV): 5000
+    Parameter checking: Disabled
+    Assert Failures: Return FSP_ERR_ASSERTION
+    Error Log: No Error Log
+    Clock Registers not Reset Values during Startup: Disabled
+    Main Oscillator Populated: Populated
+    PFS Protect: Enabled
+    C Runtime Initialization : Enabled
+    Early BSP Initialization : Disabled
+    Main Oscillator Clock Source: Crystal or Resonator
+    Subclock Populated: Populated
+    Subclock Drive (Drive capacitance availability varies by MCU): Standard/Normal mode
+    Subclock Stabilization Time (ms): 1000
+    
+  Clocks
+    XTAL 0Hz
+    HOCO 48MHz
+    Clock Src: HOCO
+    ICLK Div /1
+    PCLKB Div /2
+    PCLKD Div /1
+    FCLK Div /2
+    SDADCCLK Src: HOCO
+    SDADCCLK Div /12
+    CLKOUT Disabled
+    CLKOUT Div /1
+    
+  Pin Configurations
+    R7FA2A1AB3CNF.pincfg -> g_bsp_pin_cfg
+      ADREG 23 SDADC0_ADREG - - - - - - - - IO "Read only" - 
+      AVCC0 35 ANALOG0_AVCC0 - - - - - - - - IO "Read only" - 
+      AVCC1 25 ANALOG0_AVCC1 - - - - - - - - IO "Read only" - 
+      AVSS0 36 ANALOG0_AVSS0 - - - - - - - - IO "Read only" - 
+      AVSS1 26 ANALOG0_AVSS1 - - - - - - - - IO "Read only" - 
+      P000 39 - - - - Disabled - - "AGT1: AGTIO; CTSU0: TS16; GPT4: GTIOCB; ICU0: IRQ04; IIC0: SCL; KINT0: KRM0; SCI9: RXD; SCI9: SCL; SPI1: MISO" - None - - 
+      P013 34 - - - - Disabled - - "ACMPHS0: IVCMP; ADC0: AN05; DAC80: DA; GPT6: GTIOCB; OPAMP1: AMP+" - None - - 
+      P100 30 - - - - Disabled - - "ACMPHS0: IVCMP; ADC0: AN16; CTSU0: TS23; GPT5: GTIOCB; ICU0: IRQ04; SCI9: SDA; SCI9: TXD; SDADC0: ANSDP0" - None - - 
+      P101 29 - - - - Disabled - - "ACMPHS0: IVREF; ADC0: AN17; CTSU0: TS22; GPT5: GTIOCA; ICU0: IRQ05; SCI9: RXD; SCI9: SCL; SDADC0: ANSDN0" - None - - 
+      P102 28 - - - - Disabled - - "ADC0: AN18; CTSU0: TS21; GPT6: GTIOCB; SCI9: CTS; SDADC0: ANSDP1; SPI1: SSL0" - None - - 
+      P103 27 - - - - Disabled - - "ADC0: AN19; CTSU0: TS20; GPT6: GTIOCA; SDADC0: ANSDN1; SPI1: RSPCK" - None - - 
+      P108 21 DEBUG0_SWDIO - Low - "Peripheral mode" - None "DEBUG0: SWDIO" - IO - - 
+      P109 40 - - - - Disabled - - "ACMP(0-1): VCOUT; ACMPLP0: CMPREF; ADC0: ADTRG; AGT0: AGTOA; CTSU0: TS17; GPT_POEG1: GTETRG; GPT1: GTIOCB; ICU0: IRQ03; IIC1: SCL; KINT0: KRM1; SCI0: SCK; SCI9: SDA; SCI9: TXD; SPI0: MISO" - None - - 
+      P110 22 - - - - Disabled - - "ACMPLP1: CMPREF; ADC0: ADTRG; AGT0: AGTOB; CAN0: CTX; CGC0: CLKOUT; CTSU0: TSCAP; GPT_OPS0: GTOWLO; GPT2: GTIOCB; ICU0: IRQ02; IIC1: SDA; SCI0: SDA; SCI0: TXD; SCI9: RXD; SCI9: SCL; SPI0: RSPCK" - None - - 
+      P200 18 - - - - Disabled - - "ICU0: NMI" - None - - 
+      P201 17 - - - - Disabled - - "SYSTEM0: MD" - None - - 
+      P212 7 - - - - Disabled - - "AGT0: AGTIO; CGC0: EXTAL; GPT_POEG1: GTETRG; GPT0: GTIOCB; ICU0: IRQ03; SCI1: SDA; SCI1: TXD" - None - - 
+      P213 6 - - - - Disabled - - "AGT1: AGTEE; CGC0: XTAL; GPT_POEG0: GTETRG; GPT0: GTIOCA; ICU0: IRQ02; SCI1: RXD; SCI1: SCL" - None - - 
+      P214 4 - - - - Disabled - - "CGC0: XCOUT" - None - - 
+      P215 3 - - - - Disabled - - "CGC0: XCIN" - None - - 
+      P300 20 DEBUG0_SWCLK - Low - "Peripheral mode" - None "DEBUG0: SWCLK" - IO - - 
+      P301 19 - - - - Disabled - - "AGT1: AGTOB; CTSU0: TS13; GPT_OPS0: GTOWUP; GPT2: GTIOCA; ICU0: IRQ05; IIC0: SDA; KINT0: KRM4; RTC0: RTCOUT; SCI0: RXD; SCI0: SCL; SCI9: CTS; SPI1: MOSI" - None - - 
+      P400 1 - - - - Disabled - - "ACMPLP0: CMPIN; AGT0: AGTEE; CTSU0: TS00; GPT_POEG0: GTETRG; GPT1: GTIOCA; ICU0: IRQ00; IIC1: SDA; KINT0: KRM2; RTC0: RTCOUT; SCI0: CTS; SCI1: RXD; SCI1: SCL; SPI0: MOSI" - None - - 
+      P407 10 - - - - Disabled - - "AGT0: AGTIO; CAC0: CACREF; CAN0: CTX; CTSU0: TSCAP; GPT_OPS0: GTOULO; GPT0: GTIOCB; ICU0: IRQ01; IIC0: SCL; SCI0: SDA; SCI0: TXD; SCI9: SDA; SCI9: TXD; SPI1: RSPCK; USB_FS0: VBUS; USB_FS0: VBUS" - None - - 
+      P408 9 - - - - Disabled - - "ACMPLP1: CMPIN; AGT0: AGTO; CAN0: CRX; CTSU0: TS06; GPT_OPS0: GTOUUP; GPT0: GTIOCA; ICU0: IRQ01; IIC0: SDA; SCI0: RXD; SCI0: SCL; SCI1: SDA; SCI1: TXD; SPI0: SSL0" - None - - 
+      P500 31 - - - - Disabled - - "ACMPHS0: IVCMP; ADC0: AN00; CTSU0: TS24; DAC0: DA; GPT5: GTIOCA; ICU0: IRQ03; OPAMP0: AMP+; SCI0: RXD; SCI0: SCL" - None - - 
+      P501 32 - - - - Disabled - - "ACMPHS0: IVREF; ADC0: AN01; CTSU0: TS25; GPT5: GTIOCB; ICU0: IRQ02; OPAMP0: AMP-; SCI0: SDA; SCI0: TXD" - None - - 
+      P502 33 - - - - Disabled - - "ADC0: AN02; ICU0: IRQ01; OPAMP0: AMPO; SCI0: CTS" - None - - 
+      P914 13 - - - - Disabled - - "USB_FS0: DP" - None - - 
+      P915 12 - - - - Disabled - - "USB_FS0: DM" - None - - 
+      RES# 16 SYSTEM0_RES - - - - - - - - IO "Read only" - 
+      SBIAS/VREFI 24 "SDADC0_VREFI / SDADC0_SBIAS" - - - - - - - - IO "Read only" - 
+      VCC 8 SYSTEM0_VCC - - - - - - - - IO "Read only" - 
+      VCCUSB 14 USB_FS0_VCC - - - - - - - - IO "Read only" - 
+      VCCUSBLDO 15 USB_FS0_VCCLDO - - - - - - - - IO "Read only" - 
+      VCL 2 SYSTEM0_VCL - - - - - - - - IO "Read only" - 
+      VREFH0 38 ANALOG0_VREFH0 - - - - - - - - IO "Read only" - 
+      VREFL0 37 ANALOG0_VREFL0 - - - - - - - - IO "Read only" - 
+      VSS 5 SYSTEM0_VSS - - - - - - - - IO "Read only" - 
+      VSSUSB 11 USB_FS0_VSS - - - - - - - - IO "Read only" - 
+    
+  User Events
+    
+  User Event Links
+    
+  Module "I/O Port (r_ioport)"
+    Parameter Checking: Default (BSP)
+    
+  Module "UART (r_sci_uart)"
+    Parameter Checking: Default (BSP)
+    FIFO Support: Disable
+    DTC Support: Disable
+    Flow Control Support: Disable
+    RS-485 Support: Disable
+    
+  Module "USB PCDC (r_usb_pcdc)"
+    Bulk In Pipe: USB PIPE4
+    Bulk Out Pipe: USB PIPE5
+    Interrupt Out Pipe: USB PIPE6
+    
+  Module "USB (r_usb_basic)"
+    Parameter Checking: Default (BSP)
+    PLL Frequency: Not Supported
+    CPU Bus Access Wait Cycles: Not Supported
+    Battery Charging: Not Supported
+    Power IC Shutdown Polarity: Not Supported
+    Dedicated Charging Port (DCP) Mode: Not Supported
+    Notifications for SET_INTERFACE/SET_FEATURE/CLEAR_FEATURE: Enabled
+    Double Buffering: Enabled
+    Continuous Transfer Mode: Not Supported
+    LDO Regulator: Disabled
+    DMA Support: Not Supported
+    DMA Source Address: DMA Disabled
+    DMA Destination Address: DMA Disabled
+    USB Compliance Test mode: Disabled
+    USB TPL table name: NULL
+    
+  Module "Timer, Low-Power (r_agt)"
+    Parameter Checking: Default (BSP)
+    Pin Output Support: Disabled
+    Pin Input Support: Disabled
+    
+  Module "Timer, General PWM (r_gpt)"
+    Parameter Checking: Default (BSP)
+    Pin Output Support: Disabled
+    Write Protect Enable: Disabled
+    Clock Source: PCLKD
+    
+  Module "ADC (r_adc)"
+    Parameter Checking: Default (BSP)
+    
+  HAL
+    Instance "g_ioport I/O Port (r_ioport)"
+      Name: g_ioport
+      Port 1 ELC Trigger Source: Disabled
+      Port 2 ELC Trigger Source: Disabled
+      Port 3 ELC Trigger Source: Disabled
+      Port 4 ELC Trigger Source: Disabled
+      Port B ELC Trigger Source: Disabled
+      Port C ELC Trigger Source: Disabled
+      Port D ELC Trigger Source: Disabled
+      Port E ELC Trigger Source: Disabled
+      Pin Configuration Name: g_bsp_pin_cfg
+      
+    Instance "g_uart0 UART (r_sci_uart)"
+      General: Name: g_uart0
+      General: Channel: 0
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: NULL
+      Interrupts: Receive Interrupt Priority: Priority 2
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 2
+      Interrupts: Transmit End Interrupt Priority: Priority 2
+      Interrupts: Error Interrupt Priority: Priority 2
+      
+    Instance "g_uart1 UART (r_sci_uart)"
+      General: Name: g_uart1
+      General: Channel: 0
+      General: Data Bits: 8bits
+      General: Parity: None
+      General: Stop Bits: 1bit
+      Baud: Baud Rate: 115200
+      Baud: Baud Rate Modulation: Disabled
+      Baud: Max Error (%): 5
+      Flow Control: CTS/RTS Selection: Hardware RTS
+      Flow Control: Software RTS Port: Disabled
+      Flow Control: Software RTS Pin: Disabled
+      Extra: Clock Source: Internal Clock
+      Extra: Start bit detection: Falling Edge
+      Extra: Noise Filter: Disable
+      Extra: Receive FIFO Trigger Level: Max
+      Extra: RS-485: DE Pin: Disable
+      Extra: RS-485: DE Pin Polarity: Active High
+      Extra: RS-485: DE Port Number: Disabled
+      Extra: RS-485: DE Pin Number: Disabled
+      Interrupts: Callback: NULL
+      Interrupts: Receive Interrupt Priority: Priority 2
+      Interrupts: Transmit Data Empty Interrupt Priority: Priority 2
+      Interrupts: Transmit End Interrupt Priority: Priority 2
+      Interrupts: Error Interrupt Priority: Priority 2
+      
+    Instance "g_pcdc0 USB PCDC (r_usb_pcdc)"
+      Name: g_pcdc0
+      
+      Instance "g_basic0 USB (r_usb_basic)"
+        Name: g_basic0
+        USB Mode: Peri mode
+        USB Speed: Full Speed
+        USB Module Number: USB_IP0 Port
+        USB Device Class: Peripheral Communications Device Class
+        USB Descriptor: g_usb_descriptor
+        USB Compliance Callback: NULL
+        USBFS Interrupt Priority: Priority 2
+        USBFS Resume Priority: Priority 2
+        USB RTOS Callback: NULL
+        USB Callback Context: NULL
+        
+    Instance "g_timer0 Timer, Low-Power (r_agt)"
+      General: Name: g_timer0
+      General: Channel: 0
+      General: Mode: Periodic
+      General: Period: 0x10000
+      General: Period Unit: Raw Counts
+      Output: Duty Cycle Percent (only applicable in PWM mode): 50
+      General: Count Source: PCLKB
+      Output: AGTOA Output: Disabled
+      Output: AGTOB Output: Disabled
+      Output: AGTO Output: Disabled
+      Input: Measurement Mode: Measure Disabled
+      Input: Input Filter: No Filter
+      Input: Enable Pin: Enable Pin Not Used
+      Input: Trigger Edge: Trigger Edge Rising
+      Interrupts: Callback: NULL
+      Interrupts: Underflow Interrupt Priority: Disabled
+      
+    Instance "g_timer1 Timer, General PWM (r_gpt)"
+      General: Name: g_timer1
+      General: Channel: 0
+      General: Mode: Periodic
+      General: Period: 0x100000000
+      General: Period Unit: Raw Counts
+      Output: Custom Waveform: GTIOA: Initial Output Level: Pin Level Low
+      Output: Custom Waveform: GTIOA: Cycle End Output Level: Pin Level Retain
+      Output: Custom Waveform: GTIOA: Compare Match Output Level: Pin Level Retain
+      Output: Custom Waveform: GTIOA: Retain Output Level at Count Stop: Disabled
+      Output: Custom Waveform: GTIOB: Initial Output Level: Pin Level Low
+      Output: Custom Waveform: GTIOB: Cycle End Output Level: Pin Level Retain
+      Output: Custom Waveform: GTIOB: Compare Match Output Level: Pin Level Retain
+      Output: Custom Waveform: GTIOB: Retain Output Level at Count Stop: Disabled
+      Output: Custom Waveform: Custom Waveform Enable: Disabled
+      Output: Duty Cycle Percent (only applicable in PWM mode): 50
+      Output: GTIOCA Output Enabled: False
+      Output: GTIOCA Stop Level: Pin Level Low
+      Output: GTIOCB Output Enabled: False
+      Output: GTIOCB Stop Level: Pin Level Low
+      Input: Count Up Source: 
+      Input: Count Down Source: 
+      Input: Start Source: 
+      Input: Stop Source: 
+      Input: Clear Source: 
+      Input: Capture A Source: 
+      Input: Capture B Source: 
+      Input: Noise Filter A Sampling Clock Select: No Filter
+      Input: Noise Filter B Sampling Clock Select: No Filter
+      Interrupts: Callback: NULL
+      Interrupts: Overflow/Crest Interrupt Priority: Disabled
+      Interrupts: Capture A Interrupt Priority: Disabled
+      Interrupts: Capture B Interrupt Priority: Disabled
+      Interrupts: Underflow/Trough Interrupt Priority: Disabled
+      Extra Features: Extra Features: Disabled
+      Extra Features: Output Disable: POEG Link: POEG Channel 0
+      Extra Features: Output Disable: Output Disable POEG Trigger: 
+      Extra Features: ADC Trigger: Start Event Trigger (Channels with GTINTAD only): 
+      Extra Features: Dead Time: Dead Time Count Up (Raw Counts): 0
+      Extra Features: Dead Time: Dead Time Count Down (Raw Counts) (Channels with GTDVD only): 0
+      Extra Features: ADC Trigger (Channels with GTADTRA only): ADC A Compare Match (Raw Counts): 0
+      Extra Features: ADC Trigger (Channels with GTADTRB only): ADC B Compare Match (Raw Counts): 0
+      Extra Features: Interrupt Skipping (Channels with GTITC only): Interrupt to Count: None
+      Extra Features: Interrupt Skipping (Channels with GTITC only): Interrupt Skip Count: 0
+      Extra Features: Interrupt Skipping (Channels with GTITC only): Skip ADC Events: None
+      Extra Features: Output Disable: GTIOCA Disable Setting: Disable Prohibited
+      Extra Features: Output Disable: GTIOCB Disable Setting: Disable Prohibited
+      
+    Instance "g_adc0 ADC (r_adc)"
+      General: Name: g_adc0
+      General: Unit: 0
+      General: Resolution: 16-Bit
+      General: Alignment: Not supported
+      General: Clear after read: On
+      General: Mode: Single Scan
+      General: Double-trigger: Disabled
+      Input: Channel Scan Mask (channel availability varies by MCU): 
+      Input: Group B Scan Mask (channel availability varies by MCU): 
+      Interrupts: Normal/Group A Trigger: Software
+      Interrupts: Group B Trigger: Disabled
+      Interrupts: Group Priority (Valid only in Group Scan Mode): Group A cannot interrupt Group B
+      Input: Add/Average Count: Disabled
+      Input: Reference Voltage control: VREFH0
+      Input: Addition/Averaging Mask (channel availability varies by MCU and unit): 
+      Input: Sample and Hold: Sample and Hold Channels (Available only on selected MCUs): 
+      Input: Sample and Hold: Sample Hold States (Applies only to channels 0, 1, 2): 24
+      Input: Window Compare: Window Mode: Disabled
+      Input: Window Compare: Event Output: OR
+      Input: Window Compare: Window A: Enable: Disabled
+      Input: Window Compare: Window A: Channels to compare (channel availability varies by MCU and unit): 
+      Input: Window Compare: Window A: Channel comparison mode (channel availability varies by MCU and unit): 
+      Input: Window Compare: Window A: Lower Reference: 0
+      Input: Window Compare: Window A: Upper Reference: 0
+      Input: Window Compare: Window B: Enable: Disabled
+      Input: Window Compare: Window B: Channel to compare (channel availability varies by MCU and unit): Channel 0
+      Input: Window Compare: Window B: Comparison mode: Less Than or Outside Window
+      Input: Window Compare: Window B: Lower Reference: 0
+      Input: Window Compare: Window B: Upper Reference: 0
+      Interrupts: Callback: NULL
+      Interrupts: Scan End Interrupt Priority: Disabled
+      Interrupts: Scan End Group B Interrupt Priority: Disabled
+      Interrupts: Window Compare A Interrupt Priority: Disabled
+      Interrupts: Window Compare B Interrupt Priority: Disabled
+      Extra: ADC Ring Buffer: Not Supported
+      
