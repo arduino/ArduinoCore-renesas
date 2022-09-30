@@ -44,9 +44,13 @@ fi
 
 cp ./ra_gen/*.c ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/
 # no more need of the following file
-if test -f "${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/vector_table.c"; then
+if test -f "${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/vector_data.c"; then
     echo "removed"
-    rm ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/vector_table.c
+    rm ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/vector_data.c
+fi
+if test -f "${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/elc_data.c"; then
+    echo "removed"
+    rm ${CORE_PATH}/../../../variants/${TARGET}/tmp_gen_c_files/elc_data.c
 fi
 #-------------------------------------------------------------------------
 
