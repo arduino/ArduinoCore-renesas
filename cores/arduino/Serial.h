@@ -66,9 +66,6 @@ class UART : public arduino::HardwareSerial {
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
     void end();
-    void setPins(int tx, int rx, int rts = 0, int cts = 0);
-    void setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
-                 bsp_io_port_pin_t rts = (bsp_io_port_pin_t)0, bsp_io_port_pin_t cts = (bsp_io_port_pin_t)0);
     int available(void);
     int peek(void);
     int read(void);

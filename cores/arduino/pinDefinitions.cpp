@@ -14,12 +14,3 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral) {
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral) {
   pinPeripheral(digitalPinToBspPin(pinNumber), bspPeripheral);
 }
-
-ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin) {
-  for (int i=0; i<PINCOUNT_fn(); i++) {
-    if (g_APinDescription[i].name == pin) {
-      return g_APinDescription[i].pinCfg;
-    }
-  }
-  return (ioport_peripheral_t)0;
-}

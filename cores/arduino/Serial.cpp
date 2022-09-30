@@ -287,25 +287,6 @@ void UART::end() {
   R_SCI_UART_Close (&uart_ctrl);
 }
 
-
-
-void UART::setPins(int tx, int rx, int rts, int cts)
-{
-  setPins(digitalPinToBspPin(tx), digitalPinToBspPin(rx),
-          digitalPinToBspPin(rts), digitalPinToBspPin(cts));
-}
-
-void UART::setPins(bsp_io_port_pin_t tx, bsp_io_port_pin_t rx,
-                      bsp_io_port_pin_t rts, bsp_io_port_pin_t cts)
-{
-  pinPeripheral(tx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(tx));
-  pinPeripheral(rx, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(rx));
-  if (rts != (bsp_io_port_pin_t)0) {
-    pinPeripheral(rts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(rts));
-    pinPeripheral(cts, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | getPinConfig(cts));
-  }
-}
-
 /* -------------------------------------------------------------------------- */
 int UART::available() {
 /* -------------------------------------------------------------------------- */  
