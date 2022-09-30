@@ -225,6 +225,10 @@
       <description>I2C Slave Interface</description>
       <originalPack>Renesas.RA.3.7.0.pack</originalPack>
     </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="3.7.0">
+      <description>Event Link Controller</description>
+      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
@@ -1100,6 +1104,9 @@
       <property id="module.driver.i2c_slave.ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.i2c_slave.eri_ipl" value="board.icu.common.irq.priority12"/>
     </module>
+    <module id="module.driver.elc_on_elc.1456446179">
+      <property id="module.driver.elc.name" value="g_elc"/>
+    </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.driver.adc_on_adc.1770866487"/>
@@ -1162,6 +1169,7 @@
         <stack module="module.driver.transfer_on_dtc.1247774984" requires="module.driver.i2c_on_sci_i2c.requires.transfer_rx"/>
       </stack>
       <stack module="module.driver.i2c_on_iic_slave.1030866339"/>
+      <stack module="module.driver.elc_on_elc.1456446179"/>
     </context>
     <config id="config.driver.wdt">
       <property id="config.driver.wdt.param_checking_enable" value="config.driver.wdt.param_checking_enable.bsp"/>
@@ -1207,6 +1215,9 @@
       <property id="config.driver.usb_basic.dest_address" value="config.driver.usb_basic.dest_address.none"/>
       <property id="config.driver.usb_basic.compliance_mode" value="config.driver.usb_basic.compliance_mode.disable"/>
       <property id="config.driver.usb_basic.tpl_table" value="NULL"/>
+    </config>
+    <config id="config.driver.elc">
+      <property id="config.driver.elc.checking" value="config.driver.elc.checking.system"/>
     </config>
     <config id="config.driver.agt">
       <property id="config.driver.agt.param_checking_enable" value="config.driver.agt.param_checking_enable.bsp"/>

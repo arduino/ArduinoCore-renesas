@@ -230,6 +230,9 @@ FSP Configuration
   Module "I2C Slave (r_iic_slave)"
     Parameter Checking: Default (BSP)
     
+  Module "Event Link Controller (r_elc)"
+    Parameter Checking: Default (BSP)
+    
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
       Name: g_ioport
@@ -1101,4 +1104,7 @@ FSP Configuration
       Callback: NULL
       Interrupt Priority Level: Transmit, Receive, and Transmit End: Priority 12
       Interrupt Priority Level: Error: Priority 12
+      
+    Instance "g_elc Event Link Controller (r_elc)"
+      Name: g_elc
       
