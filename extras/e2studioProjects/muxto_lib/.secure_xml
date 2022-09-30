@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<raConfiguration version="7">
+  <generalSettings>
+    <option key="#Board#" value="board.custom"/>
+    <option key="CPU" value="RA2A1"/>
+    <option key="Core" value="CM23"/>
+    <option key="#TargetName#" value="R7FA2A1AB3CNF"/>
+    <option key="#TargetARCHITECTURE#" value="cortex-m23"/>
+    <option key="#DeviceCommand#" value="R7FA2A1AB"/>
+    <option key="#RTOS#" value="_none"/>
+    <option key="#pinconfiguration#" value="R7FA2A1AB3CNF.pincfg"/>
+    <option key="#FSPVersion#" value="3.7.0"/>
+    <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
+    <option key="#ToolchainVersion#" value="7.2.1.20170904"/>
+  </generalSettings>
+  <raClockConfiguration>
+    <node id="board.clock.xtal.freq" mul="0" option="_edit"/>
+    <node id="board.clock.hoco.freq" option="board.clock.hoco.freq.48m"/>
+    <node id="board.clock.loco.freq" option="board.clock.loco.freq.32768"/>
+    <node id="board.clock.moco.freq" option="board.clock.moco.freq.8m"/>
+    <node id="board.clock.subclk.freq" option="board.clock.subclk.freq.32768"/>
+    <node id="board.clock.clock.source" option="board.clock.clock.source.hoco"/>
+    <node id="board.clock.iclk.div" option="board.clock.iclk.div.1"/>
+    <node id="board.clock.iclk.display" option="board.clock.iclk.display.value"/>
+    <node id="board.clock.pclkb.div" option="board.clock.pclkb.div.2"/>
+    <node id="board.clock.pclkb.display" option="board.clock.pclkb.display.value"/>
+    <node id="board.clock.pclkd.div" option="board.clock.pclkd.div.1"/>
+    <node id="board.clock.pclkd.display" option="board.clock.pclkd.display.value"/>
+    <node id="board.clock.fclk.div" option="board.clock.fclk.div.2"/>
+    <node id="board.clock.fclk.display" option="board.clock.fclk.display.value"/>
+    <node id="board.clock.uclk.display" option="board.clock.uclk.display.value"/>
+    <node id="board.clock.sdadcclk.source" option="board.clock.sdadcclk.source.hoco"/>
+    <node id="board.clock.sdadcclk.div" option="board.clock.sdadcclk.div.12"/>
+    <node id="board.clock.sdadcclk.display" option="board.clock.sdadcclk.display.value"/>
+    <node id="board.clock.clkout.source" option="board.clock.clkout.source.disabled"/>
+    <node id="board.clock.clkout.div" option="board.clock.clkout.div.1"/>
+    <node id="board.clock.clkout.display" option="board.clock.clkout.display.value"/>
+  </raClockConfiguration>
+  <raModuleConfiguration/>
+  <raPinConfiguration>
+    <pincfg active="true" name="" symbol="">
+      <configSetting altId="debug0.swclk.p300" configurationId="debug0.swclk" isUsedByDriver="true"/>
+      <configSetting altId="debug0.swdio.p108" configurationId="debug0.swdio" isUsedByDriver="true"/>
+    </pincfg>
+  </raPinConfiguration>
+</raConfiguration>
