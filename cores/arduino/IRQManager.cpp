@@ -12,11 +12,13 @@
 #define EXTERNAL_PIN_NUM 1
 #define EXTERNAL_PIN_PRIORITY 12
 #define UART_SCI_PRIORITY 12
+#define SPI_MASTER_REQ_NUM 4
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
 #define RTC_PRIORITY  12
 #define I2C_MASTER_PRIORITY 12
 #define I2C_SLAVE_PRIORITY 12
+#define SPI_MASTER_PRIORITY 12
 
 #define FIRST_INT_SLOT_FREE 0
 
@@ -150,7 +152,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 p_cfg->eri_ipl = UART_SCI_PRIORITY;
                 p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
-                set_sci_rei_link_event(last_interrupt_index, p_cfg->channel);
+                set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
                 last_interrupt_index++;
             }
             R_BSP_IrqEnable (p_cfg->txi_irq);
@@ -284,7 +286,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             #ifdef DO_NOT_USE
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_rei_isr;
-            set_sci_tei_link_event(last_interrupt_index, hw_channel);
+            set_sci_eri_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
@@ -355,6 +357,95 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 rv = true;
             }
         }
+    }
+#endif
+
+#if SPI_HOWMANY > 0
+    /* **********************************************************************
+                                      SPI MASTER
+       ********************************************************************** */
+    if(p == IRQ_SPI_MASTER && cfg != NULL) {
+      if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
+        spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->ctrl;
+        spi_cfg_t  * p_cfg  = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->cfg;
+        uint8_t const hw_channel = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->hw_channel;
+
+        /* TX interrupt */
+        p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_txi_isr;
+        set_spi_tx_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* RX interrupt */
+        p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_rxi_isr;
+        set_spi_rx_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Error interrupt */
+        p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_eri_isr;
+        set_spi_eri_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* TX register empty interrupt */
+        p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_tei_isr;
+        set_spi_tei_link_event(last_interrupt_index, hw_channel);
+        /* Note tei_irq is not enabled until the last data frame is transfered. */
+        R_BSP_IrqCfg(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
+        last_interrupt_index++;
+      }
+    }
+
+    /* **********************************************************************
+                                    SCI SPI MASTER
+       ********************************************************************** */
+    if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
+      if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
+        sci_spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->ctrl;
+        spi_cfg_t  * p_cfg  = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->cfg;
+        uint8_t const hw_channel = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->hw_channel;
+
+        /* TX interrupt */
+        p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_txi_isr;
+        set_sci_tx_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* RX interrupt */
+        p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_rxi_isr;
+        set_sci_rx_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Error interrupt */
+        p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_eri_isr;
+        set_sci_eri_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* TX register empty interrupt */
+        p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+        p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_tei_isr;
+        set_sci_tei_link_event(last_interrupt_index, hw_channel);
+        R_BSP_IrqCfgEnable(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
+        last_interrupt_index++;
+      }
     }
 #endif
 
@@ -639,7 +730,7 @@ void IRQManager::set_sci_tei_link_event(int li, int ch){
 #endif
 }
     
-void IRQManager::set_sci_rei_link_event(int li, int ch){
+void IRQManager::set_sci_eri_link_event(int li, int ch){
     if (0) {}
 #ifdef ELC_EVENT_SCI0_ERI
     else if(ch == 0) {  R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SCI0_ERI);}
@@ -673,6 +764,46 @@ void IRQManager::set_sci_rei_link_event(int li, int ch){
 #endif
 }
 
+void IRQManager::set_spi_tx_link_event(int li, int ch)
+{
+    if (0) {}
+#ifdef EVENT_SPI0_TXI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TXI);}
+#endif
+#ifdef EVENT_SPI1_TXI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI);}
+#endif
+}
 
+void IRQManager::set_spi_rx_link_event(int li, int ch)
+{
+    if (0) {}
+#ifdef EVENT_SPI0_RXI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_RXI);}
+#endif
+#ifdef EVENT_SPI1_RXI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI);}
+#endif
+}
 
+void IRQManager::set_spi_tei_link_event(int li, int ch)
+{
+    if (0) {}
+#ifdef EVENT_SPI0_TEI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TEI);}
+#endif
+#ifdef EVENT_SPI1_TEI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI);}
+#endif
+}
 
+void IRQManager::set_spi_eri_link_event(int li, int ch)
+{
+    if (0) {}
+#ifdef EVENT_SPI0_ERI
+    else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_ERI);}
+#endif
+#ifdef EVENT_SPI1_ERI
+    else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
+#endif
+}

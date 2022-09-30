@@ -17,6 +17,8 @@
 
 #include "SPI.h"
 
+#include <IRQManager.h>
+
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
@@ -27,33 +29,32 @@ using namespace arduino;
  * EXTERN GLOBAL CONSTANTS
  **************************************************************************************/
 
-extern const spi_extended_cfg_t g_spi0_ext_cfg;
-extern const spi_extended_cfg_t g_spi1_ext_cfg;
-extern const sci_spi_extended_cfg_t g_spi2_cfg_extend;
-
-/**************************************************************************************
- * STATIC MEMBER INITIALISATION
- **************************************************************************************/
-
-uint8_t ArduinoSPI::initialized = 0;
-uint8_t ArduinoSPI::interruptMode = 0;
-uint8_t ArduinoSPI::interruptMask = 0;
-uint8_t ArduinoSPI::interruptSave = 0;
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
 
 /**************************************************************************************
  * GLOBAL MEMBER VARIABLES
  **************************************************************************************/
 
-static spi_event_t _spi_cb_event[13] = {SPI_EVENT_TRANSFER_ABORTED};
+static spi_event_t _spi_cb_event[SPI_MAX_SPI_CHANNELS + SPI_MAX_SCI_CHANNELS] = {SPI_EVENT_TRANSFER_ABORTED};
 
 /**************************************************************************************
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoSPI::ArduinoSPI(int ch, bool isSci):
-  _channel(ch),
-  _is_sci(isSci)
+ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci)
+: _miso_pin{miso_pin}
+, _mosi_pin{mosi_pin}
+, _sck_pin{sck_pin}
+, _prefer_sci{prefer_sci}
+, _channel{0}
+, _cb_event_idx{0}
+, _is_sci(false)
+, _open{nullptr}
+, _close{nullptr}
+, _write_then_read{nullptr}
 {
+
 }
 
 /**************************************************************************************
@@ -62,122 +63,131 @@ ArduinoSPI::ArduinoSPI(int ch, bool isSci):
 
 void ArduinoSPI::begin()
 {
-  bool isSPIObject = false;
+  bool init_ok = true;
 
-  EPeripheralBus periphBusCfg = NOT_A_BUS;
+  /* Configure the pins and auto-determine channel and
+   * whether or not we are using a SCI.
+   */
+  int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  auto [cfg_pins_ok, cfg_channel, cfg_is_sci] = cfg_pins(max_index, _miso_pin, _mosi_pin, _sck_pin, _prefer_sci);
+  init_ok &= cfg_pins_ok;
+  _channel = cfg_channel;
+  _is_sci = cfg_is_sci;
 
-#if SPI_HOWMANY > 0
-  if (_channel == SPI_CHANNEL) {
-    isSPIObject = true;
-    periphBusCfg = SPI_BUS;
-  }
-#endif
-#if SPI_HOWMANY > 1
-  if (_channel == SPI1_CHANNEL) {
-    isSPIObject = true;
-    periphBusCfg = SPI1_BUS;
-  }
-#endif
-#if SPI_HOWMANY > 2
-  if (_channel == SPI2_CHANNEL) {
-    isSPIObject = true;
-    periphBusCfg = SPI2_BUS;
-  }
-#endif
+  /* Set the approbriate function pointers depending on
+   * wheter this is a SCI or not.
+   */
+  if (_is_sci)
+  {
+    _open               = R_SCI_SPI_Open;
+    _close              = R_SCI_SPI_Close;
+    _write_then_read    = R_SCI_SPI_WriteRead;
 
-  if (isSPIObject) {
-    int pin_count = 0;
-    bsp_io_port_pin_t spi_pins[3];
-    for (int i=0; i<PINCOUNT_fn(); i++) {
-      if (g_APinDescription[i].PeripheralConfig == periphBusCfg) {
-        spi_pins[pin_count] = g_APinDescription[i].name;
-        pin_count++;
-      }
-      if (pin_count == 3) break;
-    }
-    setPins(spi_pins[0], spi_pins[1], spi_pins[2]);
-  }
-  _cb_event_idx = _channel;
+    _cb_event_idx       = _channel; /* FIXME: This is definitely not right. */
 
-  if (_is_sci) {
-    //Enable Isr from vector table for this SCI SPI channel
-    enableSciSpiIrqs();
-    _g_spi_ctrl = (spi_ctrl_t*)(SciTable[_channel].spi_instance->p_ctrl);
-    _g_spi_cfg = (const spi_cfg_t *)(SciTable[_channel].spi_instance->p_cfg);
-    for (int i=0; i<SPI_COUNT; i++) {
-      //Adjust callback event index to be referred to I2CMasterTable table
-      if ((spi_instance_t*)SciTable[_channel].spi_instance == &SpiTable[i]) {
-        _cb_event_idx = i;
-        break;
-      }
-    }
+    _spi_cfg.p_extend   = &_sci_spi_ext_cfg;
+    _spi_cfg.p_callback = sci_spi_callback;
+  }
+  else
+  {
+    _open               = R_SPI_Open;
+    _close              = R_SPI_Close;
+    _write_then_read    = R_SPI_WriteRead;
+
+    _cb_event_idx       = _channel;
+
+    _spi_cfg.p_extend   = &_spi_ext_cfg;
+    _spi_cfg.p_callback = spi_callback;
+  }
+
+  /* SPI configuration for SPI HAL driver. */
+  _spi_cfg.channel        = _channel;
+  
+  _spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.txi_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.tei_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.eri_irq        = FSP_INVALID_VECTOR;
+
+  _spi_cfg.rxi_ipl        = (12);
+  _spi_cfg.txi_ipl        = (12);
+  _spi_cfg.tei_ipl        = (12);
+  _spi_cfg.eri_ipl        = (12);
+
+  _spi_cfg.operating_mode = SPI_MODE_MASTER;
+
+  _spi_cfg.clk_phase      = SPI_CLK_PHASE_EDGE_ODD;
+  _spi_cfg.clk_polarity   = SPI_CLK_POLARITY_LOW;
+
+  _spi_cfg.mode_fault     = SPI_MODE_FAULT_ERROR_DISABLE;
+  _spi_cfg.bit_order      = SPI_BIT_ORDER_MSB_FIRST;
+  _spi_cfg.p_transfer_tx  = NULL;
+  _spi_cfg.p_transfer_rx  = NULL;
+  _spi_cfg.p_context      = NULL;
+
+
+  /** Extended SPI configuration for SPI HAL driver. */
+  _spi_ext_cfg.spi_clksyn         = SPI_SSL_MODE_CLK_SYN;
+  _spi_ext_cfg.spi_comm           = SPI_COMMUNICATION_FULL_DUPLEX;
+  _spi_ext_cfg.ssl_polarity       = SPI_SSLP_LOW;
+  _spi_ext_cfg.ssl_select         = SPI_SSL_SELECT_SSL0;
+  _spi_ext_cfg.mosi_idle          = SPI_MOSI_IDLE_VALUE_FIXING_DISABLE;
+  _spi_ext_cfg.parity             = SPI_PARITY_MODE_DISABLE;
+  _spi_ext_cfg.byte_swap          = SPI_BYTE_SWAP_DISABLE;
+  _spi_ext_cfg.spck_div           = { /* Actual calculated bitrate: 12000000. */ .spbr = 1, .brdv = 0 };
+  _spi_ext_cfg.spck_delay         = SPI_DELAY_COUNT_1;
+  _spi_ext_cfg.ssl_negation_delay = SPI_DELAY_COUNT_1;
+  _spi_ext_cfg.next_access_delay  = SPI_DELAY_COUNT_1;
+
+
+  /** Extended SPI configuration for SPI SCI HAL driver. */
+  /* Actual calculated bitrate: 1000000. */
+  _sci_spi_ext_cfg.clk_div.cks  = 0;
+  _sci_spi_ext_cfg.clk_div.brr  = 11;
+  _sci_spi_ext_cfg.clk_div.mddr = 0;
+
+
+  /* Configure the Interrupt Controller. */
+  if (_is_sci)
+  {
+    SciSpiMasterIrqReq_t irq_req
+    {
+      .ctrl = &_spi_sci_ctrl,
+      .cfg = &_spi_cfg,
+      .hw_channel = _channel,
+    };
+    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_SPI_MASTER, &irq_req);
+  }
+  else
+  {
+    SpiMasterIrqReq_t irq_req
+    {
+      .ctrl = &_spi_ctrl,
+      .cfg = &_spi_cfg,
+      .hw_channel = _channel,
+    };
+    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
+  }
+
+  /* Configure the SPI using the FSP HAL functionlity. */
+  if (FSP_SUCCESS == _open(&_spi_ctrl, &_spi_cfg)) {
+    init_ok &= true;
   } else {
-    _g_spi_ctrl = (spi_ctrl_t*)(SpiTable[_channel].p_ctrl);
-    _g_spi_cfg = (const spi_cfg_t *)(SpiTable[_channel].p_cfg);
+    init_ok = false;
   }
 
-  _g_spi_ext_cfg = (const spi_extended_cfg_t *)(_g_spi_cfg->p_extend);
-
-  if(!initialized) {
-    if (_is_sci) {
-      R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-    } else {
-      R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-    }
-    initialized = true;
-  }
-
-  config(DEFAULT_SPI_SETTINGS);
+  configSpiSettings(DEFAULT_SPI_SETTINGS);
 }
 
-void ArduinoSPI::end() {
-  if (initialized){
-      initialized = false;
-  }
-  if (_is_sci) {
-    R_SCI_SPI_Close(_g_spi_ctrl);
-  } else {
-    R_SPI_Close(_g_spi_ctrl);
-  }
-}
-
-void ArduinoSPI::setPins(int miso, int mosi, int sck, int cs) {
-  setPins(digitalPinToBspPin(miso), digitalPinToBspPin(mosi), digitalPinToBspPin(sck), digitalPinToBspPin(cs));
-}
-
-void ArduinoSPI::setPins(bsp_io_port_pin_t miso, bsp_io_port_pin_t mosi,
-                         bsp_io_port_pin_t sck, bsp_io_port_pin_t cs) {
-  uint32_t peripheralCfg = 0;
-  if (_is_sci) {
-    if (_channel%2 == 0) {
-      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI0_2_4_6_8;
-    } else {
-      peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SCI1_3_5_7_9;
-    }
-  } else {
-    peripheralCfg = (uint32_t) IOPORT_PERIPHERAL_SPI;
-  }
-  pinPeripheral(miso, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-  pinPeripheral(mosi, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-  pinPeripheral(sck, (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | peripheralCfg);
-}
-
-void ArduinoSPI::usingInterrupt(int interruptNumber)
+void ArduinoSPI::end()
 {
+  _close(&_spi_ctrl);
 }
 
-void ArduinoSPI::notUsingInterrupt(int interruptNumber)
+uint8_t ArduinoSPI::transfer(uint8_t data)
 {
-}
-
-uint8_t ArduinoSPI::transfer(uint8_t data) {
   uint8_t rxbuf;
   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  }
+  _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
 
   for (auto const start = millis();
        (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
@@ -192,17 +202,14 @@ uint8_t ArduinoSPI::transfer(uint8_t data) {
   return rxbuf;
 }
 
-uint16_t ArduinoSPI::transfer16(uint16_t data) {
+uint16_t ArduinoSPI::transfer16(uint16_t data)
+{
   uint16_t rxbuf;
   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
-  }
+  _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
 
   for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]);)// && (millis() - start < 1000); )
   {
       __NOP();
   }
@@ -214,13 +221,10 @@ uint16_t ArduinoSPI::transfer16(uint16_t data) {
   return rxbuf;
 }
 
-void ArduinoSPI::transfer(void *buf, size_t count) {
+void ArduinoSPI::transfer(void *buf, size_t count)
+{
   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    R_SCI_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    R_SPI_WriteRead(_g_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  }
+  _write_then_read(&_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
 
   for (auto const start = millis();
        (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
@@ -235,26 +239,88 @@ void ArduinoSPI::transfer(void *buf, size_t count) {
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
-  config(settings);
-}
-
-void ArduinoSPI::endTransaction(void) {
-
-}
-
-void ArduinoSPI::attachInterrupt() {
-
-}
-
-void ArduinoSPI::detachInterrupt() {
-
+  if (_settings != settings)
+  {
+    configSpiSettings(settings);
+    _settings = settings;
+  }
 }
 
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-void ArduinoSPI::config(arduino::SPISettings const & settings)
+std::tuple<bool, int, bool> ArduinoSPI::cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci )
+{
+  /* Provide default return values. */
+  int channel = 0;
+  bool is_sci = false;
+
+  /* Verify if indices are good. */
+  if (miso_pin < 0 || mosi_pin < 0 || sck_pin < 0 || miso_pin >= max_index || mosi_pin >= max_index || sck_pin >= max_index) {
+    return std::make_tuple(false, channel, is_sci);
+  }
+
+  /* Getting configuration from table. */
+  const uint16_t * cfg = nullptr;
+  cfg = g_pin_cfg[miso_pin].list;
+  uint16_t cfg_miso = getPinCfg(cfg, PIN_CFG_REQ_MISO, prefer_sci);
+  cfg = g_pin_cfg[mosi_pin].list;
+  uint16_t cfg_mosi = getPinCfg(cfg, PIN_CFG_REQ_MOSI, prefer_sci);
+  cfg = g_pin_cfg[sck_pin].list;
+  uint16_t cfg_sck = getPinCfg(cfg, PIN_CFG_REQ_SCK, prefer_sci);
+
+  /* Verify if configurations are good. */
+  if (cfg_miso == 0 || cfg_mosi == 0 || cfg_sck == 0) {
+    return std::make_tuple(false, channel, is_sci);
+  }
+
+  /* Verify if channel is the same for all pins. */
+  uint32_t const ch_miso = GET_CHANNEL(cfg_miso);
+  uint32_t const ch_mosi = GET_CHANNEL(cfg_mosi);
+  uint32_t const ch_sck  = GET_CHANNEL(cfg_sck);
+  bool const is_same_channel = (ch_miso == ch_mosi) && (ch_miso == ch_sck);
+  if (!is_same_channel) {
+    return std::make_tuple(false, channel, is_sci);
+  }
+
+  channel = ch_miso;
+
+  /* Actually configure pin functions. */
+  ioport_peripheral_t ioport_miso, ioport_mosi, ioport_sck;
+
+  if(IS_SCI(cfg_miso)) {
+    if(channel >= SPI_MAX_SCI_CHANNELS) {
+      return std::make_tuple(false, channel, is_sci);
+    }
+    is_sci = true;
+    ioport_miso = USE_SCI_EVEN_CFG(cfg_mosi) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+    ioport_mosi = USE_SCI_EVEN_CFG(cfg_miso) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+    ioport_sck  = USE_SCI_EVEN_CFG(cfg_sck ) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
+
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[miso_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_miso));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[mosi_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_mosi));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sck_pin ].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_sck));
+  }
+  else {
+    if(channel >= SPI_MAX_SPI_CHANNELS) {
+      return std::make_tuple(false, channel, is_sci);
+    }
+    is_sci = false;
+    ioport_miso = IOPORT_PERIPHERAL_SPI;
+    ioport_mosi = IOPORT_PERIPHERAL_SPI;
+    ioport_sck  = IOPORT_PERIPHERAL_SPI;
+
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[miso_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_miso));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[mosi_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_mosi));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sck_pin ].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_sck));
+  }
+
+  return std::make_tuple(true, channel, is_sci);;
+}
+
+
+void ArduinoSPI::configSpiSettings(arduino::SPISettings const & settings)
 {
   if (_is_sci)
     configSpiSci(settings);
@@ -266,17 +332,11 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 {
   auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
 
-  if (initialized)
-    R_SPI_Close(_g_spi_ctrl);
-
-  rspck_div_setting_t spck_div = _g_spi_ext_cfg->spck_div;
+  rspck_div_setting_t spck_div = _spi_ext_cfg.spck_div;
   R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
 
-  R_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-  spi_instance_ctrl_t * p_ctrl = (spi_instance_ctrl_t *)_g_spi_ctrl;
-  uint32_t spcmd0 = p_ctrl->p_regs->SPCMD[0];
-  uint32_t spbr = p_ctrl->p_regs->SPBR;
+  uint32_t spcmd0 = _spi_ctrl.p_regs->SPCMD[0];
+  uint32_t spbr = _spi_ctrl.p_regs->SPBR;
 
   /* Configure CPHA setting. */
   spcmd0 |= (uint32_t) clk_phase;
@@ -292,25 +352,19 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   spcmd0 |= (uint32_t) spck_div.brdv << 2;
 
   /* Update settings. */
-  p_ctrl->p_regs->SPCMD[0] = (uint16_t) spcmd0;
-  p_ctrl->p_regs->SPBR = (uint8_t) spck_div.spbr;
+  _spi_ctrl.p_regs->SPCMD[0] = (uint16_t) spcmd0;
+  _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
 }
 
 void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
 {
   auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
 
-  if (initialized)
-    R_SCI_SPI_Close(_g_spi_ctrl);
-
-  sci_spi_div_setting_t clk_div = _g_sci_spi_ext_cfg->clk_div;
+  sci_spi_div_setting_t clk_div = _sci_spi_ext_cfg.clk_div;
   R_SCI_SPI_CalculateBitrate(settings.getClockFreq(), &clk_div, false);
 
-  R_SCI_SPI_Open(_g_spi_ctrl, _g_spi_cfg);
-
-  sci_spi_instance_ctrl_t * p_ctrl = (sci_spi_instance_ctrl_t *)_g_spi_ctrl;
-  uint32_t spmr = p_ctrl->p_reg->SPMR;
-  uint32_t scmr = p_ctrl->p_reg->SCMR;
+  uint32_t spmr = _spi_sci_ctrl.p_reg->SPMR;
+  uint32_t scmr = _spi_sci_ctrl.p_reg->SCMR;
   uint32_t smr  = R_SCI0_SMR_CM_Msk;
 
   /* Configure CPHA setting. */
@@ -326,10 +380,10 @@ void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
   smr |= (uint32_t) clk_div.cks;
 
   /* Update settings. */
-  p_ctrl->p_reg->SMR  = (uint8_t) smr;
-  p_ctrl->p_reg->BRR  = (uint8_t) clk_div.brr;
-  p_ctrl->p_reg->SPMR = spmr;
-  p_ctrl->p_reg->SCMR = scmr;
+  _spi_sci_ctrl.p_reg->SMR  = (uint8_t) smr;
+  _spi_sci_ctrl.p_reg->BRR  = (uint8_t) clk_div.brr;
+  _spi_sci_ctrl.p_reg->SPMR = spmr;
+  _spi_sci_ctrl.p_reg->SCMR = scmr;
 }
 
 std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toFspSpiConfig(arduino::SPISettings const & settings)
@@ -366,106 +420,31 @@ std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toF
   return std::make_tuple(clk_phase, clk_polarity, bit_order);
 }
 
-void ArduinoSPI::enableSciSpiIrqs() {
-
-  switch (_channel)
-  {
-  case 0:
-#ifdef SCI0_RXI_IRQn
-    __NVIC_SetVector(SCI0_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI0_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI0_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 1:
-#ifdef SCI1_RXI_IRQn
-    __NVIC_SetVector(SCI1_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI1_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI1_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 2:
-#ifdef SCI2_RXI_IRQn
-    __NVIC_SetVector(SCI2_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI2_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI2_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 3:
-#ifdef SCI3_RXI_IRQn
-    __NVIC_SetVector(SCI3_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI3_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI3_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 4:
-#ifdef SCI4_RXI_IRQn
-    __NVIC_SetVector(SCI4_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI4_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI4_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 5:
-#ifdef SCI5_RXI_IRQn
-    __NVIC_SetVector(SCI5_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI5_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI5_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 6:
-#ifdef SCI6_RXI_IRQn
-    __NVIC_SetVector(SCI6_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI6_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI6_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 7:
-#ifdef SCI7_RXI_IRQn
-    __NVIC_SetVector(SCI7_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI7_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI7_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 8:
-#ifdef SCI8_RXI_IRQn
-    __NVIC_SetVector(SCI8_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI8_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI8_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  case 9:
-#ifdef SCI9_RXI_IRQn
-    __NVIC_SetVector(SCI9_RXI_IRQn, (uint32_t)sci_spi_rxi_isr);
-    __NVIC_SetVector(SCI9_TXI_IRQn, (uint32_t)sci_spi_txi_isr);
-    __NVIC_SetVector(SCI9_TEI_IRQn, (uint32_t)sci_spi_tei_isr);
-#endif
-    break;
-  
-  default:
-    break;
-  }
-
-}
-
 /**************************************************************************************
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
 
-void spi_callback(spi_callback_args_t *p_args) {
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+void spi_callback(spi_callback_args_t *p_args)
+{
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
+  {
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
-  }else
+  }
+  else
   {
     /* Updating the flag here to capture and handle all other error events */
     _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_ABORTED;
   }
 }
 
-void sci_spi_callback(spi_callback_args_t *p_args) {
-  int spi_master_offset = SPI_COUNT - SCI_COUNT;
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event) {
+void sci_spi_callback(spi_callback_args_t *p_args)
+{
+  int const spi_master_offset = SPI_MAX_SPI_CHANNELS;
+  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
+  {
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_COMPLETE;
-  }else
+  }
+  else
   {
     /* Updating the flag here to capture and handle all other error events */
     _spi_cb_event[p_args->channel + spi_master_offset] = SPI_EVENT_TRANSFER_ABORTED;
@@ -477,9 +456,9 @@ void sci_spi_callback(spi_callback_args_t *p_args) {
  **************************************************************************************/
 
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(SPI_CHANNEL, (bool)IS_SPI_SCI);
+ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, static_cast<bool>(IS_SPI_SCI));
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(SPI1_CHANNEL, (bool)IS_SPI1_SCI);
+ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, static_cast<bool>(IS_SPI1_SCI));
 #endif

@@ -3,7 +3,6 @@
 #ifdef __cplusplus
 extern "C" unsigned int PINCOUNT_fn();
 extern "C" unsigned int I2C_COUNT_fn();
-extern "C" unsigned int SPI_COUNT_fn();
 extern "C" unsigned int UART_COUNT_fn();
 extern "C" unsigned int SCI_COUNT_fn();
 #endif
@@ -18,7 +17,6 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define I2C_COUNT           (I2C_COUNT_fn())
-#define SPI_COUNT           (SPI_COUNT_fn())
 #define UART_COUNT          (UART_COUNT_fn())
 #define SCI_COUNT           (SCI_COUNT_fn())
 
@@ -109,15 +107,12 @@ static const uint8_t A5 = PIN_A5;
 
 #define SPI_HOWMANY       1
 
-#define SPI_CHANNEL       1
 #define IS_SPI_SCI        0
 
-#define PIN_SPI_SS    (10)
 #define PIN_SPI_MOSI  (11)
 #define PIN_SPI_MISO  (12)
 #define PIN_SPI_SCK   (13)
 
-static const uint8_t SS   = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;

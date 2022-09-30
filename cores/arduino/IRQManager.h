@@ -23,6 +23,8 @@ typedef enum {
     IRQ_SCI_I2C_MASTER,
     IRQ_I2C_SLAVE,
     IRQ_EXTERNAL_PIN,
+    IRQ_SPI_MASTER,
+    IRQ_SCI_SPI_MASTER,
 } Peripheral_t;
 
 #if RTC_HOWMANY > 0
@@ -62,6 +64,23 @@ typedef struct i2c_slave_irq {
 } I2CIrqSlaveReq_t;
 #endif
 
+#if SPI_HOWMANY > 0
+#include "r_spi.h"
+#include "r_sci_spi.h"
+
+typedef struct spi_master_irq {
+    spi_instance_ctrl_t * ctrl;
+    spi_cfg_t * cfg;
+    uint8_t hw_channel;
+} SpiMasterIrqReq_t;
+
+typedef struct sci_spi_master_irq {
+    sci_spi_instance_ctrl_t * ctrl;
+    spi_cfg_t * cfg;
+    uint8_t hw_channel;
+} SciSpiMasterIrqReq_t;
+#endif
+
 typedef struct usb {
     uint32_t num_of_irqs_required;
     uint32_t address_of_handler;
@@ -81,7 +100,7 @@ class IRQManager {
     void set_sci_tx_link_event(int li, int ch);
     void set_sci_rx_link_event(int li, int ch);
     void set_sci_tei_link_event(int li, int ch);
-    void set_sci_rei_link_event(int li, int ch);
+    void set_sci_eri_link_event(int li, int ch);
 
     void set_iic_tx_link_event(int li, int ch);
     void set_iic_rx_link_event(int li, int ch);
@@ -89,8 +108,12 @@ class IRQManager {
     void set_iic_eri_link_event(int li, int ch);
 
     void set_ext_link_event(int li, int ch);
-
     void set_agt_link_event(int li, int ch);
+
+    void set_spi_tx_link_event(int li, int ch);
+    void set_spi_rx_link_event(int li, int ch);
+    void set_spi_tei_link_event(int li, int ch);
+    void set_spi_eri_link_event(int li, int ch);
 
     IRQManager();
 };
