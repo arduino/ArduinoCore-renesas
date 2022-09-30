@@ -283,14 +283,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             last_interrupt_index++;
 
             /* RX ERROR interrupt */
-            #ifdef DO_NOT_USE
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_rei_isr;
             set_sci_eri_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
-            #endif
         }
         else {
             rv = false;
@@ -364,7 +362,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     /* **********************************************************************
                                       SPI MASTER
        ********************************************************************** */
-    if(p == IRQ_SPI_MASTER && cfg != NULL) {
+    else if(p == IRQ_SPI_MASTER && cfg != NULL) {
       if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->cfg;
@@ -408,7 +406,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     /* **********************************************************************
                                     SCI SPI MASTER
        ********************************************************************** */
-    if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
+    else if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
       if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         sci_spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->cfg;
