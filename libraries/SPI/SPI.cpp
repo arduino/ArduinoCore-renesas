@@ -83,7 +83,7 @@ void ArduinoSPI::begin()
     _close              = R_SCI_SPI_Close;
     _write_then_read    = R_SCI_SPI_WriteRead;
 
-    _cb_event_idx       = _channel; /* FIXME: This is definitely not right. */
+    _cb_event_idx       = (_channel + SPI_MAX_SPI_CHANNELS);
 
     _spi_cfg.p_extend   = &_sci_spi_ext_cfg;
     _spi_cfg.p_callback = sci_spi_callback;
