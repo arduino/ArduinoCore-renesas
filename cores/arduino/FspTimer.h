@@ -103,6 +103,8 @@ class FspTimer {
     uint32_t _period_counts;
     uint32_t _duty_cicle_counts;
     timer_source_div_t _sd;
+
+
     
     
     uint8_t type;
@@ -123,10 +125,23 @@ class FspTimer {
     uint32_t get_freq_hz();
 
     timer_cfg_t *get_cfg() { return &timer_cfg; }
+    /* version to be used without PWM out class */
+    bool begin_pwm(uint32_t pin);
+
+    /* version to be used with PwmOut class */
     bool begin_pwm(uint8_t type, uint8_t channel, gpt_extended_pwm_cfg_t *pwm_cfg, TimerPWMChannel_t pwm_channel);
     
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, void(*callback)(timer_callback_args_t *) = nullptr  );
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  uint32_t period, uint32_t pulse, timer_source_div_t sd, void(*p_callback)(timer_callback_args_t *) = nullptr );
+    
+    bool set_source_start(gpt_source_t src);
+    bool set_source_stop(gpt_source_t src);
+    bool set_source_clear(gpt_source_t scr);
+    bool set_source_count_up(gpt_source_t scr);
+    bool set_source_count_down(gpt_source_t scr);
+    bool set_source_capture_a(gpt_source_t scr);
+    bool set_source_capture_b(gpt_source_t scr);
+    
     
     
     

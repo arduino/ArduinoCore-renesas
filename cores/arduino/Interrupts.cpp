@@ -194,4 +194,77 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
     attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
 }
 
+int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
+    CIrq *irq_contest = nullptr;
+    int ch = pin2IrqChannel(pinNumber);
+    
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_contest = IrqChannel.get(ch,true);
+    }
+
+    if(irq_contest != nullptr && mode != LOW) {
+    
+        irq_contest->cfg.channel            = ch;
+        irq_contest->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
+        irq_contest->cfg.filter_enable      = false;
+        irq_contest->cfg.p_callback         = IrqCallback;
+        irq_contest->cfg.p_context          = nullptr;
+        irq_contest->cfg.p_extend           = nullptr;
+        /* ATTACH CALLBACK FUNCTION might be useful ??? */
+    
+        uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
+
+        switch (mode) {
+            case LOW:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
+            break;
+            case FALLING:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
+            break;
+            case RISING:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
+                pullup_enabled = 0;
+            break;
+            case CHANGE:
+                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
+            break;
+        }
+    
+        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_contest->cfg))) {
+            /* Configure PIN */
+            R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
+            /* Enable Interrupt */ 
+            R_ICU_ExternalIrqOpen(&(irq_contest->ctrl), &(irq_contest->cfg));
+            R_ICU_ExternalIrqEnable(&(irq_contest->ctrl));
+        }
+
+        return irq_contest->cfg.channel;
+    }
+    return -1;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+int detachIrq2Link(pin_size_t pinNumber) {
+/* -------------------------------------------------------------------------- */    
+
+    CIrq *irq_contest = nullptr;
+    int ch = pin2IrqChannel(pinNumber);
+    
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_contest = IrqChannel.get(ch,false);
+    }
+
+    if(irq_contest != nullptr) {
+        irq_contest->fnc_param      = nullptr;
+        irq_contest->fnc_void       = nullptr;
+        R_ICU_ExternalIrqDisable(&(irq_contest->ctrl));
+        R_ICU_ExternalIrqClose(&(irq_contest->ctrl));
+        return ch;
+    } 
+    return -1;
+}
+
+
 #endif

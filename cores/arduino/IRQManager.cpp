@@ -7,6 +7,7 @@
 
 #define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
+#define DMA_REQ_NUM 1
 #define UART_SCI_REQ_NUM   4
 #define I2C_MASTER_REQ_NUM 4
 #define I2C_SLAVE_REQ_NUM  2
@@ -22,7 +23,7 @@
 #define I2C_MASTER_PRIORITY 12
 #define I2C_SLAVE_PRIORITY 12
 #define SPI_MASTER_PRIORITY 12
-
+#define DMA_PRIORITY 12
 #define FIRST_INT_SLOT_FREE 0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
@@ -38,9 +39,46 @@ IRQManager& IRQManager::getInstance() {
     return instance;
 }
 
- 
+/* -------------------------------------------------------------------------- */
+int IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
+/* -------------------------------------------------------------------------- */    
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (cfg.irq == FSP_INVALID_VECTOR) && (last_interrupt_index + DMA_REQ_NUM) < PROG_IRQ_NUM ) {
+        /* to check correctness of the channel */
+        if(set_dma_link_event(last_interrupt_index, cfg.channel)) {
+            cfg.ipl = DMA_PRIORITY;
+            cfg.irq = (IRQn_Type)last_interrupt_index;
+            if(fnc == nullptr) {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)r_icu_isr;
+            }
+            else {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+            }
+            last_interrupt_index++;
+        }
+        else {
+            rv = false;
+        } 
+    }
+    else {
+        if(cfg.irq == FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+}
 
+/* -------------------------------------------------------------------------- */
 bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
+/* -------------------------------------------------------------------------- */    
     /* getting the address of the current location of the irq vector table */
     volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
     /* set the displacement to the "programmable" part of the table */
@@ -809,5 +847,59 @@ void IRQManager::set_spi_eri_link_event(int li, int ch)
 #endif
 #ifdef EVENT_SPI1_ERI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
+#endif
+}
+
+
+bool IRQManager::set_dma_link_event(int li, int ch) {
+    bool rv = false;
+    if (0) {}
+#ifdef ELC_EVENT_DMAC0_INT   
+    else if(ch == 0) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC0_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC1_INT   
+    else if(ch == 1) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC1_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC2_INT   
+    else if(ch == 2) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC2_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC3_INT   
+    else if(ch == 3) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC3_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC4_INT   
+    else if(ch == 4) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC4_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC5_INT   
+    else if(ch == 5) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC5_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC6_INT   
+    else if(ch == 6) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC6_INT);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_DMAC7_INT   
+    else if(ch == 7) { 
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_DMAC7_INT);
+        rv = true;
+    }
 #endif
 }

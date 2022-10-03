@@ -33,6 +33,8 @@ class PwmOut {
     void suspend();
     void resume();
 
+    FspTimer *get_timer() {return &timer;}
+
   private:
     bool cfg_pin(int max_index);
     bool _enabled;

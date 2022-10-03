@@ -445,3 +445,75 @@ bool FspTimer::close() {
 
 }
 
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_start(gpt_source_t src) { 
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.start_source = src;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_stop(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.stop_source = src;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_clear(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.clear_source = src;
+        return true;
+    }
+    return false;
+
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_count_up(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.count_up_source = src;
+        return true;
+    }
+    return false;
+}
+
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_count_down(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.count_down_source = src;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_capture_a(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.capture_a_source = src;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::set_source_capture_b(gpt_source_t src) {
+/* -------------------------------------------------------------------------- */    
+    if(gpt_timer != nullptr) {
+        gpt_timer->ext_cfg.capture_b_source = src;
+        return true;
+    }
+    return false;
+}
+

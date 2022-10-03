@@ -14,6 +14,8 @@
 
 #include "r_timer_api.h"
 
+#include "r_dmac.h"
+
 typedef enum {
     IRQ_RTC,
     IRQ_USB,
@@ -136,7 +138,7 @@ class IRQManager {
     /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
        if fnc is nullprt the "standar" dmac_int_isr is added 
        it returns the number of the interrupt slot (if available) */
-    int addDMA(uint8_t channel, Irq_f fnc = nullptr);
+    int addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
 
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
@@ -157,12 +159,12 @@ class IRQManager {
     void set_ext_link_event(int li, int ch);
     void set_agt_link_event(int li, int ch);
 
-    
     void set_spi_tx_link_event(int li, int ch);
     void set_spi_rx_link_event(int li, int ch);
     void set_spi_tei_link_event(int li, int ch);
     void set_spi_eri_link_event(int li, int ch);
 
+    bool set_dma_link_event(int li, int ch);
     IRQManager();
 };
 

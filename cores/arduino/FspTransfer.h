@@ -40,17 +40,15 @@ class FspDma {
     } 
 
     bool setup_irq(DmaCallback_f fnc, uint8_t priority = 12, void *ctx = nullptr) {
-        bool rv = true;
-        
-        extend_cfg.irq = IRQManager::getInstance().addDMA(ch);
-        if(extend_cfg.irq >= 0) {
+        bool rv = IRQManager::getInstance().addDMA(extend_cfg);
+
+        if(rv) {
             extend_cfg.ipl = priority;
             extend_cfg.p_callback = fnc;
             extend_cfg.p_context = ctx;
         }
         else {
-            extend_cfg.irq = FSP_INVALID_VECTOR;
-            rv = false;
+            extend_cfg.irq = FSP_INVALID_VECTOR;    
         }
         return rv;
     }
