@@ -133,7 +133,7 @@ void FspTimer::set_period_counts(float period, uint32_t _max) {
             _sd = TIMER_SOURCE_DIV_256;
         }
         else if(period * (float) freq_hz / 1024.0 < _max) {
-            _period_counts = (uint32_t) (period * (float) freq_hz / 16.0 );
+            _period_counts = (uint32_t) (period * (float) freq_hz / 1024.0 );
             _sd = TIMER_SOURCE_DIV_1024;
         }
         else {
