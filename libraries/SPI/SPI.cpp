@@ -209,7 +209,7 @@ uint16_t ArduinoSPI::transfer16(uint16_t data)
   _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
 
   for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]);)// && (millis() - start < 1000); )
+       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
   {
       __NOP();
   }
