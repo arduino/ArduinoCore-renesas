@@ -40,7 +40,7 @@ IRQManager& IRQManager::getInstance() {
 }
 
 /* -------------------------------------------------------------------------- */
-int IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
+bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
 /* -------------------------------------------------------------------------- */    
     /* getting the address of the current location of the irq vector table */
     volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;

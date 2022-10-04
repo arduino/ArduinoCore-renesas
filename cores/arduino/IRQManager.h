@@ -136,9 +136,13 @@ class IRQManager {
     static IRQManager& getInstance();
     
     /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
-       if fnc is nullprt the "standar" dmac_int_isr is added 
-       it returns the number of the interrupt slot (if available) */
-    int addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
+       if fnc is nullprt the "standar" dmac_int_isr is added
+       otherwise fnc is the interrupt handler function 
+       it returns true if the interrupt is correctly added */
+    bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
+
+    bool addGPTtimer();
+
 
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
