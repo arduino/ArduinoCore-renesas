@@ -134,6 +134,10 @@ int _SerialUSB::_bps, _SerialUSB::_bits, _SerialUSB::_parity, _SerialUSB::_stop;
 bool _SerialUSB::_dtr, _SerialUSB::_rts;
 
 static void CheckSerialReset() {
+    #if NO_1200_BPS_RESET
+        return;
+    #endif
+
     if ((_SerialUSB::_bps == 1200) && (! _SerialUSB::_dtr)) {
         R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
         BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;

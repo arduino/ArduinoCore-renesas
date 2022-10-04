@@ -97,6 +97,8 @@ static const uint8_t A5 = PIN_A5;
 #define USB_PID           (0x0058)
 #define USB_NAME          "Nano Every"
 
+#define NO_1200_BPS_RESET   1
+
 // TODO: removeme
 #ifdef __cplusplus
 extern "C"
