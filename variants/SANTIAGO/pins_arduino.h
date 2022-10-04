@@ -117,6 +117,12 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
+/****** GTP CORE DEFINES *******/
+
+#define GTP32_HOWMANY     2
+#define GTP16_HOWMANY     6
+#define GPT_HOWMANY       8
+
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
