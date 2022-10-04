@@ -1,6 +1,12 @@
 #include "FspTimer.h"
 
-#define TIMER_16_BIT_OFFSET 2
+
+#define TIMER_16_BIT_OFFSET      GTP32_HOWMANY
+
+#define CH32BIT_MAX         (4294967295)
+#define CH16BIT_MAX         (65535)
+
+
 
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     

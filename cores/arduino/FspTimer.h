@@ -4,33 +4,8 @@
 #define ARDUINO_FSP_TIMER_H
 
 
-#define FREQUENCY_0_PCLKD     (48000000)
-#define FREQUENCY_1_PCLKD     (FREQUENCY_0_PCLKD / 4)
-#define FREQUENCY_2_PCLKD     (FREQUENCY_1_PCLKD / 4)
-#define FREQUENCY_3_PCLKD     (FREQUENCY_2_PCLKD / 4)
-#define FREQUENCY_4_PCLKD     (FREQUENCY_3_PCLKD / 4)
-#define FREQUENCY_5_PCLKD     (FREQUENCY_4_PCLKD / 4)
-
-#define TICK_0              (float)(1.0/(float)FREQUENCY_0_PCLKD)
-#define TICK_1              (float)(1.0/(float)FREQUENCY_1_PCLKD)
-#define TICK_2              (float)(1.0/(float)FREQUENCY_2_PCLKD)
-#define TICK_3              (float)(1.0/(float)FREQUENCY_3_PCLKD)
-#define TICK_4              (float)(1.0/(float)FREQUENCY_4_PCLKD)
-#define TICK_5              (float)(1.0/(float)FREQUENCY_5_PCLKD)
-
-#define CH32BIT_MAX         (4294967295)
-#define CH16BIT_MAX         (65535)
-
 #define GPT_TIMER           (0)
 #define AGT_TIMER           (1)
-
-#define TIMER_DIVIDER_AUTO       (-1)
-#define TIMER_DIVEDER_4          (2)
-#define TIMER_DIVIDER_16         (4)
-#define TIMER_DIVIDER_64         (6)
-#define TIMER_DIVIDER_256        (8)
-#define TIMER_DIVIDER_1024       (10)
-
 
 #define STANDARD_PWM_FREQ_HZ       (490.0)
 #define STANDARD_DUTY_CYCLE_PERC   (50.0)
@@ -103,13 +78,13 @@ class FspTimer {
     uint32_t _period_counts;
     uint32_t _duty_cicle_counts;
     timer_source_div_t _sd;
-
-
-    
-    
     uint8_t type;
     bool init_ok;
     void set_period_counts(float period, uint32_t max);
+
+    
+
+
   public:
     FspTimer();
     ~FspTimer();
@@ -133,6 +108,10 @@ class FspTimer {
     
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, void(*callback)(timer_callback_args_t *) = nullptr  );
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  uint32_t period, uint32_t pulse, timer_source_div_t sd, void(*p_callback)(timer_callback_args_t *) = nullptr );
+    
+    
+    
+    
     
     bool set_source_start(gpt_source_t src);
     bool set_source_stop(gpt_source_t src);
