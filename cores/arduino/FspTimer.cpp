@@ -6,7 +6,8 @@
 #define CH32BIT_MAX         (4294967295)
 #define CH16BIT_MAX         (65535)
 
-
+bool FspTimer::gpt_used_channel[GPT_HOWMANY] = {false};
+bool FspTimer::agt_used_channel[AGT_HOWMANY] = {false};
 
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     
@@ -49,7 +50,7 @@ bool FspTimer::begin_pwm(uint8_t tp, uint8_t channel, TimerPWMChannel_t pwm_chan
 /* -------------------------------------------------------------------------- */
 bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t period_counts, uint32_t pulse_counts, timer_source_div_t sd, GPTimerCbk_f cbk /*= nullptr*/ , void *ctx /*= nullptr*/ ) {
 /* -------------------------------------------------------------------------- */    
-    init_ok = true;
+    init_ok = false;
     
     timer_cfg.mode                                  = mode;
     timer_cfg.source_div                            = sd;
@@ -65,24 +66,57 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     if(tp == GPT_TIMER) {
         type = GPT_TIMER;
         gpt_timer = new GPTimer(timer_cfg);
+
+        if(channel < GPT_HOWMANY) {
+            if(!gpt_used_channel[channel]) {
+                timer_cfg.channel = channel;
+                gpt_used_channel[channel] = true;
+                init_ok = true;
+            }
+        }
         
     }
     else if(tp == AGT_TIMER) {
         type = AGT_TIMER;
         agt_timer = new AGTimer(timer_cfg);
         
+        if(channel < AGT_HOWMANY) {
+            if(!gpt_used_channel[channel]) {
+                timer_cfg.channel = channel;
+                agt_used_channel[channel] = true;
+                init_ok = true;
+            }
+        }
     }
-    else {
-        init_ok = false;
-    }
-   
-    if(channel > 7)       { init_ok &= false; }
-    else                  { timer_cfg.channel = channel; }
     
-    
-
     return init_ok;
 }
+
+/* -------------------------------------------------------------------------- */
+uint8_t FspTimer::get_available_timer(uint8_t &type) {
+/* -------------------------------------------------------------------------- */    
+    uint8_t rv = -1;
+    for(uint8_t i = 0; i < GPT_HOWMANY; i++) {
+        if(!gpt_used_channel[i]) {
+            rv = i;
+            type = GPT_TIMER;
+            break;
+        }
+    }
+
+    if(rv == -1) {
+        for(uint8_t i = 0; i < AGT_HOWMANY; i++) {
+            if(!agt_used_channel[i]) {
+                rv = i;
+                type = AGT_TIMER;
+                break;
+            }
+        }
+    }
+    return rv;
+
+}
+
 
 /* -------------------------------------------------------------------------- */
 bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_hz, float duty_perc, GPTimerCbk_f cbk /*= nullptr*/ , void *ctx /*= nullptr*/  ) {

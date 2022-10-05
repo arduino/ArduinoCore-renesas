@@ -91,7 +91,8 @@ class FspTimer {
     void set_period_counts(float period, uint32_t max);
     TimerIrqCfg_t get_cfg_for_irq();
 
-    
+    static bool gpt_used_channel[GPT_HOWMANY];
+    static bool agt_used_channel[AGT_HOWMANY];
 
 
   public:
@@ -139,6 +140,8 @@ class FspTimer {
     bool set_period_us(double us);
     bool set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch);
     bool set_pulse_us(double us,TimerPWMChannel_t pwm_ch);
+
+    static uint8_t get_available_timer(uint8_t &type); 
 };
 
 

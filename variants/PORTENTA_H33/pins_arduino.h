@@ -110,6 +110,9 @@ static const uint8_t SS   = PIN_SPI_SS;
 #define GTP16_HOWMANY     6
 #define GPT_HOWMANY       8
 
+/****** AGT CORE DEFINES *******/
+#define AGT_HOWMANY       6
+
 #define EXT_INTERRUPTS_HOWMANY 8
 
 #define USE_4BIT_SDCARD   1
