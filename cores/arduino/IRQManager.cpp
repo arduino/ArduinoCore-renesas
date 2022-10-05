@@ -7,6 +7,7 @@
 
 #define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
+#define TIMER_REQ_NUM 1
 #define DMA_REQ_NUM 1
 #define UART_SCI_REQ_NUM   4
 #define I2C_MASTER_REQ_NUM 4
@@ -24,6 +25,7 @@
 #define I2C_SLAVE_PRIORITY 12
 #define SPI_MASTER_PRIORITY 12
 #define DMA_PRIORITY 12
+#define TIMER_PRIORITY 12
 #define FIRST_INT_SLOT_FREE 0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
@@ -37,6 +39,186 @@ IRQManager::~IRQManager() {
 IRQManager& IRQManager::getInstance() {
     static IRQManager    instance;
     return instance;
+}
+
+/* -------------------------------------------------------------------------- */
+bool IRQManager::addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc /* = nullptr */) {
+/* -------------------------------------------------------------------------- */    
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(cfg.gpt_ext_cfg != nullptr) {
+            if(set_gpt_over_link_event(last_interrupt_index, cfg.base_cfg->channel)) {
+                cfg.base_cfg->cycle_end_ipl = TIMER_PRIORITY;
+                cfg.base_cfg->cycle_end_irq = (IRQn_Type)last_interrupt_index;
+                /* that is a GPT timer */
+                if(fnc == nullptr) {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_overflow_isr;
+                }
+                else {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+                }
+                last_interrupt_index++;
+            }
+        }
+        else if(cfg.agt_ext_cfg != nullptr) {
+            /* DOUBT: is EVENT_AGT0_INT Overflow?? */
+            if(set_agt_link_event(last_interrupt_index, cfg.base_cfg->channel)) {
+                cfg.base_cfg->cycle_end_ipl = TIMER_PRIORITY;
+                cfg.base_cfg->cycle_end_irq = (IRQn_Type)last_interrupt_index;
+                /* that is a AGT timer */
+                if(fnc == nullptr) {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)agt_int_isr;
+                }
+                else {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+                }
+                last_interrupt_index++;
+            }
+        }
+        else {
+            rv = false;
+        }
+    }
+    else {
+        if(cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+bool IRQManager::addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) {
+/* -------------------------------------------------------------------------- */ 
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if(cfg.agt_ext_cfg != nullptr) {
+        /* not supported for AGT  */
+        rv = false;
+    }
+    else if(cfg.gpt_ext_cfg != nullptr && cfg.gpt_ext_cfg->p_pwm_cfg != nullptr) {
+        if( (cfg.gpt_ext_cfg->p_pwm_cfg->trough_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+            if(set_gpt_under_link_event(last_interrupt_index, cfg.base_cfg->channel)){
+                ((gpt_extended_pwm_cfg_t *)(cfg.gpt_ext_cfg->p_pwm_cfg))->trough_ipl = TIMER_PRIORITY;
+                ((gpt_extended_pwm_cfg_t *)(cfg.gpt_ext_cfg->p_pwm_cfg))->trough_irq = (IRQn_Type)last_interrupt_index;
+                if(fnc == nullptr) {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_underflow_isr;
+                }
+                else {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+                }
+                last_interrupt_index++;
+            }
+        }
+        else {
+            if(cfg.gpt_ext_cfg->p_pwm_cfg->trough_irq == FSP_INVALID_VECTOR) {
+                rv = false;
+            }
+            else {
+                rv = true;
+            }
+        }
+    }
+    else {
+        rv = false;
+    }
+    return rv;   
+}
+
+/* -------------------------------------------------------------------------- */
+bool IRQManager::addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) {
+/* -------------------------------------------------------------------------- */    
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if(cfg.agt_ext_cfg != nullptr) {
+        /* not supported for AGT  */
+        rv = false;
+    }
+    else if(cfg.gpt_ext_cfg != nullptr ) {
+        if( (cfg.gpt_ext_cfg->capture_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+            if(set_gpt_compare_capture_A_link_event(last_interrupt_index, cfg.base_cfg->channel)){
+                cfg.gpt_ext_cfg->capture_a_ipl = TIMER_PRIORITY;
+                cfg.gpt_ext_cfg->capture_a_irq = (IRQn_Type)last_interrupt_index;
+                if(fnc == nullptr) {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_underflow_isr;
+                }
+                else {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+                }
+                last_interrupt_index++;
+            }
+        }
+        else {
+            if(cfg.gpt_ext_cfg->capture_a_irq == FSP_INVALID_VECTOR) {
+                rv = false;
+            }
+            else {
+                rv = true;
+            }
+        }
+    }
+    else {
+        rv = false;
+    }
+    return rv;   
+}
+
+/* -------------------------------------------------------------------------- */
+bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) {
+/* -------------------------------------------------------------------------- */
+   /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if(cfg.agt_ext_cfg != nullptr) {
+        /* not supported for AGT  */
+        rv = false;
+    }
+    else if(cfg.gpt_ext_cfg != nullptr ) {
+        if( (cfg.gpt_ext_cfg->capture_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+            if(set_gpt_compare_capture_B_link_event(last_interrupt_index, cfg.base_cfg->channel)){
+                cfg.gpt_ext_cfg->capture_b_ipl = TIMER_PRIORITY;
+                cfg.gpt_ext_cfg->capture_b_irq = (IRQn_Type)last_interrupt_index;
+                if(fnc == nullptr) {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_underflow_isr;
+                }
+                else {
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+                }
+                last_interrupt_index++;
+            }
+        }
+        else {
+            if(cfg.gpt_ext_cfg->capture_b_irq == FSP_INVALID_VECTOR) {
+                rv = false;
+            }
+            else {
+                rv = true;
+            }
+        }
+    }
+    else {
+        rv = false;
+    }
+    return rv;   
 }
 
 /* -------------------------------------------------------------------------- */
@@ -582,39 +764,314 @@ void IRQManager::set_ext_link_event(int li, int ch) {
 #endif
 }
 
-void IRQManager::set_agt_link_event(int li, int ch) {
+
+
+
+bool IRQManager::set_gpt_under_link_event(int li, int ch) {
+    bool rv = false; 
+    if (0) {}
+#ifdef ELC_EVENT_GPT0_COUNTER_UNDERFLOW 
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT0_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT1_COUNTER_UNDERFLOW
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT1_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT2_COUNTER_UNDERFLOW
+    else if(ch == 2) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT2_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT3_COUNTER_UNDERFLOW
+    else if(ch == 3) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT3_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif    
+#ifdef ELC_EVENT_GPT4_COUNTER_UNDERFLOW
+    else if(ch == 4) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT4_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT5_COUNTER_UNDERFLOW
+    else if(ch == 5) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT5_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT6_COUNTER_UNDERFLOW
+    else if(ch == 6) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT6_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT7_COUNTER_UNDERFLOW
+    else if(ch == 7) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT7_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT8_COUNTER_UNDERFLOW
+    else if(ch == 8) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT8_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT9_COUNTER_UNDERFLOW
+    else if(ch == 9) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT9_COUNTER_UNDERFLOW);
+        rv = true;
+    }
+#endif
+    return rv;     
+}
+
+bool IRQManager::set_gpt_compare_capture_A_link_event(int li, int ch) {
+    bool rv = false; 
+    if (0) {}
+#ifdef ELC_EVENT_GPT0_CAPTURE_COMPARE_A 
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT0_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT1_CAPTURE_COMPARE_A
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT1_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT2_CAPTURE_COMPARE_A
+    else if(ch == 2) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT2_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT3_CAPTURE_COMPARE_A
+    else if(ch == 3) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT3_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif    
+#ifdef ELC_EVENT_GPT4_CAPTURE_COMPARE_A
+    else if(ch == 4) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT4_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT5_CAPTURE_COMPARE_A
+    else if(ch == 5) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT5_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT6_CAPTURE_COMPARE_A
+    else if(ch == 6) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT6_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT7_CAPTURE_COMPARE_A
+    else if(ch == 7) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT7_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT8_CAPTURE_COMPARE_A
+    else if(ch == 8) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT8_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT9_CAPTURE_COMPARE_A
+    else if(ch == 9) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT9_CAPTURE_COMPARE_A);
+        rv = true;
+    }
+#endif
+    return rv;     
+}
+
+bool IRQManager::set_gpt_compare_capture_B_link_event(int li, int ch) {
+    bool rv = false; 
+    if (0) {}
+#ifdef ELC_EVENT_GPT0_CAPTURE_COMPARE_B 
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT0_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT1_CAPTURE_COMPARE_B
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT1_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT2_CAPTURE_COMPARE_B
+    else if(ch == 2) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT2_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT3_CAPTURE_COMPARE_B
+    else if(ch == 3) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT3_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif    
+#ifdef ELC_EVENT_GPT4_CAPTURE_COMPARE_B
+    else if(ch == 4) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT4_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT5_CAPTURE_COMPARE_B
+    else if(ch == 5) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT5_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT6_CAPTURE_COMPARE_B
+    else if(ch == 6) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT6_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT7_CAPTURE_COMPARE_B
+    else if(ch == 7) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT7_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT8_CAPTURE_COMPARE_B
+    else if(ch == 8) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT8_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT9_CAPTURE_COMPARE_B
+    else if(ch == 9) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT9_CAPTURE_COMPARE_B);
+        rv = true;
+    }
+#endif
+    return rv;     
+}
+
+bool IRQManager::set_gpt_over_link_event(int li, int ch) {
+    bool rv = false; 
+    if (0) {}
+#ifdef ELC_EVENT_GPT0_COUNTER_OVERFLOW 
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT0_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT1_COUNTER_OVERFLOW
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT1_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_GPT2_COUNTER_OVERFLOW
+    else if(ch == 2) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT2_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT3_COUNTER_OVERFLOW
+    else if(ch == 3) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT3_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif    
+#ifdef ELC_EVENT_GPT4_COUNTER_OVERFLOW
+    else if(ch == 4) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT4_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT5_COUNTER_OVERFLOW
+    else if(ch == 5) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT5_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT6_COUNTER_OVERFLOW
+    else if(ch == 6) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT6_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT7_COUNTER_OVERFLOW
+    else if(ch == 7) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT7_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT8_COUNTER_OVERFLOW
+    else if(ch == 8) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT8_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif  
+#ifdef ELC_EVENT_GPT9_COUNTER_OVERFLOW
+    else if(ch == 9) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_GPT9_COUNTER_OVERFLOW);
+        rv = true;
+    }
+#endif
+    return rv;     
+}
+
+
+bool IRQManager::set_agt_link_event(int li, int ch) {
+    bool rv = false;
     if (0) {}
 #ifdef ELC_EVENT_AGT0_INT
     else if(ch == 0) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT0_INT);
+        rv = true;
     }
 #endif
 #ifdef ELC_EVENT_AGT1_INT
     else if(ch == 1) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT1_INT);
+        rv = true;
     }
 #endif
 #ifdef ELC_EVENT_AGT2_INT
     else if(ch == 2) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT2_INT);
+        rv = true;
     }
 #endif  
 #ifdef ELC_EVENT_AGT3_INT
     else if(ch == 3) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT3_INT);
+        rv = true;
     }
 #endif    
 #ifdef ELC_EVENT_AGT4_INT
     else if(ch == 4) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT4_INT);
+        rv = true;
     }
 #endif  
 #ifdef ELC_EVENT_AGT5_INT
     else if(ch == 5) {
         R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_AGT5_INT);
+        rv = true;
     }
 #endif  
-
+    return rv;
 }
 
 void IRQManager::set_iic_tx_link_event(int li, int ch) {
@@ -809,10 +1266,10 @@ void IRQManager::set_sci_eri_link_event(int li, int ch){
 void IRQManager::set_spi_tx_link_event(int li, int ch)
 {
     if (0) {}
-#ifdef EVENT_SPI0_TXI
+#ifdef ELC_EVENT_SPI0_TXI
     else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TXI);}
 #endif
-#ifdef EVENT_SPI1_TXI
+#ifdef ELC_EVENT_SPI1_TXI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI);}
 #endif
 }
@@ -820,10 +1277,10 @@ void IRQManager::set_spi_tx_link_event(int li, int ch)
 void IRQManager::set_spi_rx_link_event(int li, int ch)
 {
     if (0) {}
-#ifdef EVENT_SPI0_RXI
+#ifdef ELC_EVENT_SPI0_RXI
     else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_RXI);}
 #endif
-#ifdef EVENT_SPI1_RXI
+#ifdef ELC_EVENT_SPI1_RXI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI);}
 #endif
 }
@@ -831,10 +1288,10 @@ void IRQManager::set_spi_rx_link_event(int li, int ch)
 void IRQManager::set_spi_tei_link_event(int li, int ch)
 {
     if (0) {}
-#ifdef EVENT_SPI0_TEI
+#ifdef ELC_EVENT_SPI0_TEI
     else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_TEI);}
 #endif
-#ifdef EVENT_SPI1_TEI
+#ifdef ELC_EVENT_SPI1_TEI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI);}
 #endif
 }
@@ -842,10 +1299,10 @@ void IRQManager::set_spi_tei_link_event(int li, int ch)
 void IRQManager::set_spi_eri_link_event(int li, int ch)
 {
     if (0) {}
-#ifdef EVENT_SPI0_ERI
+#ifdef ELC_EVENT_SPI0_ERI
     else if(ch == 0) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI0_ERI);}
 #endif
-#ifdef EVENT_SPI1_ERI
+#ifdef ELC_EVENT_SPI1_ERI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
 #endif
 }

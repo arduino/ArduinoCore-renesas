@@ -25,15 +25,16 @@ FspTimer::~FspTimer() {
 
 /* begin PWM with standard values...*/
 /* -------------------------------------------------------------------------- */
-bool FspTimer::begin_pwm(uint8_t tp, uint8_t channel, gpt_extended_pwm_cfg_t *pwm_cfg, TimerPWMChannel_t pwm_channel) {
+bool FspTimer::begin_pwm(uint8_t tp, uint8_t channel, TimerPWMChannel_t pwm_channel) {
 /* -------------------------------------------------------------------------- */    
     init_ok = true;
     
     init_ok = begin(TIMER_MODE_PWM,tp,channel, STANDARD_PWM_FREQ_HZ ,STANDARD_DUTY_CYCLE_PERC);
-    if(pwm_cfg != nullptr) {
-        set_pwm_extended_cfg(pwm_cfg);
+    
+    if(tp == GPT_TIMER) {
+        add_pwm_extended_cfg();
     }
-
+    
     enable_pwm_channel(pwm_channel);
 
     if(init_ok) {
@@ -46,7 +47,7 @@ bool FspTimer::begin_pwm(uint8_t tp, uint8_t channel, gpt_extended_pwm_cfg_t *pw
 
 /* begin function RAW mode */
 /* -------------------------------------------------------------------------- */
-bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t period_counts, uint32_t pulse_counts, timer_source_div_t sd, void(*callback)(timer_callback_args_t *) /*= nullptr*/  ) {
+bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t period_counts, uint32_t pulse_counts, timer_source_div_t sd, GPTimerCbk_f cbk /*= nullptr*/ , void *ctx /*= nullptr*/ ) {
 /* -------------------------------------------------------------------------- */    
     init_ok = true;
     
@@ -54,9 +55,9 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     timer_cfg.source_div                            = sd;
     timer_cfg.period_counts                         = period_counts;
     timer_cfg.duty_cycle_counts                     = pulse_counts;
-    timer_cfg.p_callback                            = callback;
-    timer_cfg.p_context                             = NULL;
-    timer_cfg.p_extend                              = NULL;
+    timer_cfg.p_callback                            = cbk;
+    timer_cfg.p_context                             = ctx;
+    timer_cfg.p_extend                              = nullptr;
     timer_cfg.cycle_end_ipl                         = (BSP_IRQ_DISABLED);
     timer_cfg.cycle_end_irq                         = FSP_INVALID_VECTOR;
 
@@ -84,7 +85,7 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
 }
 
 /* -------------------------------------------------------------------------- */
-bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_hz, float duty_perc, void(*callback)(timer_callback_args_t *) /*= nullptr*/  ) {
+bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_hz, float duty_perc, GPTimerCbk_f cbk /*= nullptr*/ , void *ctx /*= nullptr*/  ) {
 /* -------------------------------------------------------------------------- */    
     
     init_ok = true;
@@ -106,9 +107,16 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_
     }
     
     if(init_ok) {
-        init_ok = begin(mode, tp, channel, _period_counts, _duty_cicle_counts, _sd, callback );
+        init_ok = begin(mode, tp, channel, _period_counts, _duty_cicle_counts, _sd, cbk, ctx);
     }
     return init_ok;
+}
+
+/* -------------------------------------------------------------------------- */
+void FspTimer::set_irq_callback(GPTimerCbk_f cbk , void *ctx /*= nullptr*/ ) {
+/* -------------------------------------------------------------------------- */    
+    timer_cfg.p_callback                            = cbk;
+    timer_cfg.p_context                             = ctx;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -237,10 +245,25 @@ uint32_t FspTimer::get_freq_hz() {
 }
 
 /* -------------------------------------------------------------------------- */
-void FspTimer::set_pwm_extended_cfg(gpt_extended_pwm_cfg_t *cfg) {
+void FspTimer::add_pwm_extended_cfg() {
 /* -------------------------------------------------------------------------- */
     if(gpt_timer != nullptr) {
-        gpt_timer->ext_cfg.p_pwm_cfg = cfg;
+        gpt_timer->ext_cfg.p_pwm_cfg = new gpt_extended_pwm_cfg_t;
+
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->trough_ipl               = (BSP_IRQ_DISABLED);
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->trough_irq               = FSP_INVALID_VECTOR;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->poeg_link                = GPT_POEG_LINK_POEG0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->output_disable           = GPT_OUTPUT_DISABLE_NONE;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->adc_trigger              = GPT_ADC_TRIGGER_NONE;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->dead_time_count_up       = 0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->dead_time_count_down     = 0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->adc_a_compare_match      = 0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->adc_b_compare_match      = 0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->interrupt_skip_source    = GPT_INTERRUPT_SKIP_SOURCE_NONE;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->interrupt_skip_count     = GPT_INTERRUPT_SKIP_COUNT_0;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->interrupt_skip_adc       = GPT_INTERRUPT_SKIP_ADC_NONE;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->gtioca_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
+        ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->gtiocb_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
     }
 }
 
@@ -523,3 +546,166 @@ bool FspTimer::set_source_capture_b(gpt_source_t src) {
     return false;
 }
 
+/* -------------------------------------------------------------------------- */
+TimerIrqCfg_t FspTimer::get_cfg_for_irq() {
+/* -------------------------------------------------------------------------- */    
+    TimerIrqCfg_t cfg;
+    cfg.base_cfg = &timer_cfg;
+    if(gpt_timer != nullptr) {
+       cfg.gpt_ext_cfg = &(gpt_timer->ext_cfg);
+    }
+    else {
+       cfg.gpt_ext_cfg = nullptr; 
+    }
+
+    if(agt_timer != nullptr) {
+       cfg.agt_ext_cfg = &(agt_timer->ext_cfg);
+    }
+    else {
+       cfg.agt_ext_cfg = nullptr; 
+    }
+    return cfg;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::is_opened() {
+/* -------------------------------------------------------------------------- */
+    bool rv = false;
+    
+    if(gpt_timer != nullptr) {
+       rv = (gpt_timer->ctrl.open) ? true : false;
+    }
+    else if(agt_timer != nullptr) {
+       rv = (agt_timer->ctrl.open) ? true : false;
+    }
+   
+    return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::setup_overflow_irq(uint8_t priority /*= 12*/,  Irq_f isr_fnc /*= nullptr*/ ) {
+/* -------------------------------------------------------------------------- */
+    TimerIrqCfg_t cfg = get_cfg_for_irq();
+
+    /* that is due to the fact that when the timer is opened the configuration
+       of the interrupt is ignore by FSP, this is usually not a problem
+       if first you set up the timer and then open and start it 
+       in some case, for example you want to set up an interrupt via a PWM timer
+       you need to call begin in advance (otherwise timer is not correctly populated) 
+       but begin open and start the timer*/
+    bool was_opened = is_opened();
+
+    if(was_opened) {
+        close();
+    }
+
+
+    bool rv = IRQManager::getInstance().addTimerOverflow(cfg,isr_fnc);
+
+    if(rv) {
+        timer_cfg.cycle_end_ipl = priority;
+    }
+    else {
+        timer_cfg.cycle_end_irq = FSP_INVALID_VECTOR;    
+    }
+
+    if(was_opened) {
+        open();
+        start();
+    }
+    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::setup_underflow_irq(uint8_t priority /*= 12*/, Irq_f isr_fnc /*= nullptr */) {
+/* -------------------------------------------------------------------------- */
+    TimerIrqCfg_t cfg = get_cfg_for_irq();
+    
+    bool was_opened = is_opened();
+
+    if(was_opened) {
+        close();
+    }
+    
+    /* underflow is handled using extended pwm, if not available -> make it*/
+    if(gpt_timer != nullptr) {
+        if(gpt_timer->ext_cfg.p_pwm_cfg == nullptr) {
+            add_pwm_extended_cfg();
+        }
+    }
+
+
+    bool rv = IRQManager::getInstance().addTimerUnderflow(cfg, isr_fnc);
+    
+    if(gpt_timer != nullptr) {
+        if(gpt_timer->ext_cfg.p_pwm_cfg != nullptr ) {
+            if(rv) {
+                ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->trough_ipl = priority;
+            }
+            else {
+                ((gpt_extended_pwm_cfg_t *)(gpt_timer->ext_cfg.p_pwm_cfg))->trough_irq = FSP_INVALID_VECTOR;
+            }
+        }
+    }
+    
+    if(was_opened) {
+        open();
+        start();
+    }
+
+    return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::setup_capture_a_irq(uint8_t priority /*= 12*/, Irq_f isr_fnc /*= nullptr*/ ) {
+/* -------------------------------------------------------------------------- */
+    TimerIrqCfg_t cfg = get_cfg_for_irq();
+    bool was_opened = is_opened();
+
+    if(was_opened) {
+        close();
+    }
+    bool rv = IRQManager::getInstance().addTimerCompareCaptureA(cfg, isr_fnc);
+    if(gpt_timer != nullptr) {
+        if(rv) {
+            cfg.gpt_ext_cfg->capture_a_ipl = priority;
+        }
+        else {
+            cfg.gpt_ext_cfg->capture_a_irq = FSP_INVALID_VECTOR;
+        }    
+    }
+    
+    if(was_opened) {
+        open();
+        start();
+    }
+    return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::setup_capture_b_irq(uint8_t priority /*= 12*/, Irq_f isr_fnc /*= nullptr */) {
+/* -------------------------------------------------------------------------- */
+    TimerIrqCfg_t cfg = get_cfg_for_irq();
+    bool was_opened = is_opened();
+
+    if(was_opened) {
+        close();
+    }
+    bool rv = IRQManager::getInstance().addTimerCompareCaptureB(cfg, isr_fnc);
+    if(gpt_timer != nullptr) {
+        if(rv) {
+            cfg.gpt_ext_cfg->capture_b_ipl = priority;
+        }
+        else {
+            cfg.gpt_ext_cfg->capture_b_irq = FSP_INVALID_VECTOR;
+        }    
+    }
+    if(was_opened) {
+        open();
+        start();
+    }
+    return rv;
+}

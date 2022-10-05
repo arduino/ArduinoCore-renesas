@@ -52,26 +52,13 @@ bool PwmOut::begin() {
   
   if(rv) {
     /* extended PWM CFG*/
-    timer_pwm_extended_cfg.trough_ipl               = (BSP_IRQ_DISABLED);
-    timer_pwm_extended_cfg.trough_irq               = FSP_INVALID_VECTOR;
-    timer_pwm_extended_cfg.poeg_link                = GPT_POEG_LINK_POEG0;
-    timer_pwm_extended_cfg.output_disable           = GPT_OUTPUT_DISABLE_NONE;
-    timer_pwm_extended_cfg.adc_trigger              = GPT_ADC_TRIGGER_NONE;
-    timer_pwm_extended_cfg.dead_time_count_up       = 0;
-    timer_pwm_extended_cfg.dead_time_count_down     = 0;
-    timer_pwm_extended_cfg.adc_a_compare_match      = 0;
-    timer_pwm_extended_cfg.adc_b_compare_match      = 0;
-    timer_pwm_extended_cfg.interrupt_skip_source    = GPT_INTERRUPT_SKIP_SOURCE_NONE;
-    timer_pwm_extended_cfg.interrupt_skip_count     = GPT_INTERRUPT_SKIP_COUNT_0;
-    timer_pwm_extended_cfg.interrupt_skip_adc       = GPT_INTERRUPT_SKIP_ADC_NONE;
-    timer_pwm_extended_cfg.gtioca_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
-    timer_pwm_extended_cfg.gtiocb_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
+    
     
     if(_is_gtp) {
-      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, &timer_pwm_extended_cfg, _pwm_channel);    
+      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);    
     }
     else {
-      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, nullptr, _pwm_channel);  
+      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);  
     }
   }
   _enabled = rv;
@@ -79,9 +66,6 @@ bool PwmOut::begin() {
 
 }
 
-bool begin_usec(uint32_t period_us, uint32_t pulse_us) {
-
-}
 
 
 /* begin "standard", period and pulse when raw is false are supposed to be expressed in usec */
@@ -93,22 +77,6 @@ bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= fal
   _enabled &= cfg_pin(max_index);
   
   if(_enabled) {
-    /* extended PWM CFG*/
-    timer_pwm_extended_cfg.trough_ipl               = (BSP_IRQ_DISABLED);
-    timer_pwm_extended_cfg.trough_irq               = FSP_INVALID_VECTOR;
-    timer_pwm_extended_cfg.poeg_link                = GPT_POEG_LINK_POEG0;
-    timer_pwm_extended_cfg.output_disable           = GPT_OUTPUT_DISABLE_NONE;
-    timer_pwm_extended_cfg.adc_trigger              = GPT_ADC_TRIGGER_NONE;
-    timer_pwm_extended_cfg.dead_time_count_up       = 0;
-    timer_pwm_extended_cfg.dead_time_count_down     = 0;
-    timer_pwm_extended_cfg.adc_a_compare_match      = 0;
-    timer_pwm_extended_cfg.adc_b_compare_match      = 0;
-    timer_pwm_extended_cfg.interrupt_skip_source    = GPT_INTERRUPT_SKIP_SOURCE_NONE;
-    timer_pwm_extended_cfg.interrupt_skip_count     = GPT_INTERRUPT_SKIP_COUNT_0;
-    timer_pwm_extended_cfg.interrupt_skip_adc       = GPT_INTERRUPT_SKIP_ADC_NONE;
-    timer_pwm_extended_cfg.gtioca_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
-    timer_pwm_extended_cfg.gtiocb_disable_setting   = GPT_GTIOC_DISABLE_PROHIBITED;
-    
     if(raw) {
       _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel,  period_width, pulse_width, sd);
     }
@@ -119,7 +87,7 @@ bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= fal
       _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel, freq_hz, duty_perc);
     }
 
-    timer.set_pwm_extended_cfg(&timer_pwm_extended_cfg);
+    timer.add_pwm_extended_cfg();
     timer.enable_pwm_channel(_pwm_channel); 
     
   }

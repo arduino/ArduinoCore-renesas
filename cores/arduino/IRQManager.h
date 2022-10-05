@@ -15,6 +15,8 @@
 #include "r_timer_api.h"
 
 #include "r_dmac.h"
+#include "r_gpt.h"
+#include "r_agt.h"
 
 typedef enum {
     IRQ_RTC,
@@ -89,6 +91,13 @@ typedef struct usb {
     uint32_t first_irq_number;
 } USBIrqCfg_t;
 
+typedef struct timer {
+    timer_cfg_t *base_cfg;
+    gpt_extended_cfg_t *gpt_ext_cfg;
+    agt_extended_cfg_t *agt_ext_cfg;
+} TimerIrqCfg_t;
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -124,6 +133,10 @@ void iic_slave_rxi_isr(void);
 void iic_slave_txi_isr(void);
 void iic_slave_tei_isr(void);
 void iic_slave_eri_isr(void);
+void gpt_counter_overflow_isr(void);
+void gpt_capture_a_isr(void);
+void gpt_capture_b_isr(void);
+void gpt_counter_underflow_isr(void);
 #ifdef __cplusplus
 }
 #endif
@@ -141,7 +154,10 @@ class IRQManager {
        it returns true if the interrupt is correctly added */
     bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
 
-    bool addGPTtimer();
+    bool addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
+    bool addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
+    bool addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
+    bool addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
 
 
     IRQManager(IRQManager const&)               = delete;
@@ -161,7 +177,12 @@ class IRQManager {
     void set_iic_eri_link_event(int li, int ch);
 
     void set_ext_link_event(int li, int ch);
-    void set_agt_link_event(int li, int ch);
+    bool set_agt_link_event(int li, int ch);
+    bool set_gpt_over_link_event(int li, int ch);
+    bool set_gpt_under_link_event(int li, int ch);
+    bool set_gpt_compare_capture_A_link_event(int li, int ch);
+    bool set_gpt_compare_capture_B_link_event(int li, int ch);
+
 
     void set_spi_tx_link_event(int li, int ch);
     void set_spi_rx_link_event(int li, int ch);

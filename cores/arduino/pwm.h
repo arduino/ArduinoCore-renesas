@@ -42,15 +42,8 @@ class PwmOut {
     bool _is_gtp;
     TimerPWMChannel_t _pwm_channel;
     
-
-    uint8_t timer_channel;
-    gpt_extended_pwm_cfg_t timer_pwm_extended_cfg;
-    
+    uint8_t timer_channel;  
     FspTimer timer;
-    
-   
-   
-
 };
 
 #endif //__ARDUINO_PWM_H__
