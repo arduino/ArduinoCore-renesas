@@ -6,8 +6,25 @@
 #define CH32BIT_MAX         (4294967295)
 #define CH16BIT_MAX         (65535)
 
-bool FspTimer::gpt_used_channel[GPT_HOWMANY] = {false};
-bool FspTimer::agt_used_channel[AGT_HOWMANY] = {false};
+bool FspTimer::force_pwm_reserved = false;
+#if GPT_HOWMANY==8
+/* SANTIAGO board 0.1 */
+TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = {TIMER_PWM,
+                                                        TIMER_PWM,
+                                                        TIMER_PWM,
+                                                        TIMER_PWM,
+                                                        TIMER_FREE,
+                                                        TIMER_FREE,
+                                                        TIMER_FREE,
+                                                        TIMER_FREE};
+TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = {TIMER_USED};
+#else
+/* H33 - TO BE VERIFIED */
+TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = {TIMER_FREE};
+TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = {TIMER_FREE};
+#endif
+
+
 
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     
@@ -68,11 +85,20 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
         gpt_timer = new GPTimer(timer_cfg);
 
         if(channel < GPT_HOWMANY) {
-            if(!gpt_used_channel[channel]) {
-                timer_cfg.channel = channel;
-                gpt_used_channel[channel] = true;
-                init_ok = true;
+            if(mode == TIMER_MODE_PWM || FspTimer::force_pwm_reserved) {
+                if(gpt_used_channel[channel] == TIMER_PWM || gpt_used_channel[channel] == TIMER_FREE) {
+                    timer_cfg.channel = channel;
+                    gpt_used_channel[channel] = TIMER_USED;
+                    init_ok = true;
+                }
             }
+            else {
+                if(gpt_used_channel[channel] == TIMER_FREE) {
+                    timer_cfg.channel = channel;
+                    gpt_used_channel[channel] = TIMER_USED;
+                    init_ok = true;
+                }
+            } 
         }
         
     }
@@ -81,23 +107,32 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
         agt_timer = new AGTimer(timer_cfg);
         
         if(channel < AGT_HOWMANY) {
-            if(!gpt_used_channel[channel]) {
-                timer_cfg.channel = channel;
-                agt_used_channel[channel] = true;
-                init_ok = true;
+            if(mode == TIMER_MODE_PWM || FspTimer::force_pwm_reserved) {
+                if(agt_used_channel[channel] == TIMER_PWM || agt_used_channel[channel] == TIMER_FREE) {
+                    timer_cfg.channel = channel;
+                    agt_used_channel[channel] = TIMER_USED;
+                    init_ok = true;
+                }
             }
+            else {
+                if(agt_used_channel[channel] == TIMER_FREE) {
+                    timer_cfg.channel = channel;
+                    agt_used_channel[channel] = TIMER_USED;
+                    init_ok = true;
+                }
+            } 
         }
     }
-    
+    FspTimer::force_pwm_reserved = false;
     return init_ok;
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t FspTimer::get_available_timer(uint8_t &type) {
+int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
 /* -------------------------------------------------------------------------- */    
-    uint8_t rv = -1;
+    int8_t rv = -1;
     for(uint8_t i = 0; i < GPT_HOWMANY; i++) {
-        if(!gpt_used_channel[i]) {
+        if(gpt_used_channel[i] == TIMER_FREE) {
             rv = i;
             type = GPT_TIMER;
             break;
@@ -106,13 +141,37 @@ uint8_t FspTimer::get_available_timer(uint8_t &type) {
 
     if(rv == -1) {
         for(uint8_t i = 0; i < AGT_HOWMANY; i++) {
-            if(!agt_used_channel[i]) {
+            if(agt_used_channel[i] == TIMER_FREE) {
                 rv = i;
                 type = AGT_TIMER;
                 break;
             }
         }
     }
+
+    if(force && rv == -1) {
+        for(uint8_t i = GPT_HOWMANY-1; i >= 0; i--) {
+            if(gpt_used_channel[i] != TIMER_USED) {
+                rv = i;
+                type = GPT_TIMER;
+                break;
+            }
+        }
+
+        if(rv == -1) {
+            for(uint8_t i = AGT_HOWMANY - 1; i >= 0; i++) {
+                if(agt_used_channel[i] != TIMER_FREE) {
+                    rv = i;
+                    type = AGT_TIMER;
+                    break;
+                }
+            }
+        }
+        if(rv != -1) {
+            FspTimer::force_pwm_reserved = true;
+        }
+    }
+
     return rv;
 
 }

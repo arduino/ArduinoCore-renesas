@@ -12,6 +12,12 @@
 
 using GPTimerCbk_f          = void(*)(timer_callback_args_t *);
 
+typedef enum {
+  TIMER_PWM,
+  TIMER_FREE,
+  TIMER_USED
+} TimerAvail_t;
+
 
 typedef enum {
   CHANNEL_A,
@@ -90,9 +96,10 @@ class FspTimer {
     bool init_ok;
     void set_period_counts(float period, uint32_t max);
     TimerIrqCfg_t get_cfg_for_irq();
-
-    static bool gpt_used_channel[GPT_HOWMANY];
-    static bool agt_used_channel[AGT_HOWMANY];
+    static bool force_pwm_reserved;
+    static TimerAvail_t gpt_used_channel[GPT_HOWMANY];
+    static TimerAvail_t agt_used_channel[AGT_HOWMANY];
+    
 
 
   public:
@@ -110,10 +117,7 @@ class FspTimer {
     uint32_t get_freq_hz();
 
     timer_cfg_t *get_cfg() { return &timer_cfg; }
-    /* version to be used without PWM out class */
-    bool begin_pwm(uint32_t pin);
-
-    /* version to be used with PwmOut class */
+    
     bool begin_pwm(uint8_t type, uint8_t channel, TimerPWMChannel_t pwm_channel);
     
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, GPTimerCbk_f cbk = nullptr , void *ctx = nullptr );
@@ -141,7 +145,8 @@ class FspTimer {
     bool set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch);
     bool set_pulse_us(double us,TimerPWMChannel_t pwm_ch);
 
-    static uint8_t get_available_timer(uint8_t &type); 
+    static int8_t get_available_timer(uint8_t &type, bool force = false); 
+    static void force_use_of_pwm_reserved_timer() {FspTimer::force_pwm_reserved = true; }
 };
 
 

@@ -52,13 +52,11 @@ bool PwmOut::begin() {
   
   if(rv) {
     /* extended PWM CFG*/
-    
-    
     if(_is_gtp) {
       rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);    
     }
     else {
-      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);  
+      rv &= timer.begin_pwm(AGT_TIMER, timer_channel, _pwm_channel);  
     }
   }
   _enabled = rv;
