@@ -20,8 +20,7 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
-#include "CanMsg.h"
-#include "CanFdMsg.h"
+#include "CanMsgBase.h"
 
 /**************************************************************************************
  * CLASS DECLARATION

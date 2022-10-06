@@ -17,6 +17,9 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
+
+#include <Arduino.h>
 
 /**************************************************************************************
  * TYPEDEF
@@ -32,16 +35,32 @@ enum class CanMtuSize : size_t
  * CLASS DECLARATION
  **************************************************************************************/
 
+template <CanMtuSize CAN_MTU_SIZE>
 class CanMsgBase
 {
 public:
-  CanMsgBase(uint32_t const id_, uint8_t const data_length_)
-  : id{id_}
-  , data_length{data_length_}
-  { }
+  static size_t constexpr MAX_DATA_LENGTH = static_cast<size_t>(CAN_MTU_SIZE);
+
+  CanMsgBase(uint32_t const can_id, uint8_t const can_data_len, uint8_t const * can_data_ptr)
+  : id{can_id}
+  , data_length{can_data_len}
+  , data{0}
+  {
+    memcpy(data, can_data_ptr, min(can_data_len, MAX_DATA_LENGTH));
+  }
+
+  CanMsgBase() : CanMsgBase(0, 0, nullptr) { }
 
   uint32_t id;
   uint8_t  data_length;
+  uint8_t  data[MAX_DATA_LENGTH];
 };
+
+/**************************************************************************************
+ * TYPEDEF
+ **************************************************************************************/
+
+typedef CanMsgBase<CanMtuSize::Classic> CanMsg;
+typedef CanMsgBase<CanMtuSize::FD> CanFdMsg;
 
 #endif /* ARDUINO_CORE_RENESAS_CAN_MSG_BASE_H_ */
