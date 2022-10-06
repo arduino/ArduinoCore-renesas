@@ -1,40 +1,54 @@
-#include "CAN.h"
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
 
-#define CAN_ID              (0x20)
-#define CAN_FRAME_LEN       8
+#include <CAN.h>
 
-void setup() {
-  SerialUSB.begin(115200);
-  delay(1000);
-  SerialUSB.println("Start CAN Read test over CAN1");
+/**************************************************************************************
+ * CONST
+ **************************************************************************************/
 
-  SerialUSB.print("Opening CAN1...");
-  if (!CAN1.begin()) {
-    SerialUSB.println(" failed :(");
-    while(1) {}
+static uint32_t const CAN_ID = 0x20;
+
+/**************************************************************************************
+ * SETUP/LOOP
+ **************************************************************************************/
+
+void setup()
+{
+  Serial.begin(115200);
+  while (!Serial) { }
+
+  Serial.println("Start CAN Read test over CAN");
+
+  Serial.print("Opening CAN...");
+  if (!CAN.begin())
+  {
+    Serial.println(" failed :(");
+    for (;;) { }
   }
-  SerialUSB.println(" OK :)");
+  Serial.println(" OK :)");
 }
 
 void loop() {
   
-  CanMessage msg;
-  if (CAN1.read(msg)) {
-    SerialUSB.println("Message received :)");
-    SerialUSB.print("ID: 0x");
-    SerialUSB.println(msg.id, HEX);
-    SerialUSB.print("Length: ");
-    SerialUSB.println(msg.data_length);
-    SerialUSB.print("Data: ");
-    
-    for (int i=0; i<CAN_FRAME_LEN; i++) {
-      SerialUSB.print("0x");
-      SerialUSB.print(msg.data[i], HEX);
-      SerialUSB.print(", ");
-    } 
-    SerialUSB.println();
+  CanMsg msg;
 
+  if (CAN.read(msg))
+  {
+    Serial.println("Message received :)");
+    Serial.print("ID: 0x");
+    Serial.println(msg.id, HEX);
+    Serial.print("Length: ");
+    Serial.println(msg.data_length);
+    Serial.print("Data: ");
+    
+    for (int i = 0; i < msg.data_length; i++)
+    {
+      Serial.print("0x");
+      Serial.print(msg.data[i], HEX);
+      Serial.print(", ");
+    } 
+    Serial.println();
   }
-  delay(1000);
-  
 }

@@ -1,36 +1,72 @@
+/*
+ * Copyright (c) 2022 by Alexander Entinger <a.entinger@arduino.cc>
+ * CAN library for Arduino.
+ *
+ * This file is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU General Public License version 2
+ * or the GNU Lesser General Public License version 2.1, both as
+ * published by the Free Software Foundation.
+ */
+
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
 #include "CAN.h"
 
-ArduinoCAN::ArduinoCAN(can_ctrl_t *g_can_ctrl,
-                       const can_cfg_t *g_can_cfg):
-  g_can_ctrl(g_can_ctrl)
-, g_can_cfg(g_can_cfg)
+/**************************************************************************************
+ * CTOR/DTOR
+ **************************************************************************************/
+
+ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
+: _can_tx_pin{can_tx_pin}
+, _can_rx_pin{can_rx_pin}
+, tx_complete{false}
+, rx_complete{false}
+, err_status{false}
+, _time_out{500}
+, _rx_info
 {
-  tx_complete = false;
-  rx_complete = false;
-  err_status = false;
-  time_out = 500;
-  rx_info.error_code = 0;
-  rx_info.error_count_receive = 0;
-  rx_info.error_count_transmit = 0;
-  rx_info.rx_fifo_status = 0;
-  rx_info.rx_mb_status = 0;
-  rx_info.status = 0;
+  []()
+  {
+    can_info_t rx_info_init;
+
+    rx_info_init.error_code = 0;
+    rx_info_init.error_count_receive = 0;
+    rx_info_init.error_count_transmit = 0;
+    rx_info_init.rx_fifo_status = 0;
+    rx_info_init.rx_mb_status = 0;
+    rx_info_init.status = 0;
+
+    return rx_info_init;
+  } ()
+}
+{
+
 }
 
-bool ArduinoCAN::begin() {
-  pinMode(CAN_STDBY, OUTPUT);
-  digitalWrite(CAN_STDBY, LOW);
-  if (R_CANFD_Open(g_can_ctrl, g_can_cfg) != FSP_SUCCESS) {
+/**************************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ **************************************************************************************/
+
+bool ArduinoCAN::begin()
+{
+//  pinMode(CAN_STDBY, OUTPUT);
+//  digitalWrite(CAN_STDBY, LOW);
+
+  if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     return false;
-  }
-  return true;
+  else
+    return true;
 }
 
-void ArduinoCAN::end() {
-  R_CANFD_Close(g_can_ctrl);
+void ArduinoCAN::end()
+{
+  R_CAN_Close(&_can_ctrl);
 }
 
-uint8_t ArduinoCAN::write(CanMessage msg) {
+uint8_t ArduinoCAN::write(CanMsg const & msg)
+{
   can_frame_t can_msg = {msg.id,
                          CAN_ID_MODE_STANDARD,
                          CAN_FRAME_TYPE_DATA,
@@ -39,38 +75,39 @@ uint8_t ArduinoCAN::write(CanMessage msg) {
 
   memcpy((uint8_t*)&can_msg.data[0], (uint8_t*)&msg.data[0], msg.data_length);
 
-  if(R_CANFD_Write(g_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
+  if(R_CAN_Write(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
     return 0;
   }
   /* Wait here for an event from callback */
-  while ((true != tx_complete) && (time_out--));
-  if (0 == time_out)
+  while ((true != tx_complete) && (_time_out--));
+  if (0 == _time_out)
   {
     return 0;
   }
 
   /* Reset flag bit */
   tx_complete = false;
-  time_out = 500;
+  _time_out = 500;
   return 1;
 }
 
-uint8_t ArduinoCAN::read(CanMessage &msg) {
+uint8_t ArduinoCAN::read(CanMsg & msg)
+{
   uint32_t rx_status = 0;
-  while(!rx_status && (time_out--)) {
+  while(!rx_status && (_time_out--)) {
     // Get the status information for CAN transmission
-    if (R_CANFD_InfoGet(g_can_ctrl, &rx_info) != FSP_SUCCESS) {
-    time_out = 500;
+    if (R_CAN_InfoGet(&_can_ctrl, &_rx_info) != FSP_SUCCESS) {
+    _time_out = 500;
       return 0;
     }
-    rx_status = rx_info.rx_mb_status;
+    rx_status = _rx_info.rx_mb_status;
   }
-  time_out = 500;
+  _time_out = 500;
 
   if (rx_status) {
     /* Read the input frame received */
     can_frame_t can_msg;
-    if (R_CANFD_Read(g_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
+    if (R_CAN_Read(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
       return 0;
     }
     msg.id = can_msg.id;
@@ -81,10 +118,11 @@ uint8_t ArduinoCAN::read(CanMessage &msg) {
   return 0;
 }
 
+/**************************************************************************************
+ * CALLBACKS FOR FSP FRAMEWORK
+ **************************************************************************************/
 
-#if CAN_HOWMANY > 0
-ArduinoCAN CAN(&g_canfd0_ctrl, &g_canfd0_cfg);
-void __attribute__((weak)) canfd0_callback(can_callback_args_t *p_args)
+void canfd0_callback(can_callback_args_t *p_args)
 {
     switch (p_args->event)
     {
@@ -114,9 +152,7 @@ void __attribute__((weak)) canfd0_callback(can_callback_args_t *p_args)
         }
     }
 }
-#endif
-#if CAN_HOWMANY > 1
-ArduinoCAN CAN1(&g_canfd1_ctrl, &g_canfd1_cfg);
+/*
 void __attribute__((weak)) canfd1_callback(can_callback_args_t *p_args)
 {
     switch (p_args->event)
@@ -147,4 +183,15 @@ void __attribute__((weak)) canfd1_callback(can_callback_args_t *p_args)
         }
     }
 }
+*/
+/**************************************************************************************
+ * OBJECT INSTANTIATION
+ **************************************************************************************/
+
+#if CAN_HOWMANY > 0
+ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
+#endif
+
+#if CAN_HOWMANY > 1
+ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif
