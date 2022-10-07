@@ -104,7 +104,14 @@ static const uint8_t SS   = PIN_SPI_SS;
 
 #define CAN_STDBY     (52u)
 
+/****** GTP CORE DEFINES *******/
 
+#define GTP32_HOWMANY     4
+#define GTP16_HOWMANY     6
+#define GPT_HOWMANY       10
+
+/****** AGT CORE DEFINES *******/
+#define AGT_HOWMANY       6
 
 #define EXT_INTERRUPTS_HOWMANY 8
 

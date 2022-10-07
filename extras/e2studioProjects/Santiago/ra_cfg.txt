@@ -227,6 +227,12 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     DTC Support: Enabled
     
+  Module "Event Link Controller (r_elc)"
+    Parameter Checking: Default (BSP)
+    
+  Module "Transfer (r_dmac)"
+    Parameter Checking: Default (BSP)
+    
   Module "I2C Slave (r_iic_slave)"
     Parameter Checking: Default (BSP)
     
@@ -1088,6 +1094,29 @@ FSP Configuration
         Number of Blocks (Valid only in Block Mode): 0
         Activation Source: SCI1 RXI (Received data full)
         
+    Instance "g_elc Event Link Controller (r_elc)"
+      Name: g_elc
+      
+    Instance "g_transfer22 Transfer (r_dmac) ADC0 COMPARE MISMATCH (Compare mismatch)"
+      Name: g_transfer22
+      Channel: 0
+      Mode: Normal
+      Transfer Size: 2 Bytes
+      Destination Address Mode: Fixed
+      Source Address Mode: Fixed
+      Repeat Area (Unused in Normal Mode): Source
+      Destination Pointer: NULL
+      Source Pointer: NULL
+      Number of Transfers: 1
+      Number of Blocks (Valid only in Repeat,Block or Repeat-Block Mode): 0
+      Activation Source: ADC0 COMPARE MISMATCH (Compare mismatch)
+      Callback: pippo
+      Context: NULL
+      Transfer End Interrupt Priority: Disabled
+      Interrupt Frequency: Interrupt after all transfers have completed
+      Offset value (Valid only when address mode is \'Offset\'): 1
+      Source Buffer Size: 1
+      
     Instance "g_i2c_slave0 I2C Slave (r_iic_slave)"
       Name: g_i2c_slave0
       Channel: 0
@@ -1101,4 +1130,18 @@ FSP Configuration
       Callback: NULL
       Interrupt Priority Level: Transmit, Receive, and Transmit End: Priority 12
       Interrupt Priority Level: Error: Priority 12
+      
+    Instance "g_transfer23 Transfer (r_dtc) IIC1 TXI (Transmit data empty)"
+      Name: g_transfer23
+      Mode: Normal
+      Transfer Size: 2 Bytes
+      Destination Address Mode: Fixed
+      Source Address Mode: Fixed
+      Repeat Area (Unused in Normal Mode): Source
+      Destination Pointer: NULL
+      Source Pointer: NULL
+      Interrupt Frequency: After all transfers have completed
+      Number of Transfers: 0
+      Number of Blocks (Valid only in Block Mode): 0
+      Activation Source: IIC1 TXI (Transmit data empty)
       

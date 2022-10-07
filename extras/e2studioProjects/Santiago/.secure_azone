@@ -69,6 +69,7 @@
         <peripheral name="GPT2" group="GPT" security=""/>
         <peripheral name="GPT3" group="GPT" security=""/>
         <peripheral name="AGT0" group="AGT" security=""/>
+        <peripheral name="DMA_DMAC0" group="DMA_DMAC" security=""/>
         <peripheral name="IIC0" group="IIC" security=""/>
         <peripheral name="ICU">
             <slot name="IRQ0" secure="false"/>
