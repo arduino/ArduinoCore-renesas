@@ -3,11 +3,19 @@
 #define COMMON_DATA_H_
 #include <stdint.h>
 #include "bsp_api.h"
+#include "r_elc.h"
+#include "r_elc_api.h"
 #include "r_icu.h"
 #include "r_external_irq_api.h"
 #include "r_ioport.h"
 #include "bsp_pin_cfg.h"
 FSP_HEADER
+/** ELC Instance */
+extern const elc_instance_t g_elc;
+
+/** Access the ELC instance using these structures when calling API functions directly (::p_api is not used). */
+extern elc_instance_ctrl_t g_elc_ctrl;
+extern const elc_cfg_t g_elc_cfg;
 /** External IRQ on ICU Instance. */
 extern const external_irq_instance_t g_external_irq1;
 

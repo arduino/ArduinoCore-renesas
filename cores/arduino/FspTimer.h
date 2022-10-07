@@ -1,39 +1,23 @@
 #include "Arduino.h"
+#include "IRQManager.h"
 
 #ifndef ARDUINO_FSP_TIMER_H
 #define ARDUINO_FSP_TIMER_H
 
-
-#define FREQUENCY_0_PCLKD     (48000000)
-#define FREQUENCY_1_PCLKD     (FREQUENCY_0_PCLKD / 4)
-#define FREQUENCY_2_PCLKD     (FREQUENCY_1_PCLKD / 4)
-#define FREQUENCY_3_PCLKD     (FREQUENCY_2_PCLKD / 4)
-#define FREQUENCY_4_PCLKD     (FREQUENCY_3_PCLKD / 4)
-#define FREQUENCY_5_PCLKD     (FREQUENCY_4_PCLKD / 4)
-
-#define TICK_0              (float)(1.0/(float)FREQUENCY_0_PCLKD)
-#define TICK_1              (float)(1.0/(float)FREQUENCY_1_PCLKD)
-#define TICK_2              (float)(1.0/(float)FREQUENCY_2_PCLKD)
-#define TICK_3              (float)(1.0/(float)FREQUENCY_3_PCLKD)
-#define TICK_4              (float)(1.0/(float)FREQUENCY_4_PCLKD)
-#define TICK_5              (float)(1.0/(float)FREQUENCY_5_PCLKD)
-
-#define CH32BIT_MAX         (4294967295)
-#define CH16BIT_MAX         (65535)
-
 #define GPT_TIMER           (0)
 #define AGT_TIMER           (1)
 
-#define TIMER_DIVIDER_AUTO       (-1)
-#define TIMER_DIVEDER_4          (2)
-#define TIMER_DIVIDER_16         (4)
-#define TIMER_DIVIDER_64         (6)
-#define TIMER_DIVIDER_256        (8)
-#define TIMER_DIVIDER_1024       (10)
-
-
 #define STANDARD_PWM_FREQ_HZ       (490.0)
 #define STANDARD_DUTY_CYCLE_PERC   (50.0)
+
+using GPTimerCbk_f          = void(*)(timer_callback_args_t *);
+
+typedef enum {
+  TIMER_PWM,
+  TIMER_FREE,
+  TIMER_USED
+} TimerAvail_t;
+
 
 typedef enum {
   CHANNEL_A,
@@ -43,6 +27,11 @@ typedef enum {
 
 class GPTimer {
   public:
+    ~GPTimer() {
+      if(ext_cfg.p_pwm_cfg != nullptr) {
+        delete ext_cfg.p_pwm_cfg;
+      }
+    }
     GPTimer(timer_cfg_t &cfg) {
       ext_cfg.gtioca.output_enabled        = false;
       ext_cfg.gtioca.stop_level            = GPT_PIN_LEVEL_LOW;
@@ -61,7 +50,7 @@ class GPTimer {
       ext_cfg.capture_b_irq                = FSP_INVALID_VECTOR;
       ext_cfg.capture_filter_gtioca        = GPT_CAPTURE_FILTER_NONE;
       ext_cfg.capture_filter_gtiocb        = GPT_CAPTURE_FILTER_NONE;
-      ext_cfg.p_pwm_cfg                    = NULL;
+      ext_cfg.p_pwm_cfg                    = nullptr;
       ext_cfg.gtior_setting.gtior          = 0U;
 
       cfg.p_extend                         = &ext_cfg;
@@ -103,15 +92,20 @@ class FspTimer {
     uint32_t _period_counts;
     uint32_t _duty_cicle_counts;
     timer_source_div_t _sd;
-    
-    
     uint8_t type;
     bool init_ok;
     void set_period_counts(float period, uint32_t max);
+    TimerIrqCfg_t get_cfg_for_irq();
+    static bool force_pwm_reserved;
+    static TimerAvail_t gpt_used_channel[GPT_HOWMANY];
+    static TimerAvail_t agt_used_channel[AGT_HOWMANY];
+    
+
+
   public:
     FspTimer();
     ~FspTimer();
-    
+    bool is_opened();
     bool open();
     bool start();
     bool stop();
@@ -123,19 +117,36 @@ class FspTimer {
     uint32_t get_freq_hz();
 
     timer_cfg_t *get_cfg() { return &timer_cfg; }
-    bool begin_pwm(uint8_t type, uint8_t channel, gpt_extended_pwm_cfg_t *pwm_cfg, TimerPWMChannel_t pwm_channel);
     
-    bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, void(*callback)(timer_callback_args_t *) = nullptr  );
-    bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  uint32_t period, uint32_t pulse, timer_source_div_t sd, void(*p_callback)(timer_callback_args_t *) = nullptr );
+    bool begin_pwm(uint8_t type, uint8_t channel, TimerPWMChannel_t pwm_channel);
     
+    bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, GPTimerCbk_f cbk = nullptr , void *ctx = nullptr );
+    bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  uint32_t period, uint32_t pulse, timer_source_div_t sd, GPTimerCbk_f cbk = nullptr , void *ctx = nullptr);
     
+    void set_irq_callback(GPTimerCbk_f cbk , void *ctx = nullptr );
+
+    bool setup_overflow_irq(uint8_t priority = 12,  Irq_f isr_fnc = nullptr );
+    bool setup_underflow_irq(uint8_t priority = 12, Irq_f isr_fnc = nullptr );
+    bool setup_capture_a_irq(uint8_t priority = 12, Irq_f isr_fnc = nullptr ); 
+    bool setup_capture_b_irq(uint8_t priority = 12, Irq_f isr_fnc = nullptr );
+    
+    bool set_source_start(gpt_source_t src);
+    bool set_source_stop(gpt_source_t src);
+    bool set_source_clear(gpt_source_t scr);
+    bool set_source_count_up(gpt_source_t scr);
+    bool set_source_count_down(gpt_source_t scr);
+    bool set_source_capture_a(gpt_source_t scr);
+    bool set_source_capture_b(gpt_source_t scr);
     
     uint32_t get_period_raw();
-    void set_pwm_extended_cfg(gpt_extended_pwm_cfg_t *cfg);
+    void add_pwm_extended_cfg();
     bool set_period_ms(double ms);
     bool set_period_us(double us);
     bool set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch);
     bool set_pulse_us(double us,TimerPWMChannel_t pwm_ch);
+
+    static int8_t get_available_timer(uint8_t &type, bool force = false); 
+    static void force_use_of_pwm_reserved_timer() {FspTimer::force_pwm_reserved = true; }
 };
 
 
