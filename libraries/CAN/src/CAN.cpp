@@ -21,6 +21,11 @@
 ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
+, _open{nullptr}
+, _close{nullptr}
+, _write{nullptr}
+, _read{nullptr}
+, _info_get{nullptr}
 , tx_complete{false}
 , rx_complete{false}
 , err_status{false}
@@ -49,12 +54,33 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCAN::begin()
+bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 {
+  if (can_mtu_size == CanMtuSize::Classic)
+  {
+    _open     = R_CAN_Open;
+    _close    = R_CAN_Close;
+    _write    = R_CAN_Write;
+    _read     = R_CAN_Read;
+    _info_get = R_CAN_InfoGet;
+  }
+  else
+  {
+#if defined __has_include
+#  if __has_include ("r_canfd.h")
+    _open     = R_CANFD_Open;
+    _close    = R_CANFD_Close;
+    _write    = R_CANFD_Write;
+    _read     = R_CANFD_Read;
+    _info_get = R_CANFD_InfoGet;
+#  endif
+#endif
+  }
+
 //  pinMode(CAN_STDBY, OUTPUT);
 //  digitalWrite(CAN_STDBY, LOW);
 
-  if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
+  if (_open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     return false;
   else
     return true;
@@ -62,7 +88,7 @@ bool ArduinoCAN::begin()
 
 void ArduinoCAN::end()
 {
-  R_CAN_Close(&_can_ctrl);
+  _close(&_can_ctrl);
 }
 
 uint8_t ArduinoCAN::write(CanMsg const & msg)
@@ -75,7 +101,7 @@ uint8_t ArduinoCAN::write(CanMsg const & msg)
 
   memcpy((uint8_t*)&can_msg.data[0], (uint8_t*)&msg.data[0], msg.data_length);
 
-  if(R_CAN_Write(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
+  if(_write(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
     return 0;
   }
   /* Wait here for an event from callback */
@@ -96,7 +122,7 @@ uint8_t ArduinoCAN::read(CanMsg & msg)
   uint32_t rx_status = 0;
   while(!rx_status && (_time_out--)) {
     // Get the status information for CAN transmission
-    if (R_CAN_InfoGet(&_can_ctrl, &_rx_info) != FSP_SUCCESS) {
+    if (_info_get(&_can_ctrl, &_rx_info) != FSP_SUCCESS) {
     _time_out = 500;
       return 0;
     }
@@ -107,7 +133,7 @@ uint8_t ArduinoCAN::read(CanMsg & msg)
   if (rx_status) {
     /* Read the input frame received */
     can_frame_t can_msg;
-    if (R_CAN_Read(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
+    if (_read(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
       return 0;
     }
     msg.id = can_msg.id;

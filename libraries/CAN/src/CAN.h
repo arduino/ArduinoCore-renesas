@@ -23,6 +23,16 @@
 #include "CanMsgBase.h"
 
 /**************************************************************************************
+ * TYPEDEF
+ **************************************************************************************/
+
+using CAN_open_f     = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_cfg_t const * const p_cfg);
+using CAN_close_f    = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl);
+using CAN_write_f    = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, uint32_t mailbox, can_frame_t * const p_frame);
+using CAN_read_f     = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, uint32_t mailbox, can_frame_t * const p_frame);
+using CAN_info_get_f = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_info_t * const p_info);
+
+/**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
@@ -32,7 +42,7 @@ public:
   ArduinoCAN(int const can_tx_pin, int const can_rx_pin);
 
 
-  bool begin();
+  bool begin(CanMtuSize const can_mtu_size);
   void end();
 
   uint8_t write(CanMsg const & msg);
@@ -46,6 +56,12 @@ public:
 private:
   int const _can_tx_pin;
   int const _can_rx_pin;
+
+  CAN_open_f _open;
+  CAN_close_f _close;
+  CAN_write_f _write;
+  CAN_read_f _read;
+  CAN_info_get_f _info_get;
 
   can_instance_ctrl_t _can_ctrl;
   can_cfg_t _can_cfg;

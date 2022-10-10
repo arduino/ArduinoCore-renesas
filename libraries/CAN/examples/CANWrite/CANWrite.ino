@@ -22,7 +22,7 @@ void setup()
   Serial.println("Start CAN Write test over CAN");
 
   Serial.print("Opening CAN...");
-  if (!CAN.begin())
+  if (!CAN.begin(CanMtuSize::Classic))
   {
     Serial.println(" failed :(");
     for (;;) {}
