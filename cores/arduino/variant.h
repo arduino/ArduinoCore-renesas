@@ -23,7 +23,7 @@ typedef enum {
     /* to be completed */
 } PinCfgReq_t;
 
-
+int32_t getPinIndex(bsp_io_port_pin_t p);
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #ifdef __cplusplus
 static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
@@ -126,6 +126,11 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define NOT_LAST_ITEM               (0 << 15)
 #define LAST_ITEM_GUARD             (1 << 15)
 #define IS_LAST_ITEM(x)             ((x & LAST_ITEM_MASK) ==  LAST_ITEM_GUARD)
+
+#define ADC_0                       (0 << ADD_CONFIG_POS)
+#define IS_ADC0(x)                  ((x & ADD_CONFIG_MASK) == ADC_0)
+#define ADC_1                       (1 << ADD_CONFIG_POS)
+#define IS_ADC1(x)                  ((x & ADD_CONFIG_MASK) == ADC_1)
 
 
 
