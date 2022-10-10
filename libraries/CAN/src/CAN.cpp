@@ -21,6 +21,7 @@
 ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
+, _can_mtu_size{CanMtuSize::Classic}
 , _open{nullptr}
 , _close{nullptr}
 , _write{nullptr}
@@ -63,19 +64,23 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
     _write    = R_CAN_Write;
     _read     = R_CAN_Read;
     _info_get = R_CAN_InfoGet;
+
+    _can_mtu_size = CanMtuSize::Classic;
   }
-  else
-  {
 #if defined __has_include
 #  if __has_include ("r_canfd.h")
+  else
+  {
     _open     = R_CANFD_Open;
     _close    = R_CANFD_Close;
     _write    = R_CANFD_Write;
     _read     = R_CANFD_Read;
     _info_get = R_CANFD_InfoGet;
+
+    _can_mtu_size = CanMtuSize::FD;
+  }
 #  endif
 #endif
-  }
 
   /* Perform a sanity check if valid function pointers could
    * have been assigned.

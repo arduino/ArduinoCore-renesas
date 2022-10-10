@@ -56,6 +56,7 @@ public:
 private:
   int const _can_tx_pin;
   int const _can_rx_pin;
+  CanMtuSize _can_mtu_size;
 
   CAN_open_f _open;
   CAN_close_f _close;
