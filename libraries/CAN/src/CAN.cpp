@@ -77,6 +77,12 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 #endif
   }
 
+  /* Perform a sanity check if valid function pointers could
+   * have been assigned.
+   */
+  if (!_open || !_close || !_write || !_read || !_info_get)
+    return false;
+
 //  pinMode(CAN_STDBY, OUTPUT);
 //  digitalWrite(CAN_STDBY, LOW);
 
