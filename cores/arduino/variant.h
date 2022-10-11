@@ -20,6 +20,8 @@ typedef enum {
     PIN_CFG_REQ_INTERRUPT,
     PIN_CFG_REQ_CTS_RTS,
     PIN_CFG_REQ_ADC,
+    PIN_CFG_REQ_CAN_RX,
+    PIN_CFG_REQ_CAN_TX,
     /* to be completed */
 } PinCfgReq_t;
 
@@ -52,6 +54,8 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define PIN_CTS_RTS_SS              (11 << PIN_USE_POS)
 #define PIN_PWM_GTI                 (9 << PIN_USE_POS)
 #define PIN_PWM_AGT                 (12 << PIN_USE_POS)
+#define PIN_CAN_RX                  (13 << PIN_USE_POS)
+#define PIN_CAN_TX                  (14 << PIN_USE_POS)
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -72,6 +76,10 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define IS_PIN_GTI_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GTI)
 
 #define IS_PIN_ANALOG(x)            ((x & PIN_USE_MASK) ==  PIN_ANALOG)
+
+#define IS_PIN_CAN_RX(x)            ((x & PIN_USE_MASK) ==  PIN_CAN_RX)
+#define IS_PIN_CAN_TX(x)            ((x & PIN_USE_MASK) ==  PIN_CAN_TX)
+
 
 #define CHANNEL_POS                 (6)
 #define CHANNEL_MASK                (0x7C0)
