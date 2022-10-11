@@ -73,6 +73,8 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
   return 0;
 } 
 
+
+
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
   { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
@@ -102,6 +104,18 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
+
+int32_t getPinIndex(bsp_io_port_pin_t p) {
+  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int rv = -1;
+  for(int i = 0; i < max_index; i++) {
+    if(g_pin_cfg[i].pin == p) {
+      rv = i;
+      break;
+    }
+  }
+  return rv;
+}
 
 void initVariant() {
 
