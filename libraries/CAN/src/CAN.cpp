@@ -15,6 +15,13 @@
 #include "CAN.h"
 
 /**************************************************************************************
+ * EXTERN GLOBAL CONSTANTS
+ **************************************************************************************/
+
+extern const PinMuxCfg_t g_pin_cfg[];
+extern const size_t g_pin_cfg_size;
+
+/**************************************************************************************
  * CTOR/DTOR
  **************************************************************************************/
 
@@ -57,6 +64,16 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 
 bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 {
+  bool init_ok = true;
+
+  /* Configure the pins for CAN.
+   */
+  int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  init_ok &= cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
+
+  /* Determine the right function pointers depending
+   * on whether we have a CAN FD capable module or not.
+   */
   if (can_mtu_size == CanMtuSize::Classic)
   {
     _open     = R_CAN_Open;
@@ -81,12 +98,17 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
   }
 #  endif
 #endif
+  else {
+    init_ok = false;
+  }
 
   /* Perform a sanity check if valid function pointers could
    * have been assigned.
    */
-  if (!_open || !_close || !_write || !_read || !_info_get)
-    return false;
+  if (!_open || !_close || !_write || !_read || !_info_get) {
+    init_ok = false;
+    return init_ok;
+  }
 
 //  pinMode(CAN_STDBY, OUTPUT);
 //  digitalWrite(CAN_STDBY, LOW);
@@ -153,6 +175,43 @@ uint8_t ArduinoCAN::read(CanMsg & msg)
     return 1;
   }
   return 0;
+}
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
+
+bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
+{
+  /* Verify if indices are good. */
+  if (can_tx_pin < 0 || can_rx_pin < 0 || can_tx_pin >= max_index || can_rx_pin >= max_index) {
+    return false;
+  }
+
+  /* Getting configuration from table. */
+  const uint16_t * cfg = nullptr;
+  cfg = g_pin_cfg[can_tx_pin].list;
+  uint16_t cfg_can_tx = getPinCfg(cfg, PIN_CFG_REQ_CAN_TX, /* prefer_sci = */ false);
+  cfg = g_pin_cfg[can_rx_pin].list;
+  uint16_t cfg_can_rx = getPinCfg(cfg, PIN_CFG_REQ_CAN_RX, /* prefer_sci = */ false);
+
+  /* Verify if configurations are good. */
+  if (cfg_can_tx == 0 || cfg_can_rx == 0) {
+    return false;
+  }
+
+  /* Verify if channel is the same for all pins. */
+  uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx);
+  uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx);
+  if (ch_can_tx != ch_can_rx) {
+    return false;
+  }
+
+  /* Actually configure pin functions. */
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[can_tx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_CAN));
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[can_rx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_CAN));
+
+  return true;
 }
 
 /**************************************************************************************

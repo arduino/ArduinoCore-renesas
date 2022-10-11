@@ -69,6 +69,8 @@ private:
 
   uint32_t _time_out;
   can_info_t _rx_info;
+
+  static bool cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
 };
 
 /**************************************************************************************
