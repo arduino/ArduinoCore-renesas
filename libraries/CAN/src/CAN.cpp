@@ -122,7 +122,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
   .p_mailbox_mask = _can_mailbox_mask,
   .p_mailbox      = _can_mailbox,
   .global_id_mode = CAN_GLOBAL_ID_MODE_EXTENDED,
-  .mailbox_count  = NUM_MAILBOXES,
+  .mailbox_count  = CAN_NUM_OF_MAILBOXES,
   .message_mode   = CAN_MESSAGE_MODE_OVERWRITE,
   .p_fifo_int_cfg = &_can_fifo_int_cfg,
   .p_rx_fifo_cfg  = &_can_rx_fifo_cfg,

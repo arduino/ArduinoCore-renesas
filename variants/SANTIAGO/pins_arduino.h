@@ -131,6 +131,8 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 
 #define CAN_HOWMANY       1
 
+#define CAN_NUM_OF_MAILBOXES (32)
+
 #define PIN_CAN0_TX       (13)
 #define PIN_CAN0_RX       (12)
 
