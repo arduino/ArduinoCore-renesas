@@ -92,30 +92,40 @@ static const uint8_t A5 = PIN_A5;
 
 /****** UART CORE DEFINES ******/
 
-#define SERIAL_HOWMANY		1
+#define SERIAL_HOWMANY		2
 #define UART1_TX_PIN        1
 #define UART1_RX_PIN        0
+#define UART2_TX_PIN        26
+#define UART2_RX_PIN        27
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      1
-
-#define WIRE_CHANNEL      1
-#define IS_WIRE_SCI       0
+#define WIRE_HOWMANY      2
+#define WIRE_SDA_PIN      14 /* A4 */
+#define WIRE_SCL_PIN      15 /* A5 */
+#define WIRE1_SDA_PIN     35
+#define WIRE1_SCL_PIN     34
 
 /****** SPI CORE DEFINES ******/
 
-#define SPI_HOWMANY       1
-
-#define IS_SPI_SCI        0
+#define SPI_HOWMANY       2
 
 #define PIN_SPI_MOSI  (11)
 #define PIN_SPI_MISO  (12)
 #define PIN_SPI_SCK   (13)
+#define PIN_SPI_CS    (10)
+#define IS_SPI_SCI     0
+
+#define PIN_SPI1_MOSI  (33)
+#define PIN_SPI1_MISO  (32)
+#define PIN_SPI1_SCK   (30)
+#define PIN_SPI1_CS    (31)
+#define IS_SPI1_SCI    1
 
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
+static const uint8_t CS  =  PIN_SPI_CS;
 
 /****** GTP CORE DEFINES *******/
 

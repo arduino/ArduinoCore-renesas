@@ -75,16 +75,16 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
   { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
-  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
-  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (2) D2  */
+  { BSP_IO_PORT_03_PIN_02,    P302   }, /* (1) D1  */
+  { BSP_IO_PORT_01_PIN_05,    P105   }, /* (2) D2  */
   { BSP_IO_PORT_01_PIN_04,    P104   }, /* (3) D3  */
-  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (4) D4  */
-  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (5) D5  */
-  { BSP_IO_PORT_01_PIN_12,    P112   }, /* (6) D6  */
-  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (7) D7  */
-  { BSP_IO_PORT_03_PIN_02,    P302   }, /* (8) D8  */
-  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (9) D9  */
-  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (10) D10 */
+  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (4) D4  */
+  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (5) D5  */
+  { BSP_IO_PORT_01_PIN_06,    P106   }, /* (6) D6  */
+  { BSP_IO_PORT_01_PIN_07,    P107   }, /* (7) D7  */
+  { BSP_IO_PORT_03_PIN_04,    P304   }, /* (8) D8  */
+  { BSP_IO_PORT_03_PIN_03,    P303   }, /* (9) D9  */
+  { BSP_IO_PORT_01_PIN_12,    P112   }, /* (10) D10 */
   { BSP_IO_PORT_01_PIN_09,    P109   }, /* (11) D11 */
   { BSP_IO_PORT_01_PIN_10,    P110   }, /* (12) D12 */
   { BSP_IO_PORT_01_PIN_11,    P111   }, /* (13) D13 */
@@ -96,9 +96,24 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_00_PIN_02,    P002   }, /* (19) A3  */
   { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
   { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
-  { BSP_IO_PORT_00_PIN_11,    P011   }, /* (22) D22 --------------------------- RGB LED */
-  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (23) D23 */
-  { BSP_IO_PORT_00_PIN_12,    P012   }, /* (24) D24 ------------------------- TX/RX LED */
+
+  { BSP_IO_PORT_02_PIN_05,    P205   }, /* (22) D22 ------------------------  RGB LED RED */
+  { BSP_IO_PORT_02_PIN_04,    P204   }, /* (23) D23 ------------------------  RGB LED BLUE */
+  { BSP_IO_PORT_00_PIN_12,    P012   }, /* (24) D24 ------------------------- TX LED */
+  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (25) D25 ------------------------- RX LED */
+
+  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (26) D26  ESP_RX */
+  { BSP_IO_PORT_05_PIN_02,    P502   }, /* (27) D27  ESP_TX */
+  { BSP_IO_PORT_00_PIN_04,    P004   }, /* (28) D28  ESP_IO9 */
+  { BSP_IO_PORT_04_PIN_02,    P402   }, /* (29) D29  ESP_EN */
+  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (30) D30  ESP_SPI_CK */
+  { BSP_IO_PORT_04_PIN_01,    P401   }, /* (31) D31  ESP_SPI_CS */
+  { BSP_IO_PORT_04_PIN_10,    P410   }, /* (32) D32  ESP_SPI_MISO */
+  { BSP_IO_PORT_04_PIN_11,    P411   }, /* (33) D33  ESP_SPI_MOSI */
+
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (34) D34  EXT_SCL */
+  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (35) D35  EXT_SDA */
+
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
