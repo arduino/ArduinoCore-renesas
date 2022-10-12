@@ -54,13 +54,12 @@
         <peripheral name="SCI1" group="SCI" security=""/>
         <peripheral name="SCI2" group="SCI" security=""/>
         <peripheral name="SCI0" group="SCI" security=""/>
+        <peripheral name="ICU_EXT_IRQ">
+            <slot name="ICU_EXT_IRQ0" secure="false"/>
+        </peripheral>
         <peripheral name="ADC0" group="ADC" security=""/>
         <peripheral name="IIC1" group="IIC" security=""/>
         <peripheral name="SPI1" group="SPI" security=""/>
-        <peripheral name="ICU_EXT_IRQ">
-            <slot name="ICU_EXT_IRQ0" secure="false"/>
-            <slot name="ICU_EXT_IRQ1" secure="false"/>
-        </peripheral>
         <peripheral name="DAC0" group="DAC" security=""/>
         <peripheral name="DAC120" group="DAC12" security=""/>
         <peripheral name="RTC" security=""/>
