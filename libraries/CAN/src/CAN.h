@@ -64,7 +64,15 @@ private:
   CAN_read_f _read;
   CAN_info_get_f _info_get;
 
+  static size_t constexpr NUM_MAILBOXES = 32;
+
   can_instance_ctrl_t _can_ctrl;
+  can_bit_timing_cfg_t _can_bit_timing_cfg;
+  uint32_t _can_mailbox_mask[NUM_MAILBOXES / 4];
+  can_mailbox_t _can_mailbox[NUM_MAILBOXES];
+  can_fifo_interrupt_cfg_t _can_fifo_int_cfg;
+  can_rx_fifo_cfg_t _can_rx_fifo_cfg;
+  can_extended_cfg_t _can_extended_cfg;
   can_cfg_t _can_cfg;
 
   uint32_t _time_out;
