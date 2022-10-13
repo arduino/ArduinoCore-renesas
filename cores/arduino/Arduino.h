@@ -1,16 +1,9 @@
 #ifndef __ARDUINO__H__
 #define __ARDUINO__H__
 
-#ifdef AZURE_RTOS_THREADX
-#include "tx_api.h"
-#endif
-
-
-
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
 #include "hal_data.h"
-
 
 #include "variant.h"
 

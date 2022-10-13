@@ -52,6 +52,9 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define PIN_CTS_RTS_SS              (11 << PIN_USE_POS)
 #define PIN_PWM_GPT                 (9 << PIN_USE_POS)
 #define PIN_PWM_AGT                 (12 << PIN_USE_POS)
+#define PIN_CAN_TX                  (13 << PIN_USE_POS)
+#define PIN_CAN_RX                  (14 << PIN_USE_POS)
+#define PIN_CTSRTS                  PIN_CTS_RTS_SS
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -98,8 +101,17 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define CHANNEL_20                  (20 << CHANNEL_POS)
 #define CHANNEL_21                  (21 << CHANNEL_POS)
 #define CHANNEL_22                  (22 << CHANNEL_POS)
+#define CHANNEL_23                  (23 << CHANNEL_POS)
+#define CHANNEL_24                  (24 << CHANNEL_POS)
+#define CHANNEL_25                  (25 << CHANNEL_POS)
+#define CHANNEL_26                  (26 << CHANNEL_POS)
+#define CHANNEL_27                  (27 << CHANNEL_POS)
+#define CHANNEL_28                  (28 << CHANNEL_POS)
 
 #define GET_CHANNEL(x)              ((x & CHANNEL_MASK) >> CHANNEL_POS)
+
+#define ADC_0                       0
+#define ADC_1                       0x1000
 /* no more */
 
 #define ADD_CONFIG_POS              (11)

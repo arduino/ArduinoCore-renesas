@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "usb/USB.h"
 
+/* TODO: make me configurable by the variant */
 #define APPLICATION_VECTOR_TABLE_ADDRESS_RAM    0x20007F00
 
 void startAgt();
@@ -23,7 +24,10 @@ void arduino_main(void)
    // TODO: the best thing would be keeping SPMON active but changing
    // R_MPU_SPMON->SP[0].EA = __stack_top; on every call to malloc()
    // When stack and heap would collide, we could signal the NMI with mbed style leds patterns
+#if _RA_CORE != CM33
+   // TODO: find out why H33 build can't find the symbol
    R_MPU_SPMON->SP[0].CTL = 0;
+#endif
 
    __disable_irq();
    irq_vector_table = (volatile uint32_t *)APPLICATION_VECTOR_TABLE_ADDRESS_RAM;

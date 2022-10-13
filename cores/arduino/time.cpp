@@ -23,8 +23,6 @@ void yield() {
 #endif
 }
 
-
-
 FspTimer main_timer;
 
 static uint32_t _top_counter;
@@ -47,7 +45,6 @@ unsigned long millis()
 #ifdef AZURE_RTOS_THREADX
 	return tx_time_get();
 #else
-	
 	// Convert time to ms
 	NVIC_DisableIRQ(main_timer.get_cfg()->cycle_end_irq);
 	uint32_t time_ms = ((main_timer.get_period_raw() - main_timer.get_counter()) / main_timer.get_cfg()->source_div)/1000 + agt_time_ms;
