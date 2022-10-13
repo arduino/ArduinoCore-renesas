@@ -77,15 +77,15 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
   { BSP_IO_PORT_02_PIN_06,    P206   }, /* (2) D2  */
-  { BSP_IO_PORT_01_PIN_04,    P104   }, /* (3) D3  */
+  { BSP_IO_PORT_01_PIN_04,    P104   }, /* (3) D3~ */
   { BSP_IO_PORT_04_PIN_00,    P400   }, /* (4) D4  */
-  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (5) D5  */
-  { BSP_IO_PORT_01_PIN_12,    P112   }, /* (6) D6  */
+  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (5) D5~ */
+  { BSP_IO_PORT_01_PIN_12,    P112   }, /* (6) D6~ */
   { BSP_IO_PORT_04_PIN_09,    P409   }, /* (7) D7  */
   { BSP_IO_PORT_03_PIN_02,    P302   }, /* (8) D8  */
-  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (9) D9  */
-  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (10) D10 */
-  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (11) D11 */
+  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (9) D9~ */
+  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (10) D10~ */
+  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (11) D11~ */
   { BSP_IO_PORT_01_PIN_10,    P110   }, /* (12) D12 */
   { BSP_IO_PORT_01_PIN_11,    P111   }, /* (13) D13 */
   { BSP_IO_PORT_01_PIN_01,    P101   }, /* (14) D14 */
@@ -104,5 +104,10 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
 
 void initVariant() {
-
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[3].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[5].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[6].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[9].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[10].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[11].list, PIN_CFG_REQ_PWM)));
 }
