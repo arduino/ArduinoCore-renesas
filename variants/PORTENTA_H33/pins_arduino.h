@@ -13,25 +13,21 @@ extern "C" unsigned int SCI_COUNT_fn();
 // Pin count
 // ----
 #define PINS_COUNT           (PINCOUNT_fn())
-#define NUM_DIGITAL_PINS     (22u)
-#define NUM_ANALOG_INPUTS    (7u)
+#define NUM_DIGITAL_PINS     (121u)
+#define NUM_ANALOG_INPUTS    (8u)
 #define NUM_ANALOG_OUTPUTS   (2u)
 
-#define I2C_COUNT           (I2C_COUNT_fn())
-#define SPI_COUNT           (SPI_COUNT_fn())
-#define UART_COUNT          (UART_COUNT_fn())
-#define SCI_COUNT           (SCI_COUNT_fn())
+#define PIN_A0   (15u)
+#define PIN_A1   (16u)
+#define PIN_A2   (17u)
+#define PIN_A3   (18u)
+#define PIN_A4   (19u)
+#define PIN_A5   (20u)
+#define PIN_A6   (21u)
+#define PIN_A7   (22u)
 
-#define PIN_A0   (8u)
-#define PIN_A1   (9u)
-#define PIN_A2   (10u)
-#define PIN_A3   (11u)
-#define PIN_A4   (12u)
-#define PIN_A5   (13u)
-#define PIN_A6   (14u)
-#define PIN_A7   (15u)
-
-#define DAC      (A6)
+#define DAC      (21u)
+#define DAC1     (22u)
 
 static const uint8_t A0 = PIN_A0;
 static const uint8_t A1 = PIN_A1;
@@ -55,56 +51,66 @@ static const uint8_t A7 = PIN_A7;
 
 // LEDs
 // ----
-#define PIN_LED     (25u)
+#define PIN_LED     (35u)
 #define LED_BUILTIN PIN_LED
-#define LEDR        (24u)
-#define LEDG        (25u)
-#define LEDB        (26u)
+#define LEDR        (34u)
+#define LEDG        (35u)
+#define LEDB        (36u)
 
-
+/****** RTC CORE DEFINES *******/
+#define RTC_HOWMANY       1
 
 /****** UART CORE DEFINES ******/
 
-#define SERIAL_HOWMANY		5
-
-#define UART1_CHANNEL     5
-#define UART2_CHANNEL     6
-#define UART3_CHANNEL     7
-#define UART4_CHANNEL     8
-#define UART5_CHANNEL     9
+/* TODO: add CTS/RTS pins */
+#define SERIAL_HOWMANY	    5
+#define UART1_TX_PIN        14
+#define UART1_RX_PIN        13
+#define UART2_TX_PIN        49
+#define UART2_RX_PIN        50
+#define UART3_TX_PIN        53
+#define UART3_RX_PIN        54
+#define UART4_TX_PIN        57
+#define UART4_RX_PIN        58
+#define UART5_TX_PIN        92
+#define UART5_RX_PIN        93
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      2
-
-#define WIRE_CHANNEL      0
-#define IS_WIRE_SCI       0
-
-#define WIRE1_CHANNEL     1
-#define IS_WIRE1_SCI      0
-
-#define WIRE2_CHANNEL     2
-#define IS_WIRE2_SCI      0
+#define WIRE_HOWMANY      4
+#define WIRE_SDA_PIN      11
+#define WIRE_SCL_PIN      12
+#define WIRE1_SDA_PIN     37
+#define WIRE1_SCL_PIN     38
+#define WIRE2_SDA_PIN     39
+#define WIRE2_SCL_PIN     40
+#define WIRE3_SDA_PIN     96
+#define WIRE3_SCL_PIN     97
 
 /****** SPI CORE DEFINES ******/
 
 #define SPI_HOWMANY       2
 
-#define SPI_CHANNEL       1
-#define IS_SPI_SCI        0
+#define PIN_SPI_MOSI      8
+#define PIN_SPI_MISO      9
+#define PIN_SPI_SCK       10
+#define PIN_SPI_CS        7
+#define IS_SPI_SCI        1
 
-#define SPI1_CHANNEL      4
-#define IS_SPI1_SCI       1
+#define PIN_SPI1_MOSI     46
+#define PIN_SPI1_MISO     45
+#define PIN_SPI1_SCK      47
+#define PIN_SPI1_CS       48
+#define IS_SPI1_SCI       0
 
-#define PIN_SPI_SS    (44u)
-
-static const uint8_t SS   = PIN_SPI_SS;
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK  = PIN_SPI_SCK;
+static const uint8_t CS  =  PIN_SPI_CS;
 
 /****** CAN CORE DEFINES ******/
 
-#define CAN_HOWMANY       2
-
-#define CAN_STDBY     (52u)
+#define CAN_HOWMANY     2
 
 /****** GTP CORE DEFINES *******/
 

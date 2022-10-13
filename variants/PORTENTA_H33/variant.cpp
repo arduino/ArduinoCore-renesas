@@ -1,6 +1,18 @@
 #include "Arduino.h"
 #include "pinmux.inc"
 
+// pins not yet handled by the script
+const uint16_t P210[] = {
+  PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B,
+};
+const uint16_t P211[] = { 0 };
+const uint16_t P214[] = { 0 };
+const uint16_t P313[] = { 0 };
+const uint16_t P314[] = { 0 };
+const uint16_t P209[] = { 0 };
+const uint16_t P208[] = { 0 };
+
+
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
     return 0;
@@ -134,11 +146,13 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_06_PIN_10,  P610 }, /*   D43    |   CAN1 RX   */
   { BSP_IO_PORT_06_PIN_09,  P609 }, /*   D44    |   CAN1 TX   */
 
+  // SPI pins
+  { BSP_IO_PORT_01_PIN_00,  P100 }, /*   D45    |   MISO1  */
+  { BSP_IO_PORT_01_PIN_01,  P101 }, /*   D46    |   MOSI1  */
+  { BSP_IO_PORT_01_PIN_02,  P102 }, /*   D47    |   SCLK1  */
+  { BSP_IO_PORT_01_PIN_03,  P103 }, /*   D48    |   CS1    */
+
   // UART pins
-  { BSP_IO_PORT_0A_PIN_00,  PA00 }, /*   D45    |   TX1    */
-  { BSP_IO_PORT_06_PIN_07,  P607 }, /*   D46    |   RX1    */
-  { BSP_IO_PORT_06_PIN_06,  P606 }, /*   D47    |   RTS1   */
-  { BSP_IO_PORT_08_PIN_01,  P801 }, /*   D48    |   CTS1   */
   { BSP_IO_PORT_06_PIN_13,  P613 }, /*   D49    |   TX2    */
   { BSP_IO_PORT_06_PIN_14,  P614 }, /*   D50    |   RX2    */
   { BSP_IO_PORT_06_PIN_11,  P611 }, /*   D51    |   RTS2   */
@@ -154,11 +168,11 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_06_PIN_03,  P603 }, /*   D61    |   RTS0   */
   { BSP_IO_PORT_06_PIN_04,  P604 }, /*   D62    |   CTS0   */
 
-  // SPI pins
-  { BSP_IO_PORT_01_PIN_00,  P100 }, /*   D63    |   MISO1  */
-  { BSP_IO_PORT_01_PIN_01,  P101 }, /*   D64    |   MOSI1  */
-  { BSP_IO_PORT_01_PIN_02,  P102 }, /*   D65    |   SCLK1  */
-  { BSP_IO_PORT_01_PIN_03,  P103 }, /*   D66    |   CS1    */
+  // SSI (Audio)
+  { BSP_IO_PORT_01_PIN_12,  P112 }, /*   D63    |   SSI CK    */
+  { BSP_IO_PORT_01_PIN_13,  P113 }, /*   D64    |   SSI WS    */
+  { BSP_IO_PORT_01_PIN_14,  P114 }, /*   D65    |   SSI SDI   */
+  { BSP_IO_PORT_01_PIN_15,  P115 }, /*   D66    |   SSI SDO   */
 
   // Generic GPIO pins
   { BSP_IO_PORT_09_PIN_08,  P908 }, /*   D67    |          */
@@ -168,34 +182,34 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_03_PIN_12,  P312 }, /*   D71    |          */
   { BSP_IO_PORT_03_PIN_13,  P313 }, /*   D72    |          */
   { BSP_IO_PORT_03_PIN_14,  P314 }, /*   D73    |          */
-  { BSP_IO_PORT_0A_PIN_01,  PA01 }, /*   D74    |          */
-  { BSP_IO_PORT_0A_PIN_08,  PA08 }, /*   D75    |          */
-  { BSP_IO_PORT_0A_PIN_09,  PA09 }, /*   D76    |          */
-  { BSP_IO_PORT_0A_PIN_10,  PA10 }, /*   D77    |          */
+  { BSP_IO_PORT_10_PIN_01,  PA01 }, /*   D74    |          */
+  { BSP_IO_PORT_10_PIN_08,  PA08 }, /*   D75    |          */
+  { BSP_IO_PORT_10_PIN_09,  PA09 }, /*   D76    |          */
+  { BSP_IO_PORT_10_PIN_10,  PA10 }, /*   D77    |          */
   { BSP_IO_PORT_05_PIN_07,  P507 }, /*   D78    |          */
-  { BSP_IO_PORT_0B_PIN_00,  PB00 }, /*   D79    |          */
+  { BSP_IO_PORT_11_PIN_00,  PB00 }, /*   D79    |          */
   { BSP_IO_PORT_06_PIN_15,  P615 }, /*   D80    |          */
   { BSP_IO_PORT_00_PIN_03,  P003 }, /*   D81    |          */
   { BSP_IO_PORT_00_PIN_07,  P007 }, /*   D82    |          */
   { BSP_IO_PORT_00_PIN_08,  P008 }, /*   D83    |          */
 
-  // SSI (Audio)
-  { BSP_IO_PORT_01_PIN_12,  P112 }, /*   D84    |   SSI CK    */
-  { BSP_IO_PORT_01_PIN_13,  P113 }, /*   D85    |   SSI WS    */
-  { BSP_IO_PORT_01_PIN_14,  P114 }, /*   D86    |   SSI SDI   */
-  { BSP_IO_PORT_01_PIN_15,  P115 }, /*   D87    |   SSI SDO   */
-
   // SDCARD
-  { BSP_IO_PORT_04_PIN_13,  P413 }, /*   D88    |   SDHI CLK  */
-  { BSP_IO_PORT_04_PIN_12,  P412 }, /*   D89    |   SDHI CMD  */
-  { BSP_IO_PORT_04_PIN_11,  P411 }, /*   D90    |   SDHI D0   */
-  { BSP_IO_PORT_04_PIN_10,  P410 }, /*   D91    |   SDHI D1   */
-  { BSP_IO_PORT_02_PIN_06,  P206 }, /*   D92    |   SDHI D2   */
-  { BSP_IO_PORT_02_PIN_05,  P205 }, /*   D93    |   SDHI D3   */
-  { BSP_IO_PORT_04_PIN_15,  P415 }, /*   D94    |   SDHI CD   */
-  { BSP_IO_PORT_04_PIN_14,  P414 }, /*   D95    |   SDHI WP   */
+  { BSP_IO_PORT_04_PIN_13,  P413 }, /*   D84    |   SDHI CLK  */
+  { BSP_IO_PORT_04_PIN_12,  P412 }, /*   D85    |   SDHI CMD  */
+  { BSP_IO_PORT_04_PIN_11,  P411 }, /*   D86    |   SDHI D0   */
+  { BSP_IO_PORT_04_PIN_10,  P410 }, /*   D87    |   SDHI D1   */
+  { BSP_IO_PORT_02_PIN_06,  P206 }, /*   D88    |   SDHI D2   */
+  { BSP_IO_PORT_02_PIN_05,  P205 }, /*   D89    |   SDHI D3   */
+  { BSP_IO_PORT_04_PIN_15,  P415 }, /*   D90    |   SDHI CD   */
+  { BSP_IO_PORT_04_PIN_14,  P414 }, /*   D91    |   SDHI WP   */
 
   /// ###### FROM HERE, INTERNAL STUFF ONLY
+
+  // ESP32 UART
+  { BSP_IO_PORT_10_PIN_00,  PA00 }, /*   D92    |   TX1    */
+  { BSP_IO_PORT_06_PIN_07,  P607 }, /*   D93    |   RX1    */
+  { BSP_IO_PORT_06_PIN_06,  P606 }, /*   D94    |   RTS1   */
+  { BSP_IO_PORT_08_PIN_01,  P801 }, /*   D95    |   CTS1   */
 
   // INTERNAL I2C
   { BSP_IO_PORT_03_PIN_10,  P310 }, /*   D96    | INTERNAL SDA  */
@@ -230,7 +244,7 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_03_PIN_08,  P308 }, /*   D119   |   QSPI IO1    */
   { BSP_IO_PORT_02_PIN_09,  P209 }, /*   D120   |   QSPI IO2    */
   { BSP_IO_PORT_02_PIN_08,  P208 }, /*   D121   |   QSPI IO3    */
-}
+};
 
 /* TODO: replace me with FspTimer */
 extern "C" const timer_instance_t g_timer_eth;
