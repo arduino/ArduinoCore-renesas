@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __cplusplus
 extern "C" unsigned int PINCOUNT_fn();
 extern "C" unsigned int I2C_COUNT_fn();
