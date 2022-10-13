@@ -26,5 +26,5 @@ static const timer_cfg_t g_timer_cfg =
 };
 
 /* Instance structure to use this module. */
-const timer_instance_t g_timer =
+const timer_instance_t g_timer_eth =
 { .p_ctrl = &g_timer_ctrl, .p_cfg = &g_timer_cfg, .p_api = &g_timer_on_agt };
