@@ -13,8 +13,8 @@
 using GPTimerCbk_f          = void(*)(timer_callback_args_t *);
 
 typedef enum {
+  TIMER_FREE = 0,
   TIMER_PWM,
-  TIMER_FREE,
   TIMER_USED
 } TimerAvail_t;
 
@@ -99,8 +99,6 @@ class FspTimer {
     static bool force_pwm_reserved;
     static TimerAvail_t gpt_used_channel[GPT_HOWMANY];
     static TimerAvail_t agt_used_channel[AGT_HOWMANY];
-    
-
 
   public:
     FspTimer();
@@ -115,6 +113,15 @@ class FspTimer {
     void enable_pwm_channel(TimerPWMChannel_t pwm_channel);
     uint32_t get_counter();
     uint32_t get_freq_hz();
+
+    static void set_initial_timer_channel_as_pwm(uint8_t type, int index) {
+      if (type == GPT_TIMER) {
+        gpt_used_channel[index] = TIMER_USED;
+      }
+      if (type == AGT_TIMER) {
+        agt_used_channel[index] = TIMER_USED;
+      }
+    }
 
     timer_cfg_t *get_cfg() { return &timer_cfg; }
     

@@ -124,7 +124,7 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define GPT_HOWMANY       8
 
 /****** AGT CORE DEFINES *******/
-#define AGT_HOWMANY       1
+#define AGT_HOWMANY       2
 
 
 #define EXT_INTERRUPTS_HOWMANY 2
