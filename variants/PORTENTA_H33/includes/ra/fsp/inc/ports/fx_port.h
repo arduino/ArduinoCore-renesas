@@ -81,7 +81,6 @@ typedef unsigned long long  ULONG64;
 #include <stdint.h>
 #include <stdlib.h>
 
-#ifndef VOID
 #define VOID                                    void
 typedef char                                    CHAR;
 typedef char                                    BOOL;
@@ -92,7 +91,6 @@ typedef long                                    LONG;
 typedef unsigned long                           ULONG;
 typedef short                                   SHORT;
 typedef unsigned short                          USHORT;
-#endif
 
 #ifndef ULONG64_DEFINED
 #define ULONG64_DEFINED

@@ -115,7 +115,7 @@ extern "C" {
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 13) /* POEG1 */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 14) /* POEG0 */ | \
             (((1 > 0) ? 0U : 1U) << 15) /* ADC1 */ | \
-            (((1 > 0) ? 0U : 1U) << 16) /* ADC0 */ | \
+            (((2 > 0) ? 0U : 1U) << 16) /* ADC0 */ | \
             (((2 > 0) ? 0U : 1U) << 20) /* DAC */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 22) /* TSN */ | \
             0xffae07f0) /* Unused */
@@ -142,7 +142,7 @@ extern "C" {
 #ifndef BSP_TZ_CFG_MSSAR
 #define BSP_TZ_CFG_MSSAR (\
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 0) /* ELC */ | \
-            (((77 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
+            (((78 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
             0xfffffffc) /* Unused */
 #endif
 
@@ -224,7 +224,7 @@ extern "C" {
             (((2 > 0) ? 0U : 1U) << 0U) /* DMAC Channel 0 */ | \
             (((2 > 0) ? 0U : 1U) << 1U) /* DMAC Channel 1 */ | \
             (((1 > 0) ? 0U : 1U) << 2U) /* DMAC Channel 2 */ | \
-            (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 3U) /* DMAC Channel 3 */ | \
+            (((1 > 0) ? 0U : 1U) << 3U) /* DMAC Channel 3 */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 4U) /* DMAC Channel 4 */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 5U) /* DMAC Channel 5 */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 6U) /* DMAC Channel 6 */ | \

@@ -26,7 +26,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */ 
 /*                                                                        */ 
 /*    ux_host_class_dpump.h                               PORTABLE C      */ 
-/*                                                           6.1.10       */
+/*                                                           6.1.8        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Chaoqiong Xiao, Microsoft Corporation                               */
@@ -47,9 +47,6 @@
 /*                                            added extern "C" keyword    */
 /*                                            for compatibility with C++, */
 /*                                            resulting in version 6.1.8  */
-/*  01-31-2022     Chaoqiong Xiao           Modified comment(s),          */
-/*                                            added standalone support,   */
-/*                                            resulting in version 6.1.10 */
 /*                                                                        */
 /**************************************************************************/
 
@@ -84,10 +81,6 @@ extern   "C" {
 
 #define    UX_HOST_CLASS_DPUMP_GENERIC_NAME                   "USB DPUMP"
 
-/* Define R/W lock bits for standalone mode.  */
-
-#define UX_HOST_CLASS_DPUMP_READ_LOCK                         (1u<<0)
-#define UX_HOST_CLASS_DPUMP_WRITE_LOCK                        (1u<<1)
 
 /* Define Printer Class function prototypes.  */
 

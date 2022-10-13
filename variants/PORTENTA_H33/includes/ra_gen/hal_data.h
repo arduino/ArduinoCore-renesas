@@ -23,6 +23,8 @@
 #include "r_ssi.h"
 #include "r_iic_master.h"
 #include "r_i2c_master_api.h"
+#include "r_icu.h"
+#include "r_external_irq_api.h"
 #include "r_flash_hp.h"
 #include "r_flash_api.h"
 #include "rm_vee_flash.h"
@@ -843,6 +845,86 @@ void canfd1_callback(can_callback_args_t *p_args);
 
 /* Global configuration (referenced by all instances) */
 extern canfd_global_cfg_t g_canfd_global_cfg;
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq9;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq9_ctrl;
+extern const external_irq_cfg_t g_external_irq9_cfg;
+
+#ifndef isr_irq9
+void isr_irq9(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq8;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq8_ctrl;
+extern const external_irq_cfg_t g_external_irq8_cfg;
+
+#ifndef isr_irq8
+void isr_irq8(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq7;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq7_ctrl;
+extern const external_irq_cfg_t g_external_irq7_cfg;
+
+#ifndef isr_irq7
+void isr_irq7(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq6;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq6_ctrl;
+extern const external_irq_cfg_t g_external_irq6_cfg;
+
+#ifndef isr_irq6
+void isr_irq6(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq5;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq5_ctrl;
+extern const external_irq_cfg_t g_external_irq5_cfg;
+
+#ifndef isr_irq5
+void isr_irq5(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq4;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq4_ctrl;
+extern const external_irq_cfg_t g_external_irq4_cfg;
+
+#ifndef isr_irq4
+void isr_irq4(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq3;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq3_ctrl;
+extern const external_irq_cfg_t g_external_irq3_cfg;
+
+#ifndef isr_irq3
+void isr_irq3(external_irq_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq2;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq2_ctrl;
+extern const external_irq_cfg_t g_external_irq2_cfg;
+
+#ifndef isr_irq2
+void isr_irq2(external_irq_callback_args_t *p_args);
+#endif
 /* Flash on Flash HP Instance */
 extern const flash_instance_t g_flash0;
 
@@ -961,6 +1043,16 @@ extern const i2c_master_cfg_t g_i2c_master1_cfg;
 #ifndef i2c_callback
 void i2c_callback(i2c_master_callback_args_t *p_args);
 #endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq1;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq1_ctrl;
+extern const external_irq_cfg_t g_external_irq1_cfg;
+
+#ifndef isr_irq1
+void isr_irq1(external_irq_callback_args_t *p_args);
+#endif
 /** lpm Instance */
 extern const lpm_instance_t g_lpm0;
 
@@ -1019,6 +1111,16 @@ extern const i2c_master_cfg_t g_i2c_master0_cfg;
 
 #ifndef i2c_callback
 void i2c_callback(i2c_master_callback_args_t *p_args);
+#endif
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq0;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq0_ctrl;
+extern const external_irq_cfg_t g_external_irq0_cfg;
+
+#ifndef isr_irq0
+void isr_irq0(external_irq_callback_args_t *p_args);
 #endif
 /* RTC Instance. */
 extern const rtc_instance_t g_rtc0;

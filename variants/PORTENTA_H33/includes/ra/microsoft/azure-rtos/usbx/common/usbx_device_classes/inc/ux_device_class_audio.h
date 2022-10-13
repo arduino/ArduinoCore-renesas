@@ -26,7 +26,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    ux_device_class_audio.h                             PORTABLE C      */
-/*                                                           6.1.10       */
+/*                                                           6.1.8        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Chaoqiong Xiao, Microsoft Corporation                               */
@@ -50,29 +50,21 @@
 /*                                            added extern "C" keyword    */
 /*                                            for compatibility with C++, */
 /*                                            resulting in version 6.1.8  */
-/*  01-31-2022     Chaoqiong Xiao           Modified comment(s),          */
-/*                                            added feedback support,     */
-/*                                            resulting in version 6.1.10 */
 /*                                                                        */
 /**************************************************************************/
 
 #ifndef UX_DEVICE_CLASS_AUDIO_H
-#define UX_DEVICE_CLASS_AUDIO_H
+#define UX_DEVICE_CLASS_AUDIO_H               
+ 
+/* Determine if a C++ compiler is being used.  If so, ensure that standard 
+   C is used to process the API information.  */ 
 
-/* Determine if a C++ compiler is being used.  If so, ensure that standard
-   C is used to process the API information.  */
+#ifdef   __cplusplus 
 
-#ifdef   __cplusplus
+/* Yes, C++ compiler is present.  Use standard C.  */ 
+extern   "C" { 
 
-/* Yes, C++ compiler is present.  Use standard C.  */
-extern   "C" {
-
-#endif
-
-
-/* Compile option: if defined, audio feedback endpoint is supported.  */
-/* #define UX_DEVICE_CLASS_AUDIO_FEEDBACK_SUPPORT  */
-
+#endif  
 
 /* Define Audio Class function (AF) constants.  */
 
@@ -132,7 +124,6 @@ extern   "C" {
 
 #define UX_DEVICE_CLASS_AUDIO_EP_USAGE_TYPE_MASK                    (0x3u<<4)
 #define UX_DEVICE_CLASS_AUDIO_EP_USAGE_TYPE_DATA                    (0x0u<<4)
-#define UX_DEVICE_CLASS_AUDIO_EP_USAGE_TYPE_FEEDBACK                (0x1u<<4)
 #define UX_DEVICE_CLASS_AUDIO_EP_USAGE_TYPE_IMPLICIT_FEEDBACK       (0x2u<<4)
 
 
@@ -325,10 +316,6 @@ typedef struct UX_DEVICE_CLASS_AUDIO_STREAM_PARAMETER_STRUCT
 {
     ULONG                                         ux_device_class_audio_stream_parameter_thread_stack_size;
     VOID                                        (*ux_device_class_audio_stream_parameter_thread_entry)(ULONG id);
-#if defined(UX_DEVICE_CLASS_AUDIO_FEEDBACK_SUPPORT)
-    ULONG                                         ux_device_class_audio_stream_parameter_feedback_thread_stack_size;
-    VOID                                        (*ux_device_class_audio_stream_parameter_feedback_thread_entry)(ULONG id);
-#endif
     UX_DEVICE_CLASS_AUDIO_STREAM_CALLBACKS        ux_device_class_audio_stream_parameter_callbacks;
 
     ULONG                                         ux_device_class_audio_stream_parameter_max_frame_buffer_size;
@@ -361,13 +348,6 @@ typedef struct UX_DEVICE_CLASS_AUDIO_STREAM_STRUCT
     struct UX_DEVICE_CLASS_AUDIO_STRUCT     *ux_device_class_audio_stream_audio;
     UX_SLAVE_INTERFACE                      *ux_device_class_audio_stream_interface;
     UX_SLAVE_ENDPOINT                       *ux_device_class_audio_stream_endpoint;
-
-#if defined(UX_DEVICE_CLASS_AUDIO_FEEDBACK_SUPPORT)
-    UX_SLAVE_ENDPOINT                       *ux_device_class_audio_stream_feedback;
-
-    UCHAR                                   *ux_device_class_audio_stream_feedback_thread_stack;
-    UX_THREAD                                ux_device_class_audio_stream_feedback_thread;
-#endif
 
     UX_DEVICE_CLASS_AUDIO_STREAM_CALLBACKS   ux_device_class_audio_stream_callbacks;
 
@@ -430,11 +410,6 @@ UINT    _ux_device_class_audio_frame_write(UX_DEVICE_CLASS_AUDIO_STREAM *audio, 
 UINT    _ux_device_class_audio_write_frame_get(UX_DEVICE_CLASS_AUDIO_STREAM *audio, UCHAR **buffer, ULONG *max_length);
 UINT    _ux_device_class_audio_write_frame_commit(UX_DEVICE_CLASS_AUDIO_STREAM *audio, ULONG length);
 
-VOID    _ux_device_class_audio_feedback_thread_entry(ULONG audio_stream);
-UINT    _ux_device_class_audio_feedback_set(UX_DEVICE_CLASS_AUDIO_STREAM *audio, UCHAR *encoded_feedback);
-UINT    _ux_device_class_audio_feedback_get(UX_DEVICE_CLASS_AUDIO_STREAM *audio, UCHAR *encoded_feedback);
-ULONG   _ux_device_class_audio_speed_get(UX_DEVICE_CLASS_AUDIO_STREAM *audio);
-
 
 /* Define Device Class Audio API prototypes.  */
 
@@ -452,7 +427,7 @@ ULONG   _ux_device_class_audio_speed_get(UX_DEVICE_CLASS_AUDIO_STREAM *audio);
 #define ux_device_class_audio_sample_read32           _ux_device_class_audio_sample_read32
 
 #define ux_device_class_audio_read_frame_get          _ux_device_class_audio_read_frame_get
-#define ux_device_class_audio_read_frame_free         _ux_device_class_audio_read_frame_free
+#define ux_device_class_audio_read_frame_free       _ux_device_class_audio_read_frame_free
 
 #define ux_device_class_audio_transmission_start      _ux_device_class_audio_transmission_start
 #define ux_device_class_audio_frame_write             _ux_device_class_audio_frame_write
@@ -462,15 +437,10 @@ ULONG   _ux_device_class_audio_speed_get(UX_DEVICE_CLASS_AUDIO_STREAM *audio);
 
 #define ux_device_class_audio_ioctl                   _ux_device_class_audio_ioctl
 
-#define ux_device_class_audio_speed_get               _ux_device_class_audio_speed_get
-#define ux_device_class_audio_feedback_thread_entry   _ux_device_class_audio_feedback_thread_entry
-#define ux_device_class_audio_feedback_get            _ux_device_class_audio_feedback_get
-#define ux_device_class_audio_feedback_set            _ux_device_class_audio_feedback_set
-
-/* Determine if a C++ compiler is being used.  If so, complete the standard
-   C conditional started above.  */
+/* Determine if a C++ compiler is being used.  If so, complete the standard 
+   C conditional started above.  */   
 #ifdef __cplusplus
-}
-#endif
+} 
+#endif 
 
 #endif /* ifndef UX_DEVICE_CLASS_AUDIO_H */
