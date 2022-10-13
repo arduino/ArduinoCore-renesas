@@ -1,12 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" unsigned int PINCOUNT_fn();
-extern "C" unsigned int I2C_COUNT_fn();
-extern "C" unsigned int UART_COUNT_fn();
-extern "C" unsigned int SCI_COUNT_fn();
-#endif
-
 #define PIN(X,Y) (X * 16 + Y)
 
 // Pin count
@@ -15,10 +8,6 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
-
-#define I2C_COUNT           (I2C_COUNT_fn())
-#define UART_COUNT          (UART_COUNT_fn())
-#define SCI_COUNT           (SCI_COUNT_fn())
 
 #define PIN_A0   (16u)
 #define PIN_A1   (17u)
