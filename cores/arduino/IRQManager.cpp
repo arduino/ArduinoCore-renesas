@@ -1,6 +1,5 @@
 #include "IRQManager.h"
 #include "bsp_api.h"
-#include "elc_defines.h"
 
 #define FIXED_IRQ_NUM   16
 
@@ -221,6 +220,7 @@ bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
     return rv;   
 }
 
+#ifdef HAS_DMAC
 /* -------------------------------------------------------------------------- */
 bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
 /* -------------------------------------------------------------------------- */    
@@ -257,6 +257,7 @@ bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
     }
     return rv;
 }
+#endif
 
 /* -------------------------------------------------------------------------- */
 bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {

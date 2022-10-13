@@ -3,6 +3,7 @@
 
 #include "bsp_api.h"
 #include "pins_arduino.h"
+#include "elc_defines.h"
 
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
@@ -14,7 +15,11 @@
 
 #include "r_timer_api.h"
 
+#ifdef ELC_EVENT_DMAC0_INT
+#define HAS_DMAC    1
 #include "r_dmac.h"
+#endif
+
 #include "r_gpt.h"
 #include "r_agt.h"
 
@@ -148,11 +153,13 @@ class IRQManager {
     bool addPeripheral(Peripheral_t p, void *cfg);
     static IRQManager& getInstance();
     
+#ifdef HAS_DMAC
     /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
        if fnc is nullprt the "standar" dmac_int_isr is added
        otherwise fnc is the interrupt handler function 
        it returns true if the interrupt is correctly added */
     bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
+#endif
 
     bool addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
