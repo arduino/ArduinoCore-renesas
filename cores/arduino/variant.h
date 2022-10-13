@@ -50,7 +50,7 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define PIN_PWM                     (9 << PIN_USE_POS)
 #define PIN_ANALOG                  (10 << PIN_USE_POS)
 #define PIN_CTS_RTS_SS              (11 << PIN_USE_POS)
-#define PIN_PWM_GTI                 (9 << PIN_USE_POS)
+#define PIN_PWM_GPT                 (9 << PIN_USE_POS)
 #define PIN_PWM_AGT                 (12 << PIN_USE_POS)
 /* ..... MAX TO 63 */
 
@@ -67,9 +67,9 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define IS_PIN_MOSI(x)              (((x & PIN_USE_MASK) ==  PIN_MOSI) || ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA))
 
 #define IS_PIN_SCK(x)               ((x & PIN_USE_MASK) ==  PIN_SCK)
-#define IS_PIN_PWM(x)               (((x & PIN_USE_MASK) ==  PIN_PWM_GTI) || ((x & PIN_USE_MASK) ==  PIN_PWM_AGT))
+#define IS_PIN_PWM(x)               (((x & PIN_USE_MASK) ==  PIN_PWM_GPT) || ((x & PIN_USE_MASK) ==  PIN_PWM_AGT))
 #define IS_PIN_AGT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_AGT)
-#define IS_PIN_GTI_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GTI)
+#define IS_PIN_GPT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GPT)
 
 #define IS_PIN_ANALOG(x)            ((x & PIN_USE_MASK) ==  PIN_ANALOG)
 

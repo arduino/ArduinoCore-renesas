@@ -34,7 +34,7 @@ bool PwmOut::cfg_pin(int max_index) {
   
   timer_channel = GET_CHANNEL(pin_cgf);
 
-  _is_gtp = IS_PIN_GTI_PWM(pin_cgf);
+  _is_gtp = IS_PIN_GPT_PWM(pin_cgf);
 
   _pwm_channel = IS_PWM_ON_A(pin_cgf) ? CHANNEL_A : CHANNEL_B;
 
