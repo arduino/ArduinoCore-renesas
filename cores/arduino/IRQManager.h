@@ -98,6 +98,7 @@ typedef struct timer {
 } TimerIrqCfg_t;
 
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,6 +139,9 @@ void gpt_capture_a_isr(void);
 void gpt_capture_b_isr(void);
 void gpt_counter_underflow_isr(void);
 void agt_int_isr(void);
+void adc_scan_end_isr (void);
+void adc_scan_end_b_isr (void);
+void adc_window_compare_isr (void);
 #ifdef __cplusplus
 }
 #endif

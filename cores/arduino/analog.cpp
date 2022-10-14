@@ -1,6 +1,3 @@
-
-
-
 #include "Arduino.h"
 #include "IRQManager.h"
 #include "pwm.h"
@@ -8,7 +5,10 @@
 #include "bsp_api.h"
 #include "hal_data.h"
 
+#define MAX_ADC_CHANNELS   29
 
+static void ADC_irq_cbk(adc_callback_args_t * cb_data);
+static uint16_t analog_values_by_channels[MAX_ADC_CHANNELS] = {0};
 
 ADC_Container::ADC_Container(uint8_t unit, ADCCbk_f cbk, void *ctx /*= nullptr*/) {
   cfg_extend.add_average_count    = ADC_ADD_OFF;
@@ -36,87 +36,89 @@ ADC_Container::ADC_Container(uint8_t unit, ADCCbk_f cbk, void *ctx /*= nullptr*/
   cfg.scan_end_b_ipl              = (12);  
 
   channel_cfg.sample_hold_states  = 24;
+  channel_cfg.scan_mask           = 0;          
+  channel_cfg.scan_mask_group_b   = 0; 
+  channel_cfg.add_mask            = 0;
+  channel_cfg.p_window_cfg        = nullptr;
+  channel_cfg.priority_group_a    = ADC_GROUP_A_PRIORITY_OFF;
+  channel_cfg.sample_hold_mask    = 0;
 };
 
-static ADCIrqCbk_f scan_complete_unit0_cbk = nullptr;
-static ADCIrqCbk_f scan_complete_b_unit0_cbk = nullptr;
-static ADCIrqCbk_f conversion_complete_unit0_cbk = nullptr;
-static ADCIrqCbk_f window_compare_a_unit0_cbk = nullptr;
-static ADCIrqCbk_f window_compare_b_unit0_cbk = nullptr;
+ADC_Container::~ADC_Container() {
+  if(channel_cfg.p_window_cfg != nullptr) {
+    delete channel_cfg.p_window_cfg;
+  }
+}
 
-static ADCIrqCbk_f scan_complete_unit1_cbk = nullptr;
-static ADCIrqCbk_f scan_complete_b_unit1_cbk = nullptr;
-static ADCIrqCbk_f conversion_complete_unit1_cbk = nullptr;
-static ADCIrqCbk_f window_compare_a_unit1_cbk = nullptr;
-static ADCIrqCbk_f window_compare_b_unit1_cbk = nullptr;
+static ADC_Container adc(0,ADC_irq_cbk);
+static ADC_Container adc1(1,ADC_irq_cbk);
+
+static ADCIrqCbk_f scan_complete_cbk = nullptr;
+static ADCIrqCbk_f scan_complete_b_cbk = nullptr;
+static ADCIrqCbk_f window_compare_a_cbk = nullptr;
+static ADCIrqCbk_f window_compare_b_cbk = nullptr;
 
 
-static void ADC_irq_cbk(adc_callback_args_t * cb_data) {
-  uint16_t unit = cb_data->unit;
-  adc_event_t event = cb_data->event;
-
-  if(cb_data->unit == 0) {
-    if(cb_data->event == ADC_EVENT_SCAN_COMPLETE) {
-      if(scan_complete_unit0_cbk != nullptr) {
-        scan_complete_unit0_cbk();
-      }
-    }
-    else if(cb_data->event == ADC_EVENT_SCAN_COMPLETE_GROUP_B) {
-      if(scan_complete_b_unit0_cbk != nullptr) {
-        scan_complete_b_unit0_cbk();
-      }
-
-    }
-    else if(cb_data->event == ADC_EVENT_CONVERSION_COMPLETE) {
-      if(conversion_complete_unit0_cbk != nullptr) {
-        conversion_complete_unit0_cbk();
-      }
-    }
-    else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_A) {
-      if(window_compare_a_unit0_cbk != nullptr) {
-        window_compare_a_unit0_cbk();
-      }
-    }
-    else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_B) {
-      if(window_compare_b_unit0_cbk != nullptr) {
-        window_compare_b_unit0_cbk();
-      }
+static void readAllGroupA(ADC_Container *_adc) {
+  for(int i = 0; i < MAX_ADC_CHANNELS; i++) {
+    if(_adc->channel_cfg.scan_mask & (1 << i)) {
+      //is the channel active -> yes, read it
+      R_ADC_Read(&(_adc->ctrl), (adc_channel_t)i, analog_values_by_channels + i);
     }
   }
-  else if(cb_data->unit == 1) {
-    if(scan_complete_unit1_cbk != nullptr) {
-      scan_complete_unit1_cbk();
-    }
-    else if(cb_data->event == ADC_EVENT_SCAN_COMPLETE_GROUP_B) {
-      if(scan_complete_b_unit1_cbk != nullptr) {
-        scan_complete_b_unit1_cbk();
-      }
+}
 
-    }
-    else if(cb_data->event == ADC_EVENT_CONVERSION_COMPLETE) {
-      if(conversion_complete_unit1_cbk != nullptr) {
-        conversion_complete_unit1_cbk();
-      }
-    }
-    else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_A) {
-      if(window_compare_a_unit1_cbk != nullptr) {
-        window_compare_a_unit1_cbk();
-      }
-    }
-    else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_B) {
-      if(window_compare_b_unit1_cbk != nullptr) {
-        window_compare_b_unit1_cbk();
-      }
+static void readAllGroupB(ADC_Container *_adc) {
+  for(int i = 0; i < MAX_ADC_CHANNELS; i++) {
+    if(_adc->channel_cfg.scan_mask_group_b & (1 << i)) {
+      //is the channel active -> yes, read it
+      R_ADC_Read(&(_adc->ctrl), (adc_channel_t)i, analog_values_by_channels + i);
     }
   }
 }
 
 
-static ADC_Container adc(0,ADC_irq_cbk);
-static ADC_Container adc1(1,ADC_irq_cbk);
+static void ADC_irq_cbk(adc_callback_args_t * cb_data) {
+  if(cb_data->event == ADC_EVENT_SCAN_COMPLETE) {
+    if(scan_complete_cbk != nullptr) {
+      if(cb_data->unit == 0) {
+        readAllGroupA(&adc);
+      }
+      else if(cb_data->unit == 1) {
+        readAllGroupA(&adc1);
+      }
+      scan_complete_cbk(cb_data->unit);
+    }
+  }
+  else if(cb_data->event == ADC_EVENT_SCAN_COMPLETE_GROUP_B) {
+    if(scan_complete_b_cbk != nullptr) {
+      if(cb_data->unit == 0) {
+        readAllGroupB(&adc);
+      }
+      else if(cb_data->unit == 1) {
+        readAllGroupB(&adc1);
+      }
+      scan_complete_b_cbk(cb_data->unit);
+    }
+  }
+  else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_A) {
+    if(window_compare_a_cbk != nullptr) {
+      window_compare_a_cbk(cb_data->unit);
+    }
+  }
+  else if(cb_data->event == ADC_EVENT_WINDOW_COMPARE_B) {
+    if(window_compare_b_cbk != nullptr) {
+      window_compare_b_cbk(cb_data->unit);
+    }
+  }
+}
+
+
+
+
 
 /* -------------------------------------------------------------------------- */
-static ADC_Container *get_ADC_container_ptr(pin_size_t pin, uint16_t &cfg) {
+static ADC_Container *get_ADC_container_ptr(int32_t pin, uint16_t &cfg) {
 /* -------------------------------------------------------------------------- */  
   ADC_Container *rv = nullptr;
   uint16_t cfg_adc = 0;
@@ -126,10 +128,10 @@ static ADC_Container *get_ADC_container_ptr(pin_size_t pin, uint16_t &cfg) {
   }
   if(cfg_adc > 0 ) {
     if(IS_ADC1(cfg_adc)) {
-      rv = &adc;
+      rv = &adc1;
     }
     else {
-      rv = &adc1;
+      rv = &adc;
     }
   }
   cfg = cfg_adc;
@@ -137,35 +139,367 @@ static ADC_Container *get_ADC_container_ptr(pin_size_t pin, uint16_t &cfg) {
 
 }
 
+
+
+
 /* -------------------------------------------------------------------------- */
-static ADC_Container *get_ADC_container_ptr(bsp_io_port_pin_t pin, uint16_t &cfg) {
+/* ADD PIN TO COMPARE                                                         */
+/* -------------------------------------------------------------------------- */
+
+/* That function works on COMPARE A - more than 1 PIN is used at once */
+/* -------------------------------------------------------------------------- */
+static bool addPinToCompare(ADC_Container *_adc, bool lower_or_outside_wnd, uint8_t ch, bsp_io_port_pin_t pin) {
 /* -------------------------------------------------------------------------- */  
-  ADC_Container *rv = nullptr;
-  int32_t index = getPinIndex(pin);
-  return get_ADC_container_ptr((pin_size_t)index,cfg);
-  
+  bool rv = false;
+  if(_adc != nullptr) {
+    if(_adc->channel_cfg.p_window_cfg == nullptr) {
+      _adc->channel_cfg.p_window_cfg  = new adc_window_cfg_t;
+    }
+    if(_adc->channel_cfg.p_window_cfg != nullptr) {
+      pinPeripheral(pin, (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+      _adc->channel_cfg.p_window_cfg->compare_mask |= (1 << ch);
+      _adc->channel_cfg.p_window_cfg->compare_mode_mask |= (lower_or_outside_wnd << ch);
+    }
+  }
+  return rv;
 }
 
 /* -------------------------------------------------------------------------- */
-static int adcConvert(ADC_Container *adc,uint16_t cfg_adc) {
+bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) {
+/* -------------------------------------------------------------------------- */
+  bool rv = false;
+  int32_t index = getPinIndex(pin);
+  uint16_t cfg_adc = 0;
+  ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
+  
+  return addPinToCompare(_adc, lower_or_outside_wnd, GET_CHANNEL(cfg_adc),pin);
+}
+
+/* -------------------------------------------------------------------------- */
+bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */  
-  if(adc != nullptr) {
-    //Enable scan only for the current pin
-    adc->channel_cfg.scan_mask = (1 << GET_CHANNEL(cfg_adc));
+  bool rv = false;
+  int32_t index = digitalPinToAnalogPin(pinNumber);
+  uint16_t cfg_adc = 0;
+  ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
+  return addPinToCompare(_adc, lower_or_outside_wnd, GET_CHANNEL(cfg_adc),digitalPinToBspPin(index));
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/* ADD PIN TO SCAN GROUP                                                      */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+static bool addPinToGroup(ADC_Container *_adc, ScanGroup_t g, uint8_t ch, bsp_io_port_pin_t pin) {
+/* -------------------------------------------------------------------------- */  
+  bool rv = false;
+  if(_adc != nullptr) {
+    pinPeripheral(pin, (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+    if(g == ADC_SCAN_GROUP_A) {
+      _adc->channel_cfg.scan_mask |= (1 << ch);
+      rv = true;
+    }
+    else if(g == ADC_SCAN_GROUP_B) {
+      _adc->channel_cfg.scan_mask_group_b |= (1 << ch);
+      rv = true;
+    }
+  }
+  return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
+/* -------------------------------------------------------------------------- */
+  bool rv = false;
+  int32_t index = getPinIndex(pin);
+  uint16_t cfg_adc = 0;
+  ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
+  
+  return addPinToGroup(adc, g, GET_CHANNEL(cfg_adc),pin);
+}
+
+/* -------------------------------------------------------------------------- */
+bool analogAddPinToGroup(pin_size_t pinNumber, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
+/* -------------------------------------------------------------------------- */  
+  bool rv = false;
+  int32_t index = digitalPinToAnalogPin(pinNumber);
+  uint16_t cfg_adc = 0;
+  ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
+  return addPinToGroup(adc, g, GET_CHANNEL(cfg_adc),digitalPinToBspPin(index));
+}
+
+
+void analogStartScan() {
+  if(adc.ctrl.opened)  {
+    R_ADC_ScanStart(&(adc.ctrl));
+  }
+  if(adc1.ctrl.opened)  {
+    R_ADC_ScanStart(&(adc1.ctrl));
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+bool attachScanEndIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_SINGLE_SCAN*/, uint8_t priority /*= 12*/) {
+/* -------------------------------------------------------------------------- */
+  bool rv = true;
+  
+  if(adc.channel_cfg.scan_mask) {
+    if(adc.ctrl.opened)
+      R_ADC_Close(&(adc.ctrl));
+    if(IRQManager::getInstance().addADCScanEnd(&adc)) {
+        adc.cfg.scan_end_ipl = priority;
+        scan_complete_cbk = cbk;
+    }
+    else {
+      rv = false;
+    }
+    adc.cfg.mode = mode;
     
-    R_ADC_Open(&(adc->ctrl), &(adc->cfg));
-    R_ADC_ScanCfg(&(adc->ctrl), &(adc->channel_cfg));
-    R_ADC_ScanStart(&(adc->ctrl));
+    R_ADC_Open(&(adc.ctrl), &(adc.cfg));
+    R_ADC_ScanCfg(&(adc.ctrl), &(adc.channel_cfg));
+    R_ADC_ScanStart(&(adc.ctrl));
+  }
+  
+  if(adc1.channel_cfg.scan_mask) {
+    if(adc1.ctrl.opened)
+      R_ADC_Close(&(adc1.ctrl));
+    if(IRQManager::getInstance().addADCScanEnd(&adc1)) {
+        adc1.cfg.scan_end_ipl = priority;
+        scan_complete_cbk = cbk;
+    }
+    else {
+      rv = false;
+    }
+    adc1.cfg.mode = mode;
+    R_ADC_Open(&(adc1.ctrl), &(adc1.cfg));
+    R_ADC_ScanCfg(&(adc1.ctrl), &(adc1.channel_cfg));
+    R_ADC_ScanStart(&(adc1.ctrl));
+  }
+
+  return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*/, uint8_t priority) {
+/* -------------------------------------------------------------------------- */
+  bool rv = true;
+  
+  if(adc.channel_cfg.scan_mask_group_b) {
+    if(adc.ctrl.opened)
+      R_ADC_Close(&(adc.ctrl));
+    if(IRQManager::getInstance().addADCScanEndB(&adc)) {
+        adc.cfg.scan_end_ipl = priority;
+        scan_complete_b_cbk = cbk;
+    }
+    else {
+      rv = false;
+    }
+    adc.cfg.mode = mode;
+    R_ADC_Open(&(adc.ctrl), &(adc.cfg));
+    R_ADC_ScanCfg(&(adc.ctrl), &(adc.channel_cfg));
+    R_ADC_ScanStart(&(adc.ctrl));
+    //R_ADC_ScanGroupStart (&(adc.ctrl), ADC_GROUP_MASK_ALL );
+
+  }
+  
+  if(adc1.channel_cfg.scan_mask_group_b) {
+    if(adc1.ctrl.opened)
+      R_ADC_Close(&(adc1.ctrl));
+    if(IRQManager::getInstance().addADCScanEndB(&adc1)) {
+        adc1.cfg.scan_end_ipl = priority;
+        scan_complete_b_cbk = cbk;
+    }
+    else {
+      rv = false;
+    }
+    adc1.cfg.mode = mode;
+    R_ADC_Open(&(adc1.ctrl), &(adc1.cfg));
+    R_ADC_ScanCfg(&(adc1.ctrl), &(adc1.channel_cfg));
+    R_ADC_ScanStart(&(adc1.ctrl));
+    //R_ADC_ScanGroupStart (&(adc1.ctrl), ADC_GROUP_MASK_ALL );
+  }
+
+  return rv;
+}
+
+int getStoredAnalogValue(bsp_io_port_pin_t pin) {
+  int rv = -1;
+  int32_t index = getPinIndex(pin);
+  uint16_t cfg_adc = 0;
+
+  if(index >= 0) {
+    const uint16_t *cfg = g_pin_cfg[index].list;
+    cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
+  }
+  if(cfg_adc > 0 ) {
+    rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+  }
+  return rv;
+}
+
+int getStoredAnalogValue(pin_size_t pinNumber) {
+  int rv = -1;
+  pin_size_t index = digitalPinToAnalogPin(pinNumber);
+  uint16_t cfg_adc = 0;
+  if(index >= 0) {
+    const uint16_t *cfg = g_pin_cfg[index].list;
+    cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
+  }
+  if(cfg_adc > 0 ) {
+    rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+  }
+  return rv;
+}
+
+
+
+
+bool analogAttachIrqCompareA(uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*/, uint8_t priority /* = 12 */){
+  bool rv = true;
+  if(adc.channel_cfg.p_window_cfg != nullptr) {
+    if(adc.channel_cfg.p_window_cfg->compare_mask) {
+      if(adc.ctrl.opened)
+        R_ADC_Close(&(adc.ctrl));
+      adc.channel_cfg.p_window_cfg->compare_ref_low = low_th;
+      adc.channel_cfg.p_window_cfg->compare_ref_high = high_th;
+      adc.channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(adc.channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_A_ENABLE);
+      if(enable_window) {
+        adc.channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(adc.channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_WINDOW_ENABLE);
+      }
+      if(IRQManager::getInstance().addADCWinCmpA(&adc)) {
+        ((adc_extended_cfg_t *)(adc.cfg.p_extend))->window_a_ipl = priority;
+        window_compare_a_cbk = cbk;
+      }
+      adc.cfg.mode = mode;
+      R_ADC_Open(&(adc.ctrl), &(adc.cfg));
+      R_ADC_ScanCfg(&(adc.ctrl), &(adc.channel_cfg));
+      R_ADC_ScanStart(&(adc.ctrl));
+    }
+    else {
+      rv = false;
+    }
+  }
+  else {
+    rv = false;
+  }
+
+  if(adc1.channel_cfg.p_window_cfg != nullptr) {
+    if(adc1.channel_cfg.p_window_cfg->compare_mask) {
+      if(adc1.ctrl.opened)
+        R_ADC_Close(&(adc1.ctrl));
+      adc1.channel_cfg.p_window_cfg->compare_ref_low = low_th;
+      adc1.channel_cfg.p_window_cfg->compare_ref_high = high_th;
+      adc1.channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(adc1.channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_A_ENABLE);
+      if(enable_window) {
+        adc1.channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(adc1.channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_WINDOW_ENABLE);
+      }
+      if(IRQManager::getInstance().addADCWinCmpA(&adc)) {
+        ((adc_extended_cfg_t *)(adc1.cfg.p_extend))->window_a_ipl = priority;
+        window_compare_a_cbk = cbk;
+      }
+      adc1.cfg.mode = mode;
+      R_ADC_Open(&(adc1.ctrl), &(adc1.cfg));
+      R_ADC_ScanCfg(&(adc1.ctrl), &(adc1.channel_cfg));
+      R_ADC_ScanStart(&(adc1.ctrl));
+    }
+    else {
+      rv = false;
+    }
+  }
+  else {
+    rv = false;
+  }
+
+  return rv;
+
+}
+
+static bool attachIrqCompareB(ADC_Container *_adc, uint8_t ch, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode, uint8_t priority) {
+  bool rv = true;
+  if(_adc->channel_cfg.p_window_cfg == nullptr) {
+      _adc->channel_cfg.p_window_cfg  = new adc_window_cfg_t;
+  }
+
+  if(_adc->channel_cfg.p_window_cfg != nullptr) {
+    if(_adc->ctrl.opened)
+      R_ADC_Close(&(_adc->ctrl));
+    
+    _adc->channel_cfg.p_window_cfg->compare_b_ref_low = low_th;
+    _adc->channel_cfg.p_window_cfg->compare_b_ref_high = high_th;
+    _adc->channel_cfg.p_window_cfg->compare_b_channel = (adc_window_b_channel_t)ch;
+    if(lower_or_outside_wnd) {
+      _adc->channel_cfg.p_window_cfg->compare_b_mode = ADC_WINDOW_B_MODE_LESS_THAN_OR_OUTSIDE;
+    }
+    else {
+      _adc->channel_cfg.p_window_cfg->compare_b_mode = ADC_WINDOW_B_MODE_GREATER_THAN_OR_INSIDE;
+    }
+    _adc->channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(_adc->channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_B_ENABLE);
+    if(enable_window) {
+      _adc->channel_cfg.p_window_cfg->compare_cfg = static_cast<adc_compare_cfg_t>(_adc->channel_cfg.p_window_cfg->compare_cfg |  ADC_COMPARE_CFG_WINDOW_ENABLE);
+    }
+    if(IRQManager::getInstance().addADCWinCmpB(_adc)) {
+        ((adc_extended_cfg_t *)(_adc->cfg.p_extend))->window_b_ipl = priority;
+        window_compare_b_cbk = cbk;
+    }
+    else {
+      rv = false;
+    }
+    _adc->cfg.mode = mode;
+    R_ADC_Open(&(_adc->ctrl), &(_adc->cfg));
+    R_ADC_ScanCfg(&(_adc->ctrl), &(_adc->channel_cfg));
+    R_ADC_ScanStart(&(_adc->ctrl));
+  }
+  else {
+    rv = false;
+  }
+}
+
+
+bool analogAttachIrqCompareB(pin_size_t pinNumber, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk,adc_mode_t mode , uint8_t priority /* = 12 */) {
+  int32_t index = digitalPinToAnalogPin(pinNumber);
+  uint16_t cfg_adc = 0;
+  ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
+  pinPeripheral(digitalPinToBspPin(index), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+  return attachIrqCompareB(_adc,GET_CHANNEL(cfg_adc),lower_or_outside_wnd,low_th, high_th,enable_window, cbk, mode, priority);
+}
+
+bool analogAttachIrqCompareB(bsp_io_port_pin_t pin, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode ,uint8_t priority /* = 12 */) {
+  int32_t index = getPinIndex(pin);
+  uint16_t cfg_adc = 0;
+  ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
+  pinPeripheral(pin, (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+  return attachIrqCompareB(_adc,GET_CHANNEL(cfg_adc),lower_or_outside_wnd,low_th, high_th,enable_window, cbk, mode, priority );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                      CONVERSIONE "A SINGOLO CANALE"
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
+/* -------------------------------------------------------------------------- */  
+  if(_adc != nullptr) {
+    _adc->cfg.mode = ADC_MODE_SINGLE_SCAN;
+    //Enable scan only for the current pin
+    // USE | (OR) to keep previous configuration (like for IRQ conversion)
+    _adc->channel_cfg.scan_mask |= (1 << GET_CHANNEL(cfg_adc));
+    
+    R_ADC_Open(&(_adc->ctrl), &(_adc->cfg));
+    R_ADC_ScanCfg(&(_adc->ctrl), &(_adc->channel_cfg));
+    R_ADC_ScanStart(&(_adc->ctrl));
 
     adc_status_t status;
     status.state = ADC_STATE_SCAN_IN_PROGRESS;
     while (ADC_STATE_SCAN_IN_PROGRESS == status.state)
     {
-      R_ADC_StatusGet(&(adc->ctrl), &status);
+      R_ADC_StatusGet(&(_adc->ctrl), &status);
     }
 
     uint16_t result;
-    R_ADC_Read(&(adc->ctrl), (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
+    R_ADC_Read(&(_adc->ctrl), (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
     return (int)result;
   }
   else {
@@ -173,101 +507,17 @@ static int adcConvert(ADC_Container *adc,uint16_t cfg_adc) {
   }
 }
 
-static bool adcAttachIrq(ADC_Container *adc, ADCIrqCbk_f cbk, ADCIrqType_t type, uint8_t priority){
-  if(adc != nullptr) {
-    bool was_opened = (adc->ctrl.opened) ? true : false;
-    if(was_opened) {
-      R_ADC_Close(&(adc->ctrl));
-    }
-
-    if(type == ADC_IRQ_SCAN_END) {
-      if(IRQManager::getInstance().addADCScanEnd(adc)) {
-        adc->cfg.scan_end_ipl = priority;
-        if(adc->cfg.unit == 0) {
-          scan_complete_unit0_cbk = cbk;
-        } 
-        else if(adc->cfg.unit == 1) {
-          scan_complete_unit1_cbk = cbk;
-        }
-      }
-    }
-    else if(type == ADC_IRQ_SCAN_END_B) {
-      if(IRQManager::getInstance().addADCScanEndB(adc)) {
-        adc->cfg.scan_end_b_ipl = priority;
-        if(adc->cfg.unit == 0) {
-          scan_complete_b_unit0_cbk = cbk;
-        } 
-        else if(adc->cfg.unit == 1) {
-          scan_complete_b_unit1_cbk = cbk;
-        }
-      }
-
-    }
-    else if(type == ADC_IRQ_WIN_CMP_A) {
-      if(IRQManager::getInstance().addADCWinCmpA(adc)) {
-        ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_ipl = priority;
-        if(adc->cfg.unit == 0) {
-          window_compare_a_unit0_cbk = cbk;
-        } 
-        else if(adc->cfg.unit == 1) {
-          window_compare_a_unit1_cbk = cbk;
-        }
-      }
-
-    }
-    else if(type == ADC_IRQ_WIN_CMP_B) {
-
-      if(IRQManager::getInstance().addADCWinCmpB(adc)) {
-        ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_ipl = priority;
-        if(adc->cfg.unit == 0) {
-          window_compare_b_unit0_cbk = cbk;
-        } 
-        else if(adc->cfg.unit == 1) {
-          window_compare_b_unit1_cbk = cbk;
-        }
-      }
-    }
-
-    if(was_opened) {
-      R_ADC_Open(&(adc->ctrl), &(adc->cfg));
-    }
-  }
-  else {
-    return false;
-  }
-
-}
-
-
-bool attachAnalogInterrupt(pin_size_t pinNumber, ADCIrqCbk_f cbk, ADCIrqType_t type, uint8_t priority /*= 12*/) {
-  pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
-  uint16_t cfg_adc = 0;
-  ADC_Container *adc = get_ADC_container_ptr(adc_idx, cfg_adc);
-  return adcAttachIrq(adc, cbk, type, priority);
-  
-
-}
-
-bool attachAnalogInterrupt(bsp_io_port_pin_t pinNumber, ADCIrqCbk_f cbk, ADCIrqType_t type, uint8_t priority /*= 12*/) {
-  uint16_t cfg_adc = 0;
-  ADC_Container *adc = get_ADC_container_ptr(pinNumber, cfg_adc);
-
-  return adcAttachIrq(adc, cbk, type, priority);
-}
-
-
 /* -------------------------------------------------------------------------- */
 /* FSP PIN NUMBER */
-int analogRead(bsp_io_port_pin_t pinNumber) {
+int analogRead(bsp_io_port_pin_t pin) {
 /* -------------------------------------------------------------------------- */
+  int32_t index = getPinIndex(pin);
   uint16_t cfg_adc = 0;
-  ADC_Container *adc = get_ADC_container_ptr(pinNumber, cfg_adc);
-
-  pinPeripheral(pinNumber, (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
+  ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
+  pinPeripheral(pin, (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
   
-  return adcConvert(adc,cfg_adc);
+  return adcConvert(_adc,cfg_adc);
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* LEGACY PIN NUMBER */
@@ -275,12 +525,13 @@ int analogRead(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */  
   pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
-  ADC_Container *adc = get_ADC_container_ptr(adc_idx, cfg_adc);
-
+  ADC_Container *_adc = get_ADC_container_ptr(adc_idx, cfg_adc);
   pinPeripheral(digitalPinToBspPin(adc_idx), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
 
-  return adcConvert(adc,cfg_adc);
+  return adcConvert(_adc,cfg_adc);
 }
+
+
 
 void analogReference(uint8_t mode) {
   // TODO: in case VREFH is selected, please configure the pin accordingly
@@ -289,6 +540,10 @@ void analogReference(uint8_t mode) {
   R_ADC_Close(&adc.ctrl);
   adc.cfg_extend.adc_vref_control = (adc_vref_control_t)mode;
   R_ADC_Open(&adc.ctrl, &adc.cfg);
+
+  R_ADC_Close(&adc1.ctrl);
+  adc1.cfg_extend.adc_vref_control = (adc_vref_control_t)mode;
+  R_ADC_Open(&adc1.ctrl, &adc1.cfg);
 }
 
 void analogReadResolution(int bits) {

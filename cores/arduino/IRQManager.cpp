@@ -43,7 +43,7 @@ IRQManager& IRQManager::getInstance() {
     return instance;
 }
 
-#ifdef DONOT_USE
+
 bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* getting the address of the current location of the irq vector table */
     volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
@@ -52,7 +52,7 @@ bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     bool rv = true;
     
     if( (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
-        if(set_adc_end_link_event(last_interrupt_index, adc.cfg.unit)) {
+        if(set_adc_end_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_irq = (IRQn_Type)last_interrupt_index;
             
@@ -86,12 +86,12 @@ bool IRQManager::addADCScanEndB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     bool rv = true;
     
     if( (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
-        if(set_adc_end_b_link_event(last_interrupt_index, adc.cfg.unit)) {
+        if(set_adc_end_b_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_b_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_b_irq = (IRQn_Type)last_interrupt_index;
             
             if(fnc == nullptr) {
-                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_isr;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_b_isr;
             }
             else {
                 *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
@@ -118,13 +118,13 @@ bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (adc->cfg.p_extend->window_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
-        if(set_adc_win_a_link_event(last_interrupt_index, adc.cfg.unit)) {
-            adc->cfg.p_extend->window_a_ipl = TIMER_PRIORITY;
-            adc->cfg.p_extend->window_a_irq = (IRQn_Type)last_interrupt_index;
+    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_win_a_link_event(last_interrupt_index, adc->cfg.unit)) {
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_ipl = TIMER_PRIORITY;
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq = (IRQn_Type)last_interrupt_index;
             
             if(fnc == nullptr) {
-                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_isr;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_window_compare_isr;
             }
             else {
                 *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
@@ -133,7 +133,7 @@ bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
         }
     }
     else {
-        if(adc->cfg.p_extend->window_a_irq== FSP_INVALID_VECTOR) {
+        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq== FSP_INVALID_VECTOR) {
             rv = false;
         }
         else {
@@ -151,13 +151,13 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (adc->cfg.p_extend->window_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
-        if(set_adc_win_b_link_event(last_interrupt_index, adc.cfg.unit)) {
-            adc->cfg.p_extend->window_b_ipl = TIMER_PRIORITY;
-            adc->cfg.p_extend->window_b_irq = (IRQn_Type)last_interrupt_index;
+    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_win_b_link_event(last_interrupt_index, adc->cfg.unit)) {
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_ipl = TIMER_PRIORITY;
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq = (IRQn_Type)last_interrupt_index;
             
             if(fnc == nullptr) {
-                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_isr;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_window_compare_isr;
             }
             else {
                 *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
@@ -166,7 +166,7 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
         }
     }
     else {
-        if(adc->cfg.p_extend->window_b_irq== FSP_INVALID_VECTOR) {
+        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq== FSP_INVALID_VECTOR) {
             rv = false;
         }
         else {
@@ -176,7 +176,7 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     return rv;
 
 }
-#endif
+
 /* -------------------------------------------------------------------------- */
 bool IRQManager::addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc /* = nullptr */) {
 /* -------------------------------------------------------------------------- */    
