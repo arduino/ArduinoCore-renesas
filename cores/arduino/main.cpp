@@ -19,14 +19,18 @@ extern uint32_t __ROM_Start;
 extern const fsp_vector_t __VECTOR_TABLE[];
 extern const fsp_vector_t g_vector_table[];
 
+extern "C" void SysTick_Handler(void) {}
+extern "C" void HardFault_Handler(void) {}
+
 void arduino_main(void)
 {
    // Disable stack pointer protection
    // TODO: the best thing would be keeping SPMON active but changing
    // R_MPU_SPMON->SP[0].EA = __stack_top; on every call to malloc()
    // When stack and heap would collide, we could signal the NMI with mbed style leds patterns
-#if _RA_CORE != CM33
-   // TODO: find out why H33 build can't find the symbol
+#if defined(__ARM_ARCH_8M_MAIN__) || defined(__ARM_ARCH_8M_BASE__)
+   __set_MSPLIM(0);
+#else
    R_MPU_SPMON->SP[0].CTL = 0;
 #endif
 
@@ -41,7 +45,7 @@ void arduino_main(void)
    }
    
    SCB->VTOR = (uint32_t)irq_vector_table;
-   
+
    __DSB();
    __enable_irq();
 
