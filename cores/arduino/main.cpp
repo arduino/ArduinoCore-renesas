@@ -2,7 +2,8 @@
 #include "usb/USB.h"
 
 /* TODO: make me configurable by the variant */
-#define APPLICATION_VECTOR_TABLE_ADDRESS_RAM    0x20007F00
+extern const uint32_t __StackTop;
+const uint32_t APPLICATION_VECTOR_TABLE_ADDRESS_RAM = (uint32_t)&__StackTop;
 
 void startAgt();
 

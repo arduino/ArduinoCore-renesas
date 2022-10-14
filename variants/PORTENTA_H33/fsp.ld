@@ -468,6 +468,7 @@ SECTIONS
     .vector_table ABSOLUTE(__StackTop) (NOLOAD):
     {
         . = ALIGN(4);
+        APPLICATION_VECTOR_TABLE_ADDRESS_RAM = .;
         . = ABSOLUTE(RAM_START + RAM_LENGTH);
     } > RAM
 
