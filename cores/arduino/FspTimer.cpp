@@ -13,7 +13,7 @@ TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     // AGT0 is always used for timekeeping (millis() and micros())
-    agt_used_channel[0] = TIMER_USED;
+    // agt_used_channel[0] = TIMER_USED;
 }
 
 FspTimer::~FspTimer() {
