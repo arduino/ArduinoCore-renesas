@@ -340,7 +340,7 @@ void __USBStart() {
 #if (CFG_TUSB_RHPORT1_MODE != 0)
     usb_irq_cfg.num_of_irqs_required = 3;
     usb_irq_cfg.address_of_handler = (uint32_t)_usbhs_interrupt_handler;
-    IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
+    IRQManager::getInstance().addPeripheral(IRQ_USB_HS,(void*)&usb_irq_cfg);
     tud_set_irq_usbhs((IRQn_Type)(usb_irq_cfg.first_irq_number));
 #endif
 #endif

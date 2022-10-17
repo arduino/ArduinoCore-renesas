@@ -280,18 +280,19 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
            only interrupt handler function used */
         if( (last_interrupt_index +  irqcfg->num_of_irqs_required ) < PROG_IRQ_NUM ) {
 
-            if(irqcfg->num_of_irqs_required == 4) {
-                /* USBFS INT (USBFS interrupt) */
-                *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
-                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBFS_INT);
-                R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
-                R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
-                NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
-                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
-                irqcfg->first_irq_number = last_interrupt_index;
-                last_interrupt_index++;
-            }
+            #ifdef ELC_EVENT_USBFS_INT
+            /* USBFS INT (USBFS interrupt) */
+            *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBFS_INT);
+            R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
+            R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
+            NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            irqcfg->first_irq_number = last_interrupt_index;
+            last_interrupt_index++;
+            #endif
 
+            #ifdef ELC_EVENT_USBFS_RESUME
             /* USBFS RESUME (USBFS resume interrupt) */
             *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBFS_RESUME);
@@ -300,6 +301,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
             R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
+            #endif
 
             #ifdef ELC_EVENT_USBFS_FIFO_0
             /* USBFS FIFO 0 (DMA transfer request 0) */
@@ -324,6 +326,52 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             #endif
         }
         else {
+            rv = false;
+        }
+    }
+
+    else if(p == IRQ_USB_HS && cfg != NULL) {
+        USBIrqCfg_t *irqcfg = (USBIrqCfg_t *)cfg;
+
+        /* configuring USB interrupts */
+        /* in case of USB which does not use any FSP API the cfg contains the 
+           only interrupt handler function used */
+        if( (last_interrupt_index +  irqcfg->num_of_irqs_required ) < PROG_IRQ_NUM ) {
+
+            #ifdef ELC_EVENT_USBHS_USB_INT_RESUME
+            /* USBHS INT (USBFS interrupt) */
+            *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBHS_USB_INT_RESUME);
+            R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
+            R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
+            NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            irqcfg->first_irq_number = last_interrupt_index;
+            last_interrupt_index++;
+            #endif
+
+            #ifdef ELC_EVENT_USBHS_FIFO_0
+            /* USBFS FIFO 0 (DMA transfer request 0) */
+            *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBHS_FIFO_0);
+            R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
+            R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
+            NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            last_interrupt_index++;
+            #endif
+
+            #ifdef ELC_EVENT_USBHS_FIFO_1
+            /* USBFS FIFO 1 (DMA transfer request 1) */
+            *(irq_ptr + last_interrupt_index) = (uint32_t)irqcfg->address_of_handler;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_USBHS_FIFO_1);
+            R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
+            R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
+            NVIC_SetPriority((IRQn_Type)last_interrupt_index, USB_PRIORITY);
+            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+            last_interrupt_index++;
+            #endif
+        } else {
             rv = false;
         }
     }
