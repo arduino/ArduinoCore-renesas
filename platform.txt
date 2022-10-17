@@ -49,7 +49,7 @@ compiler.ar.extra_flags=
 compiler.objcopy.eep.extra_flags=
 compiler.elf2hex.extra_flags=
 
-tinyusb.includes=-I{runtime.platform.path}/cores/arduino/tinyusb
+tinyusb.includes="-I{runtime.platform.path}/cores/arduino/tinyusb"
 
 # USB Flags
 # ---------
