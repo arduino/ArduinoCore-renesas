@@ -457,9 +457,10 @@ SECTIONS
 	/* .stack_dummy section doesn't contains any symbols. It is only
 	 * used for linker to calculate size of stack sections, and assign
 	 * values to stack symbols later */
-	.stack_dummy ABSOLUTE(__StackTop - BSP_CFG_STACK_MAIN_BYTES - MAIN_THREAD_STACK_LENGTH) (NOLOAD):
+	.stack_dummy ABSOLUTE(__StackTop - BSP_CFG_STACK_MAIN_BYTES) (NOLOAD):
     {
         . = ALIGN(8);
+        __StackLimit = .;
         KEEP(*(.stack))
         KEEP(*(.stack*))
         __StackTopAll = .;
@@ -472,7 +473,7 @@ SECTIONS
         . = ABSOLUTE(RAM_START + RAM_LENGTH);
     } > RAM
 
-	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
+	//__StackLimit = __StackTop - SIZEOF(.stack_dummy);
 	PROVIDE(__stack = __StackTop);
 
     /* This symbol represents the end of user allocated RAM. The RAM after this symbol can be used
