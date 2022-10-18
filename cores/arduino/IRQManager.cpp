@@ -694,33 +694,33 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         /* Error interrupt */
         p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
         *(irq_ptr + last_interrupt_index) = (uint32_t)can_error_isr;
-        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_ERROR);
+        set_can_error_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
 
         /* Receive interrupt */
         p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
         *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
-        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_RX);
+        set_can_rx_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
 
         /* Transmit interrupt */
         p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
         *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
-        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_TX);
+        set_can_tx_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
 
         /* RX FIFO interrupt */
         p_fifo_int_cfg->rx_fifo_irq = (IRQn_Type)last_interrupt_index;
         R_BSP_IrqCfgEnable(p_fifo_int_cfg->rx_fifo_irq, p_cfg->ipl, p_ctrl);
-        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_RX);
+        set_can_rx_fifo_link_event(last_interrupt_index, p_cfg->channel);
         last_interrupt_index++;
 
         /* TX FIFO interrupt */
         p_fifo_int_cfg->tx_fifo_irq = (IRQn_Type)last_interrupt_index;
-        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_TX);
+        set_can_tx_fifo_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_fifo_int_cfg->tx_fifo_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
       }
@@ -1358,6 +1358,57 @@ void IRQManager::set_spi_eri_link_event(int li, int ch)
 #endif
 #ifdef ELC_EVENT_SPI1_ERI
     else if(ch == 1) { R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI);}
+#endif
+}
+
+
+void IRQManager::set_can_error_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_ERROR
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_ERROR);
+  }
+#endif
+}
+
+void IRQManager::set_can_rx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_MAILBOX_RX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_RX);
+  }
+#endif
+}
+
+void IRQManager::set_can_tx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_MAILBOX_TX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_TX);
+  }
+#endif
+}
+
+void IRQManager::set_can_rx_fifo_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_FIFO_RX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_RX);
+  }
+#endif
+}
+
+void IRQManager::set_can_tx_fifo_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_FIFO_TX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_TX);
+  }
 #endif
 }
 

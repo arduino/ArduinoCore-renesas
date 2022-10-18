@@ -210,6 +210,12 @@ class IRQManager {
     void set_spi_tei_link_event(int li, int ch);
     void set_spi_eri_link_event(int li, int ch);
 
+    void set_can_error_link_event(int li, int ch);
+    void set_can_rx_link_event(int li, int ch);
+    void set_can_tx_link_event(int li, int ch);
+    void set_can_rx_fifo_link_event(int li, int ch);
+    void set_can_tx_fifo_link_event(int li, int ch);
+
     bool set_dma_link_event(int li, int ch);
     IRQManager();
 };
