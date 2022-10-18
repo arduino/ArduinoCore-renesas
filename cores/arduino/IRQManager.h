@@ -29,6 +29,7 @@ typedef enum {
     IRQ_EXTERNAL_PIN,
     IRQ_SPI_MASTER,
     IRQ_SCI_SPI_MASTER,
+    IRQ_CAN,
 } Peripheral_t;
 
 #if RTC_HOWMANY > 0
@@ -85,6 +86,23 @@ typedef struct sci_spi_master_irq {
 } SciSpiMasterIrqReq_t;
 #endif
 
+#if CAN_HOWMANY > 0
+# if IS_CAN_FD
+#  include "r_canfd.h"
+# else
+#  include "r_can.h"
+# endif
+
+typedef struct can_irq {
+#if IS_CAN_FD
+  canfd_instance_ctrl_t * ctrl;
+#else
+  can_instance_ctrl_t * ctrl;
+#endif
+  can_cfg_t * cfg;
+} CanIrqReq_t;
+#endif /* CAN_HOWMANY > 0 */
+
 typedef struct usb {
     uint32_t num_of_irqs_required;
     uint32_t address_of_handler;
@@ -137,6 +155,9 @@ void gpt_counter_overflow_isr(void);
 void gpt_capture_a_isr(void);
 void gpt_capture_b_isr(void);
 void gpt_counter_underflow_isr(void);
+void can_error_isr(void);
+void can_rx_isr(void);
+void can_tx_isr(void);
 #ifdef __cplusplus
 }
 #endif

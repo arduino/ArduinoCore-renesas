@@ -18,6 +18,7 @@
 #define EXTERNAL_PIN_PRIORITY 12
 #define UART_SCI_PRIORITY 12
 #define SPI_MASTER_REQ_NUM 4
+#define CAN_REQ_NUM 5
 #define USB_PRIORITY  12
 #define AGT_PRIORITY  12
 #define RTC_PRIORITY  12
@@ -26,6 +27,7 @@
 #define SPI_MASTER_PRIORITY 12
 #define DMA_PRIORITY 12
 #define TIMER_PRIORITY 12
+#define CAN_PRIORITY 12
 #define FIRST_INT_SLOT_FREE 0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
@@ -672,6 +674,58 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
       }
     }
 #endif
+
+#if CAN_HOWMANY > 0
+    /* **********************************************************************
+                                      CAN
+       ********************************************************************** */
+    else if(p == IRQ_CAN && cfg != NULL) {
+      if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
+#  if IS_CAN_FD
+        canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
+#  else
+        can_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
+#  endif
+        can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
+        can_extended_cfg_t * p_extended_cfg = (can_extended_cfg_t *)(p_cfg->p_extend);
+        can_fifo_interrupt_cfg_t * p_fifo_int_cfg = const_cast<can_fifo_interrupt_cfg_t *>(p_extended_cfg->p_fifo_int_cfg);
+        p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
+
+        /* Error interrupt */
+        p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_error_isr;
+        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_ERROR);
+        R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Receive interrupt */
+        p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
+        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_RX);
+        R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Transmit interrupt */
+        p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
+        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_TX);
+        R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* RX FIFO interrupt */
+        p_fifo_int_cfg->rx_fifo_irq = (IRQn_Type)last_interrupt_index;
+        R_BSP_IrqCfgEnable(p_fifo_int_cfg->rx_fifo_irq, p_cfg->ipl, p_ctrl);
+        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_RX);
+        last_interrupt_index++;
+
+        /* TX FIFO interrupt */
+        p_fifo_int_cfg->tx_fifo_irq = (IRQn_Type)last_interrupt_index;
+        R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_TX);
+        R_BSP_IrqCfgEnable(p_fifo_int_cfg->tx_fifo_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+      }
+    }
+#endif /* CAN_HOWMANY > 0 */
 
     else {
         rv = false;
