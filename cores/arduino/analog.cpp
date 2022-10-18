@@ -201,10 +201,12 @@ static bool addPinToGroup(ADC_Container *_adc, ScanGroup_t g, uint8_t ch, bsp_io
       _adc->channel_cfg.scan_mask |= (1 << ch);
       rv = true;
     }
+    #ifdef USE_SCAN_GROUP_B
     else if(g == ADC_SCAN_GROUP_B) {
       _adc->channel_cfg.scan_mask_group_b |= (1 << ch);
       rv = true;
     }
+    #endif
   }
   return rv;
 }
@@ -282,6 +284,8 @@ bool attachScanEndIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_SINGLE_SCAN*
   return rv;
 }
 
+#ifdef USE_SCAN_GROUP_B
+
 /* -------------------------------------------------------------------------- */
 bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*/, uint8_t priority) {
 /* -------------------------------------------------------------------------- */
@@ -300,7 +304,10 @@ bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*
     adc.cfg.mode = mode;
     R_ADC_Open(&(adc.ctrl), &(adc.cfg));
     R_ADC_ScanCfg(&(adc.ctrl), &(adc.channel_cfg));
-    R_ADC_ScanStart(&(adc.ctrl));
+    adc.ctrl.p_reg->ADCSR   = (uint16_t) 8768;
+    adc.ctrl.p_reg->ADSTRGR = (uint16_t) 2314;
+    adc.ctrl.p_reg->ADGSPCR = 0;
+    //R_ADC_ScanStart(&(adc.ctrl));
     //R_ADC_ScanGroupStart (&(adc.ctrl), ADC_GROUP_MASK_ALL );
 
   }
@@ -324,6 +331,8 @@ bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*
 
   return rv;
 }
+
+#endif
 
 int getStoredAnalogValue(bsp_io_port_pin_t pin) {
   int rv = -1;

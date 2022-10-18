@@ -37,9 +37,10 @@ bool analogAttachIrq(ADCIrqCbk_f cbk, ADCIrqType_t type, uint8_t priority = 12);
 
 typedef enum {
   ADC_SCAN_GROUP_A,
-  ADC_SCAN_GROUP_B
+  ADC_SCAN_GROUP_B //unsupported
 } ScanGroup_t;
 
+/* only add to SCAN GROUP A is supported */
 bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g = ADC_SCAN_GROUP_A);
 bool analogAddPinToGroup(pin_size_t pinNumber, ScanGroup_t g = ADC_SCAN_GROUP_A);
 
@@ -47,7 +48,9 @@ void analogStartScan();
 
 
 bool attachScanEndIrq(ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_SINGLE_SCAN, uint8_t priority = 12);
+#ifdef USE_SCAN_GROUP_B
 bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_GROUP_SCAN, uint8_t priority = 12);
+#endif
 bool analogAttachIrqCompareA(uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_CONTINUOUS_SCAN, uint8_t priority  = 12 );
 bool analogAttachIrqCompareB(bsp_io_port_pin_t pinNumber, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_CONTINUOUS_SCAN, uint8_t priority = 12);
 bool analogAttachIrqCompareB(pin_size_t pinNumber, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_CONTINUOUS_SCAN, uint8_t priority = 12);
