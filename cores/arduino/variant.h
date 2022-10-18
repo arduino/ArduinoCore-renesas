@@ -110,8 +110,6 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 
 #define GET_CHANNEL(x)              ((x & CHANNEL_MASK) >> CHANNEL_POS)
 
-#define ADC_0                       0
-#define ADC_1                       0x1000
 /* no more */
 
 #define ADD_CONFIG_POS              (11)

@@ -132,6 +132,8 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
   return rv;
 }
 
+#include "FspTimer.h"
+
 void initVariant() {
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[3].list, PIN_CFG_REQ_PWM)));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[5].list, PIN_CFG_REQ_PWM)));

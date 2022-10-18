@@ -483,9 +483,9 @@ bool analogAttachIrqCompareB(bsp_io_port_pin_t pin, bool lower_or_outside_wnd, u
   return attachIrqCompareB(_adc,GET_CHANNEL(cfg_adc),lower_or_outside_wnd,low_th, high_th,enable_window, cbk, mode, priority );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                      CONVERSIONE "A SINGOLO CANALE"
-/* -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+                      SINGLE CHANNEL CONVERSION
+   -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {

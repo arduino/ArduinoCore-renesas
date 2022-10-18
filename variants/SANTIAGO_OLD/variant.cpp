@@ -103,6 +103,8 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
 
+#include "FspTimer.h"
+
 void initVariant() {
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[3].list, PIN_CFG_REQ_PWM)));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[5].list, PIN_CFG_REQ_PWM)));
