@@ -186,8 +186,7 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 
     _can_mtu_size = CanMtuSize::Classic;
   }
-#if defined __has_include
-#  if __has_include ("r_canfd.h")
+#if IS_CAN_FD
   else
   {
     _open     = R_CANFD_Open;
@@ -198,7 +197,6 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 
     _can_mtu_size = CanMtuSize::FD;
   }
-#  endif
 #endif
   else {
     init_ok = false;
@@ -209,16 +207,24 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
    */
   if (!_open || !_close || !_write || !_read || !_info_get) {
     init_ok = false;
-    return init_ok;
   }
+
+  /* Configure the interrupts.
+   */
+  CanIrqReq_t irq_req
+  {
+    .ctrl = &_can_ctrl,
+    .cfg = &_can_cfg,
+  };
+  init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CAN, &irq_req);
 
 //  pinMode(CAN_STDBY, OUTPUT);
 //  digitalWrite(CAN_STDBY, LOW);
 
   if (_open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
-    return false;
-  else
-    return true;
+    init_ok = false;
+
+  return init_ok;
 }
 
 void ArduinoCAN::end()

@@ -133,6 +133,16 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 
 #define CAN_NUM_OF_MAILBOXES (32)
 
+#if defined __has_include
+#  if __has_include ("r_canfd.h")
+#    define IS_CAN_FD (1)
+#  else
+#    define IS_CAN_FD (0)
+#  endif
+#else
+#  define IS_CAN_FD (0)
+#endif
+
 #define PIN_CAN0_TX       (13)
 #define PIN_CAN0_RX       (12)
 

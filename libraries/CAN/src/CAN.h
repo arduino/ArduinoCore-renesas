@@ -64,7 +64,11 @@ private:
   CAN_read_f _read;
   CAN_info_get_f _info_get;
 
+#if IS_CAN_FD
+  canfd_instance_ctrl_t _can_ctrl;
+#else
   can_instance_ctrl_t _can_ctrl;
+#endif
   can_bit_timing_cfg_t _can_bit_timing_cfg;
   uint32_t _can_mailbox_mask[CAN_NUM_OF_MAILBOXES / 4];
   can_mailbox_t _can_mailbox[CAN_NUM_OF_MAILBOXES];
