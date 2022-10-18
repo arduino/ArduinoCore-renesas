@@ -1,6 +1,6 @@
 #ifndef ARDUINO_IRQ_MANAGER_H
 #define ARDUINO_IRQ_MANAGER_H
-
+#include "analog.h"
 #include "bsp_api.h"
 #include "pins_arduino.h"
 #include "elc_defines.h"
@@ -104,6 +104,7 @@ typedef struct timer {
 } TimerIrqCfg_t;
 
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -143,6 +144,10 @@ void gpt_counter_overflow_isr(void);
 void gpt_capture_a_isr(void);
 void gpt_capture_b_isr(void);
 void gpt_counter_underflow_isr(void);
+void agt_int_isr(void);
+void adc_scan_end_isr (void);
+void adc_scan_end_b_isr (void);
+void adc_window_compare_isr (void);
 #ifdef __cplusplus
 }
 #endif
@@ -167,6 +172,10 @@ class IRQManager {
     bool addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
 
+    bool addADCScanEnd(ADC_Container *adc, Irq_f fnc = nullptr);
+    bool addADCScanEndB(ADC_Container *adc, Irq_f fnc = nullptr);
+    bool addADCWinCmpA(ADC_Container *adc,  Irq_f fnc = nullptr);
+    bool addADCWinCmpB(ADC_Container *adc, Irq_f fnc = nullptr);
 
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
@@ -174,6 +183,11 @@ class IRQManager {
 
     private:
     int last_interrupt_index;
+    bool set_adc_end_link_event(int li, int ch);
+    bool set_adc_end_b_link_event(int li, int ch);
+    bool set_adc_win_a_link_event(int li, int ch);
+    bool set_adc_win_b_link_event(int li, int ch);
+
     void set_sci_tx_link_event(int li, int ch);
     void set_sci_rx_link_event(int li, int ch);
     void set_sci_tei_link_event(int li, int ch);

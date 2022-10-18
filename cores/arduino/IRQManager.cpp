@@ -6,26 +6,28 @@
 
 #define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
-#define TIMER_REQ_NUM 1
-#define DMA_REQ_NUM 1
-#define UART_SCI_REQ_NUM   4
-#define I2C_MASTER_REQ_NUM 4
-#define I2C_SLAVE_REQ_NUM  2
-#define USB_REQ_NUM    4
-#define AGT_REQ_NUM    1
-#define EXTERNAL_PIN_NUM 1
-#define EXTERNAL_PIN_PRIORITY 12
-#define UART_SCI_PRIORITY 12
-#define SPI_MASTER_REQ_NUM 4
-#define USB_PRIORITY  12
-#define AGT_PRIORITY  12
-#define RTC_PRIORITY  12
-#define I2C_MASTER_PRIORITY 12
-#define I2C_SLAVE_PRIORITY 12
-#define SPI_MASTER_PRIORITY 12
-#define DMA_PRIORITY 12
-#define TIMER_PRIORITY 12
-#define FIRST_INT_SLOT_FREE 0
+#define ADC_REQ_NUM                 1
+#define TIMER_REQ_NUM               1
+#define DMA_REQ_NUM                 1
+#define UART_SCI_REQ_NUM            4
+#define I2C_MASTER_REQ_NUM          4
+#define I2C_SLAVE_REQ_NUM           2
+#define USB_REQ_NUM                 4
+#define AGT_REQ_NUM                 1
+#define EXTERNAL_PIN_NUM            1
+#define SPI_MASTER_REQ_NUM          4
+#define EXTERNAL_PIN_PRIORITY      12
+#define UART_SCI_PRIORITY          12
+#define USB_PRIORITY               12
+#define AGT_PRIORITY               12
+#define RTC_PRIORITY               12
+#define I2C_MASTER_PRIORITY        12
+#define I2C_SLAVE_PRIORITY         12
+#define SPI_MASTER_PRIORITY        12
+#define DMA_PRIORITY               12
+#define TIMER_PRIORITY             12
+#define ADC_PRIORITY               12
+#define FIRST_INT_SLOT_FREE         0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
 
@@ -38,6 +40,140 @@ IRQManager::~IRQManager() {
 IRQManager& IRQManager::getInstance() {
     static IRQManager    instance;
     return instance;
+}
+
+
+bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_end_link_event(last_interrupt_index, adc->cfg.unit)) {
+            adc->cfg.scan_end_ipl = TIMER_PRIORITY;
+            adc->cfg.scan_end_irq = (IRQn_Type)last_interrupt_index;
+            
+            if(fnc == nullptr) {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_isr;
+            }
+            else {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+            }
+            last_interrupt_index++;
+        }
+    }
+    else {
+        if(adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+
+
+bool IRQManager::addADCScanEndB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_end_b_link_event(last_interrupt_index, adc->cfg.unit)) {
+            adc->cfg.scan_end_b_ipl = TIMER_PRIORITY;
+            adc->cfg.scan_end_b_irq = (IRQn_Type)last_interrupt_index;
+            
+            if(fnc == nullptr) {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_scan_end_b_isr;
+            }
+            else {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+            }
+            last_interrupt_index++;
+        }
+    }
+    else {
+        if(adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+
+}
+
+bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_win_a_link_event(last_interrupt_index, adc->cfg.unit)) {
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_ipl = TIMER_PRIORITY;
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq = (IRQn_Type)last_interrupt_index;
+            
+            if(fnc == nullptr) {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_window_compare_isr;
+            }
+            else {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+            }
+            last_interrupt_index++;
+        }
+    }
+    else {
+        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq== FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+
+}
+
+bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = true;
+    
+    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+        if(set_adc_win_b_link_event(last_interrupt_index, adc->cfg.unit)) {
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_ipl = TIMER_PRIORITY;
+            ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq = (IRQn_Type)last_interrupt_index;
+            
+            if(fnc == nullptr) {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)adc_window_compare_isr;
+            }
+            else {
+                *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+            }
+            last_interrupt_index++;
+        }
+    }
+    else {
+        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq== FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        else {
+            rv = true;
+        }
+    }
+    return rv;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -727,6 +863,81 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
     __enable_irq();
     return rv;
+}
+
+bool IRQManager::set_adc_end_link_event(int li, int ch){
+    bool rv = false;
+    if (0) {}
+#ifdef ELC_EVENT_ADC0_SCAN_END
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC0_SCAN_END);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_ADC1_SCAN_END1
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC1_SCAN_END);
+        rv = true;
+    }
+#endif
+    return rv;
+}
+
+bool IRQManager::set_adc_end_b_link_event(int li, int ch) {
+    bool rv = false;
+    if (0) {}
+#ifdef ELC_EVENT_ADC0_SCAN_END_B
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC0_SCAN_END_B);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_ADC1_SCAN_END_B
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC1_SCAN_END_B);
+        rv = true;
+    }
+#endif
+    return rv;    
+
+}
+
+bool IRQManager::set_adc_win_a_link_event(int li, int ch) {
+    bool rv = false;
+    if (0) {}
+#ifdef ELC_EVENT_ADC0_WINDOW_A
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC0_WINDOW_A);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_ADC1_WINDOW_A
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC1_WINDOW_A);
+        rv = true;
+    }
+#endif
+    return rv; 
+
+}
+
+bool IRQManager::set_adc_win_b_link_event(int li, int ch) {
+      bool rv = false;
+    if (0) {}
+#ifdef ELC_EVENT_ADC0_WINDOW_B
+    else if(ch == 0) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC0_WINDOW_B);
+        rv = true;
+    }
+#endif
+#ifdef ELC_EVENT_ADC1_WINDOW_B
+    else if(ch == 1) {
+        R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_ADC1_WINDOW_B);
+        rv = true;
+    }
+#endif
+    return rv; 
+
 }
 
 void IRQManager::set_ext_link_event(int li, int ch) {

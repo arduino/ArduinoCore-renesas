@@ -1,8 +1,8 @@
+#ifndef ARDUINO_FSP_TIMER_H
+#define ARDUINO_FSP_TIMER_H
 #include "Arduino.h"
 #include "IRQManager.h"
 
-#ifndef ARDUINO_FSP_TIMER_H
-#define ARDUINO_FSP_TIMER_H
 
 #define GPT_TIMER           (0)
 #define AGT_TIMER           (1)
