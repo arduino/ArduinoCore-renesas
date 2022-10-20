@@ -240,7 +240,7 @@ int ArduinoCAN::write(CanMsg const & msg)
                          msg.data_length,
                          0};
 
-  memcpy((uint8_t*)&can_msg.data[0], (uint8_t*)&msg.data[0], msg.data_length);
+  memcpy(can_msg.data, msg.data, msg.data_length);
 
   if(fsp_err_t const rc = _write(&_can_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
     return -rc;
