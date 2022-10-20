@@ -234,13 +234,15 @@ void ArduinoCAN::end()
 
 int ArduinoCAN::write(CanMsg const & msg)
 {
-  can_frame_t can_msg = {msg.id,
-                         CAN_ID_MODE_EXTENDED,
-                         CAN_FRAME_TYPE_DATA,
-                         msg.data_length,
-                         0};
+  can_frame_t can_msg = {
+    /* id               = */ msg.id,
+    /* id_mode          = */ CAN_ID_MODE_EXTENDED,
+    /* type             = */ CAN_FRAME_TYPE_DATA,
+    /* data_length_code = */ min(msg.data_length, CAN_DATA_BUFFER_LENGTH),
+    /* options          = */ 0
+  };
 
-  memcpy(can_msg.data, msg.data, msg.data_length);
+  memcpy(can_msg.data, msg.data, can_msg.data_length_code);
 
   if(fsp_err_t const rc = _write(&_can_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
     return -rc;
