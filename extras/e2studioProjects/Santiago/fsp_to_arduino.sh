@@ -15,7 +15,7 @@ fi
 
 cd Debug
 make clean
-make
+make -j$(nproc)
 cd ..
 echo `pwd`
 

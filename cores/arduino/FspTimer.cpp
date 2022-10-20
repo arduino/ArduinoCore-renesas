@@ -7,27 +7,13 @@
 #define CH16BIT_MAX         (65535)
 
 bool FspTimer::force_pwm_reserved = false;
-#if GPT_HOWMANY==8
-/* SANTIAGO board 0.1 */
-TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = {TIMER_PWM,
-                                                        TIMER_PWM,
-                                                        TIMER_PWM,
-                                                        TIMER_PWM,
-                                                        TIMER_FREE,
-                                                        TIMER_FREE,
-                                                        TIMER_FREE,
-                                                        TIMER_FREE};
-TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = {TIMER_USED};
-#else
-/* H33 - TO BE VERIFIED */
-TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = {TIMER_FREE};
-TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = {TIMER_FREE};
-#endif
 
-
+TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = { TIMER_FREE };
+TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
-    
+    // AGT0 is always used for timekeeping (millis() and micros())
+    // agt_used_channel[0] = TIMER_USED;
 }
 
 FspTimer::~FspTimer() {
@@ -160,7 +146,7 @@ int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
 
         if(rv == -1) {
             for(uint8_t i = AGT_HOWMANY - 1; i >= 0; i++) {
-                if(agt_used_channel[i] != TIMER_FREE) {
+                if(agt_used_channel[i] != TIMER_USED) {
                     rv = i;
                     type = AGT_TIMER;
                     break;

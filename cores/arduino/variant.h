@@ -25,7 +25,7 @@ typedef enum {
     /* to be completed */
 } PinCfgReq_t;
 
-
+int32_t getPinIndex(bsp_io_port_pin_t p);
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #ifdef __cplusplus
 static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
@@ -52,10 +52,11 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define PIN_PWM                     (9 << PIN_USE_POS)
 #define PIN_ANALOG                  (10 << PIN_USE_POS)
 #define PIN_CTS_RTS_SS              (11 << PIN_USE_POS)
-#define PIN_PWM_GTI                 (9 << PIN_USE_POS)
+#define PIN_PWM_GPT                 (9 << PIN_USE_POS)
 #define PIN_PWM_AGT                 (12 << PIN_USE_POS)
-#define PIN_CAN_RX                  (13 << PIN_USE_POS)
-#define PIN_CAN_TX                  (14 << PIN_USE_POS)
+#define PIN_CAN_TX                  (13 << PIN_USE_POS)
+#define PIN_CAN_RX                  (14 << PIN_USE_POS)
+#define PIN_CTSRTS                  PIN_CTS_RTS_SS
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -71,9 +72,9 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define IS_PIN_MOSI(x)              (((x & PIN_USE_MASK) ==  PIN_MOSI) || ((x & PIN_USE_MASK) ==  PIN_TX_MOSI_SDA))
 
 #define IS_PIN_SCK(x)               ((x & PIN_USE_MASK) ==  PIN_SCK)
-#define IS_PIN_PWM(x)               (((x & PIN_USE_MASK) ==  PIN_PWM_GTI) || ((x & PIN_USE_MASK) ==  PIN_PWM_AGT))
+#define IS_PIN_PWM(x)               (((x & PIN_USE_MASK) ==  PIN_PWM_GPT) || ((x & PIN_USE_MASK) ==  PIN_PWM_AGT))
 #define IS_PIN_AGT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_AGT)
-#define IS_PIN_GTI_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GTI)
+#define IS_PIN_GPT_PWM(x)           ((x & PIN_USE_MASK) ==  PIN_PWM_GPT)
 
 #define IS_PIN_ANALOG(x)            ((x & PIN_USE_MASK) ==  PIN_ANALOG)
 
@@ -106,8 +107,15 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define CHANNEL_20                  (20 << CHANNEL_POS)
 #define CHANNEL_21                  (21 << CHANNEL_POS)
 #define CHANNEL_22                  (22 << CHANNEL_POS)
+#define CHANNEL_23                  (23 << CHANNEL_POS)
+#define CHANNEL_24                  (24 << CHANNEL_POS)
+#define CHANNEL_25                  (25 << CHANNEL_POS)
+#define CHANNEL_26                  (26 << CHANNEL_POS)
+#define CHANNEL_27                  (27 << CHANNEL_POS)
+#define CHANNEL_28                  (28 << CHANNEL_POS)
 
 #define GET_CHANNEL(x)              ((x & CHANNEL_MASK) >> CHANNEL_POS)
+
 /* no more */
 
 #define ADD_CONFIG_POS              (11)
@@ -134,6 +142,11 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define NOT_LAST_ITEM               (0 << 15)
 #define LAST_ITEM_GUARD             (1 << 15)
 #define IS_LAST_ITEM(x)             ((x & LAST_ITEM_MASK) ==  LAST_ITEM_GUARD)
+
+#define ADC_0                       (0 << ADD_CONFIG_POS)
+#define IS_ADC0(x)                  ((x & ADD_CONFIG_MASK) == ADC_0)
+#define ADC_1                       (1 << ADD_CONFIG_POS)
+#define IS_ADC1(x)                  ((x & ADD_CONFIG_MASK) == ADC_1)
 
 
 

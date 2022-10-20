@@ -1,421 +1,257 @@
 #include "Arduino.h"
+#include "pinmux.inc"
 
-const AnalogPinDescription g_AAnalogPinDescription[] = {
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_0 },    // A0    ADC2_INP0
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_1 },    // A1    ADC2_INP1
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_2 },    // A2    ADC3_INP0
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_4 },    // A3    ADC3_INP1
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_5 },    // A4    ADC1_INP12
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_6 },    // A5    ADC2_INP13
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_14 },   // A6    ADC1_INP18
-  {&g_adc0_ctrl, &g_adc0_cfg, ADC_CHANNEL_15 }    // A7    ADC1_INP7
+// pins not yet handled by the script
+const uint16_t P210[] = {
+  PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B,
 };
+const uint16_t P211[] = { 0 };
+const uint16_t P214[] = { 0 };
+const uint16_t P313[] = { 0 };
+const uint16_t P314[] = { 0 };
+const uint16_t P209[] = { 0 };
+const uint16_t P208[] = { 0 };
 
-const AnalogOutPinDescription g_AAnalogOutPinDescription[] = {
-  {&g_dac0_ctrl, &g_dac0_cfg },               // A6    DAC_CH0
-  {&g_dac1_ctrl, &g_dac1_cfg },                // A7    DAC_CH1
-};
 
-pwmTable_t pwmTable[] = {
-  {&g_timer0_ctrl, &g_timer0_cfg, GPT_IO_PIN_GTIOCA, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCB, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCA, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCB, NULL},
-  {&g_timer2_ctrl, &g_timer2_cfg, GPT_IO_PIN_GTIOCA, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCB, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCA, NULL},
-  {&g_timer3_ctrl, &g_timer3_cfg, GPT_IO_PIN_GTIOCB, NULL},
-  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCA, NULL},
-  {&g_timer4_ctrl, &g_timer4_cfg, GPT_IO_PIN_GTIOCB, NULL},
-  {nullptr,        nullptr,       GPT_IO_PIN_GTIOCA, NULL},
-  {&g_timer5_ctrl, &g_timer5_cfg, GPT_IO_PIN_GTIOCB, NULL},
-  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCA, NULL},
-  {&g_timer6_ctrl, &g_timer6_cfg, GPT_IO_PIN_GTIOCB, NULL},
-};
-
-const irqTable_t irqTable[] = {
-    {&g_external_irq0_ctrl, &g_external_irq0_cfg},    // ext_int0
-    {&g_external_irq1_ctrl, &g_external_irq1_cfg},    // ext_int1
-    {&g_external_irq2_ctrl, &g_external_irq2_cfg},    // ext_int2
-    {&g_external_irq3_ctrl, &g_external_irq3_cfg},    // ext_int3
-    {&g_external_irq4_ctrl, &g_external_irq4_cfg},    // ext_int4
-    {&g_external_irq5_ctrl, &g_external_irq5_cfg},    // ext_int5
-    {&g_external_irq6_ctrl, &g_external_irq6_cfg},    // ext_int6
-    {&g_external_irq7_ctrl, &g_external_irq7_cfg},    // ext_int7
-};
-
-uart_instance_t UartTable[] = {
-  {&g_uart5_ctrl, &g_uart5_cfg, &g_uart_on_sci},
-  {&g_uart6_ctrl, &g_uart6_cfg, &g_uart_on_sci},
-  {&g_uart7_ctrl, &g_uart7_cfg, &g_uart_on_sci},
-  {&g_uart8_ctrl, &g_uart8_cfg, &g_uart_on_sci},
-  {&g_uart9_ctrl, &g_uart9_cfg, &g_uart_on_sci},
-  {&g_uart0_ctrl, &g_uart0_cfg, &g_uart_on_sci},
-  {&g_uart1_ctrl, &g_uart1_cfg, &g_uart_on_sci},
-  {&g_uart2_ctrl, &g_uart2_cfg, &g_uart_on_sci},
-  {&g_uart3_ctrl, &g_uart3_cfg, &g_uart_on_sci},
-  {&g_uart4_ctrl, &g_uart4_cfg, &g_uart_on_sci},
-};
-
-void __attribute__((weak)) i2c_callback (i2c_master_callback_args_t * p_args) {}
-void __attribute__((weak)) sci_i2c_callback (i2c_master_callback_args_t * p_args) {}
-
-i2c_master_instance_t I2CMasterTable[] = {
-  {&g_i2c_master0_ctrl, &g_i2c_master0_cfg, &g_i2c_master_on_iic},
-  {&g_i2c_master1_ctrl, &g_i2c_master1_cfg, &g_i2c_master_on_iic},
-  {&g_i2c_master2_ctrl, &g_i2c_master2_cfg, &g_i2c_master_on_iic},
-  {&g_i2c6_ctrl,        &g_i2c6_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c3_ctrl,        &g_i2c3_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c4_ctrl,        &g_i2c4_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c5_ctrl,        &g_i2c5_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c7_ctrl,        &g_i2c7_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c8_ctrl,        &g_i2c8_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c9_ctrl,        &g_i2c9_cfg,        &g_i2c_master_on_sci},
-  {&g_i2c10_ctrl,       &g_i2c10_cfg,       &g_i2c_master_on_sci},
-  {&g_i2c11_ctrl,       &g_i2c11_cfg,       &g_i2c_master_on_sci},
-  {&g_i2c12_ctrl,       &g_i2c12_cfg,       &g_i2c_master_on_sci},
-};
-
-void __attribute__((weak)) spi_callback(spi_callback_args_t *p_args) {}
-void __attribute__((weak)) sci_spi_callback(spi_callback_args_t *p_args) {}
-
-spi_instance_t SpiTable[] = {
-  {&g_spi0_ctrl, &g_spi0_cfg, &g_spi_on_spi},
-  {&g_spi1_ctrl, &g_spi1_cfg, &g_spi_on_spi},
-  {&g_spi3_ctrl, &g_spi3_cfg, &g_spi_on_sci},
-  {&g_spi4_ctrl, &g_spi4_cfg, &g_spi_on_sci},
-  {&g_spi5_ctrl, &g_spi5_cfg, &g_spi_on_sci},
-  {&g_spi6_ctrl, &g_spi6_cfg, &g_spi_on_sci},
-  {&g_spi2_ctrl, &g_spi2_cfg, &g_spi_on_sci},
-  {&g_spi7_ctrl, &g_spi7_cfg, &g_spi_on_sci},
-  {&g_spi8_ctrl, &g_spi8_cfg, &g_spi_on_sci},
-  {&g_spi9_ctrl, &g_spi9_cfg, &g_spi_on_sci},
-  {&g_spi10_ctrl, &g_spi10_cfg, &g_spi_on_sci},
-  {&g_spi11_ctrl, &g_spi11_cfg, &g_spi_on_sci},
-};
-
-sciTable_t SciTable[] {
-/*
-    +-----------------+------------------- +-------------------+
-    |      UART       |        I2C         |        SPI        |
-    +-----------------+------------------- +-------------------+
- */
-  { &UartTable[0]     , &I2CMasterTable[3] , &SpiTable[2]      },
-  { &UartTable[1]     , &I2CMasterTable[4] , &SpiTable[3]      },
-  { &UartTable[2]     , &I2CMasterTable[5] , &SpiTable[4]      },
-  { &UartTable[3]     , &I2CMasterTable[6] , &SpiTable[5]      },
-  { &UartTable[4]     , &I2CMasterTable[7] , &SpiTable[6]      },
-  { &UartTable[5]     , &I2CMasterTable[8] , &SpiTable[7]      },
-  { &UartTable[6]     , &I2CMasterTable[9] , &SpiTable[8]      },
-  { &UartTable[7]     , &I2CMasterTable[10], &SpiTable[9]      },
-  { &UartTable[8]     , &I2CMasterTable[11], &SpiTable[10]     },
-  { &UartTable[9]     , &I2CMasterTable[12], &SpiTable[11]     },
-};
-
-const PinDescription g_APinDescription[] = {
-/*
-    +------------------------+---------------+---------------------+--------------------------+
-    |       PIN Name         |      PWM      |    EXT INTERRUPT    |          Notes           |
-    |                        |               |                     |  Board Pin | Peripheral  |
-    +------------------------+---------------+---------------------+--------------------------+
- */
-    // Digital -- PWMs
-    { BSP_IO_PORT_01_PIN_05,    PWM_TIM0_CHA,   NOT_AN_INTERRUPT }, /*   D0     |             */
-    { BSP_IO_PORT_01_PIN_11,    PWM_TIM2_CHA,   NOT_AN_INTERRUPT }, /*   D1     |             */
-    { BSP_IO_PORT_06_PIN_08,    PWM_TIM3_CHB,   NOT_AN_INTERRUPT }, /*   D2     |             */
-    { BSP_IO_PORT_06_PIN_01,    PWM_TIM4_CHA,   NOT_AN_INTERRUPT }, /*   D3     |             */
-    { BSP_IO_PORT_04_PIN_01,    PWM_TIM4_CHB,   NOT_AN_INTERRUPT }, /*   D4     |             */
-    { BSP_IO_PORT_03_PIN_03,    PWM_TIM5_CHB,   NOT_AN_INTERRUPT }, /*   D5     |             */
-    { BSP_IO_PORT_06_PIN_05,    PWM_TIM6_CHA,   NOT_AN_INTERRUPT }, /*   D6     |             */
-    { BSP_IO_PORT_01_PIN_06,    PWM_TIM6_CHB,   NOT_AN_INTERRUPT }, /*   D7     |             */
-
-    // Analog
-    { BSP_IO_PORT_00_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A0     |     AIN     */
-    { BSP_IO_PORT_00_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A1     |     AIN     */
-    { BSP_IO_PORT_00_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A2     |     AIN     */
-    { BSP_IO_PORT_00_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A3     |     AIN     */
-    { BSP_IO_PORT_00_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A4     |     AIN     */
-    { BSP_IO_PORT_00_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A5     |     AIN     */
-    { BSP_IO_PORT_00_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A6     |   AIN/AOUT  */
-    { BSP_IO_PORT_00_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   A7     |   AIN/AOUT  */
-
-    // EXT_Interrupts
-    { BSP_IO_PORT_08_PIN_03,    NOT_ON_PWM,     EXTERNAL_INT_0   }, /*   D16    |             */
-    { BSP_IO_PORT_08_PIN_02,    NOT_ON_PWM,     EXTERNAL_INT_1   }, /*   D17    |             */
-    { BSP_IO_PORT_10_PIN_10,    NOT_ON_PWM,     EXTERNAL_INT_2   }, /*   D18    |             */
-    { BSP_IO_PORT_04_PIN_09,    NOT_ON_PWM,     EXTERNAL_INT_3   }, /*   D19    |             */
-    { BSP_IO_PORT_07_PIN_07,    NOT_ON_PWM,     EXTERNAL_INT_4   }, /*   D20    |             */
-    { BSP_IO_PORT_07_PIN_08,    NOT_ON_PWM,     EXTERNAL_INT_5   }, /*   D21    |             */
-    { BSP_IO_PORT_00_PIN_09,    NOT_ON_PWM,     EXTERNAL_INT_6   }, /*   D22    |             */
-    { BSP_IO_PORT_05_PIN_05,    NOT_ON_PWM,     EXTERNAL_INT_7   }, /*   D23    |             */
-
-    // RGB LED
-    { BSP_IO_PORT_00_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D24    |     LEDR    */
-    { BSP_IO_PORT_00_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D25    |     LEDG    */
-    { BSP_IO_PORT_00_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D26    |     LEDB    */
-
-    // I2C pins
-    { BSP_IO_PORT_04_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D27    |     SDA     */
-    { BSP_IO_PORT_04_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D28    |     SCL     */
-    { BSP_IO_PORT_05_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D29    |     SDA1    */
-    { BSP_IO_PORT_05_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D30    |     SCL1    */
-
-    // UART pins
-    { BSP_IO_PORT_08_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D31    |   UART TX   */
-    { BSP_IO_PORT_05_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D32    |   UART RX   */
-    { BSP_IO_PORT_05_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D33    |   UART1 TX  */
-    { BSP_IO_PORT_03_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D34    |   UART1 RX  */
-    { BSP_IO_PORT_06_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D35    |   UART2 TX  */
-    { BSP_IO_PORT_06_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D36    |   UART2 RX  */
-    { BSP_IO_PORT_10_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D37    |   UART3 TX  */
-    { BSP_IO_PORT_06_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D38    |   UART3 RX  */
-    { BSP_IO_PORT_06_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D39    |   UART4 TX  */
-    { BSP_IO_PORT_01_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D40    |   UART4 RX  */
-
-    // SPI pins
-    { BSP_IO_PORT_01_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D41    |     MISO    */
-    { BSP_IO_PORT_01_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D42    |     MOSI    */
-    { BSP_IO_PORT_01_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D43    |     SCLK    */
-    { BSP_IO_PORT_01_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D44    |    SPI_SS   */
-    { BSP_IO_PORT_03_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D45    |     MISO1   */
-    { BSP_IO_PORT_09_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D46    |     MOSI1   */
-    { BSP_IO_PORT_02_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D47    |     SCLK1   */
-
-    // CAN pins
-    { BSP_IO_PORT_02_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D48    |   CAN RX    */
-    { BSP_IO_PORT_02_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D49    |   CAN TX    */
-    { BSP_IO_PORT_06_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D50    |   CAN1 TX   */
-    { BSP_IO_PORT_06_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D51    |   CAN1 RX   */
-    { BSP_IO_PORT_06_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT }, /*   D52    |  CAN_STDBY  */
-
-    { BSP_IO_PORT_00_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_00_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_00_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_00_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_00_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_00_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_01_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_01_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_02_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_02_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_03_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_03_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_04_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_04_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_05_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_05_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_06_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_06_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_06_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_06_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_06_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_06_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_07_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_07_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_08_PIN_00,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_08_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_09_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_10,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_09_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-
-    { BSP_IO_PORT_10_PIN_01,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_02,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_03,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_04,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_05,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_06,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_07,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_08,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_09,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_11,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_12,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_13,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_14,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-    { BSP_IO_PORT_10_PIN_15,    NOT_ON_PWM,     NOT_AN_INTERRUPT },
-/*
-    { BSP_IO_PORT_11_PIN_00 },
-    { BSP_IO_PORT_11_PIN_01 },
-    { BSP_IO_PORT_11_PIN_02 },
-    { BSP_IO_PORT_11_PIN_03 },
-    { BSP_IO_PORT_11_PIN_04 },
-    { BSP_IO_PORT_11_PIN_05 },
-    { BSP_IO_PORT_11_PIN_06 },
-    { BSP_IO_PORT_11_PIN_07 },
-    { BSP_IO_PORT_11_PIN_08 },
-    { BSP_IO_PORT_11_PIN_09 },
-    { BSP_IO_PORT_11_PIN_10 },
-    { BSP_IO_PORT_11_PIN_11 },
-    { BSP_IO_PORT_11_PIN_12 },
-    { BSP_IO_PORT_11_PIN_13 },
-    { BSP_IO_PORT_11_PIN_14 },
-    { BSP_IO_PORT_11_PIN_15 },
-
-    { BSP_IO_PORT_12_PIN_00 },
-    { BSP_IO_PORT_12_PIN_01 },
-    { BSP_IO_PORT_12_PIN_02 },
-    { BSP_IO_PORT_12_PIN_03 },
-    { BSP_IO_PORT_12_PIN_04 },
-    { BSP_IO_PORT_12_PIN_05 },
-    { BSP_IO_PORT_12_PIN_06 },
-    { BSP_IO_PORT_12_PIN_07 },
-    { BSP_IO_PORT_12_PIN_08 },
-    { BSP_IO_PORT_12_PIN_09 },
-    { BSP_IO_PORT_12_PIN_10 },
-    { BSP_IO_PORT_12_PIN_11 },
-    { BSP_IO_PORT_12_PIN_12 },
-    { BSP_IO_PORT_12_PIN_13 },
-    { BSP_IO_PORT_12_PIN_14 },
-    { BSP_IO_PORT_12_PIN_15 },
-
-    { BSP_IO_PORT_13_PIN_00 },
-    { BSP_IO_PORT_13_PIN_01 },
-    { BSP_IO_PORT_13_PIN_02 },
-    { BSP_IO_PORT_13_PIN_03 },
-    { BSP_IO_PORT_13_PIN_04 },
-    { BSP_IO_PORT_13_PIN_05 },
-    { BSP_IO_PORT_13_PIN_06 },
-    { BSP_IO_PORT_13_PIN_07 },
-    { BSP_IO_PORT_13_PIN_08 },
-    { BSP_IO_PORT_13_PIN_09 },
-    { BSP_IO_PORT_13_PIN_10 },
-    { BSP_IO_PORT_13_PIN_11 },
-    { BSP_IO_PORT_13_PIN_12 },
-    { BSP_IO_PORT_13_PIN_13 },
-    { BSP_IO_PORT_13_PIN_14 },
-    { BSP_IO_PORT_13_PIN_15 },
-
-    { BSP_IO_PORT_14_PIN_00 },
-    { BSP_IO_PORT_14_PIN_01 },
-    { BSP_IO_PORT_14_PIN_02 },
-    { BSP_IO_PORT_14_PIN_03 },
-    { BSP_IO_PORT_14_PIN_04 },
-    { BSP_IO_PORT_14_PIN_05 },
-    { BSP_IO_PORT_14_PIN_06 },
-    { BSP_IO_PORT_14_PIN_07 },
-    { BSP_IO_PORT_14_PIN_08 },
-    { BSP_IO_PORT_14_PIN_09 },
-    { BSP_IO_PORT_14_PIN_10 },
-    { BSP_IO_PORT_14_PIN_11 },
-    { BSP_IO_PORT_14_PIN_12 },
-    { BSP_IO_PORT_14_PIN_13 },
-    { BSP_IO_PORT_14_PIN_14 },
-    { BSP_IO_PORT_14_PIN_15 },
-    */
-};
-
-extern "C" {
-  unsigned int PINCOUNT_fn() {
-    return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
+  if(cfg == nullptr) {
+    return 0;
   }
-  unsigned int I2C_COUNT_fn() {
-    return (sizeof(I2CMasterTable) / sizeof(I2CMasterTable[0]));
+  bool thats_all = false;
+  uint8_t index = 0;
+  while(!thats_all) {
+
+    /* usually not SCI peripheral have higher priority (they came
+       first in the table) but it is possible to prefer SCI peripheral */
+    if(prefer_sci && !IS_SCI(*(cfg + index))) {
+      if(IS_LAST_ITEM(*(cfg + index))) {
+        thats_all = true;
+      }
+      else {
+        index++;
+      }
+      continue;
+    }
+
+    if(!prefer_sci && IS_SCI(*(cfg + index))) {
+      if(IS_LAST_ITEM(*(cfg + index))) {
+        thats_all = true;
+      }
+      else {
+        index++;
+      }
+      continue;
+    }
+
+
+    if(PIN_CFG_REQ_UART_TX == req && IS_PIN_UART_TX(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_UART_RX == req && IS_PIN_UART_RX(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_SCL == req && IS_PIN_SCL(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_SDA == req && IS_PIN_SDA(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_MISO == req && IS_PIN_MISO(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_MOSI == req && IS_PIN_MOSI(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_SCK == req && IS_PIN_SCK(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_PWM == req && IS_PIN_PWM(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_INTERRUPT == req && IS_PIN_INTERRUPT(*(cfg + index))) {
+      return *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_ADC == req && IS_PIN_ANALOG(*(cfg + index))) {
+      return *(cfg + index);
+    }
+
+    if(IS_LAST_ITEM(*(cfg + index))) {
+      thats_all = true;
+    }
+    else {
+      index++;
+    }
   }
-  unsigned int SPI_COUNT_fn() {
-    return (sizeof(SpiTable) / sizeof(SpiTable[0]));
-  }
-  unsigned int UART_COUNT_fn() {
-    return (sizeof(UartTable) / sizeof(UartTable[0]));
-  }
-  unsigned int SCI_COUNT_fn() {
-    return (sizeof(SciTable) / sizeof(SciTable[0]));
-  }
+  return 0;
 }
 
-extern "C" const timer_instance_t g_timer;
+extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
+
+  // MKR
+  { BSP_IO_PORT_01_PIN_05,  P105 }, /*   D0     |             */
+  { BSP_IO_PORT_01_PIN_06,  P106 }, /*   D1     |             */
+  { BSP_IO_PORT_01_PIN_11,  P111 }, /*   D2     |             */
+  { BSP_IO_PORT_03_PIN_03,  P303 }, /*   D3     |             */
+  { BSP_IO_PORT_04_PIN_01,  P401 }, /*   D4     |             */
+  { BSP_IO_PORT_02_PIN_10,  P210 }, /*   D5     |             */
+  { BSP_IO_PORT_06_PIN_01,  P601 }, /*   D6     |             */
+  { BSP_IO_PORT_04_PIN_02,  P402 }, /*   D7     |  CS0        */
+  { BSP_IO_PORT_09_PIN_00,  P900 }, /*   D8     |  MOSI0      */
+  { BSP_IO_PORT_02_PIN_04,  P204 }, /*   D9     |  SCK0       */
+  { BSP_IO_PORT_03_PIN_15,  P315 }, /*   D10    |  MISO0      */
+  { BSP_IO_PORT_04_PIN_07,  P407 }, /*   D11    |  SDA0       */
+  { BSP_IO_PORT_04_PIN_08,  P408 }, /*   D12    |  SCL0       */
+  { BSP_IO_PORT_01_PIN_10,  P110 }, /*   D13    |  RX0        */
+  { BSP_IO_PORT_06_PIN_02,  P602 }, /*   D14    |  TX0        */
+
+  // Analog
+  { BSP_IO_PORT_00_PIN_06,  P006 }, /*   D15    |     A0      */
+  { BSP_IO_PORT_00_PIN_05,  P005 }, /*   D16    |     A1      */
+  { BSP_IO_PORT_00_PIN_04,  P004 }, /*   D17    |     A2      */
+  { BSP_IO_PORT_00_PIN_02,  P002 }, /*   D18    |     A3      */
+  { BSP_IO_PORT_00_PIN_01,  P001 }, /*   D19    |     A4      */
+  { BSP_IO_PORT_00_PIN_15,  P015 }, /*   D20    |   A5/DAC1   */
+  { BSP_IO_PORT_00_PIN_14,  P014 }, /*   D21    |   A6/DAC0   */
+  { BSP_IO_PORT_00_PIN_00,  P000 }, /*   D22    |     A7      */
+
+  // Other PWMs
+  { BSP_IO_PORT_06_PIN_05,  P605 }, /*   D23    |             */
+  { BSP_IO_PORT_06_PIN_08,  P608 }, /*   D24    |             */
+  { BSP_IO_PORT_03_PIN_11,  P311 }, /*   D25    |             */
+  { BSP_IO_PORT_06_PIN_00,  P600 }, /*   D26    |  ETH_CLOCK  */
+
+  // GPIO (IRQ capable)
+  { BSP_IO_PORT_00_PIN_09,  P009 }, /*   D27    |             */
+  { BSP_IO_PORT_04_PIN_09,  P409 }, /*   D28    |             */
+  { BSP_IO_PORT_05_PIN_05,  P505 }, /*   D29    |             */
+  { BSP_IO_PORT_07_PIN_06,  P706 }, /*   D30    |             */
+  { BSP_IO_PORT_07_PIN_07,  P707 }, /*   D31    |             */
+  { BSP_IO_PORT_07_PIN_08,  P708 }, /*   D32    |             */
+  { BSP_IO_PORT_08_PIN_02,  P802 }, /*   D33    |             */
+
+  // RGB LED
+  { BSP_IO_PORT_01_PIN_07,  P107 }, /*   D34    |     LEDR    */
+  { BSP_IO_PORT_04_PIN_00,  P400 }, /*   D35    |     LEDG    */
+  { BSP_IO_PORT_08_PIN_00,  P800 }, /*   D36    |     LEDB    */
+
+  // I2C pins
+  { BSP_IO_PORT_05_PIN_11,  P511 }, /*   D37    |     SDA1     */
+  { BSP_IO_PORT_05_PIN_12,  P512 }, /*   D38    |     SCL1     */
+  { BSP_IO_PORT_03_PIN_02,  P302 }, /*   D39    |     SDA2    */
+  { BSP_IO_PORT_03_PIN_01,  P301 }, /*   D40    |     SCL2    */
+
+  // CAN pins
+  { BSP_IO_PORT_02_PIN_02,  P202 }, /*   D41    |   CAN RX    */
+  { BSP_IO_PORT_02_PIN_03,  P203 }, /*   D42    |   CAN TX    */
+  { BSP_IO_PORT_06_PIN_10,  P610 }, /*   D43    |   CAN1 RX   */
+  { BSP_IO_PORT_06_PIN_09,  P609 }, /*   D44    |   CAN1 TX   */
+
+  // SPI pins
+  { BSP_IO_PORT_01_PIN_00,  P100 }, /*   D45    |   MISO1  */
+  { BSP_IO_PORT_01_PIN_01,  P101 }, /*   D46    |   MOSI1  */
+  { BSP_IO_PORT_01_PIN_02,  P102 }, /*   D47    |   SCLK1  */
+  { BSP_IO_PORT_01_PIN_03,  P103 }, /*   D48    |   CS1    */
+
+  // UART pins
+  { BSP_IO_PORT_06_PIN_13,  P613 }, /*   D49    |   TX2    */
+  { BSP_IO_PORT_06_PIN_14,  P614 }, /*   D50    |   RX2    */
+  { BSP_IO_PORT_06_PIN_11,  P611 }, /*   D51    |   RTS2   */
+  { BSP_IO_PORT_04_PIN_04,  P404 }, /*   D52    |   CTS2   */
+  { BSP_IO_PORT_05_PIN_06,  P506 }, /*   D53    |   TX3    */
+  { BSP_IO_PORT_03_PIN_04,  P304 }, /*   D54    |   RX3    */
+  { BSP_IO_PORT_05_PIN_03,  P503 }, /*   D55    |   RTS3   */
+  { BSP_IO_PORT_05_PIN_02,  P502 }, /*   D56    |   CTS3   */
+  { BSP_IO_PORT_08_PIN_05,  P805 }, /*   D57    |   TX4    */
+  { BSP_IO_PORT_05_PIN_13,  P513 }, /*   D58    |   RX4    */
+  { BSP_IO_PORT_05_PIN_08,  P508 }, /*   D59    |   RTS4   */
+  { BSP_IO_PORT_05_PIN_05,  P500 }, /*   D60    |   CTS4   */
+  { BSP_IO_PORT_06_PIN_03,  P603 }, /*   D61    |   RTS0   */
+  { BSP_IO_PORT_06_PIN_04,  P604 }, /*   D62    |   CTS0   */
+
+  // SSI (Audio)
+  { BSP_IO_PORT_01_PIN_12,  P112 }, /*   D63    |   SSI CK    */
+  { BSP_IO_PORT_01_PIN_13,  P113 }, /*   D64    |   SSI WS    */
+  { BSP_IO_PORT_01_PIN_14,  P114 }, /*   D65    |   SSI SDI   */
+  { BSP_IO_PORT_01_PIN_15,  P115 }, /*   D66    |   SSI SDO   */
+
+  // Generic GPIO pins
+  { BSP_IO_PORT_09_PIN_08,  P908 }, /*   D67    |          */
+  { BSP_IO_PORT_04_PIN_03,  P403 }, /*   D68    |          */
+  { BSP_IO_PORT_09_PIN_01,  P901 }, /*   D69    |          */
+  { BSP_IO_PORT_06_PIN_12,  P612 }, /*   D70    |          */
+  { BSP_IO_PORT_03_PIN_12,  P312 }, /*   D71    |          */
+  { BSP_IO_PORT_03_PIN_13,  P313 }, /*   D72    |          */
+  { BSP_IO_PORT_03_PIN_14,  P314 }, /*   D73    |          */
+  { BSP_IO_PORT_10_PIN_01,  PA01 }, /*   D74    |          */
+  { BSP_IO_PORT_10_PIN_08,  PA08 }, /*   D75    |          */
+  { BSP_IO_PORT_10_PIN_09,  PA09 }, /*   D76    |          */
+  { BSP_IO_PORT_10_PIN_10,  PA10 }, /*   D77    |          */
+  { BSP_IO_PORT_05_PIN_07,  P507 }, /*   D78    |          */
+  { BSP_IO_PORT_11_PIN_00,  PB00 }, /*   D79    |          */
+  { BSP_IO_PORT_06_PIN_15,  P615 }, /*   D80    |          */
+  { BSP_IO_PORT_00_PIN_03,  P003 }, /*   D81    |          */
+  { BSP_IO_PORT_00_PIN_07,  P007 }, /*   D82    |          */
+  { BSP_IO_PORT_00_PIN_08,  P008 }, /*   D83    |          */
+
+  // SDCARD
+  { BSP_IO_PORT_04_PIN_13,  P413 }, /*   D84    |   SDHI CLK  */
+  { BSP_IO_PORT_04_PIN_12,  P412 }, /*   D85    |   SDHI CMD  */
+  { BSP_IO_PORT_04_PIN_11,  P411 }, /*   D86    |   SDHI D0   */
+  { BSP_IO_PORT_04_PIN_10,  P410 }, /*   D87    |   SDHI D1   */
+  { BSP_IO_PORT_02_PIN_06,  P206 }, /*   D88    |   SDHI D2   */
+  { BSP_IO_PORT_02_PIN_05,  P205 }, /*   D89    |   SDHI D3   */
+  { BSP_IO_PORT_04_PIN_15,  P415 }, /*   D90    |   SDHI CD   */
+  { BSP_IO_PORT_04_PIN_14,  P414 }, /*   D91    |   SDHI WP   */
+
+  /// ###### FROM HERE, INTERNAL STUFF ONLY
+
+  // ESP32 UART
+  { BSP_IO_PORT_10_PIN_00,  PA00 }, /*   D92    |   TX1    */
+  { BSP_IO_PORT_06_PIN_07,  P607 }, /*   D93    |   RX1    */
+  { BSP_IO_PORT_06_PIN_06,  P606 }, /*   D94    |   RTS1   */
+  { BSP_IO_PORT_08_PIN_01,  P801 }, /*   D95    |   CTS1   */
+
+  // INTERNAL I2C
+  { BSP_IO_PORT_03_PIN_10,  P310 }, /*   D96    | INTERNAL SDA  */
+  { BSP_IO_PORT_03_PIN_09,  P309 }, /*   D97    | INTERNAL SCL  */
+
+  // Dedicated GPIO pins
+  { BSP_IO_PORT_00_PIN_10,  P010 }, /*   D98    |   CRYPTO_EN   */
+  { BSP_IO_PORT_02_PIN_07,  P207 }, /*   D99    |   BT_SEL      */
+  { BSP_IO_PORT_08_PIN_03,  P803 }, /*   D100   |   ESP_DNLOAD  */
+  { BSP_IO_PORT_08_PIN_04,  P804 }, /*   D101   |   ESP_EN      */
+  { BSP_IO_PORT_08_PIN_06,  P806 }, /*   D102   |   ESP_ACK     */
+  { BSP_IO_PORT_01_PIN_04,  P104 }, /*   D103   |   ESP_CS      */
+  { BSP_IO_PORT_05_PIN_04,  P504 }, /*   D104   |   PMIC_STDBY  */
+  { BSP_IO_PORT_09_PIN_06,  P906 }, /*   D105   |   PMIC_INT    */
+
+  // RMII
+  { BSP_IO_PORT_02_PIN_11,  P211 }, /*   D106   |   MDIO        */
+  { BSP_IO_PORT_04_PIN_05,  P405 }, /*   D107   |   TXD_EN      */
+  { BSP_IO_PORT_04_PIN_06,  P406 }, /*   D108   |   TXD1        */
+  { BSP_IO_PORT_07_PIN_00,  P700 }, /*   D109   |   TXD0        */
+  { BSP_IO_PORT_07_PIN_01,  P701 }, /*   D110   |   REFCLK50    */
+  { BSP_IO_PORT_07_PIN_02,  P702 }, /*   D111   |   RXD0        */
+  { BSP_IO_PORT_07_PIN_03,  P703 }, /*   D112   |   RXD1        */
+  { BSP_IO_PORT_07_PIN_04,  P704 }, /*   D113   |   RX_ER       */
+  { BSP_IO_PORT_07_PIN_05,  P705 }, /*   D114   |   CRS_DV      */
+  { BSP_IO_PORT_02_PIN_14,  P214 }, /*   D115   |   MDC         */
+
+  // QSPI
+  { BSP_IO_PORT_03_PIN_05,  P305 }, /*   D116   |   QSPI CLK    */
+  { BSP_IO_PORT_03_PIN_06,  P306 }, /*   D117   |   QSPI SS     */
+  { BSP_IO_PORT_03_PIN_07,  P307 }, /*   D118   |   QSPI IO0    */
+  { BSP_IO_PORT_03_PIN_08,  P308 }, /*   D119   |   QSPI IO1    */
+  { BSP_IO_PORT_02_PIN_09,  P209 }, /*   D120   |   QSPI IO2    */
+  { BSP_IO_PORT_02_PIN_08,  P208 }, /*   D121   |   QSPI IO3    */
+};
+
+/* TODO: replace me with FspTimer */
+extern "C" const timer_instance_t g_timer_eth;
 void startETHClock() {
   pinPeripheral(AGT_PIN_FOR_25MHZ, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
-  R_AGT_Open(g_timer.p_ctrl, g_timer.p_cfg);
-  R_AGT_Start(g_timer.p_ctrl);
+  R_AGT_Open(g_timer_eth.p_ctrl, g_timer_eth.p_cfg);
+  R_AGT_Start(g_timer_eth.p_ctrl);
 }
 
 void initVariant() {

@@ -152,19 +152,6 @@ SECTIONS
         KEEP(*(.application_vectors*))
         __Vectors_End = .;
 
-        /* ROM Registers start at address 0x00000400 for devices that do not have the OPTION_SETTING region. */
-        . = OPTION_SETTING_LENGTH > 0 ? . : __ROM_Start + 0x400;
-        KEEP(*(.rom_registers*))
-
-        /* Reserving 0x100 bytes of space for ROM registers. */
-        . = OPTION_SETTING_LENGTH > 0 ? . : __ROM_Start + 0x500;
-
-        /* Allocate flash write-boundary-aligned
-         * space for sce9 wrapped public keys for mcuboot if the module is used.
-         */
-		. = ALIGN(128);
-        KEEP(*(.mcuboot_sce9_key*))
-
         *(.text*)
 
         KEEP(*(.version))
@@ -186,20 +173,6 @@ SECTIONS
         *(.dtors)
 
         *(.rodata*)
-        __usb_dev_descriptor_start_fs = .;
-        KEEP(*(.usb_device_desc_fs*))
-        __usb_cfg_descriptor_start_fs = .;
-        KEEP(*(.usb_config_desc_fs*))
-        __usb_interface_descriptor_start_fs = .;
-        KEEP(*(.usb_interface_desc_fs*))
-        __usb_descriptor_end_fs = .;
-        __usb_dev_descriptor_start_hs = .;
-        KEEP(*(.usb_device_desc_hs*))
-        __usb_cfg_descriptor_start_hs = .;
-        KEEP(*(.usb_config_desc_hs*))
-        __usb_interface_descriptor_start_hs = .;
-        KEEP(*(.usb_interface_desc_hs*))
-        __usb_descriptor_end_hs = .;
 
         KEEP(*(.eh_frame*))
 
@@ -442,6 +415,13 @@ SECTIONS
     /* Note: There are no secure/non-secure boundaries for OSPI.  These symbols are provided for the RA configuration tool. */
     __tz_OSPI_DEVICE_1_N = __ospi_device_1_non_retentive_end__;
 
+    /* Non-secure buffers must be in non-secure RAM. This is primarily used for the EDMAC in flat projects.
+     * The EDMAC is a non-secure bus master and can only access non-secure RAM. */
+    .ns_buffer (NOLOAD):
+    {
+        KEEP(*(.ns_buffer*))
+    } > RAM
+
     .noinit (NOLOAD):
     {
         . = ALIGN(4);
@@ -467,25 +447,34 @@ SECTIONS
     {
         . = ALIGN(8);
         __HeapBase = .;
-        /* Place the STD heap here. */
+        end = .;
         KEEP(*(.heap))
         __HeapLimit = .;
     } > RAM
 
-    /* Stacks are stored in this section. */
-    .stack_dummy (NOLOAD):
+	__StackTop = ORIGIN(RAM) + LENGTH(RAM) - VECTOR_TABLE_LENGTH;
+
+	/* .stack_dummy section doesn't contains any symbols. It is only
+	 * used for linker to calculate size of stack sections, and assign
+	 * values to stack symbols later */
+	.stack_dummy ABSOLUTE(__StackTop - BSP_CFG_STACK_MAIN_BYTES) (NOLOAD):
     {
         . = ALIGN(8);
         __StackLimit = .;
-        /* Main stack */
         KEEP(*(.stack))
-        __StackTop = .;
-        /* Thread stacks */
         KEEP(*(.stack*))
         __StackTopAll = .;
     } > RAM
 
-    PROVIDE(__stack = __StackTopAll);
+    .vector_table ABSOLUTE(__StackTop) (NOLOAD):
+    {
+        . = ALIGN(4);
+        APPLICATION_VECTOR_TABLE_ADDRESS_RAM = .;
+        . = ABSOLUTE(RAM_START + RAM_LENGTH);
+    } > RAM
+
+	//__StackLimit = __StackTop - SIZEOF(.stack_dummy);
+	PROVIDE(__stack = __StackTop);
 
     /* This symbol represents the end of user allocated RAM. The RAM after this symbol can be used
        at run time for things such as ThreadX memory pool allocations. */
@@ -501,16 +490,6 @@ SECTIONS
      * specified, the address for NSC RAM is the end of RAM aligned to an 8K boundary.
      * In flat projects that require non-secure RAM, this variable is set to the start of non-secure RAM. */
     __tz_RAM_N = DEFINED(RAM_NS_START) ? ABSOLUTE(RAM_NS_START) : __RESERVE_NS_RAM ? ABSOLUTE(RAM_NS_BUFFER_BLOCK_START) : ALIGN(__tz_RAM_C, 8192);
-
-    /* Non-secure buffers must be in non-secure RAM. This is primarily used for the EDMAC in flat projects.
-     * The EDMAC is a non-secure bus master and can only access non-secure RAM. */
-    .ns_buffer (NOLOAD):
-    {
-        /* Allocate RAM on a 32-byte boundary to help with placement of Ethernet buffers. */
-        . = __RESERVE_NS_RAM ? ABSOLUTE(RAM_NS_BUFFER_START & 0xFFFFFFE0) : .;
-
-        KEEP(*(.ns_buffer*))
-    } > RAM
 
     /* Data flash. */
     .data_flash :

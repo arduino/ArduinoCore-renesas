@@ -14,14 +14,14 @@
     <option key="#ToolchainVersion#" value="10.3.1.20210824"/>
   </generalSettings>
   <raClockConfiguration>
-    <node id="board.clock.xtal.freq" mul="12000000" option="_edit"/>
+    <node id="board.clock.xtal.freq" mul="16000000" option="_edit"/>
     <node id="board.clock.pll.source" option="board.clock.pll.source.xtal"/>
     <node id="board.clock.hoco.freq" option="board.clock.hoco.freq.24m"/>
     <node id="board.clock.loco.freq" option="board.clock.loco.freq.32768"/>
     <node id="board.clock.moco.freq" option="board.clock.moco.freq.8m"/>
     <node id="board.clock.subclk.freq" option="board.clock.subclk.freq.32768"/>
-    <node id="board.clock.pll.div" option="board.clock.pll.div.2"/>
-    <node id="board.clock.pll.mul" option="board.clock.pll.mul.8"/>
+    <node id="board.clock.pll.div" option="board.clock.pll.div.4"/>
+    <node id="board.clock.pll.mul" option="board.clock.pll.mul.12"/>
     <node id="board.clock.pll.display" option="board.clock.pll.display.value"/>
     <node id="board.clock.clock.source" option="board.clock.clock.source.pll"/>
     <node id="board.clock.iclk.div" option="board.clock.iclk.div.1"/>

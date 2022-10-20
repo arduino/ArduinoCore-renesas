@@ -1,8 +1,10 @@
 #ifndef ARDUINO_IRQ_MANAGER_H
 #define ARDUINO_IRQ_MANAGER_H
 
+#include "analog.h"
 #include "bsp_api.h"
 #include "pins_arduino.h"
+#include "elc_defines.h"
 
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
@@ -14,13 +16,18 @@
 
 #include "r_timer_api.h"
 
+#ifdef ELC_EVENT_DMAC0_INT
+#define HAS_DMAC    1
 #include "r_dmac.h"
+#endif
+
 #include "r_gpt.h"
 #include "r_agt.h"
 
 typedef enum {
     IRQ_RTC,
     IRQ_USB,
+    IRQ_USB_HS,
     IRQ_AGT,
     IRQ_SCI_UART,
     IRQ_I2C_MASTER,
@@ -116,6 +123,7 @@ typedef struct timer {
 } TimerIrqCfg_t;
 
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -155,6 +163,10 @@ void gpt_counter_overflow_isr(void);
 void gpt_capture_a_isr(void);
 void gpt_capture_b_isr(void);
 void gpt_counter_underflow_isr(void);
+void agt_int_isr(void);
+void adc_scan_end_isr (void);
+void adc_scan_end_b_isr (void);
+void adc_window_compare_isr (void);
 void can_error_isr(void);
 void can_rx_isr(void);
 void can_tx_isr(void);
@@ -169,17 +181,23 @@ class IRQManager {
     bool addPeripheral(Peripheral_t p, void *cfg);
     static IRQManager& getInstance();
     
+#ifdef HAS_DMAC
     /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
        if fnc is nullprt the "standar" dmac_int_isr is added
        otherwise fnc is the interrupt handler function 
        it returns true if the interrupt is correctly added */
     bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
+#endif
 
     bool addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
 
+    bool addADCScanEnd(ADC_Container *adc, Irq_f fnc = nullptr);
+    bool addADCScanEndB(ADC_Container *adc, Irq_f fnc = nullptr);
+    bool addADCWinCmpA(ADC_Container *adc,  Irq_f fnc = nullptr);
+    bool addADCWinCmpB(ADC_Container *adc, Irq_f fnc = nullptr);
 
     IRQManager(IRQManager const&)               = delete;
     void operator=(IRQManager const&)           = delete;
@@ -187,6 +205,11 @@ class IRQManager {
 
     private:
     int last_interrupt_index;
+    bool set_adc_end_link_event(int li, int ch);
+    bool set_adc_end_b_link_event(int li, int ch);
+    bool set_adc_win_a_link_event(int li, int ch);
+    bool set_adc_win_b_link_event(int li, int ch);
+
     void set_sci_tx_link_event(int li, int ch);
     void set_sci_rx_link_event(int li, int ch);
     void set_sci_tei_link_event(int li, int ch);

@@ -9,7 +9,7 @@
     <option key="#DeviceCommand#" value="R7FA6M5AG"/>
     <option key="#RTOS#" value="rtos.threadx"/>
     <option key="#pinconfiguration#" value="R7FA6M5BH3CFC.pincfg"/>
-    <option key="#FSPVersion#" value="3.7.0"/>
+    <option key="#FSPVersion#" value="3.6.0"/>
     <option key="#ConfigurationFragments#" value="Renesas##BSP##Board##ra6m5_ek##"/>
     <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
     <option key="#ToolchainVersion#" value="7.2.1.20170904"/>
@@ -145,325 +145,289 @@
     <node id="board.clock.canfdclk.display" option="board.clock.canfdclk.display.value"/>
   </raClockConfiguration>
   <raComponentSelection>
-    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="3.7.0">
-      <description>Board Support Package Common Files</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="3.7.0">
-      <description>I/O Port</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="RTOS" condition="" group="Azure" subgroup="ThreadX" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS ThreadX</description>
-      <originalPack>Microsoft.ThreadX.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.8.0+renesas.0.fsp.3.7.0">
-      <description>Arm CMSIS Version 5 - Core (M)</description>
-      <originalPack>Arm.CMSIS5.5.8.0+renesas.0.fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_threadx_port" variant="" vendor="Renesas" version="3.7.0">
-      <description>Azure RTOS ThreadX Port</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="" vendor="Renesas" version="3.7.0">
-      <description>Board support package for RA6M5</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="fsp" variant="" vendor="Renesas" version="3.7.0">
-      <description>Board support package for RA6M5 - FSP Data</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="LevelX" subgroup="lx" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS LevelX</description>
-      <originalPack>Microsoft.LevelX.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="USBX" subgroup="pcdc" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
+    <component apiversion="" class="Azure" condition="" group="USBX" subgroup="pcdc" variant="" vendor="Microsoft" version="6.1.9+fsp.3.6.0">
       <description>Azure RTOS USBX PCDC</description>
-      <originalPack>Microsoft.USBX.6.1.10+fsp.3.7.0.pack</originalPack>
+      <originalPack>Microsoft.USBX.6.1.9+fsp.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="Azure" condition="" group="FileX" subgroup="fx" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS FileX</description>
-      <originalPack>Microsoft.FileX.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_acmphs" variant="" vendor="Renesas" version="3.7.0">
-      <description>High Speed Analog Comparator</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="3.7.0">
-      <description>A/D Converter</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc_b" variant="" vendor="Renesas" version="3.7.0">
-      <description>A/D Converter</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="3.7.0">
-      <description>Asynchronous General Purpose Timer</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ble_extended_threadx" variant="" vendor="Renesas" version="3.7.0">
-      <description>Renesas Bluetooth Low Energy Library Extended Configuration</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cac" variant="" vendor="Renesas" version="3.7.0">
-      <description>Clock Accuracy Measurement Circuit</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_can" variant="" vendor="Renesas" version="3.7.0">
-      <description>Controller Area Network</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_canfd" variant="" vendor="Renesas" version="3.7.0">
-      <description>Controller Area Network - Flexible Data</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cec" variant="" vendor="Renesas" version="3.7.0">
-      <description>HDMI CEC Transmission/Reception Circuit</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cgc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Clock Generation Circuit</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_crc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Cyclic Redundancy Check</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ctsu" variant="" vendor="Renesas" version="3.7.0">
-      <description>Capacitive Touch Sensing Unit</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="3.7.0">
-      <description>12-bit D/A Converter</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_doc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Data Operation Circuit</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="3.7.0">
-      <description>Direct Memory Access Controller</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Data Transfer Controller</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Event Link Controller</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether_phy" variant="" vendor="Renesas" version="3.7.0">
-      <description>Ethernet PHY</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether" variant="" vendor="Renesas" version="3.7.0">
-      <description>Ethernet</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_flash_hp" variant="" vendor="Renesas" version="3.7.0">
-      <description>Flash Memory High Performance</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="3.7.0">
-      <description>General PWM Timer</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt_three_phase" variant="" vendor="Renesas" version="3.7.0">
-      <description>General PWM Timer Three-Phase Motor Control Driver</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="3.7.0">
-      <description>External Interrupt</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="3.7.0">
-      <description>I2C Master Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_b_master" variant="" vendor="Renesas" version="3.7.0">
-      <description>I2C Master Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_b_slave" variant="" vendor="Renesas" version="3.7.0">
-      <description>I2C Slave Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="3.7.0">
-      <description>I2C Slave Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iirfa" variant="" vendor="Renesas" version="3.7.0">
-      <description>IIR Filter Accelerator</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iwdt" variant="" vendor="Renesas" version="3.7.0">
-      <description>Independent Watchdog Timer</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_kint" variant="" vendor="Renesas" version="3.7.0">
-      <description>Key Input</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="3.7.0">
-      <description>Low Power Modes</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lvd" variant="" vendor="Renesas" version="3.7.0">
-      <description>Low Voltage Detection</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ospi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Octa Serial Peripheral Interface Flash</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_poeg" variant="" vendor="Renesas" version="3.7.0">
-      <description>Port Output Enable for GPT</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_edmac" variant="" vendor="Renesas" version="3.7.0">
-      <description>EDMAC</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_qspi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Quad Serial Peripheral Interface Flash</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="3.7.0">
-      <description>Real Time Clock</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sce9_ra6_plaintext" variant="" vendor="Renesas" version="3.7.0">
-      <description>Secure Cryptography Engine on RA6 Compatibility Mode</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_uart" variant="" vendor="Renesas" version="3.7.0">
-      <description>SCI UART</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_spi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Serial Peripheral Interface on Serial Communications Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_i2c" variant="" vendor="Renesas" version="3.7.0">
-      <description>SCI_B I2C Master Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_spi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Serial Peripheral Interface on Serial Communications Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="3.7.0">
-      <description>SCI UART</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sdhi" variant="" vendor="Renesas" version="3.7.0">
-      <description>SD/MMC Host Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Serial Peripheral Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi_b" variant="" vendor="Renesas" version="3.7.0">
-      <description>Serial Peripheral Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ssi" variant="" vendor="Renesas" version="3.7.0">
-      <description>Serial Sound Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="3.7.0">
-      <description>Watchdog Timer</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_adpcm_decoder" variant="" vendor="Renesas" version="3.7.0">
-      <description>ADPCM Audio Decoder</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_filex_block_media" variant="" vendor="Renesas" version="3.7.0">
-      <description>FileX Block Media I/O Interface for RA</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_block_media_sdmmc" variant="" vendor="Renesas" version="3.7.0">
-      <description>SD/MMC Memory Implementation</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_block_media_spi" variant="" vendor="Renesas" version="3.7.0">
-      <description>SPI Block Media Memory Implementation</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_netxduo_ether" variant="" vendor="Renesas" version="3.7.0">
-      <description>NetX Duo Ethernet Driver</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_netx_secure_crypto" variant="" vendor="Renesas" version="3.7.0">
-      <description>NetX Secure Crypto H/W Acceleration</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_touch" variant="" vendor="Renesas" version="3.7.0">
-      <description>Touch</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_vee_flash" variant="" vendor="Renesas" version="3.7.0">
-      <description>Virtual EEPROM</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_levelx_nor_spi" variant="" vendor="Renesas" version="3.7.0">
-      <description>LevelX NOR SPI Port</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_filex_levelx_nor" variant="" vendor="Renesas" version="3.7.0">
-      <description>FileX LevelX NOR I/O Interface for RA</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="NetX Duo" subgroup="nxd" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS NetX Duo</description>
-      <originalPack>Microsoft.NetXDuo.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="NetX Duo" subgroup="nx_crypto" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS NetX Crypto</description>
-      <originalPack>Microsoft.NetXDuo.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="NetX Duo" subgroup="nx_secure" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS NetX Secure</description>
-      <originalPack>Microsoft.NetXDuo.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Azure" condition="" group="NetX Duo" subgroup="nxd_servers" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>Azure RTOS NetX FileX Servers</description>
-      <originalPack>Microsoft.NetXDuo.6.1.10+fsp.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="R7FA6M5AG2CBG" vendor="Renesas" version="3.7.0">
-      <description>Board support package for R7FA6M5AG2CBG</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.3.7.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="3.7.0">
+    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="3.6.0">
       <description>Custom Board Support Files</description>
-      <originalPack>Renesas.RA_board_custom.3.7.0.pack</originalPack>
+      <originalPack>Renesas.RA_board_custom.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="3.7.0">
-      <description>USB Basic</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.8.0+renesas.0.fsp.3.6.0">
+      <description>Arm CMSIS Version 5 - Core (M)</description>
+      <originalPack>Arm.CMSIS5.5.8.0+renesas.0.fsp.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="rm_usbx_port" variant="" vendor="Renesas" version="3.7.0">
-      <description>Porting layer for USBX</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="3.6.0">
+      <description>Board Support Package Common Files</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="Azure" condition="" group="NetX Duo" subgroup="nxd_bsd" variant="" vendor="Microsoft" version="6.1.10+fsp.3.7.0">
-      <description>NetX Duo BSD Support</description>
-      <originalPack>Microsoft.NetXDuo.6.1.10+fsp.3.7.0.pack</originalPack>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_acmphs" variant="" vendor="Renesas" version="3.6.0">
+      <description>High Speed Analog Comparator</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pmsc" variant="" vendor="Renesas" version="3.7.0">
-      <description>USB Peripheral Mass Storage Class</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="3.6.0">
+      <description>A/D Converter</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="Projects" condition="" group="all" subgroup="threadx_blinky" variant="" vendor="Renesas" version="3.7.0">
-      <description>Simple application that blinks an LED using Azure RTOS ThreadX.</description>
-      <originalPack>Renesas.RA_threadx_blinky.3.7.0.pack</originalPack>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="3.6.0">
+      <description>Asynchronous General Purpose Timer</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="3.7.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ble_extended_threadx" variant="" vendor="Renesas" version="3.6.0">
+      <description>Renesas Bluetooth Low Energy Library Extended Configuration</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cac" variant="" vendor="Renesas" version="3.6.0">
+      <description>Clock Accuracy Measurement Circuit</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_can" variant="" vendor="Renesas" version="3.6.0">
+      <description>Controller Area Network</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_canfd" variant="" vendor="Renesas" version="3.6.0">
+      <description>Controller Area Network - Flexible Data</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cec" variant="" vendor="Renesas" version="3.6.0">
+      <description>HDMI CEC Transmission/Reception Circuit</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cgc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Clock Generation Circuit</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_crc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Cyclic Redundancy Check</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ctsu" variant="" vendor="Renesas" version="3.6.0">
+      <description>Capacitive Touch Sensing Unit</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="3.6.0">
+      <description>12-bit D/A Converter</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_doc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Data Operation Circuit</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="3.6.0">
+      <description>Direct Memory Access Controller</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Data Transfer Controller</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Event Link Controller</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether_phy" variant="" vendor="Renesas" version="3.6.0">
+      <description>Ethernet PHY</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether" variant="" vendor="Renesas" version="3.6.0">
+      <description>Ethernet</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_flash_hp" variant="" vendor="Renesas" version="3.6.0">
+      <description>Flash Memory High Performance</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="3.6.0">
+      <description>General PWM Timer</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt_three_phase" variant="" vendor="Renesas" version="3.6.0">
+      <description>General PWM Timer Three-Phase Motor Control Driver</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="3.6.0">
+      <description>External Interrupt</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="3.6.0">
+      <description>I2C Master Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_b_master" variant="" vendor="Renesas" version="3.6.0">
+      <description>I2C Master Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_b_slave" variant="" vendor="Renesas" version="3.6.0">
+      <description>I2C Slave Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="3.6.0">
+      <description>I2C Slave Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iirfa" variant="" vendor="Renesas" version="3.6.0">
+      <description>IIR Filter Accelerator</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="3.6.0">
+      <description>I/O Port</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iwdt" variant="" vendor="Renesas" version="3.6.0">
+      <description>Independent Watchdog Timer</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_kint" variant="" vendor="Renesas" version="3.6.0">
+      <description>Key Input</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="3.6.0">
+      <description>Low Power Modes</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lvd" variant="" vendor="Renesas" version="3.6.0">
+      <description>Low Voltage Detection</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ospi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Octa Serial Peripheral Interface Flash</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_poeg" variant="" vendor="Renesas" version="3.6.0">
+      <description>Port Output Enable for GPT</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_edmac" variant="" vendor="Renesas" version="3.6.0">
+      <description>EDMAC</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_qspi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Quad Serial Peripheral Interface Flash</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="3.6.0">
+      <description>Real Time Clock</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sce9_ra6_plaintext" variant="" vendor="Renesas" version="3.6.0">
+      <description>Secure Cryptography Engine on RA6 Compatibility Mode</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_uart" variant="" vendor="Renesas" version="3.6.0">
+      <description>SCI UART</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_spi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Serial Peripheral Interface on Serial Communications Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="3.6.0">
       <description>SCI I2C Master Interface</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_b_i2c" variant="" vendor="Renesas" version="3.6.0">
+      <description>SCI_B I2C Master Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_spi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Serial Peripheral Interface on Serial Communications Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="3.6.0">
+      <description>SCI UART</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sdhi" variant="" vendor="Renesas" version="3.6.0">
+      <description>SD/MMC Host Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Serial Peripheral Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi_b" variant="" vendor="Renesas" version="3.6.0">
+      <description>Serial Peripheral Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ssi" variant="" vendor="Renesas" version="3.6.0">
+      <description>Serial Sound Interface</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="3.6.0">
+      <description>USB Basic</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pmsc" variant="" vendor="Renesas" version="3.6.0">
+      <description>USB Peripheral Mass Storage Class</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="3.6.0">
+      <description>Watchdog Timer</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_adpcm_decoder" variant="" vendor="Renesas" version="3.6.0">
+      <description>ADPCM Audio Decoder</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_filex_block_media" variant="" vendor="Renesas" version="3.6.0">
+      <description>FileX Block Media I/O Interface for RA</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_block_media_sdmmc" variant="" vendor="Renesas" version="3.6.0">
+      <description>SD/MMC Memory Implementation</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_block_media_spi" variant="" vendor="Renesas" version="3.6.0">
+      <description>SPI Block Media Memory Implementation</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_touch" variant="" vendor="Renesas" version="3.6.0">
+      <description>Touch</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_threadx_port" variant="" vendor="Renesas" version="3.6.0">
+      <description>Azure RTOS ThreadX Port</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_vee_flash" variant="" vendor="Renesas" version="3.6.0">
+      <description>Virtual EEPROM</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="rm_usbx_port" variant="" vendor="Renesas" version="3.6.0">
+      <description>Porting layer for USBX</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_levelx_nor_spi" variant="" vendor="Renesas" version="3.6.0">
+      <description>LevelX NOR SPI Port</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_filex_levelx_nor" variant="" vendor="Renesas" version="3.6.0">
+      <description>FileX LevelX NOR I/O Interface for RA</description>
+      <originalPack>Renesas.RA.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Azure" condition="" group="FileX" subgroup="fx" variant="" vendor="Microsoft" version="6.1.10+fsp.3.6.0">
+      <description>Azure RTOS FileX</description>
+      <originalPack>Microsoft.FileX.6.1.10+fsp.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="R7FA6M5AG2CBG" vendor="Renesas" version="3.6.0">
+      <description>Board support package for R7FA6M5AG2CBG</description>
+      <originalPack>Renesas.RA_mcu_ra6m5.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="" vendor="Renesas" version="3.6.0">
+      <description>Board support package for RA6M5</description>
+      <originalPack>Renesas.RA_mcu_ra6m5.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="fsp" variant="" vendor="Renesas" version="3.6.0">
+      <description>Board support package for RA6M5 - FSP Data</description>
+      <originalPack>Renesas.RA_mcu_ra6m5.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="RTOS" condition="" group="Azure" subgroup="ThreadX" variant="" vendor="Microsoft" version="6.1.10+fsp.3.6.0">
+      <description>Azure RTOS ThreadX</description>
+      <originalPack>Microsoft.ThreadX.6.1.10+fsp.3.6.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Azure" condition="" group="LevelX" subgroup="lx" variant="" vendor="Microsoft" version="6.1.10+fsp.3.6.0">
+      <description>Azure RTOS LevelX</description>
+      <originalPack>Microsoft.LevelX.6.1.10+fsp.3.6.0.pack</originalPack>
     </component>
   </raComponentSelection>
   <raElcConfiguration/>
@@ -717,7 +681,6 @@
       <property id="module.driver.i2c_master.p_callback" value="i2c_callback"/>
       <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority12"/>
     </module>
-    <module id="module.azure.nxd.common.1881196622"/>
     <module id="module.driver.basic_on_usb.1865221252">
       <property id="module.driver.basic.name" value="g_basic0"/>
       <property id="module.driver.usb_basic.usb_mode" value="module.driver.usb_basic.usb_mode.host"/>
@@ -735,59 +698,6 @@
       <property id="module.driver.usb_basic.hsipl_d1" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.usb_basic.rtos_callback" value="NULL"/>
       <property id="module.driver.usb_basic.other_context" value="NULL"/>
-    </module>
-    <module id="module.azure.nxd_bsd.829511557">
-      <property id="module.azure.nxd_bsd.warning" value="module.azure.nxd_bsd.warning.disabled"/>
-      <property id="module.azure.nxd_bsd.stack_size" value="2048"/>
-      <property id="module.azure.nxd_bsd.priority" value="3"/>
-    </module>
-    <module id="module.azure.nxd.ip.676748468">
-      <property id="module.azure.nxd.ip.name" value="g_ip0"/>
-      <property id="module.azure.nxd.ip.address" value="192.168.0.2"/>
-      <property id="module.azure.nxd.ip.subnet_mask" value="255.255.255.0"/>
-      <property id="module.azure.nxd.ip.gateway_address" value="0.0.0.0"/>
-      <property id="module.azure.nxd.ipv6.address_global" value="2001:0:0:0:0:0:0:1"/>
-      <property id="module.azure.nxd.ipv6.address_local" value="0:0:0:0:0:0:0:0"/>
-      <property id="module.azure.nxd.ip.stack_size" value="2048"/>
-      <property id="module.azure.nxd.ip.priority" value="3"/>
-      <property id="module.azure.nxd.ip.arp_cache_size_units" value="module.azure.nxd.ip.arp_cache_size_units.bytes"/>
-      <property id="module.azure.nxd.ip.arp_cache_size" value="520"/>
-    </module>
-    <module id="module.azure.nxd.packet_pool.1021440644">
-      <property id="module.azure.nxd.packet_pool.name" value="g_packet_pool0"/>
-      <property id="module.azure.nxd.packet_pool.packet_size" value="1568"/>
-      <property id="module.azure.nxd.packet_pool.number_of_packets" value="16"/>
-    </module>
-    <module id="module.middleware.rm_netxduo_ether.1527872531">
-      <property id="module.middleware.rm_netxduo_ether.name" value="g_netxduo_ether_0"/>
-      <property id="module.middleware.rm_netxduo_ether.ip_mtu" value="1500"/>
-    </module>
-    <module id="module.driver.ether_on_ether.509222656">
-      <property id="module.driver.ether.name" value="g_ether0"/>
-      <property id="module.driver.ether.channel" value="module.driver.ether.channel.0"/>
-      <property id="module.driver.ether.mac_address" value="00:11:22:33:44:55"/>
-      <property id="module.driver.ether.zerocopy" value="module.driver.ether.zerocopy.0"/>
-      <property id="module.driver.ether.flow_control" value="module.driver.ether.flow_control.0"/>
-      <property id="module.driver.ether.multicast" value="module.driver.ether.multicast.1"/>
-      <property id="module.driver.ether.promiscuous" value="module.driver.ether.promiscuous.0"/>
-      <property id="module.driver.ether.broadcast_filter" value="0"/>
-      <property id="module.driver.ether.num_tx_descriptors" value="1"/>
-      <property id="module.driver.ether.num_rx_descriptors" value="1"/>
-      <property id="module.driver.ether.allocate_rx_buffer" value="module.driver.ether.allocate_rx_buffer.1"/>
-      <property id="module.driver.ether.ether_buffer_size" value="1514"/>
-      <property id="module.driver.ether.padding" value="module.driver.ether.padding.0"/>
-      <property id="module.driver.ether.padding_offset" value="0"/>
-      <property id="module.driver.ether.interrupt_priority" value="board.icu.common.irq.priority12"/>
-      <property id="module.driver.ether.p_callback" value="NULL"/>
-    </module>
-    <module id="module.driver.ether_phy_on_ether_phy.1005663733">
-      <property id="module.driver.ether_phy.name" value="g_ether_phy0"/>
-      <property id="module.driver.ether_phy.channel" value="module.driver.ether_phy.channel.0"/>
-      <property id="module.driver.ether_phy.phy_lsi_address" value="0"/>
-      <property id="module.driver.ether_phy.phy_reset_wait_time" value="0x00020000"/>
-      <property id="module.driver.ether_phy.mii_type" value="module.driver.mii_type.rmii"/>
-      <property id="module.driver.ether_phy.mii_bit_access_wait_time" value="8"/>
-      <property id="module.driver.ether_phy.flow_control" value="module.driver.ether_phy.flow_control.0"/>
     </module>
     <module id="module.driver.timer_on_gpt.70458040">
       <property id="module.driver.timer.name" value="g_timer2"/>
@@ -3051,6 +2961,94 @@
       <property id="module.driver.transfer.num_blocks" value="0"/>
       <property id="module.driver.transfer.activation_source" value="_disabled"/>
     </module>
+    <module id="module.driver.ether_on_ether.117220312">
+      <property id="module.driver.ether.name" value="g_ether0"/>
+      <property id="module.driver.ether.channel" value="module.driver.ether.channel.0"/>
+      <property id="module.driver.ether.mac_address" value="00:11:22:33:44:55"/>
+      <property id="module.driver.ether.zerocopy" value="module.driver.ether.zerocopy.0"/>
+      <property id="module.driver.ether.flow_control" value="module.driver.ether.flow_control.0"/>
+      <property id="module.driver.ether.multicast" value="module.driver.ether.multicast.1"/>
+      <property id="module.driver.ether.promiscuous" value="module.driver.ether.promiscuous.0"/>
+      <property id="module.driver.ether.broadcast_filter" value="0"/>
+      <property id="module.driver.ether.num_tx_descriptors" value="1"/>
+      <property id="module.driver.ether.num_rx_descriptors" value="1"/>
+      <property id="module.driver.ether.allocate_rx_buffer" value="module.driver.ether.allocate_rx_buffer.1"/>
+      <property id="module.driver.ether.ether_buffer_size" value="1514"/>
+      <property id="module.driver.ether.padding" value="module.driver.ether.padding.0"/>
+      <property id="module.driver.ether.padding_offset" value="0"/>
+      <property id="module.driver.ether.interrupt_priority" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.ether.p_callback" value="NULL"/>
+    </module>
+    <module id="module.driver.ether_phy_on_ether_phy.1284404230">
+      <property id="module.driver.ether_phy.name" value="g_ether_phy0"/>
+      <property id="module.driver.ether_phy.channel" value="module.driver.ether_phy.channel.0"/>
+      <property id="module.driver.ether_phy.phy_lsi_address" value="0"/>
+      <property id="module.driver.ether_phy.phy_reset_wait_time" value="0x00020000"/>
+      <property id="module.driver.ether_phy.mii_type" value="module.driver.mii_type.rmii"/>
+      <property id="module.driver.ether_phy.mii_bit_access_wait_time" value="8"/>
+      <property id="module.driver.ether_phy.flow_control" value="module.driver.ether_phy.flow_control.0"/>
+    </module>
+    <module id="module.driver.adc_on_adc_with_dmac.697180310">
+      <property id="module.driver.adc.with.dmac.name" value="g_adc_with_dmac0"/>
+      <property id="module.driver.adc.with.dmac.samples.per.channel" value="1"/>
+    </module>
+    <module id="module.driver.adc_on_adc.1311655693">
+      <property id="module.driver.adc.name" value="g_adc2"/>
+      <property id="module.driver.adc.unit" value="0"/>
+      <property id="module.driver.adc.resolution" value="module.driver.adc.resolution.resolution_12_bit"/>
+      <property id="module.driver.adc.alignment" value="module.driver.adc.alignment.alignment_right"/>
+      <property id="module.driver.adc.clearing" value="module.driver.adc.clearing.clear_after_read_on"/>
+      <property id="module.driver.adc.mode" value="module.driver.adc.mode.mode_single_scan"/>
+      <property id="module.driver.adc.mode.dt" value="module.driver.adc.mode.dt.disabled"/>
+      <property id="module.driver.adc.scan_mask" value=""/>
+      <property id="module.driver.adc.scan_mask_group_b" value=""/>
+      <property id="module.driver.adc.trigger" value="enum.driver.adc.trigger.trigger_software"/>
+      <property id="module.driver.adc.trigger_group_b" value="_disabled"/>
+      <property id="module.driver.adc.priority_group_a" value="module.driver.adc.priority_group_a.group_a_priority_off"/>
+      <property id="module.driver.adc.add_average_count" value="module.driver.adc.add_average_count.add_off"/>
+      <property id="module.driver.adc.adc_vref_control" value="module.driver.adc.adc_vref_control.vrefh"/>
+      <property id="module.driver.adc.add_mask" value=""/>
+      <property id="module.driver.adc.sample_hold_mask" value=""/>
+      <property id="module.driver.adc.sample_hold_states" value="24"/>
+      <property id="module.driver.adc.compare.window_mode" value="module.driver.adc.compare.window_mode.disabled"/>
+      <property id="module.driver.adc.compare.event_mode" value="module.driver.adc.compare.event_mode.or"/>
+      <property id="module.driver.adc.compare.window_a.enable" value="module.driver.adc.compare.window_a.enable.disabled"/>
+      <property id="module.driver.adc.compare.window_a.channels" value=""/>
+      <property id="module.driver.adc.compare.window_a.channel_mode" value=""/>
+      <property id="module.driver.adc.compare.window_a.ref_lower" value="0"/>
+      <property id="module.driver.adc.compare.window_a.ref_upper" value="0"/>
+      <property id="module.driver.adc.compare.window_b.enable" value="module.driver.adc.compare.window_b.enable.disabled"/>
+      <property id="module.driver.adc.compare.window_b.channel" value="module.driver.adc.compare.window_b.channel.channel_0"/>
+      <property id="module.driver.adc.compare.window_b.mode" value="module.driver.adc.compare.window_b.mode"/>
+      <property id="module.driver.adc.compare.window_b.ref_lower" value="0"/>
+      <property id="module.driver.adc.compare.window_b.ref_upper" value="0"/>
+      <property id="module.driver.adc.p_callback" value="NULL"/>
+      <property id="module.driver.adc.scan_end_ipl" value="_disabled"/>
+      <property id="module.driver.adc.scan_end_b_ipl" value="_disabled"/>
+      <property id="module.driver.adc.window_a_ipl" value="_disabled"/>
+      <property id="module.driver.adc.window_b_ipl" value="_disabled"/>
+      <property id="module.driver.adc.adbuf" value="module.driver.adc.adbuf.disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dmac.1449661101">
+      <property id="module.driver.transfer.name" value="g_transfer77"/>
+      <property id="module.driver.transfer.channel" value="3"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.length" value="1"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_event" value="enum.elc_none.none"/>
+      <property id="module.driver.transfer.p_callback" value="NULL"/>
+      <property id="module.driver.transfer.p_context" value="NULL"/>
+      <property id="module.driver.transfer.ipl" value="_disabled"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.offset" value="1"/>
+      <property id="module.driver.transfer.src.buffer" value="1"/>
+    </module>
     <object id="rtos.threadx.object.flags.1281761187">
       <property id="rtos.threadx.object.flags.name" value="New Event Flags"/>
       <property id="rtos.threadx.object.flags.symbol" value="g_cdcacm_event_flags0"/>
@@ -3080,7 +3078,6 @@
         <stack module="module.driver.transfer_on_dtc.1780898667" requires="module.driver.i2c_on_iic_master.requires.transfer_tx"/>
         <stack module="module.driver.transfer_on_dtc.1259871712" requires="module.driver.i2c_on_iic_master.requires.transfer_rx"/>
       </stack>
-      <stack module="module.azure.nxd.common.1881196622"/>
       <stack module="module.driver.timer_on_gpt.70458040"/>
       <stack module="module.driver.timer_on_gpt.908164970"/>
       <stack module="module.driver.timer_on_gpt.922595310"/>
@@ -3244,17 +3241,6 @@
       <property id="rtos.threadx.thread.priority" value="15"/>
       <property id="rtos.threadx.thread.autostart" value="rtos.threadx.thread.autostart.enabled"/>
       <property id="rtos.threadx.thread.timeslice" value="1"/>
-      <stack module="module.azure.nxd_bsd.829511557">
-        <stack module="module.azure.nxd.ip.676748468" requires="module.azure.nxd_bsd.requires.nx.ip">
-          <stack module="module.azure.nxd.packet_pool.1021440644" requires="module.azure.nxd.ip.requires.nxd.packet_pool"/>
-          <stack module="module.middleware.rm_netxduo_ether.1527872531" requires="module.azure.nxd.ip.requires.nxd.driver">
-            <stack module="module.driver.ether_on_ether.509222656" requires="module.middleware.rm_netxduo_ether.requires.ether">
-              <stack module="module.driver.ether_phy_on_ether_phy.1005663733" requires="module.driver.ether.requires.ether_phy"/>
-            </stack>
-            <stack module="module.azure.nxd.common.1881196622" requires="module.middleware.rm_netxduo_ether.requires.nxd.common"/>
-          </stack>
-        </stack>
-      </stack>
       <stack module="module.driver.usbx_pcdc.192829614">
         <stack module="module.azure.usbx_port.528420754" requires="module.driver.usbx_pcdc.requires.usb_basic">
           <stack module="module.driver.basic_on_usb.821182984" requires="module.driver.basic_on_usb.requires.basic">
@@ -3271,6 +3257,13 @@
             </stack>
           </stack>
         </stack>
+      </stack>
+      <stack module="module.driver.ether_on_ether.117220312">
+        <stack module="module.driver.ether_phy_on_ether_phy.1284404230" requires="module.driver.ether.requires.ether_phy"/>
+      </stack>
+      <stack module="module.driver.adc_on_adc_with_dmac.697180310">
+        <stack module="module.driver.adc_on_adc.1311655693" requires="module.driver.adc.with.dmac.requires.adc"/>
+        <stack module="module.driver.transfer_on_dmac.1449661101" requires="module.driver.adc.with.dmac.requires.dmac"/>
       </stack>
     </context>
     <config id="config.driver.wdt">
@@ -3393,20 +3386,6 @@
       <property id="config.driver.usb_basic.compliance_mode" value="config.driver.usb_basic.compliance_mode.disable"/>
       <property id="config.driver.usb_basic.tpl_table" value="NULL"/>
     </config>
-    <config id="config.middleware.rm_netx_secure_crypto">
-      <property id="config.middleware.rm_netx_secure_crypto.standalone" value="config.middleware.rm_netx_secure_crypto.standalone.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.trng" value="config.middleware.rm_netx_secure_crypto.trng.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.sha256_alt" value="config.driver.psa_crypto.sha256_alt.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.aes_alt" value="config.driver.psa_crypto.aes_alt.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.ecp_alt" value="config.driver.psa_crypto.ecp_alt.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.ecdsa.scratch_buffer_size" value="3016"/>
-      <property id="config.middleware.rm_netx_secure_crypto.ecdh.scratch_buffer_size" value="2464"/>
-      <property id="config.middleware.rm_netx_secure_crypto.rsa_alt" value="config.driver.psa_crypto.rsa_alt.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.rsa_2048_alt" value="config.middleware.rm_netx_secure_crypto.rsa_2048_alt.enabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.rsa_3072_alt" value="config.driver.psa_crypto.rsa_3072.disabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.rsa_4096_alt" value="config.driver.psa_crypto.rsa_4096.disabled"/>
-      <property id="config.middleware.rm_netx_secure_crypto.rsa.scratch_buffer_size" value="config.middleware.rm_netx_secure_crypto.rsa.scratch_buffer_size.disabled"/>
-    </config>
     <config id="config.middleware.rm_levelx_nor_spi">
       <property id="config.middleware.rm_levelx_nor_spi.param_checking_enable" value="config.middleware.rm_levelx_nor_spi.param_checking_enable.bsp"/>
       <property id="config.middleware.rm_levelx_nor_spi.write_verify_enable" value="config.middleware.rm_levelx_nor_spi.write_verify_enable.disabled"/>
@@ -3454,7 +3433,6 @@
       <property id="config.driver.dtc.param_checking_enable" value="config.driver.dtc.param_checking_enable.bsp"/>
       <property id="config.driver.dtc.vector_table" value=".fsp_dtc_vector_table"/>
     </config>
-    <config id="config.middleware.rm_netxduo_ether"/>
     <config id="config.driver.cac">
       <property id="config.driver.cac.param_checking" value="config.driver.cac.param_checking.bsp"/>
     </config>
@@ -3507,376 +3485,6 @@
       <property id="config.middleware.rm_vee_flash.checking" value="config.middleware.rm_vee_flash.checking.system"/>
       <property id="config.middleware.rm_vee_flash.ref_data_support" value="config.middleware.rm_vee_flash.ref_data_support.disabled"/>
       <property id="config.middleware.rm_vee_flash.refresh_buf_size" value="32"/>
-    </config>
-    <config id="config.azure.nxd">
-      <property id="config.azure.nxd_src.error_checking" value="config.azure.nxd_src.error_checking.enabled"/>
-      <property id="config.azure.nxd_src.ip_packet_filter" value="config.azure.nxd_src.ip_packet_filter.disabled"/>
-      <property id="config.azure.nxd_src.ip_static_routing" value="config.azure.nxd_src.ip_static_routing.disabled"/>
-      <property id="config.azure.nxd_src.physical_header" value=""/>
-      <property id="config.azure.nxd_src.physical_trailer" value=""/>
-      <property id="config.azure.nxd_src.arp_defend_by_reply" value="config.azure.nxd_src.arp_defend_by_reply.disabled"/>
-      <property id="config.azure.nxd_src.arp_mac_change_notification" value="config.azure.nxd_src.arp_mac_change_notification.disabled"/>
-      <property id="config.azure.nxd_src.arp_expiration_rate" value=""/>
-      <property id="config.azure.nxd_src.arp_update_rate" value=""/>
-      <property id="config.azure.nxd_src.tcp_ack_timer_rate" value=""/>
-      <property id="config.azure.nxd_src.tcp_fast_timer_rate" value=""/>
-      <property id="config.azure.nxd_src.tcp_transmit_timer_rate" value=""/>
-      <property id="config.azure.nxd_src.tcp_keepalive_initial" value=""/>
-      <property id="config.azure.nxd_src.tcp_keepalive_retry" value=""/>
-      <property id="config.azure.nxd_src.arp_maximum_retries" value=""/>
-      <property id="config.azure.nxd_src.arp_max_queue_depth" value=""/>
-      <property id="config.azure.nxd_src.arp_auto_arp_entry" value="config.azure.nxd_src.arp_auto_arp_entry.enabled"/>
-      <property id="config.azure.nxd_src.max_multicast_groups" value=""/>
-      <property id="config.azure.nxd_src.max_listen_requests" value=""/>
-      <property id="config.azure.nxd_src.tcp_keepalive" value="config.azure.nxd_src.tcp_keepalive.disabled"/>
-      <property id="config.azure.nxd_src.tcp_window_scaling" value="config.azure.nxd_src.tcp_window_scaling.disabled"/>
-      <property id="config.azure.nxd_src.tcp_immediate_ack" value="config.azure.nxd_src.tcp_immediate_ack.disabled"/>
-      <property id="config.azure.nxd_src.tcp_ack_every_n_packets" value=""/>
-      <property id="config.azure.nxd_src.tcp_maximum_retries" value=""/>
-      <property id="config.azure.nxd_src.tcp_maximum_tx_queue" value=""/>
-      <property id="config.azure.nxd_src.tcp_retry_shift" value=""/>
-      <property id="config.azure.nxd_src.tcp_keepalive_retries" value=""/>
-      <property id="config.azure.nxd_src.driver_deferred_processing" value="config.azure.nxd_src.driver_deferred_processing.disabled"/>
-      <property id="config.azure.nxd_src.loopback_interface" value="config.azure.nxd_src.loopback_interface.enabled"/>
-      <property id="config.azure.nxd_src.max_physical_interfaces" value=""/>
-      <property id="config.azure.nxd_src.fragmentation" value="config.azure.nxd_src.fragmentation.enabled"/>
-      <property id="config.azure.nxd_src.ip_rx_checksum" value="config.azure.nxd_src.ip_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.ip_tx_checksum" value="config.azure.nxd_src.ip_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.tcp_rx_checksum" value="config.azure.nxd_src.tcp_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.tcp_tx_checksum" value="config.azure.nxd_src.tcp_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.udp_rx_checksum" value="config.azure.nxd_src.udp_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.udp_tx_checksum" value="config.azure.nxd_src.udp_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.reset_disconnect" value="config.azure.nxd_src.reset_disconnect.enabled"/>
-      <property id="config.azure.nxd_src.rx_size_checking" value="config.azure.nxd_src.rx_size_checking.enabled"/>
-      <property id="config.azure.nxd_src.arp_info" value="config.azure.nxd_src.arp_info.enabled"/>
-      <property id="config.azure.nxd_src.ip_info" value="config.azure.nxd_src.ip_info.enabled"/>
-      <property id="config.azure.nxd_src.icmp_info" value="config.azure.nxd_src.icmp_info.enabled"/>
-      <property id="config.azure.nxd_src.igmpv2" value="config.azure.nxd_src.igmpv2.enabled"/>
-      <property id="config.azure.nxd_src.igmp_info" value="config.azure.nxd_src.igmp_info.enabled"/>
-      <property id="config.azure.nxd_src.packet_info" value="config.azure.nxd_src.packet_info.enabled"/>
-      <property id="config.azure.nxd_src.rarp_info" value="config.azure.nxd_src.rarp_info.enabled"/>
-      <property id="config.azure.nxd_src.tcp_info" value="config.azure.nxd_src.tcp_info.enabled"/>
-      <property id="config.azure.nxd_src.udp_info" value="config.azure.nxd_src.udp_info.enabled"/>
-      <property id="config.azure.nxd_src.extended_notify_support" value="config.azure.nxd_src.extended_notify_support.enabled"/>
-      <property id="config.azure.nxd_src.natd" value="config.azure.nxd_src.natd.disabled"/>
-      <property id="config.azure.nxd_src.packet_header_pad_size" value=""/>
-      <property id="config.azure.nxd_src.tcp_mss_minimum" value=""/>
-      <property id="config.azure.nxd_src.source_address_check" value="config.azure.nxd_src.source_address_check.disabled"/>
-      <property id="config.azure.nxd_src.arp_defend_interval" value=""/>
-      <property id="config.azure.nxd_src.tcp_max_out_of_order_packets" value=""/>
-      <property id="config.azure.nxd_src.feature_nx_ipv6" value="config.azure.nxd_src.feature_nx_ipv6.enabled"/>
-      <property id="config.azure.nxd_src.ipv6_address_change_notify" value="config.azure.nxd_src.ipv6_address_change_notify.disabled"/>
-      <property id="config.azure.nxd_src.ipv6_path_mtu_discovery" value="config.azure.nxd_src.ipv6_path_mtu_discovery.disabled"/>
-      <property id="config.azure.nxd_src.path_mtu_increase_wait_interval" value=""/>
-      <property id="config.azure.nxd_src.ipv6_default_router_table_size" value=""/>
-      <property id="config.azure.nxd_src.ipv6_destination_table_size" value=""/>
-      <property id="config.azure.nxd_src.ip_max_reassembly_time" value=""/>
-      <property id="config.azure.nxd_src.ipv4_max_reassembly_time" value=""/>
-      <property id="config.azure.nxd_src.ipv6_max_reassembly_time" value=""/>
-      <property id="config.azure.nxd_src.ipv6_multicast" value="config.azure.nxd_src.ipv6_multicast.disabled"/>
-      <property id="config.azure.nxd_src.ipv6_prefix_list_table_size" value=""/>
-      <property id="config.azure.nxd_src.ipv6_stateless_autoconfig_control" value="config.azure.nxd_src.ipv6_stateless_autoconfig_control.disabled"/>
-      <property id="config.azure.nxd_src.max_ipv6_addresses" value=""/>
-      <property id="config.azure.nxd_src.delay_first_probe_time" value=""/>
-      <property id="config.azure.nxd_src.ipv6_dad" value="config.azure.nxd_src.ipv6_dad.enabled"/>
-      <property id="config.azure.nxd_src.ipv6_dad_transmits" value=""/>
-      <property id="config.azure.nxd_src.ipv6_purge_unused_cache_entries" value="config.azure.nxd_src.ipv6_purge_unused_cache_entries.disabled"/>
-      <property id="config.azure.nxd_src.ipv6_neighbor_cache_size" value=""/>
-      <property id="config.azure.nxd_src.max_multicast_solicit" value=""/>
-      <property id="config.azure.nxd_src.max_unicast_solicit" value=""/>
-      <property id="config.azure.nxd_src.nd_max_queue_depth" value=""/>
-      <property id="config.azure.nxd_src.reachable_time" value=""/>
-      <property id="config.azure.nxd_src.retrans_timer" value=""/>
-      <property id="config.azure.nxd_src.icmpv6_error_message" value="config.azure.nxd_src.icmpv6_error_message.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_redirect_process" value="config.azure.nxd_src.icmpv6_redirect_process.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_router_advertisement_process" value="config.azure.nxd_src.icmpv6_router_advertisement_process.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_router_solicitation" value="config.azure.nxd_src.icmpv6_router_solicitation.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_max_rtr_solicitations" value=""/>
-      <property id="config.azure.nxd_src.icmpv6_rtr_solicitation_interval" value=""/>
-      <property id="config.azure.nxd_src.icmpv4_rx_checksum" value="config.azure.nxd_src.icmpv4_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_rx_checksum" value="config.azure.nxd_src.icmpv6_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.icmp_rx_checksum" value="config.azure.nxd_src.icmp_rx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.icmpv4_tx_checksum" value="config.azure.nxd_src.icmpv4_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.icmpv6_tx_checksum" value="config.azure.nxd_src.icmpv6_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.icmp_tx_checksum" value="config.azure.nxd_src.icmp_tx_checksum.enabled"/>
-      <property id="config.azure.nxd_src.packet_alignment" value=""/>
-      <property id="config.azure.nxd_src.rand" value="rand"/>
-      <property id="config.azure.nxd_src.srand" value="srand"/>
-      <property id="config.azure.nxd_dhcp_common.tos" value="config.azure.nxd_dhcp_common.tos.normal"/>
-      <property id="config.azure.nxd_dhcp_common.fragment_option" value="config.azure.nxd_dhcp_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_dhcp_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_dhcp_common.queue_depth" value="5"/>
-      <property id="config.azure.nxd_dhcp_client.priority" value="3"/>
-      <property id="config.azure.nxd_dhcp_client.thread_stack_size" value="4096"/>
-      <property id="config.azure.nxd_dhcp_client.time_interval" value="1"/>
-      <property id="config.azure.nxd_dhcp_client.bootp" value="config.azure.nxd_dhcp_client.bootp.disable"/>
-      <property id="config.azure.nxd_dhcp_client.send_arp_probe" value="config.azure.nxd_dhcp_client.send_arp_probe.disable"/>
-      <property id="config.azure.nxd_dhcp_client.arp_probe_wait" value="1"/>
-      <property id="config.azure.nxd_dhcp_client.arp_probe_min" value="1"/>
-      <property id="config.azure.nxd_dhcp_client.arp_probe_max" value="2"/>
-      <property id="config.azure.nxd_dhcp_client.arp_probe_num" value="2"/>
-      <property id="config.azure.nxd_dhcp_client.max_retrans_timeout" value="64"/>
-      <property id="config.azure.nxd_dhcp_client.min_renew_timeout" value="60"/>
-      <property id="config.azure.nxd_dhcp_client.min_retrans_timeout" value="4"/>
-      <property id="config.azure.nxd_dhcp_client.client_restore_state" value="config.azure.nxd_dhcp_client.client_restore_state.disable"/>
-      <property id="config.azure.nxd_dhcp_client.send_max_dhcp_message_option" value="config.azure.nxd_dhcp_client.send_max_dhcp_message_option.disable"/>
-      <property id="config.azure.nxd_dhcp_client.buffer_size" value="312"/>
-      <property id="config.azure.nxd_dhcp_client.max_records" value="1"/>
-      <property id="config.azure.nxd_dhcp_client.restart_wait" value="10"/>
-      <property id="config.azure.nxd_http_common.tos" value="config.azure.nxd_http_common.tos.normal"/>
-      <property id="config.azure.nxd_http_common.fragment_option" value="config.azure.nxd_http_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_http_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_http_common.digest" value="config.azure.nxd_http_common.digest.disable"/>
-      <property id="config.azure.nxd_http_common.max_resource" value="40"/>
-      <property id="config.azure.nxd_http_common.max_password" value="20"/>
-      <property id="config.azure.nxd_http_common.max_name" value="20"/>
-      <property id="config.azure.nxd_http_client.min_packet_size" value="600"/>
-      <property id="config.azure.nxd_http_client.timeout" value="10"/>
-      <property id="config.azure.nxd_dns_client.control_tos" value="config.azure.nxd_dns_client.control_tos.normal"/>
-      <property id="config.azure.nxd_dns_client.fragment_option" value="config.azure.nxd_dns_client.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_dns_client.time_to_live" value="128"/>
-      <property id="config.azure.nxd_dns_client.dns_server_ip_version" value="config.azure.nxd_dns_client.dns_server_ip_version.ipv4"/>
-      <property id="config.azure.nxd_dns_client.max_servers" value="5"/>
-      <property id="config.azure.nxd_dns_client.message_max" value="512"/>
-      <property id="config.azure.nxd_dns_client.max_retries" value="3"/>
-      <property id="config.azure.nxd_dns_client.max_retrans_timeout" value="64"/>
-      <property id="config.azure.nxd_dns_client.packet_allocate_timeout" value="1"/>
-      <property id="config.azure.nxd_dns_client.ip_gateway_and_dns_server" value="config.azure.nxd_dns_client.ip_gateway_and_dns_server.disable"/>
-      <property id="config.azure.nxd_dns_client.client_clear_queue" value="config.azure.nxd_dns_client.client_clear_queue.disable"/>
-      <property id="config.azure.nxd_dns_client.enable_extended_rr_types" value="config.azure.nxd_dns_client.enable_extended_rr_types.disable"/>
-      <property id="config.azure.nxd_dns_client.cache_enable" value="config.azure.nxd_dns_client.cache_enable.disable"/>
-      <property id="config.azure.nxd_telnet_common.control_tos" value="config.azure.nxd_telnet_common.control_tos.normal"/>
-      <property id="config.azure.nxd_telnet_common.fragment_option" value="config.azure.nxd_telnet_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_telnet_common.telnet_server_port" value="23"/>
-      <property id="config.azure.nxd_telnet_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_auto_ip.probe_wait" value="1"/>
-      <property id="config.azure.nxd_auto_ip.probe_num" value="3"/>
-      <property id="config.azure.nxd_auto_ip.probe_min" value="1"/>
-      <property id="config.azure.nxd_auto_ip.probe_max" value="2"/>
-      <property id="config.azure.nxd_auto_ip.max_conflicts" value="10"/>
-      <property id="config.azure.nxd_auto_ip.rate_limit_interval" value="60"/>
-      <property id="config.azure.nxd_auto_ip.announce_wait" value="2"/>
-      <property id="config.azure.nxd_auto_ip.announce_num" value="2"/>
-      <property id="config.azure.nxd_auto_ip.announce_interval" value="2"/>
-      <property id="config.azure.nxd_auto_ip.defend_interval" value="10"/>
-      <property id="config.azure.nxd_web_http_common.tos" value="config.azure.nxd_web_http_common.tos.normal"/>
-      <property id="config.azure.nxd_web_http_common.fragment_option" value="config.azure.nxd_web_http_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_web_http_common.digest" value="config.azure.nxd_web_http_common.digest.disable"/>
-      <property id="config.azure.nxd_web_http_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_web_http_common.max_password" value="20"/>
-      <property id="config.azure.nxd_web_http_common.max_name" value="20"/>
-      <property id="config.azure.nxd_web_http_client.min_packet_size" value="300"/>
-      <property id="config.azure.nxd_web_http_client.secure" value="config.azure.nxd_web_http_client.secure.disable"/>
-      <property id="config.azure.nxd_smtp_client.client_tcp_window_size" value="1460"/>
-      <property id="config.azure.nxd_smtp_client.client_packet_timeout" value="2"/>
-      <property id="config.azure.nxd_smtp_client.client_connection_timeout" value="10"/>
-      <property id="config.azure.nxd_smtp_client.client_disconnect_timeout" value="5"/>
-      <property id="config.azure.nxd_smtp_client.greeting_timeout" value="10"/>
-      <property id="config.azure.nxd_smtp_client.envelope_timeout" value="10"/>
-      <property id="config.azure.nxd_smtp_client.message_timeout" value="30"/>
-      <property id="config.azure.nxd_smtp_client.client_send_timeout" value="5"/>
-      <property id="config.azure.nxd_smtp_client.server_challenge_max_string" value="200"/>
-      <property id="config.azure.nxd_smtp_client.max_password" value="20"/>
-      <property id="config.azure.nxd_smtp_client.client_max_username" value="40"/>
-      <property id="config.azure.nxd_dhcpv6_client.priority" value="3"/>
-      <property id="config.azure.nxd_dhcpv6_client.mutex_wait" value="TX_WAIT_FOREVER"/>
-      <property id="config.azure.nxd_dhcpv6_client.ip_lifetime_timer_interval" value="1"/>
-      <property id="config.azure.nxd_dhcpv6_client.max_ia_address" value="1"/>
-      <property id="config.azure.nxd_dhcpv6_client.num_dns_servers" value="2"/>
-      <property id="config.azure.nxd_dhcpv6_client.num_time_servers" value="1"/>
-      <property id="config.azure.nxd_dhcpv6_client.domain_name_buffer_size" value="32"/>
-      <property id="config.azure.nxd_dhcpv6_client.time_zone_buffer_size" value="16"/>
-      <property id="config.azure.nxd_dhcpv6_client.max_message_size" value="100"/>
-      <property id="config.azure.nxd_dhcpv6_common.tos" value="config.azure.nxd_dhcpv6_common.tos.normal"/>
-      <property id="config.azure.nxd_dhcpv6_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_dhcpv6_common.queue_depth" value="5"/>
-      <property id="config.azure.nxd_dhcpv6_common.packet_time_out" value="3"/>
-      <property id="config.azure.nxd_dhcpv6_common.session_timer_interval" value="3"/>
-      <property id="config.azure.nxd_dhcp_server.priority" value="2"/>
-      <property id="config.azure.nxd_dhcp_server.packet_alloc_timeout" value="2"/>
-      <property id="config.azure.nxd_dhcp_server.fast_periodic_time_interval" value="10"/>
-      <property id="config.azure.nxd_dhcp_server.client_session_timeout" value="10"/>
-      <property id="config.azure.nxd_dhcp_server.default_lease_time" value="0xFFFFFFFF"/>
-      <property id="config.azure.nxd_dhcp_server.slow_periodic_time_interval" value="1000"/>
-      <property id="config.azure.nxd_dhcp_server.client_options_max" value="12"/>
-      <property id="config.azure.nxd_dhcp_server.optional_server_option_list" value="1 3 6"/>
-      <property id="config.azure.nxd_dhcp_server.optional_server_option_size" value="3"/>
-      <property id="config.azure.nxd_dhcp_server.server_hostname_max" value="32"/>
-      <property id="config.azure.nxd_dhcp_server.client_hostname_max" value="32"/>
-      <property id="config.azure.nxd_dhcp_server.ip_address_max_list_size" value="20"/>
-      <property id="config.azure.nxd_dhcp_server.client_record_table_size" value="50"/>
-      <property id="config.azure.nxd_dhcp_server.boot_buffer_size" value="548"/>
-      <property id="config.azure.nxd_dhcpv6_server.priority" value="2"/>
-      <property id="config.azure.nxd_dhcpv6_server.ip_lease_timer_interval" value="60"/>
-      <property id="config.azure.nxd_dhcpv6_server.packet_wait_option" value="1"/>
-      <property id="config.azure.nxd_dhcpv6_server.preference_value" value="0"/>
-      <property id="config.azure.nxd_dhcpv6_server.max_option_request_options" value="6"/>
-      <property id="config.azure.nxd_dhcpv6_server.t1_time" value="2000"/>
-      <property id="config.azure.nxd_dhcpv6_server.t2_time" value="3000"/>
-      <property id="config.azure.nxd_dhcpv6_server.default_preferred_time" value="2 * NX_DHCPV6_DEFAULT_T1_TIME"/>
-      <property id="config.azure.nxd_dhcpv6_server.default_valid_time" value="2 * NX_DHCPV6_DEFAULT_PREFERRED_TIME"/>
-      <property id="config.azure.nxd_dhcpv6_server.status_message_max" value="100"/>
-      <property id="config.azure.nxd_dhcpv6_server.max_leases" value="100"/>
-      <property id="config.azure.nxd_dhcpv6_server.max_clients" value="120"/>
-      <property id="config.azure.nxd_dhcpv6_server.fragment_option" value="config.azure.nxd_dhcpv6_server.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_dhcpv6_server.duid_vendor_assigned_id" value="abcdeffghijklmnopqrstuvwxyz"/>
-      <property id="config.azure.nxd_dhcpv6_server.duid_vendor_private_id" value="0x12345678"/>
-      <property id="config.azure.nxd_dhcpv6_server.duid_vendor_assigned_length" value="48"/>
-      <property id="config.azure.nxd_dhcpv6_server.success_granted" value="IA OPTION GRANTED"/>
-      <property id="config.azure.nxd_dhcpv6_server.failure_unspecified" value="IA OPTION NOT GRANTED-FAILURE UNSPECIFIED"/>
-      <property id="config.azure.nxd_dhcpv6_server.failure_no_addresses" value="IA OPTION NOT GRANTED-NO ADDRESSES AVAILABLE"/>
-      <property id="config.azure.nxd_dhcpv6_server.failure_invalid_request" value="IA OPTION NOT GRANTED-INVALID CLIENT REQUEST"/>
-      <property id="config.azure.nxd_dhcpv6_server.failure_not_on_link" value="IA OPTION NOT GRANTED-CLIENT NOT ON LINK"/>
-      <property id="config.azure.nxd_dhcpv6_server.failure_use_multicast" value="IA OPTION NOT GRANTED-CLIENT MUST USE MULTICAST"/>
-      <property id="config.azure.nxd_dhcpv6_server.session_timeout" value="20"/>
-      <property id="config.azure.nxd_telnet_server_v2.priority" value="16"/>
-      <property id="config.azure.nxd_telnet_server_v2.max_client" value="4"/>
-      <property id="config.azure.nxd_telnet_server_v2.control_window_size" value="2048"/>
-      <property id="config.azure.nxd_telnet_server_v2.server_timeout" value="10"/>
-      <property id="config.azure.nxd_telnet_server_v2.server_activity_timeout" value="600"/>
-      <property id="config.azure.nxd_telnet_server_v2.server_timeout_period" value="60"/>
-      <property id="config.azure.nxd_telnet_server_v2.telnet_server_option" value="config.azure.nxd_telnet_server_v2.telnet_server_option.enable"/>
-      <property id="config.azure.nxd_telnet_server_v2.user_create_packet_pool" value="config.azure.nxd_telnet_server_v2.user_create_packet_pool.disable"/>
-      <property id="config.azure.nxd_telnet_server_v2.packet_payload" value="300"/>
-      <property id="config.azure.nxd_telnet_server_v2.packet_pool_size" value="2048"/>
-      <property id="config.azure.nxd_sntp_client.stack_size" value="2048"/>
-      <property id="config.azure.nxd_sntp_client.time_slice" value="TX_NO_TIME_SLICE"/>
-      <property id="config.azure.nxd_sntp_client.priority" value="2"/>
-      <property id="config.azure.nxd_sntp_client.udp_socket_name" value="SNTP Client socket"/>
-      <property id="config.azure.nxd_sntp_client.client_udp_port" value="123"/>
-      <property id="config.azure.nxd_sntp_client.server_udp_port" value="123"/>
-      <property id="config.azure.nxd_sntp_client.time_to_live" value="128"/>
-      <property id="config.azure.nxd_sntp_client.queue_depth" value="5"/>
-      <property id="config.azure.nxd_sntp_client.packet_time_out" value="1"/>
-      <property id="config.azure.nxd_sntp_client.ntp_version" value="3"/>
-      <property id="config.azure.nxd_sntp_client.ntp_min_version" value="3"/>
-      <property id="config.azure.nxd_sntp_client.min_server_stratum" value="2"/>
-      <property id="config.azure.nxd_sntp_client.min_time_adjustment" value="10"/>
-      <property id="config.azure.nxd_sntp_client.max_time_adjustment" value="180000"/>
-      <property id="config.azure.nxd_sntp_client.ignore_max_adjust_startup" value="config.azure.nxd_sntp_client.ignore_max_adjust_startup.enable"/>
-      <property id="config.azure.nxd_sntp_client.max_time_lapse" value="7200"/>
-      <property id="config.azure.nxd_sntp_client.update_timeout_interval" value="1"/>
-      <property id="config.azure.nxd_sntp_client.unicast_poll_interval" value="3600"/>
-      <property id="config.azure.nxd_sntp_client.exp_backoff_rate" value="2"/>
-      <property id="config.azure.nxd_sntp_client.rtt_required" value="config.azure.nxd_sntp_client.rtt_required.disable"/>
-      <property id="config.azure.nxd_sntp_client.maximum_root_dispersion" value="50000"/>
-      <property id="config.azure.nxd_sntp_client.invalid_update_limit" value="3"/>
-      <property id="config.azure.nxd_sntp_client.randomize_on_startup" value="config.azure.nxd_sntp_client.randomize_on_startup.disable"/>
-      <property id="config.azure.nxd_sntp_client.client_sleep_interval" value="1"/>
-      <property id="config.azure.nxd_sntp_client.cur_year" value="2016"/>
-      <property id="config.azure.nxd_tftp_common.error_string_max" value="64"/>
-      <property id="config.azure.nxd_tftp_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_tftp_common.tos" value="config.azure.nxd_tftp_common.tos.normal"/>
-      <property id="config.azure.nxd_tftp_common.fragment_option" value="config.azure.nxd_tftp_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_tftp_client.source_port" value="NX_ANY_PORT"/>
-      <property id="config.azure.nxd_mqtt_client.secure" value="config.azure.nxd_mqtt_client.secure.disable"/>
-      <property id="config.azure.nxd_mqtt_client.cloud" value="config.azure.nxd_mqtt_client.cloud.disable"/>
-      <property id="module.azure.nxd_mqtt_client.mqtt_keepalive_timer_rate" value="1"/>
-      <property id="module.azure.nxd_mqtt_client.mqtt_ping_timeout_delay" value="1"/>
-      <property id="config.azure.nxd_mqtt_client.mqtt_socket_timeout" value="0xFFFFFFFF"/>
-      <property id="config.azure.nxd_nat.min_entry_count" value="3"/>
-      <property id="config.azure.nxd_nat.entry_response_timeout" value="240"/>
-      <property id="config.azure.nxd_nat.start_tcp_port" value="20000"/>
-      <property id="config.azure.nxd_nat.end_tcp_port" value="30000"/>
-      <property id="config.azure.nxd_nat.start_udp_port" value="20000"/>
-      <property id="config.azure.nxd_nat.end_udp_port" value="30000"/>
-      <property id="config.azure.nxd_nat.start_icmp_query_id" value="20000"/>
-      <property id="config.azure.nxd_nat.end_icmp_query_id" value="30000"/>
-      <property id="config.azure.nxd_ftp_common.control_tos" value="config.azure.nxd_ftp_common.control_tos.normal"/>
-      <property id="config.azure.nxd_ftp_common.data_tos" value="config.azure.nxd_ftp_common.data_tos.normal"/>
-      <property id="config.azure.nxd_ftp_common.fragment_option" value="config.azure.nxd_ftp_common.fragment_option.dont_fragment"/>
-      <property id="config.azure.nxd_ftp_common.time_to_live" value="128"/>
-      <property id="config.azure.nxd_ftp_common.timeout_period" value="60"/>
-      <property id="module.azure.nxd_ftp_client.source_port" value="NX_ANY_PORT"/>
-      <property id="config.azure.nxd_snmp_agent.stack_size" value="4096"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_agent_priority" value="16"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_type_of_service" value="config.azure.nxd_snmp_agent.nxd_snmp_type_of_service.normal"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_fragment_option" value="config.azure.nxd_snmp_agent.nxd_snmp_fragment_option.dont"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_time_to_live" value="128"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_agent_timeout" value="100"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_max_octet_string" value="255"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_max_context_string" value="32"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_max_user_name" value="64"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_max_security_key" value="64"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_min_packet_size" value="560"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_agent_port" value="161"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_manager_trap_port" value="162"/>
-      <property id="config.azure.nxd_snmp_agent.nxd_snmp_max_trap_key" value="64"/>
-      <property id="config.azure.nxd_snmp_agent.enable_v1" value="config.azure.nxd_snmp_agent.enable_v1.enable"/>
-      <property id="config.azure.nxd_snmp_agent.enable_v2" value="config.azure.nxd_snmp_agent.enable_v2.enable"/>
-      <property id="config.azure.nxd_snmp_agent.enable_v3" value="config.azure.nxd_snmp_agent.enable_v3.enable"/>
-      <property id="config.azure.nxd_pop3_client.mail_buffer_size" value="2000"/>
-      <property id="config.azure.nxd_pop3_client.packet_time_out" value="1"/>
-      <property id="config.azure.nxd_pop3_client.connection_time_out" value="30"/>
-      <property id="config.azure.nxd_pop3_client.disconnect_time_out" value="2"/>
-      <property id="config.azure.nxd_pop3_client.tcp_socket_wait" value="2"/>
-      <property id="config.azure.nxd_pop3_client.server_reply_timeout" value="10"/>
-      <property id="config.azure.nxd_pop3_client.client_tcp_window_size" value="1460"/>
-      <property id="config.azure.nxd_pop3_client.max_username" value="40"/>
-      <property id="config.azure.nxd_pop3_client.max_password" value="20"/>
-      <property id="config.azure.nxd_ftp_server.priority" value="16"/>
-      <property id="config.azure.nxd_ftp_server.time_slice" value="2"/>
-      <property id="config.azure.nxd_ftp_server.max_clients" value="4"/>
-      <property id="config.azure.nxd_ftp_server.control_window_size" value="400"/>
-      <property id="config.azure.nxd_ftp_server.data_window_size" value="2048"/>
-      <property id="config.azure.nxd_ftp_server.server_timeout" value="1"/>
-      <property id="config.azure.nxd_ftp_server.username_size" value="20"/>
-      <property id="config.azure.nxd_ftp_server.password_size" value="20"/>
-      <property id="config.azure.nxd_ftp_server.activity_timeout" value="240"/>
-      <property id="config.azure.nxd_ftp_server.retry_seconds" value="2"/>
-      <property id="config.azure.nxd_ftp_server.transmit_queue_depth" value="20"/>
-      <property id="config.azure.nxd_ftp_server.retry_max" value="10"/>
-      <property id="config.azure.nxd_ftp_server.retry_shift" value="2"/>
-      <property id="config.azure.nxd_http_server.filex" value="config.azure.nxd_http_server.filex.enable"/>
-      <property id="config.azure.nxd_http_server.multipart" value="config.azure.nxd_http_server.multipart.disable"/>
-      <property id="config.azure.nxd_http_server.priority" value="16"/>
-      <property id="config.azure.nxd_http_server.time_slice" value="2"/>
-      <property id="config.azure.nxd_http_server.server_window_size" value="2048"/>
-      <property id="config.azure.nxd_http_server.server_timeout" value="10"/>
-      <property id="config.azure.nxd_http_server.server_timeout_accept" value="10"/>
-      <property id="config.azure.nxd_http_server.server_timeout_disconnect" value="10"/>
-      <property id="config.azure.nxd_http_server.server_timeout_receive" value="10"/>
-      <property id="config.azure.nxd_http_server.server_timeout_send" value="10"/>
-      <property id="config.azure.nxd_http_server.max_header_field" value="256"/>
-      <property id="config.azure.nxd_http_server.server_max_pending" value="5"/>
-      <property id="config.azure.nxd_http_server.max_name" value="20"/>
-      <property id="config.azure.nxd_http_server.max_password" value="20"/>
-      <property id="config.azure.nxd_http_server.server_min_packet_size" value="600"/>
-      <property id="config.azure.nxd_http_server.transmit_queue_depth" value="20"/>
-      <property id="config.azure.nxd_http_server.retry_seconds" value="2"/>
-      <property id="config.azure.nxd_http_server.retry_max" value="10"/>
-      <property id="config.azure.nxd_http_server.retry_shift" value="1"/>
-      <property id="config.azure.nxd_tftp_server.filex" value="config.azure.nxd_tftp_server.filex.enable"/>
-      <property id="config.azure.nxd_tftp_server.retransmit" value="config.azure.nxd_tftp_server.retransmit.disable"/>
-      <property id="config.azure.nxd_tftp_server.priority" value="16"/>
-      <property id="config.azure.nxd_tftp_server.tftp_max_clients" value="10"/>
-      <property id="config.azure.nxd_tftp_server.time_slice" value="2"/>
-      <property id="config.azure.nxd_tftp_server.server_time_out" value="20"/>
-      <property id="config.azure.nxd_tftp_server.retransmit_timeout" value="200"/>
-      <property id="config.azure.nxd_tftp_server.max_retries" value="5"/>
-      <property id="config.azure.nxd_tftp_server.max_client_retransmits" value="2"/>
-      <property id="config.azure.nxd_web_http_server.secure" value="config.azure.nxd_web_http_server.secure.disable"/>
-      <property id="config.azure.nxd_web_http_server.filex" value="config.azure.nxd_web_http_server.filex.enable"/>
-      <property id="config.azure.nxd_web_http_server.multipart" value="config.azure.nxd_web_http_server.multipart.disable"/>
-      <property id="config.azure.nxd_web_http_server.priority" value="16"/>
-      <property id="config.azure.nxd_web_http_server.time_slice" value="2"/>
-      <property id="config.azure.nxd_web_http_server.server_window_size" value="2048"/>
-      <property id="config.azure.nxd_web_http_server.server_timeout" value="10"/>
-      <property id="config.azure.nxd_web_http_server.server_timeout_accept" value="10"/>
-      <property id="config.azure.nxd_web_http_server.server_timeout_disconnect" value="10"/>
-      <property id="config.azure.nxd_web_http_server.server_timeout_receive" value="10"/>
-      <property id="config.azure.nxd_web_http_server.server_timeout_send" value="10"/>
-      <property id="config.azure.nxd_web_http_server.max_header_field" value="256"/>
-      <property id="config.azure.nxd_web_http_server.server_max_pending" value="4"/>
-      <property id="config.azure.nxd_web_http_server.max_resource" value="40"/>
-      <property id="config.azure.nxd_web_http_server.server_session_max" value="2"/>
-      <property id="config.azure.nxd_web_http_server.server_min_packet_size" value="600"/>
-      <property id="config.azure.nxd_web_http_server.transmit_queue_depth" value="20"/>
-      <property id="config.azure.nxd_web_http_server.retry_seconds" value="2"/>
-      <property id="config.azure.nxd_web_http_server.retry_max" value="10"/>
-      <property id="config.azure.nxd_web_http_server.retry_shift" value="1"/>
-      <property id="config.azure.nxd_src.hardware_tcp_ip" value="config.azure.nxd_src.hardware_tcp_ip.disable"/>
-      <property id="config.azure.nxd_src.interface_capability" value="config.azure.nxd_src.interface_capability.disable"/>
     </config>
     <config id="config.driver.sci_b_spi">
       <property id="config.driver.sci_b_spi.param_checking_enable" value="config.driver.sci_b_spi.param_checking_enable.bsp"/>
@@ -3961,6 +3569,7 @@
       <property id="config.driver.gpt.write_protect_enable" value="config.driver.gpt.write_protect_enable.disabled"/>
       <property id="config.driver.gpt.gpt_core_clock" value="module.driver.timer.gpt_core_clock.pclk"/>
     </config>
+    <config id="config.driver.edmac"/>
     <config id="config.threadx.thread">
       <property id="config.azure.tx.custom_tx_user" value=""/>
       <property id="config.azure.tx.error_checking" value="config.azure.tx.error_checking.enabled"/>
@@ -3997,16 +3606,11 @@
       <property id="config.azure.tx.bsd_support" value="config.azure.tx.bsd_support.enabled"/>
       <property id="config.azure.tx.filex_pointer" value="config.azure.tx.filex_pointer.enabled"/>
     </config>
-    <config id="config.driver.edmac"/>
     <config id="config.middleware.adpcm_decoder">
       <property id="config.middleware.adpcm_decoder.param_checking_enable" value="config.middleware.adpcm_decoder.param_checking_enable.bsp"/>
     </config>
     <config id="config.driver.rtc">
       <property id="config.driver.rtc.param_checking_enable" value="config.driver.rtc.param_checking_enable.bsp"/>
-      <property id="config.driver.rtc.open_set_source_clock" value="config.driver.rtc.open_set_source_clock.enabled"/>
-    </config>
-    <config id="config.driver.adc_b">
-      <property id="config.driver.adc.param_checking_enable" value="bsp"/>
     </config>
     <config id="config.driver.acmphs">
       <property id="config.driver.acmphs.param_checking_enable" value="config.driver.acmphs.param_checking_enable.bsp"/>
@@ -4042,23 +3646,6 @@
     <config id="config.driver.doc">
       <property id="config.driver.doc.param_checking_enable" value="config.doc.param_checking_enable.bsp"/>
     </config>
-    <config id="config.azure.nxd_nx_secure">
-      <property id="config.azure.nxd_nx_secure.allow_self_signed_cert" value="config.azure.nxd_nx_secure.allow_self_signed_cert.Disable"/>
-      <property id="config.azure.nxd_nx_secure.client_certificate_verify" value="config.azure.nxd_nx_secure.client_certificate_verify.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_aead_cipher" value="config.azure.nxd_nx_secure.enable_aead_cipher.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_psk_cipher" value="config.azure.nxd_nx_secure.enable_psk_cipher.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_ecc_cipher" value="config.azure.nxd_nx_secure.enable_ecc_cipher.Enable"/>
-      <property id="config.azure.nxd_nx_secure.x509_strict_name_compare" value="config.azure.nxd_nx_secure.x509_strict_name_compare.Disable"/>
-      <property id="config.azure.nxd_nx_secure.x509_extend_distinguished_name" value="config.azure.nxd_nx_secure.x509_extend_distinguished_name.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_tls_v_1_3" value="config.azure.nxd_nx_secure.enable_tls_v_1_3.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_legacy_tls_v_10" value="config.azure.nxd_nx_secure.enable_legacy_tls_v_10.Disable"/>
-      <property id="config.azure.nxd_nx_secure.enable_legacy_tls_v_11" value="config.azure.nxd_nx_secure.enable_legacy_tls_v_11.Disable"/>
-      <property id="config.azure.nxd_nx_secure.disable_tls_v_1_1_mode" value="config.azure.nxd_nx_secure.disable_tls_v_1_1_mode.Disable"/>
-      <property id="config.azure.nxd_nx_secure.disable_server" value="config.azure.nxd_nx_secure.disable_server.Enable"/>
-      <property id="config.azure.nxd_nx_secure.disable_client" value="config.azure.nxd_nx_secure.disable_client.Enable"/>
-      <property id="config.azure.nxd_nx_secure.disable_error_checking" value="config.azure.nxd_nx_secure.disable_error_checking.Enable"/>
-      <property id="config.azure.nxd_nx_secure.dtls" value="config.azure.nxd_nx_secure.dtls.Disable"/>
-    </config>
     <config id="config.driver.usbx_pcdc">
       <property id="config.driver.usbx_pcdc.bulk_in" value="config.driver.usbx_pcdc.bulk_in.pipe1"/>
       <property id="config.driver.usbx_pcdc.bulk_out" value="config.driver.usbx_pcdc.bulk_out.pipe2"/>
@@ -4092,6 +3679,7 @@
       <configSetting altId="adc0.an05.p005" configurationId="adc0.an05"/>
       <configSetting altId="adc0.an06.p006" configurationId="adc0.an06"/>
       <configSetting altId="adc0.mode.custom" configurationId="adc0.mode"/>
+      <configSetting altId="adc1.mode.custom" configurationId="adc1.mode"/>
       <configSetting altId="agt0.mode.custom" configurationId="agt0.mode"/>
       <configSetting altId="agt1.agtio.p901" configurationId="agt1.agtio"/>
       <configSetting altId="agt1.mode.custom" configurationId="agt1.mode"/>
@@ -4845,6 +4433,15 @@
       <configSetting altId="usbhs0.vbusen.pb00" configurationId="usbhs0.vbusen"/>
     </pincfg>
     <pincfg active="false" name="R7FA6M5BH3CFC.pincfg" selected="false" symbol="">
+      <configSetting altId="debug0.mode.swd" configurationId="debug0.mode"/>
+      <configSetting altId="debug0.swclk.p300" configurationId="debug0.swclk"/>
+      <configSetting altId="debug0.swdio.p108" configurationId="debug0.swdio"/>
+      <configSetting altId="p108.debug0.swdio" configurationId="p108"/>
+      <configSetting altId="p108.gpio_mode.gpio_mode_peripheral" configurationId="p108.gpio_mode"/>
+      <configSetting altId="p300.debug0.swclk" configurationId="p300"/>
+      <configSetting altId="p300.gpio_mode.gpio_mode_peripheral" configurationId="p300.gpio_mode"/>
+    </pincfg>
+    <pincfg active="false" name="R7FA6M5AG2CBG.pincfg" selected="false" symbol="">
       <configSetting altId="debug0.mode.swd" configurationId="debug0.mode"/>
       <configSetting altId="debug0.swclk.p300" configurationId="debug0.swclk"/>
       <configSetting altId="debug0.swdio.p108" configurationId="debug0.swdio"/>

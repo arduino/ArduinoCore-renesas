@@ -99,6 +99,10 @@ static const uint8_t A5 = PIN_A5;
 
 #define NO_1200_BPS_RESET   1
 
+#define GPT_HOWMANY       7
+#define GTP32_HOWMANY     2
+#define AGT_HOWMANY       2
+
 // TODO: removeme
 #ifdef __cplusplus
 extern "C"

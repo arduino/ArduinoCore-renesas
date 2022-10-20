@@ -809,15 +809,15 @@ void TwoWire::flush(void) {
 
 
 #if WIRE_HOWMANY > 0
-TwoWire Wire(A5, A4);
+TwoWire Wire(WIRE_SCL_PIN, WIRE_SDA_PIN);
 #endif
 
 #if WIRE_HOWMANY > 1
-TwoWire Wire1(WIRE1_CHANNEL, (bool)IS_WIRE1_SCI);
+TwoWire Wire1(WIRE1_SCL_PIN, WIRE1_SDA_PIN);
 #endif
 
 #if WIRE_HOWMANY > 2
-TwoWire Wire2(WIRE2_CHANNEL, (bool)IS_WIRE2_SCI);
+TwoWire Wire2(WIRE2_SCL_PIN, WIRE2_SDA_PIN);
 #endif
 
 
