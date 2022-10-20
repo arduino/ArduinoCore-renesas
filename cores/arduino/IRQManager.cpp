@@ -714,12 +714,14 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
 
         /* RX FIFO interrupt */
         p_fifo_int_cfg->rx_fifo_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
         R_BSP_IrqCfgEnable(p_fifo_int_cfg->rx_fifo_irq, p_cfg->ipl, p_ctrl);
         set_can_rx_fifo_link_event(last_interrupt_index, p_cfg->channel);
         last_interrupt_index++;
 
         /* TX FIFO interrupt */
         p_fifo_int_cfg->tx_fifo_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
         set_can_tx_fifo_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_fifo_int_cfg->tx_fifo_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
