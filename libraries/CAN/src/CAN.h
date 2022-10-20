@@ -45,7 +45,7 @@ public:
   bool begin(CanMtuSize const can_mtu_size);
   void end();
 
-  uint8_t write(CanMsg const & msg);
+  int write(CanMsg const & msg);
   uint8_t read(CanMsg & msg);
 
   bool tx_complete;

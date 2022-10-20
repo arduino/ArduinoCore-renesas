@@ -232,7 +232,7 @@ void ArduinoCAN::end()
   _close(&_can_ctrl);
 }
 
-uint8_t ArduinoCAN::write(CanMsg const & msg)
+int ArduinoCAN::write(CanMsg const & msg)
 {
   can_frame_t can_msg = {msg.id,
                          CAN_ID_MODE_EXTENDED,
@@ -242,19 +242,9 @@ uint8_t ArduinoCAN::write(CanMsg const & msg)
 
   memcpy((uint8_t*)&can_msg.data[0], (uint8_t*)&msg.data[0], msg.data_length);
 
-  if(_write(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
-    return 0;
-  }
-  /* Wait here for an event from callback */
-  while ((true != tx_complete) && (_time_out--));
-  if (0 == _time_out)
-  {
-    return 0;
-  }
+  if(fsp_err_t const rc = _write(&_can_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
+    return -rc;
 
-  /* Reset flag bit */
-  tx_complete = false;
-  _time_out = 500;
   return 1;
 }
 
@@ -356,38 +346,7 @@ void can_callback(can_callback_args_t *p_args)
         }
     }
 }
-/*
-void __attribute__((weak)) canfd1_callback(can_callback_args_t *p_args)
-{
-    switch (p_args->event)
-    {
-        case CAN_EVENT_TX_COMPLETE:
-        {
-            CAN1.tx_complete = true;        //set flag bit
-            break;
-        }
-        case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
-        {
-            CAN1.rx_complete = true;
-            break;
-        }
-        case CAN_EVENT_ERR_WARNING:             //error warning event
-        case CAN_EVENT_ERR_PASSIVE:             //error passive event
-        case CAN_EVENT_ERR_BUS_OFF:             //error Bus Off event
-        case CAN_EVENT_BUS_RECOVERY:            //Bus recovery error event
-        case CAN_EVENT_MAILBOX_MESSAGE_LOST:    //overwrite/overrun error event
-        case CAN_EVENT_ERR_BUS_LOCK:            // Bus lock detected (32 consecutive dominant bits).
-        case CAN_EVENT_ERR_CHANNEL:             // Channel error has occurred.
-        case CAN_EVENT_TX_ABORTED:              // Transmit abort event.
-        case CAN_EVENT_ERR_GLOBAL:              // Global error has occurred.
-        case CAN_EVENT_TX_FIFO_EMPTY:           // Transmit FIFO is empty.
-        {
-            CAN1.err_status = true;          //set flag bit
-            break;
-        }
-    }
-}
-*/
+
 /**************************************************************************************
  * OBJECT INSTANTIATION
  **************************************************************************************/
