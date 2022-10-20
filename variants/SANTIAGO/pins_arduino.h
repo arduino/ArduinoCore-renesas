@@ -143,7 +143,7 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #  define IS_CAN_FD (0)
 #endif
 
-#define PIN_CAN0_TX       (13)
+#define PIN_CAN0_TX       (11)
 #define PIN_CAN0_RX       (12)
 
 
