@@ -62,7 +62,7 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
     else if(PIN_CFG_REQ_ADC == req && IS_PIN_ANALOG(*(cfg + index))) {
       return *(cfg + index);
     }
-    else if(PIN_CFG_REQ_CAN_TX == req && IS_PIN_CAN_RX(*(cfg + index))) {
+    else if(PIN_CFG_REQ_CAN_RX == req && IS_PIN_CAN_RX(*(cfg + index))) {
       return *(cfg + index);
     }
     else if(PIN_CFG_REQ_CAN_TX == req && IS_PIN_CAN_TX(*(cfg + index))) {
