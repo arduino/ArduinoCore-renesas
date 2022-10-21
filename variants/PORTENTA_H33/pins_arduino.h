@@ -121,6 +121,9 @@ static const uint8_t CS  =  PIN_SPI_CS;
 /****** AGT CORE DEFINES *******/
 #define AGT_HOWMANY       6
 
+/****** ETHERNET CORE DEFINES *******/
+#define ETHERNET_HOWMANY   1
+
 #define EXT_INTERRUPTS_HOWMANY 8
 
 #define USE_4BIT_SDCARD   1
