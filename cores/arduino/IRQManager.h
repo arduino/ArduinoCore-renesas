@@ -5,6 +5,8 @@
 #include "pins_arduino.h"
 #include "elc_defines.h"
 
+
+
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
 #endif
@@ -35,6 +37,7 @@ typedef enum {
     IRQ_EXTERNAL_PIN,
     IRQ_SPI_MASTER,
     IRQ_SCI_SPI_MASTER,
+    IRQ_ETHERNET
 } Peripheral_t;
 
 #if RTC_HOWMANY > 0
@@ -148,6 +151,7 @@ void agt_int_isr(void);
 void adc_scan_end_isr (void);
 void adc_scan_end_b_isr (void);
 void adc_window_compare_isr (void);
+void ether_eint_isr (void);
 #ifdef __cplusplus
 }
 #endif
