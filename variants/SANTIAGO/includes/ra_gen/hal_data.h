@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_doc.h"
+#include "r_doc_api.h"
+#include "r_kint.h"
+#include "r_keymatrix_api.h"
 #include "r_dtc.h"
 #include "r_transfer_api.h"
 #include "r_iic_slave.h"
@@ -37,6 +41,26 @@
 #include "r_adc.h"
 #include "r_adc_api.h"
 FSP_HEADER
+extern const doc_instance_t g_doc0;
+
+/** Access the DOC instance using these structures when calling API functions directly (::p_api is not used). */
+extern doc_instance_ctrl_t g_doc0_ctrl;
+extern const doc_cfg_t g_doc0_cfg;
+
+#ifndef NULL
+void NULL(doc_callback_args_t *p_args);
+#endif
+/** Key Matrix on KINT Instance. */
+extern const keymatrix_instance_t g_kint0;
+
+/** Access the KINT instance using these structures when calling API functions directly (::p_api is not used). */
+extern kint_instance_ctrl_t g_kint0_ctrl;
+extern const keymatrix_cfg_t g_kint0_cfg;
+
+/** Key Matrix on KINT user callback. */
+#ifndef kint_callback
+void kint_callback(keymatrix_callback_args_t *p_args);
+#endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer23;
 

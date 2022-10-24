@@ -153,7 +153,7 @@ FSP Configuration
     
   Module "SPI (r_spi)"
     Parameter Checking: Default (BSP)
-    Enable Support for using DTC: Enabled
+    Enable Support for using a transfer API: Enabled
     Enable Transmitting from RXI Interrupt: Disabled
     
   Module "Transfer (r_dtc)"
@@ -234,6 +234,15 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     
   Module "I2C Slave (r_iic_slave)"
+    Parameter Checking: Default (BSP)
+    
+  Module "Key Matrix (r_kint)"
+    Parameter Checking: Default (BSP)
+    
+  Module "Data Operation Circuit (r_doc)"
+    Parameter Checking: Default (BSP)
+    
+  Module "Clock Generation Circuit (r_cgc)"
     Parameter Checking: Default (BSP)
     
   HAL
@@ -1144,4 +1153,24 @@ FSP Configuration
       Number of Transfers: 0
       Number of Blocks (Valid only in Block Mode): 0
       Activation Source: IIC1 TXI (Transmit data empty)
+      
+    Instance "g_kint0 Key Matrix (r_kint)"
+      General: Name: g_kint0
+      Input: Key Interrupt Flag Mask: 
+      Interrupts: Trigger Type: Rising Edge
+      Interrupts: Callback: kint_callback
+      Interrupts: Key Interrupt Priority: Priority 12
+      
+    Instance "g_doc0 Data Operation Circuit (r_doc)"
+      Name: g_doc0
+      Event: Comparison mismatch
+      Bit Width: 16-Bit
+      Reference/Initial Data: 0
+      Additional Reference Data: 0
+      Callback: NULL
+      DOC Interrupt Priority: Priority 12
+      
+    Instance "g_cgc0 Clock Generation Circuit (r_cgc)"
+      Name: g_cgc0
+      NMI Callback: NULL
       
