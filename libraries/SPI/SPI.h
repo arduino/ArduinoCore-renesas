@@ -22,13 +22,21 @@
 #include "api/HardwareSPI.h"
 
 #include "bsp_api.h"
-#include "hal_data.h"
+
+#include "r_spi.h"
+#include "r_sci_spi.h"
+#include "r_spi_api.h"
 
 #include <tuple>
 
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
+
+extern "C" {
+    void spi_callback(spi_callback_args_t *p_args);
+    void sci_spi_callback(spi_callback_args_t *p_args);
+}
 
 namespace arduino {
 

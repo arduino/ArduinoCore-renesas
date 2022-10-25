@@ -4,7 +4,6 @@
 #include <Arduino.h>
 
 #include "bsp_api.h"
-#include "hal_data.h"
 
 typedef struct can_msg
 {
