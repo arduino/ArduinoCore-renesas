@@ -6,6 +6,65 @@
 #define ADC_TRIGGER_ADC0_B      ADC_TRIGGER_SYNC_ELC
 #define ADC_TRIGGER_ADC1        ADC_TRIGGER_SYNC_ELC
 #define ADC_TRIGGER_ADC1_B      ADC_TRIGGER_SYNC_ELC
+ether_phy_instance_ctrl_t ETHERNET_PHY_ctrl;
+
+const ether_phy_cfg_t ETHERNET_PHY_cfg =
+{
+
+.channel = 0,
+  .phy_lsi_address = 0, .phy_reset_wait_time = 0x00020000, .mii_bit_access_wait_time = 8, .flow_control =
+          ETHER_PHY_FLOW_CONTROL_DISABLE,
+  .mii_type = ETHER_PHY_MII_TYPE_RMII, .p_context = NULL, .p_extend = NULL,
+
+};
+/* Instance structure to use this module. */
+const ether_phy_instance_t ETHERNET_PHY =
+{ .p_ctrl = &ETHERNET_PHY_ctrl, .p_cfg = &ETHERNET_PHY_cfg, .p_api = &g_ether_phy_on_ether_phy };
+ether_instance_ctrl_t ETHERNET_ctrl;
+
+uint8_t ETHERNET_mac_address[6] =
+{ 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 };
+
+__attribute__((__aligned__(16))) ether_instance_descriptor_t ETHERNET_tx_descriptors[1] ETHER_BUFFER_PLACE_IN_SECTION;
+__attribute__((__aligned__(16))) ether_instance_descriptor_t ETHERNET_rx_descriptors[1] ETHER_BUFFER_PLACE_IN_SECTION;
+
+__attribute__((__aligned__(32)))uint8_t ETHERNET_ether_buffer0[1536]ETHER_BUFFER_PLACE_IN_SECTION;
+__attribute__((__aligned__(32)))uint8_t ETHERNET_ether_buffer1[1536]ETHER_BUFFER_PLACE_IN_SECTION;
+
+uint8_t *pp_ETHERNET_ether_buffers[2] =
+{ (uint8_t*) &ETHERNET_ether_buffer0[0], (uint8_t*) &ETHERNET_ether_buffer1[0], };
+
+const ether_cfg_t ETHERNET_cfg =
+{ .channel = 0, .zerocopy = ETHER_ZEROCOPY_DISABLE, .multicast = ETHER_MULTICAST_ENABLE, .promiscuous =
+          ETHER_PROMISCUOUS_DISABLE,
+  .flow_control = ETHER_FLOW_CONTROL_DISABLE, .padding = ETHER_PADDING_DISABLE, .padding_offset = 0, .broadcast_filter =
+          0,
+  .p_mac_address = ETHERNET_mac_address,
+
+  .p_rx_descriptors = ETHERNET_rx_descriptors,
+  .p_tx_descriptors = ETHERNET_tx_descriptors,
+
+  .num_tx_descriptors = 1,
+  .num_rx_descriptors = 1,
+
+  .pp_ether_buffers = pp_ETHERNET_ether_buffers,
+
+  .ether_buffer_size = 1536,
+
+#if defined(VECTOR_NUMBER_EDMAC0_EINT)
+                .irq                = VECTOR_NUMBER_EDMAC0_EINT,
+#else
+  .irq = FSP_INVALID_VECTOR,
+#endif
+
+  .interrupt_priority = (12),
+
+  .p_callback = NULL,
+  .p_ether_phy_instance = &ETHERNET_PHY, .p_context = NULL, .p_extend = NULL, };
+
+/* Instance structure to use this module. */
+const ether_instance_t ETHERNET =
+{ .p_ctrl = &ETHERNET_ctrl, .p_cfg = &ETHERNET_cfg, .p_api = &g_ether_on_ether };
 agt_instance_ctrl_t g_timer1_ctrl;
 const agt_extended_cfg_t g_timer1_extend =
 { .count_source = AGT_CLOCK_PCLKB,
