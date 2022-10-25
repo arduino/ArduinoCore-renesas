@@ -246,6 +246,22 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_02_PIN_08,  P208 }, /*   D121   |   QSPI IO3    */
 };
 
+extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
+
+int32_t getPinIndex(bsp_io_port_pin_t p) {
+  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int rv = -1;
+  for(int i = 0; i < max_index; i++) {
+    if(g_pin_cfg[i].pin == p) {
+      rv = i;
+      break;
+    }
+  }
+  return rv;
+}
+
+#include "r_agt.h"
+
 /* TODO: replace me with FspTimer */
 extern "C" const timer_instance_t g_timer_eth;
 void startETHClock() {
