@@ -97,6 +97,12 @@ typedef struct usb_utr
         usb_regadr1_t ipp1;                    /* USB module start address(USBA) */
 #endif                                         /* USB_NUM_USBIP == 2 */
     };
+#if (BSP_CFG_RTOS == 1)                        /* Azure RTOS */
+ #if defined(USB_CFG_PPRN_USE)
+    uint32_t timeout;
+    uint8_t  is_timeout;
+ #endif /* define(USB_CFG_PPRN_USE) */
+#endif                                 /* (BSP_CFG_RTOS == 1) */
 } usb_message_t;
 
 typedef struct st_usb usb_stnbyint_t;
@@ -246,8 +252,9 @@ typedef enum e_usb_class_internal
     USB_CLASS_INTERNAL_HVND,           ///< HVND Class      12
     USB_CLASS_INTERNAL_HMSC,           ///< HMSC Class      13
     USB_CLASS_INTERNAL_PMSC,           ///< PMSC Class      14
-    USB_CLASS_INTERNAL_REQUEST,        ///< USB Class Request      15
-    USB_CLASS_INTERNAL_END             ///< USB Class       16
+    USB_CLASS_INTERNAL_HPRN,           ///< HPRN Class      15
+    USB_CLASS_INTERNAL_REQUEST,        ///< USB Class Request      16
+    USB_CLASS_INTERNAL_END             ///< USB Class       17
 } usb_class_internal_t;
 
 /** Common macro for FSP header files. There is also a corresponding FSP_HEADER macro at the top of this file. */

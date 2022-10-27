@@ -7,6 +7,7 @@
 #include "r_elc_api.h"
 #include "r_cgc.h"
 #include "r_cgc_api.h"
+#include "r_sce.h"
 #include "r_icu.h"
 #include "r_external_irq_api.h"
 #include "r_ioport.h"
@@ -28,6 +29,8 @@ extern const cgc_cfg_t g_cgc0_cfg;
 #ifndef NULL
 void NULL(cgc_callback_args_t *p_args);
 #endif
+extern sce_instance_ctrl_t sce_ctrl;
+extern const sce_cfg_t sce_cfg;
 /** External IRQ on ICU Instance. */
 extern const external_irq_instance_t g_external_irq0;
 

@@ -3,9 +3,10 @@
 
 #include "api/ArduinoAPI.h"
 #include "bsp_api.h"
-#include "hal_data.h"
 
 #include "variant.h"
+#include "r_ioport_api.h"
+#include "common_data.h"
 
 #if defined(__cplusplus)
 

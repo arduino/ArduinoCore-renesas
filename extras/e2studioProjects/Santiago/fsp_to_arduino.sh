@@ -52,6 +52,10 @@ if test -f "${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/elc_data.c"; then
     echo "removed"
     rm ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/elc_data.c
 fi
+if test -f "${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/hal_data.c"; then
+    echo "removed"
+    rm ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/hal_data.c
+fi
 #-------------------------------------------------------------------------
 
 

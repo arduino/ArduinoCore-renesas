@@ -27,11 +27,15 @@
 #include <inttypes.h>
 
 #include "bsp_api.h"
-#include "hal_data.h"
 
-
-#include "r_i2c_slave_api.h"
+#include "r_iic_master.h"
+#include "r_sci_i2c.h"
 #include "r_i2c_master_api.h"
+#include "r_i2c_slave_api.h"
+
+extern "C" {
+  void i2c_callback(i2c_master_callback_args_t *p_args);
+}
 
 using I2C_masterOpen_f          = fsp_err_t (*)(i2c_master_ctrl_t *const p_api_ctrl, i2c_master_cfg_t const *const p_cfg);
 using I2C_masterRead_f          = fsp_err_t (*)(i2c_master_ctrl_t *const p_api_ctrl, uint8_t *const p_dest, uint32_t const bytes, bool const restart);

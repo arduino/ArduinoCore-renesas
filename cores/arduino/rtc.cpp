@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "rtc.h"
+#include "r_rtc.h"
 
 #if RTC_HOWMANY > 0
 

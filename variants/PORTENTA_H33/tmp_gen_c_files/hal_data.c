@@ -48,8 +48,8 @@ const gpt_extended_pwm_cfg_t g_timer0_pwm_extend =
     .trough_irq          = FSP_INVALID_VECTOR,
 #endif
     .poeg_link           = GPT_POEG_LINK_POEG0,
-    .output_disable      =  GPT_OUTPUT_DISABLE_NONE,
-    .adc_trigger         =  GPT_ADC_TRIGGER_NONE,
+    .output_disable      = (gpt_output_disable_t) ( GPT_OUTPUT_DISABLE_NONE),
+    .adc_trigger         = (gpt_adc_trigger_t) ( GPT_ADC_TRIGGER_NONE),
     .dead_time_count_up  = 0,
     .dead_time_count_down = 0,
     .adc_a_compare_match = 0,
@@ -248,12 +248,6 @@ const transfer_cfg_t g_transfer5_cfg =
 /* Instance structure to use this module. */
 const transfer_instance_t g_transfer5 =
 { .p_ctrl = &g_transfer5_ctrl, .p_cfg = &g_transfer5_cfg, .p_api = &g_transfer_on_dmac };
-sce_instance_ctrl_t sce_ctrl;
-const sce_cfg_t sce_cfg =
-{ .lifecycle = SCE_SSD };
-#if SCE_USER_SHA_384_ENABLED
-uint32_t SCE_USER_SHA_384_FUNCTION(uint8_t * message, uint8_t * digest, uint32_t message_length);
-#endif
 lpm_instance_ctrl_t g_lpm0_ctrl;
 
 const lpm_cfg_t g_lpm0_cfg =
@@ -480,6 +474,34 @@ const transfer_cfg_t g_transfer3_cfg =
 /* Instance structure to use this module. */
 const transfer_instance_t g_transfer3 =
 { .p_ctrl = &g_transfer3_ctrl, .p_cfg = &g_transfer3_cfg, .p_api = &g_transfer_on_dtc };
+#define RA_NOT_DEFINED (UINT32_MAX)
+#if (RA_NOT_DEFINED) != (RA_NOT_DEFINED)
+
+/* If the transfer module is DMAC, define a DMAC transfer callback. */
+#include "r_dmac.h"
+extern void spi_tx_dmac_callback(spi_instance_ctrl_t const * const p_ctrl);
+
+void g_spi1_tx_transfer_callback (dmac_callback_args_t * p_args)
+{
+    FSP_PARAMETER_NOT_USED(p_args);
+    spi_tx_dmac_callback(&g_spi1_ctrl);
+}
+#endif
+
+#if (RA_NOT_DEFINED) != (RA_NOT_DEFINED)
+
+/* If the transfer module is DMAC, define a DMAC transfer callback. */
+#include "r_dmac.h"
+extern void spi_rx_dmac_callback(spi_instance_ctrl_t const * const p_ctrl);
+
+void g_spi1_rx_transfer_callback (dmac_callback_args_t * p_args)
+{
+    FSP_PARAMETER_NOT_USED(p_args);
+    spi_rx_dmac_callback(&g_spi1_ctrl);
+}
+#endif
+#undef RA_NOT_DEFINED
+
 spi_instance_ctrl_t g_spi1_ctrl;
 
 /** SPI extended configuration for SPI HAL driver */
