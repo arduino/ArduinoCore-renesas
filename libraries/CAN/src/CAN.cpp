@@ -24,6 +24,12 @@ extern const PinMuxCfg_t g_pin_cfg[];
 extern const size_t g_pin_cfg_size;
 
 /**************************************************************************************
+ * PROTOTYPE DEFINITIONS
+ **************************************************************************************/
+
+extern "C" void can_callback(can_callback_args_t *p_args);
+
+/**************************************************************************************
  * CTOR/DTOR
  **************************************************************************************/
 
@@ -320,7 +326,7 @@ bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const c
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
 
-void can_callback(can_callback_args_t *p_args)
+extern "C" void can_callback(can_callback_args_t *p_args)
 {
     switch (p_args->event)
     {
