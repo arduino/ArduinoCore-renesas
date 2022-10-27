@@ -24,7 +24,6 @@
 #define _TIMEVAL_DEFINED
 #define _SYS_SELECT_H
 
-#include "api/RingBuffer.h"
 #include "Arduino.h"
 #include "api/HardwareSerial.h"
 
@@ -36,8 +35,10 @@
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 
-#define SERIAL_TX_BUFFER_SIZE 512
-#define SERIAL_RX_BUFFER_SIZE 512
+#include "SafeRingBuffer.h"
+
+#undef SERIAL_BUFFER_SIZE
+#define SERIAL_BUFFER_SIZE 512
 
 #define MAX_UARTS    10
 
@@ -61,6 +62,7 @@ class UART : public arduino::HardwareSerial {
     int read(void);
     void flush(void);
     size_t write(uint8_t c);
+    size_t write(uint8_t* c, size_t len);
     using Print::write; 
     operator bool(); // { return true; }
 
@@ -71,34 +73,13 @@ class UART : public arduino::HardwareSerial {
     uint8_t                   tx_pin;
     uint8_t                   rx_pin;
     bool                      cfg_pins(int max_index);
-    inline void               inc(volatile int &x,int _max) { x = ++x % _max; } 
-    inline int                previous(volatile int x, int _max) { return ((--x) >= 0) ? x : _max -1; }
-    
+
     int                       channel;
-    volatile TxStatus_t       tx_st;
-    void                      set_tx_status(TxStatus_t st) { tx_st = st; }
-    TxStatus_t                get_tx_status() { return tx_st; }
-    /* rx STUFF.... */
-    volatile int              rx_head_index = 0;
-    volatile int              rx_tail_index = 0;
-    int                       get_rx_head_index() { return rx_head_index; }
-    int                       get_rx_tail_index() { return rx_tail_index; }
-    void                      inc_rx_head_index() { inc(rx_head_index,SERIAL_RX_BUFFER_SIZE); }
-    void                      inc_rx_tail_index() { inc(rx_tail_index,SERIAL_RX_BUFFER_SIZE); }
-    int                       get_prev_of_rx_tail() { return previous(rx_tail_index,SERIAL_TX_BUFFER_SIZE); }
-    void                      put_in_rx_buffer(uint8_t c) {rx_buffer[rx_head_index] = c;}
-    uint8_t                   rx_buffer[SERIAL_RX_BUFFER_SIZE];
-    /* tx STUFF.... */
-    uint8_t                   tx_buffer[SERIAL_TX_BUFFER_SIZE];
-    volatile int              tx_head_index = -1;
-    volatile int              tx_tail_index = -1;
-    int                       get_tx_head_index() { return tx_head_index; }
-    int                       get_tx_tail_index() { return tx_tail_index; }
-    void                      inc_tx_head_index() { inc(tx_head_index,SERIAL_TX_BUFFER_SIZE); }
-    void                      inc_tx_tail_index() { inc(tx_tail_index,SERIAL_TX_BUFFER_SIZE); }
-    int                       get_prev_of_tx_tail() { return previous(tx_tail_index,SERIAL_TX_BUFFER_SIZE); }
-    void                      put_in_tx_buffer(uint8_t c) {tx_buffer[tx_head_index] = c;}
-    uint8_t                   *get_next_ptr_to_tx() { return (tx_buffer + tx_tail_index); }
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
+
+    volatile bool tx_done;
+
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
     baud_setting_t            uart_baud;
