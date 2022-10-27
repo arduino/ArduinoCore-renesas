@@ -129,6 +129,25 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
+/****** CAN CORE DEFINES ******/
+
+#define CAN_HOWMANY       1
+
+#define CAN_NUM_OF_MAILBOXES (32)
+
+#if defined __has_include
+#  if __has_include ("r_canfd.h")
+#    define IS_CAN_FD (1)
+#  else
+#    define IS_CAN_FD (0)
+#  endif
+#else
+#  define IS_CAN_FD (0)
+#endif
+
+#define PIN_CAN0_TX       (11)
+#define PIN_CAN0_RX       (12)
+
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
 #define USB_NAME          "Santiago"
