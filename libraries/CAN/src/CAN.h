@@ -19,6 +19,12 @@
 
 #include "bsp_api.h"
 
+#include "r_can.h"
+#if IS_CAN_FD
+# include "r_canfd.h"
+#endif
+
+
 #include "CanMsgBase.h"
 
 /**************************************************************************************
