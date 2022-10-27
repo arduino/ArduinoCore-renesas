@@ -17,7 +17,11 @@
 #define AGT_REQ_NUM                 1
 #define EXTERNAL_PIN_NUM            1
 #define SPI_MASTER_REQ_NUM          4
+#if CAN_CFG_FIFO_SUPPORT
 #define CAN_REQ_NUM                 5
+#else
+#define CAN_REQ_NUM                 3
+#endif /* CAN_CFG_FIFO_SUPPORT */
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
@@ -898,6 +902,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
 
+#if CAN_CFG_FIFO_SUPPORT
         /* RX FIFO interrupt */
         p_fifo_int_cfg->rx_fifo_irq = (IRQn_Type)last_interrupt_index;
         *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
@@ -911,6 +916,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         set_can_tx_fifo_link_event(last_interrupt_index, p_cfg->channel);
         R_BSP_IrqCfgEnable(p_fifo_int_cfg->tx_fifo_irq, p_cfg->ipl, p_ctrl);
         last_interrupt_index++;
+#endif /* CAN_CFG_FIFO_SUPPORT */
       }
     }
 #endif /* CAN_HOWMANY > 0 */
