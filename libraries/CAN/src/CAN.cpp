@@ -252,9 +252,9 @@ void ArduinoCAN::end()
 int ArduinoCAN::enableInternalLoopback()
 {
 #if IS_CAN_FD
-  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
-#else
   can_operation_mode_t const mode = CAN_OPERATION_MODE_GLOBAL_OPERATION;
+#else
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
 #endif
 
   if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode, CAN_TEST_MODE_LOOPBACK_INTERNAL); rc != FSP_SUCCESS)
@@ -266,9 +266,9 @@ int ArduinoCAN::enableInternalLoopback()
 int ArduinoCAN::disableInternalLoopback()
 {
 #if IS_CAN_FD
-  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
-#else
   can_operation_mode_t const mode = CAN_OPERATION_MODE_GLOBAL_OPERATION;
+#else
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
 #endif
 
   if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
