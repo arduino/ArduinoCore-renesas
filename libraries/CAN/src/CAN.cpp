@@ -137,7 +137,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
   .p_mailbox_mask = _can_mailbox_mask,
   .p_mailbox      = _can_mailbox,
   .global_id_mode = CAN_GLOBAL_ID_MODE_EXTENDED,
-  .mailbox_count  = CAN_NUM_OF_MAILBOXES,
+  .mailbox_count  = CAN_MAX_NO_MAILBOXES,
   .message_mode   = CAN_MESSAGE_MODE_OVERWRITE,
   .p_fifo_int_cfg = &_can_fifo_int_cfg,
   .p_rx_fifo_cfg  = &_can_rx_fifo_cfg,
@@ -289,7 +289,7 @@ int ArduinoCAN::write(CanMsg const & msg)
 
   memcpy(can_msg.data, msg.data, can_msg.data_length_code);
 
-  if(fsp_err_t const rc = _write(&_can_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = _write(&_can_ctrl, CAN_MAILBOX_ID_TX_FIFO, &can_msg); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;

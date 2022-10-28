@@ -130,8 +130,6 @@ static const uint8_t CS  =  PIN_SPI_CS;
 
 #define CAN_HOWMANY       1
 
-#define CAN_NUM_OF_MAILBOXES (32)
-
 #if defined __has_include
 #  if __has_include ("r_canfd.h")
 #    define IS_CAN_FD (1)

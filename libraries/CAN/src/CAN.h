@@ -69,6 +69,11 @@ public:
   bool rx_complete;
   bool err_status;
 
+#if CAN_CFG_FIFO_SUPPORT
+ static size_t constexpr CAN_MAX_NO_MAILBOXES = 24U;
+#else
+ static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
+#endif
 
 private:
   int const _can_tx_pin;
@@ -88,8 +93,8 @@ private:
   can_instance_ctrl_t _can_ctrl;
 #endif
   can_bit_timing_cfg_t _can_bit_timing_cfg;
-  uint32_t _can_mailbox_mask[CAN_NUM_OF_MAILBOXES / 4];
-  can_mailbox_t _can_mailbox[CAN_NUM_OF_MAILBOXES];
+  uint32_t _can_mailbox_mask[CAN_MAX_NO_MAILBOXES / 4];
+  can_mailbox_t _can_mailbox[CAN_MAX_NO_MAILBOXES];
   can_fifo_interrupt_cfg_t _can_fifo_int_cfg;
   can_rx_fifo_cfg_t _can_rx_fifo_cfg;
   can_extended_cfg_t _can_extended_cfg;
