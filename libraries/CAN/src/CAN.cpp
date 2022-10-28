@@ -48,6 +48,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 , _write{nullptr}
 , _read{nullptr}
 , _info_get{nullptr}
+, _mode_transition{nullptr}
 , tx_complete{false}
 , rx_complete{false}
 , err_status{false}
@@ -192,22 +193,24 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
    */
   if (can_mtu_size == CanMtuSize::Classic)
   {
-    _open     = R_CAN_Open;
-    _close    = R_CAN_Close;
-    _write    = R_CAN_Write;
-    _read     = R_CAN_Read;
-    _info_get = R_CAN_InfoGet;
+    _open            = R_CAN_Open;
+    _close           = R_CAN_Close;
+    _write           = R_CAN_Write;
+    _read            = R_CAN_Read;
+    _info_get        = R_CAN_InfoGet;
+    _mode_transition = R_CAN_ModeTransition;
 
     _can_mtu_size = CanMtuSize::Classic;
   }
 #if IS_CAN_FD
   else
   {
-    _open     = R_CANFD_Open;
-    _close    = R_CANFD_Close;
-    _write    = R_CANFD_Write;
-    _read     = R_CANFD_Read;
-    _info_get = R_CANFD_InfoGet;
+    _open            = R_CANFD_Open;
+    _close           = R_CANFD_Close;
+    _write           = R_CANFD_Write;
+    _read            = R_CANFD_Read;
+    _info_get        = R_CANFD_InfoGet;
+    _mode_transition = R_CANFD_ModeTransition;
 
     _can_mtu_size = CanMtuSize::FD;
   }
@@ -244,6 +247,34 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
 void ArduinoCAN::end()
 {
   _close(&_can_ctrl);
+}
+
+int ArduinoCAN::enableInternalLoopback()
+{
+#if IS_CAN_FD
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
+#else
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_GLOBAL_OPERATION;
+#endif
+
+  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode, CAN_TEST_MODE_LOOPBACK_INTERNAL); rc != FSP_SUCCESS)
+    return -rc;
+
+  return 1;
+}
+
+int ArduinoCAN::disableInternalLoopback()
+{
+#if IS_CAN_FD
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_NORMAL;
+#else
+  can_operation_mode_t const mode = CAN_OPERATION_MODE_GLOBAL_OPERATION;
+#endif
+
+  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
+    return -rc;
+
+  return 1;
 }
 
 int ArduinoCAN::write(CanMsg const & msg)
