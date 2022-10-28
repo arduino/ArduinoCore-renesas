@@ -54,7 +54,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
-  .baud_rate_prescaler = 1 + 2 /* Division value of baud rate prescaler */,
+  .baud_rate_prescaler = 1 + 3 /* Division value of baud rate prescaler */,
   .time_segment_1 = 11,
   .time_segment_2 = 4,
   .synchronization_jump_width = 4
