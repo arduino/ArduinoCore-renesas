@@ -5,7 +5,9 @@
 #include "pins_arduino.h"
 #include "elc_defines.h"
 
-
+#if ETHERNET_HOWMANY > 0
+#include "r_ether_api.h"
+#endif
 
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"

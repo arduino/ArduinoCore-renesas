@@ -25,6 +25,7 @@ typedef enum {
 } TimerPWMChannel_t;
 
 
+
 class GPTimer {
   public:
     ~GPTimer() {

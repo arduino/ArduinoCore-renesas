@@ -1,10 +1,6 @@
 #include "IRQManager.h"
 #include "bsp_api.h"
 
-#if ETHERNET_HOWMANY > 0
-#include "ethernetDriver.h"
-#endif
-
 #define FIXED_IRQ_NUM   16
 
 
@@ -541,7 +537,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         uart_cfg_t *p_cfg = (uart_cfg_t *)cfg;
         if( (last_interrupt_index +  UART_SCI_REQ_NUM) < PROG_IRQ_NUM ) {
 
-            if (p_cfg->txi_irq == ) {
+            if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
                 /* TX interrupt */
                 p_cfg->txi_ipl = UART_SCI_PRIORITY;
                 p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
@@ -868,16 +864,16 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                                     ETHERNET
        ********************************************************************** */
     else if(p == IRQ_ETHERNET && cfg != NULL) {
-        EthernetDriver *eth = reinterpret_cast<EthernetDriver *>(cfg)->cfg;
-        if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM && eth->cfg.irq == FSP_INVALID_VECTOR) {
-            eth->cfg.irq = (IRQn_Type)last_interrupt_index;
-            eth->cfg.interrupt_priority = ETHERNET_PRIORITY;
+        ether_cfg_t *eth = (ether_cfg_t *)cfg;
+        if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM && eth->irq == FSP_INVALID_VECTOR) {
+            eth->irq = (IRQn_Type)last_interrupt_index;
+            eth->interrupt_priority = ETHERNET_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ether_eint_isr;
-            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(ETHER_EINT0);
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_EDMAC0_EINT);
             last_interrupt_index++;
         }
         else {
-            rv = (eth->cfg.irq == FSP_INVALID_VECTOR) ? false : true;
+            rv = (eth->irq == FSP_INVALID_VECTOR) ? false : true;
         }
     }
 #endif

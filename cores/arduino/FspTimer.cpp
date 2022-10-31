@@ -113,6 +113,8 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     return init_ok;
 }
 
+
+
 /* -------------------------------------------------------------------------- */
 int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
 /* -------------------------------------------------------------------------- */    
@@ -136,7 +138,7 @@ int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
     }
 
     if(force && rv == -1) {
-        for(uint8_t i = GPT_HOWMANY-1; i >= 0; i--) {
+        for(int8_t i = GPT_HOWMANY-1; i >= 0; i--) {
             if(gpt_used_channel[i] != TIMER_USED) {
                 rv = i;
                 type = GPT_TIMER;
@@ -145,7 +147,7 @@ int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
         }
 
         if(rv == -1) {
-            for(uint8_t i = AGT_HOWMANY - 1; i >= 0; i++) {
+            for(int8_t i = AGT_HOWMANY - 1; i >= 0; i--) {
                 if(agt_used_channel[i] != TIMER_USED) {
                     rv = i;
                     type = AGT_TIMER;
