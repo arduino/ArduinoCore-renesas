@@ -97,19 +97,19 @@ static void IrqCallback(external_irq_callback_args_t * p_args) {
     void * param = (void *)p_args->p_context;
     uint32_t ch = p_args->channel;
 
-    CIrq *irq_contest = nullptr;
+    CIrq *irq_context = nullptr;
 
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
-        irq_contest = IrqChannel.get(ch,false);
+        irq_context = IrqChannel.get(ch,false);
    
-        if(irq_contest != nullptr) {
-            R_BSP_IrqClearPending(irq_contest->cfg.irq);
+        if(irq_context != nullptr) {
+            R_BSP_IrqClearPending(irq_context->cfg.irq);
             
-            if(irq_contest->fnc_param != nullptr) {
-                irq_contest->fnc_param(param);
+            if(irq_context->fnc_param != nullptr) {
+                irq_context->fnc_param(param);
             }
-            else if(irq_contest->fnc_void != nullptr) {
-                irq_contest->fnc_void();
+            else if(irq_context->fnc_void != nullptr) {
+                irq_context->fnc_void();
             }
         }
     }
@@ -120,18 +120,18 @@ static void IrqCallback(external_irq_callback_args_t * p_args) {
 void detachInterrupt(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_contest = nullptr;
+    CIrq *irq_context = nullptr;
     int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
-        irq_contest = IrqChannel.get(ch,false);
+        irq_context = IrqChannel.get(ch,false);
     }
 
-    if(irq_contest != nullptr) {
-        irq_contest->fnc_param      = nullptr;
-        irq_contest->fnc_void       = nullptr;
-        R_ICU_ExternalIrqDisable(&(irq_contest->ctrl));
-        R_ICU_ExternalIrqClose(&(irq_contest->ctrl));
+    if(irq_context != nullptr) {
+        irq_context->fnc_param      = nullptr;
+        irq_context->fnc_void       = nullptr;
+        R_ICU_ExternalIrqDisable(&(irq_context->ctrl));
+        R_ICU_ExternalIrqClose(&(irq_context->ctrl));
     } 
 }
 
@@ -139,52 +139,52 @@ void detachInterrupt(pin_size_t pinNumber) {
 void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_contest = nullptr;
+    CIrq *irq_context = nullptr;
     int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
-        irq_contest = IrqChannel.get(ch,true);
+        irq_context = IrqChannel.get(ch,true);
     }
 
-    if(irq_contest != nullptr) {
+    if(irq_context != nullptr) {
     
-        irq_contest->cfg.channel            = ch;
-        irq_contest->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
-        irq_contest->cfg.filter_enable      = false;
-        irq_contest->cfg.p_callback         = IrqCallback;
-        irq_contest->cfg.p_context          = param;
-        irq_contest->cfg.p_extend           = nullptr;
+        irq_context->cfg.channel            = ch;
+        irq_context->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
+        irq_context->cfg.filter_enable      = false;
+        irq_context->cfg.p_callback         = IrqCallback;
+        irq_context->cfg.p_context          = param;
+        irq_context->cfg.p_extend           = nullptr;
         if(param != nullptr) {
-            irq_contest->fnc_param      = func;
+            irq_context->fnc_param      = func;
         }
         else {
-            irq_contest->fnc_void       = (voidFuncPtr)func;
+            irq_context->fnc_void       = (voidFuncPtr)func;
         }
     
         uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
 
         switch (mode) {
             case LOW:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
             break;
             case FALLING:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
             break;
             case RISING:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
                 pullup_enabled = 0;
             break;
             case CHANGE:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
             break;
         }
     
-        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_contest->cfg))) {
+        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_context->cfg))) {
             /* Configure PIN */
             R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
             /* Enable Interrupt */ 
-            R_ICU_ExternalIrqOpen(&(irq_contest->ctrl), &(irq_contest->cfg));
-            R_ICU_ExternalIrqEnable(&(irq_contest->ctrl));
+            R_ICU_ExternalIrqOpen(&(irq_context->ctrl), &(irq_context->cfg));
+            R_ICU_ExternalIrqEnable(&(irq_context->ctrl));
         }
 
     }
@@ -195,50 +195,50 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
 }
 
 int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
-    CIrq *irq_contest = nullptr;
+    CIrq *irq_context = nullptr;
     int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
-        irq_contest = IrqChannel.get(ch,true);
+        irq_context = IrqChannel.get(ch,true);
     }
 
-    if(irq_contest != nullptr && mode != LOW) {
+    if(irq_context != nullptr && mode != LOW) {
     
-        irq_contest->cfg.channel            = ch;
-        irq_contest->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
-        irq_contest->cfg.filter_enable      = false;
-        irq_contest->cfg.p_callback         = IrqCallback;
-        irq_contest->cfg.p_context          = nullptr;
-        irq_contest->cfg.p_extend           = nullptr;
+        irq_context->cfg.channel            = ch;
+        irq_context->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
+        irq_context->cfg.filter_enable      = false;
+        irq_context->cfg.p_callback         = IrqCallback;
+        irq_context->cfg.p_context          = nullptr;
+        irq_context->cfg.p_extend           = nullptr;
         /* ATTACH CALLBACK FUNCTION might be useful ??? */
     
         uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
 
         switch (mode) {
             case LOW:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
             break;
             case FALLING:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
             break;
             case RISING:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
                 pullup_enabled = 0;
             break;
             case CHANGE:
-                irq_contest->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
+                irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
             break;
         }
     
-        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_contest->cfg))) {
+        if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_context->cfg))) {
             /* Configure PIN */
             R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
             /* Enable Interrupt */ 
-            R_ICU_ExternalIrqOpen(&(irq_contest->ctrl), &(irq_contest->cfg));
-            R_ICU_ExternalIrqEnable(&(irq_contest->ctrl));
+            R_ICU_ExternalIrqOpen(&(irq_context->ctrl), &(irq_context->cfg));
+            R_ICU_ExternalIrqEnable(&(irq_context->ctrl));
         }
 
-        return irq_contest->cfg.channel;
+        return irq_context->cfg.channel;
     }
     return -1;
 
@@ -249,18 +249,18 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
 int detachIrq2Link(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_contest = nullptr;
+    CIrq *irq_context = nullptr;
     int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
-        irq_contest = IrqChannel.get(ch,false);
+        irq_context = IrqChannel.get(ch,false);
     }
 
-    if(irq_contest != nullptr) {
-        irq_contest->fnc_param      = nullptr;
-        irq_contest->fnc_void       = nullptr;
-        R_ICU_ExternalIrqDisable(&(irq_contest->ctrl));
-        R_ICU_ExternalIrqClose(&(irq_contest->ctrl));
+    if(irq_context != nullptr) {
+        irq_context->fnc_param      = nullptr;
+        irq_context->fnc_void       = nullptr;
+        R_ICU_ExternalIrqDisable(&(irq_context->ctrl));
+        R_ICU_ExternalIrqClose(&(irq_context->ctrl));
         return ch;
     } 
     return -1;
