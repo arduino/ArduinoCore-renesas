@@ -148,6 +148,7 @@ void agt_int_isr(void);
 void adc_scan_end_isr (void);
 void adc_scan_end_b_isr (void);
 void adc_window_compare_isr (void);
+void dmac_int_isr(void);
 #ifdef __cplusplus
 }
 #endif
@@ -161,7 +162,7 @@ class IRQManager {
     
 #ifdef HAS_DMAC
     /* add DMA interrupt. Channels from 0 to 4 for R4, from 0 to 7 on R6 
-       if fnc is nullprt the "standar" dmac_int_isr is added
+       if fnc is nullptr the standard dmac_int_isr is added
        otherwise fnc is the interrupt handler function 
        it returns true if the interrupt is correctly added */
     bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);

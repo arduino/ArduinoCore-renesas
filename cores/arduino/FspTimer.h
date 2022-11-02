@@ -90,7 +90,7 @@ class FspTimer {
     GPTimer *gpt_timer;
     timer_cfg_t timer_cfg;
     uint32_t _period_counts;
-    uint32_t _duty_cicle_counts;
+    uint32_t _duty_cycle_counts;
     timer_source_div_t _sd;
     uint8_t type;
     bool init_ok;
@@ -107,12 +107,14 @@ class FspTimer {
     bool open();
     bool start();
     bool stop();
+    bool reset();
     bool set_duty_cycle(uint32_t const duty_cycle_counts, TimerPWMChannel_t pwm_ch);
     bool set_period(uint32_t p);
     bool close();
     void enable_pwm_channel(TimerPWMChannel_t pwm_channel);
     uint32_t get_counter();
     uint32_t get_freq_hz();
+    uint32_t get_channel();
 
     static void set_initial_timer_channel_as_pwm(uint8_t type, int index) {
       if (type == GPT_TIMER) {
