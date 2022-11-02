@@ -24,6 +24,10 @@ void _SerialUSB::begin(unsigned long baud) {
     _running = true;
 }
 
+bool _SerialUSB::connected() {
+    return (tud_cdc_connected() || ignore_dtr);
+}
+
 void _SerialUSB::end() {
     // TODO
 }
@@ -42,7 +46,7 @@ int _SerialUSB::read() {
         return -1;
     }
 
-    if (tud_cdc_connected() && tud_cdc_available()) {
+    if (connected() && tud_cdc_available()) {
         return tud_cdc_read_char();
     }
     return -1;
@@ -83,7 +87,7 @@ size_t _SerialUSB::write(const uint8_t *buf, size_t length) {
 
     static uint64_t last_avail_time;
     int written = 0;
-    if (tud_cdc_connected()) {
+    if (connected()) {
         for (size_t i = 0; i < length;) {
             int n = length - i;
             int avail = tud_cdc_write_available();
@@ -100,7 +104,7 @@ size_t _SerialUSB::write(const uint8_t *buf, size_t length) {
             } else {
                 tud_task();
                 tud_cdc_write_flush();
-                if (!tud_cdc_connected() ||
+                if (connected() ||
                         (!tud_cdc_write_available() && millis() > last_avail_time + 1000 /* 1 second */)) {
                     break;
                 }
@@ -119,7 +123,7 @@ _SerialUSB::operator bool() {
     }
 
     tud_task();
-    return tud_cdc_connected();
+    return connected();
 }
 
 /* Key code for writing PRCR register. */

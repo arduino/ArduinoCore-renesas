@@ -23,7 +23,6 @@
 #include "r_transfer_api.h"
 #include "r_dmac.h"
 #include "r_transfer_api.h"
-#include "r_sce.h"
 #include "r_lpm.h"
 #include "r_lpm_api.h"
 #include "r_crc.h"
@@ -147,8 +146,6 @@ extern const transfer_cfg_t g_transfer5_cfg;
 #ifndef NULL
 void NULL(dmac_callback_args_t *p_args);
 #endif
-extern sce_instance_ctrl_t sce_ctrl;
-extern const sce_cfg_t sce_cfg;
 /** lpm Instance */
 extern const lpm_instance_t g_lpm0;
 

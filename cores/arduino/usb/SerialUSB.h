@@ -53,6 +53,8 @@ public:
         return _bits;
     }
     bool dtr() {
+        // this means we are actively using dtr signal, so ignore its meaning as "serial port open"
+        ignore_dtr = true;
         return (_dtr != 0);
     }
     bool rts() {
@@ -64,6 +66,8 @@ public:
 
 private:
     bool _running = false;
+    bool ignore_dtr = false;
+    bool connected();
 };
 
 extern _SerialUSB SerialUSB;

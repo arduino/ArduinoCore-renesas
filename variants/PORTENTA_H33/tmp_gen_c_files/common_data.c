@@ -11,6 +11,12 @@ const cgc_cfg_t g_cgc0_cfg =
 cgc_instance_ctrl_t g_cgc0_ctrl;
 const cgc_instance_t g_cgc0 =
 { .p_api = &g_cgc_on_cgc, .p_ctrl = &g_cgc0_ctrl, .p_cfg = &g_cgc0_cfg, };
+sce_instance_ctrl_t sce_ctrl;
+const sce_cfg_t sce_cfg =
+{ .lifecycle = SCE_SSD };
+#if SCE_USER_SHA_384_ENABLED
+uint32_t SCE_USER_SHA_384_FUNCTION(uint8_t * message, uint8_t * digest, uint32_t message_length);
+#endif
 icu_instance_ctrl_t g_external_irq0_ctrl;
 const external_irq_cfg_t g_external_irq0_cfg =
 { .channel = 0,

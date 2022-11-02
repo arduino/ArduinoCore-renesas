@@ -33,18 +33,8 @@
 #ifndef __ARDUINO_UART_IMPLEMENTATION__
 #define __ARDUINO_UART_IMPLEMENTATION__
 
-// Define constants and variables for buffering incoming serial data.  We're
-// using a ring buffer (I think), in which head is the index of the location
-// to which to write the next incoming character and tail is the index of the
-// location from which to read.
-// NOTE: a "power of 2" buffer size is reccomended to dramatically
-//       optimize all the modulo operations for ring buffers.
-// WARNING: When buffer sizes are increased to > 256, the buffer index
-// variables are automatically increased in size, but the extra
-// atomicity guards needed for that are not implemented. This will
-// often work, but occasionally a race condition can occur that makes
-// Serial behave erratically. See https://github.com/arduino/Arduino/issues/2405
-
+#include "r_sci_uart.h"
+#include "r_uart_api.h"
 
 #define SERIAL_TX_BUFFER_SIZE 512
 #define SERIAL_RX_BUFFER_SIZE 512

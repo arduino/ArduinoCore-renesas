@@ -293,7 +293,7 @@ bool IRQManager::addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
                 cfg.gpt_ext_cfg->capture_a_ipl = TIMER_PRIORITY;
                 cfg.gpt_ext_cfg->capture_a_irq = (IRQn_Type)last_interrupt_index;
                 if(fnc == nullptr) {
-                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_underflow_isr;
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_capture_a_isr;
                 }
                 else {
                     *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
@@ -335,7 +335,7 @@ bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
                 cfg.gpt_ext_cfg->capture_b_ipl = TIMER_PRIORITY;
                 cfg.gpt_ext_cfg->capture_b_irq = (IRQn_Type)last_interrupt_index;
                 if(fnc == nullptr) {
-                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_counter_underflow_isr;
+                    *(irq_ptr + last_interrupt_index) = (uint32_t)gpt_capture_b_isr;
                 }
                 else {
                     *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
@@ -374,7 +374,7 @@ bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
             cfg.ipl = DMA_PRIORITY;
             cfg.irq = (IRQn_Type)last_interrupt_index;
             if(fnc == nullptr) {
-                *(irq_ptr + last_interrupt_index) = (uint32_t)r_icu_isr;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)dmac_int_isr;
             }
             else {
                 *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;

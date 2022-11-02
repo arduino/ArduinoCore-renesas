@@ -93,8 +93,8 @@ const gpt_extended_pwm_cfg_t g_timer1_pwm_extend =
     .trough_irq          = FSP_INVALID_VECTOR,
 #endif
     .poeg_link           = GPT_POEG_LINK_POEG0,
-    .output_disable      =  GPT_OUTPUT_DISABLE_NONE,
-    .adc_trigger         =  GPT_ADC_TRIGGER_NONE,
+    .output_disable      = (gpt_output_disable_t) ( GPT_OUTPUT_DISABLE_NONE),
+    .adc_trigger         = (gpt_adc_trigger_t) ( GPT_ADC_TRIGGER_NONE),
     .dead_time_count_up  = 0,
     .dead_time_count_down = 0,
     .adc_a_compare_match = 0,
@@ -239,11 +239,11 @@ const usb_cfg_t g_basic0_cfg =
   .hsirq_d1 = FSP_INVALID_VECTOR,
   .ipl = (2),
   .ipl_r = (2),
-  .ipl_d0 = FSP_INVALID_VECTOR,
-  .ipl_d1 = FSP_INVALID_VECTOR,
-  .hsipl = FSP_INVALID_VECTOR,
-  .hsipl_d0 = FSP_INVALID_VECTOR,
-  .hsipl_d1 = FSP_INVALID_VECTOR,
+  .ipl_d0 = BSP_IRQ_DISABLED,
+  .ipl_d1 = BSP_IRQ_DISABLED,
+  .hsipl = BSP_IRQ_DISABLED,
+  .hsipl_d0 = BSP_IRQ_DISABLED,
+  .hsipl_d1 = BSP_IRQ_DISABLED,
 #if (BSP_CFG_RTOS != 0)
                 .p_usb_apl_callback = NULL,
 #else

@@ -181,14 +181,14 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_
     }
 
     if(duty_perc >= 0 && duty_perc <= 100) {
-        _duty_cicle_counts = (uint32_t)(((float)_period_counts *  duty_perc) / 100.0);
+        _duty_cycle_counts = (uint32_t)(((float)_period_counts *  duty_perc) / 100.0);
     }
     else {
         init_ok = false;
     }
     
     if(init_ok) {
-        init_ok = begin(mode, tp, channel, _period_counts, _duty_cicle_counts, _sd, cbk, ctx);
+        init_ok = begin(mode, tp, channel, _period_counts, _duty_cycle_counts, _sd, cbk, ctx);
     }
     return init_ok;
 }
@@ -326,6 +326,12 @@ uint32_t FspTimer::get_freq_hz() {
 }
 
 /* -------------------------------------------------------------------------- */
+uint32_t FspTimer::get_channel() {
+/* -------------------------------------------------------------------------- */
+    return get_cfg()->channel;
+}
+
+/* -------------------------------------------------------------------------- */
 void FspTimer::add_pwm_extended_cfg() {
 /* -------------------------------------------------------------------------- */
     if(gpt_timer != nullptr) {
@@ -453,9 +459,11 @@ bool FspTimer::open() {
     fsp_err_t err;
     if(type == GPT_TIMER && gpt_timer != nullptr) {
         err = R_GPT_Open(&(gpt_timer->ctrl),&timer_cfg);
+        R_GPT_Enable(&gpt_timer->ctrl);
     }
     else if(type == AGT_TIMER && agt_timer != nullptr) {
         err = R_AGT_Open(&(agt_timer->ctrl),&timer_cfg);
+        R_AGT_Enable(&(agt_timer->ctrl));
     }
     else {
         return false;
@@ -490,6 +498,25 @@ bool FspTimer::stop() {
     return true; 
 } 
 
+/* -------------------------------------------------------------------------- */
+bool FspTimer::reset() {
+/* -------------------------------------------------------------------------- */
+    if(type == GPT_TIMER && gpt_timer != nullptr) {
+        if (R_GPT_Reset(&(gpt_timer->ctrl)) != FSP_SUCCESS) {
+            return false;
+        }
+    }
+    else if(type == AGT_TIMER && agt_timer != nullptr) {
+        if (R_AGT_Reset(&(agt_timer->ctrl)) != FSP_SUCCESS) {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+
+    return true;
+}
 
 /* -------------------------------------------------------------------------- */
 bool FspTimer::start() {

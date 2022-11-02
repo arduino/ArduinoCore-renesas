@@ -69,7 +69,9 @@ void arduino_main(void)
    // When stack and heap would collide, we could signal the NMI with mbed style leds patterns
 #if defined(__ARM_ARCH_8M_MAIN__) || defined(__ARM_ARCH_8M_BASE__)
    __set_MSPLIM(0);
+#if FSP_PRIV_TZ_USE_SECURE_REGS
    unsecure_registers();
+#endif
 #else
    R_MPU_SPMON->SP[0].CTL = 0;
 #endif

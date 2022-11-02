@@ -26,6 +26,10 @@
 #include "class/audio/audio.h"
 #include "class/midi/midi.h"
 
+#include "r_usb_basic.h"
+#include "r_usb_basic_api.h"
+#include "r_usb_pcdc_api.h"
+
 #define USBD_DESC_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN)
 
 #define USBD_ITF_CDC (0) // needs 2 interfaces

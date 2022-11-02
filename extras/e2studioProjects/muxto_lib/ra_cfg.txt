@@ -115,7 +115,7 @@ FSP Configuration
       P914 13 - - - - Disabled - - "USB_FS0: DP" - None - - 
       P915 12 - - - - Disabled - - "USB_FS0: DM" - None - - 
       RES# 16 SYSTEM0_RES - - - - - - - - IO "Read only" - 
-      SBIAS/VREFI 24 "SDADC0_VREFI / SDADC0_SBIAS" - - - - - - - - IO "Read only" - 
+      SBIAS/VREFI 24 "SDADC0_SBIAS / SDADC0_VREFI" - - - - - - - - IO "Read only" - 
       VCC 8 SYSTEM0_VCC - - - - - - - - IO "Read only" - 
       VCCUSB 14 USB_FS0_VCC - - - - - - - - IO "Read only" - 
       VCCUSBLDO 15 USB_FS0_VCCLDO - - - - - - - - IO "Read only" - 
