@@ -132,8 +132,8 @@ a lot of data that needs to be copied, this should be set high. */
  */
 // need for building net_ip.c
 #define LWIP_NETIF_HOSTNAME 1
-#define LWIP_NETIF_STATUS_CALLBACK  1
-#define LWIP_NETIF_LINK_CALLBACK        1
+#define LWIP_NETIF_STATUS_CALLBACK  0
+#define LWIP_NETIF_LINK_CALLBACK        0
 #define LWIP_DHCP_CHECK_LINK_UP         1
 
 /*

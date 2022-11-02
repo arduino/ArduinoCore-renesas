@@ -14,7 +14,7 @@ const uint8_t default_ip4_netmask[4] = {NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_AD
 const uint8_t default_ip4_gateway[4] = {GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3};
 /* -------------------------------------------------------------------------- */
 /* Netif global configuration used by LwIP                                    */
-static struct netif eth0if;
+struct netif eth0if;
 static bool eth0if_initialized = false;
 netif *eth0if_get_ptr() { return &eth0if; }
 bool is_eth0if_initialized() { return eth0if_initialized; }
@@ -226,13 +226,16 @@ static err_t eth0if_init(struct netif *netif) {
   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
   netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
-  /* initialize the hardware */
-  eth_init();
   /* set the callback function that is called when an ethernet frame is physically
-     received */
+     received, it is important that the callbacks are set before the initializiation */
   eth_set_rx_frame_cbk(eth0if_frame_received);
   eth_set_link_on_cbk(eth0if_link_up);
   eth_set_link_off_cbk(eth0if_link_down);
+
+
+  /* initialize the hardware */
+  eth_init();
+  
 
   eth0if_initialized = true;
 

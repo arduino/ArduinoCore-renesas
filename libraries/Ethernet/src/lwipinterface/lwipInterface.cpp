@@ -1,5 +1,7 @@
 #include "lwipInterface.h"
 
+//void(*p_callback)(timer_callback_args_t *)
+extern void attach_ethernet_task(void (*fnc)());
 
 void sys_printf(const char *format, ...) {
   
@@ -27,9 +29,13 @@ void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw
   eth0if_set_ip4_netmask(netmask);
   eth0if_set_ip4_gateway(gw);
   eth0if_lwip_config(true);
+
+  attach_ethernet_task(lwip_task);
   lwip_task();
 }
 
+
+extern struct netif eth0if;
 
 /* main lwip task (should be called periodically) */
 void lwip_task() {
@@ -52,7 +58,7 @@ void lwip_task() {
   #if LWIP_DHCP
   static unsigned long dhcp_last_time_call = 0;
   if(dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
-    DHCP_task(eth0if_get_ptr());
+    DHCP_task(&eth0if);
   }
   #endif
 
