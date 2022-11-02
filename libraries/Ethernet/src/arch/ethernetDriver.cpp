@@ -49,8 +49,8 @@ private:
     __attribute__((__aligned__(32)))uint8_t buffer1[ETH_BUFF_DIM];
     #endif
 
-    __attribute__((__aligned__(16))) ether_instance_descriptor_t tx_descriptors[1];
-    __attribute__((__aligned__(16))) ether_instance_descriptor_t rx_descriptors[1];
+    //__attribute__((__aligned__(16))) ether_instance_descriptor_t tx_descriptors[1];
+    //__attribute__((__aligned__(16))) ether_instance_descriptor_t rx_descriptors[1];
 
 };
 
@@ -107,8 +107,8 @@ EthernetDriver::EthernetDriver() {
     cfg.padding_offset                  = 0; 
     cfg.broadcast_filter                = 0;
     cfg.p_mac_address                   = mac_address;
-    cfg.p_rx_descriptors                = rx_descriptors;
-    cfg.p_tx_descriptors                = tx_descriptors;
+    //cfg.p_rx_descriptors                = rx_descriptors;
+    //cfg.p_tx_descriptors                = tx_descriptors;
     cfg.num_tx_descriptors              = 1;
     cfg.num_rx_descriptors              = 1;
     cfg.pp_ether_buffers                = buffs;

@@ -69,6 +69,35 @@ typedef enum e_ether_link_establish_status
     ETHER_LINK_ESTABLISH_STATUS_UP   = 1, ///< Link establish status is up
 } ether_link_establish_status_t;
 
+/** EDMAC descriptor as defined in the hardware manual.
+ * Structure must be packed at 1 byte.
+ */
+typedef struct st_ether_instance_descriptor
+{
+    volatile uint32_t status;
+#if ((defined(__GNUC__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)) || (defined(__ARMCC_VERSION) && \
+    !defined(__ARM_BIG_ENDIAN)) || (defined(__ICCARM__) && (__LITTLE_ENDIAN__)))
+
+    /* Little endian */
+    volatile uint16_t size;
+    volatile uint16_t buffer_size;
+#else
+
+    /* Big endian */
+    volatile uint16_t buffer_size;
+    volatile uint16_t size;
+#endif
+    uint8_t * p_buffer;
+    struct st_ether_instance_descriptor * p_next;
+} ether_instance_descriptor_t;
+
+/** ETHER extension configures the buffer descriptor for ETHER. */
+typedef struct st_ether_extended_cfg
+{
+    ether_instance_descriptor_t * p_rx_descriptors; ///< Receive descriptor buffer pool
+    ether_instance_descriptor_t * p_tx_descriptors; ///< Transmit descriptor buffer pool
+} ether_extended_cfg_t;
+
 /** ETHER control block. DO NOT INITIALIZE.  Initialization occurs when @ref ether_api_t::open is called. */
 typedef struct st_ether_instance_ctrl
 {
@@ -90,6 +119,13 @@ typedef struct st_ether_instance_ctrl
     ether_link_change_t           link_change;           ///< status of link change
     ether_magic_packet_t          magic_packet;          ///< status of magic packet detection
     ether_link_establish_status_t link_establish_status; ///< Current Link status
+
+    /* Pointer to callback and optional working memory */
+    void (* p_callback)(ether_callback_args_t *);
+    ether_callback_args_t * p_callback_memory;
+
+    /* Pointer to context to be passed into callback function */
+    void const * p_context;
 } ether_instance_ctrl_t;
 
 /*
@@ -174,6 +210,11 @@ fsp_err_t R_ETHER_LinkProcess(ether_ctrl_t * const p_ctrl);
 fsp_err_t R_ETHER_WakeOnLANEnable(ether_ctrl_t * const p_ctrl);
 
 fsp_err_t R_ETHER_TxStatusGet(ether_ctrl_t * const p_ctrl, void * const p_buffer_address);
+
+fsp_err_t R_ETHER_CallbackSet(ether_ctrl_t * const          p_api_ctrl,
+                              void (                      * p_callback)(ether_callback_args_t *),
+                              void const * const            p_context,
+                              ether_callback_args_t * const p_callback_memory);
 
 /*******************************************************************************************************************//**
  * @} (end addtogroup ETHER)

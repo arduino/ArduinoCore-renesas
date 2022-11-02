@@ -9,7 +9,7 @@
     <option key="#DeviceCommand#" value="R7FA6M5AG"/>
     <option key="#RTOS#" value="_none"/>
     <option key="#pinconfiguration#" value="R7FA6M5AG2CBG.pincfg"/>
-    <option key="#FSPVersion#" value="4.0.0"/>
+    <option key="#FSPVersion#" value="4.1.0"/>
     <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
     <option key="#ToolchainVersion#" value="7.2.1.20170904"/>
   </generalSettings>
@@ -144,149 +144,149 @@
     <node id="board.clock.canfdclk.display" option="board.clock.canfdclk.display.value"/>
   </raClockConfiguration>
   <raComponentSelection>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="R7FA6M5AG2CBG" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="R7FA6M5AG2CBG" vendor="Renesas" version="4.1.0">
       <description>Board support package for R7FA6M5AG2CBG</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra6m5.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="device" variant="" vendor="Renesas" version="4.1.0">
       <description>Board support package for RA6M5</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra6m5.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="fsp" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="BSP" condition="" group="ra6m5" subgroup="fsp" variant="" vendor="Renesas" version="4.1.0">
       <description>Board support package for RA6M5 - FSP Data</description>
-      <originalPack>Renesas.RA_mcu_ra6m5.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA_mcu_ra6m5.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.9.0+renesas.0.fsp.4.0.0">
+    <component apiversion="" class="CMSIS" condition="" group="CMSIS5" subgroup="CoreM" variant="" vendor="Arm" version="5.9.0+renesas.0.fsp.4.1.0">
       <description>Arm CMSIS Version 5 - Core (M)</description>
-      <originalPack>Arm.CMSIS5.5.9.0+renesas.0.fsp.4.0.0.pack</originalPack>
+      <originalPack>Arm.CMSIS5.5.9.0+renesas.0.fsp.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="BSP" condition="" group="Board" subgroup="custom" variant="" vendor="Renesas" version="4.1.0">
       <description>Custom Board Support Files</description>
-      <originalPack>Renesas.RA_board_custom.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA_board_custom.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="Common" condition="" group="all" subgroup="fsp_common" variant="" vendor="Renesas" version="4.1.0">
       <description>Board Support Package Common Files</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_adc" variant="" vendor="Renesas" version="4.1.0">
       <description>A/D Converter</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_agt" variant="" vendor="Renesas" version="4.1.0">
       <description>Asynchronous General Purpose Timer</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_canfd" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_canfd" variant="" vendor="Renesas" version="4.1.0">
       <description>Controller Area Network - Flexible Data</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cgc" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_cgc" variant="" vendor="Renesas" version="4.1.0">
       <description>Clock Generation Circuit</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_crc" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_crc" variant="" vendor="Renesas" version="4.1.0">
       <description>Cyclic Redundancy Check</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="4.1.0">
       <description>12-bit D/A Converter</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dmac" variant="" vendor="Renesas" version="4.1.0">
       <description>Direct Memory Access Controller</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="4.1.0">
       <description>Data Transfer Controller</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="4.0.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_elc" variant="" vendor="Renesas" version="4.1.0">
       <description>Event Link Controller</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_flash_hp" variant="" vendor="Renesas" version="4.0.0">
-      <description>Flash Memory High Performance</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="4.0.0">
-      <description>General PWM Timer</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="4.0.0">
-      <description>External Interrupt</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="4.0.0">
-      <description>I2C Master Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="4.0.0">
-      <description>I2C Slave Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="4.0.0">
-      <description>I/O Port</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="4.0.0">
-      <description>Low Power Modes</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="4.0.0">
-      <description>Real Time Clock</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sce9_ra6_protected" variant="" vendor="Renesas" version="4.0.0">
-      <description>Secure Cryptography Engine on RA6 Protected Mode</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="4.0.0">
-      <description>SCI I2C Master Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_spi" variant="" vendor="Renesas" version="4.0.0">
-      <description>Serial Peripheral Interface on Serial Communications Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="4.0.0">
-      <description>SCI UART</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="4.0.0">
-      <description>Serial Peripheral Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ssi" variant="" vendor="Renesas" version="4.0.0">
-      <description>Serial Sound Interface</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="4.0.0">
-      <description>USB Basic</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pcdc" variant="" vendor="Renesas" version="4.0.0">
-      <description>USB Peripheral Communications Device Class</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_composite" variant="" vendor="Renesas" version="4.0.0">
-      <description>USB Composite</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="4.0.0">
-      <description>Watchdog Timer</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_adpcm_decoder" variant="" vendor="Renesas" version="4.0.0">
-      <description>ADPCM Audio Decoder</description>
-      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
-    </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether_phy" variant="" vendor="Renesas" version="3.7.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether_phy" variant="" vendor="Renesas" version="4.1.0">
       <description>Ethernet PHY</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
-    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether" variant="" vendor="Renesas" version="3.7.0">
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether" variant="" vendor="Renesas" version="4.1.0">
       <description>Ethernet</description>
-      <originalPack>Renesas.RA.3.7.0.pack</originalPack>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_flash_hp" variant="" vendor="Renesas" version="4.1.0">
+      <description>Flash Memory High Performance</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_gpt" variant="" vendor="Renesas" version="4.1.0">
+      <description>General PWM Timer</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_icu" variant="" vendor="Renesas" version="4.1.0">
+      <description>External Interrupt</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="4.1.0">
+      <description>I2C Master Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="4.1.0">
+      <description>I2C Slave Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ioport" variant="" vendor="Renesas" version="4.1.0">
+      <description>I/O Port</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_lpm" variant="" vendor="Renesas" version="4.1.0">
+      <description>Low Power Modes</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_rtc" variant="" vendor="Renesas" version="4.1.0">
+      <description>Real Time Clock</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sce9_ra6_protected" variant="" vendor="Renesas" version="4.1.0">
+      <description>Secure Cryptography Engine on RA6 Protected Mode</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="4.1.0">
+      <description>SCI I2C Master Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_spi" variant="" vendor="Renesas" version="4.1.0">
+      <description>Serial Peripheral Interface on Serial Communications Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_uart" variant="" vendor="Renesas" version="4.1.0">
+      <description>SCI UART</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_spi" variant="" vendor="Renesas" version="4.1.0">
+      <description>Serial Peripheral Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ssi" variant="" vendor="Renesas" version="4.1.0">
+      <description>Serial Sound Interface</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="4.1.0">
+      <description>USB Basic</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pcdc" variant="" vendor="Renesas" version="4.1.0">
+      <description>USB Peripheral Communications Device Class</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_composite" variant="" vendor="Renesas" version="4.1.0">
+      <description>USB Composite</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_wdt" variant="" vendor="Renesas" version="4.1.0">
+      <description>Watchdog Timer</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_adpcm_decoder" variant="" vendor="Renesas" version="4.1.0">
+      <description>ADPCM Audio Decoder</description>
+      <originalPack>Renesas.RA.4.1.0.pack</originalPack>
     </component>
   </raComponentSelection>
   <raElcConfiguration/>
@@ -298,10 +298,6 @@
       <property id="module.driver.ioport.elc_trigger_ioport2" value="_disabled"/>
       <property id="module.driver.ioport.elc_trigger_ioport3" value="_disabled"/>
       <property id="module.driver.ioport.elc_trigger_ioport4" value="_disabled"/>
-      <property id="module.driver.ioport.elc_trigger_ioportb" value="_disabled"/>
-      <property id="module.driver.ioport.elc_trigger_ioportc" value="_disabled"/>
-      <property id="module.driver.ioport.elc_trigger_ioportd" value="_disabled"/>
-      <property id="module.driver.ioport.elc_trigger_ioporte" value="_disabled"/>
       <property id="module.driver.ioport.pincfg" value="g_bsp_pin_cfg"/>
     </module>
     <module id="module.driver.adc_on_adc.484525267">
@@ -785,6 +781,7 @@
       <property id="module.driver.ether_phy.phy_lsi_address" value="0"/>
       <property id="module.driver.ether_phy.phy_reset_wait_time" value="0x00020000"/>
       <property id="module.driver.ether_phy.mii_type" value="module.driver.mii_type.rmii"/>
+      <property id="module.driver.ether_phy.phy_lsi_type" value="module.driver.ether_phy.phy_lsi_type.kit_component"/>
       <property id="module.driver.ether_phy.mii_bit_access_wait_time" value="8"/>
       <property id="module.driver.ether_phy.flow_control" value="module.driver.ether_phy.flow_control.0"/>
     </module>
@@ -919,6 +916,10 @@
     <config id="config.driver.ether_phy">
       <property id="config.driver.ether_phy.param_checking_enable" value="config.driver.ether_phy.param_checking_enable.bsp"/>
       <property id="config.driver.ether_phy.use_phy" value="config.driver.ether_phy.use_phy.default"/>
+      <property id="config.driver.ether_phy.target_ksz8091rnb" value="config.driver.ether_phy.target_ksz8091rnb.disabled"/>
+      <property id="config.driver.ether_phy.target_ksz8041" value="config.driver.ether_phy.target_ksz8041.disabled"/>
+      <property id="config.driver.ether_phy.target_dp83620" value="config.driver.ether_phy.target_dp83620.disabled"/>
+      <property id="config.driver.ether_phy.target_ics1894" value="config.driver.ether_phy.target_ics1894.disabled"/>
       <property id="config.driver.ether_phy.use_reference_clock" value="config.driver.ether_phy.use_reference_clock.default"/>
     </config>
     <config id="config.driver.ssi">

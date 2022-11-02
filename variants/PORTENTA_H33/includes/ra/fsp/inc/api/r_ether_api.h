@@ -104,28 +104,6 @@ typedef enum e_ether_padding
     ETHER_PADDING_3BYTE   = 3,
 } ether_padding_t;
 
-/** EDMAC descriptor as defined in the hardware manual.
- * Structure must be packed at 1 byte.
- */
-typedef struct st_ether_instance_descriptor
-{
-    volatile uint32_t status;
-#if ((defined(__GNUC__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)) || (defined(__ARMCC_VERSION) && \
-    !defined(__ARM_BIG_ENDIAN)) || (defined(__ICCARM__) && (__LITTLE_ENDIAN__)))
-
-    /* Little endian */
-    volatile uint16_t size;
-    volatile uint16_t buffer_size;
-#else
-
-    /* Big endian */
-    volatile uint16_t buffer_size;
-    volatile uint16_t size;
-#endif
-    uint8_t * p_buffer;
-    struct st_ether_instance_descriptor * p_next;
-} ether_instance_descriptor_t;
-
 /** Event code of callback function */
 typedef enum
 {
@@ -164,9 +142,6 @@ typedef struct st_ether_cfg
     uint32_t             padding_offset;                 ///< Offset of the padding inserted into the received Ethernet frame.
     uint32_t             broadcast_filter;               ///< Limit of the number of broadcast frames received continuously
     uint8_t            * p_mac_address;                  ///< Pointer of MAC address
-
-    ether_instance_descriptor_t * p_rx_descriptors;      ///< Receive descriptor buffer pool
-    ether_instance_descriptor_t * p_tx_descriptors;      ///< Transmit descriptor buffer pool
 
     uint8_t num_tx_descriptors;                          ///< Number of transmission descriptor
     uint8_t num_rx_descriptors;                          ///< Number of receive descriptor
@@ -268,6 +243,20 @@ typedef struct st_ether_api
      * @param[out]  p_buffer_address   Pointer to the address of the most recently sent buffer.
      */
     fsp_err_t (* txStatusGet)(ether_ctrl_t * const p_api_ctrl, void * const p_buffer_address);
+
+    /**
+     * Specify callback function and optional context pointer and working memory pointer.
+     * @par Implemented as
+     * - R_ETHER_CallbackSet()
+     *
+     * @param[in]   p_ctrl                   Pointer to the ETHER control block.
+     * @param[in]   p_callback               Callback function
+     * @param[in]   p_context                Pointer to send to callback function
+     * @param[in]   p_working_memory         Pointer to volatile memory where callback structure can be allocated.
+     *                                       Callback arguments allocated here are only valid during the callback.
+     */
+    fsp_err_t (* callbackSet)(ether_ctrl_t * const p_api_ctrl, void (* p_callback)(ether_callback_args_t *),
+                              void const * const p_context, ether_callback_args_t * const p_callback_memory);
 } ether_api_t;
 
 /** This structure encompasses everything that is needed to use an instance of this interface. */

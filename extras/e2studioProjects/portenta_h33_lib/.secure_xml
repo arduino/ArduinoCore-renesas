@@ -9,7 +9,7 @@
     <option key="#DeviceCommand#" value="R7FA6M5AG"/>
     <option key="#RTOS#" value="_none"/>
     <option key="#pinconfiguration#" value="R7FA6M5AG2CBG.pincfg"/>
-    <option key="#FSPVersion#" value="4.0.0"/>
+    <option key="#FSPVersion#" value="4.1.0"/>
     <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
     <option key="#ToolchainVersion#" value="7.2.1.20170904"/>
   </generalSettings>

@@ -50,13 +50,17 @@
 #include "r_adc.h"
 #include "r_adc_api.h"
 FSP_HEADER
+#ifndef ETHER_PHY_LSI_TYPE_KIT_COMPONENT
+#define ETHER_PHY_LSI_TYPE_KIT_COMPONENT ETHER_PHY_LSI_TYPE_DEFAULT
+#endif
+
 /** ether_phy on ether_phy Instance. */
 extern const ether_phy_instance_t ETHERNET_PHY;
 
 /** Access the Ethernet PHY instance using these structures when calling API functions directly (::p_api is not used). */
 extern ether_phy_instance_ctrl_t ETHERNET_PHY_ctrl;
 extern const ether_phy_cfg_t ETHERNET_PHY_cfg;
-#if (BSP_FEATURE_TZ_HAS_TRUSTZONE == 1) && (BSP_TZ_SECURE_BUILD != 1) && (BSP_TZ_NONSECURE_BUILD != 1)
+#if (BSP_FEATURE_TZ_HAS_TRUSTZONE == 1) && (BSP_TZ_SECURE_BUILD != 1) && (BSP_TZ_NONSECURE_BUILD != 1) && (BSP_FEATURE_ETHER_SUPPORTS_TZ_SECURE == 0)
 #define ETHER_BUFFER_PLACE_IN_SECTION BSP_PLACE_IN_SECTION(".ns_buffer.eth")
 #else
 #define ETHER_BUFFER_PLACE_IN_SECTION
