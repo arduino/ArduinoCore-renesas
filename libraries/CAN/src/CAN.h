@@ -69,11 +69,7 @@ public:
   bool rx_complete;
   bool err_status;
 
-#if CAN_CFG_FIFO_SUPPORT
- static size_t constexpr CAN_MAX_NO_MAILBOXES = 24U;
-#else
  static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
-#endif
 
 private:
   int const _can_tx_pin;
