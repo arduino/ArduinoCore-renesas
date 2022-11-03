@@ -361,29 +361,29 @@ extern "C" void can_callback(can_callback_args_t * p_args)
 {
   ArduinoCAN * this_ptr = (ArduinoCAN *)(p_args->p_context);
 
-    switch (p_args->event)
+  switch (p_args->event)
+  {
+    case CAN_EVENT_TX_COMPLETE: break;
+    case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
     {
-        case CAN_EVENT_TX_COMPLETE: break;
-        case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
-        {
-            CAN.rx_complete = true;
-            break;
-        }
-        case CAN_EVENT_ERR_WARNING:             //error warning event
-        case CAN_EVENT_ERR_PASSIVE:             //error passive event
-        case CAN_EVENT_ERR_BUS_OFF:             //error Bus Off event
-        case CAN_EVENT_BUS_RECOVERY:            //Bus recovery error event
-        case CAN_EVENT_MAILBOX_MESSAGE_LOST:    //overwrite/overrun error event
-        case CAN_EVENT_ERR_BUS_LOCK:            // Bus lock detected (32 consecutive dominant bits).
-        case CAN_EVENT_ERR_CHANNEL:             // Channel error has occurred.
-        case CAN_EVENT_TX_ABORTED:              // Transmit abort event.
-        case CAN_EVENT_ERR_GLOBAL:              // Global error has occurred.
-        case CAN_EVENT_TX_FIFO_EMPTY:           // Transmit FIFO is empty.
-        {
-          this_ptr->setError(p_args->event);
-        }
-        break;
+      CAN.rx_complete = true;
     }
+    break;
+    case CAN_EVENT_ERR_WARNING:          /* error warning event */
+    case CAN_EVENT_ERR_PASSIVE:          /* error passive event */
+    case CAN_EVENT_ERR_BUS_OFF:          /* error bus off event */
+    case CAN_EVENT_BUS_RECOVERY:         /* Bus recovery error event */
+    case CAN_EVENT_MAILBOX_MESSAGE_LOST: /* overwrite/overrun error event */
+    case CAN_EVENT_ERR_BUS_LOCK:         /* Bus lock detected (32 consecutive dominant bits). */
+    case CAN_EVENT_ERR_CHANNEL:          /* Channel error has occurred. */
+    case CAN_EVENT_TX_ABORTED:           /* Transmit abort event. */
+    case CAN_EVENT_ERR_GLOBAL:           /* Global error has occurred. */
+    case CAN_EVENT_TX_FIFO_EMPTY:        /* Transmit FIFO is empty. */
+    {
+      this_ptr->setError(p_args->event);
+    }
+    break;
+  }
 }
 
 /**************************************************************************************
