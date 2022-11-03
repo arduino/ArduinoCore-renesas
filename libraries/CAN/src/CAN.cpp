@@ -105,12 +105,6 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
   { .mailbox_id = 30, .id_mode = CAN_ID_MODE_EXTENDED, .frame_type = CAN_FRAME_TYPE_DATA, .mailbox_type = CAN_MAILBOX_RECEIVE },
   { .mailbox_id = 31, .id_mode = CAN_ID_MODE_EXTENDED, .frame_type = CAN_FRAME_TYPE_DATA, .mailbox_type = CAN_MAILBOX_RECEIVE }
 }
-, _can_fifo_int_cfg
-{
-  .fifo_int_mode = static_cast<e_can_fifo_interrupt_mode>(CAN_FIFO_INTERRUPT_MODE_RX_EVERY_FRAME | CAN_FIFO_INTERRUPT_MODE_TX_EVERY_FRAME),
-  .tx_fifo_irq   = FSP_INVALID_VECTOR,
-  .rx_fifo_irq   = FSP_INVALID_VECTOR,
-}
 , _can_rx_fifo_cfg
 {
   .rx_fifo_mask1 = 0x1FFFFFFF,
@@ -138,7 +132,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
   .global_id_mode = CAN_GLOBAL_ID_MODE_EXTENDED,
   .mailbox_count  = CAN_MAX_NO_MAILBOXES,
   .message_mode   = CAN_MESSAGE_MODE_OVERWRITE,
-  .p_fifo_int_cfg = &_can_fifo_int_cfg,
+  .p_fifo_int_cfg = nullptr,
   .p_rx_fifo_cfg  = &_can_rx_fifo_cfg,
 }
 , _can_cfg
