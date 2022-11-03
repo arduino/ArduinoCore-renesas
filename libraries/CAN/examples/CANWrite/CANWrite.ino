@@ -2,7 +2,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include <CAN.h>
+#include <CAN.hpp>
 
 /**************************************************************************************
  * CONSTANTS
@@ -16,18 +16,24 @@ static uint32_t const CAN_ID = 0x20;
 
 void setup()
 {
-  Serial.begin(115200);
-  while (!Serial) { }
+  //Serial.begin(115200);
+  //while (!Serial) { }
 
-  Serial.println("Start CAN Write test over CAN");
+  //Serial.println("Start CAN Write test over CAN");
 
-  Serial.print("Opening CAN...");
-  if (!CAN.begin(CanMtuSize::Classic))
+  //Serial.print("Opening CAN...");
+  if (!CAN.begin())
   {
-    Serial.println(" failed :(");
+    //Serial.println(" failed :(");
     for (;;) {}
   }
-  Serial.println(" OK :)");
+
+  if (CAN.enableInternalLoopback() < 0)
+  {
+    for(;;) { }
+  }
+
+  //Serial.println(" OK :)");
 }
 
 void loop()
@@ -37,7 +43,7 @@ void loop()
 
   if (!CAN.write(msg))
   {
-    Serial.println("Message write failed :(");
+    //Serial.println("Message write failed :(");
     for (;;) {}
   }
 

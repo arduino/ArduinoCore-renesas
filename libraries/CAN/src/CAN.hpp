@@ -49,43 +49,42 @@ using CAN_mode_transition_f = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_o
  * CLASS DECLARATION
  **************************************************************************************/
 
+template <CanMtuSize CAN_MTU_SIZE>
 class ArduinoCAN
 {
 public:
   ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
 
 
-  bool begin(CanMtuSize const can_mtu_size);
+  bool begin();
   void end();
 
 
   int enableInternalLoopback();
   int disableInternalLoopback();
 
-
-  int write(CanMsgBase<CanMtuSize::Classic> const & msg);
+  int write(CanMsg const & msg);
   bool available();
-  CanMsgBase<CanMtuSize::Classic> read();
+  CanMsg read();
 
 
   inline bool isError(int & err_code) const { err_code = _err_code; return _is_error; }
   inline void clearError() { _is_error = false; _err_code = 0; }
 
-  /* These functions are used by the library and should NOT be called by the user. */
-  inline void setError(int const err_code) { _err_code = err_code; _is_error = true; }
-  inline void onCanFrameReceived(CanMsgBase<CanMtuSize::Classic> const & msg) { _can_rx_buf.enqueue(msg); }
+  /* This function is used by the library and should NOT be called by the user. */
+  void onCanCallback(can_callback_args_t * p_args);
 
+
+private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
   static size_t constexpr CAN_RECEIVE_RINGBUFFER_SIZE = 32U;
 
-private:
   int const _can_tx_pin;
   int const _can_rx_pin;
   int const _can_stby_pin;
   bool _is_error;
   int _err_code;
-  CanMtuSize _can_mtu_size;
-  CanMsgRingbuffer<CanMtuSize::Classic, CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
+  CanMsgRingbuffer<CanMsg, CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
 
   CAN_open_f _open;
   CAN_close_f _close;
@@ -116,15 +115,29 @@ private:
 } /* arduino */
 
 /**************************************************************************************
+ * TEMPLATE IMPLEMENTATION
+ **************************************************************************************/
+
+#include "CAN.ipp"
+
+/**************************************************************************************
  * EXTERN DECLARATION
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-extern arduino::ArduinoCAN CAN;
+# if IS_CAN_FD
+extern arduino::ArduinoCAN<CanMtuSize::FD>      CAN;
+# else
+extern arduino::ArduinoCAN<CanMtuSize::Classic> CAN;
+# endif
 #endif
 
 #if CAN_HOWMANY > 1
-extern arduino::ArduinoCAN CAN1;
+# if IS_CAN_FD
+extern arduino::ArduinoCAN<CanMtuSize::FD>      CAN1;
+# else
+extern arduino::ArduinoCAN<CanMtuSize::Classic> CAN1;
+# endif
 #endif
 
 #endif /* ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_ */

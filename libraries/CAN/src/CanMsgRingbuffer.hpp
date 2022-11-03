@@ -30,7 +30,7 @@ namespace arduino
  * CLASS DECLARATION
  **************************************************************************************/
 
-template <CanMtuSize CAN_MTU_SIZE, size_t const RING_BUFFER_SIZE>
+template <typename T, size_t const RING_BUFFER_SIZE>
 class CanMsgRingbuffer
 {
 public:
@@ -38,14 +38,14 @@ public:
   CanMsgRingbuffer();
 
   inline bool isFull() const { return (_num_elems == RING_BUFFER_SIZE); }
-  void enqueue(CanMsgBase<CAN_MTU_SIZE> const & msg);
+  void enqueue(T const & msg);
 
   inline bool isEmpty() const { return (_num_elems == 0); }
-  CanMsgBase<CAN_MTU_SIZE> dequeue();
+  T dequeue();
 
 
 private:
-  CanMsgBase<CAN_MTU_SIZE> _buf[RING_BUFFER_SIZE];
+  T _buf[RING_BUFFER_SIZE];
   volatile size_t _head;
   volatile size_t _tail;
   volatile size_t _num_elems;
