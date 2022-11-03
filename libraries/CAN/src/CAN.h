@@ -25,6 +25,7 @@
 #endif
 
 #include "CanMsgBase.h"
+#include "CanMsgRingbuffer.hpp"
 
 /**************************************************************************************
  * NAMESPACE
@@ -62,17 +63,20 @@ public:
   int disableInternalLoopback();
 
 
-  int write(CanMsg const & msg);
-  uint8_t read(CanMsg & msg);
+  int write(CanMsgBase<CanMtuSize::Classic> const & msg);
+  bool available();
+  CanMsgBase<CanMtuSize::Classic> read();
 
-  bool rx_complete;
 
   inline bool isError(int & err_code) const { err_code = _err_code; return _is_error; }
   inline void clearError() { _is_error = false; _err_code = 0; }
-  /* This function is used by the library and should NOT be called by the user. */
+
+  /* These functions are used by the library and should NOT be called by the user. */
   inline void setError(int const err_code) { _err_code = err_code; _is_error = true; }
+  inline void onCanFrameReceived(CanMsgBase<CanMtuSize::Classic> const & msg) { _can_rx_buf.enqueue(msg); }
 
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
+  static size_t constexpr CAN_RECEIVE_RINGBUFFER_SIZE = 32U;
 
 private:
   int const _can_tx_pin;
@@ -81,6 +85,7 @@ private:
   bool _is_error;
   int _err_code;
   CanMtuSize _can_mtu_size;
+  CanMsgRingbuffer<CanMtuSize::Classic, CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
 
   CAN_open_f _open;
   CAN_close_f _close;
@@ -100,9 +105,6 @@ private:
   can_rx_fifo_cfg_t _can_rx_fifo_cfg;
   can_extended_cfg_t _can_extended_cfg;
   can_cfg_t _can_cfg;
-
-  uint32_t _time_out;
-  can_info_t _rx_info;
 
   static bool cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
 };

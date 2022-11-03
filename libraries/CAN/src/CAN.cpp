@@ -33,7 +33,7 @@ extern const size_t g_pin_cfg_size;
  * PROTOTYPE DEFINITIONS
  **************************************************************************************/
 
-extern "C" void can_callback(can_callback_args_t *p_args);
+extern "C" void can_callback(can_callback_args_t * p_args);
 
 /**************************************************************************************
  * CTOR/DTOR
@@ -46,13 +46,13 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can
 , _is_error{false}
 , _err_code{0}
 , _can_mtu_size{CanMtuSize::Classic}
+, _can_rx_buf{}
 , _open{nullptr}
 , _close{nullptr}
 , _write{nullptr}
 , _read{nullptr}
 , _info_get{nullptr}
 , _mode_transition{nullptr}
-, rx_complete{false}
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
@@ -148,23 +148,6 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can
   .error_irq      = FSP_INVALID_VECTOR,
   .rx_irq         = FSP_INVALID_VECTOR,
   .tx_irq         = FSP_INVALID_VECTOR,
-}
-, _time_out{500}
-, _rx_info
-{
-  []()
-  {
-    can_info_t rx_info_init;
-
-    rx_info_init.error_code = 0;
-    rx_info_init.error_count_receive = 0;
-    rx_info_init.error_count_transmit = 0;
-    rx_info_init.rx_fifo_status = 0;
-    rx_info_init.rx_mb_status = 0;
-    rx_info_init.status = 0;
-
-    return rx_info_init;
-  } ()
 }
 {
 
@@ -278,7 +261,7 @@ int ArduinoCAN::disableInternalLoopback()
   return 1;
 }
 
-int ArduinoCAN::write(CanMsg const & msg)
+int ArduinoCAN::write(CanMsgBase<CanMtuSize::Classic> const & msg)
 {
   can_frame_t can_msg = {
     /* id               = */ msg.id,
@@ -296,31 +279,14 @@ int ArduinoCAN::write(CanMsg const & msg)
   return 1;
 }
 
-uint8_t ArduinoCAN::read(CanMsg & msg)
+bool ArduinoCAN::available()
 {
-  uint32_t rx_status = 0;
-  while(!rx_status && (_time_out--)) {
-    // Get the status information for CAN transmission
-    if (_info_get(&_can_ctrl, &_rx_info) != FSP_SUCCESS) {
-    _time_out = 500;
-      return 0;
-    }
-    rx_status = _rx_info.rx_mb_status;
-  }
-  _time_out = 500;
+  return !_can_rx_buf.isEmpty();
+}
 
-  if (rx_status) {
-    /* Read the input frame received */
-    can_frame_t can_msg;
-    if (_read(&_can_ctrl, 0, &can_msg) != FSP_SUCCESS) {
-      return 0;
-    }
-    msg.id = can_msg.id;
-    msg.data_length = can_msg.data_length_code;
-    memcpy((uint8_t*)&msg.data[0], (uint8_t*)&can_msg.data[0], can_msg.data_length_code);
-    return 1;
-  }
-  return 0;
+CanMsgBase<CanMtuSize::Classic> ArduinoCAN::read()
+{
+  return _can_rx_buf.dequeue();
 }
 
 /**************************************************************************************
@@ -373,7 +339,15 @@ extern "C" void can_callback(can_callback_args_t * p_args)
     case CAN_EVENT_TX_COMPLETE: break;
     case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
     {
-      CAN.rx_complete = true;
+      /* Extract the received CAN message. */
+      CanMsgBase<CanMtuSize::Classic> msg
+      (
+        p_args->frame.id,
+        p_args->frame.data_length_code,
+        p_args->frame.data
+      );
+      /* Store the received CAN message in the receive buffer. */
+      this_ptr->onCanFrameReceived(msg);
     }
     break;
     case CAN_EVENT_ERR_WARNING:          /* error warning event */
