@@ -66,13 +66,19 @@ public:
   uint8_t read(CanMsg & msg);
 
   bool rx_complete;
-  bool err_status;
+
+  inline bool isError(int & err_code) const { err_code = _err_code; return _is_error; }
+  inline void clearError() { _is_error = false; _err_code = 0; }
+  /* This function is used by the library and should NOT be called by the user. */
+  inline void setError(int const err_code) { _err_code = err_code; _is_error = true; }
 
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
 
 private:
   int const _can_tx_pin;
   int const _can_rx_pin;
+  bool _is_error;
+  int _err_code;
   CanMtuSize _can_mtu_size;
 
   CAN_open_f _open;

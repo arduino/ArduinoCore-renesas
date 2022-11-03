@@ -42,6 +42,8 @@ extern "C" void can_callback(can_callback_args_t *p_args);
 ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
+, _is_error{false}
+, _err_code{0}
 , _can_mtu_size{CanMtuSize::Classic}
 , _open{nullptr}
 , _close{nullptr}
@@ -50,7 +52,6 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 , _info_get{nullptr}
 , _mode_transition{nullptr}
 , rx_complete{false}
-, err_status{false}
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
@@ -140,7 +141,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
   .channel        = 0,
   .p_bit_timing   = &_can_bit_timing_cfg,
   .p_callback     = can_callback,
-  .p_context      = nullptr,
+  .p_context      = this,
   .p_extend       = &_can_extended_cfg,
   .ipl            = (12),
   .error_irq      = FSP_INVALID_VECTOR,
@@ -356,8 +357,10 @@ bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const c
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
 
-extern "C" void can_callback(can_callback_args_t *p_args)
+extern "C" void can_callback(can_callback_args_t * p_args)
 {
+  ArduinoCAN * this_ptr = (ArduinoCAN *)(p_args->p_context);
+
     switch (p_args->event)
     {
         case CAN_EVENT_TX_COMPLETE: break;
@@ -377,9 +380,9 @@ extern "C" void can_callback(can_callback_args_t *p_args)
         case CAN_EVENT_ERR_GLOBAL:              // Global error has occurred.
         case CAN_EVENT_TX_FIFO_EMPTY:           // Transmit FIFO is empty.
         {
-            CAN.err_status = true;          //set flag bit
-            break;
+          this_ptr->setError(p_args->event);
         }
+        break;
     }
 }
 
