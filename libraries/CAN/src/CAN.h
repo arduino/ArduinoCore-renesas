@@ -65,11 +65,10 @@ public:
   int write(CanMsg const & msg);
   uint8_t read(CanMsg & msg);
 
-  bool tx_complete;
   bool rx_complete;
   bool err_status;
 
- static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
+  static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
 
 private:
   int const _can_tx_pin;

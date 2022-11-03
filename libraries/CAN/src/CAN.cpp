@@ -49,7 +49,6 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
 , _read{nullptr}
 , _info_get{nullptr}
 , _mode_transition{nullptr}
-, tx_complete{false}
 , rx_complete{false}
 , err_status{false}
 , _can_bit_timing_cfg
@@ -367,11 +366,7 @@ extern "C" void can_callback(can_callback_args_t *p_args)
 {
     switch (p_args->event)
     {
-        case CAN_EVENT_TX_COMPLETE:
-        {
-            CAN.tx_complete = true;        //set flag bit
-            break;
-        }
+        case CAN_EVENT_TX_COMPLETE: break;
         case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
         {
             CAN.rx_complete = true;
