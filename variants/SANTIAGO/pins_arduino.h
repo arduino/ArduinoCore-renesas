@@ -142,6 +142,7 @@ static const uint8_t CS  =  PIN_SPI_CS;
 
 #define PIN_CAN0_TX       (4)
 #define PIN_CAN0_RX       (5)
+#define PIN_CAN0_STBY    (-1)
 
 
 #define EXT_INTERRUPTS_HOWMANY 2

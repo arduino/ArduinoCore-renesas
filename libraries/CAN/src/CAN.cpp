@@ -39,9 +39,10 @@ extern "C" void can_callback(can_callback_args_t *p_args);
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin)
+ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
+, _can_stby_pin{can_stby_pin}
 , _is_error{false}
 , _err_code{0}
 , _can_mtu_size{CanMtuSize::Classic}
@@ -229,8 +230,14 @@ bool ArduinoCAN::begin(CanMtuSize const can_mtu_size)
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CAN, &irq_req);
 
-//  pinMode(CAN_STDBY, OUTPUT);
-//  digitalWrite(CAN_STDBY, LOW);
+  /* Enable the CAN transceiver, if it should be needing
+   * software enablement via a STBY pin.
+   */
+  if (_can_stby_pin >= 0)
+  {
+    pinMode(_can_stby_pin, OUTPUT);
+    digitalWrite(_can_stby_pin, LOW);
+  }
 
   if (_open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     init_ok = false;
@@ -391,9 +398,9 @@ extern "C" void can_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
+ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
 #endif
 
 #if CAN_HOWMANY > 1
-ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
+ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
 #endif

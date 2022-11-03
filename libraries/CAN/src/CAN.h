@@ -51,7 +51,7 @@ using CAN_mode_transition_f = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_o
 class ArduinoCAN
 {
 public:
-  ArduinoCAN(int const can_tx_pin, int const can_rx_pin);
+  ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
 
 
   bool begin(CanMtuSize const can_mtu_size);
@@ -77,6 +77,7 @@ public:
 private:
   int const _can_tx_pin;
   int const _can_rx_pin;
+  int const _can_stby_pin;
   bool _is_error;
   int _err_code;
   CanMtuSize _can_mtu_size;
