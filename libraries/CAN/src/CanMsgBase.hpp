@@ -8,8 +8,8 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef ARDUINO_CORE_RENESAS_CAN_MSG_BASE_H_
-#define ARDUINO_CORE_RENESAS_CAN_MSG_BASE_H_
+#ifndef ARDUINO_CORE_RENESAS_CAN_MSG_BASE_HPP_
+#define ARDUINO_CORE_RENESAS_CAN_MSG_BASE_HPP_
 
 /**************************************************************************************
  * INCLUDE
@@ -56,11 +56,4 @@ public:
   uint8_t  data[MAX_DATA_LENGTH];
 };
 
-/**************************************************************************************
- * TYPEDEF
- **************************************************************************************/
-
-typedef CanMsgBase<CanMtuSize::Classic> CanMsg;
-typedef CanMsgBase<CanMtuSize::FD> CanFdMsg;
-
-#endif /* ARDUINO_CORE_RENESAS_CAN_MSG_BASE_H_ */
+#endif /* ARDUINO_CORE_RENESAS_CAN_MSG_BASE_HPP_ */

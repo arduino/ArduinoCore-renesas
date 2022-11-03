@@ -17,7 +17,7 @@
 
 #include <cstdint>
 
-#include "CanMsgBase.h"
+#include "CanMsgBase.hpp"
 
 /**************************************************************************************
  * NAMESPACE

@@ -24,7 +24,7 @@
 # include "r_canfd.h"
 #endif
 
-#include "CanMsgBase.h"
+#include "CanMsgBase.hpp"
 #include "CanMsgRingbuffer.hpp"
 
 /**************************************************************************************
