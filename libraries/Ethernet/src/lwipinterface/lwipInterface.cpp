@@ -2,6 +2,7 @@
 
 //void(*p_callback)(timer_callback_args_t *)
 extern void attach_ethernet_task(void (*fnc)());
+extern void eth_execute_link_process();
 
 void sys_printf(const char *format, ...) {
   
@@ -51,6 +52,17 @@ void lwip_task() {
   }
   */
 
+  uint32_t *reg = (uint32_t *)0x40114010;
+
+  Serial.print("-------------------------->    ");
+  Serial.println(*reg);
+
+
+  eth_execute_link_process();
+
+  
+
+  //eth0if_frame_received();
 
   /* Handle LwIP timeouts */
   sys_check_timeouts();

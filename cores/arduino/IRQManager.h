@@ -154,9 +154,7 @@ void adc_scan_end_isr (void);
 void adc_scan_end_b_isr (void);
 void adc_window_compare_isr (void);
 void dmac_int_isr(void);
-inline void ether_eint_isr (void) {
-
-}
+void ether_eint_isr (void);
 #ifdef __cplusplus
 }
 #endif

@@ -49,6 +49,7 @@ void eth0if_set_mac_address(const uint8_t *mad);
 void eth0if_lwip_config(bool is_default);
 bool is_eth0if_initialized();
 netif *eth0if_get_ptr();
+void eth0if_frame_received();
 
 #ifdef __cplusplus
 }

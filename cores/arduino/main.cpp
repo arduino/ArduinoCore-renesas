@@ -5,7 +5,31 @@
 extern const uint32_t __StackTop;
 const uint32_t APPLICATION_VECTOR_TABLE_ADDRESS_RAM = (uint32_t)&__StackTop;
 
-void startAgt();
+#if ETHERNET_HOWMANY>0
+void (*ethernet_task)() = nullptr;
+
+void attach_ethernet_task(void (*fnc)()) {
+   ethernet_task = fnc;
+}
+
+/* updated by AGT MAIN timer every 10ms */
+int periodic_task_time = 0;
+
+bool state = 0;
+
+void main_periodic_task() {
+   if(ethernet_task != nullptr) {
+      /* called every 100 ms */
+      if(periodic_task_time >= 500) {
+         periodic_task_time = 0;
+         digitalWrite(15, state);
+         state != state;
+         ethernet_task();
+      }
+   }
+}
+#endif
+
 
 void _init() {
    R_BSP_PinAccessEnable();
@@ -99,6 +123,9 @@ void arduino_main(void)
    setup();
    while (1)
    {
+      #if ETHERNET_HOWMANY
+      main_periodic_task();
+      #endif
       loop();
    }
 }

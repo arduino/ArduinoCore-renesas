@@ -19,8 +19,9 @@ int  eth_get_mac_address(uint8_t *mad);
 
 bool eth_init();
 void eth_execute_link_process();
-bool eth_input(uint8_t *ptr, uint32_t *dim);
+uint8_t *eth_input(uint32_t *dim);
 bool eth_output(uint8_t *buf, uint16_t dim);
+void eth_release_rx_buffer();
 
 void eth_set_rx_frame_cbk(EtherCallback_f fn);
 void eth_set_tx_frame_cbk(EtherCallback_f fn);

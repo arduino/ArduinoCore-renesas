@@ -15,6 +15,7 @@ typedef enum {
 } EthLinkStatus_t;
 
 
+
 #define ETHERNET_DEBUG_ENABLED 1
 
 class EthernetDriver {
@@ -30,7 +31,8 @@ public:
     
     /* ETHERNET */
     ether_cfg_t                 cfg;
-    ether_instance_ctrl_t       ctrl; 
+    ether_instance_ctrl_t       ctrl;
+    ether_extended_cfg_t        extended_cfg; 
 
     ether_cfg_t *get_cfg() {return &cfg;}
     ether_instance_ctrl_t *get_ctrl() {return &ctrl;}
@@ -44,13 +46,13 @@ private:
     uint8_t *buffs[1];
     #endif
 
-    __attribute__((__aligned__(32)))uint8_t buffer0[ETH_BUFF_DIM];
+    __attribute__((__aligned__(32)))uint8_t buffer0[ETH_BUFF_DIM] ;
     #ifndef USE_ZERO_COPY
-    __attribute__((__aligned__(32)))uint8_t buffer1[ETH_BUFF_DIM];
+    __attribute__((__aligned__(32)))uint8_t buffer1[ETH_BUFF_DIM] ;
     #endif
 
-    //__attribute__((__aligned__(16))) ether_instance_descriptor_t tx_descriptors[1];
-    //__attribute__((__aligned__(16))) ether_instance_descriptor_t rx_descriptors[1];
+    __attribute__((__aligned__(16))) ether_instance_descriptor_t tx_descriptors[1] ;
+    __attribute__((__aligned__(16))) ether_instance_descriptor_t rx_descriptors[1] ;
 
 };
 
@@ -68,6 +70,8 @@ private:
 /* -------------------------------------------------------------------------- */
 EthernetDriver::EthernetDriver() {
 /* -------------------------------------------------------------------------- */    
+    
+
     /* default MAC ADDRESS */
     mac_address[0] = 0xAA;
     mac_address[1] = 0xBB;
@@ -81,6 +85,7 @@ EthernetDriver::EthernetDriver() {
     phy_cfg.phy_lsi_address             = 0;
     phy_cfg.phy_reset_wait_time         = 0x00020000;
     phy_cfg.mii_bit_access_wait_time    = 8;
+    phy_cfg.phy_lsi_type                = ETHER_PHY_LSI_TYPE_DEFAULT;
     phy_cfg.flow_control                = ETHER_PHY_FLOW_CONTROL_DISABLE;
     phy_cfg.mii_type                    = ETHER_PHY_MII_TYPE_RMII;
     phy_cfg.p_context                   = nullptr;
@@ -90,11 +95,15 @@ EthernetDriver::EthernetDriver() {
     phy_instance.p_ctrl                 = &phy_ctrl;
     phy_instance.p_api                  = &g_ether_phy_on_ether_phy;
     /* ethernet _____________________________________________________________ */
+    extended_cfg.p_rx_descriptors       = rx_descriptors;
+    extended_cfg.p_tx_descriptors       = tx_descriptors;
+
+
     buffs[0]                            = buffer0;
     #ifndef USE_ZERO_COPY
     buffs[1]                            = buffer1;
     #endif
-    cfg.channel                         = 0; 
+    cfg.channel                         = ETHERNET_CHANNEL; 
     #ifndef USE_ZERO_COPY
     cfg.zerocopy                        = ETHER_ZEROCOPY_DISABLE;
     #else
@@ -118,8 +127,9 @@ EthernetDriver::EthernetDriver() {
     cfg.p_callback                      = irq_callback;
     cfg.p_ether_phy_instance            = &phy_instance; 
     cfg.p_context                       = nullptr; 
-    cfg.p_extend                        = nullptr;
+    cfg.p_extend                        = &extended_cfg;
     /* PIN configuration ____________________________________________________ */
+    #ifdef H33_PIN
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_11, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_14, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_03_PIN_00, ETHERNET_PIN_CFG);
@@ -131,7 +141,19 @@ EthernetDriver::EthernetDriver() {
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_03, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
-
+    #else
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_06, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_01, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_02, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_06, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_00, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_05, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_03, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_02, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_05, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_01, ETHERNET_PIN_CFG);
+    #endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -154,9 +176,12 @@ EtherCallback_f link_off = nullptr;
 EtherCallback_f lan_wake_up = nullptr;
 
 
+extern void lwip_task();
 /* -------------------------------------------------------------------------- */
 void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
 /* -------------------------------------------------------------------------- */
+    Serial.print("! ETH IRQ ");
+
     /*
     uint32_t      channel;             ///< Device channel number
     ether_event_t event;               ///< Event code
@@ -169,23 +194,26 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
     ETHER_EVENT_LINK_ON,               ///< Link up detection event
     ETHER_EVENT_LINK_OFF,              ///< Link down detection event
     ETHER_EVENT_INTERRUPT */
-
+    //lwip_task();
     p_args->status_ecsr;
     p_args->status_eesr;
     if(p_args->channel == ETHERNET_CHANNEL) {
         if(p_args->event == ETHER_EVENT_WAKEON_LAN) {
+            Serial.println("-> WON ");
             /* WAKE ON */
             if(lan_wake_up != nullptr) {
                 lan_wake_up();
             }
         }
         else if(p_args->event == ETHER_EVENT_LINK_ON) {
+            Serial.println("-> LON ");
             /* LINK ON */
             if(link_on != nullptr) {
                 link_on();
             }
         }
         else if(p_args->event == ETHER_EVENT_LINK_OFF) {
+            Serial.println("-> LOF ");
             /* LINK OFF */
             if(link_off != nullptr) {
                 link_off();
@@ -193,23 +221,29 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
         }
         else if(p_args->event == ETHER_EVENT_INTERRUPT) {
             if (ETHER_MAGIC_PACKET_DETECTED_MASK == (p_args->status_ecsr & ETHER_MAGIC_PACKET_DETECTED_MASK)) {
+                Serial.println("-> MAGIC ");
                 /* MAGIC PACKET DETECTED */
                 if(magic_packet_received != nullptr) {
                     magic_packet_received();
                 }
             }
             if (ETHER_FRAME_TRANSFER_COMPLETED == (p_args->status_eesr & ETHER_FRAME_TRANSFER_COMPLETED)) {
+                Serial.println("-> TX COMPLETED ");
                 /* FRAME TRANSMISSION COMPLETED */
                 if(frame_transmitted != nullptr) {
                     frame_transmitted();
                 }
             }
             if (ETHER_FRAME_RECEIVED_MASK == (p_args->status_eesr & ETHER_FRAME_RECEIVED_MASK)) {
+                Serial.println("-> RX COMPLETED ");
                 /* FRAME RECEIVED */
                 if(frame_received != nullptr) {
                     frame_received();
                 }
             } 
+        }
+        else {
+            Serial.println("-> NOT MANAGED ");
         }
     }
 }
@@ -248,6 +282,13 @@ bool eth_init() {
      * open
      * ---- */
     fsp_err_t err = R_ETHER_Open(eth_driver.get_ctrl(), eth_driver.get_cfg());
+    
+    /*
+    uint32_t *reg =  (uint32_t *)0x40114118;
+    *reg = 0x37;    
+    reg =  (uint32_t *)0x40114030;
+    *reg = 0x47FF099F;
+    */
     if(err == FSP_SUCCESS) {
         rv = true;
     }
@@ -266,11 +307,11 @@ bool eth_init() {
     /* ------------
      * link process
      * ------------ */
-    if(rv) {
-        do {
-            err = R_ETHER_LinkProcess(eth_driver.get_ctrl());
-        } while (FSP_SUCCESS != err);
-    }
+    //if(rv) {
+        //do {
+            //err = R_ETHER_LinkProcess(eth_driver.get_ctrl());
+        //} while (FSP_SUCCESS != err);
+    //}
 
     
     #ifdef IGMP_HARDWARE_LEVEL
@@ -294,12 +335,15 @@ bool eth_init() {
 }
 
 void eth_execute_link_process() {
-    fsp_err_t err;
-    do {
-        err = R_ETHER_LinkProcess(eth_driver.get_ctrl());
-    } while (FSP_SUCCESS != err);
+    //fsp_err_t err;
+    //do {
+    R_ETHER_LinkProcess(eth_driver.get_ctrl());
+    //} while (FSP_SUCCESS != err);
 }
 
+void eth_release_rx_buffer() {
+    R_ETHER_BufferRelease(eth_driver.get_ctrl());
+}
 
 
 
@@ -313,20 +357,24 @@ bool eth_output(uint8_t *buf, uint16_t dim) {
     }
 }
 
-bool eth_input(uint8_t *ptr, uint32_t *dim) {
+uint8_t *eth_input(uint32_t *dim) {
     /* NOTE: ZERO COPY IMPLEMENTATION 
        just the pointer and not the data are copied with the Read Function */
-    fsp_err_t err = R_ETHER_Read ( eth_driver.get_ctrl(), ptr, dim);
+    
+    uint8_t *ptr1 = nullptr;
+
+    fsp_err_t err = R_ETHER_Read ( eth_driver.get_ctrl(), &ptr1, dim);
     if(err == FSP_SUCCESS) {
-        return true;
+        return ptr1;
     }
     else {
-        return false;
+        return nullptr;
     }
 }
 
 
 void eth_set_rx_frame_cbk(EtherCallback_f fn) {
+    Serial.println("Set rx cbk");
     frame_received = fn;
 }
 

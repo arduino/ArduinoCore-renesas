@@ -27,8 +27,15 @@ FspTimer main_timer;
 
 static uint32_t _top_counter;
 
+#if ETHERNET_HOWMANY>0
+extern int periodic_task_time;
+#endif
+
 static void timer_micros_callback(timer_callback_args_t *p_args) {
 	agt_time_ms += 10; //10ms
+	#if ETHERNET_HOWMANY>0
+	periodic_task_time++;
+	#endif
 }
 
 void startAgt() {
