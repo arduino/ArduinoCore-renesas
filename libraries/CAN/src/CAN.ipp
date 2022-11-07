@@ -284,7 +284,7 @@ bool ArduinoCAN<CAN_MTU_SIZE>::available()
 }
 
 template <CanMtuSize CAN_MTU_SIZE>
-CanMsg ArduinoCAN<CAN_MTU_SIZE>::read()
+CanMsgBase<CAN_MTU_SIZE> ArduinoCAN<CAN_MTU_SIZE>::read()
 {
   return _can_rx_buf.dequeue();
 }

@@ -63,6 +63,8 @@ public:
   int enableInternalLoopback();
   int disableInternalLoopback();
 
+  typedef CanMsgBase<CAN_MTU_SIZE> CanMsg;
+
   int write(CanMsg const & msg);
   bool available();
   CanMsg read();
@@ -119,6 +121,16 @@ private:
  **************************************************************************************/
 
 #include "CAN.ipp"
+
+/**************************************************************************************
+ * TYPEDEF
+ **************************************************************************************/
+
+# if IS_CAN_FD
+typedef arduino::ArduinoCAN<CanMtuSize::FD>::CanMsg      CanMsg;
+# else
+typedef arduino::ArduinoCAN<CanMtuSize::Classic>::CanMsg CanMsg;
+# endif
 
 /**************************************************************************************
  * EXTERN DECLARATION
