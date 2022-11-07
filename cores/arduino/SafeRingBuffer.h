@@ -55,6 +55,7 @@ int SafeRingBufferN<N>::available() {
   synchronized {
     return RingBufferN<N>::available();
   }
+  return -1;
 }
 
 template <int N>

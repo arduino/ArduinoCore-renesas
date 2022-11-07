@@ -167,7 +167,6 @@ static bool addPinToCompare(ADC_Container *_adc, bool lower_or_outside_wnd, uint
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */
-  bool rv = false;
   int32_t index = getPinIndex(pin);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
@@ -178,7 +177,6 @@ bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */  
-  bool rv = false;
   int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
@@ -214,7 +212,6 @@ static bool addPinToGroup(ADC_Container *_adc, ScanGroup_t g, uint8_t ch, bsp_io
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
 /* -------------------------------------------------------------------------- */
-  bool rv = false;
   int32_t index = getPinIndex(pin);
   uint16_t cfg_adc = 0;
   ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
@@ -225,7 +222,6 @@ bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g /*= ADC_SCAN_GROUP
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToGroup(pin_size_t pinNumber, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
 /* -------------------------------------------------------------------------- */  
-  bool rv = false;
   int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
@@ -351,7 +347,7 @@ int getStoredAnalogValue(bsp_io_port_pin_t pin) {
 
 int getStoredAnalogValue(pin_size_t pinNumber) {
   int rv = -1;
-  pin_size_t index = digitalPinToAnalogPin(pinNumber);
+  int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   if(index >= 0) {
     const uint16_t *cfg = g_pin_cfg[index].list;
@@ -464,6 +460,7 @@ static bool attachIrqCompareB(ADC_Container *_adc, uint8_t ch, bool lower_or_out
   else {
     rv = false;
   }
+  return rv;
 }
 
 
@@ -532,7 +529,7 @@ int analogRead(bsp_io_port_pin_t pin) {
 /* LEGACY PIN NUMBER */
 int analogRead(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */  
-  pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
+  int32_t adc_idx = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(adc_idx, cfg_adc);
   pinPeripheral(digitalPinToBspPin(adc_idx), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
@@ -713,17 +710,16 @@ static PwmArray pwms{};
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
-  uint32_t pwmPeriod = 0;
-
 #ifdef DAC
   //Check if it is a valid DAC pin
-  if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
+  if (((int)((int)pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
     analogWriteDAC(pinNumber, value);
     return;
   }
 #endif //DAC
 
-  uint32_t pulse_width = pwmPeriod*value/pow(2,_writeResolution);
+  // TODO: refactor this in a saner way (without random/unrealistic limits)
+  // PWM pins may not be consecutive and, most importantly, have any index
 
   if(pinNumber < MAX_PWM_ARDUINO_PIN) {
     PwmOut *ptr = nullptr;

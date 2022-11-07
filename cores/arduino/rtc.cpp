@@ -55,7 +55,7 @@ static time_t (*_rtc_read)(void) = rtc_read;
 static void (*_rtc_write)(time_t t) = rtc_write;
 
 
-int settimeofday(const struct timeval *tv,  const struct timezone *tz)
+int settimeofday(const struct timeval *tv,  const struct timezone __attribute__((unused)) *tz)
 {
     if (_rtc_init != NULL) {
         _rtc_init();
@@ -66,7 +66,7 @@ int settimeofday(const struct timeval *tv,  const struct timezone *tz)
     return 0;
 }
 
-int gettimeofday(struct timeval *tv, void *tz)
+int gettimeofday(struct timeval *tv, void __attribute__((unused)) *tz)
 {
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
@@ -138,6 +138,7 @@ bool setRtcTime(rtc_time_t time) {
   if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&rtc_ctrl, &time) ) {
     return true;
   }
+  return false;
 }
 
 bool isRtcRunning() {

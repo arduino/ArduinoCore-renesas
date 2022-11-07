@@ -275,12 +275,14 @@ void __USBStart() __attribute__((weak));
 #define BSP_PRV_PRCR_PRC1_UNLOCK ((BSP_PRV_PRCR_KEY) | 0x2U)
 #define BSP_PRV_PRCR_LOCK	 ((BSP_PRV_PRCR_KEY) | 0x0U)
 
+#if 0 //defined(AZURE_RTOS_THREADX)
 static void tud_task_forever(ULONG thread_input) {
     while (1) {
         tud_task();
         delay(100);
     }
 }
+#endif
 
 void _usbfs_interrupt_handler(void)
 {

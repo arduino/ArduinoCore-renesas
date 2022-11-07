@@ -153,7 +153,7 @@ void ArduinoSPI::begin()
     {
       .ctrl = &_spi_sci_ctrl,
       .cfg = &_spi_cfg,
-      .hw_channel = _channel,
+      .hw_channel = (uint8_t)_channel,
     };
     init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_SPI_MASTER, &irq_req);
   }
@@ -163,7 +163,7 @@ void ArduinoSPI::begin()
     {
       .ctrl = &_spi_ctrl,
       .cfg = &_spi_cfg,
-      .hw_channel = _channel,
+      .hw_channel = (uint8_t)_channel,
     };
     init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
   }
@@ -336,7 +336,6 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
 
   uint32_t spcmd0 = _spi_ctrl.p_regs->SPCMD[0];
-  uint32_t spbr = _spi_ctrl.p_regs->SPBR;
 
   /* Configure CPHA setting. */
   spcmd0 |= (uint32_t) clk_phase;

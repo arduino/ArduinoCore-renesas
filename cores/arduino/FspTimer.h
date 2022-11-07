@@ -86,6 +86,7 @@ class AGTimer {
 
 class FspTimer {
   private:
+    bool init_ok;
     AGTimer *agt_timer;
     GPTimer *gpt_timer;
     timer_cfg_t timer_cfg;
@@ -93,7 +94,6 @@ class FspTimer {
     uint32_t _duty_cycle_counts;
     timer_source_div_t _sd;
     uint8_t type;
-    bool init_ok;
     void set_period_counts(float period, uint32_t max);
     TimerIrqCfg_t get_cfg_for_irq();
     static bool force_pwm_reserved;

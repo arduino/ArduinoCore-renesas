@@ -23,11 +23,11 @@ void yield() {
 #endif
 }
 
-FspTimer main_timer;
+static FspTimer main_timer;
 
 static uint32_t _top_counter;
 
-static void timer_micros_callback(timer_callback_args_t *p_args) {
+static void timer_micros_callback(timer_callback_args_t __attribute((unused)) *p_args) {
 	agt_time_ms += 10; //10ms
 }
 
