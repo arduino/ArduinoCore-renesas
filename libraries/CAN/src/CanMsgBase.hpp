@@ -43,7 +43,7 @@ enum class CanMtuSize : size_t
  **************************************************************************************/
 
 template <CanMtuSize CAN_MTU_SIZE>
-class CanMsgBase
+class CanMsgBase : public Printable
 {
 public:
   static size_t constexpr MAX_DATA_LENGTH = static_cast<size_t>(CAN_MTU_SIZE);
@@ -57,6 +57,27 @@ public:
   }
 
   CanMsgBase() : CanMsgBase(0, 0, nullptr) { }
+
+  virtual ~CanMsgBase() { }
+
+  virtual size_t printTo(Print & p) const override
+  {
+    char buf[20];
+
+    /* Print the header. */
+    snprintf(buf, sizeof(buf), "[%08X] (%d) :", id, data_length);
+    size_t n = p.print(buf);
+
+    /* Print the data. */
+    for (size_t d = 0; d < data_length; d++)
+    {
+      snprintf(buf, sizeof(buf), "%02X", data[d]);
+      n += p.print(buf);
+    }
+
+    /* Wrap up. */
+    return n;
+  }
 
   uint32_t id;
   uint8_t  data_length;
