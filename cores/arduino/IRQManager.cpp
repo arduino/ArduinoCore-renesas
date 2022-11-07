@@ -1641,27 +1641,6 @@ void IRQManager::set_can_tx_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_can_rx_fifo_link_event(int li, int ch)
-{
-  if (0) {}
-#ifdef ELC_EVENT_CAN0_FIFO_RX
-  else if(ch == 0) {
-    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_RX);
-  }
-#endif
-}
-
-void IRQManager::set_can_tx_fifo_link_event(int li, int ch)
-{
-  if (0) {}
-#ifdef ELC_EVENT_CAN0_FIFO_TX
-  else if(ch == 0) {
-    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_FIFO_TX);
-  }
-#endif
-}
-
-
 bool IRQManager::set_dma_link_event(int li, int ch) {
     bool rv = false;
     if (0) {}
