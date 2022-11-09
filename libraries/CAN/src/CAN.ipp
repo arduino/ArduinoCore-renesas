@@ -243,7 +243,7 @@ void ArduinoCAN<CAN_MTU_SIZE>::end()
 template <CanMtuSize CAN_MTU_SIZE>
 int ArduinoCAN<CAN_MTU_SIZE>::enableInternalLoopback()
 {
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, func_operation_mode_normal<CAN_MTU_SIZE>(), CAN_TEST_MODE_LOOPBACK_INTERNAL); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, func_operation_mode_normal<CAN_MTU_SIZE>(), CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
