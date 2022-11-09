@@ -12,7 +12,10 @@ void pinMode(pin_size_t pin, const PinMode mode) {
 		case OUTPUT:
 			R_IOPORT_PinCfg(NULL, g_pin_cfg[pin].pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
 			break;
-	}
+		case OUTPUT_OPENDRAIN:
+			R_IOPORT_PinCfg(NULL, g_pin_cfg[pin].pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PMOS_ENABLE);
+			break;
+		}
 }
 
 void digitalWrite(pin_size_t pin, PinStatus val) {
