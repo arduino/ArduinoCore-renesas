@@ -107,25 +107,6 @@ ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can
   { .mailbox_id = 30, .id_mode = CAN_ID_MODE_EXTENDED, .frame_type = CAN_FRAME_TYPE_DATA, .mailbox_type = CAN_MAILBOX_RECEIVE },
   { .mailbox_id = 31, .id_mode = CAN_ID_MODE_EXTENDED, .frame_type = CAN_FRAME_TYPE_DATA, .mailbox_type = CAN_MAILBOX_RECEIVE }
 }
-, _can_rx_fifo_cfg
-{
-  .rx_fifo_mask1 = CAN_DEFAULT_MASK,
-  .rx_fifo_mask2 = CAN_DEFAULT_MASK,
-  .rx_fifo_id1 =
-  {
-      .mailbox_id              =  0,
-      .id_mode                 =  CAN_ID_MODE_EXTENDED,
-      .frame_type              =  CAN_FRAME_TYPE_DATA,
-      .mailbox_type            =  CAN_MAILBOX_RECEIVE
-  },
-  .rx_fifo_id2 =
-  {
-      .mailbox_id              =  1,
-      .id_mode                 =  CAN_ID_MODE_EXTENDED,
-      .frame_type              =  CAN_FRAME_TYPE_DATA,
-      .mailbox_type            =  CAN_MAILBOX_RECEIVE
-  }
-}
 , _can_extended_cfg
 {
   .clock_source   = CAN_CLOCK_SOURCE_CANMCLK,
@@ -135,7 +116,7 @@ ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can
   .mailbox_count  = CAN_MAX_NO_MAILBOXES,
   .message_mode   = CAN_MESSAGE_MODE_OVERWRITE,
   .p_fifo_int_cfg = nullptr,
-  .p_rx_fifo_cfg  = &_can_rx_fifo_cfg,
+  .p_rx_fifo_cfg  = nullptr,
 }
 , _can_cfg
 {

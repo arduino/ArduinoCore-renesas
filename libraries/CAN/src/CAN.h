@@ -117,7 +117,6 @@ private:
   can_bit_timing_cfg_t _can_bit_timing_cfg;
   uint32_t _can_mailbox_mask[CAN_MAX_NO_MAILBOXES / 4];
   can_mailbox_t _can_mailbox[CAN_MAX_NO_MAILBOXES];
-  can_rx_fifo_cfg_t _can_rx_fifo_cfg;
   can_extended_cfg_t _can_extended_cfg;
   can_cfg_t _can_cfg;
 
