@@ -184,7 +184,7 @@ ArduinoCAN<CAN_MTU_SIZE>::ArduinoCAN(int const can_tx_pin, int const can_rx_pin,
  **************************************************************************************/
 
 template <CanMtuSize CAN_MTU_SIZE>
-bool ArduinoCAN<CAN_MTU_SIZE>::begin()
+bool ArduinoCAN<CAN_MTU_SIZE>::begin(CanBitRate const /* can_bitrate */)
 {
   bool init_ok = true;
 

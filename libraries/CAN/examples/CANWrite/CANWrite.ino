@@ -19,7 +19,7 @@ void setup()
   Serial.begin(115200);
   while (!Serial) { }
 
-  if (!CAN.begin())
+  if (!CAN.begin(CanBitRate::BR_250k))
   {
     Serial.println("CAN.begin(...) failed.");
     for (;;) {}
