@@ -7,6 +7,9 @@
 
 #define MAX_ADC_CHANNELS   29
 
+
+static int _analogRequestedReadResolution = 12;
+
 static void ADC_irq_cbk(adc_callback_args_t * cb_data);
 static uint16_t analog_values_by_channels[MAX_ADC_CHANNELS] = {0};
 
@@ -341,6 +344,7 @@ int getStoredAnalogValue(bsp_io_port_pin_t pin) {
   }
   if(cfg_adc > 0 ) {
     rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+    rv = map(rv, 0, (1 << analogReadResolution()), 0, (1 << _analogRequestedReadResolution));
   }
   return rv;
 }
@@ -355,6 +359,7 @@ int getStoredAnalogValue(pin_size_t pinNumber) {
   }
   if(cfg_adc > 0 ) {
     rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+    rv = map(rv, 0, (1 << analogReadResolution()), 0, (1 << _analogRequestedReadResolution));
   }
   return rv;
 }
@@ -484,6 +489,9 @@ bool analogAttachIrqCompareB(bsp_io_port_pin_t pin, bool lower_or_outside_wnd, u
                       SINGLE CHANNEL CONVERSION
    -------------------------------------------------------------------------- */
 
+
+
+
 /* -------------------------------------------------------------------------- */
 static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
 /* -------------------------------------------------------------------------- */  
@@ -506,12 +514,16 @@ static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
 
     uint16_t result;
     R_ADC_Read(&(_adc->ctrl), (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
+    
+    result = map(result, 0, (1 << analogReadResolution()), 0, (1 << _analogRequestedReadResolution));
     return (int)result;
   }
   else {
     return -1;
   }
 }
+
+
 
 /* -------------------------------------------------------------------------- */
 /* FSP PIN NUMBER */
@@ -553,35 +565,61 @@ void analogReference(uint8_t mode) {
 }
 
 void analogReadResolution(int bits) {
-  R_ADC_Close(&adc.ctrl);
+  
 
-  adc_resolution_t read_resolution;
+  adc_resolution_t old_read_resolution = adc.cfg.resolution;
+  adc_resolution_t old1_read_resolution = adc1.cfg.resolution;
 
   switch (bits) {
     case 10:
-      read_resolution = ADC_RESOLUTION_10_BIT;
+      _analogRequestedReadResolution = 10; 
+      adc.cfg.resolution = ADC_RESOLUTION_10_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
       break;
     case 8:
-      read_resolution = ADC_RESOLUTION_8_BIT;
+      _analogRequestedReadResolution = 8; 
+      adc.cfg.resolution = ADC_RESOLUTION_8_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_8_BIT;
       break;
     case 14:
-      read_resolution = ADC_RESOLUTION_14_BIT;
+      _analogRequestedReadResolution = 14; 
+      adc.cfg.resolution = ADC_RESOLUTION_14_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_14_BIT;
       break;
     case 16:
-      read_resolution = ADC_RESOLUTION_16_BIT;
+      _analogRequestedReadResolution = 16; 
+      adc.cfg.resolution = ADC_RESOLUTION_16_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_16_BIT;
       break;
     case 24:
-      read_resolution = ADC_RESOLUTION_24_BIT;
+      _analogRequestedReadResolution = 24; 
+      adc.cfg.resolution = ADC_RESOLUTION_24_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_24_BIT;
       break;
     case 12:
     default:
-      read_resolution = ADC_RESOLUTION_12_BIT;
+      _analogRequestedReadResolution = 12; 
+      adc.cfg.resolution = ADC_RESOLUTION_12_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
       break;
   }
 
+
+
+
+  R_ADC_Close(&adc.ctrl);
   auto res = R_ADC_Open(&adc.ctrl, &adc.cfg);
-  if (res == FSP_SUCCESS) {
-    adc.cfg.resolution = read_resolution;
+  if (res != FSP_SUCCESS) {
+    adc.cfg.resolution = old_read_resolution;
+  }
+
+
+  
+
+  R_ADC_Close(&adc1.ctrl);
+  res = R_ADC_Open(&adc1.ctrl, &adc1.cfg);
+  if (res != FSP_SUCCESS) {
+    adc1.cfg.resolution = old1_read_resolution;
   }
   // oops, we selected an impossible resolution; don't change it in the structure to avoid misbehaviours
 }
