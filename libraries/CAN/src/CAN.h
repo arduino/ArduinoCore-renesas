@@ -64,11 +64,10 @@ using CAN_mode_transition_f = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_o
  * CLASS DECLARATION
  **************************************************************************************/
 
-template <CanMtuSize CAN_MTU_SIZE>
 class ArduinoCAN
 {
 public:
-  ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
+  ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
 
 
   bool begin(CanBitRate const can_bitrate);
@@ -95,6 +94,7 @@ private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
   static size_t constexpr CAN_RECEIVE_RINGBUFFER_SIZE = 32U;
 
+  bool const _is_can_fd;
   int const _can_tx_pin;
   int const _can_rx_pin;
   int const _can_stby_pin;
@@ -131,29 +131,15 @@ private:
 } /* arduino */
 
 /**************************************************************************************
- * TEMPLATE IMPLEMENTATION
- **************************************************************************************/
-
-#include "CAN.ipp"
-
-/**************************************************************************************
  * EXTERN DECLARATION
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-# if IS_CAN_FD
-extern arduino::ArduinoCAN<CanMtuSize::FD>      CAN;
-# else
-extern arduino::ArduinoCAN<CanMtuSize::Classic> CAN;
-# endif
+extern arduino::ArduinoCAN CAN;
 #endif
 
 #if CAN_HOWMANY > 1
-# if IS_CAN_FD
-extern arduino::ArduinoCAN<CanMtuSize::FD>      CAN1;
-# else
-extern arduino::ArduinoCAN<CanMtuSize::Classic> CAN1;
-# endif
+arduino::ArduinoCAN CAN1;
 #endif
 
 #endif /* ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_ */
