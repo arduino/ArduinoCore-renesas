@@ -874,7 +874,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
 #  endif
         can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
         can_extended_cfg_t * p_extended_cfg = (can_extended_cfg_t *)(p_cfg->p_extend);
-        can_fifo_interrupt_cfg_t * p_fifo_int_cfg = const_cast<can_fifo_interrupt_cfg_t *>(p_extended_cfg->p_fifo_int_cfg);
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
         /* Error interrupt */
