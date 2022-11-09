@@ -666,7 +666,6 @@ void analogWriteDAC(pin_size_t pinNumber, int value) {
 }
 #endif
 
-#define MAX_PWM_ARDUINO_PIN    25
 #define DEFAULT_PERIOD_MSEC    (2)
 #define DEFAULT_RAW_PERIOD_32  (0x17ea7) /* 490 Hz ~ 0.0020408125 seconds */
 #define DEFAULT_RAW_PERIOD_16  (0x5fa9)  /* 490 Hz ~ 0.00204075 seconds */
@@ -676,34 +675,29 @@ void analogWriteDAC(pin_size_t pinNumber, int value) {
 class PwmArray {
   public:
   PwmArray() {}
-  ~PwmArray() {
-    for(int i = 0; i < MAX_PWM_ARDUINO_PIN; i++) {
-      if(pwm_outs[i] != nullptr){
-        delete pwm_outs[i];
-        pwm_outs[i] = nullptr;
+  PwmOut *get(int pinNumber) {
+    size_t i = 0;
+    while (i < last_index) {
+      if (chans[i] == pinNumber) {
+        return pwm_outs[i];
       }
+      i++;
     }
+    return nullptr;
   }
-  PwmOut *get(int index) { 
-    if(index < MAX_PWM_ARDUINO_PIN) {
-      return pwm_outs[index]; 
-    }
-    else {
-      return nullptr;
-    }
-  }
-  bool set(int index, PwmOut *p) { 
-    if(index < MAX_PWM_ARDUINO_PIN) {
-      pwm_outs[index] = p;
+  bool set(int pinNumber, PwmOut *p) {
+    if (last_index < sizeof(chans)/sizeof(chans[0]) && p != nullptr) {
+      chans[last_index] = pinNumber;
+      pwm_outs[last_index] = p;
+      last_index++;
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
   }
   private:
-  PwmOut* pwm_outs[MAX_PWM_ARDUINO_PIN] = {nullptr};
-
+  size_t last_index = 0;
+  pin_size_t chans[(GPT_HOWMANY+AGT_HOWMANY)*2] = {0};
+  PwmOut* pwm_outs[(GPT_HOWMANY+AGT_HOWMANY)*2] = {nullptr};
 };
 
 static PwmArray pwms{};
@@ -718,34 +712,21 @@ void analogWrite(pin_size_t pinNumber, int value)
   }
 #endif //DAC
 
-  // TODO: refactor this in a saner way (without random/unrealistic limits)
-  // PWM pins may not be consecutive and, most importantly, have any index
+  PwmOut *ptr = pwms.get(pinNumber);
 
-  if(pinNumber < MAX_PWM_ARDUINO_PIN) {
-    PwmOut *ptr = nullptr;
-    /* varify if PwmOut has already been instantiated */
-    if(pwms.get(pinNumber) == nullptr) {
-      /* if not instatiate it */
-      ptr = new PwmOut(pinNumber);
-      if(!pwms.set(pinNumber,ptr)) {
-        delete ptr;
-        ptr = nullptr;
-      }
-      else {
-        if(!ptr->begin()) {
-          delete ptr;
-          ptr = nullptr;
-          pwms.set(pinNumber,nullptr);
-        }
-      }
+  /* verify if PwmOut has already been instantiated */
+  if (ptr == nullptr) {
+    /* if not instatiate it */
+    ptr = new PwmOut(pinNumber);
+    bool added = pwms.set(pinNumber, ptr);
+    if(!added || !ptr->begin()) {
+      delete ptr;
+      return;
     }
-    else {
-      ptr = pwms.get(pinNumber);
-    }
+  }
 
-    if(ptr != nullptr) {
-      ptr->pulse_perc( (float)value * 100.0 / (float)pow(2,_writeResolution)); 
-    }
+  if(ptr != nullptr) {
+    ptr->pulse_perc((float)value * 100.0 / (1 << _writeResolution));
   }
 }
 
