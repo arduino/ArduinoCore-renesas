@@ -48,7 +48,7 @@ public:
         digitalWrite(pin, LOW);
     }
 
-    static int timer_config(uint32_t period_us) {
+    static void timer_config(uint32_t period_us) {
         // Configure and enable the tone timer.
         uint8_t type = 0;
         if (channel == -1) {
@@ -67,7 +67,7 @@ FspTimer Tone::tone_timer;
 int Tone::channel = -1;
 static Tone* active_tone = NULL;
 
-void tone_timer_callback(timer_callback_args_t *args) {
+void tone_timer_callback(timer_callback_args_t __attribute__((unused)) *args) {
     active_tone->toggle();
 }
 
@@ -80,7 +80,7 @@ void tone(pin_size_t pin, unsigned int frequency, unsigned long duration) {
 	active_tone = t;
 };
 
-void noTone(pin_size_t pin) {
+void noTone(pin_size_t __attribute__((unused)) pin) {
 	if (active_tone) {
 		active_tone->stop();
 		delete active_tone;
