@@ -50,14 +50,14 @@ ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can
 }
 , _can_mailbox_mask
 {
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF,
-  0x1FFFFFFF
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK,
+  CAN_DEFAULT_MASK
 }
 , _can_mailbox
 {
@@ -96,8 +96,8 @@ ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can
 }
 , _can_rx_fifo_cfg
 {
-  .rx_fifo_mask1 = 0x1FFFFFFF,
-  .rx_fifo_mask2 = 0x1FFFFFFF,
+  .rx_fifo_mask1 = CAN_DEFAULT_MASK,
+  .rx_fifo_mask2 = CAN_DEFAULT_MASK,
   .rx_fifo_id1 =
   {
       .mailbox_id              =  0,
