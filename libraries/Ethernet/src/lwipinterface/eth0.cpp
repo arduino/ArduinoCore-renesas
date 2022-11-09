@@ -57,7 +57,7 @@ void eth0if_set_mac_address(const uint8_t *mad){
 
 static err_t eth0if_output(struct netif *netif, struct pbuf *p) {
   
-  Serial.println("eth0if_output");
+  Serial.println("frame_sent-start");
 
   err_t errval = ERR_OK;
   struct pbuf *q;
@@ -111,18 +111,15 @@ static err_t eth0if_output(struct netif *netif, struct pbuf *p) {
       break;
     }
   }
+  Serial.println("frame_sent-stop");
   return errval;
-}
-
-void pippo() {
-  Serial.println("???????????????????????????????????????????????????????");
 }
 
 
 /* -------------------------------------------------------------------------- */
 void eth0if_input(struct netif *netif) {
 /* -------------------------------------------------------------------------- */  
-  Serial.println("eth0if_input");
+  
 
   err_t err;
   struct pbuf *q;
@@ -131,14 +128,27 @@ void eth0if_input(struct netif *netif) {
    
   uint32_t rx_frame_dim = 0;
   uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
+  //Serial.print(rx_frame_dim);
+  //Serial.println(" frame_received-start ");
+  
+  
+
   /* zero copy mode is used */
   if(rx_frame_buf != nullptr) {
     if(rx_frame_dim > 0) {
-      Serial.print("FRAME ");
-      Serial.println(rx_frame_dim);
-      Serial.write(rx_frame_buf, rx_frame_dim);
-      p = pbuf_alloc(PBUF_RAW, (uint16_t)rx_frame_dim, PBUF_POOL);
-    
+      
+        uint16_t malloc_dim = rx_frame_dim;
+      while(malloc_dim % 32 != 0) {
+        malloc_dim++;
+      }
+
+
+      p = pbuf_alloc(PBUF_RAW, (uint16_t)malloc_dim, PBUF_POOL);
+      
+      if(p->len != malloc_dim) { Serial.println("CAZZAROLA!!!!!!!!! ");}
+
+
+
       if(p != NULL && rx_frame_buf != nullptr) {
         q = p;
         uint16_t bytes_actually_copied = 0;
@@ -154,30 +164,34 @@ void eth0if_input(struct netif *netif) {
         }
       }
       else {
+        //Serial.println("frame_received-stop1");
         /* no packet could be read, silently ignore this */
         return;
       }
       eth_release_rx_buffer();
 
-      Serial.println("<<<<<<<--- INPUT ");
+      
       err = netif->input(p, netif);
+
+      if (err != ERR_OK) {
+        LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+        pbuf_free(p);
+        p = NULL;
+      }
     }
   }
 
   /* entry point to the LwIP stack */
   
 
-  if (err != ERR_OK) {
-    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-    pbuf_free(p);
-    p = NULL;
-  }
+  
+  //Serial.println("frame_received-stop2");
 }
 
 /* -------------------------------------------------------------------------- */
 void eth0if_frame_received() {
 /* -------------------------------------------------------------------------- */  
-  Serial.println("eth0if_frame_received");
+  
   eth0if_input(&eth0if);
 }
 
@@ -208,10 +222,6 @@ static void eth0if_link_up() {
 /* -------------------------------------------------------------------------- */
 static void eth0if_link_down() {
 /* -------------------------------------------------------------------------- */  
-  Serial.println("----- LINK DOWN ");
-
-  //eth_execute_link_process();
-
   netif_set_link_down(&eth0if);
   /*  When the netif link is down this function must be called.*/
   netif_set_down(&eth0if);

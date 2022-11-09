@@ -52,17 +52,10 @@ void lwip_task() {
   }
   */
 
-  uint32_t *reg = (uint32_t *)0x40114010;
-
-  Serial.print("-------------------------->    ");
-  Serial.println(*reg);
-
 
   eth_execute_link_process();
 
   
-
-  //eth0if_frame_received();
 
   /* Handle LwIP timeouts */
   sys_check_timeouts();

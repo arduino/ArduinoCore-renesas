@@ -180,7 +180,7 @@ extern void lwip_task();
 /* -------------------------------------------------------------------------- */
 void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
 /* -------------------------------------------------------------------------- */
-    Serial.print("! ETH IRQ ");
+    
 
     /*
     uint32_t      channel;             ///< Device channel number
@@ -199,21 +199,21 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
     p_args->status_eesr;
     if(p_args->channel == ETHERNET_CHANNEL) {
         if(p_args->event == ETHER_EVENT_WAKEON_LAN) {
-            Serial.println("-> WON ");
+            
             /* WAKE ON */
             if(lan_wake_up != nullptr) {
                 lan_wake_up();
             }
         }
         else if(p_args->event == ETHER_EVENT_LINK_ON) {
-            Serial.println("-> LON ");
+            
             /* LINK ON */
             if(link_on != nullptr) {
                 link_on();
             }
         }
         else if(p_args->event == ETHER_EVENT_LINK_OFF) {
-            Serial.println("-> LOF ");
+            
             /* LINK OFF */
             if(link_off != nullptr) {
                 link_off();
@@ -221,21 +221,21 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
         }
         else if(p_args->event == ETHER_EVENT_INTERRUPT) {
             if (ETHER_MAGIC_PACKET_DETECTED_MASK == (p_args->status_ecsr & ETHER_MAGIC_PACKET_DETECTED_MASK)) {
-                Serial.println("-> MAGIC ");
+                
                 /* MAGIC PACKET DETECTED */
                 if(magic_packet_received != nullptr) {
                     magic_packet_received();
                 }
             }
             if (ETHER_FRAME_TRANSFER_COMPLETED == (p_args->status_eesr & ETHER_FRAME_TRANSFER_COMPLETED)) {
-                Serial.println("-> TX COMPLETED ");
+                
                 /* FRAME TRANSMISSION COMPLETED */
                 if(frame_transmitted != nullptr) {
                     frame_transmitted();
                 }
             }
             if (ETHER_FRAME_RECEIVED_MASK == (p_args->status_eesr & ETHER_FRAME_RECEIVED_MASK)) {
-                Serial.println("-> RX COMPLETED ");
+                
                 /* FRAME RECEIVED */
                 if(frame_received != nullptr) {
                     frame_received();
@@ -374,7 +374,7 @@ uint8_t *eth_input(uint32_t *dim) {
 
 
 void eth_set_rx_frame_cbk(EtherCallback_f fn) {
-    Serial.println("Set rx cbk");
+    
     frame_received = fn;
 }
 
