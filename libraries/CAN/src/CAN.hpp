@@ -24,7 +24,7 @@
 # include "r_canfd.h"
 #endif
 
-#include "CanMsgBase.hpp"
+#include "CanMsg.h"
 #include "CanMsgRingbuffer.hpp"
 
 /**************************************************************************************
@@ -39,6 +39,8 @@ enum class CanBitRate : int
   BR_500k  =  500000,
   BR_1000k = 1000000,
 };
+
+typedef arduino::CanMsg CanMsg;
 
 /**************************************************************************************
  * NAMESPACE
@@ -76,7 +78,6 @@ public:
   int enableInternalLoopback();
   int disableInternalLoopback();
 
-  typedef CanMsgBase<CAN_MTU_SIZE> CanMsg;
 
   int write(CanMsg const & msg);
   bool available();
@@ -99,7 +100,7 @@ private:
   int const _can_stby_pin;
   bool _is_error;
   int _err_code;
-  CanMsgRingbuffer<CanMsg, CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
+  CanMsgRingbuffer<CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
 
   CAN_open_f _open;
   CAN_close_f _close;
@@ -134,16 +135,6 @@ private:
  **************************************************************************************/
 
 #include "CAN.ipp"
-
-/**************************************************************************************
- * TYPEDEF
- **************************************************************************************/
-
-# if IS_CAN_FD
-typedef arduino::ArduinoCAN<CanMtuSize::FD>::CanMsg      CanMsg;
-# else
-typedef arduino::ArduinoCAN<CanMtuSize::Classic>::CanMsg CanMsg;
-# endif
 
 /**************************************************************************************
  * EXTERN DECLARATION

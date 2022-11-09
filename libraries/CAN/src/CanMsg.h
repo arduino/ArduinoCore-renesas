@@ -21,6 +21,8 @@
 
 #include <Arduino.h>
 
+#include "bsp_api.h"
+
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
@@ -42,13 +44,12 @@ enum class CanMtuSize : size_t
  * CLASS DECLARATION
  **************************************************************************************/
 
-template <CanMtuSize CAN_MTU_SIZE>
-class CanMsgBase : public Printable
+class CanMsg : public Printable
 {
 public:
-  static size_t constexpr MAX_DATA_LENGTH = static_cast<size_t>(CAN_MTU_SIZE);
+  static size_t constexpr MAX_DATA_LENGTH = CAN_DATA_BUFFER_LENGTH;
 
-  CanMsgBase(uint32_t const can_id, uint8_t const can_data_len, uint8_t const * can_data_ptr)
+  CanMsg(uint32_t const can_id, uint8_t const can_data_len, uint8_t const * can_data_ptr)
   : id{can_id}
   , data_length{can_data_len}
   , data{0}
@@ -56,9 +57,9 @@ public:
     memcpy(data, can_data_ptr, min(can_data_len, MAX_DATA_LENGTH));
   }
 
-  CanMsgBase() : CanMsgBase(0, 0, nullptr) { }
+  CanMsg() : CanMsg(0, 0, nullptr) { }
 
-  virtual ~CanMsgBase() { }
+  virtual ~CanMsg() { }
 
   virtual size_t printTo(Print & p) const override
   {
