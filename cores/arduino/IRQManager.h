@@ -4,7 +4,6 @@
 #include "analog.h"
 #include "bsp_api.h"
 #include "pins_arduino.h"
-#include "elc_defines.h"
 
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
