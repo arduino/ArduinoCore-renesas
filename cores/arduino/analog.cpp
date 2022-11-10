@@ -7,6 +7,9 @@
 
 #define MAX_ADC_CHANNELS   29
 
+static int _privateGetHwAnalogResolution();
+static int _analogRequestedReadResolution = 10;
+
 static void ADC_irq_cbk(adc_callback_args_t * cb_data);
 static uint16_t analog_values_by_channels[MAX_ADC_CHANNELS] = {0};
 
@@ -24,7 +27,22 @@ ADC_Container::ADC_Container(uint8_t unit, ADCCbk_f cbk, void *ctx /*= nullptr*/
 
   cfg.unit                        = unit;
   cfg.mode                        = ADC_MODE_SINGLE_SCAN;
+  /* 20221109 [maidnl] FIX Requested resolution: 
+    Resolution of ADC is fixed to the highest possible and
+    never changed, requested resolution is used to scale the values provided 
+    to user */
+  #if 12U == BSP_FEATURE_ADC_MAX_RESOLUTION_BITS
+  cfg.resolution                  = ADC_RESOLUTION_12_BIT;
+  #elif 14U == BSP_FEATURE_ADC_MAX_RESOLUTION_BITS
   cfg.resolution                  = ADC_RESOLUTION_14_BIT;
+  #elif 16U == BSP_FEATURE_ADC_MAX_RESOLUTION_BITS
+  cfg.resolution                  = ADC_RESOLUTION_16_BIT;
+  #else
+  #error BSP_FEATURE_ADC_MAX_RESOLUTION_BITS is set to an unandled version
+  /* should never happen... but in any case 12 is the resolution supported by
+     both ADC (R7FA4M1AB and R7FA6M5BH) */
+  cfg.resolution                  = ADC_RESOLUTION_12_BIT;
+  #endif
   cfg.alignment                   = (adc_alignment_t) ADC_ALIGNMENT_RIGHT;
   cfg.trigger                     = ADC_TRIGGER_SOFTWARE; 
   cfg.p_callback                  = cbk;
@@ -167,7 +185,6 @@ static bool addPinToCompare(ADC_Container *_adc, bool lower_or_outside_wnd, uint
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */
-  bool rv = false;
   int32_t index = getPinIndex(pin);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
@@ -178,7 +195,6 @@ bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd) {
 /* -------------------------------------------------------------------------- */  
-  bool rv = false;
   int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(index, cfg_adc);
@@ -214,7 +230,6 @@ static bool addPinToGroup(ADC_Container *_adc, ScanGroup_t g, uint8_t ch, bsp_io
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
 /* -------------------------------------------------------------------------- */
-  bool rv = false;
   int32_t index = getPinIndex(pin);
   uint16_t cfg_adc = 0;
   ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
@@ -225,7 +240,6 @@ bool analogAddPinToGroup(bsp_io_port_pin_t pin, ScanGroup_t g /*= ADC_SCAN_GROUP
 /* -------------------------------------------------------------------------- */
 bool analogAddPinToGroup(pin_size_t pinNumber, ScanGroup_t g /*= ADC_SCAN_GROUP_A*/) {
 /* -------------------------------------------------------------------------- */  
-  bool rv = false;
   int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *adc = get_ADC_container_ptr(index, cfg_adc);
@@ -345,13 +359,14 @@ int getStoredAnalogValue(bsp_io_port_pin_t pin) {
   }
   if(cfg_adc > 0 ) {
     rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+    rv = map(rv, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
   }
   return rv;
 }
 
 int getStoredAnalogValue(pin_size_t pinNumber) {
   int rv = -1;
-  pin_size_t index = digitalPinToAnalogPin(pinNumber);
+  int32_t index = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   if(index >= 0) {
     const uint16_t *cfg = g_pin_cfg[index].list;
@@ -359,6 +374,7 @@ int getStoredAnalogValue(pin_size_t pinNumber) {
   }
   if(cfg_adc > 0 ) {
     rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
+    rv = map(rv, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
   }
   return rv;
 }
@@ -464,6 +480,7 @@ static bool attachIrqCompareB(ADC_Container *_adc, uint8_t ch, bool lower_or_out
   else {
     rv = false;
   }
+  return rv;
 }
 
 
@@ -487,6 +504,9 @@ bool analogAttachIrqCompareB(bsp_io_port_pin_t pin, bool lower_or_outside_wnd, u
                       SINGLE CHANNEL CONVERSION
    -------------------------------------------------------------------------- */
 
+
+
+
 /* -------------------------------------------------------------------------- */
 static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
 /* -------------------------------------------------------------------------- */  
@@ -509,12 +529,16 @@ static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
 
     uint16_t result;
     R_ADC_Read(&(_adc->ctrl), (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
+    
+    result = map(result, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
     return (int)result;
   }
   else {
     return -1;
   }
 }
+
+
 
 /* -------------------------------------------------------------------------- */
 /* FSP PIN NUMBER */
@@ -532,7 +556,7 @@ int analogRead(bsp_io_port_pin_t pin) {
 /* LEGACY PIN NUMBER */
 int analogRead(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */  
-  pin_size_t adc_idx = digitalPinToAnalogPin(pinNumber);
+  int32_t adc_idx = digitalPinToAnalogPin(pinNumber);
   uint16_t cfg_adc = 0;
   ADC_Container *_adc = get_ADC_container_ptr(adc_idx, cfg_adc);
   pinPeripheral(digitalPinToBspPin(adc_idx), (uint32_t) IOPORT_CFG_ANALOG_ENABLE);
@@ -555,42 +579,80 @@ void analogReference(uint8_t mode) {
   R_ADC_Open(&adc1.ctrl, &adc1.cfg);
 }
 
-void analogReadResolution(int bits) {
-  R_ADC_Close(&adc.ctrl);
 
-  adc_resolution_t read_resolution;
+
+
+
+void analogReadResolution(int bits) {
+  /* 20221109 [maidnl] FIX Requested resolution: 
+     Requested read resolution never changes the actual ADC resolution which is
+     fixed by default to the higest possible */
+  #define ANALOG_READ_HARDWARE_RESOLUTION_FIXED
+  #ifdef ANALOG_READ_HARDWARE_RESOLUTION_FIXED
+  if(bits == 8 || bits == 10 || bits == 12 || bits == 14 || bits == 16) {
+    _analogRequestedReadResolution = bits; 
+  }
+  else {
+    /* use a "strange value" to signal something went wrong */
+    _analogRequestedReadResolution = 0; 
+  }
+  #else
+  /* Keep this code that presume R_ADC_Open returns an error when the requested
+     resolution is not set to the supported value (requested changes made to Renesas) */
+
+  adc_resolution_t old_read_resolution = adc.cfg.resolution;
+  adc_resolution_t old1_read_resolution = adc1.cfg.resolution;
 
   switch (bits) {
     case 10:
-      read_resolution = ADC_RESOLUTION_10_BIT;
+      _analogRequestedReadResolution = 10; 
+      adc.cfg.resolution = ADC_RESOLUTION_10_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
       break;
     case 8:
-      read_resolution = ADC_RESOLUTION_8_BIT;
+      _analogRequestedReadResolution = 8; 
+      adc.cfg.resolution = ADC_RESOLUTION_8_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_8_BIT;
       break;
     case 14:
-      read_resolution = ADC_RESOLUTION_14_BIT;
+      _analogRequestedReadResolution = 14; 
+      adc.cfg.resolution = ADC_RESOLUTION_14_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_14_BIT;
       break;
     case 16:
-      read_resolution = ADC_RESOLUTION_16_BIT;
+      _analogRequestedReadResolution = 16; 
+      adc.cfg.resolution = ADC_RESOLUTION_16_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_16_BIT;
       break;
     case 24:
-      read_resolution = ADC_RESOLUTION_24_BIT;
+      _analogRequestedReadResolution = 24; 
+      adc.cfg.resolution = ADC_RESOLUTION_24_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_24_BIT;
       break;
     case 12:
     default:
-      read_resolution = ADC_RESOLUTION_12_BIT;
+      _analogRequestedReadResolution = 12; 
+      adc.cfg.resolution = ADC_RESOLUTION_12_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
       break;
   }
 
+  R_ADC_Close(&adc.ctrl);
   auto res = R_ADC_Open(&adc.ctrl, &adc.cfg);
-  if (res == FSP_SUCCESS) {
-    adc.cfg.resolution = read_resolution;
+  if (res != FSP_SUCCESS) {
+    adc.cfg.resolution = old_read_resolution;
+  }  
+
+  R_ADC_Close(&adc1.ctrl);
+  res = R_ADC_Open(&adc1.ctrl, &adc1.cfg);
+  if (res != FSP_SUCCESS) {
+    adc1.cfg.resolution = old1_read_resolution;
   }
-  // oops, we selected an impossible resolution; don't change it in the structure to avoid misbehaviours
+  #endif
 }
 
-int analogReadResolution()
-{
+
+int _privateGetHwAnalogResolution() {
   int read_resolution = 0;
   switch (adc.cfg.resolution)
   {
@@ -619,7 +681,22 @@ int analogReadResolution()
   return read_resolution;
 }
 
-static int _writeResolution = 12;
+
+int analogReadResolution()
+{
+  /* 20221109 [maidnl] FIX Requested resolution: 
+     always return requested resolution - for user*/
+  
+  #ifdef ANALOG_READ_HARDWARE_RESOLUTION_FIXED
+  return _analogRequestedReadResolution;
+  #else
+  return _privateGetHwAnalogResolution();
+  #endif
+}
+
+/* 20221109 [maidnl] - default resolution must be fixed at 8 
+   (backward compatibility with UNO rev.3) */
+static int _writeResolution = 8;
 
 void analogWriteResolution(int bits) {
   _writeResolution = bits;
@@ -669,7 +746,6 @@ void analogWriteDAC(pin_size_t pinNumber, int value) {
 }
 #endif
 
-#define MAX_PWM_ARDUINO_PIN    25
 #define DEFAULT_PERIOD_MSEC    (2)
 #define DEFAULT_RAW_PERIOD_32  (0x17ea7) /* 490 Hz ~ 0.0020408125 seconds */
 #define DEFAULT_RAW_PERIOD_16  (0x5fa9)  /* 490 Hz ~ 0.00204075 seconds */
@@ -679,77 +755,58 @@ void analogWriteDAC(pin_size_t pinNumber, int value) {
 class PwmArray {
   public:
   PwmArray() {}
-  ~PwmArray() {
-    for(int i = 0; i < MAX_PWM_ARDUINO_PIN; i++) {
-      if(pwm_outs[i] != nullptr){
-        delete pwm_outs[i];
-        pwm_outs[i] = nullptr;
+  PwmOut *get(int pinNumber) {
+    size_t i = 0;
+    while (i < last_index) {
+      if (chans[i] == pinNumber) {
+        return pwm_outs[i];
       }
+      i++;
     }
+    return nullptr;
   }
-  PwmOut *get(int index) { 
-    if(index < MAX_PWM_ARDUINO_PIN) {
-      return pwm_outs[index]; 
-    }
-    else {
-      return nullptr;
-    }
-  }
-  bool set(int index, PwmOut *p) { 
-    if(index < MAX_PWM_ARDUINO_PIN) {
-      pwm_outs[index] = p;
+  bool set(int pinNumber, PwmOut *p) {
+    if (last_index < sizeof(chans)/sizeof(chans[0]) && p != nullptr) {
+      chans[last_index] = pinNumber;
+      pwm_outs[last_index] = p;
+      last_index++;
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
   }
   private:
-  PwmOut* pwm_outs[MAX_PWM_ARDUINO_PIN] = {nullptr};
-
+  size_t last_index = 0;
+  pin_size_t chans[(GPT_HOWMANY+AGT_HOWMANY)*2] = {0};
+  PwmOut* pwm_outs[(GPT_HOWMANY+AGT_HOWMANY)*2] = {nullptr};
 };
 
 static PwmArray pwms{};
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
-  uint32_t pwmPeriod = 0;
-
 #ifdef DAC
   //Check if it is a valid DAC pin
-  if (((pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
+  if (((int)((int)pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
     analogWriteDAC(pinNumber, value);
     return;
   }
 #endif //DAC
 
-  uint32_t pulse_width = pwmPeriod*value/pow(2,_writeResolution);
+  PwmOut *ptr = pwms.get(pinNumber);
 
-  if(pinNumber < MAX_PWM_ARDUINO_PIN) {
-    PwmOut *ptr = nullptr;
-    /* varify if PwmOut has already been instantiated */
-    if(pwms.get(pinNumber) == nullptr) {
-      /* if not instatiate it */
-      ptr = new PwmOut(pinNumber);
-      if(!pwms.set(pinNumber,ptr)) {
-        delete ptr;
-        ptr = nullptr;
-      }
-      else {
-        if(!ptr->begin()) {
-          delete ptr;
-          ptr = nullptr;
-          pwms.set(pinNumber,nullptr);
-        }
-      }
+  /* verify if PwmOut has already been instantiated */
+  if (ptr == nullptr) {
+    /* if not instatiate it */
+    ptr = new PwmOut(pinNumber);
+    bool added = pwms.set(pinNumber, ptr);
+    if(!added || !ptr->begin()) {
+      delete ptr;
+      return;
     }
-    else {
-      ptr = pwms.get(pinNumber);
-    }
+  }
 
-    if(ptr != nullptr) {
-      ptr->pulse_perc( (float)value * 100.0 / (float)pow(2,_writeResolution)); 
-    }
+  if(ptr != nullptr) {
+    ptr->pulse_perc((float)value * 100.0 / (1 << _writeResolution));
   }
 }
 

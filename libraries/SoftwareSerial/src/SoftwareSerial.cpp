@@ -80,7 +80,7 @@ static elc_event_t fsp_irq_to_elc_event(int channel)
     };
 
     elc_event_t event = ELC_EVENT_NONE;
-    if (channel >= 0 && channel < SS_ARRAY_SIZE(irq_chan_to_elc_event)) {
+    if (channel >= 0 && channel < (int)SS_ARRAY_SIZE(irq_chan_to_elc_event)) {
         event = irq_chan_to_elc_event[channel];
     }
     return event;
@@ -100,7 +100,7 @@ static elc_event_t fsp_tim_to_elc_event(int channel)
     };
 
     elc_event_t event = ELC_EVENT_NONE;
-    if (channel >= 0 && channel < SS_ARRAY_SIZE(tim_chan_to_elc_event)) {
+    if (channel >= 0 && channel < (int)SS_ARRAY_SIZE(tim_chan_to_elc_event)) {
         event = tim_chan_to_elc_event[channel];
     }
     return event;

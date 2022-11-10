@@ -44,7 +44,6 @@ void TwoWire::WireSCIMasterCallback(i2c_master_callback_args_t *arg) {
 /* -------------------------------------------------------------------------- */
   /* +++++ MASTER I2C SCI Callback ++++++ */
   
-  i2c_master_event_t event = arg->event;
   i2c_master_cfg_t *cfg = (i2c_master_cfg_t *)arg->p_context;
 
   TwoWire *ptr = nullptr; 
@@ -55,7 +54,7 @@ void TwoWire::WireSCIMasterCallback(i2c_master_callback_args_t *arg) {
   if(ptr == nullptr) {
     return;
   }
-  if(!ptr->isBeginOk()) {
+  if(!ptr->init_ok) {
     return;
   }
 
@@ -77,7 +76,6 @@ void TwoWire::WireSCIMasterCallback(i2c_master_callback_args_t *arg) {
 void TwoWire::WireMasterCallback(i2c_master_callback_args_t *arg) {
 /* -------------------------------------------------------------------------- */  
   /* +++++ MASTER I2C not SCI Callback ++++++ */
-  i2c_master_event_t event = arg->event;
   i2c_master_cfg_t *cfg = (i2c_master_cfg_t *)arg->p_context;
 
   TwoWire *ptr = nullptr; 
@@ -88,7 +86,7 @@ void TwoWire::WireMasterCallback(i2c_master_callback_args_t *arg) {
   if(ptr == nullptr) {
     return;
   }
-  if(!ptr->isBeginOk()) {
+  if(!ptr->init_ok) {
     return;
   }
 
@@ -110,7 +108,6 @@ void TwoWire::WireSlaveCallback(i2c_slave_callback_args_t *arg) {
 /* -------------------------------------------------------------------------- */
   /* +++++ SLAVE Callback ++++++ */
   volatile uint32_t bytes = arg->bytes;
-  volatile i2c_slave_event_t event = arg->event;
   volatile i2c_slave_cfg_t *cfg = (i2c_slave_cfg_t *)arg->p_context;
   
   TwoWire *ptr = nullptr;
@@ -121,7 +118,7 @@ void TwoWire::WireSlaveCallback(i2c_slave_callback_args_t *arg) {
   if(ptr == nullptr) {
     return;
   }
-  if(!ptr->isBeginOk()) {
+  if(!ptr->init_ok) {
     return;
   }
 
@@ -471,7 +468,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
 /* -------------------------------------------------------------------------- */  
   /* ??? does this function make sense only for MASTER ???? */
   
-  fsp_err_t err;
+  fsp_err_t err = FSP_ERR_ASSERTION;
   if(init_ok) {
     if(m_setSlaveAdd != nullptr) {
       err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
@@ -499,7 +496,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
 uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   uint8_t rv = END_TX_OK;
-  fsp_err_t err;
+  fsp_err_t err = FSP_ERR_ASSERTION;
   if(init_ok) {
     if(m_setSlaveAdd != nullptr) {
       err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
@@ -628,7 +625,7 @@ uint8_t TwoWire::endTransmission(void) {
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
 /* -------------------------------------------------------------------------- */
-size_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop) {
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop) {
 /* -------------------------------------------------------------------------- */  
   if(init_ok) {
   

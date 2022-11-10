@@ -76,7 +76,7 @@ int  digitalPinToInterrupt(int pin) { return pin; }
 static int pin2IrqChannel(int pin) {
 /* -------------------------------------------------------------------------- */  
   /* verify index are good */
-  if(pin < 0 || pin >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) {
+  if(pin < 0 || pin >= (int)(g_pin_cfg_size / sizeof(g_pin_cfg[0]))) {
     return -1;
   }
   /* getting configuration from table */
@@ -99,7 +99,7 @@ static void IrqCallback(external_irq_callback_args_t * p_args) {
 
     CIrq *irq_context = nullptr;
 
-    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+    if(ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,false);
    
         if(irq_context != nullptr) {
@@ -161,8 +161,6 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
             irq_context->fnc_void       = (voidFuncPtr)func;
         }
     
-        uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
-
         switch (mode) {
             case LOW:
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
@@ -171,8 +169,8 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
             break;
             case RISING:
+            case HIGH:  // TODO: document that HIGH IRQ is unavailable
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
-                pullup_enabled = 0;
             break;
             case CHANGE:
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
@@ -180,7 +178,10 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
         }
     
         if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_context->cfg))) {
-            /* Configure PIN */
+            /*
+            Configure PIN
+            TODO: decide if a default pull should be provided or if it's up to the user to call pinMode before activating the IRQ
+            */
             R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
             /* Enable Interrupt */ 
             R_ICU_ExternalIrqOpen(&(irq_context->ctrl), &(irq_context->cfg));
@@ -202,7 +203,7 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
         irq_context = IrqChannel.get(ch,true);
     }
 
-    if(irq_context != nullptr && mode != LOW) {
+    if(irq_context != nullptr) {
     
         irq_context->cfg.channel            = ch;
         irq_context->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
@@ -212,8 +213,6 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
         irq_context->cfg.p_extend           = nullptr;
         /* ATTACH CALLBACK FUNCTION might be useful ??? */
     
-        uint32_t pullup_enabled = IOPORT_CFG_PULLUP_ENABLE; 
-
         switch (mode) {
             case LOW:
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_LEVEL_LOW;
@@ -222,8 +221,8 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_FALLING;
             break;
             case RISING:
+            case HIGH:  // TODO: document that HIGH IRQ is unavailable
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_RISING;
-                pullup_enabled = 0;
             break;
             case CHANGE:
                 irq_context->cfg.trigger = EXTERNAL_IRQ_TRIG_BOTH_EDGE;
@@ -231,7 +230,10 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
         }
     
         if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_context->cfg))) {
-            /* Configure PIN */
+            /*
+            Configure PIN
+            TODO: decide if a default pull should be provided or if it's up to the user to call pinMode before activating the IRQ
+            */
             R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
             /* Enable Interrupt */ 
             R_ICU_ExternalIrqOpen(&(irq_context->ctrl), &(irq_context->cfg));

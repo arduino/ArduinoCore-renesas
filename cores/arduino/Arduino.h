@@ -17,6 +17,8 @@ using namespace arduino;
 #include "Serial.h"
 #endif
 
+#include <api/itoa.h>
+
 #if defined(__cplusplus)
 
 #undef F

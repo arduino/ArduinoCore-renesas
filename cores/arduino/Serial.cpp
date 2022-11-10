@@ -31,7 +31,7 @@
 
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
-void uart_callback(uart_callback_args_t *p_args)
+void uart_callback(uart_callback_args_t __attribute((unused)) *p_args)
 {
     /* This callback function is not used but it is referenced into 
        FSP configuration so that (for the moment it is necessary to keep it) */
@@ -83,7 +83,7 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 
 
 /* -------------------------------------------------------------------------- */
-UART::UART(uint8_t _pin_tx, uint8_t _pin_rx) : 
+UART::UART(int _pin_tx, int _pin_rx) :
   tx_pin(_pin_tx),
   rx_pin(_pin_rx),
   init_ok(false) {
@@ -179,10 +179,9 @@ bool  UART::cfg_pins(int max_index) {
 /* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate, uint16_t config) {
 /* -------------------------------------------------------------------------- */  
-  init_ok = true;
   int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
 
-  init_ok &= cfg_pins(max_index);
+  init_ok = cfg_pins(max_index);
   
   if(init_ok) {
     UART::g_uarts[channel]        = this;

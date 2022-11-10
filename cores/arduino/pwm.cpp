@@ -5,7 +5,7 @@
 extern const PinMuxCfg_t g_pin_cfg[];
 extern const size_t g_pin_cfg_size;
 
-PwmOut::PwmOut(pin_size_t pinNumber) : 
+PwmOut::PwmOut(int pinNumber) :
   _pin(pinNumber),
   _enabled(false)
 {
@@ -124,7 +124,7 @@ bool PwmOut::pulseWidth_raw(int pulse) {
 bool PwmOut::pulse_perc(float duty) {
   float period = (float)timer.get_period_raw();
   float pulse = period * duty / 100.0;
-  pulseWidth_raw((int)pulse);
+  return pulseWidth_raw((int)pulse);
 }
 
 

@@ -204,7 +204,7 @@ class IRQManager {
     ~IRQManager();
 
     private:
-    int last_interrupt_index;
+    size_t last_interrupt_index;
     bool set_adc_end_link_event(int li, int ch);
     bool set_adc_end_b_link_event(int li, int ch);
     bool set_adc_win_a_link_event(int li, int ch);
