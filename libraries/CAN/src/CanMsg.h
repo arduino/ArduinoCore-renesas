@@ -49,6 +49,13 @@ public:
 
   CanMsg() : CanMsg(0, 0, nullptr) { }
 
+  CanMsg(CanMsg const & other)
+  {
+    this->id          = other.id;
+    this->data_length = other.data_length;
+    memcpy(this->data, other.data, this->data_length);
+  }
+
   virtual ~CanMsg() { }
 
   virtual size_t printTo(Print & p) const override
