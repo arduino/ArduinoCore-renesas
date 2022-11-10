@@ -25,7 +25,7 @@
 #endif
 
 #include "CanMsg.h"
-#include "CanMsgRingbuffer.hpp"
+#include "CanMsgRingbuffer.h"
 
 /**************************************************************************************
  * TYPEDEF
@@ -92,7 +92,6 @@ public:
 
 private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
-  static size_t constexpr CAN_RECEIVE_RINGBUFFER_SIZE = 32U;
 
   bool const _is_can_fd;
   int const _can_tx_pin;
@@ -100,7 +99,7 @@ private:
   int const _can_stby_pin;
   bool _is_error;
   int _err_code;
-  CanMsgRingbuffer<CAN_RECEIVE_RINGBUFFER_SIZE> _can_rx_buf;
+  CanMsgRingbuffer _can_rx_buf;
 
   CAN_open_f _open;
   CAN_close_f _close;

@@ -30,10 +30,10 @@ namespace arduino
  * CLASS DECLARATION
  **************************************************************************************/
 
-template <size_t const RING_BUFFER_SIZE>
 class CanMsgRingbuffer
 {
 public:
+  static size_t constexpr RING_BUFFER_SIZE = 32U;
 
   CanMsgRingbuffer();
 
@@ -58,11 +58,5 @@ private:
  **************************************************************************************/
 
 } /* arduino */
-
-/**************************************************************************************
- * TEMPLATE IMPLEMENTATION
- **************************************************************************************/
-
-#include "CanMsgRingbuffer.ipp"
 
 #endif /* CAN_MSG_RING_BUFFER_HPP_ */

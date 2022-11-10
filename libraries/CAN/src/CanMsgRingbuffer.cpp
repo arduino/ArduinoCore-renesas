@@ -9,6 +9,12 @@
  */
 
 /**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
+#include "CanMsgRingbuffer.h"
+
+/**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
 
@@ -19,8 +25,7 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-template <size_t const RING_BUFFER_SIZE>
-CanMsgRingbuffer<RING_BUFFER_SIZE>::CanMsgRingbuffer()
+CanMsgRingbuffer::CanMsgRingbuffer()
 : _head{0}
 , _tail{0}
 , _num_elems{0}
@@ -31,8 +36,7 @@ CanMsgRingbuffer<RING_BUFFER_SIZE>::CanMsgRingbuffer()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-template <size_t const RING_BUFFER_SIZE>
-void CanMsgRingbuffer<RING_BUFFER_SIZE>::enqueue(CanMsg const & msg)
+void CanMsgRingbuffer::enqueue(CanMsg const & msg)
 {
   if (isFull())
     return;
@@ -42,8 +46,7 @@ void CanMsgRingbuffer<RING_BUFFER_SIZE>::enqueue(CanMsg const & msg)
   _num_elems++;
 }
 
-template <size_t const RING_BUFFER_SIZE>
-CanMsg CanMsgRingbuffer<RING_BUFFER_SIZE>::dequeue()
+CanMsg CanMsgRingbuffer::dequeue()
 {
   if (isEmpty())
     return CanMsg();
