@@ -79,7 +79,7 @@ public:
 
 
   int write(CanMsg const & msg);
-  bool available();
+  size_t available() const;
   CanMsg read();
 
 

@@ -255,9 +255,9 @@ int ArduinoCAN::write(CanMsg const & msg)
   return 1;
 }
 
-bool ArduinoCAN::available()
+size_t ArduinoCAN::available() const
 {
-  return !_can_rx_buf.isEmpty();
+  return _can_rx_buf.available();
 }
 
 CanMsg ArduinoCAN::read()

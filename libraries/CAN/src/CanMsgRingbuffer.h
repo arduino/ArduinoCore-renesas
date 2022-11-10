@@ -44,6 +44,7 @@ public:
   inline bool isEmpty() const { synchronized { return (_num_elems == 0); } }
   CanMsg dequeue();
 
+  inline size_t available() const { synchronized { return _num_elems; } }
 
 private:
   CanMsg _buf[RING_BUFFER_SIZE];

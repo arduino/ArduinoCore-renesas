@@ -58,19 +58,30 @@ public:
 
   virtual ~CanMsg() { }
 
+  void operator = (CanMsg const & other)
+  {
+    if (this == &other)
+      return;
+
+    this->id          = other.id;
+    this->data_length = other.data_length;
+    memcpy(this->data, other.data, this->data_length);
+  }
+
   virtual size_t printTo(Print & p) const override
   {
-    char buf[20];
+    char buf[20] = {0};
+    size_t len = 0;
 
     /* Print the header. */
-    snprintf(buf, sizeof(buf), "[%08X] (%d) : ", id, data_length);
-    size_t n = p.print(buf);
+    len = snprintf(buf, sizeof(buf), "[%08X] (%d) : ", id, data_length);
+    size_t n = p.write(buf, len);
 
     /* Print the data. */
     for (size_t d = 0; d < data_length; d++)
     {
-      snprintf(buf, sizeof(buf), "%02X", data[d]);
-      n += p.print(buf);
+      len = snprintf(buf, sizeof(buf), "%02X", data[d]);
+      n += p.write(buf, len);
     }
 
     /* Wrap up. */
