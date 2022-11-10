@@ -56,7 +56,7 @@ public:
     char buf[20];
 
     /* Print the header. */
-    snprintf(buf, sizeof(buf), "[%08X] (%d) :", id, data_length);
+    snprintf(buf, sizeof(buf), "[%08X] (%d) : ", id, data_length);
     size_t n = p.print(buf);
 
     /* Print the data. */
