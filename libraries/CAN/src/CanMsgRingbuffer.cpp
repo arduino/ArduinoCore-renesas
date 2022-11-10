@@ -41,9 +41,12 @@ void CanMsgRingbuffer::enqueue(CanMsg const & msg)
   if (isFull())
     return;
 
-  _buf[_head] = msg;
-  _head = next(_head);
-  _num_elems++;
+  synchronized
+  {
+    _buf[_head] = msg;
+    _head = next(_head);
+    _num_elems++;
+  }
 }
 
 CanMsg CanMsgRingbuffer::dequeue()
@@ -51,11 +54,14 @@ CanMsg CanMsgRingbuffer::dequeue()
   if (isEmpty())
     return CanMsg();
 
-  CanMsg const msg = _buf[_tail];
-  _tail = next(_tail);
-  _num_elems--;
+  synchronized
+  {
+    CanMsg const msg = _buf[_tail];
+    _tail = next(_tail);
+    _num_elems--;
 
-  return msg;
+    return msg;
+  }
 }
 
 /**************************************************************************************

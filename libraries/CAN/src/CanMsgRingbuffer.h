@@ -18,6 +18,7 @@
 #include <cstdint>
 
 #include "CanMsg.h"
+#include "sync.h"
 
 /**************************************************************************************
  * NAMESPACE
@@ -37,10 +38,10 @@ public:
 
   CanMsgRingbuffer();
 
-  inline bool isFull() const { return (_num_elems == RING_BUFFER_SIZE); }
+  inline bool isFull() const { synchronized { return (_num_elems == RING_BUFFER_SIZE); } }
   void enqueue(CanMsg const & msg);
 
-  inline bool isEmpty() const { return (_num_elems == 0); }
+  inline bool isEmpty() const { synchronized { return (_num_elems == 0); } }
   CanMsg dequeue();
 
 
