@@ -817,5 +817,8 @@ TwoWire Wire1(WIRE1_SCL_PIN, WIRE1_SDA_PIN);
 TwoWire Wire2(WIRE2_SCL_PIN, WIRE2_SDA_PIN);
 #endif
 
+#if WIRE_HOWMANY > 3
+TwoWire Wire3(WIRE3_SCL_PIN, WIRE3_SDA_PIN);
+#endif
 
 

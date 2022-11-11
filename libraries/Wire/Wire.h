@@ -236,7 +236,9 @@ extern TwoWire Wire1;
 #if WIRE_HOWMANY > 2
 extern TwoWire Wire2;
 #endif
-
+#if WIRE_HOWMANY > 3
+extern TwoWire Wire3;
+#endif
 
 #endif
 #endif
