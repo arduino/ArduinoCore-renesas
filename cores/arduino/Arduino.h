@@ -72,6 +72,8 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 #endif
 
+pin_size_t digitalPinToInterrupt(pin_size_t pin);
+
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )

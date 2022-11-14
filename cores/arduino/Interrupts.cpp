@@ -70,7 +70,7 @@ class IrqPool {
 
 static IrqPool IrqChannel{};
 
-int  digitalPinToInterrupt(int pin) { return pin; }
+pin_size_t digitalPinToInterrupt(pin_size_t pin) { return pin; }
 
 /* -------------------------------------------------------------------------- */
 static int pin2IrqChannel(int pin) {
