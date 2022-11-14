@@ -868,11 +868,18 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
       if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
 #  if IS_CAN_FD
         canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
+        #define can_error_isr canfd_error_isr
+        #define can_rx_isr canfd_rx_fifo_isr
+        #define can_tx_isr canfd_channel_tx_isr
+        // TODO: ATTENTION:
+        // this is just a workaround, CANFD interrupts are different and somehow
+        // more specialized
+        // This is not expected to work until set_can_error_link_event and similar functions
+        // are ported
 #  else
         can_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
 #  endif
         can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
-        can_extended_cfg_t * p_extended_cfg = (can_extended_cfg_t *)(p_cfg->p_extend);
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
         /* Error interrupt */
