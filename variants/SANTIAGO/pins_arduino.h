@@ -126,6 +126,25 @@ static const uint8_t CS  =  PIN_SPI_CS;
 #define AGT_HOWMANY       2
 
 
+/****** CAN CORE DEFINES ******/
+
+#define CAN_HOWMANY       1
+
+#if defined __has_include
+#  if __has_include ("r_canfd.h")
+#    define IS_CAN_FD (1)
+#  else
+#    define IS_CAN_FD (0)
+#  endif
+#else
+#  define IS_CAN_FD (0)
+#endif
+
+#define PIN_CAN0_TX       (4)
+#define PIN_CAN0_RX       (5)
+#define PIN_CAN0_STBY    (-1)
+
+
 #define EXT_INTERRUPTS_HOWMANY 2
 
 #define USB_VID           (0x2341)
