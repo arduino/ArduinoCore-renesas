@@ -1,5 +1,7 @@
 #include "lwipInterface.h"
 
+#include "FspTimer.h"
+
 //void(*p_callback)(timer_callback_args_t *)
 extern void attach_ethernet_task(void (*fnc)());
 extern void eth_execute_link_process();
@@ -21,53 +23,70 @@ void init_lwip() {
    }
 }
 
-/* should be the same as stm32_eth_init() */
-/* it set address and then configure eth0 for the use with lwip */
-void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw, const uint8_t *netmask) {
-  init_lwip();
-  eth0if_set_mac_address(mac);
-  eth0if_set_ip4_address(ip);
-  eth0if_set_ip4_netmask(netmask);
-  eth0if_set_ip4_gateway(gw);
-  eth0if_lwip_config(true);
-
-  attach_ethernet_task(lwip_task);
-  lwip_task();
-}
-
-
-extern struct netif eth0if;
-
 /* main lwip task (should be called periodically) */
 void lwip_task() {
-  /* 
-  #ifndef ETH_INPUT_USE_IT
-  ethernetif_input(&gnetif);
-  #endif
-  */
-  /*
-  if ((HAL_GetTick() - gEhtLinkTickStart) >= TIME_CHECK_ETH_LINK_STATE) {
-    ethernetif_set_link(&gnetif);
-    gEhtLinkTickStart = HAL_GetTick();
-  }
-  */
-
-
+ 
   eth_execute_link_process();
-
   
-
+  __disable_irq();
+  struct pbuf* p = get_rx_pbuf();
+  __enable_irq();
+  
+  while(p != nullptr) {
+    
+    if(eth0if_get_ptr()->input(p, eth0if_get_ptr()) != ERR_OK) {
+      pbuf_free(p);
+    }
+    __disable_irq();
+    p = get_rx_pbuf();
+    __enable_irq();
+  }
+ 
   /* Handle LwIP timeouts */
   sys_check_timeouts();
 
   #if LWIP_DHCP
   static unsigned long dhcp_last_time_call = 0;
   if(dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
-    DHCP_task(&eth0if);
+    DHCP_task(eth0if_get_ptr());
   }
   #endif
 
 }
+
+
+FspTimer eth_timer;
+
+void timer_callback(timer_callback_args_t *arg) {
+  lwip_task();
+}
+
+
+/* it set address and then configure eth0 for the use with lwip */void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw, const uint8_t *netmask) {
+  init_lwip();
+  eth0if_set_mac_address(mac);
+  eth0if_set_ip4_address(ip);
+  eth0if_set_ip4_netmask(netmask);
+  eth0if_set_ip4_gateway(gw);
+  eth0if_lwip_config(true);
+  
+  /* timer */
+  uint8_t type = 8;
+  uint8_t ch = FspTimer::get_available_timer(type);
+
+  if(ch < 0) {
+    ch = FspTimer::get_available_timer(type,true);
+  } 
+
+  eth_timer.begin(TIMER_MODE_PERIODIC, type, ch,  10.0, 50.0, timer_callback);
+  eth_timer.setup_overflow_irq();
+  eth_timer.open();
+  eth_timer.start();
+}
+
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                            GETTERS FUNCTIONS                               */

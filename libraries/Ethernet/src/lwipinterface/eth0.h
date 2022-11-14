@@ -51,6 +51,8 @@ bool is_eth0if_initialized();
 netif *eth0if_get_ptr();
 void eth0if_frame_received();
 
+struct pbuf* get_rx_pbuf();
+
 #ifdef __cplusplus
 }
 #endif

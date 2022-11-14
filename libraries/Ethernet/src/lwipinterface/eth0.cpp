@@ -1,6 +1,13 @@
 #include "eth0.h"
 #include "../arch/ethernetDriver.h"
 
+#include <queue>
+
+
+
+
+std::queue<struct pbuf*> rx_queue;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,152 +64,56 @@ void eth0if_set_mac_address(const uint8_t *mad){
 
 static err_t eth0if_output(struct netif *netif, struct pbuf *p) {
   
-  Serial.println("frame_sent-start");
-
   err_t errval = ERR_OK;
-  struct pbuf *q;
   
-  /* copy frame from pbufs to driver buffers */
-  for (q = p; q != NULL; q = q->next) {
-    /* according to comments in lwip pbuf.h a single packet may be queued in more
-       than 1 pbuf (pbuf chain)
-       the packet is completed when ->tot_len is equal to ->len
-       since ->tot_len is "total length of this buffer and all next buffers in chain
-       belonging to the same packet." 
-       */
+  assert (p->tot_len <= ETH_BUFF_DIM);
 
-    bool packed_completed = false;
-    /* this is the first pbuf of the current packet -> take note of the total 
-       lenght of the packet */
-    uint16_t bytes_to_be_copied = q->tot_len;
-    uint16_t bytes_actually_copied = 0;
-    if(bytes_to_be_copied > ETH_BUFF_DIM) {
-      /* TODO -> HANDLE ERROR */
-      errval = ERR_MEM;
-      break;
-    }
-
-    while(!packed_completed && q != NULL) {
-      if(bytes_actually_copied + q->len < ETH_BUFF_DIM) {
-        memcpy( (eth0_tx_buffer + bytes_actually_copied), q->payload, q->len);
-        bytes_actually_copied += q->len;
-        if(q->tot_len == q->len) {
-          /* all the pbuf containing a packet have been copied -> the packet can be
-           sent */
-          packed_completed = true;
-        }
-        else {
-          q = q->next;
-        }
-      }
-      else {
-        errval = ERR_BUF;
-      }
-    } 
-
-    if(bytes_to_be_copied != bytes_actually_copied) {
-      /* TODO -> HANDLE ERROR */
-      errval = ERR_BUF;
-      break;
-    }
+  uint16_t bytes_actually_copied = pbuf_copy_partial(p, eth0_tx_buffer, p->tot_len, 0);
   
+  if(bytes_actually_copied > 0) {
     if(!eth_output(eth0_tx_buffer, bytes_actually_copied)) {
       errval = ERR_IF;
-      break;
     }
   }
-  Serial.println("frame_sent-stop");
   return errval;
 }
 
 
-/* -------------------------------------------------------------------------- */
-void eth0if_input(struct netif *netif) {
-/* -------------------------------------------------------------------------- */  
-  
-
-  err_t err;
-  struct pbuf *q;
-  struct pbuf *p = NULL;
-
-   
-  uint32_t rx_frame_dim = 0;
-  uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
-  //Serial.print(rx_frame_dim);
-  //Serial.println(" frame_received-start ");
-  
-  
-
-  /* zero copy mode is used */
-  if(rx_frame_buf != nullptr) {
-    if(rx_frame_dim > 0) {
-      
-        uint16_t malloc_dim = rx_frame_dim;
-      while(malloc_dim % 32 != 0) {
-        malloc_dim++;
-      }
-
-
-      p = pbuf_alloc(PBUF_RAW, (uint16_t)malloc_dim, PBUF_POOL);
-      
-      if(p->len != malloc_dim) { Serial.println("CAZZAROLA!!!!!!!!! ");}
-
-
-
-      if(p != NULL && rx_frame_buf != nullptr) {
-        q = p;
-        uint16_t bytes_actually_copied = 0;
-        bool copied_finished = false;
-
-        while(!copied_finished && q != NULL)  {
-          memcpy(q->payload, rx_frame_buf + bytes_actually_copied, q->len);
-          bytes_actually_copied += q->len;
-          if(bytes_actually_copied >= rx_frame_dim) {
-            copied_finished = true;
-          }
-          q = q->next;
-        }
-      }
-      else {
-        //Serial.println("frame_received-stop1");
-        /* no packet could be read, silently ignore this */
-        return;
-      }
-      eth_release_rx_buffer();
-
-      
-      err = netif->input(p, netif);
-
-      if (err != ERR_OK) {
-        LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-        pbuf_free(p);
-        p = NULL;
-      }
-    }
+struct pbuf* get_rx_pbuf() {
+  if(!rx_queue.empty()) {
+    struct pbuf* rv = rx_queue.front();
+    rx_queue.pop();
+    return rv;
   }
+  else {
+    return nullptr;
+  }
+}
 
-  /* entry point to the LwIP stack */
-  
 
-  
-  //Serial.println("frame_received-stop2");
+/* -------------------------------------------------------------------------- */
+void eth0if_input() {
+/* -------------------------------------------------------------------------- */  
+  volatile uint32_t rx_frame_dim = 0;
+  volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
+  volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_POOL);
+  if(p != NULL) {
+    /* Copy ethernet frame into pbuf */
+    pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
+    eth_release_rx_buffer();
+    rx_queue.push((struct pbuf* )p); 
+  }
 }
 
 /* -------------------------------------------------------------------------- */
 void eth0if_frame_received() {
 /* -------------------------------------------------------------------------- */  
-  
-  eth0if_input(&eth0if);
+  eth0if_input();
 }
 
 /* -------------------------------------------------------------------------- */
 static void eth0if_link_up() {
 /* -------------------------------------------------------------------------- */  
-  Serial.println("----- LINK UP ");
-
-
-  //eth_execute_link_process();
-
   netif_set_link_up(&eth0if);
   /* When the netif is fully configured this function must be called.*/
   netif_set_up(&eth0if);
@@ -234,8 +145,6 @@ static void eth0if_link_down() {
 /* -------------------------------------------------------------------------- */
 static err_t eth0if_init(struct netif *netif) {
 /* -------------------------------------------------------------------------- */  
-  LWIP_ASSERT("netif != NULL", (netif != NULL));
-
 #if LWIP_NETIF_HOSTNAME
   /* Initialize interface hostname */
   netif->hostname = "lwip";
@@ -303,7 +212,7 @@ void eth0if_lwip_config(bool is_default) {
     netif_set_default(&eth0if);
   }
 
-  /* QUESTA ROBA NON SERVE A UN TUBO*/
+  
   if (netif_is_link_up(&eth0if)) {
     /* When the netif is fully configured this function must be called */
     netif_set_up(&eth0if);

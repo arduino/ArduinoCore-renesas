@@ -243,7 +243,7 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
             } 
         }
         else {
-            Serial.println("-> NOT MANAGED ");
+            
         }
     }
 }
@@ -357,13 +357,13 @@ bool eth_output(uint8_t *buf, uint16_t dim) {
     }
 }
 
-uint8_t *eth_input(uint32_t *dim) {
+uint8_t *eth_input(volatile uint32_t *dim) {
     /* NOTE: ZERO COPY IMPLEMENTATION 
        just the pointer and not the data are copied with the Read Function */
     
     uint8_t *ptr1 = nullptr;
 
-    fsp_err_t err = R_ETHER_Read ( eth_driver.get_ctrl(), &ptr1, dim);
+    fsp_err_t err = R_ETHER_Read ( eth_driver.get_ctrl(), &ptr1, (uint32_t *)dim);
     if(err == FSP_SUCCESS) {
         return ptr1;
     }

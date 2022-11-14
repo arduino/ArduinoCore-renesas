@@ -19,7 +19,7 @@ int  eth_get_mac_address(uint8_t *mad);
 
 bool eth_init();
 void eth_execute_link_process();
-uint8_t *eth_input(uint32_t *dim);
+uint8_t *eth_input(volatile uint32_t *dim);
 bool eth_output(uint8_t *buf, uint16_t dim);
 void eth_release_rx_buffer();
 

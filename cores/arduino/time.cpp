@@ -27,45 +27,8 @@ FspTimer main_timer;
 
 static uint32_t _top_counter;
 
-#if ETHERNET_HOWMANY>0
-extern int periodic_task_time;
-#endif
-
-
-#if ETHERNET_HOWMANY>0
-void (*ethernet_task)() = nullptr;
-
-void attach_ethernet_task(void (*fnc)()) {
-   ethernet_task = fnc;
-}
-
-/* updated by AGT MAIN timer every 10ms */
-int periodic_task_time = 0;
-
-bool state = 0;
-
-void main_periodic_task() {
-   if(ethernet_task != nullptr) {
-      /* called every 100 ms */
-      if(periodic_task_time >= 500) {
-         periodic_task_time = 0;
-         digitalWrite(15, state);
-         state != state;
-         ethernet_task();
-      }
-   }
-}
-#endif
-
-
-
 static void timer_micros_callback(timer_callback_args_t *p_args) {
 	agt_time_ms += 10; //10ms
-	#if ETHERNET_HOWMANY>0
-	periodic_task_time++;
-
-   main_periodic_task();
-	#endif
 }
 
 void startAgt() {
