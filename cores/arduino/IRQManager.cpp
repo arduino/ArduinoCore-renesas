@@ -16,6 +16,7 @@
 #define AGT_REQ_NUM                 1
 #define EXTERNAL_PIN_NUM            1
 #define SPI_MASTER_REQ_NUM          4
+#define CAN_REQ_NUM                 3
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
@@ -27,6 +28,7 @@
 #define DMA_PRIORITY               12
 #define TIMER_PRIORITY             12
 #define ADC_PRIORITY               12
+#define CAN_PRIORITY               12
 #define FIRST_INT_SLOT_FREE         0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
@@ -662,7 +664,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
     else if(p == IRQ_SCI_I2C_MASTER && cfg != NULL) {
         I2CIrqMasterReq_t *p_cfg = (I2CIrqMasterReq_t *)cfg;
-        //iic_master_instance_ctrl_t *ctrl = (iic_master_instance_ctrl_t *)p_cfg->ctrl;
+        iic_master_instance_ctrl_t *ctrl = (iic_master_instance_ctrl_t *)p_cfg->ctrl;
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->cfg;
         uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
@@ -857,6 +859,52 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
       }
     }
 #endif
+
+#if CAN_HOWMANY > 0
+    /* **********************************************************************
+                                      CAN
+       ********************************************************************** */
+    else if(p == IRQ_CAN && cfg != NULL) {
+      if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
+#  if IS_CAN_FD
+        canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
+        #define can_error_isr canfd_error_isr
+        #define can_rx_isr canfd_rx_fifo_isr
+        #define can_tx_isr canfd_channel_tx_isr
+        // TODO: ATTENTION:
+        // this is just a workaround, CANFD interrupts are different and somehow
+        // more specialized
+        // This is not expected to work until set_can_error_link_event and similar functions
+        // are ported
+#  else
+        can_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
+#  endif
+        can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
+        p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
+
+        /* Error interrupt */
+        p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_error_isr;
+        set_can_error_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Receive interrupt */
+        p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
+        set_can_rx_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Transmit interrupt */
+        p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
+        set_can_tx_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+      }
+    }
+#endif /* CAN_HOWMANY > 0 */
 
     else {
         rv = false;
@@ -1567,6 +1615,36 @@ void IRQManager::set_spi_eri_link_event(int li, int ch)
 #endif
 }
 
+
+void IRQManager::set_can_error_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_ERROR
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_ERROR);
+  }
+#endif
+}
+
+void IRQManager::set_can_rx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_MAILBOX_RX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_RX);
+  }
+#endif
+}
+
+void IRQManager::set_can_tx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_MAILBOX_TX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_TX);
+  }
+#endif
+}
 
 bool IRQManager::set_dma_link_event(int li, int ch) {
     bool rv = false;
