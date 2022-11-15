@@ -116,7 +116,9 @@ void eth0if_input() {
     #ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
     rx_queue.push((struct pbuf* )p); 
     #else
+    #ifdef USE_ASSERT_DEBUG
     assert(rx_queue.freePositions() > 64);
+    #endif
     rx_queue.store(p);
     #endif
   }
