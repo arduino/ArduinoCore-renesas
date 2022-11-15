@@ -25,7 +25,7 @@
  *
  * bjoern@cs.stanford.edu 12/30/2008
  */
-#include "STM32Ethernet.h"
+#include "Ethernet.h"
 #include "Udp.h"
 #include "Dns.h"
 

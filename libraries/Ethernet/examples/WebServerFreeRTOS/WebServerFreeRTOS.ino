@@ -23,7 +23,7 @@
 */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 #include <STM32FreeRTOS.h>
 
 // Enter an IP address for your controller below.

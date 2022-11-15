@@ -16,7 +16,7 @@
  */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 #include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 
 

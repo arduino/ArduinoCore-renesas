@@ -25,7 +25,7 @@
  */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 

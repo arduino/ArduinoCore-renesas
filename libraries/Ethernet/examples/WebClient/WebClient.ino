@@ -17,7 +17,7 @@
  */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:

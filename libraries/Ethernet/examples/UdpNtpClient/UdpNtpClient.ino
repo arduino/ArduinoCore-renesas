@@ -22,7 +22,7 @@
  */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 #include <EthernetUdp.h>
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets

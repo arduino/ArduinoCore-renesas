@@ -1,4 +1,4 @@
-#include "STM32Ethernet.h"
+#include "Ethernet.h"
 #include "Dhcp.h"
 
 int EthernetClass::begin(unsigned long timeout, unsigned long responseTimeout)

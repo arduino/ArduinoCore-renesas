@@ -19,7 +19,7 @@
 */
 
 #include <LwIP.h>
-#include <STM32Ethernet.h>
+#include <Ethernet.h>
 
 
 // Initialize the Ethernet client library

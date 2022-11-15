@@ -4,7 +4,7 @@ extern "C" {
 
 #include "Arduino.h"
 
-#include "STM32Ethernet.h"
+#include "Ethernet.h"
 #include "EthernetClient.h"
 #include "EthernetServer.h"
 #include "Dns.h"
