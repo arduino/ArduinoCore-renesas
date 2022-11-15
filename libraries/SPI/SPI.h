@@ -69,8 +69,8 @@ public:
     virtual void transfer(void *buf, size_t count);
 
     // Transaction Functions
-    virtual void usingInterrupt(int interruptNumber) { }
-    virtual void notUsingInterrupt(int interruptNumber) { }
+    virtual void usingInterrupt(int __attribute__((unused)) interruptNumber) { }
+    virtual void notUsingInterrupt(int __attribute__((unused)) interruptNumber) { }
     virtual void beginTransaction(arduino::SPISettings settings);
     virtual void endTransaction(void) { }
 

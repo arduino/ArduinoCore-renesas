@@ -31,7 +31,7 @@
 
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
-void uart_callback(uart_callback_args_t *p_args)
+void uart_callback(uart_callback_args_t __attribute((unused)) *p_args)
 {
     /* This callback function is not used but it is referenced into 
        FSP configuration so that (for the moment it is necessary to keep it) */
@@ -51,37 +51,29 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
   
 
   switch (p_args->event){
-      case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
       case UART_EVENT_ERR_PARITY:
       case UART_EVENT_ERR_FRAMING:
       case UART_EVENT_ERR_OVERFLOW:
+      case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
       {
           break;
       }
       case UART_EVENT_TX_COMPLETE:
+      case UART_EVENT_TX_DATA_EMPTY:
       {
-        if(uart_ptr->get_tx_tail_index() != uart_ptr->get_tx_head_index() ) {
-          uart_ptr->inc_tx_tail_index();
-          R_SCI_UART_Write (uart_ptr->get_ctrl(), uart_ptr->get_next_ptr_to_tx(), 1);
-        }
-        else {
-          uart_ptr->set_tx_status(TX_STOPPED);
-        }
+        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
+        //while (to_enqueue) {
+        uart_ptr->tx_done = true;
         break;
       }
       case UART_EVENT_RX_CHAR:
       {
-        if(uart_ptr->get_rx_head_index() == uart_ptr->get_prev_of_rx_tail()) {
-          // drop receiving byte... not enough space in the buffer...
-        }
-        else {
-          uart_ptr->put_in_rx_buffer(p_args->data);
-          uart_ptr->inc_rx_head_index();
+        if (uart_ptr->rxBuffer.availableForStore()) {
+          uart_ptr->rxBuffer.store_char(p_args->data);
         }
         break;
       }
       case UART_EVENT_BREAK_DETECT:
-      case UART_EVENT_TX_DATA_EMPTY:
       {
           break;
       }
@@ -91,10 +83,9 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 
 
 /* -------------------------------------------------------------------------- */
-UART::UART(uint8_t _pin_tx, uint8_t _pin_rx) : 
+UART::UART(int _pin_tx, int _pin_rx) :
   tx_pin(_pin_tx),
   rx_pin(_pin_rx),
-  tx_st(TX_STOPPED), 
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
   uart_cfg.txi_irq = FSP_INVALID_VECTOR;
@@ -120,15 +111,22 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
   if(init_ok) {
-    while(tx_head_index == previous(tx_tail_index, SERIAL_TX_BUFFER_SIZE)) { }
-    inc(tx_head_index, SERIAL_TX_BUFFER_SIZE);
-    tx_buffer[tx_head_index] = c;
-    if(get_tx_status() == TX_STOPPED) {
-      set_tx_status(TX_STARTED);
-      inc(tx_tail_index, SERIAL_TX_BUFFER_SIZE);
-      R_SCI_UART_Write (&uart_ctrl, tx_buffer + tx_tail_index, 1);
-    }
+    tx_done = false;
+    R_SCI_UART_Write(&uart_ctrl, &c, 1);
+    while (!tx_done) {}
     return 1;
+  }
+  else {
+    return 0;
+  }
+}
+
+size_t  UART::write(uint8_t* c, size_t len) {
+  if(init_ok) {
+    tx_done = false;
+    R_SCI_UART_Write(&uart_ctrl, c, len);
+    while (!tx_done) {}
+    return len;
   }
   else {
     return 0;
@@ -181,10 +179,9 @@ bool  UART::cfg_pins(int max_index) {
 /* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate, uint16_t config) {
 /* -------------------------------------------------------------------------- */  
-  init_ok = true;
   int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
 
-  init_ok &= cfg_pins(max_index);
+  init_ok = cfg_pins(max_index);
   
   if(init_ok) {
     UART::g_uarts[channel]        = this;
@@ -200,7 +197,6 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     uart_cfg_extend.clock                         = SCI_UART_CLOCK_INT;
     uart_cfg_extend.rx_edge_start                 = SCI_UART_START_BIT_FALLING_EDGE;
     uart_cfg_extend.noise_cancel                  = SCI_UART_NOISE_CANCELLATION_DISABLE;
-    uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
     uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
     uart_cfg_extend.p_baud_setting                = &uart_baud;
     uart_cfg_extend.flow_control                  = SCI_UART_FLOW_CONTROL_RTS;
@@ -265,8 +261,9 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   if(err != FSP_SUCCESS) while(1);
   err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &uart_baud);
   if(err != FSP_SUCCESS) while(1);
-  err = R_SCI_UART_Read(&uart_ctrl, rx_buffer, 0);
-  if(err != FSP_SUCCESS) while(1);
+
+  rxBuffer.clear();
+  txBuffer.clear();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -278,46 +275,31 @@ void UART::begin(unsigned long baudrate) {
 /* -------------------------------------------------------------------------- */
 void UART::end() {
 /* -------------------------------------------------------------------------- */  
-  rx_head_index = 0;
-  rx_tail_index = 0;
-  tx_head_index = -1;
-  tx_tail_index = -1;
+  rxBuffer.clear();
+  txBuffer.clear();
   R_SCI_UART_Close (&uart_ctrl);
 }
 
 /* -------------------------------------------------------------------------- */
 int UART::available() {
 /* -------------------------------------------------------------------------- */  
-  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + rx_head_index - rx_tail_index)) % SERIAL_RX_BUFFER_SIZE;
+  return rxBuffer.available();
 }
 
 /* -------------------------------------------------------------------------- */
 int UART::peek() {
 /* -------------------------------------------------------------------------- */  
-  if(rx_head_index == rx_tail_index) {
-    return -1;
-  }
-  else {
-    unsigned char c = rx_buffer[rx_tail_index];
-    return c;
-  }
+  return rxBuffer.peek();
 }
 
 /* -------------------------------------------------------------------------- */
 int UART::read() {
 /* -------------------------------------------------------------------------- */  
-  if(rx_head_index == rx_tail_index) {
-    return -1;
-  }
-  else {
-    unsigned char c = rx_buffer[rx_tail_index];
-    inc_rx_tail_index();
-    return c;
-  }
+  return  rxBuffer.read_char();
 }
 
 /* -------------------------------------------------------------------------- */
 void UART::flush() {
 /* -------------------------------------------------------------------------- */  
-  while (tx_st == TX_STARTED){};
+  while(txBuffer.available());
 }

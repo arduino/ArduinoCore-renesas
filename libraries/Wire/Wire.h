@@ -111,8 +111,6 @@ class TwoWire : public arduino::HardwareI2C {
     void end();
     void setClock(uint32_t);
 
-    volatile bool isBeginOk() {return init_ok; }
-
     void beginTransmission(uint32_t);
     void beginTransmission(uint16_t);
     void beginTransmission(uint8_t);
@@ -122,7 +120,7 @@ class TwoWire : public arduino::HardwareI2C {
     uint8_t endTransmission(bool);
     size_t requestFrom(uint8_t, size_t);
     size_t requestFrom(uint8_t, size_t, bool);
-	  size_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
+	  size_t requestFrom(uint8_t, size_t, uint32_t, uint8_t, uint8_t);
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
     virtual int available(void);
@@ -168,24 +166,23 @@ class TwoWire : public arduino::HardwareI2C {
     static void WireMasterCallback(i2c_master_callback_args_t *);
     static void WireSlaveCallback(i2c_slave_callback_args_t *);
     
-    unsigned int timeout;
-    bool data_too_long; 
-
-    volatile bool init_ok;
-    uint8_t scl_pin;
-    uint8_t sda_pin;
+    int scl_pin;
+    int sda_pin;
+    bool init_ok;
     bool is_master;
     int channel;
-    bool require_sci;
     bool is_sci;
-    WireAddressMode_t address_mode;
     WireSpeed_t speed_mode;
+    WireAddressMode_t address_mode;
+
+    unsigned int timeout;
+    bool transmission_begun;
+    bool data_too_long; 
 
     volatile WireStatus_t bus_status;
     
-
     sci_i2c_extended_cfg_t m_sci_i2c_extend;
-    
+
     iic_master_extended_cfg_t m_i2c_extend;
     iic_master_instance_ctrl_t m_i2c_ctrl;
     i2c_master_cfg_t m_i2c_cfg;
@@ -195,9 +192,6 @@ class TwoWire : public arduino::HardwareI2C {
     uint16_t slave_address;
 
     uint32_t master_tx_address;
-
-    bool transmission_begun;
-    
 
     I2C_masterOpen_f            m_open = nullptr;
     I2C_masterRead_f            m_read = nullptr;
@@ -217,10 +211,11 @@ class TwoWire : public arduino::HardwareI2C {
     uint8_t tmp_buff[I2C_BUFFER_LENGTH];
     uint8_t tx_buffer[I2C_BUFFER_LENGTH];
     uint8_t rx_buffer[I2C_BUFFER_LENGTH];
-    uint8_t rx_index;
-    uint8_t tx_index;
+    size_t rx_index;
+    size_t tx_index;
     uint8_t rx_extract_index;
-    
+
+    bool require_sci;
 
     uint8_t read_from(uint8_t, uint8_t*, uint8_t, unsigned int, bool);
     uint8_t write_to(uint8_t, uint8_t*, uint8_t, unsigned int, bool);
@@ -241,7 +236,9 @@ extern TwoWire Wire1;
 #if WIRE_HOWMANY > 2
 extern TwoWire Wire2;
 #endif
-
+#if WIRE_HOWMANY > 3
+extern TwoWire Wire3;
+#endif
 
 #endif
 #endif

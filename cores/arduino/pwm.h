@@ -7,7 +7,7 @@
 
 class PwmOut {
   public:
-    PwmOut(pin_size_t pinNumber);
+    PwmOut(int pinNumber);
     ~PwmOut();
 
     /* that is "default" begin that set up a PWM with 490Hz of frequency and 50% of duty cycle */
@@ -37,8 +37,8 @@ class PwmOut {
 
   private:
     bool cfg_pin(int max_index);
+    int _pin;
     bool _enabled;
-    pin_size_t _pin;
     bool _is_gtp;
     TimerPWMChannel_t _pwm_channel;
     

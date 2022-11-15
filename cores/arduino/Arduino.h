@@ -17,6 +17,8 @@ using namespace arduino;
 #include "Serial.h"
 #endif
 
+#include <api/itoa.h>
+
 #if defined(__cplusplus)
 
 #undef F
@@ -69,6 +71,8 @@ void pinPeripheral(bsp_io_port_pin_t bspPin, uint32_t bspPeripheral);
 #if defined(__cplusplus)
 void pinPeripheral(uint32_t pinNumber, uint32_t bspPeripheral);
 #endif
+
+pin_size_t digitalPinToInterrupt(pin_size_t pin);
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )

@@ -434,7 +434,7 @@ bool FspTimer::set_period_us(double us) {
 /* -------------------------------------------------------------------------- */
 bool FspTimer::set_period(uint32_t p) {
 /* -------------------------------------------------------------------------- */    
-    fsp_err_t err;
+
     if(type == GPT_TIMER && gpt_timer != nullptr) {
         if (R_GPT_PeriodSet(&(gpt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;

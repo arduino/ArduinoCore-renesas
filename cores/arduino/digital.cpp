@@ -1,8 +1,9 @@
 #include "Arduino.h"
 
-void pinMode(pin_size_t pin, PinMode mode) {
+void pinMode(pin_size_t pin, const PinMode mode) {
 	switch (mode) {
 		case INPUT:
+		case INPUT_PULLDOWN: // TODO: document the INPUT_PULLDOWN is unavailable
 			R_IOPORT_PinCfg(NULL, g_pin_cfg[pin].pin, IOPORT_CFG_PORT_DIRECTION_INPUT);
 			break;
 		case INPUT_PULLUP:
@@ -11,7 +12,10 @@ void pinMode(pin_size_t pin, PinMode mode) {
 		case OUTPUT:
 			R_IOPORT_PinCfg(NULL, g_pin_cfg[pin].pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
 			break;
-	}
+		case OUTPUT_OPENDRAIN:
+			R_IOPORT_PinCfg(NULL, g_pin_cfg[pin].pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PMOS_ENABLE);
+			break;
+		}
 }
 
 void digitalWrite(pin_size_t pin, PinStatus val) {
