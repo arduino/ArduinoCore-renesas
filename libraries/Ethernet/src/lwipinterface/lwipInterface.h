@@ -1,7 +1,7 @@
 #ifndef _ARDUINO_LW_IP_INTERFACE_H
 #define _ARDUINO_LW_IP_INTERFACE_H
 #include <stdint.h>
-#include "../lwipopts.h"
+#include "lwipopts.h"
 #include "lwip/include/lwip/ip_addr.h"
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/udp.h"
