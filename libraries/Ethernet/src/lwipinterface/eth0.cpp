@@ -1,12 +1,16 @@
 #include "eth0.h"
 #include "../arch/ethernetDriver.h"
 
+
+#ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
 #include <queue>
-
-
-
-
 std::queue<struct pbuf*> rx_queue;
+#else 
+#include "FifoBuffer.h"
+#define FIFO_DIM    128
+arduino::FifoBuffer<volatile struct pbuf*, FIFO_DIM> rx_queue;
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,13 +67,9 @@ void eth0if_set_mac_address(const uint8_t *mad){
 
 
 static err_t eth0if_output(struct netif *netif, struct pbuf *p) {
-  
   err_t errval = ERR_OK;
-  
   assert (p->tot_len <= ETH_BUFF_DIM);
-
   uint16_t bytes_actually_copied = pbuf_copy_partial(p, eth0_tx_buffer, p->tot_len, 0);
-  
   if(bytes_actually_copied > 0) {
     if(!eth_output(eth0_tx_buffer, bytes_actually_copied)) {
       errval = ERR_IF;
@@ -78,9 +78,11 @@ static err_t eth0if_output(struct netif *netif, struct pbuf *p) {
   return errval;
 }
 
-
+/* -------------------------------------------------------------------------- */
 struct pbuf* get_rx_pbuf() {
-  if(!rx_queue.empty()) {
+/* -------------------------------------------------------------------------- */  
+  #ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
+  if(!rx_queue.empty()) {  
     struct pbuf* rv = rx_queue.front();
     rx_queue.pop();
     return rv;
@@ -88,6 +90,16 @@ struct pbuf* get_rx_pbuf() {
   else {
     return nullptr;
   }
+  #else
+  if(rx_queue.available()) {  
+    bool rd = false;
+    struct pbuf* rv = (struct pbuf*)rx_queue.read(&rd);
+    return (rd) ? rv : nullptr;
+  }
+  else {
+    return nullptr;
+  }
+  #endif
 }
 
 
@@ -101,7 +113,12 @@ void eth0if_input() {
     /* Copy ethernet frame into pbuf */
     pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
     eth_release_rx_buffer();
+    #ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
     rx_queue.push((struct pbuf* )p); 
+    #else
+    assert(rx_queue.freePositions() > 64);
+    rx_queue.store(p);
+    #endif
   }
 }
 
