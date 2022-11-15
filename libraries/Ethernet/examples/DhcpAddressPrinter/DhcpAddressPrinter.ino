@@ -4,9 +4,6 @@
   This sketch uses the DHCP extensions to the Ethernet library
   to get an IP address via DHCP and print the address obtained.
 
-  Circuit:
-   STM32 board with Ethernet support
-
   created 12 April 2011
   modified 9 Apr 2012
   by Tom Igoe
@@ -18,7 +15,7 @@
   by sstaub
 */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 

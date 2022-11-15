@@ -9,8 +9,6 @@
  in the Processing application, available at
  http://processing.org/
 
- Circuit:
- * STM32 board with Ethernet support
 
  created 14 Sep 2010
  modified 9 Apr 2012
@@ -21,7 +19,7 @@
  by sstaub
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // Enter an IP address for your controller below.

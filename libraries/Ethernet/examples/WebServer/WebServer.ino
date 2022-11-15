@@ -3,8 +3,7 @@
 
  A simple web server that shows the value of the analog input pins.
 
- Circuit:
- * STM32 board with Ethernet support
+ 
  * Analog inputs attached to pins A0 through A5 (optional)
 
  created 18 Dec 2009
@@ -19,7 +18,7 @@
  by sstaub
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // Enter an IP address for your controller below.

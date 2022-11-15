@@ -6,9 +6,6 @@
  This example uses DNS, by assigning the Ethernet client with a MAC address,
  IP address, and DNS address.
 
- Circuit:
- * STM32 board with Ethernet support
-
  created 19 Apr 2012
  by Tom Igoe
  modified 21 Jan 2014
@@ -22,7 +19,7 @@
 
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // fill in an available IP address on your network here,

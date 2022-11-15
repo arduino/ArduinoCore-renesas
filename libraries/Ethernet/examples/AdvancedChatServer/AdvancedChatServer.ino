@@ -6,9 +6,6 @@
  To use, telnet to your device's IP address and type.
  You can see the client's input in the serial monitor as well.
 
- Circuit:
- * STM32 board with Ethernet support
-
  created 18 Dec 2009
  by David A. Mellis
  modified 9 Apr 2012
@@ -22,7 +19,7 @@
 
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // Enter an IP address for your controller below.

@@ -3,9 +3,6 @@
 
  This sketch connects to a website (http://www.google.com)
 
- Circuit:
- * STM32 board with Ethernet support
-
  created 18 Dec 2009
  by David A. Mellis
  modified 9 Apr 2012
@@ -16,7 +13,7 @@
  by sstaub
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
@@ -35,6 +32,7 @@ EthernetClient client;
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
+  
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -63,13 +61,25 @@ void setup() {
   }
 }
 
-void loop() {
-  // if there are incoming bytes available
-  // from the server, read them and print them:
-  if (client.available()) {
+/* just wrap the received data up to 80 columns in the serial print*/
+void read_request() {
+  uint32_t received_data_num = 0;
+  while (client.available()) {
+    /* actual data reception */
     char c = client.read();
+    /* print data to serial port */
     Serial.print(c);
-  }
+    /* wrap data to 80 columns*/
+    received_data_num++;
+    if(received_data_num % 80 == 0) { 
+      Serial.println();
+    }
+  }  
+}
+
+void loop() {
+ 
+  read_request();
 
   // if the server's disconnected, stop the client:
   if (!client.connected()) {

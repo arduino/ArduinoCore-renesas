@@ -7,9 +7,6 @@
 
  THis version attempts to get an IP address using DHCP
 
- Circuit:
- * STM32 board with Ethernet support
-
  created 21 May 2011
  modified 9 Apr 2012
  by Tom Igoe
@@ -22,7 +19,7 @@
  by sstaub
  */
 
-#include <LwIP.h>
+#include <lwIP_Arduino.h>
 #include <Ethernet.h>
 
 // Enter an IP address for your controller below.
