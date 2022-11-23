@@ -48,12 +48,6 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _open{R_CAN_Open}
-, _close{R_CAN_Close}
-, _write{R_CAN_Write}
-, _read{R_CAN_Read}
-, _info_get{R_CAN_InfoGet}
-, _mode_transition{R_CAN_ModeTransition}
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
@@ -175,7 +169,7 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
     digitalWrite(_can_stby_pin, LOW);
   }
 
-  if (_open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
+  if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     init_ok = false;
 
   return init_ok;
@@ -183,12 +177,12 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
 
 void ArduinoCAN::end()
 {
-  _close(&_can_ctrl);
+  R_CAN_Close(&_can_ctrl);
 }
 
 int ArduinoCAN::enableInternalLoopback()
 {
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -196,7 +190,7 @@ int ArduinoCAN::enableInternalLoopback()
 
 int ArduinoCAN::disableInternalLoopback()
 {
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -214,7 +208,7 @@ int ArduinoCAN::write(CanMsg const & msg)
 
   memcpy(can_msg.data, msg.data, can_msg.data_length_code);
 
-  if(fsp_err_t const rc = _write(&_can_ctrl, CAN_MAILBOX_ID_0, &can_msg); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_Write(&_can_ctrl, CAN_MAILBOX_ID_0, &can_msg); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
