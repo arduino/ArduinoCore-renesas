@@ -14,6 +14,8 @@
 
 #include "CAN.h"
 
+#if CAN_HOWMANY > 0
+
 #include <IRQManager.h>
 
 /**************************************************************************************
@@ -316,6 +318,8 @@ extern "C" void can_callback(can_callback_args_t * p_args)
   ArduinoCAN * this_ptr = (ArduinoCAN *)(p_args->p_context);
   this_ptr->onCanCallback(p_args);
 }
+
+#endif /* CAN_HOWMANY > 0 */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION

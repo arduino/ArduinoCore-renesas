@@ -17,6 +17,8 @@
 
 #include <Arduino.h>
 
+#if CAN_HOWMANY > 0
+
 #include "bsp_api.h"
 
 #include "r_can.h"
@@ -120,6 +122,8 @@ private:
 
 } /* arduino */
 
+#endif /* CAN_HOWMANY > 0 */
+
 /**************************************************************************************
  * EXTERN DECLARATION
  **************************************************************************************/
@@ -129,7 +133,7 @@ extern arduino::ArduinoCAN CAN;
 #endif
 
 #if CAN_HOWMANY > 1
-arduino::ArduinoCAN CAN1;
+extern arduino::ArduinoCAN CAN1;
 #endif
 
 #endif /* ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_ */
