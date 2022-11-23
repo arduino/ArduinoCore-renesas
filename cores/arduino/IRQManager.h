@@ -42,6 +42,7 @@ typedef enum {
     IRQ_SCI_SPI_MASTER,
     IRQ_CAN,
     IRQ_ETHERNET
+    IRQ_CANFD,
 } Peripheral_t;
 
 #if RTC_HOWMANY > 0
@@ -110,6 +111,7 @@ typedef struct can_irq {
 # include "r_canfd.h"
 typedef struct canfd_irq {
   canfd_instance_ctrl_t * ctrl;
+  can_cfg_t * cfg;
 } CanFdIrqReq_t;
 #endif /* CANFD_HOWMANY > 0 */
 
@@ -175,6 +177,9 @@ void can_error_isr(void);
 void can_rx_isr(void);
 void can_tx_isr(void);
 void ether_eint_isr (void);
+void canfd_error_isr(void);
+void canfd_rx_fifo_isr(void);
+void canfd_channel_tx_isr(void);
 #ifdef __cplusplus
 }
 #endif
@@ -241,6 +246,10 @@ class IRQManager {
     void set_can_error_link_event(int li, int ch);
     void set_can_rx_link_event(int li, int ch);
     void set_can_tx_link_event(int li, int ch);
+
+    void set_canfd_error_link_event(int li, int ch);
+    void set_canfd_rx_link_event(int li, int ch);
+    void set_canfd_tx_link_event(int li, int ch);
 
     bool set_dma_link_event(int li, int ch);
     IRQManager();
