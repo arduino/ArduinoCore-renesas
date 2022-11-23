@@ -99,21 +99,19 @@ typedef struct sci_spi_master_irq {
 #endif
 
 #if CAN_HOWMANY > 0
-# if IS_CAN_FD
-#  include "r_canfd.h"
-# else
-#  include "r_can.h"
-# endif
-
+# include "r_can.h"
 typedef struct can_irq {
-#if IS_CAN_FD
-  canfd_instance_ctrl_t * ctrl;
-#else
   can_instance_ctrl_t * ctrl;
-#endif
   can_cfg_t * cfg;
 } CanIrqReq_t;
 #endif /* CAN_HOWMANY > 0 */
+
+#if CANFD_HOWMANY > 0
+# include "r_canfd.h"
+typedef struct canfd_irq {
+  canfd_instance_ctrl_t * ctrl;
+} CanFdIrqReq_t;
+#endif /* CANFD_HOWMANY > 0 */
 
 typedef struct usb {
     uint32_t num_of_irqs_required;
