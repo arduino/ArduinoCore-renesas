@@ -20,9 +20,6 @@
 #include "bsp_api.h"
 
 #include "r_can.h"
-#if IS_CAN_FD
-# include "r_canfd.h"
-#endif
 
 #include "CanMsg.h"
 #include "CanMsgRingbuffer.h"
@@ -67,7 +64,7 @@ using CAN_mode_transition_f = fsp_err_t (*)(can_ctrl_t * const p_api_ctrl, can_o
 class ArduinoCAN
 {
 public:
-  ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
+  ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
 
 
   bool begin(CanBitRate const can_bitrate);
@@ -93,7 +90,6 @@ public:
 private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
 
-  bool const _is_can_fd;
   int const _can_tx_pin;
   int const _can_rx_pin;
   int const _can_stby_pin;
@@ -108,11 +104,7 @@ private:
   CAN_info_get_f _info_get;
   CAN_mode_transition_f _mode_transition;
 
-#if IS_CAN_FD
-  canfd_instance_ctrl_t _can_ctrl;
-#else
   can_instance_ctrl_t _can_ctrl;
-#endif
   can_bit_timing_cfg_t _can_bit_timing_cfg;
   uint32_t _can_mailbox_mask[CAN_MAX_NO_MAILBOXES / 4];
   can_mailbox_t _can_mailbox[CAN_MAX_NO_MAILBOXES];

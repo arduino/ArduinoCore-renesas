@@ -39,20 +39,19 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
-: _is_can_fd{is_can_fd}
-, _can_tx_pin{can_tx_pin}
+ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
+: _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
 , _can_stby_pin{can_stby_pin}
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _open{nullptr}
-, _close{nullptr}
-, _write{nullptr}
-, _read{nullptr}
-, _info_get{nullptr}
-, _mode_transition{nullptr}
+, _open{R_CAN_Open}
+, _close{R_CAN_Close}
+, _write{R_CAN_Write}
+, _read{R_CAN_Read}
+, _info_get{R_CAN_InfoGet}
+, _mode_transition{R_CAN_ModeTransition}
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
@@ -156,38 +155,6 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
   int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
   init_ok &= cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
 
-  /* Determine the right function pointers depending
-   * on whether we have a CAN FD capable module or not.
-   */
-  if (_is_can_fd)
-  {
-#if IS_CAN_FD
-  _open            = R_CANFD_Open;
-  _close           = R_CANFD_Close;
-  _write           = R_CANFD_Write;
-  _read            = R_CANFD_Read;
-  _info_get        = R_CANFD_InfoGet;
-  _mode_transition = R_CANFD_ModeTransition;
-#endif
-  }
-  else
-  {
-    _open            = R_CAN_Open;
-    _close           = R_CAN_Close;
-    _write           = R_CAN_Write;
-    _read            = R_CAN_Read;
-    _info_get        = R_CAN_InfoGet;
-    _mode_transition = R_CAN_ModeTransition;
-  }
-
-  /* Perform a sanity check if valid function pointers could
-   * have been assigned.
-   */
-  if (!_open || !_close || !_write || !_read || !_info_get) {
-    init_ok = false;
-    return init_ok;
-  }
-
   /* Configure the interrupts.
    */
   CanIrqReq_t irq_req
@@ -219,9 +186,7 @@ void ArduinoCAN::end()
 
 int ArduinoCAN::enableInternalLoopback()
 {
-  can_operation_mode_t const mode_normal = _is_can_fd ? CAN_OPERATION_MODE_GLOBAL_OPERATION : CAN_OPERATION_MODE_NORMAL;
-
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode_normal, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -229,9 +194,7 @@ int ArduinoCAN::enableInternalLoopback()
 
 int ArduinoCAN::disableInternalLoopback()
 {
-  can_operation_mode_t const mode_normal = _is_can_fd ? CAN_OPERATION_MODE_GLOBAL_OPERATION : CAN_OPERATION_MODE_NORMAL;
-
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode_normal, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -359,9 +322,9 @@ extern "C" void can_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-arduino::ArduinoCAN CAN(IS_CAN_FD, PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
+arduino::ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
 #endif
 
 #if CAN_HOWMANY > 1
-arduino::ArduinoCAN CAN1(IS_CAN_FD, PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
+arduino::ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
 #endif
