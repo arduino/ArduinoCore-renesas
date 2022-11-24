@@ -66,7 +66,7 @@ private:
 #define ETHER_FRAME_TRANSFER_COMPLETED          (1UL << 21)
 #define ETHER_MAGIC_PACKET_DETECTED_MASK        (1UL << 1)
 
-static bool frame_transmitted_flag = false;
+static volatile bool frame_transmitted_flag = false;
 static EthernetDriver eth_driver;
 
 

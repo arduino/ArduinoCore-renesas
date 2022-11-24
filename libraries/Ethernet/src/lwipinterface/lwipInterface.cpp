@@ -24,9 +24,10 @@ void init_lwip() {
 }
 
 
+FspTimer eth_timer;
 
 /* main lwip task (should be called periodically) */
-void lwip_task() {
+void lwip_task_private() {
  
   eth_execute_link_process();
   
@@ -56,11 +57,18 @@ void lwip_task() {
 
 }
 
+/* definition of a public task that disable the call to the interrupt on timer */
+void lwip_task() {
+  eth_timer.disable_overflow_irq();
+  lwip_task_private();
+  eth_timer.enable_overflow_irq();
+  
+}
 
-FspTimer eth_timer;
 
 void timer_callback(timer_callback_args_t *arg) {
-  lwip_task();
+  
+  lwip_task_private();
 }
 
 
@@ -73,6 +81,10 @@ void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw
   eth0if_set_ip4_gateway(gw);
   eth0if_lwip_config(true);
   
+
+  
+
+
   /* timer */
   uint8_t type = 8;
   uint8_t ch = FspTimer::get_available_timer(type);

@@ -8,7 +8,7 @@
 #include "lwip/include/netif/ethernet.h"
 
 /* undefine to remove assert in fifo lenght */
-#define USE_ASSERT_DEBUG
+//#define USE_ASSERT_DEBUG
 
 #define IFNAME0 'e'
 #define IFNAME1 't'

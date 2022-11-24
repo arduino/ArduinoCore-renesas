@@ -140,6 +140,9 @@ class FspTimer {
     bool setup_capture_a_irq(uint8_t priority = 12, Irq_f isr_fnc = nullptr ); 
     bool setup_capture_b_irq(uint8_t priority = 12, Irq_f isr_fnc = nullptr );
     
+    void disable_overflow_irq();
+    void enable_overflow_irq();
+
     bool set_source_start(gpt_source_t src);
     bool set_source_stop(gpt_source_t src);
     bool set_source_clear(gpt_source_t scr);
