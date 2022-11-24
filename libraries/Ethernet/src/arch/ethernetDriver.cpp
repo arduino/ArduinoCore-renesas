@@ -290,7 +290,7 @@ bool eth_init() {
 /* -------------------------------------------------------------------------- */    
     bool rv = false;
     
-    if(!eth_driver.enableIrq()) {
+    if(!eth_driver.enableIrq(10)) {
         return rv;
     }
 
@@ -358,9 +358,9 @@ bool eth_output(uint8_t *buf, uint16_t dim) {
     fsp_err_t err = R_ETHER_Write ( eth_driver.get_ctrl(), buf, dim);
     if(err == FSP_SUCCESS) {
         
-        //while(!frame_transmitted_flag) {
+        while(!frame_transmitted_flag) {
 
-        //}
+        }
         return true;
     }
     else {

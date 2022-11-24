@@ -67,7 +67,6 @@ void lwip_task() {
 
 
 void timer_callback(timer_callback_args_t *arg) {
-  
   lwip_task_private();
 }
 
@@ -80,10 +79,6 @@ void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw
   eth0if_set_ip4_netmask(netmask);
   eth0if_set_ip4_gateway(gw);
   eth0if_lwip_config(true);
-  
-
-  
-
 
   /* timer */
   uint8_t type = 8;
@@ -98,9 +93,6 @@ void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw
   eth_timer.open();
   eth_timer.start();
 }
-
-
-
 
 
 /* -------------------------------------------------------------------------- */
