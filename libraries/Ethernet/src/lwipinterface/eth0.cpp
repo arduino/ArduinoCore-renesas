@@ -108,19 +108,21 @@ void eth0if_input() {
 /* -------------------------------------------------------------------------- */  
   volatile uint32_t rx_frame_dim = 0;
   volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
-  volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_POOL);
-  if(p != NULL) {
-    /* Copy ethernet frame into pbuf */
-    pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
-    eth_release_rx_buffer();
-    #ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
-    rx_queue.push((struct pbuf* )p); 
-    #else
-    #ifdef USE_ASSERT_DEBUG
-    assert(rx_queue.freePositions() > 64);
-    #endif
-    rx_queue.store(p);
-    #endif
+  if(rx_frame_dim > 0 && rx_frame_buf != nullptr) {
+    volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_POOL);
+    if(p != NULL) {
+      /* Copy ethernet frame into pbuf */
+      pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
+      eth_release_rx_buffer();
+      #ifdef USE_QUEUE_CPLUSPLUS_TEMPLATE
+      rx_queue.push((struct pbuf* )p); 
+      #else
+      #ifdef USE_ASSERT_DEBUG
+      assert(rx_queue.freePositions() > 64);
+      #endif
+      rx_queue.store(p);
+      #endif
+    }
   }
 }
 
@@ -231,7 +233,6 @@ void eth0if_lwip_config(bool is_default) {
     netif_set_default(&eth0if);
   }
 
-  
   if (netif_is_link_up(&eth0if)) {
     /* When the netif is fully configured this function must be called */
     netif_set_up(&eth0if);

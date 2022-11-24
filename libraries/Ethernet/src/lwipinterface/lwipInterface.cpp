@@ -23,6 +23,8 @@ void init_lwip() {
    }
 }
 
+
+
 /* main lwip task (should be called periodically) */
 void lwip_task() {
  
@@ -62,7 +64,8 @@ void timer_callback(timer_callback_args_t *arg) {
 }
 
 
-/* it set address and then configure eth0 for the use with lwip */void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw, const uint8_t *netmask) {
+/* it set address and then configure eth0 for the use with lwip */
+void add_eth0_interface(const uint8_t *mac, const uint8_t *ip, const uint8_t *gw, const uint8_t *netmask) {
   init_lwip();
   eth0if_set_mac_address(mac);
   eth0if_set_ip4_address(ip);
@@ -78,7 +81,7 @@ void timer_callback(timer_callback_args_t *arg) {
     ch = FspTimer::get_available_timer(type,true);
   } 
 
-  eth_timer.begin(TIMER_MODE_PERIODIC, type, ch,  10.0, 50.0, timer_callback);
+  eth_timer.begin(TIMER_MODE_PERIODIC, type, ch, 10.0, 50.0, timer_callback);
   eth_timer.setup_overflow_irq();
   eth_timer.open();
   eth_timer.start();

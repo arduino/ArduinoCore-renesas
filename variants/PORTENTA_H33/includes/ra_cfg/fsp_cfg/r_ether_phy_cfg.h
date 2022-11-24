@@ -18,7 +18,7 @@
 #ifndef ETHER_PHY_CFG_TARGET_ICS1894_ENABLE
 #define ETHER_PHY_CFG_TARGET_ICS1894_ENABLE    (0)
 #endif
-#define ETHER_PHY_CFG_USE_REF_CLK              (BOARD_PHY_REF_CLK)
+#define ETHER_PHY_CFG_USE_REF_CLK              (1)
 
 #ifdef __cplusplus
             }

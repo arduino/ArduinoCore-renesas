@@ -264,16 +264,24 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
   return rv;
 }
 
-#include "r_agt.h"
+#include "FspTimer.h"
+#include "pwm.h"
 
-/* TODO: replace me with FspTimer */
-extern "C" const timer_instance_t g_timer_eth;
+FspTimer ethernet_25MHz_timer;
+PwmOut pwm(26);
+
 void startETHClock() {
-  pinPeripheral(AGT_PIN_FOR_25MHZ, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
-  R_AGT_Open(g_timer_eth.p_ctrl, g_timer_eth.p_cfg);
-  R_AGT_Start(g_timer_eth.p_ctrl);
+  //pinPeripheral(BSP_IO_PORT_06_PIN_00, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
+  pwm.begin(4, 2, true, TIMER_SOURCE_DIV_1);
+  /*
+  if(ethernet_25MHz_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 3,  1000.0, 50.0)) {
+    ethernet_25MHz_timer.open();
+    ethernet_25MHz_timer.start();
+  }
+  */
+  
 }
 
 void initVariant() {
-  //startETHClock();
+  startETHClock();
 }

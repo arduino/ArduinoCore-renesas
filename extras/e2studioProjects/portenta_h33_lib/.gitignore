@@ -4,3 +4,5 @@ ra_gen
 ra_cfg
 ra
 Debug
+*.d
+*.o

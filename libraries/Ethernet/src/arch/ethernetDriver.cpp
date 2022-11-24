@@ -57,12 +57,17 @@ private:
 };
 
 
+//#define H33_HARDWARE                      
+
 
 #define ETHERNET_CHANNEL                        (0)
 
 #define ETHER_FRAME_RECEIVED_MASK               (1UL << 18)
 #define ETHER_FRAME_TRANSFER_COMPLETED          (1UL << 21)
 #define ETHER_MAGIC_PACKET_DETECTED_MASK        (1UL << 1)
+
+static bool frame_transmitted_flag = false;
+static EthernetDriver eth_driver;
 
 
 #define ETHERNET_PIN_CFG ((uint32_t) ((uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_ETHER_RMII))
@@ -85,7 +90,11 @@ EthernetDriver::EthernetDriver() {
     phy_cfg.phy_lsi_address             = 0;
     phy_cfg.phy_reset_wait_time         = 0x00020000;
     phy_cfg.mii_bit_access_wait_time    = 8;
+    #ifdef H33_HARDWARE
+    phy_cfg.phy_lsi_type                = ETHER_PHY_LSI_TYPE_LAN8742;
+    #else
     phy_cfg.phy_lsi_type                = ETHER_PHY_LSI_TYPE_DEFAULT;
+    #endif
     phy_cfg.flow_control                = ETHER_PHY_FLOW_CONTROL_DISABLE;
     phy_cfg.mii_type                    = ETHER_PHY_MII_TYPE_RMII;
     phy_cfg.p_context                   = nullptr;
@@ -129,10 +138,10 @@ EthernetDriver::EthernetDriver() {
     cfg.p_context                       = nullptr; 
     cfg.p_extend                        = &extended_cfg;
     /* PIN configuration ____________________________________________________ */
-    #ifdef H33_PIN
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_11, ETHERNET_PIN_CFG);
+   
+    #ifdef H33_HARDWARE
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_14, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_03_PIN_00, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_11, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_05, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_06, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_00, ETHERNET_PIN_CFG);
@@ -140,9 +149,10 @@ EthernetDriver::EthernetDriver() {
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_02, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_03, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
+    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_05, ETHERNET_PIN_CFG);
+    //R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
     #else
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_06, ETHERNET_PIN_CFG);
+    //R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_06, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_01, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_02, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_06, ETHERNET_PIN_CFG);
@@ -175,28 +185,31 @@ EtherCallback_f link_on = nullptr;
 EtherCallback_f link_off = nullptr;
 EtherCallback_f lan_wake_up = nullptr;
 
+#define ADE_BIT_MASK (1 << 23)
 
-extern void lwip_task();
+/* This function performs a sort of reset of the EDMAC and  Ethernet controller
+   when the ADE bit in EESR EDMAC register is 1 
+   (however it does not solve the problem since the cause of this in unkknown)*/
+
+/* -------------------------------------------------------------------------- */
+void eth_reset_due_to_ADE_bit() {
+/* -------------------------------------------------------------------------- */    
+    uint32_t *EDMAC_EESR_REG = (uint32_t *)0x40114028;
+    uint32_t *EDMAC_CONTROL_REG = (uint32_t *)0x40114000;
+    if( (*EDMAC_EESR_REG & ADE_BIT_MASK) == ADE_BIT_MASK) {
+        R_ETHER_Close(eth_driver.get_ctrl());
+        *EDMAC_CONTROL_REG |= 0x1;
+        fsp_err_t err = R_ETHER_Open(eth_driver.get_ctrl(), eth_driver.get_cfg());
+    }               
+}
+
+
+
 /* -------------------------------------------------------------------------- */
 void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
-/* -------------------------------------------------------------------------- */
-    
-
-    /*
-    uint32_t      channel;             ///< Device channel number
-    ether_event_t event;               ///< Event code
-    uint32_t      status_ecsr;         ///< ETHERC status register for interrupt handler
-    uint32_t      status_eesr;         ///< ETHERC/EDMAC status register for interrupt handler
-
-    void const * p_context;    
-
-     ETHER_EVENT_WAKEON_LAN,            ///< Magic packet detection event
-    ETHER_EVENT_LINK_ON,               ///< Link up detection event
-    ETHER_EVENT_LINK_OFF,              ///< Link down detection event
-    ETHER_EVENT_INTERRUPT */
-    //lwip_task();
+/* -------------------------------------------------------------------------- */  
     p_args->status_ecsr;
-    p_args->status_eesr;
+    uint32_t reg_eesr = p_args->status_eesr;
     if(p_args->channel == ETHERNET_CHANNEL) {
         if(p_args->event == ETHER_EVENT_WAKEON_LAN) {
             
@@ -227,28 +240,32 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
                     magic_packet_received();
                 }
             }
-            if (ETHER_FRAME_TRANSFER_COMPLETED == (p_args->status_eesr & ETHER_FRAME_TRANSFER_COMPLETED)) {
+            if (ETHER_FRAME_TRANSFER_COMPLETED == (reg_eesr & ETHER_FRAME_TRANSFER_COMPLETED)) {
                 
+                
+                frame_transmitted_flag = true;
                 /* FRAME TRANSMISSION COMPLETED */
                 if(frame_transmitted != nullptr) {
                     frame_transmitted();
                 }
             }
-            if (ETHER_FRAME_RECEIVED_MASK == (p_args->status_eesr & ETHER_FRAME_RECEIVED_MASK)) {
+            if (ETHER_FRAME_RECEIVED_MASK == (reg_eesr & ETHER_FRAME_RECEIVED_MASK)) {
                 
                 /* FRAME RECEIVED */
                 if(frame_received != nullptr) {
                     frame_received();
                 }
             } 
+            if( (reg_eesr & ADE_BIT_MASK) == ADE_BIT_MASK) {
+                /* weird error with ADE bit set as soon as reception is enabled */
+                eth_reset_due_to_ADE_bit();
+            }
         }
         else {
             
         }
     }
 }
-
-static EthernetDriver eth_driver;
 
 /* -------------------------------------------------------------------------- */
 void eth_set_mac_address(const uint8_t *mad) {
@@ -304,18 +321,10 @@ bool eth_init() {
     }
     #endif
     
-    /* ------------
-     * link process
-     * ------------ */
-    //if(rv) {
-        //do {
-            //err = R_ETHER_LinkProcess(eth_driver.get_ctrl());
-        //} while (FSP_SUCCESS != err);
-    //}
-
+    
     
     #ifdef IGMP_HARDWARE_LEVEL
-    /* Questo codice è qui solo per promemoria - TO BE DELETED */
+    /* CODE TO BE VERIFIED  */
     #if LWIP_IGMP
     netif_set_igmp_mac_filter(netif, igmp_mac_filter);
     #endif
@@ -335,10 +344,7 @@ bool eth_init() {
 }
 
 void eth_execute_link_process() {
-    //fsp_err_t err;
-    //do {
-    R_ETHER_LinkProcess(eth_driver.get_ctrl());
-    //} while (FSP_SUCCESS != err);
+    R_ETHER_LinkProcess(eth_driver.get_ctrl()); 
 }
 
 void eth_release_rx_buffer() {
@@ -348,8 +354,13 @@ void eth_release_rx_buffer() {
 
 
 bool eth_output(uint8_t *buf, uint16_t dim) {
+    frame_transmitted_flag = false;
     fsp_err_t err = R_ETHER_Write ( eth_driver.get_ctrl(), buf, dim);
     if(err == FSP_SUCCESS) {
+        
+        //while(!frame_transmitted_flag) {
+
+        //}
         return true;
     }
     else {
@@ -373,30 +384,12 @@ uint8_t *eth_input(volatile uint32_t *dim) {
 }
 
 
-void eth_set_rx_frame_cbk(EtherCallback_f fn) {
-    
-    frame_received = fn;
-}
-
-void eth_set_tx_frame_cbk(EtherCallback_f fn){
-    frame_transmitted = fn;
-}
-
-void eth_set_link_on_cbk(EtherCallback_f fn){
-    link_on = fn;
-}
-
-void eth_set_link_off_cbk(EtherCallback_f fn){
-    link_off = fn;
-}
-
-void eth_set_lan_wake_up_cbk(EtherCallback_f fn){
-    lan_wake_up = fn;
-}
-
-void eth_set_magic_packet_cbk(EtherCallback_f fn){
-    magic_packet_received = fn;
-}
+void eth_set_rx_frame_cbk    (EtherCallback_f fn) { frame_received = fn; }
+void eth_set_tx_frame_cbk    (EtherCallback_f fn) { frame_transmitted = fn; }
+void eth_set_link_on_cbk     (EtherCallback_f fn) { link_on = fn; }
+void eth_set_link_off_cbk    (EtherCallback_f fn) { link_off = fn; }
+void eth_set_lan_wake_up_cbk (EtherCallback_f fn) { lan_wake_up = fn;}
+void eth_set_magic_packet_cbk(EtherCallback_f fn) { magic_packet_received = fn;}
 
 
 
