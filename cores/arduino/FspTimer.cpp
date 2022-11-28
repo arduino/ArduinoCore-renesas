@@ -18,10 +18,12 @@ FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), ty
 
 FspTimer::~FspTimer() {
     if(agt_timer != nullptr) {
+        agt_used_channel[timer_cfg.channel] = TIMER_FREE;
         delete agt_timer;
         agt_timer = nullptr; 
     }
     if(gpt_timer != nullptr) {
+        gpt_used_channel[timer_cfg.channel] = TIMER_FREE;
         delete gpt_timer;
         gpt_timer = nullptr;
     }
