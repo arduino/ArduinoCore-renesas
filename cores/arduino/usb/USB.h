@@ -22,8 +22,7 @@ extern void __USBInstallMouse() __attribute__((weak));
 extern void __USBInstallMIDI() __attribute__((weak));
 
 // HID report ID inquiry (report ID will vary depending on the number/type of other HID)
-int __USBGetKeyboardReportID();
-int __USBGetMouseReportID();
+extern uint8_t* __USBGetHIDReport(size_t* len) __attribute__((weak));
 
 // Called by main() to init the USB HW/SW.
 void __USBStart();
