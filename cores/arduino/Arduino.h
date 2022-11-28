@@ -30,6 +30,13 @@ auto F(T1&& A)
   return (const arduino::__FlashStringHelper*)A;
 }
 
+// undefine stdlib's abs if encountered
+#ifdef abs
+#undef abs
+#endif // abs
+
+#define abs(x) ((x)>0?(x):-(x))
+
 #endif //__cplusplus
 
 #define interrupts()        __enable_irq()
