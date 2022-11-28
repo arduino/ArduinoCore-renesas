@@ -17,6 +17,11 @@ FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), ty
 }
 
 FspTimer::~FspTimer() {
+    end();
+}
+
+void FspTimer::end() {
+    close();
     if(agt_timer != nullptr) {
         agt_used_channel[timer_cfg.channel] = TIMER_FREE;
         delete agt_timer;
@@ -430,6 +435,9 @@ bool FspTimer::set_period_us(double us) {
     return set_period_ms(us/1000.0);
 }
 
+bool FspTimer::set_frequency(float hz) {
+    return set_period_ms(1000/hz);
+}
 
 /* -------------------------------------------------------------------------- */
 bool FspTimer::set_period(uint32_t p) {

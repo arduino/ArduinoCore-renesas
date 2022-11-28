@@ -132,6 +132,8 @@ class FspTimer {
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  float freq_hz, float duty_perc, GPTimerCbk_f cbk = nullptr , void *ctx = nullptr );
     bool begin(timer_mode_t mode, uint8_t type, uint8_t channel,  uint32_t period, uint32_t pulse, timer_source_div_t sd, GPTimerCbk_f cbk = nullptr , void *ctx = nullptr);
     
+    void end();
+
     void set_irq_callback(GPTimerCbk_f cbk , void *ctx = nullptr );
 
     bool setup_overflow_irq(uint8_t priority = 12,  Irq_f isr_fnc = nullptr );
@@ -149,6 +151,7 @@ class FspTimer {
     
     uint32_t get_period_raw();
     void add_pwm_extended_cfg();
+    bool set_frequency(float hz);
     bool set_period_ms(double ms);
     bool set_period_us(double us);
     bool set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch);
