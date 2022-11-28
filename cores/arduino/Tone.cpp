@@ -25,7 +25,7 @@ public:
     }
 
     void start(void) {
-        if (frequency) {
+        if ((frequency != 0) && (channel != -1)) {
             tone_timer.start();
         }
         if (duration != 0) {
@@ -42,7 +42,7 @@ public:
     }
 
     void stop(void) {
-        if (frequency) {
+        if ((frequency != 0) && (channel != -1)) {
             tone_timer.stop();
         }
         digitalWrite(pin, LOW);
@@ -51,15 +51,18 @@ public:
     static void timer_config(uint32_t period_us) {
         // Configure and enable the tone timer.
         uint8_t type = 0;
-        if (channel == -1) {
+        if (tone_timer.is_opened()) {
+            tone_timer.set_frequency(1000000.0f/period_us);
+        } else {
             channel = FspTimer::get_available_timer(type);
+            if (channel != -1) {
+                tone_timer.begin(TIMER_MODE_PERIODIC, type, channel,
+                        1000000.0f/period_us, 50.0f, tone_timer_callback, nullptr);
+                tone_timer.setup_overflow_irq();
+                tone_timer.open();
+                tone_timer.stop();
+            }
         }
-
-        tone_timer.begin(TIMER_MODE_PERIODIC, type, channel,
-                1000000.0f/period_us, 50.0f, tone_timer_callback, nullptr);
-        tone_timer.setup_overflow_irq();
-        tone_timer.open();
-        tone_timer.stop();
     }
 };
 
@@ -76,8 +79,8 @@ void tone(pin_size_t pin, unsigned int frequency, unsigned long duration) {
 		delete active_tone;
 	}
 	Tone* t = new Tone(pin, frequency, duration);
-	t->start();
 	active_tone = t;
+	t->start();
 };
 
 void noTone(pin_size_t __attribute__((unused)) pin) {
