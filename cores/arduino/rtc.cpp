@@ -1,12 +1,12 @@
 #include "Arduino.h"
 #include "rtc.h"
-#include "r_rtc.h"
 
 #if RTC_HOWMANY > 0
 
+#include "r_rtc.h"
+
 #define RTC_IS_ENABLED      (0)
 #define RTC_IS_NOT_ENABLED  (1)
-
 
 #ifdef __cplusplus
 extern "C" {
