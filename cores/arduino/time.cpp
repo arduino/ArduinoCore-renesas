@@ -28,11 +28,11 @@ static FspTimer main_timer;
 static uint32_t _top_counter;
 
 static void timer_micros_callback(timer_callback_args_t __attribute((unused)) *p_args) {
-	agt_time_ms += 10; //10ms
+	agt_time_ms += 1; //1ms
 }
 
 void startAgt() {
-	main_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 0, (uint32_t) 0x7530, 0x3a98, (timer_source_div_t) 3, timer_micros_callback);
+	main_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 0, 2000.0f, 0.5f, timer_micros_callback);
 	IRQManager::getInstance().addPeripheral(IRQ_AGT,(void*)main_timer.get_cfg());
 	main_timer.open();
 	_top_counter = main_timer.get_counter();
@@ -45,19 +45,15 @@ unsigned long millis()
 #ifdef AZURE_RTOS_THREADX
 	return tx_time_get();
 #else
-	// Convert time to ms
-	NVIC_DisableIRQ(main_timer.get_cfg()->cycle_end_irq);
-	uint32_t time_ms = ((main_timer.get_period_raw() - main_timer.get_counter()) / main_timer.get_cfg()->source_div)/1000 + agt_time_ms;
-	NVIC_EnableIRQ(main_timer.get_cfg()->cycle_end_irq);
-	return time_ms;
+	return agt_time_ms;
 #endif
 }
 
 unsigned long micros() {
-	
+
 	// Convert time to us
 	NVIC_DisableIRQ(main_timer.get_cfg()->cycle_end_irq);
-	uint32_t time_us = ((main_timer.get_period_raw() - main_timer.get_counter()) / main_timer.get_cfg()->source_div) +  agt_time_ms * 1000;
+	uint32_t time_us = ((main_timer.get_period_raw() - main_timer.get_counter()) * 1000 / main_timer.get_period_raw()) +  (agt_time_ms * 1000);
 	NVIC_EnableIRQ(main_timer.get_cfg()->cycle_end_irq);
 	return time_us;
 }

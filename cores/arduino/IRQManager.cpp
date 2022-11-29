@@ -20,7 +20,7 @@
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
-#define AGT_PRIORITY               12
+#define AGT_PRIORITY               14
 #define RTC_PRIORITY               12
 #define I2C_MASTER_PRIORITY        12
 #define I2C_SLAVE_PRIORITY         12
