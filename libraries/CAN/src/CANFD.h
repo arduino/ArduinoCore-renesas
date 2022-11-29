@@ -75,7 +75,7 @@ public:
   inline void clearError() { _is_error = false; _err_code = 0; }
 
   /* This function is used by the library and should NOT be called by the user. */
-  void onCanCallback(can_callback_args_t * p_args);
+  void onCanFDCallback(can_callback_args_t * p_args);
 
 
 private:
@@ -86,10 +86,12 @@ private:
   int _err_code;
   CanMsgRingbuffer _can_rx_buf;
 
-  canfd_instance_ctrl_t _can_ctrl;
-  can_bit_timing_cfg_t _can_bit_timing_cfg;
-  canfd_extended_cfg_t _can_extended_cfg;
-  can_cfg_t _can_cfg;
+  canfd_instance_ctrl_t _canfd_ctrl;
+  can_bit_timing_cfg_t _canfd_bit_timing_cfg;
+  canfd_afl_entry_t _canfd_afl[CANFD_CFG_AFL_CH0_RULE_NUM];
+  canfd_global_cfg_t _canfd_global_cfg;
+  canfd_extended_cfg_t _canfd_extended_cfg;
+  can_cfg_t _canfd_cfg;
 
   static bool cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
 };

@@ -22,7 +22,7 @@
  * PROTOTYPE DEFINITIONS
  **************************************************************************************/
 
-extern "C" void can_callback(can_callback_args_t * p_args);
+extern "C" void canfd_callback(can_callback_args_t * p_args);
 
 /**************************************************************************************
  * NAMESPACE
@@ -42,13 +42,60 @@ ArduinoCANFD::ArduinoCANFD(int const can_tx_pin, int const can_rx_pin, int const
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _can_bit_timing_cfg
+, _canfd_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
   .baud_rate_prescaler = 1 + 3 /* Division value of baud rate prescaler */,
   .time_segment_1 = 11,
   .time_segment_2 = 4,
   .synchronization_jump_width = 4
+}
+, _canfd_afl{}
+, _canfd_global_cfg
+{
+  .global_interrupts = CANFD_CFG_GLOBAL_ERR_SOURCES,
+  .global_config     = (CANFD_CFG_TX_PRIORITY | CANFD_CFG_DLC_CHECK | (BSP_CFG_CANFDCLK_SOURCE == BSP_CLOCKS_SOURCE_CLOCK_MAIN_OSC ? R_CANFD_CFDGCFG_DCS_Msk : 0U) | CANFD_CFG_FD_OVERFLOW),
+  .rx_fifo_config    =
+  {
+    ((CANFD_CFG_RXFIFO0_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO0_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO0_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO0_INT_MODE) | (CANFD_CFG_RXFIFO0_ENABLE)),
+    ((CANFD_CFG_RXFIFO1_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO1_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO1_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO1_INT_MODE) | (CANFD_CFG_RXFIFO1_ENABLE)),
+#if !BSP_FEATURE_CANFD_LITE
+    ((CANFD_CFG_RXFIFO2_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO2_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO2_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO2_INT_MODE) | (CANFD_CFG_RXFIFO2_ENABLE)),
+    ((CANFD_CFG_RXFIFO3_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO3_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO3_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO3_INT_MODE) | (CANFD_CFG_RXFIFO3_ENABLE)),
+    ((CANFD_CFG_RXFIFO4_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO4_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO4_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO4_INT_MODE) | (CANFD_CFG_RXFIFO4_ENABLE)),
+    ((CANFD_CFG_RXFIFO5_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO5_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO5_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO5_INT_MODE) | (CANFD_CFG_RXFIFO5_ENABLE)),
+    ((CANFD_CFG_RXFIFO6_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO6_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO6_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO6_INT_MODE) | (CANFD_CFG_RXFIFO6_ENABLE)),
+    ((CANFD_CFG_RXFIFO7_INT_THRESHOLD << R_CANFD_CFDRFCC_RFIGCV_Pos) | (CANFD_CFG_RXFIFO7_DEPTH << R_CANFD_CFDRFCC_RFDC_Pos) | (CANFD_CFG_RXFIFO7_PAYLOAD << R_CANFD_CFDRFCC_RFPLS_Pos) | (CANFD_CFG_RXFIFO7_INT_MODE) | (CANFD_CFG_RXFIFO7_ENABLE)),
+#endif
+  },
+  .rx_mb_config      = (CANFD_CFG_RXMB_NUMBER | (CANFD_CFG_RXMB_SIZE << R_CANFD_CFDRMNB_RMPLS_Pos)),
+  .global_err_ipl    = CANFD_CFG_GLOBAL_ERR_IPL,
+  .rx_fifo_ipl       = CANFD_CFG_RX_FIFO_IPL,
+}
+, _canfd_extended_cfg
+{
+  .p_afl              = _canfd_afl,
+  .txmb_txi_enable    = ((1ULL << 0) | 0ULL),
+  .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
+#if BSP_FEATURE_CANFD_FD_SUPPORT
+  .p_data_timing      = &g_canfdfd0_data_timing_cfg,
+#else
+  .p_data_timing      = nullptr,
+#endif
+  .delay_compensation = (1),
+  .p_global_cfg       = &_canfd_global_cfg,
+}
+, _canfd_cfg
+{
+  .channel      = 0,
+  .p_bit_timing = &_canfd_bit_timing_cfg,
+  .p_callback   = canfd_callback,
+  .p_context    = this,
+  .p_extend     = &_canfd_extended_cfg,
+  .ipl          = (12),
+  .error_irq    = FSP_INVALID_VECTOR,
+  .rx_irq       = FSP_INVALID_VECTOR,
+  .tx_irq       = FSP_INVALID_VECTOR,
 }
 {
 
@@ -71,8 +118,8 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
    */
   CanFdIrqReq_t irq_req
   {
-    .ctrl = &_can_ctrl,
-    .cfg = &_can_cfg,
+    .ctrl = &_canfd_ctrl,
+    .cfg = &_canfd_cfg,
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CANFD, &irq_req);
 
@@ -85,7 +132,7 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
     digitalWrite(_can_stby_pin, LOW);
   }
 
-  if (R_CANFD_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
+  if (R_CANFD_Open(&_canfd_ctrl, &_canfd_cfg) != FSP_SUCCESS)
     init_ok = false;
 
   return init_ok;
@@ -93,12 +140,12 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
 
 void ArduinoCANFD::end()
 {
-  R_CANFD_Close(&_can_ctrl);
+  R_CANFD_Close(&_canfd_ctrl);
 }
 
 int ArduinoCANFD::enableInternalLoopback()
 {
-  if(fsp_err_t const rc = R_CANFD_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CANFD_ModeTransition(&_canfd_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -106,7 +153,7 @@ int ArduinoCANFD::enableInternalLoopback()
 
 int ArduinoCANFD::disableInternalLoopback()
 {
-  if(fsp_err_t const rc = R_CANFD_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CANFD_ModeTransition(&_canfd_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -124,7 +171,7 @@ int ArduinoCANFD::write(CanMsg const & msg)
 
   memcpy(can_msg.data, msg.data, can_msg.data_length_code);
 
-  if(fsp_err_t const rc = R_CANFD_Write(&_can_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CANFD_Write(&_canfd_ctrl, 0, &can_msg); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
@@ -140,7 +187,7 @@ CanMsg ArduinoCANFD::read()
   return _can_rx_buf.dequeue();
 }
 
-void ArduinoCANFD::onCanCallback(can_callback_args_t * p_args)
+void ArduinoCANFD::onCanFDCallback(can_callback_args_t * p_args)
 {
   switch (p_args->event)
   {
@@ -223,10 +270,10 @@ bool ArduinoCANFD::cfg_pins(int const max_index, int const can_tx_pin, int const
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
 
-extern "C" void can_callback(can_callback_args_t * p_args)
+extern "C" void canfd_callback(can_callback_args_t * p_args)
 {
   ArduinoCANFD * this_ptr = (ArduinoCANFD *)(p_args->p_context);
-  this_ptr->onCanCallback(p_args);
+  this_ptr->onCanFDCallback(p_args);
 }
 
 #endif /* CANFD_HOWMANY > 0 */
