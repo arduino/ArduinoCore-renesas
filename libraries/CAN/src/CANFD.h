@@ -19,6 +19,8 @@
 
 #if CANFD_HOWMANY > 0
 
+#include  <tuple>
+
 #include "bsp_api.h"
 
 #include "r_canfd.h"
@@ -93,7 +95,7 @@ private:
   canfd_extended_cfg_t _canfd_extended_cfg;
   can_cfg_t _canfd_cfg;
 
-  static bool cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
+  static std::tuple<bool, int> cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
 };
 
 /**************************************************************************************

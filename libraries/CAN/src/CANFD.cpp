@@ -112,7 +112,9 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
   /* Configure the pins for CAN.
    */
   int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
-  init_ok &= cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
+  auto [cfg_init_ok, cfg_channel] = cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
+  init_ok &= cfg_init_ok;
+  _canfd_cfg.channel =  cfg_channel;
 
   /* Configure the interrupts.
    */
@@ -227,11 +229,13 @@ void ArduinoCANFD::onCanFDCallback(can_callback_args_t * p_args)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCANFD::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
+std::tuple<bool, int> ArduinoCANFD::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
 {
+  int channel = 0;
+
   /* Verify if indices are good. */
   if (can_tx_pin < 0 || can_rx_pin < 0 || can_tx_pin >= max_index || can_rx_pin >= max_index) {
-    return false;
+    return std::make_tuple(false, channel);
   }
 
   /* Getting configuration from table. */
@@ -243,21 +247,22 @@ bool ArduinoCANFD::cfg_pins(int const max_index, int const can_tx_pin, int const
 
   /* Verify if configurations are good. */
   if (cfg_can_tx == 0 || cfg_can_rx == 0) {
-    return false;
+    return std::make_tuple(false, channel);
   }
 
   /* Verify if channel is the same for all pins. */
   uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx);
   uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx);
   if (ch_can_tx != ch_can_rx) {
-    return false;
+    return std::make_tuple(false, channel);
   }
+  channel = ch_can_tx;
 
   /* Actually configure pin functions. */
   R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[can_tx_pin].pin, (uint32_t)(IOPORT_CFG_PERIPHERAL_PIN) | (uint32_t)(IOPORT_PERIPHERAL_CAN));
   R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[can_rx_pin].pin, (uint32_t)(IOPORT_CFG_PERIPHERAL_PIN) | (uint32_t)(IOPORT_PERIPHERAL_CAN));
 
-  return true;
+  return std::make_tuple(true, channel);
 }
 
 /**************************************************************************************
