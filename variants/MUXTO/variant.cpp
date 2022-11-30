@@ -61,14 +61,29 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
 } 
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (0) D0  -------------------------  DIGITAL  */
-  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (1) D1  */
-  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (1) D1  */
-  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (1) D1  */
+  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (0) D0  -------------------------  DIGITAL  */
+  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (1) D1  */
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (1) D1  */
+  { BSP_IO_PORT_01_PIN_10,    P110   }, /* (1) D1  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
 
-void initVariant() {
+const ioport_pin_cfg_t bsp_pin_cfg_data[] = {
+  { ((uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_USB_FS), BSP_IO_PORT_09_PIN_15 },
+  { ((uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_USB_FS), BSP_IO_PORT_09_PIN_14 },
+  { ((uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_USB_FS), BSP_IO_PORT_04_PIN_07 },
+};
 
+static const ioport_cfg_t bsp_pin_cfg = {
+  .number_of_pins = sizeof(bsp_pin_cfg_data) / sizeof(ioport_pin_cfg_t),
+  .p_pin_cfg_data = &bsp_pin_cfg_data[0],
+};
+static ioport_instance_ctrl_t ioport_ctrl;
+
+void initVariant() {
+    //R_IOPORT_Open(&ioport_ctrl, &bsp_pin_cfg);
+    //R_IOPORT_PinCfg(NULL, BSP_IO_PORT_09_PIN_14, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_USB_FS));
+    //R_IOPORT_PinCfg(NULL, BSP_IO_PORT_09_PIN_15, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_USB_FS));
+    //R_IOPORT_PinCfg(NULL, BSP_IO_PORT_04_PIN_07, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_USB_FS));
 }

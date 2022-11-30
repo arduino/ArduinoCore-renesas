@@ -79,7 +79,7 @@ static const uint8_t A5 = PIN_A5;
 
 // LEDs
 // ----
-#define PIN_LED     (13u)
+#define PIN_LED     (3u)
 #define LED_BUILTIN PIN_LED
 #define LEDR        (22u)
 #define LEDG        (13u)
