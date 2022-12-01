@@ -95,6 +95,7 @@ private:
     int _cb_event_idx;
 
     bool _is_sci;
+    bool _is_initialized;
 
     SPI_open_f _open;
     SPI_close_f _close;
