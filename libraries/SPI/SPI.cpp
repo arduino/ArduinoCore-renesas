@@ -50,6 +50,7 @@ ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin
 , _channel{0}
 , _cb_event_idx{0}
 , _is_sci(false)
+, _is_initialized{false}
 , _open{nullptr}
 , _close{nullptr}
 , _write_then_read{nullptr}
@@ -175,12 +176,15 @@ void ArduinoSPI::begin()
     init_ok = false;
   }
 
+  _is_initialized = init_ok;
+
   configSpiSettings(DEFAULT_SPI_SETTINGS);
 }
 
 void ArduinoSPI::end()
 {
   _close(&_spi_ctrl);
+  _is_initialized = false;
 }
 
 uint8_t ArduinoSPI::transfer(uint8_t data)
@@ -239,6 +243,9 @@ void ArduinoSPI::transfer(void *buf, size_t count)
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
+  if (!_is_initialized)
+    begin();
+
   if (_settings != settings)
   {
     configSpiSettings(settings);
