@@ -160,6 +160,32 @@ static void CheckSerialReset() {
     }
 }
 
+#include "r_wdt.h"
+
+extern "C" void tud_dfu_runtime_reboot_to_dfu_cb(void)
+{
+    wdt_instance_ctrl_t p_ctrl; wdt_cfg_t p_cfg;
+    p_cfg.timeout = WDT_TIMEOUT_16384;
+    p_cfg.clock_division = WDT_CLOCK_DIVISION_256;
+    p_cfg.window_start = WDT_WINDOW_START_100;
+    p_cfg.window_end = WDT_WINDOW_END_0;
+    p_cfg.reset_control = WDT_RESET_CONTROL_RESET;
+    p_cfg.stop_control = WDT_STOP_CONTROL_ENABLE;
+    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
+    BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
+    //((R_USB_FS0_Type*)R_USB_FS0_BASE)->SYSCFG_b.DPRPU = 0;
+    int err = R_WDT_Open(&p_ctrl, &p_cfg);
+    R_WDT_Refresh(&p_ctrl);
+    if (err == FSP_ERR_ALREADY_OPEN) {
+        // loop here since the watchdog is already being used by the application
+        // (which will very likely kick it as soon as we return)
+        while (1);
+    }
+    //NVIC_SystemReset();
+    //while (1);
+}
+
 extern "C" void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
     (void) itf;
     _SerialUSB::_dtr = dtr ? true : false;

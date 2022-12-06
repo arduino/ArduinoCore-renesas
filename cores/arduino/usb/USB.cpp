@@ -26,16 +26,14 @@ extern "C" {
 #include "class/hid/hid_device.h"
 #include "class/audio/audio.h"
 #include "class/midi/midi.h"
+#include "class/dfu/dfu.h"
 }
 
 #include "r_usb_basic.h"
 #include "r_usb_basic_api.h"
 #include "r_usb_pcdc_api.h"
 
-#define USBD_DESC_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN)
-
 #define USBD_ITF_CDC (0) // needs 2 interfaces
-#define USBD_ITF_MAX (3)
 
 #define USBD_CDC_EP_CMD (0x81)
 #define USBD_CDC_EP_OUT (0x02)
@@ -53,6 +51,7 @@ extern "C" {
 #define USBD_STR_PRODUCT (0x02)
 #define USBD_STR_SERIAL (0x03)
 #define USBD_STR_CDC (0x04)
+#define USBD_STR_DFU_RT (0x05)
 
 const uint8_t *tud_descriptor_device_cb(void) {
     static tusb_desc_device_t usbd_desc_device = {
@@ -101,18 +100,19 @@ const uint8_t *tud_descriptor_configuration_cb(uint8_t index) {
 void __SetupUSBDescriptor() {
     if (!usbd_desc_cfg) {
 
-        uint8_t interface_count = (__USBInstallSerial ? 2 : 0) + (__USBGetHIDReport ? 1 : 0);
+        uint8_t interface_count = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
 
-        uint8_t cdc_desc[TUD_CDC_DESC_LEN] = {
+        uint8_t cdc_desc[TUD_CDC_DESC_LEN + TUD_DFU_RT_DESC_LEN] = {
             // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-            TUD_CDC_DESCRIPTOR(USBD_ITF_CDC, USBD_STR_CDC, USBD_CDC_EP_CMD, USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN, USBD_CDC_IN_OUT_MAX_SIZE)
+            TUD_CDC_DESCRIPTOR(USBD_ITF_CDC, USBD_STR_CDC, USBD_CDC_EP_CMD, USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN, USBD_CDC_IN_OUT_MAX_SIZE),
+            TUD_DFU_RT_DESCRIPTOR(USBD_ITF_CDC+2, USBD_STR_DFU_RT, 0x0d, 1000, 4096),
         };
 
         size_t hid_report_len = 0;
         if (__USBGetHIDReport) {
             __USBGetHIDReport(&hid_report_len);
         }
-        uint8_t hid_itf = __USBInstallSerial ? 2 : 0;
+        uint8_t hid_itf = __USBInstallSerial ? 3 : 0;
         uint8_t hid_desc[TUD_HID_DESC_LEN] = {
             // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
             TUD_HID_DESCRIPTOR(hid_itf, 0, HID_ITF_PROTOCOL_NONE, hid_report_len, USBD_HID_EP, CFG_TUD_HID_EP_BUFSIZE, 10)
@@ -166,6 +166,7 @@ const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
         [USBD_STR_PRODUCT] = USB_NAME,
         [USBD_STR_SERIAL] = idString,
         [USBD_STR_CDC] = "CDC Port",
+        [USBD_STR_DFU_RT] = "DFU-RT Port",
     };
 
     if (!idString[0]) {
