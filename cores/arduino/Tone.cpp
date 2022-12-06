@@ -6,7 +6,7 @@ void tone_timer_callback(timer_callback_args_t *args);
 class Tone {
     uint32_t           frequency;
     uint32_t           duration;
-    uint32_t           limit;
+    uint32_t           limit = UINT32_MAX;
     pin_size_t         pin;
     uint8_t            status = LOW;
     static FspTimer    tone_timer;
