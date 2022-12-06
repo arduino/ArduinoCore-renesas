@@ -4,15 +4,17 @@
 void tone_timer_callback(timer_callback_args_t *args);
 
 class Tone {
-    uint32_t           frequency;
-    uint32_t           duration;
+
     uint32_t           limit = UINT32_MAX;
-    pin_size_t         pin;
     uint8_t            status = LOW;
     static FspTimer    tone_timer;
     static int         channel;
 
 public:
+    uint32_t           frequency;
+    uint32_t           duration;
+    pin_size_t         pin;
+
     Tone(pin_size_t pin, unsigned int frequency, unsigned long duration) : frequency(frequency), duration(duration), pin(pin)  {
         pinMode(pin, OUTPUT);
         if (frequency) {
@@ -76,6 +78,10 @@ void tone_timer_callback(timer_callback_args_t __attribute__((unused)) *args) {
 
 void tone(pin_size_t pin, unsigned int frequency, unsigned long duration) {
 	if (active_tone) {
+		if (active_tone->pin == pin && active_tone->frequency == frequency && active_tone->duration == 0) {
+			// infinite duration notes do not need to be restarted
+			return;
+		}
 		delete active_tone;
 	}
 	Tone* t = new Tone(pin, frequency, duration);
