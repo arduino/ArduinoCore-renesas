@@ -160,15 +160,6 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CAN, &irq_req);
 
-  /* Enable the CAN transceiver, if it should be needing
-   * software enablement via a STBY pin.
-   */
-  if (_can_stby_pin >= 0)
-  {
-    pinMode(_can_stby_pin, OUTPUT);
-    digitalWrite(_can_stby_pin, LOW);
-  }
-
   if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     init_ok = false;
 
@@ -320,9 +311,9 @@ extern "C" void can_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-arduino::ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
+arduino::ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
 #endif
 
 #if CAN_HOWMANY > 1
-arduino::ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
+arduino::ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif

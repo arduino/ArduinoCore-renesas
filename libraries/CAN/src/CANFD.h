@@ -57,7 +57,7 @@ namespace arduino
 class ArduinoCANFD
 {
 public:
-  ArduinoCANFD(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin);
+  ArduinoCANFD(int const can_tx_pin, int const can_rx_pin);
 
 
   bool begin(CanBitRate const can_bitrate);
@@ -83,7 +83,6 @@ public:
 private:
   int const _can_tx_pin;
   int const _can_rx_pin;
-  int const _can_stby_pin;
   bool _is_error;
   int _err_code;
   CanMsgRingbuffer _can_rx_buf;

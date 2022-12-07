@@ -35,10 +35,9 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCANFD::ArduinoCANFD(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
+ArduinoCANFD::ArduinoCANFD(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
-, _can_stby_pin{can_stby_pin}
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
@@ -124,15 +123,6 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
     .cfg = &_canfd_cfg,
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CANFD, &irq_req);
-
-  /* Enable the CAN transceiver, if it should be needing
-   * software enablement via a STBY pin.
-   */
-  if (_can_stby_pin >= 0)
-  {
-    pinMode(_can_stby_pin, OUTPUT);
-    digitalWrite(_can_stby_pin, LOW);
-  }
 
   if (R_CANFD_Open(&_canfd_ctrl, &_canfd_cfg) != FSP_SUCCESS)
     init_ok = false;
@@ -288,9 +278,9 @@ extern "C" void canfd_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CANFD_HOWMANY > 0
-arduino::ArduinoCANFD CAN(PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
+arduino::ArduinoCANFD CAN(PIN_CAN0_TX, PIN_CAN0_RX);
 #endif
 
 #if CANFD_HOWMANY > 1
-arduino::ArduinoCANFD CAN1(PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
+arduino::ArduinoCANFD CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif
