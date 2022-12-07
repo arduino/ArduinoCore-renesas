@@ -17,7 +17,7 @@
 
 #include <Arduino.h>
 
-#if CANFD_HOWMANY > 0
+#ifdef ARDUINO_PORTENTA_H33
 
 #include  <tuple>
 
@@ -103,7 +103,7 @@ private:
 
 } /* arduino */
 
-#endif /* CANFD_HOWMANY > 0 */
+#endif /* ARDUINO_PORTENTA_H33 */
 
 /**************************************************************************************
  * EXTERN DECLARATION

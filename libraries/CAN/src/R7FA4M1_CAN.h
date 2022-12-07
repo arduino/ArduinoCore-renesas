@@ -17,7 +17,7 @@
 
 #include <Arduino.h>
 
-#if CAN_HOWMANY > 0
+#ifdef ARDUINO_SANTIAGO
 
 #include "bsp_api.h"
 
@@ -103,7 +103,7 @@ private:
 
 } /* arduino */
 
-#endif /* CAN_HOWMANY > 0 */
+#endif /* ARDUINO_SANTIAGO */
 
 /**************************************************************************************
  * EXTERN DECLARATION

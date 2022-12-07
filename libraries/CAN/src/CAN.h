@@ -17,12 +17,7 @@
 
 #include <Arduino.h>
 
-#if CAN_HOWMANY > 0
-# include "R7FA4M1_CAN.h"
-#endif
-
-#if CANFD_HOWMANY > 0
-# include "R7FA6M5_CAN.h"
-#endif
+#include "R7FA4M1_CAN.h"
+#include "R7FA6M5_CAN.h"
 
 #endif /* ARDUINO_CORE_RENESAS_ARDUINO_CAN_LIBRARY_H_ */

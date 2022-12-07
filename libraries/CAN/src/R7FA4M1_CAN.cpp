@@ -14,7 +14,7 @@
 
 #include "R7FA4M1_CAN.h"
 
-#if CAN_HOWMANY > 0
+#ifdef ARDUINO_SANTIAGO
 
 #include <IRQManager.h>
 
@@ -41,10 +41,9 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
+R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
-, _can_stby_pin{can_stby_pin}
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
@@ -304,7 +303,7 @@ extern "C" void can_callback(can_callback_args_t * p_args)
   this_ptr->onCanCallback(p_args);
 }
 
-#endif /* CAN_HOWMANY > 0 */
+#endif /* ARDUINO_SANTIAGO */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION

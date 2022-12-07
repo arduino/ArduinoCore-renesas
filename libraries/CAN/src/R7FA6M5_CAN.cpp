@@ -14,7 +14,7 @@
 
 #include "R7FA6M5_CAN.h"
 
-#if CANFD_HOWMANY > 0
+#ifdef ARDUINO_PORTENTA_H33
 
 #include <IRQManager.h>
 
@@ -271,7 +271,7 @@ extern "C" void canfd_callback(can_callback_args_t * p_args)
   this_ptr->onCanFDCallback(p_args);
 }
 
-#endif /* CANFD_HOWMANY > 0 */
+#endif /* ARDUINO_PORTENTA_H33 */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION
