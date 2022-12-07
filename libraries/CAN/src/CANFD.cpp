@@ -158,7 +158,7 @@ int ArduinoCANFD::write(CanMsg const & msg)
     /* id_mode          = */ CAN_ID_MODE_EXTENDED,
     /* type             = */ CAN_FRAME_TYPE_DATA,
     /* data_length_code = */ min(msg.data_length, CAN_DATA_BUFFER_LENGTH),
-    /* options          = */ 0
+    /* options          = */ 0 /* This ensures that CAN Classic is used. */
   };
 
   memcpy(can_msg.data, msg.data, can_msg.data_length_code);
