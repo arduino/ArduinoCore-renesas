@@ -35,10 +35,14 @@ extern "C" {
 
 #define USBD_ITF_CDC (0) // needs 2 interfaces
 
-#define USBD_CDC_EP_CMD (0x81)
-#define USBD_CDC_EP_OUT (0x02)
-#define USBD_CDC_EP_IN (0x82)
-#define USBD_HID_EP    (0x83)
+#ifndef FIRST_USABLE_PIPE
+#define FIRST_USABLE_PIPE 0
+#endif
+
+#define USBD_CDC_EP_CMD  (FIRST_USABLE_PIPE + 0x81)
+#define USBD_CDC_EP_OUT (FIRST_USABLE_PIPE + 0x02)
+#define USBD_CDC_EP_IN (FIRST_USABLE_PIPE + 0x82)
+#define USBD_HID_EP    (FIRST_USABLE_PIPE + 0x83)
 #define USBD_CDC_CMD_MAX_SIZE (8)
 #if (CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE)
 #define USBD_CDC_IN_OUT_MAX_SIZE (512)
