@@ -84,7 +84,12 @@
 
 #define NO_WATCHDOG
 #define NO_BACKUP_REGISTERS
-#define FIRST_USABLE_PIPE        3
+
+
+#define USBD_CDC_EP_CMD  (0x86)
+#define USBD_CDC_EP_OUT  (0x04)
+#define USBD_CDC_EP_IN   (0x84)
+#define USBD_HID_EP      (0x85)
 
 // CDC FIFO size of TX and RX
 #define CFG_TUD_CDC_RX_BUFSIZE   ((TUD_OPT_HIGH_SPEED ? 512 : 64) * 4)
