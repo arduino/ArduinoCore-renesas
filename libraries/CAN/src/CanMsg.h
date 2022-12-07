@@ -21,8 +21,6 @@
 
 #include <Arduino.h>
 
-#include "r_can_api.h"
-
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
@@ -37,7 +35,7 @@ namespace arduino
 class CanMsg : public Printable
 {
 public:
-  static size_t constexpr MAX_DATA_LENGTH = CAN_DATA_BUFFER_LENGTH;
+  static size_t constexpr MAX_DATA_LENGTH = 8;
 
   CanMsg(uint32_t const can_id, uint8_t const can_data_len, uint8_t const * can_data_ptr)
   : id{can_id}
