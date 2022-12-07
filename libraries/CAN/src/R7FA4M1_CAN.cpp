@@ -12,7 +12,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "CAN.h"
+#include "R7FA4M1_CAN.h"
 
 #if CAN_HOWMANY > 0
 
@@ -41,7 +41,7 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
+R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
 , _can_stby_pin{can_stby_pin}
@@ -142,7 +142,7 @@ ArduinoCAN::ArduinoCAN(int const can_tx_pin, int const can_rx_pin, int const can
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
+bool R7FA4M1_CAN::begin(CanBitRate const /* can_bitrate */)
 {
   bool init_ok = true;
 
@@ -166,12 +166,12 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
   return init_ok;
 }
 
-void ArduinoCAN::end()
+void R7FA4M1_CAN::end()
 {
   R_CAN_Close(&_can_ctrl);
 }
 
-int ArduinoCAN::enableInternalLoopback()
+int R7FA4M1_CAN::enableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
@@ -179,7 +179,7 @@ int ArduinoCAN::enableInternalLoopback()
   return 1;
 }
 
-int ArduinoCAN::disableInternalLoopback()
+int R7FA4M1_CAN::disableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
@@ -187,7 +187,7 @@ int ArduinoCAN::disableInternalLoopback()
   return 1;
 }
 
-int ArduinoCAN::write(CanMsg const & msg)
+int R7FA4M1_CAN::write(CanMsg const & msg)
 {
   can_frame_t can_msg = {
     /* id               = */ msg.id,
@@ -205,17 +205,17 @@ int ArduinoCAN::write(CanMsg const & msg)
   return 1;
 }
 
-size_t ArduinoCAN::available() const
+size_t R7FA4M1_CAN::available() const
 {
   return _can_rx_buf.available();
 }
 
-CanMsg ArduinoCAN::read()
+CanMsg R7FA4M1_CAN::read()
 {
   return _can_rx_buf.dequeue();
 }
 
-void ArduinoCAN::onCanCallback(can_callback_args_t * p_args)
+void R7FA4M1_CAN::onCanCallback(can_callback_args_t * p_args)
 {
   switch (p_args->event)
   {
@@ -255,7 +255,7 @@ void ArduinoCAN::onCanCallback(can_callback_args_t * p_args)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
+bool R7FA4M1_CAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
 {
   /* Verify if indices are good. */
   if (can_tx_pin < 0 || can_rx_pin < 0 || can_tx_pin >= max_index || can_rx_pin >= max_index) {
@@ -300,7 +300,7 @@ bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const c
 
 extern "C" void can_callback(can_callback_args_t * p_args)
 {
-  ArduinoCAN * this_ptr = (ArduinoCAN *)(p_args->p_context);
+  R7FA4M1_CAN * this_ptr = (R7FA4M1_CAN *)(p_args->p_context);
   this_ptr->onCanCallback(p_args);
 }
 
@@ -311,9 +311,9 @@ extern "C" void can_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-arduino::ArduinoCAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
+arduino::R7FA4M1_CAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
 #endif
 
 #if CAN_HOWMANY > 1
-arduino::ArduinoCAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
+arduino::R7FA4M1_CAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif

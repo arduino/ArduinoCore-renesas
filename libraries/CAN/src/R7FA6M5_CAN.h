@@ -8,8 +8,8 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_
-#define ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_
+#ifndef ARDUINO_CORE_RENESAS_CANFD_LIBRARY_H_
+#define ARDUINO_CORE_RENESAS_CANFD_LIBRARY_H_
 
 /**************************************************************************************
  * INCLUDE
@@ -17,11 +17,13 @@
 
 #include <Arduino.h>
 
-#if CAN_HOWMANY > 0
+#if CANFD_HOWMANY > 0
+
+#include  <tuple>
 
 #include "bsp_api.h"
 
-#include "r_can.h"
+#include "r_canfd.h"
 
 #include "CanMsg.h"
 #include "CanMsgRingbuffer.h"
@@ -52,10 +54,10 @@ namespace arduino
  * CLASS DECLARATION
  **************************************************************************************/
 
-class ArduinoCAN
+class R7FA6M5_CAN
 {
 public:
-  ArduinoCAN(int const can_tx_pin, int const can_rx_pin);
+  R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin);
 
 
   bool begin(CanBitRate const can_bitrate);
@@ -75,26 +77,24 @@ public:
   inline void clearError() { _is_error = false; _err_code = 0; }
 
   /* This function is used by the library and should NOT be called by the user. */
-  void onCanCallback(can_callback_args_t * p_args);
+  void onCanFDCallback(can_callback_args_t * p_args);
 
 
 private:
-  static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
-
   int const _can_tx_pin;
   int const _can_rx_pin;
   bool _is_error;
   int _err_code;
   CanMsgRingbuffer _can_rx_buf;
 
-  can_instance_ctrl_t _can_ctrl;
-  can_bit_timing_cfg_t _can_bit_timing_cfg;
-  uint32_t _can_mailbox_mask[CAN_MAX_NO_MAILBOXES / 4];
-  can_mailbox_t _can_mailbox[CAN_MAX_NO_MAILBOXES];
-  can_extended_cfg_t _can_extended_cfg;
-  can_cfg_t _can_cfg;
+  canfd_instance_ctrl_t _canfd_ctrl;
+  can_bit_timing_cfg_t _canfd_bit_timing_cfg;
+  canfd_afl_entry_t _canfd_afl[CANFD_CFG_AFL_CH0_RULE_NUM];
+  canfd_global_cfg_t _canfd_global_cfg;
+  canfd_extended_cfg_t _canfd_extended_cfg;
+  can_cfg_t _canfd_cfg;
 
-  static bool cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
+  static std::tuple<bool, int> cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin);
 };
 
 /**************************************************************************************
@@ -103,18 +103,18 @@ private:
 
 } /* arduino */
 
-#endif /* CAN_HOWMANY > 0 */
+#endif /* CANFD_HOWMANY > 0 */
 
 /**************************************************************************************
  * EXTERN DECLARATION
  **************************************************************************************/
 
-#if CAN_HOWMANY > 0
-extern arduino::ArduinoCAN CAN;
+#if CANFD_HOWMANY > 0
+extern arduino::R7FA6M5_CAN CAN;
 #endif
 
-#if CAN_HOWMANY > 1
-extern arduino::ArduinoCAN CAN1;
+#if CANFD_HOWMANY > 1
+extern arduino::R7FA6M5_CAN CAN1;
 #endif
 
-#endif /* ARDUINO_CORE_RENESAS_CAN_LIBRARY_H_ */
+#endif /* ARDUINO_CORE_RENESAS_CANFD_LIBRARY_H_ */

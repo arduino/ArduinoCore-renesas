@@ -12,7 +12,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "CANFD.h"
+#include "R7FA6M5_CAN.h"
 
 #if CANFD_HOWMANY > 0
 
@@ -35,7 +35,7 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCANFD::ArduinoCANFD(int const can_tx_pin, int const can_rx_pin)
+R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 : _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
 , _is_error{false}
@@ -104,7 +104,7 @@ ArduinoCANFD::ArduinoCANFD(int const can_tx_pin, int const can_rx_pin)
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
+bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
 {
   bool init_ok = true;
 
@@ -130,12 +130,12 @@ bool ArduinoCANFD::begin(CanBitRate const /* can_bitrate */)
   return init_ok;
 }
 
-void ArduinoCANFD::end()
+void R7FA6M5_CAN::end()
 {
   R_CANFD_Close(&_canfd_ctrl);
 }
 
-int ArduinoCANFD::enableInternalLoopback()
+int R7FA6M5_CAN::enableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CANFD_ModeTransition(&_canfd_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
@@ -143,7 +143,7 @@ int ArduinoCANFD::enableInternalLoopback()
   return 1;
 }
 
-int ArduinoCANFD::disableInternalLoopback()
+int R7FA6M5_CAN::disableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CANFD_ModeTransition(&_canfd_ctrl, CAN_OPERATION_MODE_GLOBAL_OPERATION, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
@@ -151,7 +151,7 @@ int ArduinoCANFD::disableInternalLoopback()
   return 1;
 }
 
-int ArduinoCANFD::write(CanMsg const & msg)
+int R7FA6M5_CAN::write(CanMsg const & msg)
 {
   can_frame_t can_msg = {
     /* id               = */ msg.id,
@@ -169,17 +169,17 @@ int ArduinoCANFD::write(CanMsg const & msg)
   return 1;
 }
 
-size_t ArduinoCANFD::available() const
+size_t R7FA6M5_CAN::available() const
 {
   return _can_rx_buf.available();
 }
 
-CanMsg ArduinoCANFD::read()
+CanMsg R7FA6M5_CAN::read()
 {
   return _can_rx_buf.dequeue();
 }
 
-void ArduinoCANFD::onCanFDCallback(can_callback_args_t * p_args)
+void R7FA6M5_CAN::onCanFDCallback(can_callback_args_t * p_args)
 {
   switch (p_args->event)
   {
@@ -219,7 +219,7 @@ void ArduinoCANFD::onCanFDCallback(can_callback_args_t * p_args)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-std::tuple<bool, int> ArduinoCANFD::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
+std::tuple<bool, int> R7FA6M5_CAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
 {
   int channel = 0;
 
@@ -267,7 +267,7 @@ std::tuple<bool, int> ArduinoCANFD::cfg_pins(int const max_index, int const can_
 
 extern "C" void canfd_callback(can_callback_args_t * p_args)
 {
-  ArduinoCANFD * this_ptr = (ArduinoCANFD *)(p_args->p_context);
+  R7FA6M5_CAN * this_ptr = (R7FA6M5_CAN *)(p_args->p_context);
   this_ptr->onCanFDCallback(p_args);
 }
 
@@ -278,9 +278,9 @@ extern "C" void canfd_callback(can_callback_args_t * p_args)
  **************************************************************************************/
 
 #if CANFD_HOWMANY > 0
-arduino::ArduinoCANFD CAN(PIN_CAN0_TX, PIN_CAN0_RX);
+arduino::R7FA6M5_CAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
 #endif
 
 #if CANFD_HOWMANY > 1
-arduino::ArduinoCANFD CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
+arduino::R7FA6M5_CAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif
