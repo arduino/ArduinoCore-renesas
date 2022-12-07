@@ -15,7 +15,7 @@ fi
 
 cd Debug
 make clean
-make
+make -j$(nproc)
 cd ..
 echo `pwd`
 
@@ -47,6 +47,14 @@ cp ./ra_gen/*.c ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/
 if test -f "${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/vector_data.c"; then
     echo "removed"
     rm ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/vector_data.c
+fi
+if test -f "${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/elc_data.c"; then
+    echo "removed"
+    rm ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/elc_data.c
+fi
+if test -f "${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/hal_data.c"; then
+    echo "removed"
+    rm ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/hal_data.c
 fi
 #-------------------------------------------------------------------------
 
@@ -124,10 +132,16 @@ cp --parent $RA_INCLUDES ${CORE_PATH}/variants/${TARGET}/includes/
 RA_INCLUDES=`find ra_cfg/ -iname *.h`
 cp --parent $RA_INCLUDES ${CORE_PATH}/variants/${TARGET}/includes/
 
+if test -f "${CORE_PATH}/variants/${TARGET}/elc_defines.h"; then
+    echo "${CORE_PATH}/variants/${TARGET}/elc_defines.h exists. -> deleting it"
+    rm "${CORE_PATH}/variants/${TARGET}/elc_defines.h"
+fi
+
 ELC_TABLE=`find ra/ | grep bsp_elc.h`
 ELC_ENTRIES=`cat ${ELC_TABLE} | grep "ELC_EVENT" | cut -f1 -d "="`
 for entry in $ELC_ENTRIES
 do
+    #echo "$entry"
     echo "#define $entry $entry" >> ${CORE_PATH}/variants/${TARGET}/elc_defines.h
 done
 

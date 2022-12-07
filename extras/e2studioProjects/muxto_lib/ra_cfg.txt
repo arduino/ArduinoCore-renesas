@@ -53,19 +53,19 @@ FSP Configuration
     ID Code (32 Hex Characters): FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     
   RA Common
-    Main stack size (bytes): 0x2000
-    Heap size (bytes): 0x4000
+    Main stack size (bytes): 0x400
+    Heap size (bytes): 0
     MCU Vcc (mV): 5000
     Parameter checking: Disabled
     Assert Failures: Return FSP_ERR_ASSERTION
     Error Log: No Error Log
     Clock Registers not Reset Values during Startup: Disabled
-    Main Oscillator Populated: Populated
+    Main Oscillator Populated: Not Populated
     PFS Protect: Enabled
     C Runtime Initialization : Enabled
     Early BSP Initialization : Disabled
     Main Oscillator Clock Source: Crystal or Resonator
-    Subclock Populated: Populated
+    Subclock Populated: Not Populated
     Subclock Drive (Drive capacitance availability varies by MCU): Standard/Normal mode
     Subclock Stabilization Time (ms): 1000
     
@@ -115,7 +115,7 @@ FSP Configuration
       P914 13 - - - - Disabled - - "USB_FS0: DP" - None - - 
       P915 12 - - - - Disabled - - "USB_FS0: DM" - None - - 
       RES# 16 SYSTEM0_RES - - - - - - - - IO "Read only" - 
-      SBIAS/VREFI 24 "SDADC0_SBIAS / SDADC0_VREFI" - - - - - - - - IO "Read only" - 
+      SBIAS/VREFI 24 "SDADC0_VREFI / SDADC0_SBIAS" - - - - - - - - IO "Read only" - 
       VCC 8 SYSTEM0_VCC - - - - - - - - IO "Read only" - 
       VCCUSB 14 USB_FS0_VCC - - - - - - - - IO "Read only" - 
       VCCUSBLDO 15 USB_FS0_VCCLDO - - - - - - - - IO "Read only" - 

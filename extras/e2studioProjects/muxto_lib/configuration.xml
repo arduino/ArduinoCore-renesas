@@ -82,19 +82,19 @@
       <property id="config.bsp.common.id_fixed" value=""/>
     </config>
     <config id="config.bsp.ra">
-      <property id="config.bsp.common.main" value="0x2000"/>
-      <property id="config.bsp.common.heap" value="0x4000"/>
+      <property id="config.bsp.common.main" value="0x400"/>
+      <property id="config.bsp.common.heap" value="0"/>
       <property id="config.bsp.common.vcc" value="5000"/>
       <property id="config.bsp.common.checking" value="config.bsp.common.checking.disabled"/>
       <property id="config.bsp.common.assert" value="config.bsp.common.assert.none"/>
       <property id="config.bsp.common.error_log" value="config.bsp.common.error_log.none"/>
       <property id="config.bsp.common.soft_reset" value="config.bsp.common.soft_reset.disabled"/>
-      <property id="config.bsp.common.main_osc_populated" value="config.bsp.common.main_osc_populated.enabled"/>
+      <property id="config.bsp.common.main_osc_populated" value="config.bsp.common.main_osc_populated.disabled"/>
       <property id="config.bsp.common.pfs_protect" value="config.bsp.common.pfs_protect.enabled"/>
       <property id="config.bsp.common.c_runtime_init" value="config.bsp.common.c_runtime_init.enabled"/>
       <property id="config.bsp.common.early_init" value="config.bsp.common.early_init.disabled"/>
       <property id="config.bsp.common.main_osc_clock_source" value="config.bsp.common.main_osc_clock_source.crystal"/>
-      <property id="config.bsp.common.subclock_populated" value="config.bsp.common.subclock_populated.enabled"/>
+      <property id="config.bsp.common.subclock_populated" value="config.bsp.common.subclock_populated.disabled"/>
       <property id="config.bsp.common.subclock_drive" value="config.bsp.common.subclock_drive.standard"/>
       <property id="config.bsp.common.subclock_stabilization_ms" value="1000"/>
     </config>
