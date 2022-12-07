@@ -88,10 +88,10 @@ static const uint8_t A5 = PIN_A5;
 /****** UART CORE DEFINES ******/
 
 #define SERIAL_HOWMANY	    2
-#define UART1_TX_PIN        0
-#define UART1_RX_PIN        1
-#define UART2_TX_PIN        2
-#define UART2_RX_PIN        3
+#define UART1_TX_PIN        2
+#define UART1_RX_PIN        3
+#define UART2_TX_PIN        0
+#define UART2_RX_PIN        1
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0058)
