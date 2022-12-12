@@ -1,3 +1,6 @@
+#ifndef __HID_H__
+#define __HID_H__
+
 #include "Arduino.h"
 
 #define _USING_HID
@@ -33,3 +36,5 @@ private:
 // This function prevents static-initialization-order-fiasco
 // https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
 HID_& HID();
+
+#endif //__HID_H__
