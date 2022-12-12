@@ -177,7 +177,8 @@ muxto.upload.tool.default=dfu-util
 muxto.upload.protocol=
 muxto.upload.transport=
 muxto.upload.vid=0x2341
-muxto.upload.pid=0x0058
+# temporary, recompile bootloader with the right PID
+muxto.upload.pid=0x0369
 muxto.upload.address=0x00010000
 muxto.upload.interface=0
 muxto.upload.use_1200bps_touch=false
