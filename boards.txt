@@ -156,7 +156,7 @@ muxto.build.fpu=
 muxto.build.float-abi=
 
 muxto.build.board=MUXTO
-muxto.build.defines=-DF_CPU=48000000
+muxto.build.defines=-DF_CPU=48000000 -DFIRST_BULK_PIPE=4
 muxto.vid.0=0x2341
 muxto.pid.0=0x0058
 muxto.upload_port.0.vid=0x2341
