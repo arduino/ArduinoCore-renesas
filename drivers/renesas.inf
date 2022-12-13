@@ -3,13 +3,28 @@
 ; Installs WinUsb
 ;
 
+[Strings]
+ManufacturerName="Arduino"
+ClassName="Universal Serial Bus devices"
+REG_MULTI_SZ = 0x00010000
+DeviceNameSantiago = "Santiago Firmware Upgrade"
+DeviceNamePortenta = "Portenta H33 Firmware Upgrade"
+DeviceNameSantiagoDFU = "Santiago (Upgrade)"
+DeviceNamePortentaDFU = "Portenta H33 (Upgrade)"
+VendorName = "Arduino"
+SourceName = "Arduino Renesas Firmware Upgrade Install Disk"
+DeviceIDSantiago   = "VID_2341&PID_0069&Rev_0100&MI_02"
+DeviceIDPortenta   = "VID_2341&PID_0068&Rev_0100&MI_02"
+DeviceIDSantiagoDFU= "VID_2341&PID_0369&Rev_0100"
+DeviceIDPortentaDFU= "VID_2341&PID_0368&Rev_0100"
+
 [Version]
 Signature   = "$Windows NT$"
 Class       = USBDevice
 ClassGUID   = {88BAE032-5A81-49f0-BC3D-A4FF138216D6}
 Provider    = %ManufacturerName%
-CatalogFile = portentah33.cat
-DriverVer   = 01/08/2022,10.55.00.000
+CatalogFile = renesas.cat
+DriverVer   = 03/03/2020,10.48.00.000
 
 ; ========== Manufacturer/Models sections ===========
 
@@ -17,7 +32,10 @@ DriverVer   = 01/08/2022,10.55.00.000
 %ManufacturerName% = Standard,NTamd64
 
 [Standard.NTamd64]
-%DeviceName%=USB_Install, USB\VID_2341&PID_0368&MI_00
+%DeviceNameSantiago% =USB_Install, USB\%DeviceIDSantiago%
+%DeviceNameSantiagoDFU% =USB_Install, USB\%DeviceIDSantiagoDFU%
+%DeviceNamePortenta% =USB_Install, USB\%DeviceIDPortenta%
+%DeviceNamePortentaDFU% =USB_Install, USB\%DeviceIDPortentaDFU%
 
 ; ========== Class definition ===========
 
@@ -49,11 +67,3 @@ HKR,,DeviceInterfaceGUIDs,0x10000,"{51de5bfa-d59d-4f3e-9b36-0b4b210dd53f}"
 ; [DestinationDirs]
 ; If your INF needs to copy files, you must not use the DefaultDestDir directive here.  
 ; You must explicitly reference all file-list-section names in this section.
-
-; =================== Strings ===================
-
-[Strings]
-ManufacturerName="Arduino"
-DeviceName="Arduino Portenta H33"
-ClassName="Universal Serial Bus devices"
-REG_MULTI_SZ = 0x00010000
