@@ -6,9 +6,7 @@
 extern void attach_ethernet_task(void (*fnc)());
 extern void eth_execute_link_process();
 
-void sys_printf(const char *format, ...) {
-  
-}
+
 
 void DHCP_task(struct netif *netif);
 /* initialization of lwip 

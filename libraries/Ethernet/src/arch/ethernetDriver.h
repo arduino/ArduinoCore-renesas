@@ -8,6 +8,8 @@
 
 using EtherCallback_f        = void (*)(void);
 
+#define ETHERNET_IRQ_PRIORITY   10
+
 
 #define MAC_ADDRESS_DIM     6
 #define ETH_BUFF_DIM        1536 

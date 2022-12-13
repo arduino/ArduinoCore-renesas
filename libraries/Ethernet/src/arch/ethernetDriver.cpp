@@ -290,7 +290,7 @@ bool eth_init() {
 /* -------------------------------------------------------------------------- */    
     bool rv = false;
     
-    if(!eth_driver.enableIrq(10)) {
+    if(!eth_driver.enableIrq(ETHERNET_IRQ_PRIORITY)) {
         return rv;
     }
 
