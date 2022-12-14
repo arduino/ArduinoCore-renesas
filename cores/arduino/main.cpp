@@ -59,6 +59,7 @@ void unsecure_registers() {
 #endif
 
 
+
 void arduino_main(void)
 {
    // Disable stack pointer protection
@@ -97,8 +98,6 @@ void arduino_main(void)
    setup();
    while (1)
    {
-      
-     
       loop();
    }
 }
