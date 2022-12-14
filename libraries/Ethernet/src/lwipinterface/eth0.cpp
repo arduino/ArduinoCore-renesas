@@ -103,13 +103,17 @@ struct pbuf* get_rx_pbuf() {
 }
 
 
+
 /* -------------------------------------------------------------------------- */
 void eth0if_input() {
 /* -------------------------------------------------------------------------- */  
   volatile uint32_t rx_frame_dim = 0;
   volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
   if(rx_frame_dim > 0 && rx_frame_buf != nullptr) {
-    volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_POOL);
+    while(rx_frame_dim % 4 != 0) {
+      rx_frame_dim++;
+    }
+    volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
     if(p != NULL) {
       /* Copy ethernet frame into pbuf */
       pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
