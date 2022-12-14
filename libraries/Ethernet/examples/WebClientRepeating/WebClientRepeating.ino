@@ -20,7 +20,7 @@
  */
 
 #include <lwIP_Arduino.h>
-#include <Ethernet.h>
+#include <EthernetRA.h>
 
 // fill in an available IP address on your network here,
 // for manual configuration:

@@ -14,7 +14,7 @@
  */
 
 #include <lwIP_Arduino.h>
-#include <Ethernet.h>
+#include <EthernetRA.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:

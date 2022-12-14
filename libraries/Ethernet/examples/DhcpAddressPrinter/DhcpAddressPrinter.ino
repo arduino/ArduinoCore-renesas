@@ -16,7 +16,7 @@
 */
 
 #include <lwIP_Arduino.h>
-#include <Ethernet.h>
+#include <EthernetRA.h>
 
 
 // Initialize the Ethernet client library

@@ -22,7 +22,7 @@
  */
 
 #include <lwIP_Arduino.h>
-#include <Ethernet.h>
+#include <EthernetRA.h>
 #include <EthernetUdp.h>
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets

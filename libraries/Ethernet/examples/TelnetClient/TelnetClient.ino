@@ -20,7 +20,7 @@
  */
 
 #include <lwIP_Arduino.h>
-#include <Ethernet.h>
+#include <EthernetRA.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network:
