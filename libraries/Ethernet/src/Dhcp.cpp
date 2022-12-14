@@ -123,7 +123,13 @@ IPAddress DhcpClass::getDhcpServerIp()
   return IPAddress(get_dhcp_add());
 }
 
+
 IPAddress DhcpClass::getDnsServerIp()
 {
+  #if LWIP_DNS
   return IPAddress(get_dns_add());
+  #else
+  return IPAddress(0,0,0,0);
+  #endif
 }
+

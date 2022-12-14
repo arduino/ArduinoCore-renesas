@@ -57,9 +57,18 @@ void lwip_task_private() {
 
 /* definition of a public task that disable the call to the interrupt on timer */
 void lwip_task() {
+  /* DO NOT USE !
+     never define USE_LWIP_TASK_OUTSIDE_TIMER
+     the purpose of this function was to call the private task from outside the
+     timer interrupt, but this is extremely dangerous because the interrupt
+     can arise while we are disabling it
+   */
+
+  #ifdef USE_LWIP_TASK_OUTSIDE_TIMER
   eth_timer.disable_overflow_irq();
   lwip_task_private();
   eth_timer.enable_overflow_irq();
+  #endif
   
 }
 
@@ -101,10 +110,12 @@ uint32_t get_eth0_ip_add() { return ip4_addr_get_u32(&(eth0if_get_ptr()->ip_addr
 uint32_t get_eth0_gw_add() { return ip4_addr_get_u32(&(eth0if_get_ptr()->gw)); }
 uint32_t get_eth0_nm_add() { return ip4_addr_get_u32(&(eth0if_get_ptr()->netmask));}
 
+#if LWIP_DNS
 uint32_t get_dns_add() {
   const ip_addr_t *tmp = dns_getserver(0);
   return ip4_addr_get_u32(tmp);
 }
+#endif
 
 uint32_t get_dhcp_add() {
   struct dhcp *dhcp = (struct dhcp *)netif_get_client_data(eth0if_get_ptr(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);

@@ -21,8 +21,11 @@ extern int8_t get_ip_address_from_hostname(const char *hostname, uint32_t *ipadd
 
 void DNSClient::begin(const IPAddress &aDNSServer)
 {
+  #if LWIP_DNS
   iDNSServer = aDNSServer;
   set_up_dns(iDNSServer.raw_address());
+  
+  #endif
 }
 
 
@@ -79,9 +82,10 @@ int DNSClient::getHostByName(const char *aHostname, IPAddress &aResult)
   if (iDNSServer == INADDR_NONE) {
     return INVALID_SERVER;
   }
-
+  #if LWIP_DNS
   ret = get_ip_address_from_hostname(aHostname, &ipResult);
   aResult = IPAddress(ipResult);
+  #endif
 
   return ret;
 }
