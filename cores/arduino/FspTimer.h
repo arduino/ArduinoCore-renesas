@@ -117,6 +117,15 @@ class FspTimer {
     uint32_t get_freq_hz();
     uint32_t get_channel();
 
+    static void set_timer_is_used(uint8_t type, int index) {
+      if (type == GPT_TIMER) {
+        gpt_used_channel[index] = TIMER_USED;
+      }
+      if (type == AGT_TIMER) {
+        agt_used_channel[index] = TIMER_USED;
+      }
+    }
+
     static void set_initial_timer_channel_as_pwm(uint8_t type, int index) {
       if (type == GPT_TIMER) {
         gpt_used_channel[index] = TIMER_PWM;

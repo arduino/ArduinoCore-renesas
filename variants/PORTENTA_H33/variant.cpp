@@ -265,21 +265,43 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 }
 
 #include "FspTimer.h"
-#include "pwm.h"
 
-FspTimer ethernet_25MHz_timer;
-PwmOut pwm(26);
+#define AGT_TIMER_CHANNEL 3
+#define ETHERNET_CLK_PIN  BSP_IO_PORT_06_PIN_00
+
+agt_instance_ctrl_t TIMER_ETHERNET_ctrl;
+agt_extended_cfg_t TIMER_ETHERNET_extend;
+timer_cfg_t TIMER_ETHERNET_cfg;
+
 
 void startETHClock() {
-  //pinPeripheral(BSP_IO_PORT_06_PIN_00, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
-  pwm.begin(4, 2, true, TIMER_SOURCE_DIV_1);
-  /*
-  if(ethernet_25MHz_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 3,  1000.0, 50.0)) {
-    ethernet_25MHz_timer.open();
-    ethernet_25MHz_timer.start();
-  }
-  */
+  pinPeripheral(ETHERNET_CLK_PIN, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
   
+  TIMER_ETHERNET_extend.count_source = AGT_CLOCK_PCLKB;
+  TIMER_ETHERNET_extend.agto = AGT_PIN_CFG_START_LEVEL_LOW;
+  TIMER_ETHERNET_extend.agtoab_settings_b.agtoa = AGT_PIN_CFG_DISABLED;
+  TIMER_ETHERNET_extend.agtoab_settings_b.agtob = AGT_PIN_CFG_DISABLED;
+  TIMER_ETHERNET_extend.measurement_mode = AGT_MEASURE_DISABLED;
+  TIMER_ETHERNET_extend.agtio_filter = AGT_AGTIO_FILTER_NONE;
+  TIMER_ETHERNET_extend.enable_pin = AGT_ENABLE_PIN_NOT_USED;
+  TIMER_ETHERNET_extend.trigger_edge = AGT_TRIGGER_EDGE_RISING;
+  
+  TIMER_ETHERNET_cfg.mode = TIMER_MODE_PERIODIC;
+  TIMER_ETHERNET_cfg.period_counts = (uint32_t) 0x1;
+  TIMER_ETHERNET_cfg.duty_cycle_counts = 0x00;
+  TIMER_ETHERNET_cfg.source_div = (timer_source_div_t) 0;
+  TIMER_ETHERNET_cfg.channel = AGT_TIMER_CHANNEL; 
+  TIMER_ETHERNET_cfg.p_callback = NULL;
+  TIMER_ETHERNET_cfg.p_context  = NULL;
+  TIMER_ETHERNET_cfg.p_extend = &TIMER_ETHERNET_extend;
+  TIMER_ETHERNET_cfg.cycle_end_ipl = (BSP_IRQ_DISABLED);
+  TIMER_ETHERNET_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
+  
+  fsp_err_t err = R_AGT_Open(&TIMER_ETHERNET_ctrl,&TIMER_ETHERNET_cfg);
+  err = R_AGT_Enable(&TIMER_ETHERNET_ctrl);
+  err = R_AGT_Start(&TIMER_ETHERNET_ctrl);
+
+  FspTimer::set_timer_is_used(GPT_TIMER, AGT_TIMER_CHANNEL);
 }
 
 void initVariant() {
