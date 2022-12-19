@@ -118,12 +118,20 @@ size_t _SerialUSB::write(const uint8_t *buf, size_t length) {
 }
 
 _SerialUSB::operator bool() {
+    static bool first_call = true;
+
     if (!_running) {
         return false;
     }
 
     tud_task();
-    return connected();
+    bool rv = connected();
+
+    if(rv && first_call) {
+        delay(10);
+        first_call = false;
+    }
+    return rv;
 }
 
 /* Key code for writing PRCR register. */
