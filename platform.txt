@@ -93,7 +93,7 @@ recipe.output.save_file={build.project_name}.{build.variant}.bin
 # Uploader tools
 # ---------------------
 
-tools.dfu-util.path={runtime.tools.dfu-util.path}
+tools.dfu-util.path={runtime.tools.dfu-util-0.11.0-arduino5.path}
 tools.dfu-util.cmd=dfu-util
 tools.dfu-util.upload.params.verbose=-d
 tools.dfu-util.upload.params.quiet=
