@@ -96,54 +96,6 @@ santiago.upload.maximum_data_size=32768
 
 ##############################################################
 
-santiago_old.name=Santiago r0 OLD (RA4M1)
-santiago_old.build.core=arduino
-santiago_old.build.crossprefix=arm-none-eabi-
-santiago_old.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
-
-santiago_old.build.variant=SANTIAGO_OLD
-santiago_old.build.mcu=cortex-m4
-santiago_old.build.architecture=cortex-m4
-santiago_old.build.fpu=-mfpu=fpv5-sp-d16
-santiago_old.build.float-abi=-mfloat-abi=hard
-
-santiago_old.build.board=SANTIAGO_OLD
-santiago_old.build.defines=-DF_CPU=48000000
-santiago_old.vid.0=0x2341
-santiago_old.pid.0=0x0069
-santiago_old.vid.1=0x2341
-santiago_old.pid.1=0x0369
-santiago_old.upload_port.0.vid=0x2341
-santiago_old.upload_port.0.pid=0x0069
-santiago_old.upload_port.1.vid=0x2341
-santiago_old.upload_port.1.pid=0x0369
-
-santiago_old.compiler.fsp.defines={build.variant.path}/defines.txt
-santiago_old.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-santiago_old.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
-santiago_old.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
-santiago_old.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-santiago_old.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-santiago_old.compiler.fsp.includes={build.variant.path}/includes.txt
-santiago_old.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-santiago_old.compiler.fsp="{build.variant.path}/libs/libfsp.a"
-
-santiago_old.upload.tool=dfu-util
-santiago_old.upload.tool.default=dfu-util
-santiago_old.upload.protocol=
-santiago_old.upload.transport=
-santiago_old.upload.vid=0x2341
-santiago_old.upload.pid=0x0369
-santiago_old.upload.address=0x00010000
-santiago_old.upload.interface=0
-santiago_old.upload.use_1200bps_touch=false
-santiago_old.upload.wait_for_upload_port=false
-santiago_old.upload.native_usb=true
-santiago_old.upload.maximum_size=262144
-santiago_old.upload.maximum_data_size=32768
-
-##############################################################
-
 muxto.name=Muxto (RA2A1)
 muxto.build.core=arduino
 muxto.build.crossprefix=arm-none-eabi-
