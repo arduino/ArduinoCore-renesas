@@ -89,7 +89,7 @@ FSP Configuration
     PCLKC Div /4
     PCLKD Div /2
     BCLK Div /2
-    BCLK/2
+    EBCLK Div /2
     FCLK Div /4
     CLKOUT Div /1
     UCLK Div /5
@@ -142,10 +142,10 @@ FSP Configuration
       P208 A8 - - - - Disabled - - "BUS_ASYNCH0: CS4; DEBUG_TRACE0: TDATA3; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT_OPS0: GTOVLO; QSPI0: QIO3; SDHI0: SD0DAT0" - None - - 
       P209 B9 - - - - Disabled - - "AGT5: AGTEE5; BUS_ASYNCH0: CS5; DEBUG_TRACE0: TDATA2; ETHERC_MII0: ET0_EXOUT; ETHERC_RMII0: ET0_EXOUT; GPT_OPS0: GTOVUP; QSPI0: QIO2; SDHI0: SD0WP" - None - - 
       P210 A9 - - - - Disabled - - "AGT5: AGTOB5; BUS_ASYNCH0: CS6; DEBUG_TRACE0: TDATA1; ETHERC_MII0: ET0_WOL; ETHERC_RMII0: ET0_WOL; GPT_OPS0: GTIW; QSPI0: QIO1; SDHI0: SD0CD" - None - - 
-      P211 B10 - - - - Disabled - - "AGT5: AGTOA5; BUS_ASYNCH0: CS7; DEBUG_TRACE0: TDATA0; ETHERC_MII0: ET0_MDIO; ETHERC_RMII0: ET0_MDIO; GPT_OPS0: GTIV; QSPI0: QIO0; SDHI0: SD0CMD" - None - - 
+      P211 B10 ETHERC_RMII0_ET0_MDIO - Low - "Peripheral mode" CMOS None "AGT5: AGTOA5; BUS_ASYNCH0: CS7; DEBUG_TRACE0: TDATA0; ETHERC_MII0: ET0_MDIO; ETHERC_RMII0: ET0_MDIO; GPT_OPS0: GTIV; QSPI0: QIO0; SDHI0: SD0CMD" - IO - - 
       P212 H15 - - - - Disabled - - "AGT1: AGTEE1; CGC0: EXTAL; GPT_POEG3: GTETRGD; GPT0: GTIOC0B; ICU0: IRQ03; SCI1: RXD1; SCI1: SCL1" - None - - 
       P213 H14 - - - - Disabled - - "ADC1: ADTRG1; AGT2: AGTEE2; CGC0: XTAL; GPT_POEG2: GTETRGC; GPT0: GTIOC0A; ICU0: IRQ02; SCI1: SDA1; SCI1: TXD1" - None - - 
-      P214 A10 - - - - Disabled - - "AGT5: AGTO5; DEBUG_TRACE0: TCLK; ETHERC_MII0: ET0_MDC; ETHERC_RMII0: ET0_MDC; GPT_OPS0: GTIU; QSPI0: QSPCLK; SDHI0: SD0CLK" - None - - 
+      P214 A10 ETHERC_RMII0_ET0_MDC - Low - "Peripheral mode" CMOS None "AGT5: AGTO5; DEBUG_TRACE0: TCLK; ETHERC_MII0: ET0_MDC; ETHERC_RMII0: ET0_MDC; GPT_OPS0: GTIU; QSPI0: QSPCLK; SDHI0: SD0CLK" - IO - - 
       P300 C4 DEBUG0_SWCLK - Low - "Peripheral mode" CMOS None "DEBUG0: SWCLK; DEBUG0: TCK; GPT_OPS0: GTOUUP; GPT0: GTIOC0A; SPI0: SSLA1" - IO - - 
       P301 A2 - - - - Disabled - - "AGT0: AGTIO0; BUS_ASYNCH0: A06; GPT_OPS0: GTOULO; GPT4: GTIOC4B; ICU0: IRQ06; SCI2: RXD2; SCI2: SCL2; SCI9: CTSRTS9; SPI0: SSLA2" - None - - 
       P302 B3 - - - - Disabled - - "BUS_ASYNCH0: A07; GPT_OPS0: GTOUUP; GPT4: GTIOC4A; ICU0: IRQ05; SCI2: SDA2; SCI2: TXD2; SPI0: SSLA3" - None - - 
@@ -167,8 +167,8 @@ FSP Configuration
       P402 P14 - - - - Disabled - - "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; CAC0: CACREF; CAN0: CRX0; ETHERC_MII0: ET0_MDIO; ETHERC_RMII0: ET0_MDIO; ICU0: IRQ04; RTC0: RTCIC0; SCI4: CTS4; SCI7: RXD7; SCI7: SCL7; SSI_COMMON0: AUDIO_CLK" - None - - 
       P403 M12 - - - - Disabled - - "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; ETHERC_MII0: ET0_LINKSTA; ETHERC_RMII0: ET0_LINKSTA; GPT3: GTIOC3A; ICU0: IRQ14; RTC0: RTCIC1; SCI7: CTSRTS7; SSI0: SSIBCK0" - None - - 
       P404 M13 - - - - Disabled - - "AGT0: AGTIO0; AGT1: AGTIO1; AGT2: AGTIO2; AGT3: AGTIO3; ETHERC_MII0: ET0_EXOUT; ETHERC_RMII0: ET0_EXOUT; GPT3: GTIOC3B; ICU0: IRQ15; RTC0: RTCIC2; SCI7: CTS7; SSI0: SSILRCK0" - None - - 
-      P405 P15 - - - - Disabled - - "ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT1: GTIOC1A; SSI0: SSITXD0" - None - - 
-      P406 N14 - - - - Disabled - - "AGT5: AGTO5; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT1: GTIOC1B; SPI0: SSLA3; SSI0: SSIRXD0" - None - - 
+      P405 P15 ETHERC_RMII0_RMII_TXD_EN - Low - "Peripheral mode" CMOS None "ETHERC_MII0: ET0_TX_EN; ETHERC_RMII0: RMII_TXD_EN; GPT1: GTIOC1A; SSI0: SSITXD0" - IO - - 
+      P406 N14 ETHERC_RMII0_RMII_TXD1 - Low - "Peripheral mode" CMOS None "AGT5: AGTO5; ETHERC_MII0: ET0_RX_ER; ETHERC_RMII0: RMII_TXD1; GPT1: GTIOC1B; SPI0: SSLA3; SSI0: SSIRXD0" - IO - - 
       P407 A15 - - - - Disabled - - "ADC0: ADTRG0; AGT0: AGTIO0; CTSU0: TS03; ETHERC_MII0: ET0_EXOUT; ETHERC_RMII0: ET0_EXOUT; GPT6: GTIOC6A; IIC0: SDA0; RTC0: RTCOUT; SCI4: CTSRTS4; SPI0: SSLA3; USB_FS0: USB_VBUS" - None - - 
       P408 D13 - - - - Disabled - - "AGT2: AGTOB2; CTSU0: TS04; ETHERC_MII0: ET0_CRS; ETHERC_RMII0: RMII_CRS_DV; GPT_OPS0: GTOWLO; GPT6: GTIOC6B; ICU0: IRQ07; IIC0: SCL0; SCI3: RXD3; SCI3: SCL3; SCI4: CTS4; USB_FS0: USB_ID; USB_HS0: USBHS_ID" - None - - 
       P409 B15 - - - - Disabled - - "AGT2: AGTOA2; CTSU0: TS05; ETHERC_MII0: ET0_RX_CLK; ETHERC_RMII0: RMII_RX_ER; GPT_OPS0: GTOWUP; ICU0: IRQ06; IIC2: SDA2; SCI3: SDA3; SCI3: TXD3; USB_FS0: USB_EXICEN; USB_HS0: USBHS_EXICEN" - None - - 
@@ -199,19 +199,19 @@ FSP Configuration
       P606 J1 - - - - Disabled - - "RTC0: RTCOUT; SCI8: CTSRTS8" - None - - 
       P607 J4 - - - - Disabled - - "SCI8: RXD8; SCI8: SCL8" - None - - 
       P608 D2 - - - - Disabled - - "BUS_ASYNCH0: A00; GPT4: GTIOC4B" - None - - 
-      P609 D1 - - - - Disabled - - "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - None - - 
+      P609 D1 - - - - Disabled - - "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A; OSPI0: OMECS" - None - - 
       P610 F3 - - - - Disabled - - "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - None - - 
       P611 E2 - - - - Disabled - - "AGT3: AGTO3; CAC0: CACREF; CGC0: CLKOUT; SCI7: CTSRTS7" - None - - 
       P612 E1 - - - - Disabled - - "AGT2: AGTO2; BUS_ASYNCH0: D08; SCI7: SCK7" - None - - 
       P613 F4 - - - - Disabled - - "AGT1: AGTO1; BUS_ASYNCH0: D09; SCI7: SDA7; SCI7: TXD7" - None - - 
       P614 F2 - - - - Disabled - - "AGT0: AGTO0; BUS_ASYNCH0: D10; SCI7: RXD7; SCI7: SCL7" - None - - 
       P615 F1 - - - - Disabled - - "ICU0: IRQ07; USB_FS0: USB_VBUSEN" - None - - 
-      P700 N15 - - - - Disabled - - "AGT4: AGTO4; ETHERC_MII0: ET0_ETXD1; ETHERC_RMII0: RMII_TXD0; GPT5: GTIOC5A; SPI0: MISOA" - None - - 
-      P701 M14 - - - - Disabled - - "AGT3: AGTO3; ETHERC_MII0: ET0_ETXD0; ETHERC_RMII0: REF50CK; GPT5: GTIOC5B; SPI0: MOSIA" - None - - 
-      P702 L12 - - - - Disabled - - "AGT2: AGTO2; ETHERC_MII0: ET0_ERXD1; ETHERC_RMII0: RMII_RXD0; GPT6: GTIOC6A; SPI0: RSPCKA" - None - - 
-      P703 M15 - - - - Disabled - - "AGT1: AGTO1; ETHERC_MII0: ET0_ERXD0; ETHERC_RMII0: RMII_RXD1; GPT6: GTIOC6B; SPI0: SSLA0" - None - - 
-      P704 L13 - - - - Disabled - - "AGT0: AGTO0; CAN0: CTX0; ETHERC_MII0: ET0_RX_CLK; ETHERC_RMII0: RMII_RX_ER; SPI0: SSLA1" - None - - 
-      P705 K12 - - - - Disabled - - "AGT0: AGTIO0; CAN0: CRX0; ETHERC_MII0: ET0_CRS; ETHERC_RMII0: RMII_CRS_DV; SCI3: CTS3; SPI0: SSLA2" - None - - 
+      P700 N15 ETHERC_RMII0_RMII_TXD0 - Low - "Peripheral mode" CMOS None "AGT4: AGTO4; ETHERC_MII0: ET0_ETXD1; ETHERC_RMII0: RMII_TXD0; GPT5: GTIOC5A; SPI0: MISOA" - IO - - 
+      P701 M14 ETHERC_RMII0_REF50CK - Low - "Peripheral mode" CMOS None "AGT3: AGTO3; ETHERC_MII0: ET0_ETXD0; ETHERC_RMII0: REF50CK; GPT5: GTIOC5B; SPI0: MOSIA" - IO - - 
+      P702 L12 ETHERC_RMII0_RMII_RXD0 - Low - "Peripheral mode" CMOS None "AGT2: AGTO2; ETHERC_MII0: ET0_ERXD1; ETHERC_RMII0: RMII_RXD0; GPT6: GTIOC6A; SPI0: RSPCKA" - IO - - 
+      P703 M15 ETHERC_RMII0_RMII_RXD1 - Low - "Peripheral mode" CMOS None "AGT1: AGTO1; ETHERC_MII0: ET0_ERXD0; ETHERC_RMII0: RMII_RXD1; GPT6: GTIOC6B; SPI0: SSLA0" - IO - - 
+      P704 L13 ETHERC_RMII0_RMII_RX_ER - Low - "Peripheral mode" CMOS None "AGT0: AGTO0; CAN0: CTX0; ETHERC_MII0: ET0_RX_CLK; ETHERC_RMII0: RMII_RX_ER; SPI0: SSLA1" - IO - - 
+      P705 K12 ETHERC_RMII0_RMII_CRS_DV - Low - "Peripheral mode" CMOS None "AGT0: AGTIO0; CAN0: CRX0; ETHERC_MII0: ET0_CRS; ETHERC_RMII0: RMII_CRS_DV; SCI3: CTS3; SPI0: SSLA2" - IO - - 
       P706 L14 - - - - Disabled - - "ICU0: IRQ07; SCI3: RXD3; SCI3: SCL3; USB_HS0: USBHS_OVRCURB" - None - - 
       P707 L15 - - - - Disabled - - "ICU0: IRQ08; SCI3: SDA3; SCI3: TXD3; USB_HS0: USBHS_OVRCURA" - None - - 
       P708 E15 - - - - Disabled - - "CAC0: CACREF; CEC0: CECIO; CTSU0: TS12; ETHERC_MII0: ET0_ETXD3; ICU0: IRQ11; SCI1: RXD1; SCI1: SCL1; SPI1: SSLB3; SSI_COMMON0: AUDIO_CLK" - None - - 
@@ -455,17 +455,27 @@ FSP Configuration
     Pin Output Support: Enabled
     Pin Input Support: Disabled
     
+  Module "Ethernet (r_ether)"
+    Parameter Checking: Default (BSP)
+    ET0_LINKSTA Pin Status Flag: Fall -> Rise
+    Link Signal Change Flag: Unused
+    
+  Module "Ethernet (r_ether_phy)"
+    Parameter Checking: Default (BSP)
+    Select PHY(DEPRECATED): Default
+    KSZ8091RNZ Target: Disabled
+    KSZ8041 Target: Disabled
+    DP83620 Target: Disabled
+    ICS1894 Target: Disabled
+    Reference Clock: Default
+    
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
       Name: g_ioport
-      Port 1 ELC Trigger Source: Disabled
-      Port 2 ELC Trigger Source: Disabled
-      Port 3 ELC Trigger Source: Disabled
-      Port 4 ELC Trigger Source: Disabled
-      Port B ELC Trigger Source: Disabled
-      Port C ELC Trigger Source: Disabled
-      Port D ELC Trigger Source: Disabled
-      Port E ELC Trigger Source: Disabled
+      1st Port ELC Trigger Source: Disabled
+      2nd Port ELC Trigger Source: Disabled
+      3rd Port ELC Trigger Source: Disabled
+      4th Port ELC Trigger Source: Disabled
       Pin Configuration Name: g_bsp_pin_cfg
       
     Instance "g_adc0 ADC (r_adc)"
@@ -519,7 +529,7 @@ FSP Configuration
       General: Name: g_canfd0
       General: Channel: 0
       Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: Data Rate (bps): 2000000
+      Bitrate: Automatic: FD Data Rate (bps): 2000000
       Bitrate: Automatic: Sample Point (%): 75
       Bitrate: Delay Compensation: Enable
       Bitrate: Manual: Nominal: Prescaler (divisor): 1
@@ -925,3 +935,31 @@ FSP Configuration
       Interrupts: Callback: NULL
       Interrupts: Underflow Interrupt Priority: Disabled
       
+    Instance "ETHERNET Ethernet (r_ether)"
+      General: Name: ETHERNET
+      General: Channel: 0
+      General: MAC address: 00:11:22:33:44:55
+      General: Zero-copy Mode: Disable
+      General: Flow control functionality: Disable
+      Filters: Multicast Mode: Enable
+      Filters: Promiscuous Mode: Disable
+      Filters: Broadcast filter: 0
+      Buffers: Number of TX buffer: 1
+      Buffers: Number of RX buffer: 1
+      Buffers: Allocate RX buffer: Enable
+      Buffers: Buffer size: 1514
+      Buffers: Padding size: Disable
+      Buffers: Padding offset: 0
+      Interrupts: Interrupt priority: Priority 12
+      Interrupts: Callback: NULL
+      
+      Instance "ETHERNET_PHY Ethernet (r_ether_phy)"
+        Name: ETHERNET_PHY
+        Channel: 0
+        PHY-LSI Address: 0
+        PHY-LSI Reset Completion Timeout: 0x00020000
+        Select MII type: RMII
+        Phy LSI type: Kit Component
+        MII/RMII Register Access Wait-time: 8
+        Flow Control: Disable
+        

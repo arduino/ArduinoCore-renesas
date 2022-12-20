@@ -6,7 +6,7 @@
         #endif
 /* Number of interrupts allocated */
 #ifndef VECTOR_DATA_IRQ_COUNT
-#define VECTOR_DATA_IRQ_COUNT    (27)
+#define VECTOR_DATA_IRQ_COUNT    (28)
 #endif
 /* ISR prototypes */
 void canfd_error_isr(void);
@@ -35,6 +35,7 @@ void usbhs_d0fifo_handler(void);
 void usbhs_d1fifo_handler(void);
 void r_icu_isr(void);
 void rtc_carry_isr(void);
+void ether_eint_isr(void);
 
 /* Vector table allocations */
 #define VECTOR_NUMBER_CAN0_CHERR ((IRQn_Type) 0) /* CAN0 CHERR (Channel error) */
@@ -91,6 +92,8 @@ void rtc_carry_isr(void);
 #define ICU_IRQ0_IRQn          ((IRQn_Type) 25) /* ICU IRQ0 (External pin interrupt 0) */
 #define VECTOR_NUMBER_RTC_CARRY ((IRQn_Type) 26) /* RTC CARRY (Carry interrupt) */
 #define RTC_CARRY_IRQn          ((IRQn_Type) 26) /* RTC CARRY (Carry interrupt) */
+#define VECTOR_NUMBER_EDMAC0_EINT ((IRQn_Type) 27) /* EDMAC0 EINT (EDMAC 0 interrupt) */
+#define EDMAC0_EINT_IRQn          ((IRQn_Type) 27) /* EDMAC0 EINT (EDMAC 0 interrupt) */
 #ifdef __cplusplus
         }
         #endif

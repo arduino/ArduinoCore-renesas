@@ -17,6 +17,8 @@
 #define EXTERNAL_PIN_NUM            1
 #define SPI_MASTER_REQ_NUM          4
 #define CAN_REQ_NUM                 3
+#define ETHERNET_REQ_NUM            1
+#define ETHERNET_PRIORITY          12
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
@@ -906,6 +908,24 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
 #endif /* CAN_HOWMANY > 0 */
 
+#if ETHERNET_HOWMANY > 0
+    /* **********************************************************************
+                                    ETHERNET
+       ********************************************************************** */
+    else if(p == IRQ_ETHERNET && cfg != NULL) {
+        ether_cfg_t *eth = (ether_cfg_t *)cfg;
+        if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM && eth->irq == FSP_INVALID_VECTOR) {
+            eth->irq = (IRQn_Type)last_interrupt_index;
+            eth->interrupt_priority = ETHERNET_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)ether_eint_isr;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_EDMAC0_EINT);
+            last_interrupt_index++;
+        }
+        else {
+            rv = (eth->irq == FSP_INVALID_VECTOR) ? false : true;
+        }
+    }
+#endif
     else {
         rv = false;
     }

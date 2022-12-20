@@ -120,6 +120,8 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     return init_ok;
 }
 
+
+
 /* -------------------------------------------------------------------------- */
 int8_t FspTimer::get_available_timer(uint8_t &type, bool force /*= false*/) {
 /* -------------------------------------------------------------------------- */    
@@ -698,12 +700,32 @@ bool FspTimer::is_opened() {
     return rv;
 }
 
+extern void R_BSP_IrqEnable (IRQn_Type const irq);
+extern void R_BSP_IrqDisable (IRQn_Type const irq);
+
+/* -------------------------------------------------------------------------- */
+void FspTimer::disable_overflow_irq() {
+/* -------------------------------------------------------------------------- */    
+    synchronized {
+        TimerIrqCfg_t cfg = get_cfg_for_irq();
+        R_BSP_IrqDisable ((IRQn_Type)timer_cfg.cycle_end_irq);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+void FspTimer::enable_overflow_irq() {
+/* -------------------------------------------------------------------------- */    
+    synchronized {
+        TimerIrqCfg_t cfg = get_cfg_for_irq();
+        R_BSP_IrqEnable ((IRQn_Type)timer_cfg.cycle_end_irq);
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 bool FspTimer::setup_overflow_irq(uint8_t priority /*= 12*/,  Irq_f isr_fnc /*= nullptr*/ ) {
 /* -------------------------------------------------------------------------- */
+    
     TimerIrqCfg_t cfg = get_cfg_for_irq();
-
     /* that is due to the fact that when the timer is opened the configuration
        of the interrupt is ignore by FSP, this is usually not a problem
        if first you set up the timer and then open and start it 

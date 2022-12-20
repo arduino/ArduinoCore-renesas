@@ -5,8 +5,6 @@
 extern const uint32_t __StackTop;
 const uint32_t APPLICATION_VECTOR_TABLE_ADDRESS_RAM = (uint32_t)&__StackTop;
 
-void startAgt();
-
 void _init() {
    R_BSP_PinAccessEnable();
 }
@@ -59,6 +57,7 @@ void unsecure_registers() {
     R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_SAR);
 }
 #endif
+
 
 
 void arduino_main(void)
