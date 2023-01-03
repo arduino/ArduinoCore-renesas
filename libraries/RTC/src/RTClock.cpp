@@ -1,4 +1,4 @@
-#include "RTClock.h"
+#include "RTC.h"
 #include "IRQManager.h"
 #include <Arduino.h>
 
@@ -275,7 +275,7 @@ bool RTCTime::setDayOfMonth(int _d) {
         day = _d;
         rv = true;
         stime.tm_mday = day;
-        stime.tm_yday = day + yday(year, Month2tm(month));
+        //stime.tm_yday = day + yday(year, Month2tm(month));
     }
     return rv;
 }
@@ -283,16 +283,20 @@ bool RTCTime::setDayOfMonth(int _d) {
 bool RTCTime::setMonthOfYear(Month _m) {
     month = _m;
     stime.tm_mon = Month2tm(month);
-    stime.tm_yday = day + yday(year, Month2tm(month));
+    //stime.tm_yday = day + yday(year, Month2tm(month));
     return true;
 }
 
 bool RTCTime::setYear(int _y) {
+    if (_y >= TM_YEAR_OFFSET) {
+        _y -= TM_YEAR_OFFSET;
+    }
     year = _y;
-    stime.tm_year = year - TM_YEAR_OFFSET;
-    stime.tm_yday = day + yday(year, Month2tm(month));
+    stime.tm_year = _y;
+    //stime.tm_yday = day + yday(year, Month2tm(month));
     return true;
 }
+
 bool RTCTime::setHour(int _h) {
     bool rv = false;
     if(_h >= MIN_HOURS && _h <= MAX_HOURS) {
@@ -337,20 +341,44 @@ bool RTCTime::setSaveLight(SaveLight sl) {
 /* getters */
 int RTCTime::getDayOfMonth()      { return day; }
 Month RTCTime::getMonth()          { return month; }
-int RTCTime::getYear()            { return year; }
+int RTCTime::getYear()            { return year >= TM_YEAR_OFFSET ? year : year + TM_YEAR_OFFSET; }
 int RTCTime::getHour()            { return hours; }
 int RTCTime::getMinutes()         { return minutes; }
 int RTCTime::getSeconds()         { return seconds; }
 DayOfWeek RTCTime::getDayOfWeek() { return day_of_week; }
 
-time_t RTCTime::getUnixTime()  { return mktime ( (struct tm *)&stime );}
+time_t RTCTime::getUnixTime()  { Serial.println(stime.tm_year);Serial.println(stime.tm_mon);Serial.println(stime.tm_mday);  return mktime ( (struct tm *)&stime ); }
 struct tm RTCTime::getTmTime() { return (struct tm)stime; }
 
 /* -------------------------------------------------------------------------- */
 /*                             RTClass                                        */
 /* -------------------------------------------------------------------------- */
 
- 
+ using rtc_simple_cbk_t = void (*)();
+
+rtc_simple_cbk_t alarm_func = nullptr;
+rtc_simple_cbk_t periodic_func = nullptr;
+
+void setRtcPeriodicClbk(rtc_simple_cbk_t f) {
+  periodic_func = f;
+}
+void setRtcAlarmClbk(rtc_simple_cbk_t f) {
+  alarm_func = f;
+}
+
+void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {
+  if(p_args->event == RTC_EVENT_ALARM_IRQ) {
+    if(alarm_func != nullptr) {
+      alarm_func();
+    }
+  }
+
+  if(p_args->event == RTC_EVENT_PERIODIC_IRQ) {
+    if(periodic_func != nullptr) {
+      periodic_func();
+    }
+  }
+}
 
 rtc_instance_ctrl_t rtc_ctrl;
 const rtc_error_adjustment_cfg_t rtc_err_cfg = { 
@@ -373,7 +401,141 @@ rtc_cfg_t rtc_cfg  = {
     
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+static void rtc_init(void) {
+  if(!rtc_ctrl.open) {
+    R_RTC_Open(&rtc_ctrl, &rtc_cfg);
+  }
+}
+
+static int rtc_isenabled(void) {
+  rtc_info_t rtc_info;
+  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
+  if (rtc_info.status == RTC_STATUS_RUNNING) {
+    return 1;
+  }
+  return 0;
+}
+
+static time_t rtc_read(void) {
+  rtc_time_t time_read;
+  rtc_init();
+  R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read);
+  time_t rv = mktime ( (struct tm *) &time_read);
+  return rv;
+}
+
+static void rtc_write(time_t t) {
+  rtc_init();
+  struct tm * timeinfo;
+  timeinfo = localtime (&t);
+  R_RTC_CalendarTimeSet(&rtc_ctrl, timeinfo);
+}
+
+static void (*_rtc_init)(void) = rtc_init;
+static int (*_rtc_isenabled)(void) = rtc_isenabled;
+static time_t (*_rtc_read)(void) = rtc_read;
+static void (*_rtc_write)(time_t t) = rtc_write;
+
+
+int settimeofday(const struct timeval *tv,  const struct timezone __attribute__((unused)) *tz)
+{
+    if (_rtc_init != NULL) {
+        _rtc_init();
+    }
+    if (_rtc_write != NULL) {
+        _rtc_write(tv->tv_sec);
+    }
+    return 0;
+}
+
+int gettimeofday(struct timeval *tv, void __attribute__((unused)) *tz)
+{
+    if (_rtc_isenabled != NULL) {
+        if (!(_rtc_isenabled())) {
+            set_time(0);
+        }
+    }
+
+    time_t t = (time_t) - 1;
+    if (_rtc_read != NULL) {
+        t = _rtc_read();
+    }
+    
+    tv->tv_sec  = t;
+    tv->tv_usec = 0;
+    return 0;
+}
+
+void set_time(time_t t)
+{
+    const struct timeval tv = { t, 0 };
+    settimeofday(&tv, NULL);
+}
+
+
+#ifdef __cplusplus
+}
+#endif
+
+bool openRtc() {
+  if(!rtc_ctrl.open) {
+    if(FSP_SUCCESS == R_RTC_Open(&rtc_ctrl, &rtc_cfg)) {
+      return true;
+    }
+  }
+  else {
+    return true;
+  }
+  return false;
+}
+
+bool setRtcTime(rtc_time_t time) {
+  if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&rtc_ctrl, &time) ) {
+    return true;
+  }
+  return false;
+}
+
+bool isRtcRunning() {
+  rtc_info_t rtc_info;
+  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
+  if (rtc_info.status == RTC_STATUS_RUNNING) {
+    return true;
+  }
+  return false;
+}
+
+bool getRtcTime(struct tm &t) {
+  rtc_time_t time_read;
+  if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read)) {
+    memcpy(&t,&time_read,sizeof(struct tm));
+    return true;
+  }
+  return false;
+}
+
+void onRtcInterrupt() {
+  rtc_ctrl.p_callback = rtc_callback;
+}
+
+bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
+  
+  if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&rtc_ctrl, period)) {
+    return true;
+  }
+  return false;
+}
+
+bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
+  if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&rtc_ctrl, &alarm_time) ) {
+    return true;
+  }
+  return false;
+}
 
 RTClock::RTClock() : is_initialized{false} {     
 }

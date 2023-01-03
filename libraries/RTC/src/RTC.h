@@ -4,6 +4,25 @@
 #include <ctime>
 #include "r_rtc_api.h"
 
+struct timeval {
+	time_t		tv_sec;
+	useconds_t	tv_usec;
+};
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void set_time(time_t t);
+void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void));
+int gettimeofday(struct timeval *tv, void *tz);
+int settimeofday(const struct timeval *tv, const struct timezone *tz);
+
+#ifdef __cplusplus
+}
+#endif
+
+
 using stime_t = struct tm;
 using rtc_cbk_t = void (*)();
 
@@ -138,14 +157,12 @@ class RTClock {
     private:
     bool is_initialized;
 
-   
-
     public:
     RTClock();
     ~RTClock();
 
     bool begin();
-    
+
     bool getTime(RTCTime &t);
 
     bool setPeriodicCallback(rtc_cbk_t fnc, Period p);
