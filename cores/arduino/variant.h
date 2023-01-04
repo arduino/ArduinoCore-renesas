@@ -148,7 +148,7 @@ static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
 #define ADC_1                       (1 << ADD_CONFIG_POS)
 #define IS_ADC1(x)                  ((x & ADD_CONFIG_MASK) == ADC_1)
 
-
-
+#define LP_FLASH                    1
+#define HP_FLASH                    2
 
 #endif

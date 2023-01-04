@@ -152,6 +152,14 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define USB_PID           (0x0069)
 #define USB_NAME          "Santiago"
 
+/* EEPROM DEFINES */
+
+#define ARDUINO_FLASH_TYPE  LP_FLASH
+#define EEPROM_BASE_ADDRESS 0x40100000
+#define EEPROM_LENGHT       0x2000
+#define EEPROM_BLOCK        0x400
+
+
 // TODO: removeme
 #ifdef __cplusplus
 extern "C" {
