@@ -301,7 +301,7 @@ void startETHClock() {
   err = R_AGT_Enable(&TIMER_ETHERNET_ctrl);
   err = R_AGT_Start(&TIMER_ETHERNET_ctrl);
 
-  FspTimer::set_timer_is_used(GPT_TIMER, AGT_TIMER_CHANNEL);
+  FspTimer::set_timer_is_used(AGT_TIMER, AGT_TIMER_CHANNEL);
 }
 
 void initVariant() {
