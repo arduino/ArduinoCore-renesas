@@ -306,4 +306,6 @@ void startETHClock() {
 
 void initVariant() {
   startETHClock();
+  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
+  pinMode(LED_BUILTIN, INPUT);
 }

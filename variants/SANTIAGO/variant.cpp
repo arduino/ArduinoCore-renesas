@@ -137,6 +137,8 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 #include "FspTimer.h"
 
 void initVariant() {
+  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
+  pinMode(LED_BUILTIN, INPUT);
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[3].list, PIN_CFG_REQ_PWM)));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[5].list, PIN_CFG_REQ_PWM)));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[6].list, PIN_CFG_REQ_PWM)));
