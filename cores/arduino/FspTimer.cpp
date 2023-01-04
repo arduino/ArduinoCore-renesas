@@ -715,7 +715,7 @@ extern void R_BSP_IrqDisable (IRQn_Type const irq);
 void FspTimer::disable_overflow_irq() {
 /* -------------------------------------------------------------------------- */    
     synchronized {
-        TimerIrqCfg_t cfg = get_cfg_for_irq();
+        //TimerIrqCfg_t cfg = get_cfg_for_irq();
         R_BSP_IrqDisable ((IRQn_Type)timer_cfg.cycle_end_irq);
     }
 }
@@ -724,7 +724,7 @@ void FspTimer::disable_overflow_irq() {
 void FspTimer::enable_overflow_irq() {
 /* -------------------------------------------------------------------------- */    
     synchronized {
-        TimerIrqCfg_t cfg = get_cfg_for_irq();
+        //TimerIrqCfg_t cfg = get_cfg_for_irq();
         R_BSP_IrqEnable ((IRQn_Type)timer_cfg.cycle_end_irq);
     }
 }

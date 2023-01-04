@@ -666,7 +666,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
     else if(p == IRQ_SCI_I2C_MASTER && cfg != NULL) {
         I2CIrqMasterReq_t *p_cfg = (I2CIrqMasterReq_t *)cfg;
-        iic_master_instance_ctrl_t *ctrl = (iic_master_instance_ctrl_t *)p_cfg->ctrl;
+        //iic_master_instance_ctrl_t *ctrl = (iic_master_instance_ctrl_t *)p_cfg->ctrl;
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->cfg;
         uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
