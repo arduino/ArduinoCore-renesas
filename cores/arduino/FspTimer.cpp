@@ -39,22 +39,24 @@ void FspTimer::end() {
 bool FspTimer::begin_pwm(uint8_t tp, uint8_t channel, TimerPWMChannel_t pwm_channel) {
 /* -------------------------------------------------------------------------- */    
     init_ok = true;
-    
+
     init_ok = begin(TIMER_MODE_PWM,tp,channel, STANDARD_PWM_FREQ_HZ ,STANDARD_DUTY_CYCLE_PERC);
-    
+
     if(tp == GPT_TIMER) {
         add_pwm_extended_cfg();
     }
-    
+
     enable_pwm_channel(pwm_channel);
 
     if(init_ok) {
         init_ok &= open();
         init_ok &= start();
     }
-       
+
     return init_ok;
 }
+
+extern FspTimer* __get_timer_for_channel(int channel);
 
 /* begin function RAW mode */
 /* -------------------------------------------------------------------------- */
@@ -72,7 +74,6 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     timer_cfg.cycle_end_ipl                         = (BSP_IRQ_DISABLED);
     timer_cfg.cycle_end_irq                         = FSP_INVALID_VECTOR;
 
-
     if(tp == GPT_TIMER) {
         type = GPT_TIMER;
         gpt_timer = new GPTimer(timer_cfg);
@@ -82,6 +83,12 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
                 if(gpt_used_channel[channel] == TIMER_PWM || gpt_used_channel[channel] == TIMER_FREE) {
                     timer_cfg.channel = channel;
                     gpt_used_channel[channel] = TIMER_USED;
+                    init_ok = true;
+                } else if (mode == TIMER_USED) {
+                    // check if compatible PWM on another channel
+                    timer_cfg.channel = channel;
+                    memcpy(&(gpt_timer->ext_cfg), __get_timer_for_channel(channel)->get_cfg()->p_extend, sizeof(gpt_extended_cfg_t));
+                    timer_cfg.duty_cycle_counts = __get_timer_for_channel(channel)->get_duty_cycle();
                     init_ok = true;
                 }
             }
@@ -551,7 +558,8 @@ bool FspTimer::start() {
 
 /* -------------------------------------------------------------------------- */
 bool FspTimer::set_duty_cycle(uint32_t const duty_cycle_counts, TimerPWMChannel_t pwm_ch) {
-/* -------------------------------------------------------------------------- */    
+/* -------------------------------------------------------------------------- */
+    _duty_cycle_counts = duty_cycle_counts;
     if(type == GPT_TIMER && gpt_timer != nullptr) {
         uint32_t pin = (pwm_ch == CHANNEL_A) ?  GPT_IO_PIN_GTIOCA : GPT_IO_PIN_GTIOCB;   
         if (R_GPT_DutyCycleSet(&(gpt_timer->ctrl), duty_cycle_counts, pin) != FSP_SUCCESS) {

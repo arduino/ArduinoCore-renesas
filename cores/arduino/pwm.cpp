@@ -15,9 +15,6 @@ PwmOut::PwmOut(int pinNumber) :
 PwmOut::~PwmOut() {
 }
 
-
-
-
 bool PwmOut::cfg_pin(int max_index) {
   /* verify index are good */
   if(_pin < 0 || _pin >= max_index) {
@@ -26,20 +23,20 @@ bool PwmOut::cfg_pin(int max_index) {
   /* getting configuration from table */
   const uint16_t *cfg = g_pin_cfg[_pin].list;
   uint16_t pin_cgf = getPinCfg(cfg, PIN_CFG_REQ_PWM,false);
-  
+
   /* verify configuration are good */
   if(pin_cgf == 0) {
     return false;
   }
-  
+
   timer_channel = GET_CHANNEL(pin_cgf);
 
-  _is_gtp = IS_PIN_GPT_PWM(pin_cgf);
+  _is_agt = IS_PIN_AGT_PWM(pin_cgf);
 
   _pwm_channel = IS_PWM_ON_A(pin_cgf) ? CHANNEL_A : CHANNEL_B;
 
   /* actually configuring PIN function */
-  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_GPT1));
+  R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | (_is_agt ? IOPORT_PERIPHERAL_AGT : IOPORT_PERIPHERAL_GPT1)));
   return true;
 
 }
@@ -49,14 +46,14 @@ bool PwmOut::begin() {
   bool rv = true;
   int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
   rv &= cfg_pin(max_index);
-  
+
   if(rv) {
     /* extended PWM CFG*/
-    if(_is_gtp) {
-      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);    
+    if(_is_agt) {
+      rv &= timer.begin_pwm(AGT_TIMER, timer_channel, _pwm_channel);
     }
     else {
-      rv &= timer.begin_pwm(AGT_TIMER, timer_channel, _pwm_channel);  
+      rv &= timer.begin_pwm(GPT_TIMER, timer_channel, _pwm_channel);
     }
   }
   _enabled = rv;
@@ -76,13 +73,13 @@ bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= fal
   
   if(_enabled) {
     if(raw) {
-      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel,  period_width, pulse_width, sd);
+      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_agt) ? AGT_TIMER : GPT_TIMER, timer_channel,  period_width, pulse_width, sd);
     }
     else {
       /* NOTE: I suppose period and pulse are expressed in us */
       float freq_hz = (1000000.0 / (float)period_width);
       float duty_perc = ((float)pulse_width * 100.0 / (float)period_width);
-      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_gtp) ? GPT_TIMER : AGT_TIMER , timer_channel, freq_hz, duty_perc);
+      _enabled &= timer.begin(TIMER_MODE_PWM, (_is_agt) ? AGT_TIMER : GPT_TIMER, timer_channel, freq_hz, duty_perc);
     }
 
     timer.add_pwm_extended_cfg();

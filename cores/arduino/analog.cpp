@@ -765,6 +765,16 @@ class PwmArray {
     }
     return nullptr;
   }
+  PwmOut *get_from_channel(int channel) {
+    size_t i = 0;
+    while (i < last_index) {
+      if (pwm_outs[i]->get_timer()->get_cfg()->channel == channel) {
+        return pwm_outs[i];
+      }
+      i++;
+    }
+    return nullptr;
+  }
   bool set(int pinNumber, PwmOut *p) {
     if (last_index < sizeof(chans)/sizeof(chans[0]) && p != nullptr) {
       chans[last_index] = pinNumber;
@@ -801,7 +811,7 @@ void analogWrite(pin_size_t pinNumber, int value)
     bool added = pwms.set(pinNumber, ptr);
     if(!added || !ptr->begin()) {
       delete ptr;
-      return;
+      ptr = nullptr;
     }
   }
 
@@ -810,3 +820,6 @@ void analogWrite(pin_size_t pinNumber, int value)
   }
 }
 
+FspTimer* __get_timer_for_channel(int channel) {
+  return  pwms.get_from_channel(channel)->get_timer();
+}

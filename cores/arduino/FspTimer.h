@@ -115,6 +115,7 @@ class FspTimer {
     void enable_pwm_channel(TimerPWMChannel_t pwm_channel);
     uint32_t get_counter();
     uint32_t get_freq_hz();
+    uint32_t get_duty_cycle() { return _duty_cycle_counts; };
     uint32_t get_channel();
 
     static void set_timer_is_used(uint8_t type, int index) {

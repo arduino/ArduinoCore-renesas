@@ -39,7 +39,7 @@ class PwmOut {
     bool cfg_pin(int max_index);
     int _pin;
     bool _enabled;
-    bool _is_gtp;
+    bool _is_agt;
     TimerPWMChannel_t _pwm_channel;
     
     uint8_t timer_channel;  
