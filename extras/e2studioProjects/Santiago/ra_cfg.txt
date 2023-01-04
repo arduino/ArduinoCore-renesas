@@ -71,6 +71,7 @@ FSP Configuration
     
   Clocks
     XTAL 16000000Hz
+    PLL Src: XTAL
     HOCO 24MHz
     PLL Div /4
     PLL Mul x12
@@ -239,9 +240,6 @@ FSP Configuration
   Module "Key Matrix (r_kint)"
     Parameter Checking: Default (BSP)
     
-  Module "Data Operation Circuit (r_doc)"
-    Parameter Checking: Default (BSP)
-    
   Module "Clock Generation Circuit (r_cgc)"
     Parameter Checking: Default (BSP)
     
@@ -249,17 +247,21 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     FIFO Support: Disabled
     
+  Module "Flash (r_flash_lp)"
+    Parameter Checking: Default (BSP)
+    Code Flash Programming: Disabled
+    Data Flash Programming: Enabled
+    
+  Module "Data Operation Circuit (r_doc)"
+    Parameter Checking: Default (BSP)
+    
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
       Name: g_ioport
-      Port 1 ELC Trigger Source: Disabled
-      Port 2 ELC Trigger Source: Disabled
-      Port 3 ELC Trigger Source: Disabled
-      Port 4 ELC Trigger Source: Disabled
-      Port B ELC Trigger Source: Disabled
-      Port C ELC Trigger Source: Disabled
-      Port D ELC Trigger Source: Disabled
-      Port E ELC Trigger Source: Disabled
+      1st Port ELC Trigger Source: Disabled
+      2nd Port ELC Trigger Source: Disabled
+      3rd Port ELC Trigger Source: Disabled
+      4th Port ELC Trigger Source: Disabled
       Pin Configuration Name: g_bsp_pin_cfg
       
     Instance "g_adc0 ADC (r_adc)"
@@ -1165,15 +1167,6 @@ FSP Configuration
       Interrupts: Callback: kint_callback
       Interrupts: Key Interrupt Priority: Priority 12
       
-    Instance "g_doc0 Data Operation Circuit (r_doc)"
-      Name: g_doc0
-      Event: Comparison mismatch
-      Bit Width: 16-Bit
-      Reference/Initial Data: 0
-      Additional Reference Data: 0
-      Callback: NULL
-      DOC Interrupt Priority: Priority 12
-      
     Instance "g_cgc0 Clock Generation Circuit (r_cgc)"
       Name: g_cgc0
       NMI Callback: NULL
@@ -1339,4 +1332,19 @@ FSP Configuration
       Input: Mailbox 28-31 Group: Mailbox 28-31 Group Mask: 0x1FFFFFFF
       Interrupts: Interrupt Priority Level: Priority 12
       Interrupts: Transmit FIFO Interrupt Mode: Every Message
+      
+    Instance "flash_eeprom Flash (r_flash_lp)"
+      Name: flash_eeprom
+      Data Flash Background Operation: Disabled
+      Callback: NULL
+      Flash Ready Interrupt Priority: Disabled
+      
+    Instance "g_doc0 Data Operation Circuit (r_doc)"
+      Name: g_doc0
+      Event: Comparison mismatch
+      Bit Width: 16-Bit
+      Reference/Initial Data: 0
+      Additional Reference Data: 0
+      Callback: NULL
+      DOC Interrupt Priority: Priority 12
       
