@@ -3,14 +3,14 @@
 
 // pins not yet handled by the script
 const uint16_t P210[] = {
-  PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B,
+  PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B|LAST_ITEM_GUARD,
 };
-const uint16_t P211[] = { 0 };
-const uint16_t P214[] = { 0 };
-const uint16_t P313[] = { 0 };
-const uint16_t P314[] = { 0 };
-const uint16_t P209[] = { 0 };
-const uint16_t P208[] = { 0 };
+const uint16_t P211[] = { LAST_ITEM_GUARD };
+const uint16_t P214[] = { LAST_ITEM_GUARD };
+const uint16_t P313[] = { LAST_ITEM_GUARD };
+const uint16_t P314[] = { LAST_ITEM_GUARD };
+const uint16_t P209[] = { LAST_ITEM_GUARD };
+const uint16_t P208[] = { LAST_ITEM_GUARD };
 
 
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
