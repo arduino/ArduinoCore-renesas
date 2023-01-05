@@ -11,7 +11,11 @@ const uint16_t P313[] = { LAST_ITEM_GUARD };
 const uint16_t P314[] = { LAST_ITEM_GUARD };
 const uint16_t P209[] = { LAST_ITEM_GUARD };
 const uint16_t P208[] = { LAST_ITEM_GUARD };
-
+const uint16_t P311_b[] = {
+  SCI_CHANNEL|PIN_SCK|CHANNEL_3|SCI_ODD_CFG,
+  PIN_PWM_AGT|CHANNEL_1|PWM_CHANNEL_B|LAST_ITEM_GUARD
+};
+#define P311 P311_b
 
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
