@@ -15,7 +15,6 @@
  This code is in the public domain.
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 #include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 
@@ -35,7 +34,11 @@ EthernetUDP Udp;
 
 void setup() {
   // start the Ethernet and UDP:
-  Ethernet.begin(ip);
+  Eif (Ethernet.begin() == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // try to configure using IP address instead of DHCP:
+    Ethernet.begin(ip);
+  }
   Udp.begin(localPort);
 
   Serial.begin(9600);

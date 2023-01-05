@@ -16,7 +16,7 @@ typedef enum {
 
 
 
-#define ETHERNET_DEBUG_ENABLED 1
+#define ETHERNET_DEBUG_ENABLED 0
 
 class EthernetDriver {
 public:

@@ -13,7 +13,6 @@
  by sstaub
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
