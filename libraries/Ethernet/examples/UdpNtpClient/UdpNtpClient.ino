@@ -21,7 +21,6 @@
 
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 #include <EthernetUdp.h>
 

@@ -18,7 +18,6 @@
  by sstaub
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 
 // Enter an IP address for your controller below.
@@ -37,9 +36,12 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-
   // start the Ethernet connection and the server:
-  Ethernet.begin(ip);
+  if (Ethernet.begin() == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // try to configure using IP address instead of DHCP:
+    Ethernet.begin(ip);
+  }
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());

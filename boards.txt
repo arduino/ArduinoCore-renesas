@@ -24,8 +24,8 @@ portenta_h33.upload_port.1.pid=0x0368
 
 portenta_h33.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAGT_PIN_FOR_25MHZ=BSP_IO_PORT_06_PIN_00 -DAGT_TIMER_FOR_25MHZ=3
-portenta_h33.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM33 -D_RENESAS_RA_ -DAGT_PIN_FOR_25MHZ=BSP_IO_PORT_06_PIN_00 -DAGT_TIMER_FOR_25MHZ=3
+portenta_h33.compiler.fsp.cflags=-mthumb @{compiler.fsp.defines}
+portenta_h33.compiler.fsp.cxxflags=-mthumb @{compiler.fsp.defines}
 portenta_h33.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 portenta_h33.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 portenta_h33.compiler.fsp.includes={build.variant.path}/includes.txt
@@ -72,8 +72,8 @@ santiago.upload_port.1.pid=0x0369
 
 santiago.compiler.fsp.defines={build.variant.path}/defines.txt
 santiago.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-santiago.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
-santiago.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM4 -D_RENESAS_RA_
+santiago.compiler.fsp.cflags=-mthumb @{compiler.fsp.defines}
+santiago.compiler.fsp.cxxflags=-mthumb @{compiler.fsp.defines}
 santiago.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 santiago.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 santiago.compiler.fsp.includes={build.variant.path}/includes.txt

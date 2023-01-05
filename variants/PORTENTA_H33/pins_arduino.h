@@ -154,3 +154,9 @@ static const uint8_t CS  =  PIN_SPI_CS;
 #define EEPROM_BASE_ADDRESS 0x08000000
 #define EEPROM_LENGHT       0x2000
 #define EEPROM_BLOCK        0x40
+
+/* Portenta Vision Shield compatibility */
+#define LORA_RESET          2 //PWM2
+#define LORA_BOOT0          3 //PWM3
+#define LORA_IRQ_DUMB       4 //PWM4
+#define SerialLoRa          Serial3

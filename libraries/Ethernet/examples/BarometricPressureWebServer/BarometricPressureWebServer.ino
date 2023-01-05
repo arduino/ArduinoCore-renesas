@@ -24,7 +24,6 @@
  by sstaub
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>

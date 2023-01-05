@@ -19,7 +19,6 @@
  by sstaub
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 
 // Enter an IP address for your controller below.
@@ -37,7 +36,11 @@ EthernetClient client;
 
 void setup() {
   // start the Ethernet connection:
-  Ethernet.begin(ip);
+  if (Ethernet.begin() == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // try to configure using IP address instead of DHCP:
+    Ethernet.begin(ip);
+  }
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {

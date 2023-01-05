@@ -15,7 +15,6 @@
  by sstaub
  */
 
-#include <lwIP_Arduino.h>
 #include <EthernetRA.h>
 
 // Enter an IP address for your controller below.

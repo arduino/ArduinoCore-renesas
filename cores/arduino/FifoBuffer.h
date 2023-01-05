@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <Arduino.h>
 
 namespace arduino {
 
