@@ -56,6 +56,18 @@ extern "C" {
 /* ================                           Processor and Core Peripheral Section                           ================ */
 /* =========================================================================================================================== */
 
+ #if   __ARM_ARCH_7EM__
+  #define RENESAS_CORTEX_M4
+ #elif __ARM_ARCH_6M__
+  #define RENESAS_CORTEX_M0PLUS
+ #elif __ARM_ARCH_8M_BASE__
+  #define RENESAS_CORTEX_M23
+ #elif __ARM_ARCH_8M_MAIN__
+  #define RENESAS_CORTEX_M33
+ #else
+  #warning Unsupported Architecture
+ #endif
+
  #if BSP_MCU_GROUP_RA2A1
   #include "R7FA2A1AB.h"
  #elif BSP_MCU_GROUP_RA2E1
@@ -91,25 +103,7 @@ extern "C" {
  #elif BSP_MCU_GROUP_RA6T2
   #include "R7FA6T2BD.h"
  #else
-  #if __has_include("renesas_internal.h")
-   #include "renesas_internal.h"
-  #else
-   #warning "Unsupported MCU"
-  #endif
- #endif
-
- #if   __ARM_ARCH_7EM__
-  #define RENESAS_CORTEX_M4
- #elif __ARM_ARCH_6M__
-  #define RENESAS_CORTEX_M0PLUS
- #elif __ARM_ARCH_8M_BASE__
-  #define RENESAS_CORTEX_M23
- #elif __ARM_ARCH_8M_MAIN__
-  #define RENESAS_CORTEX_M33
- #elif __ARM_ARCH_8_1M_MAIN__
-  #define RENESAS_CORTEX_M85
- #else
-  #warning Unsupported Architecture
+  #warning Unsupported MCU
  #endif
 
  #ifdef __cplusplus
