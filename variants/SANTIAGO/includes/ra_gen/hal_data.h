@@ -4,12 +4,13 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
-#include "r_doc.h"
-#include "r_doc_api.h"
 #include "r_flash_lp.h"
 #include "r_flash_api.h"
+#include "rm_vee_flash.h"
 #include "r_can.h"
 #include "r_can_api.h"
+#include "r_doc.h"
+#include "r_doc_api.h"
 #include "r_kint.h"
 #include "r_keymatrix_api.h"
 #include "r_dtc.h"
@@ -45,24 +46,23 @@
 #include "r_adc.h"
 #include "r_adc_api.h"
 FSP_HEADER
-extern const doc_instance_t g_doc0;
-
-/** Access the DOC instance using these structures when calling API functions directly (::p_api is not used). */
-extern doc_instance_ctrl_t g_doc0_ctrl;
-extern const doc_cfg_t g_doc0_cfg;
-
-#ifndef NULL
-void NULL(doc_callback_args_t *p_args);
-#endif
 /* Flash on Flash LP Instance. */
-extern const flash_instance_t flash_eeprom;
+extern const flash_instance_t g_flash0;
 
 /** Access the Flash LP instance using these structures when calling API functions directly (::p_api is not used). */
-extern flash_lp_instance_ctrl_t flash_eeprom_ctrl;
-extern const flash_cfg_t flash_eeprom_cfg;
+extern flash_lp_instance_ctrl_t g_flash0_ctrl;
+extern const flash_cfg_t g_flash0_cfg;
 
-#ifndef NULL
-void NULL(flash_callback_args_t *p_args);
+#ifndef rm_vee_flash_callback
+void rm_vee_flash_callback(flash_callback_args_t *p_args);
+#endif
+extern const rm_vee_instance_t g_vee0;
+extern rm_vee_flash_instance_ctrl_t g_vee0_ctrl;
+extern const rm_vee_cfg_t g_vee0_cfg;
+
+/** Callback used by VEE Instance. */
+#ifndef vee_callback
+void vee_callback(rm_vee_callback_args_t *p_args);
 #endif
 /** CAN on CAN Instance. */
 extern const can_instance_t g_can0;
@@ -75,6 +75,15 @@ extern const can_extended_cfg_t g_can0_extended_cfg;
 void can_callback(can_callback_args_t *p_args);
 #endif
 #define CAN_NO_OF_MAILBOXES_g_can0 (32)
+extern const doc_instance_t g_doc0;
+
+/** Access the DOC instance using these structures when calling API functions directly (::p_api is not used). */
+extern doc_instance_ctrl_t g_doc0_ctrl;
+extern const doc_cfg_t g_doc0_cfg;
+
+#ifndef NULL
+void NULL(doc_callback_args_t *p_args);
+#endif
 /** Key Matrix on KINT Instance. */
 extern const keymatrix_instance_t g_kint0;
 
