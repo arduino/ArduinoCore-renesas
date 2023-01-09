@@ -34,9 +34,6 @@ extern const uint16_t NULL[];
             #define USB_CFG_PMSC_USE
             #endif
 #if (RA_NOT_DEFINED != RA_NOT_DEFINED)
-            #define USB_CFG_PPRN_USE
-            #endif
-#if (RA_NOT_DEFINED != RA_NOT_DEFINED)
             #define USB_CFG_PVND_USE
             #endif
 #if (RA_NOT_DEFINED != RA_NOT_DEFINED)

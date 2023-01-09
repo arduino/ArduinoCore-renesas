@@ -40,6 +40,7 @@
         <peripheral name="GPT0" group="GPT" security=""/>
         <peripheral name="AGT0" group="AGT" security=""/>
         <peripheral name="ETHERC0" group="ETHERC" security=""/>
+        <peripheral name="QSPI" security=""/>
         <peripheral name="ICU">
             <slot name="IRQ0" secure="false"/>
             <slot name="IRQ1" secure="false"/>

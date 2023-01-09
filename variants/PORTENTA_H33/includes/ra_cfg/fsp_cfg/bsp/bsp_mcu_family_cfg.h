@@ -336,10 +336,6 @@ extern "C" {
 #ifndef BSP_CFG_ROM_REG_BPS2
 #define BSP_CFG_ROM_REG_BPS2 (~( 0U))
 #endif
-/* Block Protection Register 3 */
-#ifndef BSP_CFG_ROM_REG_BPS3
-#define BSP_CFG_ROM_REG_BPS3 (0xFFFFFFFFU)
-#endif
 /* Permanent Block Protection Register 0 */
 #ifndef BSP_CFG_ROM_REG_PBPS0
 #define BSP_CFG_ROM_REG_PBPS0 (~( 0U))
@@ -352,10 +348,6 @@ extern "C" {
 #ifndef BSP_CFG_ROM_REG_PBPS2
 #define BSP_CFG_ROM_REG_PBPS2 (~( 0U))
 #endif
-/* Permanent Block Protection Register 3 */
-#ifndef BSP_CFG_ROM_REG_PBPS3
-#define BSP_CFG_ROM_REG_PBPS3 (0xFFFFFFFFU)
-#endif
 /* Security Attribution for Block Protection Register 0 (If any blocks are marked as protected in the secure application, then mark them as secure) */
 #ifndef BSP_CFG_ROM_REG_BPS_SEL0
 #define BSP_CFG_ROM_REG_BPS_SEL0 (BSP_CFG_ROM_REG_BPS0 & BSP_CFG_ROM_REG_PBPS0)
@@ -367,10 +359,6 @@ extern "C" {
 /* Security Attribution for Block Protection Register 2 (If any blocks are marked as protected in the secure application, then mark them as secure) */
 #ifndef BSP_CFG_ROM_REG_BPS_SEL2
 #define BSP_CFG_ROM_REG_BPS_SEL2 (BSP_CFG_ROM_REG_BPS2 & BSP_CFG_ROM_REG_PBPS2)
-#endif
-/* Security Attribution for Block Protection Register 3 (If any blocks are marked as protected in the secure application, then mark them as secure) */
-#ifndef BSP_CFG_ROM_REG_BPS_SEL3
-#define BSP_CFG_ROM_REG_BPS_SEL3 (BSP_CFG_ROM_REG_BPS3 & BSP_CFG_ROM_REG_PBPS3)
 #endif
 #ifndef BSP_CLOCK_CFG_MAIN_OSC_WAIT
 #define BSP_CLOCK_CFG_MAIN_OSC_WAIT (9)

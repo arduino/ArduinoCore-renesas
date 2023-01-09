@@ -42,33 +42,25 @@ extern "C" {
 /* The AC6 linker requires uninitialized code to be placed in a section that starts with ".bss." Without this, load
  * memory (ROM) is reserved unnecessarily. */
   #define BSP_UNINIT_SECTION_PREFIX         ".bss"
-  #ifndef BSP_SECTION_HEAP
-   #define BSP_SECTION_HEAP                 BSP_UNINIT_SECTION_PREFIX ".heap"
-  #endif
+  #define BSP_SECTION_HEAP                  BSP_UNINIT_SECTION_PREFIX ".heap"
   #define BSP_DONT_REMOVE
   #define BSP_ATTRIBUTE_STACKLESS           __attribute__((naked))
   #define BSP_FORCE_INLINE                  __attribute__((always_inline))
  #elif   defined(__GNUC__)             /* GCC compiler */
   #define BSP_UNINIT_SECTION_PREFIX
-  #ifndef BSP_SECTION_HEAP
-   #define BSP_SECTION_HEAP                 ".heap"
-  #endif
+  #define BSP_SECTION_HEAP                  ".heap"
   #define BSP_DONT_REMOVE
   #define BSP_ATTRIBUTE_STACKLESS           __attribute__((naked))
   #define BSP_FORCE_INLINE                  __attribute__((always_inline))
  #elif defined(__ICCARM__)             /* IAR compiler */
   #define BSP_UNINIT_SECTION_PREFIX
-  #ifndef BSP_SECTION_HEAP
-   #define BSP_SECTION_HEAP                 "HEAP"
-  #endif
+  #define BSP_SECTION_HEAP                  "HEAP"
   #define BSP_DONT_REMOVE                   __root
   #define BSP_ATTRIBUTE_STACKLESS           __stackless
   #define BSP_FORCE_INLINE                  _Pragma("inline=forced")
  #endif
 
- #ifndef BSP_SECTION_STACK
-  #define BSP_SECTION_STACK                 BSP_UNINIT_SECTION_PREFIX ".stack"
- #endif
+ #define BSP_SECTION_STACK                  BSP_UNINIT_SECTION_PREFIX ".stack"
  #define BSP_SECTION_NOINIT                 BSP_UNINIT_SECTION_PREFIX ".noinit"
  #define BSP_SECTION_FIXED_VECTORS          ".fixed_vectors"
  #define BSP_SECTION_APPLICATION_VECTORS    ".application_vectors"

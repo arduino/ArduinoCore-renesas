@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_qspi.h"
+#include "r_spi_flash_api.h"
 #include "r_ether_phy.h"
 #include "r_ether_phy_api.h"
 #include "r_ether.h"
@@ -50,6 +52,9 @@
 #include "r_adc.h"
 #include "r_adc_api.h"
 FSP_HEADER
+extern const spi_flash_instance_t g_qspi0;
+extern qspi_instance_ctrl_t g_qspi0_ctrl;
+extern const spi_flash_cfg_t g_qspi0_cfg;
 #ifndef ETHER_PHY_LSI_TYPE_KIT_COMPONENT
 #define ETHER_PHY_LSI_TYPE_KIT_COMPONENT ETHER_PHY_LSI_TYPE_DEFAULT
 #endif
@@ -60,7 +65,7 @@ extern const ether_phy_instance_t ETHERNET_PHY;
 /** Access the Ethernet PHY instance using these structures when calling API functions directly (::p_api is not used). */
 extern ether_phy_instance_ctrl_t ETHERNET_PHY_ctrl;
 extern const ether_phy_cfg_t ETHERNET_PHY_cfg;
-#if (BSP_FEATURE_TZ_HAS_TRUSTZONE == 1) && (BSP_TZ_SECURE_BUILD != 1) && (BSP_TZ_NONSECURE_BUILD != 1) && (BSP_FEATURE_ETHER_SUPPORTS_TZ_SECURE == 0)
+#if (BSP_FEATURE_TZ_HAS_TRUSTZONE == 1) && (BSP_TZ_SECURE_BUILD != 1) && (BSP_TZ_NONSECURE_BUILD != 1)
 #define ETHER_BUFFER_PLACE_IN_SECTION BSP_PLACE_IN_SECTION(".ns_buffer.eth")
 #else
 #define ETHER_BUFFER_PLACE_IN_SECTION

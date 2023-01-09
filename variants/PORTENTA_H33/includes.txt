@@ -9,3 +9,4 @@
 -iwithprefixbefore/variants/PORTENTA_H33/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/inc/instances
 -iwithprefixbefore/variants/PORTENTA_H33/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/private/inc
 -iwithprefixbefore/variants/PORTENTA_H33/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/PORTENTA_H33/includes/ra_cfg/driver

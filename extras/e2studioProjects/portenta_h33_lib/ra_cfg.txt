@@ -89,7 +89,7 @@ FSP Configuration
     PCLKC Div /4
     PCLKD Div /2
     BCLK Div /2
-    EBCLK Div /2
+    BCLK/2
     FCLK Div /4
     CLKOUT Div /1
     UCLK Div /5
@@ -199,7 +199,7 @@ FSP Configuration
       P606 J1 - - - - Disabled - - "RTC0: RTCOUT; SCI8: CTSRTS8" - None - - 
       P607 J4 - - - - Disabled - - "SCI8: RXD8; SCI8: SCL8" - None - - 
       P608 D2 - - - - Disabled - - "BUS_ASYNCH0: A00; GPT4: GTIOC4B" - None - - 
-      P609 D1 - - - - Disabled - - "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A; OSPI0: OMECS" - None - - 
+      P609 D1 - - - - Disabled - - "AGT5: AGTO5; BUS_ASYNCH0: CS1; CAN1: CTX1; GPT5: GTIOC5A" - None - - 
       P610 F3 - - - - Disabled - - "AGT4: AGTO4; BUS_ASYNCH0: CS0; CAN1: CRX1; GPT5: GTIOC5B; OSPI0: OMCS0; SCI7: CTS7" - None - - 
       P611 E2 - - - - Disabled - - "AGT3: AGTO3; CAC0: CACREF; CGC0: CLKOUT; SCI7: CTSRTS7" - None - - 
       P612 E1 - - - - Disabled - - "AGT2: AGTO2; BUS_ASYNCH0: D08; SCI7: SCK7" - None - - 
@@ -469,13 +469,21 @@ FSP Configuration
     ICS1894 Target: Disabled
     Reference Clock: Default
     
+  Module "QSPI (r_qspi)"
+    Parameter Checking: Default (BSP)
+    Support Multiple Line Program in Extended SPI Mode: Disabled
+    
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
       Name: g_ioport
-      1st Port ELC Trigger Source: Disabled
-      2nd Port ELC Trigger Source: Disabled
-      3rd Port ELC Trigger Source: Disabled
-      4th Port ELC Trigger Source: Disabled
+      Port 1 ELC Trigger Source: Disabled
+      Port 2 ELC Trigger Source: Disabled
+      Port 3 ELC Trigger Source: Disabled
+      Port 4 ELC Trigger Source: Disabled
+      Port B ELC Trigger Source: Disabled
+      Port C ELC Trigger Source: Disabled
+      Port D ELC Trigger Source: Disabled
+      Port E ELC Trigger Source: Disabled
       Pin Configuration Name: g_bsp_pin_cfg
       
     Instance "g_adc0 ADC (r_adc)"
@@ -529,7 +537,7 @@ FSP Configuration
       General: Name: g_canfd0
       General: Channel: 0
       Bitrate: Automatic: Nominal Rate (bps): 500000
-      Bitrate: Automatic: FD Data Rate (bps): 2000000
+      Bitrate: Automatic: Data Rate (bps): 2000000
       Bitrate: Automatic: Sample Point (%): 75
       Bitrate: Delay Compensation: Enable
       Bitrate: Manual: Nominal: Prescaler (divisor): 1
@@ -963,3 +971,27 @@ FSP Configuration
         MII/RMII Register Access Wait-time: 8
         Flow Control: Disable
         
+    Instance "g_qspi0 QSPI (r_qspi)"
+      General: Name: g_qspi0
+      General: SPI Protocol: Extended SPI
+      General: Address Bytes: 3
+      General: Read Mode: Fast Read Quad I/O
+      General: Dummy Clocks for Fast Read: Default
+      General: Page Size Bytes: 256
+      Command Definitions: Page Program Command: 0x02
+      Command Definitions: Page Program Address Lines: 1
+      Command Definitions: Write Enable Command: 0x06
+      Command Definitions: Status Command: 0x05
+      Command Definitions: Write Status Bit: 0
+      Command Definitions: Sector Erase Command: 0x20
+      Command Definitions: Sector Erase Size: 4096
+      Command Definitions: Block Erase Command: 0xD8
+      Command Definitions: Block Erase Size: 65536
+      Command Definitions: Block Erase 32KB Command: 0x52
+      Command Definitions: Block Erase 32KB Size: 32768
+      Command Definitions: Chip Erase Command: 0xC7
+      Command Definitions: XIP Enter M7-M0: 0x20
+      Command Definitions: XIP Exit M7-M0: 0xFF
+      Bus Timing: QSPKCLK Divisor: 2
+      Bus Timing: Minimum QSSL Deselect Cycles: 4 QSPCLK
+      
