@@ -24,8 +24,8 @@ portenta_h33.upload_port.1.pid=0x0368
 
 portenta_h33.compiler.fsp.defines={build.variant.path}/defines.txt
 portenta_h33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
-portenta_h33.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
+portenta_h33.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
+portenta_h33.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
 portenta_h33.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 portenta_h33.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 portenta_h33.compiler.fsp.includes={build.variant.path}/includes.txt
