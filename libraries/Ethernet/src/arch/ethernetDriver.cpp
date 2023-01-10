@@ -56,10 +56,6 @@ private:
 
 };
 
-
-//#define H33_HARDWARE                      
-
-
 #define ETHERNET_CHANNEL                        (0)
 
 #define ETHER_FRAME_RECEIVED_MASK               (1UL << 18)
@@ -90,11 +86,7 @@ EthernetDriver::EthernetDriver() {
     phy_cfg.phy_lsi_address             = 0;
     phy_cfg.phy_reset_wait_time         = 0x00020000;
     phy_cfg.mii_bit_access_wait_time    = 8;
-    #ifdef H33_HARDWARE
-    phy_cfg.phy_lsi_type                = ETHER_PHY_LSI_TYPE_LAN8742;
-    #else
     phy_cfg.phy_lsi_type                = ETHER_PHY_LSI_TYPE_DEFAULT;
-    #endif
     phy_cfg.flow_control                = ETHER_PHY_FLOW_CONTROL_DISABLE;
     phy_cfg.mii_type                    = ETHER_PHY_MII_TYPE_RMII;
     phy_cfg.p_context                   = nullptr;
@@ -139,7 +131,6 @@ EthernetDriver::EthernetDriver() {
     cfg.p_extend                        = &extended_cfg;
     /* PIN configuration ____________________________________________________ */
    
-    #ifdef H33_HARDWARE
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_14, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_11, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_05, ETHERNET_PIN_CFG);
@@ -151,19 +142,6 @@ EthernetDriver::EthernetDriver() {
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
     R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_05, ETHERNET_PIN_CFG);
     //R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
-    #else
-    //R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_06, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_01, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_02, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_06, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_00, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_05, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_03, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_02, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_05, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_04, ETHERNET_PIN_CFG);
-    R_IOPORT_PinCfg(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_01, ETHERNET_PIN_CFG);
-    #endif
 }
 
 /* -------------------------------------------------------------------------- */
