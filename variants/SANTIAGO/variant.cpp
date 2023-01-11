@@ -1,6 +1,14 @@
 #include "Arduino.h"
 #include "pinmux.inc"
 
+const uint16_t P400_b[] = {
+PIN_PWM|CHANNEL_6|PWM_CHANNEL_A|GPT_ODD_CFG,
+PIN_SCL|CHANNEL_0,
+PIN_INTERRUPT|CHANNEL_0,
+SCI_CHANNEL|PIN_SCK|CHANNEL_0|SCI_EVEN_CFG|LAST_ITEM_GUARD
+};
+#define P400 P400_b
+
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
     return 0;
