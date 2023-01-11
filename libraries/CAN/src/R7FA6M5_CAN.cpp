@@ -31,6 +31,8 @@ extern "C" void canfd_callback(can_callback_args_t * p_args);
 namespace arduino
 {
 
+canfd_afl_entry_t p_canfd0_afl[CANFD_CFG_AFL_CH0_RULE_NUM];
+
 /**************************************************************************************
  * CTOR/DTOR
  **************************************************************************************/
@@ -43,11 +45,11 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 , _can_rx_buf{}
 , _canfd_bit_timing_cfg
 {
-  /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
-  .baud_rate_prescaler = 1 + 3 /* Division value of baud rate prescaler */,
-  .time_segment_1 = 11,
-  .time_segment_2 = 4,
-  .synchronization_jump_width = 4
+  /* Actual bitrate: 250000 Hz. Actual sample point: 75 %. */
+  .baud_rate_prescaler = 3,
+  .time_segment_1 = 23,
+  .time_segment_2 = 8,
+  .synchronization_jump_width = 1
 }
 , _canfd_afl{}
 , _canfd_global_cfg
@@ -73,8 +75,9 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 }
 , _canfd_extended_cfg
 {
-  .p_afl              = _canfd_afl,
-  .txmb_txi_enable    = ((1ULL << 0) | 0ULL),
+  .p_afl              = p_canfd0_afl,
+  //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
+  .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
   .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
 #if BSP_FEATURE_CANFD_FD_SUPPORT
   .p_data_timing      = &g_canfdfd0_data_timing_cfg,
