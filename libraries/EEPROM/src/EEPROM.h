@@ -25,7 +25,7 @@
 #ifndef EEPROM_h
 #define EEPROM_h
 
-#include "ceeprom.h"
+#include "cflash.h"
 
 /***
     EERef class.
@@ -41,19 +41,19 @@ struct EERef{
         : index( index )                 {}
     
     //Access/read members.
-    uint8_t operator*() const            { return ceeprom::getInstance().read_byte((uint32_t)index); }
+    uint8_t operator*() const            { return cflash::getInstance().read_byte((uint32_t)index); }
     operator uint8_t() const             { return **this; }
     
     //Assignment/write members.
     EERef &operator=( const EERef &ref ) { return *this = *ref; }
     EERef &operator=( uint8_t in )  {
         uint32_t bytes_to_write_in_block = 0;
-        if(ReadStatus::ALLOCATED == ceeprom::getInstance().read_block(index, bytes_to_write_in_block)) {
-            ceeprom::getInstance().write_byte(in, index);
-            ceeprom::getInstance().write();
+        if(ReadStatus::ALLOCATED == cflash::getInstance().read_block(index, bytes_to_write_in_block)) {
+            cflash::getInstance().write_byte(in, index);
+            cflash::getInstance().write();
         }
         else {
-            ceeprom::getInstance().write_byte(in, index);
+            cflash::getInstance().write_byte(in, index);
         }
         return *this;  }
     EERef &operator +=( uint8_t in )     { return *this = **this + in; }
@@ -154,12 +154,12 @@ struct EEPROMClass{
         uint32_t total_bytes_to_write = sizeof(T);
 
         while(!finished) {
-            if(ReadStatus::ALLOCATED == ceeprom::getInstance().read_block(idx, bytes_to_write_in_block)) {
+            if(ReadStatus::ALLOCATED == cflash::getInstance().read_block(idx, bytes_to_write_in_block)) {
                 for( int count = (bytes_to_write_in_block < total_bytes_to_write) ?  bytes_to_write_in_block : total_bytes_to_write ; count ; ++idx, --total_bytes_to_write, --count, ++e ) {
                   (*e).update( *ptr++ );
                 }
                 /* erase and write block */
-                ceeprom::getInstance().write();
+                cflash::getInstance().write();
                 if(total_bytes_to_write == 0) {
                     finished = true;
                 }

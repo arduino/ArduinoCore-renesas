@@ -1,7 +1,7 @@
-#include "ceeprom.h"
+#include "cflash.h"
 
 /*
-  ceeprom.cpp - emulator of EEPROM using FLASH on ARDUINO Renesas FSP products
+  cflash.cpp - emulator of EEPROM using FLASH on ARDUINO Renesas FSP products
   
   Copyright (c): 2022 Arduino srl.  All right reserved.
   Author: Daniele Aimo (d.aimo@arduino.cc)
@@ -22,8 +22,8 @@
 */
 const uint32_t flash_base_address = (uint32_t)EEPROM_BASE_ADDRESS;
 
-ceeprom& ceeprom::getInstance() {
-    static ceeprom    instance;
+cflash& cflash::getInstance() {
+    static cflash    instance;
     return instance;
 }
 
@@ -32,7 +32,7 @@ ceeprom& ceeprom::getInstance() {
 /* -------------------------------------------------------------------------- */
 /*                               CONSTRUCTOR                                  */
 /* -------------------------------------------------------------------------- */
-ceeprom::ceeprom() {
+cflash::cflash() {
    FLASH_open                = nullptr;
    FLASH_write               = nullptr;
    FLASH_erase               = nullptr;
@@ -110,7 +110,7 @@ ceeprom::ceeprom() {
 /* -------------------------------------------------------------------------- */
 /*                              DISTRUCTOR                                    */
 /* -------------------------------------------------------------------------- */
-ceeprom::~ceeprom() {
+cflash::~cflash() {
    close();
    if(page != nullptr) {
       delete []page;
@@ -121,7 +121,7 @@ ceeprom::~ceeprom() {
 /* -------------------------------------------------------------------------- */
 /*                                  CLOSE                                     */
 /* -------------------------------------------------------------------------- */
-void ceeprom::close() {
+void cflash::close() {
    if(FLASH_close) {
       FLASH_close(&ctrl);
       opened = false;
@@ -131,7 +131,7 @@ void ceeprom::close() {
 /* -------------------------------------------------------------------------- */
 /*                                  OPEN                                      */
 /* -------------------------------------------------------------------------- */
-bool ceeprom::open() { 
+bool cflash::open() { 
    bool rv = false;
    fsp_err_t err = FSP_ERR_UNSUPPORTED;
    if(FLASH_open && !opened) {
@@ -146,7 +146,7 @@ bool ceeprom::open() {
 /* -------------------------------------------------------------------------- */
 /*                   WRITE SINGLE BYTE (in **RAM** page)                      */
 /* -------------------------------------------------------------------------- */
-void ceeprom::write_byte(uint8_t v, uint32_t index) {
+void cflash::write_byte(uint8_t v, uint32_t index) {
    #ifdef EEPROM_DEBUG
    Serial.print("Write byte");      
    #endif
@@ -182,7 +182,7 @@ void ceeprom::write_byte(uint8_t v, uint32_t index) {
       that the address is the **FIRST** of the block (it is for this reason
       the function is private)
    -------------------------------------------------------------------------- */
-bool ceeprom::erase(uint32_t address) {
+bool cflash::erase(uint32_t address) {
 /* -------------------------------------------------------------------------- */   
    fsp_err_t err = FSP_ERR_UNSUPPORTED; /* just to initialize to a value different from success */
    flash_result_t blank_check_result; 
@@ -215,7 +215,7 @@ bool ceeprom::erase(uint32_t address) {
       PAY ATTENTION: all data contained in the block (1024 bytes) will be
       erased!                                                                 */
 /* -------------------------------------------------------------------------- */
-bool ceeprom::erase_block(uint32_t index) {
+bool cflash::erase_block(uint32_t index) {
    uint32_t block_start = get_physical_address(index) & ~(EEPROM_BLOCK - 1);
    return erase(block_start);
 }
@@ -225,7 +225,7 @@ bool ceeprom::erase_block(uint32_t index) {
    THE USE this function can disrupt the FLASH writing algorithm 
    It has been defined only for debug */
 /* -------------------------------------------------------------------------- */
-void ceeprom::delete_ram_page() {
+void cflash::delete_ram_page() {
 /* -------------------------------------------------------------------------- */   
    delete []page;
    page = nullptr;
@@ -235,7 +235,7 @@ void ceeprom::delete_ram_page() {
 /* -------------------------------------------------------------------------- */
 /*                          WRITE PAGE (in **FLASH**)                         */
 /* -------------------------------------------------------------------------- */
-bool ceeprom::write() {
+bool cflash::write() {
    bool rv = false;
    fsp_err_t err = FSP_ERR_UNSUPPORTED; /* just to initialize to a value different from success */
    bool actual_write = true;
@@ -286,7 +286,7 @@ bool ceeprom::write() {
 /* -------------------------------------------------------------------------- */
 /*                              READ SINGLE BYTE                              */
 /* -------------------------------------------------------------------------- */
-uint8_t ceeprom::read_byte(uint32_t index) {
+uint8_t cflash::read_byte(uint32_t index) {
 /* -------------------------------------------------------------------------- */   
    open();
    uint8_t *ptr = (uint8_t *)get_physical_address(index);
@@ -307,7 +307,7 @@ uint8_t ceeprom::read_byte(uint32_t index) {
    because it is quite dangerous if wronlgy used)
    */
 /* -------------------------------------------------------------------------- */
-ReadStatus ceeprom::read_block(uint32_t index, uint32_t &bytes_to_end_of_block) {
+ReadStatus cflash::read_block(uint32_t index, uint32_t &bytes_to_end_of_block) {
 /* -------------------------------------------------------------------------- */   
    open();
    uint32_t block_start = get_physical_address(index) & ~(EEPROM_BLOCK - 1);
@@ -356,7 +356,7 @@ ReadStatus ceeprom::read_block(uint32_t index, uint32_t &bytes_to_end_of_block) 
 
 
 /* -------------------------------------------------------------------------- */
-uint32_t ceeprom::get_physical_address(uint32_t index) {
+uint32_t cflash::get_physical_address(uint32_t index) {
 /* -------------------------------------------------------------------------- */   
    uint32_t add = flash_base_address + index;
    return add;

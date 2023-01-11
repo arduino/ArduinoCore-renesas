@@ -67,12 +67,12 @@ enum class ReadStatus {
    ALREADY_ALLOCATED
 };
 
-class ceeprom {
+class cflash {
 public:
-   static ceeprom& getInstance();
-   ceeprom(ceeprom const&)               = delete;
-   void operator=(ceeprom const&)        = delete;
-   ~ceeprom();
+   static cflash& getInstance();
+   cflash(cflash const&)               = delete;
+   void operator=(cflash const&)        = delete;
+   ~cflash();
    bool open();
    void close();
    bool write();
@@ -90,7 +90,7 @@ public:
       open variable keeps track of that */
    bool opened; 
 private:
-   ceeprom();
+   cflash();
 
    /* pointers to FSP functions to be independent from the FSP API (LP or HP) */
    FLASH_open_f                 FLASH_open;
