@@ -44,8 +44,8 @@ namespace arduino {
  * DEFINE
  **************************************************************************************/
 
-#define SPI_MAX_SPI_CHANNELS 2
-#define SPI_MAX_SCI_CHANNELS 9
+#define SPI_MAX_SPI_CHANNELS (3)   // SPI0 to SPI2
+#define SPI_MAX_SCI_CHANNELS (10)  // SCI0 to SCI9
 
 /**************************************************************************************
  * TYPEDEF
