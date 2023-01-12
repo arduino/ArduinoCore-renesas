@@ -214,6 +214,7 @@ bool TwoWire::cfg_pins(int max_index) {
   uint16_t cfg_scl = getPinCfg(cfg, PIN_CFG_REQ_SCL,require_sci);
   cfg = g_pin_cfg[sda_pin].list;
   uint16_t cfg_sda = getPinCfg(cfg, PIN_CFG_REQ_SDA,require_sci);
+
   /* verify configuration are good */
   if(cfg_scl == 0 || cfg_sda == 0 ) {
     return false;
@@ -237,8 +238,8 @@ bool TwoWire::cfg_pins(int max_index) {
     ioport_sda = USE_SCI_EVEN_CFG(cfg_sda) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
     ioport_scl = USE_SCI_EVEN_CFG(cfg_scl) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
   
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_NMOS_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_NMOS_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
   
   }
   else {
@@ -249,8 +250,8 @@ bool TwoWire::cfg_pins(int max_index) {
     ioport_sda = IOPORT_PERIPHERAL_IIC;
     ioport_scl = IOPORT_PERIPHERAL_IIC;
 
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
   }
 
   return true;
