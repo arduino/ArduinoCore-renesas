@@ -58,8 +58,8 @@ using I2C_onTxCallback_f        = void (*)(void);
 
 #define I2C_BUFFER_LENGTH      256
 
-#define TWOWIRE_MAX_I2C_CHANNELS 2
-#define TWOWIRE_MAX_SCI_CHANNELS 9
+#define TWOWIRE_MAX_I2C_CHANNELS (3)  // IIC0 to IIC2
+#define TWOWIRE_MAX_SCI_CHANNELS (10) // SCI0 to SCI9
 
 #ifdef __cplusplus
 

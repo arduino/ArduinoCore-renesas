@@ -230,7 +230,7 @@ bool TwoWire::cfg_pins(int max_index) {
   ioport_peripheral_t ioport_scl;
   
   if(IS_SCI(cfg_sda)) {
-    if(channel >= TWOWIRE_MAX_SCI_CHANNELS) {
+    if(channel >= TWOWIRE_MAX_SCI_CHANNELS) { // channels are 0 index based
       return false;
     }
     is_sci = true;
@@ -242,7 +242,7 @@ bool TwoWire::cfg_pins(int max_index) {
   
   }
   else {
-    if(channel >= TWOWIRE_MAX_I2C_CHANNELS) {
+    if(channel >= TWOWIRE_MAX_I2C_CHANNELS) { // channels are 0 index based
       return false;
     }
     is_sci = false;
