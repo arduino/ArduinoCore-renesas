@@ -17,6 +17,13 @@ const uint16_t P311_b[] = {
 };
 #define P311 P311_b
 
+const uint16_t P204_b[] = {
+PIN_PWM|CHANNEL_4|PWM_CHANNEL_B|GPT_ODD_CFG,
+SCI_CHANNEL|PIN_SCK|CHANNEL_4|SCI_EVEN_CFG,
+PIN_SCK|CHANNEL_0|LAST_ITEM_GUARD
+};
+#define P204 P204_b
+
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
     return 0;

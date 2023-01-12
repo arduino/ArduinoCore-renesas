@@ -92,8 +92,8 @@ static const uint8_t A7 = PIN_A7;
 #define SPI_HOWMANY       2
 
 #define PIN_SPI_MOSI      8
-#define PIN_SPI_MISO      9
-#define PIN_SPI_SCK       10
+#define PIN_SPI_MISO      10
+#define PIN_SPI_SCK       9
 #define PIN_SPI_CS        7
 #define IS_SPI_SCI        1
 
@@ -107,6 +107,7 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 static const uint8_t CS  =  PIN_SPI_CS;
+static const uint8_t SS  =  PIN_SPI_CS;
 
 /****** CAN CORE DEFINES ******/
 
