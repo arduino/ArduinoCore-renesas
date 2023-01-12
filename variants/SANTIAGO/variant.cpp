@@ -9,6 +9,14 @@ SCI_CHANNEL|PIN_SCK|CHANNEL_0|SCI_EVEN_CFG|LAST_ITEM_GUARD
 };
 #define P400 P400_b
 
+const uint16_t P408_b[] = {
+PIN_PWM|CHANNEL_5|PWM_CHANNEL_B|GPT_ODD_CFG,
+PIN_INTERRUPT|CHANNEL_7,
+SCI_CHANNEL|PIN_CTS_RTS_SS|CHANNEL_1|SCI_EVEN_CFG,
+SCI_CHANNEL|PIN_RX_MISO_SCL|CHANNEL_9|SCI_ODD_CFG|LAST_ITEM_GUARD
+};
+#define P408 P408_b
+
 uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
   if(cfg == nullptr) {
     return 0;
