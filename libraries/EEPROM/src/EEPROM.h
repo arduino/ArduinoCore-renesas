@@ -25,7 +25,7 @@
 #ifndef EEPROM_h
 #define EEPROM_h
 
-#include "cflash.h"
+#include "virtualEEPROM.h"
 
 /***
     EERef class.
@@ -41,19 +41,19 @@ struct EERef{
         : index( index )                 {}
     
     //Access/read members.
-    uint8_t operator*() const            { return cflash::getInstance().read_byte((uint32_t)index); }
+    uint8_t operator*() const            { return veeprom::getInstance().read_byte((uint32_t)index); }
     operator uint8_t() const             { return **this; }
     
     //Assignment/write members.
     EERef &operator=( const EERef &ref ) { return *this = *ref; }
     EERef &operator=( uint8_t in )  {
         uint32_t bytes_to_write_in_block = 0;
-        if(ReadStatus::ALLOCATED == cflash::getInstance().read_block(index, bytes_to_write_in_block)) {
-            cflash::getInstance().write_byte(in, index);
-            cflash::getInstance().write();
+        if(ReadStatus::ALLOCATED == veeprom::getInstance().read_block(index, bytes_to_write_in_block)) {
+            veeprom::getInstance().write_byte(in, index);
+            veeprom::getInstance().write();
         }
         else {
-            cflash::getInstance().write_byte(in, index);
+            veeprom::getInstance().write_byte(in, index);
         }
         return *this;  }
     EERef &operator +=( uint8_t in )     { return *this = **this + in; }
@@ -135,7 +135,7 @@ struct EEPROMClass{
     //STL and C++11 iteration capability.
     EEPtr begin()                        { return 0x00; }
     EEPtr end()                          { return length(); } //Standards requires this to be the item after the last valid entry. The returned pointer is invalid.
-    uint16_t length()                    { return EEPROM_LENGHT; }
+    uint16_t length()                    { return veeprom::getInstance().getLength(); }
     
     //Functionality to 'get' and 'put' objects to and from EEPROM.
     template< typename T > T &get( int idx, T &t ){
@@ -154,12 +154,12 @@ struct EEPROMClass{
         uint32_t total_bytes_to_write = sizeof(T);
 
         while(!finished) {
-            if(ReadStatus::ALLOCATED == cflash::getInstance().read_block(idx, bytes_to_write_in_block)) {
+            if(ReadStatus::ALLOCATED == veeprom::getInstance().read_block(idx, bytes_to_write_in_block)) {
                 for( int count = (bytes_to_write_in_block < total_bytes_to_write) ?  bytes_to_write_in_block : total_bytes_to_write ; count ; ++idx, --total_bytes_to_write, --count, ++e ) {
                   (*e).update( *ptr++ );
                 }
                 /* erase and write block */
-                cflash::getInstance().write();
+                veeprom::getInstance().write();
                 if(total_bytes_to_write == 0) {
                     finished = true;
                 }

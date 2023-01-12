@@ -151,9 +151,9 @@ static const uint8_t CS  =  PIN_SPI_CS;
 #define USB_NAME          "Portenta H33"
 
 #define ARDUINO_FLASH_TYPE  HP_FLASH
-#define EEPROM_BASE_ADDRESS 0x08000000
-#define EEPROM_LENGHT       0x2000
-#define EEPROM_BLOCK        0x40
+#define FLASH_BASE_ADDRESS  0x08000000
+#define FLASH_TOTAL_SIZE    0x2000
+#define FLASH_BLOCK_SIZE    0x40
 
 /* Portenta Vision Shield compatibility */
 #define LORA_RESET          2 //PWM2
