@@ -66,7 +66,7 @@ uint8_t veeprom::read_byte(uint32_t index) {
 /*                   WRITE SINGLE BYTE (in **RAM** page)                      */
 /* -------------------------------------------------------------------------- */
 void veeprom::write_byte(uint8_t v, uint32_t index) {
-   uint32_t block_size = FlashBlockDevice::getInstance().getBlockSize();
+   uint32_t block_size = FlashBlockDevice::getInstance().getWriteBlockSize();
    
    while(index >= block_size) {
       index -= block_size;
@@ -95,7 +95,7 @@ void veeprom::write_byte(uint8_t v, uint32_t index) {
       erased!                                                                 */
 /* -------------------------------------------------------------------------- */
 bool veeprom::erase_block(uint32_t index) {
-   uint32_t block_size = FlashBlockDevice::getInstance().getBlockSize();
+   uint32_t block_size = FlashBlockDevice::getInstance().getEraseBlockSize();
    uint32_t pa = index & ~(block_size - 1);
    if(FlashBlockDevice::getInstance().erase(pa,block_size)) {
       return false;
@@ -123,7 +123,7 @@ bool veeprom::write() {
    bool actual_write = true;
    if(page != nullptr) {
       if(write_page) {
-         uint32_t block_size = FlashBlockDevice::getInstance().getBlockSize();
+         uint32_t block_size = FlashBlockDevice::getInstance().getWriteBlockSize();
          if(erase_page) {
             if(FlashBlockDevice::getInstance().erase(page_address,block_size)) {
                /* erase returns 0 if all is ok, if != from 0 this means that 
@@ -160,7 +160,7 @@ bool veeprom::write() {
 /* -------------------------------------------------------------------------- */
 ReadStatus veeprom::read_block(uint32_t index, uint32_t &bytes_to_end_of_block) {
 /* -------------------------------------------------------------------------- */      
-   uint32_t block_size = FlashBlockDevice::getInstance().getBlockSize();
+   uint32_t block_size = FlashBlockDevice::getInstance().getReadBlockSize();
    page_address = index & ~(block_size - 1);
    /* tell how many byte can be writte in this block starting from that address */
    bytes_to_end_of_block = page_address + block_size - index;

@@ -123,7 +123,9 @@ public:
    virtual int read(void *buffer, BdAddr_t addr, BdSize_t size) override;
    virtual int write(const void *buffer, BdAddr_t addr, BdSize_t size) override;
    virtual int erase(BdAddr_t addr, BdSize_t size) override;
-   virtual BdSize_t getBlockSize() const override;
+   virtual BdSize_t getWriteBlockSize() const override;
+   virtual BdSize_t getEraseBlockSize() const override;
+   virtual BdSize_t getReadBlockSize() const override;
    virtual BdSize_t getTotalSize() const override;
 
 };

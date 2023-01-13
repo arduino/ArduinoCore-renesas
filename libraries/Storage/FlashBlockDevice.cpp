@@ -287,15 +287,24 @@ int FlashBlockDevice::erase(BdAddr_t add, BdSize_t size) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                             GET BLOCK SIZE                                 */
+/*                             GET BLOCK SIZEs                                */
 /* -------------------------------------------------------------------------- */
-BdSize_t FlashBlockDevice::getBlockSize() const {
+BdSize_t FlashBlockDevice::getWriteBlockSize() const {
    return block_size;
-}  
+}
 
+BdSize_t FlashBlockDevice::getEraseBlockSize() const {
+   return block_size;
+}
+
+BdSize_t FlashBlockDevice::getReadBlockSize() const {
+   return block_size;
+}
+  
 /* -------------------------------------------------------------------------- */
 /*                             GET TOTAL SIZE OF FLASH AVAILABLE              */
 /* -------------------------------------------------------------------------- */
 BdSize_t FlashBlockDevice::getTotalSize() const {
    return size;
 }
+

@@ -155,6 +155,11 @@ static const uint8_t CS  =  PIN_SPI_CS;
 #define FLASH_TOTAL_SIZE    0x2000
 #define FLASH_BLOCK_SIZE    0x40
 
+#define QSPI_TOTAL_SIZE       (0x800000) 
+#define QSPI_READ_BLOCK_SIZE  (0x400000)
+#define QSPI_ERASE_BLOCK_SIZE (0x1000)
+#define QSPI_WRITE_BLOCK_SIZE (0x100)
+
 /* Portenta Vision Shield compatibility */
 #define LORA_RESET          2 //PWM2
 #define LORA_BOOT0          3 //PWM3

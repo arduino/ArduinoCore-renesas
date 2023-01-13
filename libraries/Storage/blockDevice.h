@@ -21,12 +21,14 @@
 
 #ifndef ARDUINO_BLOCK_DEVICE
 #define ARDUINO_BLOCK_DEVICE
+#include "Arduino.h"
 #include <stdint.h>
 
 #define BLOCK_DEVICE_OK (0)
 
 typedef uint32_t BdAddr_t;
 typedef uint32_t BdSize_t;
+typedef pin_size_t pin_t;
 
 /* -------------------------------------------------------------------------- */
 /* Abstract Base blockDevice class (defines the INTERFACE for all the 
@@ -45,12 +47,10 @@ public:
    virtual int read(void *buffer, BdAddr_t addr, BdSize_t size) = 0;
    virtual int write(const void *buffer, BdAddr_t addr, BdSize_t size) = 0;
    virtual int erase(BdAddr_t addr, BdSize_t size) = 0;
-   virtual BdSize_t getBlockSize() const = 0;
+   virtual BdSize_t getWriteBlockSize() const = 0;
+   virtual BdSize_t getEraseBlockSize() const = 0;
+   virtual BdSize_t getReadBlockSize() const = 0;
    virtual BdSize_t getTotalSize() const = 0;
-
-
-   
-
 };
 
 #endif
