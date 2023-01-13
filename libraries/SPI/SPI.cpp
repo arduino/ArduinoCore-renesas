@@ -42,11 +42,11 @@ static spi_event_t _spi_cb_event[SPI_MAX_SPI_CHANNELS + SPI_MAX_SCI_CHANNELS] = 
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci)
+ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, uint8_t const periph_mode)
 : _miso_pin{miso_pin}
 , _mosi_pin{mosi_pin}
 , _sck_pin{sck_pin}
-, _prefer_sci{prefer_sci}
+, _periph_mode{periph_mode}
 , _channel{0}
 , _cb_event_idx{0}
 , _is_sci(false)
@@ -70,7 +70,7 @@ void ArduinoSPI::begin()
    * whether or not we are using a SCI.
    */
   int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
-  auto [cfg_pins_ok, cfg_channel, cfg_is_sci] = cfg_pins(max_index, _miso_pin, _mosi_pin, _sck_pin, _prefer_sci);
+  auto [cfg_pins_ok, cfg_channel, cfg_is_sci] = cfg_pins(max_index, _miso_pin, _mosi_pin, _sck_pin, _periph_mode);
   init_ok &= cfg_pins_ok;
   _channel = cfg_channel;
   _is_sci = cfg_is_sci;
@@ -257,7 +257,7 @@ void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-std::tuple<bool, int, bool> ArduinoSPI::cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci )
+std::tuple<bool, int, bool> ArduinoSPI::cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, uint8_t const periph_mode)
 {
   /* Provide default return values. */
   int channel = 0;
@@ -269,29 +269,37 @@ std::tuple<bool, int, bool> ArduinoSPI::cfg_pins(int const max_index, int const 
   }
 
   /* Getting configuration from table. */
-  const uint16_t * cfg = nullptr;
-  cfg = g_pin_cfg[miso_pin].list;
-  uint16_t cfg_miso = getPinCfg(cfg, PIN_CFG_REQ_MISO, prefer_sci);
-  cfg = g_pin_cfg[mosi_pin].list;
-  uint16_t cfg_mosi = getPinCfg(cfg, PIN_CFG_REQ_MOSI, prefer_sci);
-  cfg = g_pin_cfg[sck_pin].list;
-  uint16_t cfg_sck = getPinCfg(cfg, PIN_CFG_REQ_SCK, prefer_sci);
+  auto cfgs_miso = getPinCfgs(miso_pin, PIN_CFG_REQ_MISO);
+  auto cfgs_mosi = getPinCfgs(mosi_pin, PIN_CFG_REQ_MOSI);
+  auto cfgs_sck = getPinCfgs(sck_pin, PIN_CFG_REQ_SCK);
 
+  uint16_t cfg_miso = 0;
+  uint16_t cfg_mosi = 0;
+  uint16_t cfg_sck = 0;
+
+  /* Find the best combination */
+  for (size_t i = 0; i < cfgs_miso.size(); i++) {
+    for (size_t j = 0; j < cfgs_mosi.size(); j++) {
+      for (size_t k = 0; k < cfgs_sck.size(); k++) {
+        if (cfgs_miso[i] && cfgs_mosi[i] && cfgs_sck[i] &&
+            (GET_CHANNEL(cfgs_miso[i]) == GET_CHANNEL(cfgs_mosi[j])) && (GET_CHANNEL(cfgs_miso[i]) == GET_CHANNEL(cfgs_sck[k]))) {
+          cfg_miso = cfgs_miso[i];
+          cfg_mosi = cfgs_mosi[j];
+          cfg_sck = cfgs_sck[k];
+          channel = GET_CHANNEL(cfg_miso);
+          if ((IS_SCI(cfg_miso) && periph_mode == MODE_SCI) || (!IS_SCI(cfg_miso) && periph_mode == MODE_SPI) || (periph_mode == MODE_DONTCARE)) {
+            goto done;
+          }
+        }
+      }
+    }
+  }
+
+done:
   /* Verify if configurations are good. */
   if (cfg_miso == 0 || cfg_mosi == 0 || cfg_sck == 0) {
     return std::make_tuple(false, channel, is_sci);
   }
-
-  /* Verify if channel is the same for all pins. */
-  uint32_t const ch_miso = GET_CHANNEL(cfg_miso);
-  uint32_t const ch_mosi = GET_CHANNEL(cfg_mosi);
-  uint32_t const ch_sck  = GET_CHANNEL(cfg_sck);
-  bool const is_same_channel = (ch_miso == ch_mosi) && (ch_miso == ch_sck);
-  if (!is_same_channel) {
-    return std::make_tuple(false, channel, is_sci);
-  }
-
-  channel = ch_miso;
 
   /* Actually configure pin functions. */
   ioport_peripheral_t ioport_miso, ioport_mosi, ioport_sck;
@@ -461,10 +469,18 @@ void sci_spi_callback(spi_callback_args_t *p_args)
  * OBJECT INSTANTIATION
  **************************************************************************************/
 
+#ifndef FORCE_SPI_MODE
+#define FORCE_SPI_MODE MODE_DONTCARE
+#endif
+
+#ifndef FORCE_SPI1_MODE
+#define FORCE_SPI1_MODE MODE_DONTCARE
+#endif
+
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, static_cast<bool>(IS_SPI_SCI));
+ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, FORCE_SPI_MODE);
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, static_cast<bool>(IS_SPI1_SCI));
+ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, FORCE_SPI1_MODE);
 #endif

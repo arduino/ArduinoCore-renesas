@@ -103,13 +103,13 @@ static const uint8_t A5 = PIN_A5;
 #define PIN_SPI_MISO  (12)
 #define PIN_SPI_SCK   (13)
 #define PIN_SPI_CS    (10)
-#define IS_SPI_SCI     0
+#define FORCE_SPI_MODE  (MODE_SPI)
 
 #define PIN_SPI1_MOSI  (33)
 #define PIN_SPI1_MISO  (32)
 #define PIN_SPI1_SCK   (30)
 #define PIN_SPI1_CS    (31)
-#define IS_SPI1_SCI    1
+#define FORCE_SPI1_MODE (MODE_SCI)
 
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -148,7 +148,6 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define EEPROM_BASE_ADDRESS 0x40100000
 #define EEPROM_LENGHT       0x2000
 #define EEPROM_BLOCK        0x400
-
 
 // TODO: removeme
 #ifdef __cplusplus

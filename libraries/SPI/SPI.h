@@ -59,10 +59,14 @@ using SPI_writeThenRead_f = fsp_err_t (*)(spi_ctrl_t * const p_api_ctrl, void co
  * CLASS DECLARATION
  **************************************************************************************/
 
+#define MODE_DONTCARE   0
+#define MODE_SPI        1
+#define MODE_SCI        2
+
 class ArduinoSPI : public SPIClass
 {
 public:
-    ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci = false);
+    ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin, uint8_t const periph_mode);
 
     virtual uint8_t transfer(uint8_t data);
     virtual uint16_t transfer16(uint16_t data);
@@ -89,7 +93,7 @@ private:
     int const _miso_pin;
     int const _mosi_pin;
     int const _sck_pin;
-    bool const _prefer_sci;
+    uint8_t const _periph_mode;
 
     int _channel;
     int _cb_event_idx;
@@ -109,7 +113,7 @@ private:
     spi_extended_cfg_t _spi_ext_cfg;
     sci_spi_extended_cfg_t _sci_spi_ext_cfg;
 
-    static std::tuple<bool, int, bool> cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, bool const prefer_sci);
+    static std::tuple<bool, int, bool> cfg_pins(int const max_index, int const miso_pin, int const mosi_pin, int const sck_pin, uint8_t const periph_mode);
 
     void configSpiSettings(arduino::SPISettings const & settings);
     void configSpi(arduino::SPISettings const & settings);

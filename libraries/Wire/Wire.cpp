@@ -210,21 +210,28 @@ bool TwoWire::cfg_pins(int max_index) {
     return false;
   }
   /* getting configuration from table */
-  const uint16_t *cfg = g_pin_cfg[scl_pin].list;
-  uint16_t cfg_scl = getPinCfg(cfg, PIN_CFG_REQ_SCL,require_sci);
-  cfg = g_pin_cfg[sda_pin].list;
-  uint16_t cfg_sda = getPinCfg(cfg, PIN_CFG_REQ_SDA,require_sci);
+  auto cfgs_scl = getPinCfgs(scl_pin, PIN_CFG_REQ_SCL);
+  auto cfgs_sda = getPinCfgs(sda_pin, PIN_CFG_REQ_SDA);
 
-  /* verify configuration are good */
-  if(cfg_scl == 0 || cfg_sda == 0 ) {
+  uint16_t cfg_scl = 0;
+  uint16_t cfg_sda = 0;
+
+  /* Find the best combination */
+  for (size_t i = 0; i < cfgs_scl.size(); i++) {
+    for (size_t j = 0; j < cfgs_sda.size(); j++) {
+      if (cfgs_scl[i] && cfgs_sda[j] && (GET_CHANNEL(cfgs_scl[i]) == GET_CHANNEL(cfgs_sda[j])) && (IS_SCI(cfgs_scl[i]) == IS_SCI(cfgs_sda[j]))) {
+        cfg_scl = cfgs_scl[i];
+        cfg_sda = cfgs_sda[j];
+        channel = GET_CHANNEL(cfg_scl);
+        goto done;
+      }
+    }
+  }
+
+done:
+  if (cfg_sda == 0 || cfg_scl == 0) {
     return false;
   }
-  /* verify channel are the same for both pins */
-  if(GET_CHANNEL(cfg_scl) != GET_CHANNEL(cfg_sda) ) {
-    return false;
-  }
-
-  channel = GET_CHANNEL(cfg_scl);
 
   /* actually configuring PIN function */
   ioport_peripheral_t ioport_sda;

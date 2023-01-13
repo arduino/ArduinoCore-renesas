@@ -139,20 +139,16 @@ static void ADC_irq_cbk(adc_callback_args_t * cb_data) {
 static ADC_Container *get_ADC_container_ptr(int32_t pin, uint16_t &cfg) {
 /* -------------------------------------------------------------------------- */  
   ADC_Container *rv = nullptr;
-  uint16_t cfg_adc = 0;
-  if(pin >= 0) {
-    const uint16_t *cfg = g_pin_cfg[pin].list;
-    cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
-  }
-  if(cfg_adc > 0 ) {
-    if(IS_ADC1(cfg_adc)) {
+  auto cfg_adc = getPinCfgs(pin, PIN_CFG_REQ_ADC);
+  if(cfg_adc[0] > 0 ) {
+    if(IS_ADC1(cfg_adc[0])) {
       rv = &adc1;
     }
     else {
       rv = &adc;
     }
   }
-  cfg = cfg_adc;
+  cfg = cfg_adc[0];
   return rv;
 
 }
@@ -347,40 +343,6 @@ bool attachScanEndBIrq(ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*
 }
 
 #endif
-
-int getStoredAnalogValue(bsp_io_port_pin_t pin) {
-  int rv = -1;
-  int32_t index = getPinIndex(pin);
-  uint16_t cfg_adc = 0;
-
-  if(index >= 0) {
-    const uint16_t *cfg = g_pin_cfg[index].list;
-    cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
-  }
-  if(cfg_adc > 0 ) {
-    rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
-    rv = map(rv, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
-  }
-  return rv;
-}
-
-int getStoredAnalogValue(pin_size_t pinNumber) {
-  int rv = -1;
-  int32_t index = digitalPinToAnalogPin(pinNumber);
-  uint16_t cfg_adc = 0;
-  if(index >= 0) {
-    const uint16_t *cfg = g_pin_cfg[index].list;
-    cfg_adc = getPinCfg(cfg, PIN_CFG_REQ_ADC);
-  }
-  if(cfg_adc > 0 ) {
-    rv = analog_values_by_channels[GET_CHANNEL(cfg_adc)];
-    rv = map(rv, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
-  }
-  return rv;
-}
-
-
-
 
 bool analogAttachIrqCompareA(uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode /*= ADC_MODE_GROUP_SCAN*/, uint8_t priority /* = 12 */){
   bool rv = true;
