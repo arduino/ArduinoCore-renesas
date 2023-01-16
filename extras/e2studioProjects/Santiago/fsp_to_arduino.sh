@@ -13,6 +13,15 @@ else
     echo "already commented!"    
 fi
 
+mkdir -p fsp_patched
+cd fsp_patched
+ln -s ../../../tinyusb/hw/mcu/renesas/fsp/ra/ .
+cd ..
+
+set +e
+find ra -type f | xargs -I{} cp fsp_patched/{} {}
+set -e
+
 cd Debug
 make clean
 make -j$(nproc)
