@@ -6,7 +6,7 @@
         #endif
 /* Number of interrupts allocated */
 #ifndef VECTOR_DATA_IRQ_COUNT
-#define VECTOR_DATA_IRQ_COUNT    (28)
+#define VECTOR_DATA_IRQ_COUNT    (30)
 #endif
 /* ISR prototypes */
 void canfd_error_isr(void);
@@ -36,6 +36,8 @@ void usbhs_d1fifo_handler(void);
 void r_icu_isr(void);
 void rtc_carry_isr(void);
 void ether_eint_isr(void);
+void sdhimmc_accs_isr(void);
+void sdhimmc_dma_req_isr(void);
 
 /* Vector table allocations */
 #define VECTOR_NUMBER_CAN0_CHERR ((IRQn_Type) 0) /* CAN0 CHERR (Channel error) */
@@ -94,6 +96,10 @@ void ether_eint_isr(void);
 #define RTC_CARRY_IRQn          ((IRQn_Type) 26) /* RTC CARRY (Carry interrupt) */
 #define VECTOR_NUMBER_EDMAC0_EINT ((IRQn_Type) 27) /* EDMAC0 EINT (EDMAC 0 interrupt) */
 #define EDMAC0_EINT_IRQn          ((IRQn_Type) 27) /* EDMAC0 EINT (EDMAC 0 interrupt) */
+#define VECTOR_NUMBER_SDHIMMC0_ACCS ((IRQn_Type) 28) /* SDHIMMC0 ACCS (Card access) */
+#define SDHIMMC0_ACCS_IRQn          ((IRQn_Type) 28) /* SDHIMMC0 ACCS (Card access) */
+#define VECTOR_NUMBER_SDHIMMC0_DMA_REQ ((IRQn_Type) 29) /* SDHIMMC0 DMA REQ (DMA transfer request) */
+#define SDHIMMC0_DMA_REQ_IRQn          ((IRQn_Type) 29) /* SDHIMMC0 DMA REQ (DMA transfer request) */
 #ifdef __cplusplus
         }
         #endif

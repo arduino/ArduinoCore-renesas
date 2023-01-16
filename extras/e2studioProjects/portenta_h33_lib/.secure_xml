@@ -72,6 +72,14 @@
       <configSetting altId="etherc0.rmii.txd0.p700" configurationId="etherc0.rmii.txd0" isUsedByDriver="true"/>
       <configSetting altId="etherc0.rmii.txd1.p406" configurationId="etherc0.rmii.txd1" isUsedByDriver="true"/>
       <configSetting altId="etherc0.rmii.txd_en.p405" configurationId="etherc0.rmii.txd_en" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.cd.p415" configurationId="sdhi0.cd" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.clk.p413" configurationId="sdhi0.clk" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.cmd.p412" configurationId="sdhi0.cmd" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.dat0.p411" configurationId="sdhi0.dat0" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.dat1.p410" configurationId="sdhi0.dat1" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.dat2.p206" configurationId="sdhi0.dat2" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.dat3.p205" configurationId="sdhi0.dat3" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.wp.p414" configurationId="sdhi0.wp" isUsedByDriver="true"/>
     </pincfg>
   </raPinConfiguration>
 </raConfiguration>
