@@ -41,8 +41,14 @@ typedef enum {
     IRQ_SPI_MASTER,
     IRQ_SCI_SPI_MASTER,
     IRQ_CAN,
-    IRQ_ETHERNET
+    IRQ_ETHERNET,
+    IRQ_SDCARD
 } Peripheral_t;
+
+#if SDCARD_HOWMANY > 0
+#include "r_sdhi.h"
+#endif
+
 
 #if RTC_HOWMANY > 0
 #include "r_rtc_api.h"
@@ -177,6 +183,9 @@ void can_error_isr(void);
 void can_rx_isr(void);
 void can_tx_isr(void);
 void ether_eint_isr (void);
+void sdhimmc_dma_req_isr(void);
+void sdhimmc_accs_isr(void);
+void sdhimmc_card_isr(void);
 #ifdef __cplusplus
 }
 #endif
