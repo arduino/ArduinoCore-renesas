@@ -232,20 +232,17 @@ std::tuple<bool, int> R7FA6M5_CAN::cfg_pins(int const max_index, int const can_t
   }
 
   /* Getting configuration from table. */
-  const uint16_t * cfg = nullptr;
-  cfg = g_pin_cfg[can_tx_pin].list;
-  uint16_t cfg_can_tx = getPinCfg(cfg, PIN_CFG_REQ_CAN_TX, /* prefer_sci = */ false);
-  cfg = g_pin_cfg[can_rx_pin].list;
-  uint16_t cfg_can_rx = getPinCfg(cfg, PIN_CFG_REQ_CAN_RX, /* prefer_sci = */ false);
+  auto cfg_can_tx = getPinCfgs(can_tx_pin, PIN_CFG_REQ_CAN_TX);
+  auto cfg_can_rx = getPinCfgs(can_rx_pin, PIN_CFG_REQ_CAN_RX);
 
   /* Verify if configurations are good. */
-  if (cfg_can_tx == 0 || cfg_can_rx == 0) {
+  if (cfg_can_tx[0] == 0 || cfg_can_rx[0] == 0) {
     return std::make_tuple(false, channel);
   }
 
   /* Verify if channel is the same for all pins. */
-  uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx);
-  uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx);
+  uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx[0]);
+  uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx[0]);
   if (ch_can_tx != ch_can_rx) {
     return std::make_tuple(false, channel);
   }
