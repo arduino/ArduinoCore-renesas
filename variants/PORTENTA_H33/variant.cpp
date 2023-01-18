@@ -70,10 +70,10 @@ std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req) {
       ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_CAN_RX == req && IS_PIN_CAN_RX(*(cfg + index))) {
-      return *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_CAN_TX == req && IS_PIN_CAN_TX(*(cfg + index))) {
-      return *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
 
     if(IS_LAST_ITEM(*(cfg + index))) {
