@@ -20,6 +20,8 @@
 #ifndef ARDUINO_QSIP_FLASH_BLOCK_DEVICE
 #define ARDUINO_QSPI_FLASH_BLOCK_DEVICE
 
+#ifdef HAS_QSPI
+
 /* base class for block devices */
 #include "blockDevice.h"
 
@@ -63,13 +65,13 @@
 class QSPIFlashBlockDevice : public CBlockDevice {
 private:
   
-  BdAddr_t base_address;
-  BdSize_t size;
-  BdSize_t read_block_size;
-  BdSize_t erase_block_size;
-  BdSize_t write_block_size;
+  bd_addr_t base_address;
+  bd_size_t size;
+  bd_size_t read_block_size;
+  bd_size_t erase_block_size;
+  bd_size_t write_block_size;
 
-  bool is_address_correct(BdAddr_t add);
+  bool is_address_correct(bd_addr_t add);
 
   qspi_instance_ctrl_t  ctrl;
   spi_flash_cfg_t       cfg;
@@ -91,6 +93,10 @@ private:
     { .command = 0xC7, .size = SPI_FLASH_ERASE_SIZE_CHIP_ERASE },
   };
 
+  virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
+  virtual int open() override;
+  virtual int close() override;
+
 public:
   QSPIFlashBlockDevice( pin_t ck, 
                         pin_t cs, 
@@ -104,18 +110,17 @@ public:
   void operator=(QSPIFlashBlockDevice const&) = delete;
   virtual ~QSPIFlashBlockDevice(); 
 
-  virtual int open() override;
-  virtual int close() override;
-  virtual int read(void *buffer, BdAddr_t addr, BdSize_t size) override;
-  virtual int write(const void *buffer, BdAddr_t addr, BdSize_t size) override;
-  virtual int erase(BdAddr_t addr, BdSize_t size) override;
-  virtual BdSize_t getWriteBlockSize() const override;
-  virtual BdSize_t getEraseBlockSize() const override;
-  virtual BdSize_t getReadBlockSize() const override;
-  virtual BdSize_t getTotalSize() const override;
+  
+  virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) override;
+  virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) override;
+  virtual int erase(bd_addr_t addr, bd_size_t size) override;
+  virtual bd_size_t get_program_size() const override;
+  virtual bd_size_t get_erase_size() const override;
+  virtual bd_size_t get_read_size() const override;
+  virtual bd_size_t size() const override;
 
 };
 
-
+#endif
 
 #endif

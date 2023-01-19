@@ -26,8 +26,8 @@
 
 #define BLOCK_DEVICE_OK (0)
 
-typedef uint32_t BdAddr_t;
-typedef uint32_t BdSize_t;
+typedef uint32_t bd_addr_t;
+typedef uint32_t bd_size_t;
 typedef pin_size_t pin_t;
 
 /* -------------------------------------------------------------------------- */
@@ -36,21 +36,58 @@ typedef pin_size_t pin_t;
 /* -------------------------------------------------------------------------- */   
 
 class CBlockDevice {
-public:
-   CBlockDevice() {}
-   CBlockDevice(CBlockDevice const&) = delete;
-   void operator=(CBlockDevice const&) = delete;
-   
-   virtual ~CBlockDevice() {}; 
+private:
    virtual int open() = 0;
    virtual int close() = 0;
-   virtual int read(void *buffer, BdAddr_t addr, BdSize_t size) = 0;
-   virtual int write(const void *buffer, BdAddr_t addr, BdSize_t size) = 0;
-   virtual int erase(BdAddr_t addr, BdSize_t size) = 0;
-   virtual BdSize_t getWriteBlockSize() const = 0;
-   virtual BdSize_t getEraseBlockSize() const = 0;
-   virtual BdSize_t getReadBlockSize() const = 0;
-   virtual BdSize_t getTotalSize() const = 0;
+   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+
+
+public:
+   CBlockDevice() = default;
+   CBlockDevice(CBlockDevice const&) = delete;
+   void operator=(CBlockDevice const&) = delete;
+
+   virtual ~CBlockDevice() = default; 
+   /* initialize a block device */
+   virtual int init() = 0;
+   /* deinitialize a block device*/
+   virtual int deinit() = 0;
+   /* Ensure data on storage is in sync with the driver (0 == OK) */
+   virtual int sync() { return 0;}
+   /* Read blocks from a block device */
+   virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+   /* Write blocks */
+   virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+   virtual int erase(bd_addr_t addr, bd_size_t size) = 0;
+   virtual int trim(bd_addr_t addr, bd_size_t size) { return 0; }
+   
+
+   virtual bd_size_t get_read_size() const = 0;
+   virtual bd_size_t get_program_size() const = 0;
+   virtual bd_size_t get_erase_size() const { return get_program_size();}
+   virtual bd_size_t get_erase_size(bd_addr_t addr) const { return get_erase_size(); }
+
+
+   virtual int get_erase_value() const { return -1; }
+
+    
+   virtual bd_size_t size() const = 0; 
+   virtual bool is_valid_read(bd_addr_t addr, bd_size_t size) const {
+     return ( addr % get_read_size() == 0 && size % get_read_size() == 0 && addr + size <= this->size());
+   }
+
+    
+   virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const {
+     return ( addr % get_program_size() == 0 && size % get_program_size() == 0 && addr + size <= this->size());
+   }
+
+   
+   virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const {
+     return ( addr % get_erase_size(addr) == 0 && (addr + size) % get_erase_size(addr + size - 1) == 0 && addr + size <= this->size());
+   }
+
+
+   virtual const char *get_type() const = 0;
 };
 
 #endif

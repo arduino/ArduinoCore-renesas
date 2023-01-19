@@ -20,7 +20,7 @@
 #ifndef ARDUINO_VIRTUAL_EEPROM_H
 #define ARDUINO_VIRTUAL_EEPROM_H
 
-#include "FlashBlockDevice.h"
+#include "DataFlashBlockDevice.h"
 
 enum class ReadStatus { 
    UNABLE_TO_ALLOC,

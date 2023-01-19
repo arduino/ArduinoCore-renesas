@@ -19,6 +19,8 @@
 /* ########################################################################## */
 #include "QSPIFlashBlockDevice.h"
 
+#ifdef HAS_QSPI
+
 /* -------------------------------------------------------------------------- */
 /*                               CONSTRUCTOR                                  */
 /* -------------------------------------------------------------------------- */
@@ -30,10 +32,10 @@ QSPIFlashBlockDevice::QSPIFlashBlockDevice(  pin_t _ck,
                                              pin_t _io3) : 
    ck(_ck), cs(_cs), io0(_io0), io1(_io1), io2(_io2), io3(_io3),
    base_address((uint32_t)QSPI_DEVICE_START_ADDRESS),
-   size((BdSize_t)QSPI_TOTAL_SIZE),
-   read_block_size((BdSize_t)QSPI_READ_BLOCK_SIZE),
-   erase_block_size((BdSize_t)QSPI_ERASE_BLOCK_SIZE),
-   write_block_size((BdSize_t)QSPI_WRITE_BLOCK_SIZE) {
+   size((bd_size_t)QSPI_TOTAL_SIZE),
+   read_block_size((bd_size_t)QSPI_READ_BLOCK_SIZE),
+   erase_block_size((bd_size_t)QSPI_ERASE_BLOCK_SIZE),
+   write_block_size((bd_size_t)QSPI_WRITE_BLOCK_SIZE) {
    
    ext_cfg.min_qssl_deselect_cycles = QSPI_QSSL_MIN_HIGH_LEVEL_4_QSPCLK;
    ext_cfg.qspclk_div = QSPI_QSPCLK_DIV_2;
@@ -65,6 +67,27 @@ QSPIFlashBlockDevice::QSPIFlashBlockDevice(  pin_t _ck,
 /* -------------------------------------------------------------------------- */
 QSPIFlashBlockDevice::~QSPIFlashBlockDevice() {
 
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              INIT - it calls open                          */
+/* -------------------------------------------------------------------------- */
+int FlashBlockDevice::init() {
+   return open();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            DEINIT - it calls close                         */
+/* -------------------------------------------------------------------------- */
+int FlashBlockDevice::deinit() {
+   return close();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         PROGRAM - 'remapped' on write                      */
+/* -------------------------------------------------------------------------- */
+int FlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
+   return write(buffer, addr, _size);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -153,7 +176,7 @@ int QSPIFlashBlockDevice::close() {
    specified by buffer
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
-int QSPIFlashBlockDevice::read(void *buffer, BdAddr_t add, BdSize_t _size) {
+int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
 
    if(buffer == nullptr) {
@@ -187,7 +210,7 @@ int QSPIFlashBlockDevice::read(void *buffer, BdAddr_t add, BdSize_t _size) {
 /* WRITE 'size' byte form buffer to the "logical" address specified by 'addr' 
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
-int QSPIFlashBlockDevice::write(const void *buffer, BdAddr_t add, BdSize_t _size) {
+int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    if(buffer == nullptr) {
       rv = FSP_ERR_INVALID_ARGUMENT;
@@ -216,14 +239,14 @@ int QSPIFlashBlockDevice::write(const void *buffer, BdAddr_t add, BdSize_t _size
 /* -------------------------------------------------------------------------- */
 /* Tells if the "logical" address add is correct                              */
 /* -------------------------------------------------------------------------- */
-bool QSPIFlashBlockDevice::is_address_correct(BdAddr_t add) {
+bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
    return (add < size) ? true : false;
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                  ERASE                                     */
 /* -------------------------------------------------------------------------- */
-int QSPIFlashBlockDevice::erase(BdAddr_t add, BdSize_t _size) {
+int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
    if(is_address_correct(add+size-1)) {
@@ -249,20 +272,22 @@ int QSPIFlashBlockDevice::erase(BdAddr_t add, BdSize_t _size) {
 /* -------------------------------------------------------------------------- */
 /*                             GET BLOCK SIZEs                                */
 /* -------------------------------------------------------------------------- */
-BdSize_t QSPIFlashBlockDevice::getWriteBlockSize() const {
+bd_size_t QSPIFlashBlockDevice::get_program_size() const {
    return write_block_size;
 }
 
-BdSize_t QSPIFlashBlockDevice::getEraseBlockSize() const {
+bd_size_t QSPIFlashBlockDevice::get_erase_size() const {
    return erase_block_size;
 }
 
-BdSize_t QSPIFlashBlockDevice::getReadBlockSize() const {
+bd_size_t QSPIFlashBlockDevice::get_read_size() const {
    return read_block_size;
 }
 /* -------------------------------------------------------------------------- */
 /*                      GET TOTAL SIZE OF FLASH AVAILABLE                     */
 /* -------------------------------------------------------------------------- */
-BdSize_t QSPIFlashBlockDevice::getTotalSize() const {
+bd_size_t QSPIFlashBlockDevice::size() const {
    return size;
 }
+
+#endif

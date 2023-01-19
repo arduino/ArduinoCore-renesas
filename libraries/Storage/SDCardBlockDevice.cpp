@@ -20,6 +20,8 @@
 #include "SDCardBlockDevice.h"
 #include "IRQManager.h"
 
+#ifdef HAS_SDHI
+
 bool SDCardBlockDevice::card_inserted = false;
 bool SDCardBlockDevice::initialized = false;
 
@@ -36,10 +38,23 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
                                        pin_t _wp) : 
    ck(_ck), cmd(_cmd), d0(_d0), d1(_d1), d2(_d2), d3(_d3), cd(_cd), wp(_wp),
    base_address((uint32_t)0),
-   size((BdSize_t)0),
-   read_block_size((BdSize_t)0),
-   erase_block_size((BdSize_t)0),
-   write_block_size((BdSize_t)0) {
+   size((bd_size_t)0),
+   read_block_size((bd_size_t)0),
+   erase_block_size((bd_size_t)0),
+   write_block_size((bd_size_t)0) {
+
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[cmd].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[d0].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[d1].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[d0].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[d1].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
    
    dtc_info.transfer_settings_word_b.dest_addr_mode = TRANSFER_ADDR_MODE_FIXED;
    dtc_info.transfer_settings_word_b.repeat_area = TRANSFER_REPEAT_AREA_SOURCE;
@@ -63,7 +78,7 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    dtc_instance.p_api = &g_transfer_on_dtc;
 
    
-   cfg.bus_width = SDMMC_BUS_WIDTH_1_BIT;
+   cfg.bus_width = SDMMC_BUS_WIDTH_4_BITS;
    cfg.channel = 0;
    cfg.p_callback = SDCardBlockDevice::SDCardBlockDeviceCbk;
    cfg.p_context = NULL;
@@ -81,14 +96,7 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    cfg.sdio_irq = FSP_INVALID_VECTOR;
    cfg.dma_req_irq = FSP_INVALID_VECTOR;
 
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[cmd].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[d0].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[d1].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   
 
    IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
 
@@ -177,10 +185,11 @@ int SDCardBlockDevice::open() {
    //if(card_inserted /*&& !initialized*/) {
       R_BSP_SoftwareDelay(1U, BSP_DELAY_UNITS_MILLISECONDS);
       rv =  R_SDHI_MediaInit(&ctrl, NULL);
-
-
+         //Serial.print("MEDIA INIT RESULT ");
+         //Serial.println((int)rv);
 
       if(rv == FSP_SUCCESS) {
+         //Serial.println("MEDIA INIT SUCCESS");
          initialized = true;
       }
    //}
@@ -204,7 +213,7 @@ int SDCardBlockDevice::close() {
    specified by buffer
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
-int SDCardBlockDevice::read(void *buffer, BdAddr_t add, BdSize_t _size) {
+int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    if(open() == BLOCK_DEVICE_OK) {
       if(initialized) {
@@ -221,7 +230,7 @@ int SDCardBlockDevice::read(void *buffer, BdAddr_t add, BdSize_t _size) {
 /* WRITE 'size' byte form buffer to the "logical" address specified by 'addr' 
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
-int SDCardBlockDevice::write(const void *buffer, BdAddr_t add, BdSize_t _size) {
+int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    if(open() == BLOCK_DEVICE_OK) {
       if(initialized) {
@@ -234,14 +243,14 @@ int SDCardBlockDevice::write(const void *buffer, BdAddr_t add, BdSize_t _size) {
 /* -------------------------------------------------------------------------- */
 /* Tells if the "logical" address add is correct                              */
 /* -------------------------------------------------------------------------- */
-bool SDCardBlockDevice::is_address_correct(BdAddr_t add) {
+bool SDCardBlockDevice::is_address_correct(bd_addr_t add) {
    return (add < size) ? true : false;
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                  ERASE                                     */
 /* -------------------------------------------------------------------------- */
-int SDCardBlockDevice::erase(BdAddr_t add, BdSize_t _size) {
+int SDCardBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
    if(open() == BLOCK_DEVICE_OK) {
@@ -256,20 +265,22 @@ int SDCardBlockDevice::erase(BdAddr_t add, BdSize_t _size) {
 /* -------------------------------------------------------------------------- */
 /*                             GET BLOCK SIZEs                                */
 /* -------------------------------------------------------------------------- */
-BdSize_t SDCardBlockDevice::getWriteBlockSize() const {
+bd_size_t SDCardBlockDevice::get_program_size() const {
    return write_block_size;
 }
 
-BdSize_t SDCardBlockDevice::getEraseBlockSize() const {
+bd_size_t SDCardBlockDevice::get_erase_size() const {
    return erase_block_size;
 }
 
-BdSize_t SDCardBlockDevice::getReadBlockSize() const {
+bd_size_t SDCardBlockDevice::get_read_size() const {
    return read_block_size;
 }
 /* -------------------------------------------------------------------------- */
 /*                      GET TOTAL SIZE OF FLASH AVAILABLE                     */
 /* -------------------------------------------------------------------------- */
-BdSize_t SDCardBlockDevice::getTotalSize() const {
+bd_size_t SDCardBlockDevice::size() const {
    return size;
 }
+
+#endif
