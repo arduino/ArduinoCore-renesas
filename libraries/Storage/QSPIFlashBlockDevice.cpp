@@ -32,7 +32,7 @@ QSPIFlashBlockDevice::QSPIFlashBlockDevice(  pin_t _ck,
                                              pin_t _io3) : 
    ck(_ck), cs(_cs), io0(_io0), io1(_io1), io2(_io2), io3(_io3),
    base_address((uint32_t)QSPI_DEVICE_START_ADDRESS),
-   size((bd_size_t)QSPI_TOTAL_SIZE),
+   total_size((bd_size_t)QSPI_TOTAL_SIZE),
    read_block_size((bd_size_t)QSPI_READ_BLOCK_SIZE),
    erase_block_size((bd_size_t)QSPI_ERASE_BLOCK_SIZE),
    write_block_size((bd_size_t)QSPI_WRITE_BLOCK_SIZE) {
@@ -72,21 +72,21 @@ QSPIFlashBlockDevice::~QSPIFlashBlockDevice() {
 /* -------------------------------------------------------------------------- */
 /*                              INIT - it calls open                          */
 /* -------------------------------------------------------------------------- */
-int FlashBlockDevice::init() {
+int QSPIFlashBlockDevice::init() {
    return open();
 }
 
 /* -------------------------------------------------------------------------- */
 /*                            DEINIT - it calls close                         */
 /* -------------------------------------------------------------------------- */
-int FlashBlockDevice::deinit() {
+int QSPIFlashBlockDevice::deinit() {
    return close();
 }
 
 /* -------------------------------------------------------------------------- */
 /*                         PROGRAM - 'remapped' on write                      */
 /* -------------------------------------------------------------------------- */
-int FlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
+int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
    return write(buffer, addr, _size);
 }
 
@@ -171,6 +171,9 @@ int QSPIFlashBlockDevice::close() {
    return (int)rv;
 }
 
+
+
+#define READ_PAGE_SIZE   0x4000000
 /* -------------------------------------------------------------------------- */
 /* READ at the "logical" address 'add' 'size' bytes and copy them at the address
    specified by buffer
@@ -183,22 +186,29 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
       rv = FSP_ERR_INVALID_ARGUMENT;
    }
    else {
-      if(is_address_correct(add+size-1)) {
+      if(is_address_correct(add+_size-1)) {
          rv = (fsp_err_t)BLOCK_DEVICE_OK;
-         uint32_t bank = add / read_block_size;
-         uint32_t address = base_address + (add - bank * read_block_size);
-         uint32_t byte_left_in_bank = read_block_size - address;
+         int64_t internal_size = _size;
+         uint32_t byte_left_in_bank = read_block_size - read_block_size % add;
          uint8_t *dest = (uint8_t *)buffer;
-
-         while(_size > 0) {
+         while(internal_size > 0) {
+            uint32_t bank = add / READ_PAGE_SIZE;
+            #ifdef QSPI_FLASH_DEBUG
+            Serial.print("+++++ READ Selected bank: ");
+            Serial.println(bank);
+            #endif
+            uint32_t address = base_address + (add % READ_PAGE_SIZE);
+            #ifdef QSPI_FLASH_DEBUG
+            Serial.print("+++++ READ physical address: ");
+            Serial.println(address,HEX);
+            #endif
             R_QSPI_BankSet(&ctrl, bank);
-            uint32_t bytes_to_copy = (_size > byte_left_in_bank) ? byte_left_in_bank : _size;
+            uint32_t bytes_to_copy = (internal_size > byte_left_in_bank) ? byte_left_in_bank : internal_size;
             memcpy(dest,(uint8_t *)address, bytes_to_copy);
-            _size -= bytes_to_copy;
-            bank++;
-            address = base_address;
-            byte_left_in_bank = read_block_size;
+            internal_size -= bytes_to_copy;
+            add += bytes_to_copy;
             dest += bytes_to_copy;
+            byte_left_in_bank = read_block_size;
          }
       }
    }
@@ -216,20 +226,35 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
       rv = FSP_ERR_INVALID_ARGUMENT;
    }
    else {
-      if(is_address_correct(add+size-1)) {
+      if(is_address_correct(add+_size-1)) {
+         int64_t internal_size = _size;
          uint32_t bytes_left_in_page = write_block_size - (add % write_block_size);
          uint8_t *source = (uint8_t *)buffer;
          rv = FSP_SUCCESS;
-         while(_size > 0 && rv == FSP_SUCCESS) {
-            uint32_t bank = add / read_block_size;
-            uint32_t address = base_address + (add - bank * read_block_size);
+         while(internal_size > 0 && rv == FSP_SUCCESS) {
+            
+            uint32_t bank = add / READ_PAGE_SIZE;
+            #ifdef QSPI_FLASH_DEBUG
+            Serial.print("+++++ WRITE Selected bank: ");
+            Serial.println(bank);
+            #endif
+            
+            uint32_t address = base_address + (add % READ_PAGE_SIZE);
+            #ifdef QSPI_FLASH_DEBUG
+            Serial.print("+++++ WRITE physical address: ");
+            Serial.println(address,HEX);
+            #endif
+            
             R_QSPI_BankSet(&ctrl, bank);
-            uint32_t bytes_to_write = (_size > bytes_left_in_page) ? bytes_left_in_page : _size;
+            uint32_t bytes_to_write = (internal_size > bytes_left_in_page) ? bytes_left_in_page : internal_size;
+            
             rv = R_QSPI_Write(&ctrl, source, (uint8_t*)address, bytes_to_write);
-            _size -= bytes_to_write;
+            internal_size -= bytes_to_write;
             source += bytes_to_write;
             add += bytes_to_write;
             bytes_left_in_page = write_block_size;
+            if(rv == FSP_SUCCESS)
+               rv = get_flash_status();
          }
       }
    }
@@ -240,7 +265,7 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
 /* Tells if the "logical" address add is correct                              */
 /* -------------------------------------------------------------------------- */
 bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
-   return (add < size) ? true : false;
+   return (add < total_size) ? true : false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -249,20 +274,30 @@ bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
 int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
-   if(is_address_correct(add+size-1)) {
-      
+   if(is_address_correct(add+_size-1)) {
+      int64_t internal_size = _size;
       /* get the starting address of the block */
       uint32_t erase_block_address = erase_block_size * (add / erase_block_size);
       uint32_t byte_left_in_erase_block = erase_block_size - (add % erase_block_size);
       rv = FSP_SUCCESS;
-      while(_size > 0 && rv == FSP_SUCCESS) {
-         uint32_t bank = add / read_block_size;
-         uint32_t address = base_address + (add - bank * read_block_size);
+      while(internal_size > 0 && rv == FSP_SUCCESS) {
+         uint32_t bank = erase_block_address / READ_PAGE_SIZE;
+         #ifdef QSPI_FLASH_DEBUG
+         Serial.print("+++++ ERASE Selected bank: ");
+         Serial.println(bank);
+         #endif
+         uint32_t address = base_address + (erase_block_address % READ_PAGE_SIZE);
+         #ifdef QSPI_FLASH_DEBUG
+         Serial.print("+++++ ERASE physical address: ");
+         Serial.println(address,HEX);
+         #endif
          R_QSPI_BankSet(&ctrl, bank);
          rv = R_QSPI_Erase(&ctrl, (uint8_t *)address, erase_block_size);
-         add += byte_left_in_erase_block;
-         _size -= byte_left_in_erase_block;
+         erase_block_address += byte_left_in_erase_block;
+         internal_size -= byte_left_in_erase_block;
          byte_left_in_erase_block = erase_block_size;
+         if(rv == FSP_SUCCESS)
+            rv = get_flash_status();
       }
    }
    
@@ -287,7 +322,11 @@ bd_size_t QSPIFlashBlockDevice::get_read_size() const {
 /*                      GET TOTAL SIZE OF FLASH AVAILABLE                     */
 /* -------------------------------------------------------------------------- */
 bd_size_t QSPIFlashBlockDevice::size() const {
-   return size;
+   return total_size;
+}
+
+const char *QSPIFlashBlockDevice::get_type() const {
+    return "QSPIFLASH";
 }
 
 #endif

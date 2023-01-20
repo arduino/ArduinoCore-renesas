@@ -38,7 +38,7 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
                                        pin_t _wp) : 
    ck(_ck), cmd(_cmd), d0(_d0), d1(_d1), d2(_d2), d3(_d3), cd(_cd), wp(_wp),
    base_address((uint32_t)0),
-   size((bd_size_t)0),
+   total_size((bd_size_t)0),
    read_block_size((bd_size_t)0),
    erase_block_size((bd_size_t)0),
    write_block_size((bd_size_t)0) {
@@ -244,7 +244,7 @@ int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size)
 /* Tells if the "logical" address add is correct                              */
 /* -------------------------------------------------------------------------- */
 bool SDCardBlockDevice::is_address_correct(bd_addr_t add) {
-   return (add < size) ? true : false;
+   return (add < total_size) ? true : false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -280,7 +280,7 @@ bd_size_t SDCardBlockDevice::get_read_size() const {
 /*                      GET TOTAL SIZE OF FLASH AVAILABLE                     */
 /* -------------------------------------------------------------------------- */
 bd_size_t SDCardBlockDevice::size() const {
-   return size;
+   return total_size;
 }
 
 #endif

@@ -20,13 +20,15 @@
 #ifndef ARDUINO_SDMMC_FLASH_BLOCK_DEVICE
 #define ARDUINO_SDMMC_FLASH_BLOCK_DEVICE
 
-#ifdef HAS_SDHI
+
 
 /* base class for block devices */
 #include "blockDevice.h"
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
+
+#ifdef HAS_SDHI
 
 #include "r_sdhi.h"
 #include "r_dtc.h"
@@ -38,7 +40,7 @@
 class SDCardBlockDevice : public CBlockDevice {
 private:
   bd_addr_t base_address;
-  bd_size_t size;
+  bd_size_t total_size;
   bd_size_t read_block_size;
   bd_size_t erase_block_size;
   bd_size_t write_block_size;

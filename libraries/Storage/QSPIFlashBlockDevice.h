@@ -20,13 +20,15 @@
 #ifndef ARDUINO_QSIP_FLASH_BLOCK_DEVICE
 #define ARDUINO_QSPI_FLASH_BLOCK_DEVICE
 
-#ifdef HAS_QSPI
+#define QSPI_FLASH_DEBUG
 
 /* base class for block devices */
 #include "blockDevice.h"
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
+
+#ifdef HAS_QSPI
 
 #include "r_qspi.h"
 
@@ -66,7 +68,7 @@ class QSPIFlashBlockDevice : public CBlockDevice {
 private:
   
   bd_addr_t base_address;
-  bd_size_t size;
+  bd_size_t total_size;
   bd_size_t read_block_size;
   bd_size_t erase_block_size;
   bd_size_t write_block_size;
@@ -109,8 +111,8 @@ public:
   QSPIFlashBlockDevice(QSPIFlashBlockDevice const&) = delete;
   void operator=(QSPIFlashBlockDevice const&) = delete;
   virtual ~QSPIFlashBlockDevice(); 
-
-  
+  virtual int init() override;
+  virtual int deinit() override; 
   virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int erase(bd_addr_t addr, bd_size_t size) override;
@@ -118,6 +120,7 @@ public:
   virtual bd_size_t get_erase_size() const override;
   virtual bd_size_t get_read_size() const override;
   virtual bd_size_t size() const override;
+  virtual const char *get_type() const override;
 
 };
 

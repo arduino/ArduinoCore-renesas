@@ -168,8 +168,8 @@ static const uint8_t CS  =  PIN_SPI_CS;
 
 #define HAS_QSPI
 
-#define QSPI_TOTAL_SIZE       (0x800000) 
-#define QSPI_READ_BLOCK_SIZE  (0x400000)
+#define QSPI_TOTAL_SIZE       (0x1000000) 
+#define QSPI_READ_BLOCK_SIZE  (0x1000)
 #define QSPI_ERASE_BLOCK_SIZE (0x1000)
 #define QSPI_WRITE_BLOCK_SIZE (0x100)
 
