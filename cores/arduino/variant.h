@@ -26,11 +26,9 @@ typedef enum {
 } PinCfgReq_t;
 
 int32_t getPinIndex(bsp_io_port_pin_t p);
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci);
 #ifdef __cplusplus
-static inline uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req) {
-  return getPinCfg(cfg, req, false);
-}
+#include <array>
+std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req);
 #endif
 
 #define SCI_CHANNEL                 0x1

@@ -12,7 +12,9 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "CAN.h"
+#include "R7FA4M1_CAN.h"
+
+#ifdef ARDUINO_SANTIAGO
 
 #include <IRQManager.h>
 
@@ -39,20 +41,12 @@ namespace arduino
  * CTOR/DTOR
  **************************************************************************************/
 
-ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can_rx_pin, int const can_stby_pin)
-: _is_can_fd{is_can_fd}
-, _can_tx_pin{can_tx_pin}
+R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
+: _can_tx_pin{can_tx_pin}
 , _can_rx_pin{can_rx_pin}
-, _can_stby_pin{can_stby_pin}
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _open{nullptr}
-, _close{nullptr}
-, _write{nullptr}
-, _read{nullptr}
-, _info_get{nullptr}
-, _mode_transition{nullptr}
 , _can_bit_timing_cfg
 {
   /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
@@ -147,7 +141,7 @@ ArduinoCAN::ArduinoCAN(bool const is_can_fd, int const can_tx_pin, int const can
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
+bool R7FA4M1_CAN::begin(CanBitRate const /* can_bitrate */)
 {
   bool init_ok = true;
 
@@ -155,38 +149,6 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
    */
   int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
   init_ok &= cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
-
-  /* Determine the right function pointers depending
-   * on whether we have a CAN FD capable module or not.
-   */
-  if (_is_can_fd)
-  {
-#if IS_CAN_FD
-  _open            = R_CANFD_Open;
-  _close           = R_CANFD_Close;
-  _write           = R_CANFD_Write;
-  _read            = R_CANFD_Read;
-  _info_get        = R_CANFD_InfoGet;
-  _mode_transition = R_CANFD_ModeTransition;
-#endif
-  }
-  else
-  {
-    _open            = R_CAN_Open;
-    _close           = R_CAN_Close;
-    _write           = R_CAN_Write;
-    _read            = R_CAN_Read;
-    _info_get        = R_CAN_InfoGet;
-    _mode_transition = R_CAN_ModeTransition;
-  }
-
-  /* Perform a sanity check if valid function pointers could
-   * have been assigned.
-   */
-  if (!_open || !_close || !_write || !_read || !_info_get) {
-    init_ok = false;
-    return init_ok;
-  }
 
   /* Configure the interrupts.
    */
@@ -197,47 +159,34 @@ bool ArduinoCAN::begin(CanBitRate const /* can_bitrate */)
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CAN, &irq_req);
 
-  /* Enable the CAN transceiver, if it should be needing
-   * software enablement via a STBY pin.
-   */
-  if (_can_stby_pin >= 0)
-  {
-    pinMode(_can_stby_pin, OUTPUT);
-    digitalWrite(_can_stby_pin, LOW);
-  }
-
-  if (_open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
+  if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     init_ok = false;
 
   return init_ok;
 }
 
-void ArduinoCAN::end()
+void R7FA4M1_CAN::end()
 {
-  _close(&_can_ctrl);
+  R_CAN_Close(&_can_ctrl);
 }
 
-int ArduinoCAN::enableInternalLoopback()
+int R7FA4M1_CAN::enableInternalLoopback()
 {
-  can_operation_mode_t const mode_normal = _is_can_fd ? CAN_OPERATION_MODE_GLOBAL_OPERATION : CAN_OPERATION_MODE_NORMAL;
-
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode_normal, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
 }
 
-int ArduinoCAN::disableInternalLoopback()
+int R7FA4M1_CAN::disableInternalLoopback()
 {
-  can_operation_mode_t const mode_normal = _is_can_fd ? CAN_OPERATION_MODE_GLOBAL_OPERATION : CAN_OPERATION_MODE_NORMAL;
-
-  if(fsp_err_t const rc = _mode_transition(&_can_ctrl, mode_normal, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_DISABLED); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
 }
 
-int ArduinoCAN::write(CanMsg const & msg)
+int R7FA4M1_CAN::write(CanMsg const & msg)
 {
   can_frame_t can_msg = {
     /* id               = */ msg.id,
@@ -249,23 +198,23 @@ int ArduinoCAN::write(CanMsg const & msg)
 
   memcpy(can_msg.data, msg.data, can_msg.data_length_code);
 
-  if(fsp_err_t const rc = _write(&_can_ctrl, CAN_MAILBOX_ID_0, &can_msg); rc != FSP_SUCCESS)
+  if(fsp_err_t const rc = R_CAN_Write(&_can_ctrl, CAN_MAILBOX_ID_0, &can_msg); rc != FSP_SUCCESS)
     return -rc;
 
   return 1;
 }
 
-size_t ArduinoCAN::available() const
+size_t R7FA4M1_CAN::available() const
 {
   return _can_rx_buf.available();
 }
 
-CanMsg ArduinoCAN::read()
+CanMsg R7FA4M1_CAN::read()
 {
   return _can_rx_buf.dequeue();
 }
 
-void ArduinoCAN::onCanCallback(can_callback_args_t * p_args)
+void R7FA4M1_CAN::onCanCallback(can_callback_args_t * p_args)
 {
   switch (p_args->event)
   {
@@ -305,7 +254,7 @@ void ArduinoCAN::onCanCallback(can_callback_args_t * p_args)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
+bool R7FA4M1_CAN::cfg_pins(int const max_index, int const can_tx_pin, int const can_rx_pin)
 {
   /* Verify if indices are good. */
   if (can_tx_pin < 0 || can_rx_pin < 0 || can_tx_pin >= max_index || can_rx_pin >= max_index) {
@@ -314,19 +263,17 @@ bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const c
 
   /* Getting configuration from table. */
   const uint16_t * cfg = nullptr;
-  cfg = g_pin_cfg[can_tx_pin].list;
-  uint16_t cfg_can_tx = getPinCfg(cfg, PIN_CFG_REQ_CAN_TX, /* prefer_sci = */ false);
-  cfg = g_pin_cfg[can_rx_pin].list;
-  uint16_t cfg_can_rx = getPinCfg(cfg, PIN_CFG_REQ_CAN_RX, /* prefer_sci = */ false);
+  auto cfg_can_tx = getPinCfgs(can_tx_pin, PIN_CFG_REQ_CAN_TX);
+  auto cfg_can_rx = getPinCfgs(can_rx_pin, PIN_CFG_REQ_CAN_RX);
 
   /* Verify if configurations are good. */
-  if (cfg_can_tx == 0 || cfg_can_rx == 0) {
+  if (cfg_can_tx[0] == 0 || cfg_can_rx[0] == 0) {
     return false;
   }
 
   /* Verify if channel is the same for all pins. */
-  uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx);
-  uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx);
+  uint32_t const ch_can_tx = GET_CHANNEL(cfg_can_tx[0]);
+  uint32_t const ch_can_rx = GET_CHANNEL(cfg_can_rx[0]);
   if (ch_can_tx != ch_can_rx) {
     return false;
   }
@@ -350,18 +297,20 @@ bool ArduinoCAN::cfg_pins(int const max_index, int const can_tx_pin, int const c
 
 extern "C" void can_callback(can_callback_args_t * p_args)
 {
-  ArduinoCAN * this_ptr = (ArduinoCAN *)(p_args->p_context);
+  R7FA4M1_CAN * this_ptr = (R7FA4M1_CAN *)(p_args->p_context);
   this_ptr->onCanCallback(p_args);
 }
+
+#endif /* ARDUINO_SANTIAGO */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION
  **************************************************************************************/
 
 #if CAN_HOWMANY > 0
-arduino::ArduinoCAN CAN(IS_CAN_FD, PIN_CAN0_TX, PIN_CAN0_RX, PIN_CAN0_STBY);
+arduino::R7FA4M1_CAN CAN(PIN_CAN0_TX, PIN_CAN0_RX);
 #endif
 
 #if CAN_HOWMANY > 1
-arduino::ArduinoCAN CAN1(IS_CAN_FD, PIN_CAN1_TX, PIN_CAN1_RX, PIN_CAN1_STBY);
+arduino::R7FA4M1_CAN CAN1(PIN_CAN1_TX, PIN_CAN1_RX);
 #endif

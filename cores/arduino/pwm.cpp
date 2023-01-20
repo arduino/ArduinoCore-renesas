@@ -21,19 +21,18 @@ bool PwmOut::cfg_pin(int max_index) {
     return false;
   }
   /* getting configuration from table */
-  const uint16_t *cfg = g_pin_cfg[_pin].list;
-  uint16_t pin_cgf = getPinCfg(cfg, PIN_CFG_REQ_PWM,false);
+  auto pin_cgf = getPinCfgs(_pin, PIN_CFG_REQ_PWM);
 
   /* verify configuration are good */
-  if(pin_cgf == 0) {
+  if(pin_cgf[0] == 0) {
     return false;
   }
 
-  timer_channel = GET_CHANNEL(pin_cgf);
+  timer_channel = GET_CHANNEL(pin_cgf[0]);
 
-  _is_agt = IS_PIN_AGT_PWM(pin_cgf);
+  _is_agt = IS_PIN_AGT_PWM(pin_cgf[0]);
 
-  _pwm_channel = IS_PWM_ON_A(pin_cgf) ? CHANNEL_A : CHANNEL_B;
+  _pwm_channel = IS_PWM_ON_A(pin_cgf[0]) ? CHANNEL_A : CHANNEL_B;
 
   /* actually configuring PIN function */
   R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | (_is_agt ? IOPORT_PERIPHERAL_AGT : IOPORT_PERIPHERAL_GPT1)));

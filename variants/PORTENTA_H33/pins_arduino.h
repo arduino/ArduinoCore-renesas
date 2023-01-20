@@ -95,13 +95,13 @@ static const uint8_t A7 = PIN_A7;
 #define PIN_SPI_MISO      10
 #define PIN_SPI_SCK       9
 #define PIN_SPI_CS        7
-#define IS_SPI_SCI        1
+#define FORCE_SPI_MODE    (MODE_SCI)
 
 #define PIN_SPI1_MOSI     46
 #define PIN_SPI1_MISO     45
 #define PIN_SPI1_SCK      47
 #define PIN_SPI1_CS       48
-#define IS_SPI1_SCI       0
+#define FORCE_SPI1_MODE   (MODE_SPI)
 
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -113,23 +113,18 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define CANFD_HOWMANY     2
 
-#if defined __has_include
-#  if __has_include ("r_canfd.h")
-#    define IS_CAN_FD (1)
-#  else
-#    define IS_CAN_FD (0)
-#  endif
-#else
-#  define IS_CAN_FD (0)
-#endif
-
-#define PIN_CAN0_TX       (41)
-#define PIN_CAN0_RX       (42)
+#define PIN_CAN0_TX       (42)
+#define PIN_CAN0_RX       (41)
 #define PIN_CAN0_STBY     (-1)
 
-#define PIN_CAN1_TX       (43)
-#define PIN_CAN1_RX       (44)
-#define PIN_CAN1_STBY     (-1)
+/* On a Portenta Max Carrier it is CAN1 that is
+ * exposed to the line driver chip and subsequently
+ * available on the RJ10 connector.
+ */
+
+#define PIN_CAN1_TX       (44) /* P609 */
+#define PIN_CAN1_RX       (43) /* P610 */
+#define PIN_CAN1_STBY     (3)  /* P303 / D3 Portenta H33 = PWM3 = HD RIGHT Pin #65 = nCAN_EN */
 
 /****** GTP CORE DEFINES *******/
 

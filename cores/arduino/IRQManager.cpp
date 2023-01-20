@@ -31,6 +31,7 @@
 #define TIMER_PRIORITY             12
 #define ADC_PRIORITY               12
 #define CAN_PRIORITY               12
+#define CANFD_PRIORITY             12
 #define FIRST_INT_SLOT_FREE         0
 
 IRQManager::IRQManager() : last_interrupt_index{0} {
@@ -868,19 +869,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_CAN && cfg != NULL) {
       if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
-#  if IS_CAN_FD
-        canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
-        #define can_error_isr canfd_error_isr
-        #define can_rx_isr canfd_rx_fifo_isr
-        #define can_tx_isr canfd_channel_tx_isr
-        // TODO: ATTENTION:
-        // this is just a workaround, CANFD interrupts are different and somehow
-        // more specialized
-        // This is not expected to work until set_can_error_link_event and similar functions
-        // are ported
-#  else
         can_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
-#  endif
         can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
@@ -908,6 +897,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
 #endif /* CAN_HOWMANY > 0 */
 
+
 #if ETHERNET_HOWMANY > 0
     /* **********************************************************************
                                     ETHERNET
@@ -926,6 +916,41 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         }
     }
 #endif
+
+#if CANFD_HOWMANY > 0
+    /* **********************************************************************
+                                      CANFD
+       ********************************************************************** */
+    else if(p == IRQ_CANFD && cfg != NULL) {
+      if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
+        canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanFdIrqReq_t *>(cfg)->ctrl;
+        can_cfg_t * p_cfg  = reinterpret_cast<CanFdIrqReq_t *>(cfg)->cfg;
+        p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
+
+        /* Error interrupt */
+        p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_error_isr;
+        set_canfd_error_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Receive interrupt */
+        p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_rx_fifo_isr;
+        set_canfd_rx_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+
+        /* Transmit interrupt */
+        p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
+        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_channel_tx_isr;
+        set_canfd_tx_link_event(last_interrupt_index, p_cfg->channel);
+        R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
+        last_interrupt_index++;
+      }
+    }
+#endif /* CANFD_HOWMANY > 0 */
+
     else {
         rv = false;
     }
@@ -1662,6 +1687,51 @@ void IRQManager::set_can_tx_link_event(int li, int ch)
 #ifdef ELC_EVENT_CAN0_MAILBOX_TX
   else if(ch == 0) {
     R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_MAILBOX_TX);
+  }
+#endif
+}
+
+void IRQManager::set_canfd_error_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_CHERR
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_CHERR);
+  }
+#endif
+#ifdef ELC_EVENT_CAN1_CHERR
+  else if(ch == 1) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN1_CHERR);
+  }
+#endif
+}
+
+void IRQManager::set_canfd_rx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_COMFRX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_COMFRX);
+  }
+#endif
+#ifdef ELC_EVENT_CAN1_COMFRX
+  else if(ch == 1) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN1_COMFRX);
+  }
+#endif
+}
+
+void IRQManager::set_canfd_tx_link_event(int li, int ch)
+{
+  if (0) {}
+#ifdef ELC_EVENT_CAN0_TX
+  else if(ch == 0) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN0_TX);
+  }
+#endif
+#ifdef ELC_EVENT_CAN1_TX
+  else if(ch == 1) {
+    R_ICU->IELSR[li] = BSP_PRV_IELS_ENUM(EVENT_CAN1_TX);
   }
 #endif
 }

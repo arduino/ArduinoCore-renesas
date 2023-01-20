@@ -56,8 +56,6 @@ bool analogAttachIrqCompareB(bsp_io_port_pin_t pinNumber, bool lower_or_outside_
 bool analogAttachIrqCompareB(pin_size_t pinNumber, bool lower_or_outside_wnd, uint16_t low_th, uint16_t high_th, bool enable_window, ADCIrqCbk_f cbk, adc_mode_t mode = ADC_MODE_CONTINUOUS_SCAN, uint8_t priority = 12);
 bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) ;
 bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd);
-int getStoredAnalogValue(bsp_io_port_pin_t pinNumber);
-int getStoredAnalogValue(pin_size_t pinNumber);
 
 int analogRead(bsp_io_port_pin_t pinNumber);
 

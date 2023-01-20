@@ -41,7 +41,8 @@ typedef enum {
     IRQ_SPI_MASTER,
     IRQ_SCI_SPI_MASTER,
     IRQ_CAN,
-    IRQ_ETHERNET
+    IRQ_ETHERNET,
+    IRQ_CANFD,
 } Peripheral_t;
 
 #if RTC_HOWMANY > 0
@@ -99,21 +100,20 @@ typedef struct sci_spi_master_irq {
 #endif
 
 #if CAN_HOWMANY > 0
-# if IS_CAN_FD
-#  include "r_canfd.h"
-# else
-#  include "r_can.h"
-# endif
-
+# include "r_can.h"
 typedef struct can_irq {
-#if IS_CAN_FD
-  canfd_instance_ctrl_t * ctrl;
-#else
   can_instance_ctrl_t * ctrl;
-#endif
   can_cfg_t * cfg;
 } CanIrqReq_t;
 #endif /* CAN_HOWMANY > 0 */
+
+#if CANFD_HOWMANY > 0
+# include "r_canfd.h"
+typedef struct canfd_irq {
+  canfd_instance_ctrl_t * ctrl;
+  can_cfg_t * cfg;
+} CanFdIrqReq_t;
+#endif /* CANFD_HOWMANY > 0 */
 
 typedef struct usb {
     uint32_t num_of_irqs_required;
@@ -177,6 +177,9 @@ void can_error_isr(void);
 void can_rx_isr(void);
 void can_tx_isr(void);
 void ether_eint_isr (void);
+void canfd_error_isr(void);
+void canfd_rx_fifo_isr(void);
+void canfd_channel_tx_isr(void);
 #ifdef __cplusplus
 }
 #endif
@@ -243,6 +246,10 @@ class IRQManager {
     void set_can_error_link_event(int li, int ch);
     void set_can_rx_link_event(int li, int ch);
     void set_can_tx_link_event(int li, int ch);
+
+    void set_canfd_error_link_event(int li, int ch);
+    void set_canfd_rx_link_event(int li, int ch);
+    void set_canfd_tx_link_event(int li, int ch);
 
     bool set_dma_link_event(int li, int ch);
     IRQManager();

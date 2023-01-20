@@ -147,18 +147,30 @@ bool  UART::cfg_pins(int max_index) {
     return false;
   }
   /* getting configuration from table */
-  const uint16_t *cfg = g_pin_cfg[tx_pin].list;
-  uint16_t cfg_tx = getPinCfg(cfg, PIN_CFG_REQ_UART_TX, true);
-  cfg = g_pin_cfg[rx_pin].list;
-  uint16_t cfg_rx = getPinCfg(cfg, PIN_CFG_REQ_UART_RX, true);
+  auto cfgs_tx = getPinCfgs(tx_pin, PIN_CFG_REQ_UART_TX);
+  auto cfgs_rx = getPinCfgs(rx_pin, PIN_CFG_REQ_UART_RX);
+
+  uint16_t cfg_tx = 0;
+  uint16_t cfg_rx = 0;
+
+  /* Find the best combination */
+  for (size_t i = 0; i < cfgs_tx.size(); i++) {
+    for (size_t j = 0; j < cfgs_rx.size(); j++) {
+      if (cfgs_tx[i] && cfgs_rx[i] && GET_CHANNEL(cfgs_tx[i]) == GET_CHANNEL(cfgs_rx[j])) {
+        cfg_tx = cfgs_tx[i];
+        cfg_rx = cfgs_rx[j];
+        channel = GET_CHANNEL(cfg_tx);
+        goto done;
+      }
+    }
+  }
+
+done:
   /* verify configuration are good */
   if(cfg_tx == 0 || cfg_rx == 0 ) {
     return false;
   }
-  /* verify channel are the same for both pins */
-  if(GET_CHANNEL(cfg_tx) != GET_CHANNEL(cfg_rx) ) {
-    return false;
-  }
+
   /* verify channel does not exceed max possible uart channels */
   if(channel >= MAX_UARTS) {
     return false;

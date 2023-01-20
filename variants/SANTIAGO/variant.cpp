@@ -17,67 +17,56 @@ SCI_CHANNEL|PIN_RX_MISO_SCL|CHANNEL_9|SCI_ODD_CFG|LAST_ITEM_GUARD
 };
 #define P408 P408_b
 
-uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= false*/) {
-  if(cfg == nullptr) {
-    return 0;
+std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req) {
+
+  std::array<uint16_t, 3> ret = {0 , 0, 0};
+  if (pin > g_pin_cfg_size) {
+    return ret;
   }
+
+  uint8_t cfg_idx = 0;
+  const uint16_t* cfg = g_pin_cfg[pin].list;
+
   bool thats_all = false;
   uint8_t index = 0;
-
-  uint16_t config = 0;
-  uint16_t config_sci = 0;
 
   while(!thats_all) {
 
     if(PIN_CFG_REQ_UART_TX == req && IS_PIN_UART_TX(*(cfg + index))) {
-      config = *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_UART_RX == req && IS_PIN_UART_RX(*(cfg + index))) {
-      config = *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_SCL == req && IS_PIN_SCL(*(cfg + index))) {
-      if (IS_SCI(*(cfg + index))) {
-        config_sci = *(cfg + index);
-      } else {
-        config = *(cfg + index);
-      }
+        ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_SDA == req && IS_PIN_SDA(*(cfg + index))) {
-      if (IS_SCI(*(cfg + index))) {
-        config_sci = *(cfg + index);
-      } else {
-        config = *(cfg + index);
-      }
+        ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_MISO == req && IS_PIN_MISO(*(cfg + index))) {
-      if (IS_SCI(*(cfg + index))) {
-        config_sci = *(cfg + index);
-      } else {
-        config = *(cfg + index);
-      }
+        ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_MOSI == req && IS_PIN_MOSI(*(cfg + index))) {
-      if (IS_SCI(*(cfg + index))) {
-        config_sci = *(cfg + index);
-      } else {
-        config = *(cfg + index);
-      }
+        ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_SCK == req && IS_PIN_SCK(*(cfg + index))) {
-      if (IS_SCI(*(cfg + index))) {
-        config_sci = *(cfg + index);
-      } else {
-        config = *(cfg + index);
-      }
+        ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_PWM == req && IS_PIN_PWM(*(cfg + index))) {
-      config = *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_INTERRUPT == req && IS_PIN_INTERRUPT(*(cfg + index))) {
-      config = *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
     }
     else if(PIN_CFG_REQ_ADC == req && IS_PIN_ANALOG(*(cfg + index))) {
-      config = *(cfg + index);
+      ret[cfg_idx++] = *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_CAN_RX == req && IS_PIN_CAN_RX(*(cfg + index))) {
+      ret[cfg_idx++] = *(cfg + index);
+    }
+    else if(PIN_CFG_REQ_CAN_TX == req && IS_PIN_CAN_TX(*(cfg + index))) {
+      ret[cfg_idx++] = *(cfg + index);
     }
 
     if(IS_LAST_ITEM(*(cfg + index))) {
@@ -87,10 +76,7 @@ uint16_t getPinCfg(const uint16_t *cfg, PinCfgReq_t req, bool prefer_sci /*= fal
       index++;
     }
   }
-  if (config_sci != 0 && (prefer_sci || config == 0)) {
-    config = config_sci;
-  }
-  return config;
+  return ret;
 }
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
@@ -160,10 +146,10 @@ void initVariant() {
   digitalWrite(LED_BUILTIN, LOW);
   digitalWrite(LEDB, LOW);
   digitalWrite(LEDR, LOW);
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[3].list, PIN_CFG_REQ_PWM)));
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[5].list, PIN_CFG_REQ_PWM)));
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[6].list, PIN_CFG_REQ_PWM)));
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[9].list, PIN_CFG_REQ_PWM)));
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[10].list, PIN_CFG_REQ_PWM)));
-  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfg(g_pin_cfg[11].list, PIN_CFG_REQ_PWM)));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(3, PIN_CFG_REQ_PWM)[0]));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(5, PIN_CFG_REQ_PWM)[0]));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(6, PIN_CFG_REQ_PWM)[0]));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(9, PIN_CFG_REQ_PWM)[0]));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(10, PIN_CFG_REQ_PWM)[0]));
+  FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(11, PIN_CFG_REQ_PWM)[0]));
 }

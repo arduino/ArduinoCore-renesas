@@ -79,10 +79,10 @@ FSP Configuration
     PLL2 Div /2
     PLL2 Mul x20.0
     Clock Src: PLL
-    CLKOUT Src: HOCO
+    CLKOUT Disabled
     UCLK Src: PLL2
     OCTASPICLK Disabled
-    CANFDCLK Disabled
+    CANFDCLK Src: XTAL
     ICLK Div /1
     PCLKA Div /2
     PCLKB Div /4
@@ -94,7 +94,7 @@ FSP Configuration
     CLKOUT Div /1
     UCLK Div /5
     OCTASPICLK Div /1
-    CANFDCLK Div /6
+    CANFDCLK Div /1
     
   Pin Configurations
     R7FA6M5AG2CBG.pincfg -> g_bsp_pin_cfg

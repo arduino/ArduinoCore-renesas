@@ -80,15 +80,14 @@ static int pin2IrqChannel(int pin) {
     return -1;
   }
   /* getting configuration from table */
-  const uint16_t *cfg = g_pin_cfg[pin].list;
-  uint16_t cfg_irq = getPinCfg(cfg, PIN_CFG_REQ_INTERRUPT,false);
+  auto cfg_irq = getPinCfgs(pin, PIN_CFG_REQ_INTERRUPT);
   
   /* verify configuration are good */
-  if(cfg_irq == 0) {
+  if(cfg_irq[0] == 0) {
     return -1;
   }
  
-  return GET_CHANNEL(cfg_irq);
+  return GET_CHANNEL(cfg_irq[0]);
 }
 
 /* -------------------------------------------------------------------------- */
