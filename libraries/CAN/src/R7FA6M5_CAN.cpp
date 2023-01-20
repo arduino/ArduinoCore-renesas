@@ -116,7 +116,7 @@ bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
   int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
   auto [cfg_init_ok, cfg_channel] = cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
   init_ok &= cfg_init_ok;
-  _canfd_cfg.channel =  cfg_channel;
+  _canfd_cfg.channel = cfg_channel;
 
   /* Configure the interrupts.
    */
@@ -127,6 +127,19 @@ bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CANFD, &irq_req);
 
+  /* There is only one global error channel shared between both CAN0 and CAN1
+   * peripheral. If you are using e2Studio the error channel is configured via
+   * a project-wide define, however this is an issue for as as we do not know
+   * if both CAN instances are actually going to be used by the end-user. It may
+   * happen that only CAN1.begin() is called, if in this scenario CAN0 is configured
+   * as the source of the global error channel a hard-fault occurs as soon as
+   * an error occurs (this is a design-issue with the FSP layer). The line below
+   * ensures that there's always a valid error channel and that no hard-fault
+   * can occur.
+   */
+  _canfd_extended_cfg.global_err_channel = cfg_channel;
+
+  /* Initialize the peripheral's FSP driver. */
   if (R_CANFD_Open(&_canfd_ctrl, &_canfd_cfg) != FSP_SUCCESS)
     init_ok = false;
 
