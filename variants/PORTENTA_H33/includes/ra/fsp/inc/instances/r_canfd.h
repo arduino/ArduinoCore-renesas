@@ -324,6 +324,7 @@ typedef struct st_canfd_extended_cfg
     can_bit_timing_cfg_t * p_data_timing;      ///< FD Data Rate (when bitrate switching is used)
     uint8_t                delay_compensation; ///< FD Transceiver Delay Compensation (enable or disable)
     canfd_global_cfg_t   * p_global_cfg;       ///< Global configuration (global error callback channel only)
+    uint32_t               global_err_channel;
 } canfd_extended_cfg_t;
 
 /**********************************************************************************************************************
