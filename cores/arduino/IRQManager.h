@@ -41,7 +41,7 @@ typedef enum {
     IRQ_SPI_MASTER,
     IRQ_SCI_SPI_MASTER,
     IRQ_CAN,
-    IRQ_ETHERNET
+    IRQ_ETHERNET,
     IRQ_CANFD,
 } Peripheral_t;
 
