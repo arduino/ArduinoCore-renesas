@@ -48,13 +48,13 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d0].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d1].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    //R_IOPORT_PinCfg(NULL, g_pin_cfg[d0].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    //R_IOPORT_PinCfg(NULL, g_pin_cfg[d1].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    //R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    //R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) ( IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   //R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
    
    dtc_info.transfer_settings_word_b.dest_addr_mode = TRANSFER_ADDR_MODE_FIXED;
    dtc_info.transfer_settings_word_b.repeat_area = TRANSFER_REPEAT_AREA_SOURCE;
@@ -78,13 +78,13 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    dtc_instance.p_api = &g_transfer_on_dtc;
 
    
-   cfg.bus_width = SDMMC_BUS_WIDTH_4_BITS;
+   cfg.bus_width = SDMMC_BUS_WIDTH_1_BIT;//SDMMC_BUS_WIDTH_4_BITS;
    cfg.channel = 0;
    cfg.p_callback = SDCardBlockDevice::SDCardBlockDeviceCbk;
    cfg.p_context = NULL;
    cfg.block_size = 512;
-   cfg.card_detect = SDMMC_CARD_DETECT_CD;
-   cfg.write_protect = SDMMC_WRITE_PROTECT_WP;
+   cfg.card_detect = SDMMC_CARD_DETECT_NONE;
+   cfg.write_protect = SDMMC_WRITE_PROTECT_NONE;
    cfg.p_extend = NULL;
    cfg.p_lower_lvl_transfer = &dtc_instance;
    cfg.access_ipl = (12);
@@ -155,6 +155,27 @@ void SDCardBlockDevice::SDCardBlockDeviceCbk(sdmmc_callback_args_t *arg) {
 
    }
 
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              INIT - it calls open                          */
+/* -------------------------------------------------------------------------- */
+int SDCardBlockDevice::init() {
+   return open();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            DEINIT - it calls close                         */
+/* -------------------------------------------------------------------------- */
+int SDCardBlockDevice::deinit() {
+   return close();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         PROGRAM - 'remapped' on write                      */
+/* -------------------------------------------------------------------------- */
+int SDCardBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
+   return write(buffer, addr, _size);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -282,5 +303,10 @@ bd_size_t SDCardBlockDevice::get_read_size() const {
 bd_size_t SDCardBlockDevice::size() const {
    return total_size;
 }
+
+const char *SDCardBlockDevice::get_type() const {
+    return "SDCARD";
+}
+
 
 #endif

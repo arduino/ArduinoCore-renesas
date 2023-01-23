@@ -63,6 +63,9 @@ private:
   static bool initialized;
   static bool card_inserted;
   static void SDCardBlockDeviceCbk(sdmmc_callback_args_t *);
+  virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
+  virtual int open() override;
+  virtual int close() override;
 public:
 
   SDCardBlockDevice( pin_t _ck, 
@@ -78,15 +81,17 @@ public:
   void operator=(SDCardBlockDevice const&) = delete;
   virtual ~SDCardBlockDevice(); 
 
-  virtual int open() override;
-  virtual int close() override;
+  
+  virtual int init() override;
+  virtual int deinit() override; 
   virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) override;
-  virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
+  virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int erase(bd_addr_t addr, bd_size_t size) override;
   virtual bd_size_t get_program_size() const override;
   virtual bd_size_t get_erase_size() const override;
   virtual bd_size_t get_read_size() const override;
   virtual bd_size_t size() const override;
+  virtual const char *get_type() const override;
 };
 
 #endif
