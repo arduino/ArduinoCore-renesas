@@ -64,7 +64,7 @@
 /* CLASS QSPIFlashBlockDevice - to access micro internal flash                    */
 /* -------------------------------------------------------------------------- */
 
-class QSPIFlashBlockDevice : public CBlockDevice {
+class QSPIFlashBlockDevice : public BlockDevice {
 private:
   
   bd_addr_t base_address;

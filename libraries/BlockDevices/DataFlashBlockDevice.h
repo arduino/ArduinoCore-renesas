@@ -70,7 +70,7 @@ using FLASH_set_callback_f         = fsp_err_t (*)(flash_ctrl_t * const p_api_ct
 /* CLASS DataFlashBlockDevice - to access micro internal flash                    */
 /* -------------------------------------------------------------------------- */
 
-class DataFlashBlockDevice : public CBlockDevice {
+class DataFlashBlockDevice : public BlockDevice {
 private:
    DataFlashBlockDevice();
    int erase_block(uint32_t add);

@@ -37,7 +37,7 @@
 /* CLASS SDCardBlockDevice - to access micro internal flash                    */
 /* -------------------------------------------------------------------------- */
 
-class SDCardBlockDevice : public CBlockDevice {
+class SDCardBlockDevice : public BlockDevice {
 private:
   bd_addr_t base_address;
   bd_size_t total_size;

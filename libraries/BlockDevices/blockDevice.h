@@ -24,7 +24,9 @@
 #include "Arduino.h"
 #include <stdint.h>
 
-#define BLOCK_DEVICE_OK (0)
+#define  BLOCK_DEVICE_OK (0)
+#define  BD_ERROR_OK      (0)
+#define  BD_ERROR_DEVICE_ERROR  (-4001)
 
 typedef uint32_t bd_addr_t;
 typedef uint32_t bd_size_t;
@@ -35,7 +37,7 @@ typedef pin_size_t pin_t;
    subclass)                                                                  */
 /* -------------------------------------------------------------------------- */   
 
-class CBlockDevice {
+class BlockDevice {
 private:
    virtual int open() = 0;
    virtual int close() = 0;
@@ -43,11 +45,11 @@ private:
 
 
 public:
-   CBlockDevice() = default;
-   CBlockDevice(CBlockDevice const&) = delete;
-   void operator=(CBlockDevice const&) = delete;
+   BlockDevice() = default;
+   BlockDevice(BlockDevice const&) = delete;
+   void operator=(BlockDevice const&) = delete;
 
-   virtual ~CBlockDevice() = default; 
+   virtual ~BlockDevice() = default; 
    /* initialize a block device */
    virtual int init() = 0;
    /* deinitialize a block device*/
