@@ -1,3 +1,5 @@
+#ifdef ARDUINO_PORTENTA_H33
+
 #include "bsp_api.h"
 #include "hal_data.h"
 
@@ -46,3 +48,5 @@ extern const canfd_afl_entry_t p_canfd1_afl[CANFD_CFG_AFL_CH1_RULE_NUM] = {
       }
   }
 };
+
+#endif /* ARDUINO_PORTENTA_H33 */
