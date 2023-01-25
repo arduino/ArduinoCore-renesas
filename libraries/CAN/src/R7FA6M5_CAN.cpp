@@ -16,6 +16,8 @@
 
 #ifdef ARDUINO_PORTENTA_H33
 
+#include <math.h> /* modf */
+
 #include <IRQManager.h>
 
 /**************************************************************************************
@@ -79,11 +81,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
   //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
   .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
   .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
-#if BSP_FEATURE_CANFD_FD_SUPPORT
-  .p_data_timing      = &g_canfdfd0_data_timing_cfg,
-#else
   .p_data_timing      = nullptr,
-#endif
   .delay_compensation = (1),
   .p_global_cfg       = &_canfd_global_cfg,
 }
@@ -107,7 +105,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
+bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
 {
   bool init_ok = true;
 
@@ -138,6 +136,47 @@ bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
    * can occur.
    */
   _canfd_extended_cfg.global_err_channel = cfg_channel;
+
+  /* Calculate the CAN bitrate based on the value of this functions parameter.
+   *
+   * Note: Concerning the calculation of
+   *   - _canfd_bit_timing_cfg.baud_rate_prescaler
+   *   - time_segment_1 (TSEG1)
+   *   - time_segment_2 (TSEG2)
+   *   - synchronization_jump_width (SJW)
+   * also compare with Table 32.14, RA6M5 Group User Manual, Rev. 1.10.
+   */
+  static uint32_t const F_CAN_CLK_Hz = 24*1000*1000UL;
+  static uint32_t const CAN_TIME_QUANTA_per_Bit = 32; /* TQ */
+  uint32_t baud_rate_prescaler = 0;
+  for (uint32_t tq = CAN_TIME_QUANTA_per_Bit;
+       tq > 0;
+       tq--)
+  {
+    /* If it has come this far we've failed to find a valid prescaler. */
+    if (tq == 0) {
+      init_ok &= false;
+      break;
+    }
+
+    /* Determine the CAN baud rate prescaler. */
+    double const brp = static_cast<double>(F_CAN_CLK_Hz) / (tq * static_cast<double>(can_bitrate));
+    /* Extract the sub-comma part of the baud rate prescaler. */
+    double const brp_fract = modf(brp, nullptr);
+    /* If the fractional part is sufficiently close to zero, we have
+     * found a valid prescaler configuration.
+     */
+    if (brp_fract < 0.01)
+    {
+      _canfd_bit_timing_cfg.baud_rate_prescaler = static_cast<uint32_t>(brp);
+      /* Assign TSEG1 and TSEG2 to set the sample point at 75%. */
+      _canfd_bit_timing_cfg.synchronization_jump_width = 1; /* Is always 1. */
+      _canfd_bit_timing_cfg.time_segment_1 = static_cast<uint32_t>(static_cast<float>(tq) * 0.75) - 1;
+      _canfd_bit_timing_cfg.time_segment_2 = tq - _canfd_bit_timing_cfg.time_segment_1 - _canfd_bit_timing_cfg.synchronization_jump_width;
+      /* We've found a valid configuration, exit here. */
+      break;
+    }
+  }
 
   /* Initialize the peripheral's FSP driver. */
   if (R_CANFD_Open(&_canfd_ctrl, &_canfd_cfg) != FSP_SUCCESS)

@@ -24,20 +24,12 @@
 #include "r_can.h"
 
 #include "CanMsg.h"
+#include "CanConst.h"
 #include "CanMsgRingbuffer.h"
 
 /**************************************************************************************
  * TYPEDEF
  **************************************************************************************/
-
-enum class CanBitRate : int
-{
-  BR_100k  =  100000,
-  BR_125k  =  125000,
-  BR_250k  =  250000,
-  BR_500k  =  500000,
-  BR_1000k = 1000000,
-};
 
 typedef arduino::CanMsg CanMsg;
 
