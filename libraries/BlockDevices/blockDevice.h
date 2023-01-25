@@ -27,6 +27,7 @@
 #define  BLOCK_DEVICE_OK (0)
 #define  BD_ERROR_OK      (0)
 #define  BD_ERROR_DEVICE_ERROR  (-4001)
+#define  BD_ERROR_WRITE_PROTECTED (4002)
 
 typedef uint32_t bd_addr_t;
 typedef uint32_t bd_size_t;

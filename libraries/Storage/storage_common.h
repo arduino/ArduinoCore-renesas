@@ -255,6 +255,15 @@ struct statvfs {
 uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta);
 uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta);
 
+
+#ifndef ARDUINO_PACKED
+#if defined(__ICCARM__)
+#define ARDUINO_PACKED(struct) __packed struct
+#else
+#define ARDUINO_PACKED(struct) struct __attribute__((packed))
+#endif
+#endif
+
 #endif
 
 
