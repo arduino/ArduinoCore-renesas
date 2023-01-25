@@ -150,7 +150,7 @@ bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
     _canfd_bit_timing_cfg.baud_rate_prescaler = baud_rate_prescaler;
     _canfd_bit_timing_cfg.time_segment_1 = time_segment_1;
     _canfd_bit_timing_cfg.time_segment_2 = time_segment_2;
-    _canfd_bit_timing_cfg.synchronization_jump_width = synchronization_jump_width; /* Is always 1. */
+    _canfd_bit_timing_cfg.synchronization_jump_width = synchronization_jump_width;
   }
 
   /* Initialize the peripheral's FSP driver. */
