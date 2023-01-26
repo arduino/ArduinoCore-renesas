@@ -27,8 +27,8 @@
 
 #ifdef HAS_SDHI
 
-bool SDCardBlockDevice::card_inserted = false;
-bool SDCardBlockDevice::initialized = false;
+volatile bool SDCardBlockDevice::card_inserted = false;
+volatile bool SDCardBlockDevice::initialized = false;
             
 extern "C" void r_sdhi_transfer_callback(sdhi_instance_ctrl_t *p_ctrl);
 
@@ -63,8 +63,8 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) (IOPORT_CFG_DRIVE_HIGH | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) ( IOPORT_CFG_DRIVE_HIGH | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    
-   //R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   //R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
    
    
 
@@ -79,7 +79,8 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    cfg.p_extend = NULL;
    #ifdef USE_DMAC
    cfg.p_lower_lvl_transfer = &g_transfer0;
-   #else
+   #endif
+   #ifdef USE_DTC
    cfg.p_lower_lvl_transfer = &dtc_instance;
    #endif
    cfg.access_ipl = (12);
@@ -93,7 +94,6 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
 
    
    #ifdef USE_DMAC
-
    g_transfer0_info.transfer_settings_word_b.dest_addr_mode = TRANSFER_ADDR_MODE_FIXED;
    g_transfer0_info.transfer_settings_word_b.repeat_area = TRANSFER_REPEAT_AREA_SOURCE;
    g_transfer0_info.transfer_settings_word_b.irq = TRANSFER_IRQ_END;
@@ -121,9 +121,10 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    g_transfer0.p_ctrl = &g_transfer0_ctrl;
    g_transfer0.p_cfg = &g_transfer0_cfg;
    g_transfer0.p_api = &g_transfer_on_dmac;
+   #endif
 
-   #else
 
+   #ifdef USE_DTC
    dtc_info.transfer_settings_word_b.dest_addr_mode = TRANSFER_ADDR_MODE_FIXED;
    dtc_info.transfer_settings_word_b.repeat_area = TRANSFER_REPEAT_AREA_SOURCE;
    dtc_info.transfer_settings_word_b.irq = TRANSFER_IRQ_END;
@@ -146,11 +147,6 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    dtc_instance.p_api = &g_transfer_on_dtc;
 
    #endif
-   
-   //fsp_err_t err =  R_DTC_Open(&g_transfer_ctrl, &g_transfer_cfg);
-
-   initialized = false;
-   card_inserted = false;
 }
 
 
@@ -171,12 +167,12 @@ void SDCardBlockDevice::SDCardBlockDeviceCbk(sdmmc_callback_args_t *arg) {
 
       switch(event) {
       case SDMMC_EVENT_CARD_REMOVED: // Card removed event.
-         card_inserted = false;
+         SDCardBlockDevice::card_inserted = false;
          break;
 
       case SDMMC_EVENT_CARD_INSERTED: // Card inserted event
-         card_inserted = true;
-         initialized = false;
+         SDCardBlockDevice::card_inserted = true;
+         SDCardBlockDevice::initialized = false;
          break;
       case SDMMC_EVENT_RESPONSE: // Response event
 
@@ -236,36 +232,40 @@ int SDCardBlockDevice::open() {
    IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
    IRQManager::getInstance().addDMA(g_transfer0_extend);
 
-   //dtc_ext_cfg.activation_source = cfg.dma_req_irq; 
-    
-   
-
-
-
 
    rv = R_SDHI_Open (&ctrl, &cfg);
    
    if((fsp_err_t)rv == FSP_SUCCESS || (fsp_err_t)rv == FSP_ERR_ALREADY_OPEN) {
       sdmmc_status_t status;
-      if(!card_inserted) {
+      if(!SDCardBlockDevice::card_inserted) {
          rv = R_SDHI_StatusGet (&ctrl, &status);
          if(status.card_inserted) {
-            card_inserted = true;
+            SDCardBlockDevice::card_inserted = true;
          }
       }
    }
    
-   //if(card_inserted /*&& !initialized*/) {
+   if(SDCardBlockDevice::card_inserted && !SDCardBlockDevice::initialized) {
       R_BSP_SoftwareDelay(1U, BSP_DELAY_UNITS_MILLISECONDS);
+      
+      #ifdef SDHI_DEBUG
+      Serial.print("- Calling MediaInit function: ");
+      
+      #endif
+
       rv =  R_SDHI_MediaInit(&ctrl, NULL);
-         //Serial.print("MEDIA INIT RESULT ");
-         //Serial.println((int)rv);
+         #ifdef SDHI_DEBUG
+         Serial.print("   MediaInit result value ");
+         Serial.println((int)rv);
+         #endif
 
       if(rv == FSP_SUCCESS) {
-         //Serial.println("MEDIA INIT SUCCESS");
-         initialized = true;
+         #ifdef SDHI_DEBUG
+         Serial.println("  MediaInit SUCCESS");
+         #endif
+         SDCardBlockDevice::initialized = true;
       }
-   //}
+   }
 
    return (int)rv;
 }

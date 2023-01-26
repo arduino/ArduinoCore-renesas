@@ -32,6 +32,8 @@
 
 #include "r_sdhi.h"
 
+#define SDHI_DEBUG
+
 #define USE_DMAC
 
 #ifdef USE_DMAC
@@ -54,15 +56,16 @@ private:
   bool is_address_correct(bd_addr_t add);
   sdhi_instance_ctrl_t  ctrl;
   sdmmc_cfg_t           cfg;
+  
   #ifdef USE_DMAC
   dmac_instance_ctrl_t g_transfer0_ctrl;
   transfer_info_t      g_transfer0_info;
   dmac_extended_cfg_t  g_transfer0_extend;
   transfer_cfg_t       g_transfer0_cfg;
   transfer_instance_t  g_transfer0;
-
-  #else
-
+  #endif
+  
+  #ifdef USE_DTC
   dtc_instance_ctrl_t   dtc_ctrl;
   dtc_extended_cfg_t    dtc_ext_cfg;    
   transfer_info_t       dtc_info;
@@ -77,8 +80,8 @@ private:
   pin_t d3;
   pin_t cd;
   pin_t wp;
-  static bool initialized;
-  static bool card_inserted;
+  static volatile bool initialized;
+  static volatile bool card_inserted;
   static void SDCardBlockDeviceCbk(sdmmc_callback_args_t *);
   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int open() override;

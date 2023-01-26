@@ -33,6 +33,10 @@ class FspDma {
         extend_cfg.p_callback = NULL; 
         extend_cfg.p_context = NULL; 
         extend_cfg.activation_source = ELC_EVENT_NONE;
+
+        instance.p_ctrl = &ctrl;
+        instance.p_cfg = &cfg;
+        instance.p_api = &g_transfer_on_dmac;
     }
 
     bool set_activation_source(elc_event_t ev) {
@@ -58,6 +62,7 @@ class FspDma {
     dmac_instance_ctrl_t ctrl;
     transfer_info_t info;
     dmac_extended_cfg_t extend_cfg;
+    transfer_instance_t  instance;
 };
 
 
