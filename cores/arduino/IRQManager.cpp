@@ -947,6 +947,10 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_ACCS);
                 last_interrupt_index++;
             }
+            /*
+            this interrupt is neeed if DTC is used but it must not be used if
+            DMA is used 
+            -----------
             if(sd_cfg->dma_req_irq == FSP_INVALID_VECTOR) {
                 sd_cfg->dma_req_irq = (IRQn_Type)last_interrupt_index;
                 sd_cfg->dma_req_ipl = SDCARD_DMA_REQ_PRIORITY;
@@ -954,6 +958,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                 R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_DMA_REQ);
                 last_interrupt_index++;
             }
+            */
             if(sd_cfg->card_irq == FSP_INVALID_VECTOR) {
                 sd_cfg->card_irq = (IRQn_Type)last_interrupt_index;
                 sd_cfg->card_ipl = SDCARD_CARD_PRIORITY;
@@ -964,9 +969,9 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         }
 
         if(sd_cfg->access_irq == FSP_INVALID_VECTOR || sd_cfg->dma_req_irq == FSP_INVALID_VECTOR || sd_cfg->card_irq == FSP_INVALID_VECTOR) {
-            return false;
+            rv = false;
         }
-        return true;
+        rv = true;
     }
 #endif
     else {

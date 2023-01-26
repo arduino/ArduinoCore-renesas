@@ -31,7 +31,14 @@
 #ifdef HAS_SDHI
 
 #include "r_sdhi.h"
+
+#define USE_DMAC
+
+#ifdef USE_DMAC
+#include "r_dmac.h"
+#else
 #include "r_dtc.h"
+#endif
 
 /* -------------------------------------------------------------------------- */
 /* CLASS SDCardBlockDevice - to access micro internal flash                    */
@@ -47,11 +54,21 @@ private:
   bool is_address_correct(bd_addr_t add);
   sdhi_instance_ctrl_t  ctrl;
   sdmmc_cfg_t           cfg;
+  #ifdef USE_DMAC
+  dmac_instance_ctrl_t g_transfer0_ctrl;
+  transfer_info_t      g_transfer0_info;
+  dmac_extended_cfg_t  g_transfer0_extend;
+  transfer_cfg_t       g_transfer0_cfg;
+  transfer_instance_t  g_transfer0;
+
+  #else
+
   dtc_instance_ctrl_t   dtc_ctrl;
   dtc_extended_cfg_t    dtc_ext_cfg;    
   transfer_info_t       dtc_info;
   transfer_cfg_t        dtc_cfg;
   transfer_instance_t   dtc_instance;
+  #endif
   pin_t ck;
   pin_t cmd;
   pin_t d0;
