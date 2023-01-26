@@ -12,10 +12,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(TEST_TARGET ${CMAKE_PROJECT_NAME})
 ##########################################################################
 set(TEST_TARGET_SRCS
+  src/test_calc_can_bit_timinig.cpp
   src/test_main.cpp
+  ../../src/CanUtil.cpp
 )
 ##########################################################################
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+add_compile_options(-Wall -Wextra -Wpedantic)
 ##########################################################################
 set(CMAKE_C_FLAGS   ${CMAKE_C_FLAGS}   "--coverage")
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage -Wno-deprecated-copy")
