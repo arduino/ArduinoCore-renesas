@@ -28,14 +28,14 @@
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
 
+#define DMAC_CHANNEL_USED 2
+#define SDHI_DEBUG
+#define USE_DMAC
+
+
 #ifdef HAS_SDHI
 
 #include "r_sdhi.h"
-
-#define SDHI_DEBUG
-
-#define USE_DMAC
-
 #ifdef USE_DMAC
 #include "r_dmac.h"
 #else
@@ -48,6 +48,7 @@
 
 class SDCardBlockDevice : public BlockDevice {
 private:
+  sdmmc_device_t sd_card_info;
   bd_addr_t base_address;
   bd_size_t total_size;
   bd_size_t read_block_size;

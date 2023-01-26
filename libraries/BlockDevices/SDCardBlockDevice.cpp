@@ -228,10 +228,11 @@ int SDCardBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _si
 /* -------------------------------------------------------------------------- */
 int SDCardBlockDevice::open() {
    fsp_err_t rv;
-
+   
    IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
+   #ifdef USE_DMAC
    IRQManager::getInstance().addDMA(g_transfer0_extend);
-
+   #endif
 
    rv = R_SDHI_Open (&ctrl, &cfg);
    
@@ -253,7 +254,7 @@ int SDCardBlockDevice::open() {
       
       #endif
 
-      rv =  R_SDHI_MediaInit(&ctrl, NULL);
+      rv =  R_SDHI_MediaInit(&ctrl, &sd_card_info);
          #ifdef SDHI_DEBUG
          Serial.print("   MediaInit result value ");
          Serial.println((int)rv);
@@ -265,6 +266,13 @@ int SDCardBlockDevice::open() {
          #endif
          SDCardBlockDevice::initialized = true;
       }
+   }
+  
+   if(SDCardBlockDevice::initialized) {
+      read_block_size = sd_card_info.sector_size_bytes;
+      erase_block_size = sd_card_info.sector_size_bytes;
+      write_block_size = sd_card_info.sector_size_bytes;
+      total_size = sd_card_info.sector_count * sd_card_info.sector_size_bytes;
    }
 
    return (int)rv;
@@ -289,13 +297,29 @@ int SDCardBlockDevice::close() {
 int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    if(open() == BLOCK_DEVICE_OK) {
-      if(initialized) {
-         
+      if(SDCardBlockDevice::initialized) {
+         uint8_t *block = new uint8_t[read_block_size]; 
+         if(block != nullptr) {
+            int64_t internal_size = (int64_t)_size;
+            uint32_t block_num_start = (add / read_block_size);
+            uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
+            uint32_t start_copy_from = (add % read_block_size);
+            uint8_t *dest = (uint8_t *)buffer; 
+            rv = FSP_SUCCESS;
+            while(internal_size > 0 && rv == FSP_SUCCESS) {
+               uint32_t bytes_to_copy = (internal_size > byte_left_in_block) ? byte_left_in_block : (uint32_t)internal_size;
+               rv = R_SDHI_Read (&ctrl, block, block_num_start, 1);
+               memcpy(dest,block + start_copy_from, bytes_to_copy);
+               internal_size -= bytes_to_copy;
+               byte_left_in_block = read_block_size;
+               dest += bytes_to_copy;
+               start_copy_from = 0;
+               block_num_start++;
+            }
+            delete []block;
+         }
       }
    }
-
-   
-
    return (int)rv; 
 }
 
@@ -306,8 +330,29 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
 int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    if(open() == BLOCK_DEVICE_OK) {
-      if(initialized) {
-         
+      if(SDCardBlockDevice::initialized) {
+         uint8_t *block = new uint8_t[read_block_size]; 
+         if(block != nullptr) {
+            int64_t internal_size = (int64_t)_size;
+            uint32_t block_num_start = (add / read_block_size);
+            uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
+            uint32_t start_copy_from = (add % read_block_size);
+            uint8_t *dest = (uint8_t *)buffer; 
+            rv = FSP_SUCCESS;
+            while(internal_size > 0 && rv == FSP_SUCCESS) {
+               uint32_t bytes_to_copy = (internal_size > byte_left_in_block) ? byte_left_in_block : (uint32_t)internal_size;
+               rv = R_SDHI_Read (&ctrl, block, block_num_start, 1);
+               memcpy(block + start_copy_from, dest, bytes_to_copy);
+               rv = R_SDHI_Write (&ctrl, block, block_num_start, 1);
+               internal_size -= bytes_to_copy;
+               byte_left_in_block = read_block_size;
+               dest += bytes_to_copy;
+               start_copy_from = 0;
+               block_num_start++;
+            }
+            delete []block;
+         }
+
       }
    }
    return (int)rv;
@@ -327,8 +372,17 @@ int SDCardBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
    if(open() == BLOCK_DEVICE_OK) {
-      if(initialized) {
-         
+      if(SDCardBlockDevice::initialized) {
+         int64_t internal_size = (int64_t)_size;
+         uint32_t block_num_start = (add / read_block_size);
+         uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
+         rv = FSP_SUCCESS;
+         while(internal_size > 0 && rv == FSP_SUCCESS) {
+            R_SDHI_Erase (&ctrl, block_num_start, 1 );
+            internal_size -= byte_left_in_block;
+            byte_left_in_block = read_block_size;
+            block_num_start++;
+         }
       }
    }
    
