@@ -47,7 +47,8 @@ std::tuple<bool, uint32_t, uint32_t, uint32_t, uint32_t> calc_can_bit_timing(Can
     /* Determine the CAN baud rate prescaler. */
     double const brp = static_cast<double>(can_clock_Hz) / (tq * static_cast<double>(can_bitrate));
     /* Extract the sub-comma part of the baud rate prescaler. */
-    double const brp_fract = modf(brp, nullptr);
+    double brp_ipart;
+    double const brp_fract = modf(brp, &brp_ipart);
     /* If the fractional part is sufficiently close to zero, we have
      * found a valid prescaler configuration.
      */
