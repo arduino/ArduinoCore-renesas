@@ -42,6 +42,19 @@
 #include "r_dtc.h"
 #endif
 
+enum class CmdStatus {
+  IN_PROGRESS,
+  FAILED,
+  SUCCESS
+} ;
+
+
+/* NOTE: please note that the current implementation is suited only for 1 SD CARD
+   Block device instance: this is mainly due to the fact to the presence of the
+   static variables (for example initialized, cart_inserted and so on)
+   if necessary this class has to be updated using the channel and "duplicating"
+   these information */
+
 /* -------------------------------------------------------------------------- */
 /* CLASS SDCardBlockDevice - to access micro internal flash                    */
 /* -------------------------------------------------------------------------- */
@@ -83,6 +96,7 @@ private:
   pin_t wp;
   static volatile bool initialized;
   static volatile bool card_inserted;
+  static volatile CmdStatus st;
   static void SDCardBlockDeviceCbk(sdmmc_callback_args_t *);
   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int open() override;

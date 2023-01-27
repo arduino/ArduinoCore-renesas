@@ -29,6 +29,7 @@
 
 volatile bool SDCardBlockDevice::card_inserted = false;
 volatile bool SDCardBlockDevice::initialized = false;
+volatile CmdStatus SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
             
 extern "C" void r_sdhi_transfer_callback(sdhi_instance_ctrl_t *p_ctrl);
 
@@ -210,10 +211,10 @@ void SDCardBlockDevice::SDCardBlockDeviceCbk(sdmmc_callback_args_t *arg) {
          break;
 
       case SDMMC_EVENT_TRANSFER_COMPLETE:  // Read or write complete
-
+         SDCardBlockDevice::st = CmdStatus::SUCCESS;
          break;
       case SDMMC_EVENT_TRANSFER_ERROR: // Read or write failed
-
+         SDCardBlockDevice::st = CmdStatus::FAILED;
          break;
 
       case  SDMMC_EVENT_ERASE_COMPLETE: // Erase completed
@@ -386,21 +387,25 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
                Serial.print("[CALL] _____________________ R_SDHI_Read on block ");
                Serial.print(block_num_start);  
                #endif
-               //SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
+               SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
                rv = R_SDHI_Read (&ctrl, block, block_num_start, 1);
-               //while(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS);
+               while(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS) {
+                  #ifdef SDHI_DEBUG
+                  //Serial.println("reading ...");  
+                  #endif
+               }
                #ifdef SDHI_DEBUG
                Serial.print(" retun value ");
                Serial.print(rv); 
                if(rv == FSP_SUCCESS) {
                   Serial.println(" - SUCCESS");
-                  print_buffer(block, read_block_size);
+                  //print_buffer(block, read_block_size);
                }
                Serial.println();
                #endif
                if(rv == FSP_SUCCESS) {
                   #ifdef SDHI_DEBUG
-                  Serial.println("------ MEMCPY ------");
+                  //Serial.println("------ MEMCPY ------");
                   #endif
                   memcpy(dest,block + start_copy_from, bytes_to_copy);
                   internal_size -= bytes_to_copy;
