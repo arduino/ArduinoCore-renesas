@@ -87,6 +87,7 @@ private:
   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int open() override;
   virtual int close() override;
+  bool opened;
 public:
 
   SDCardBlockDevice( pin_t _ck, 
