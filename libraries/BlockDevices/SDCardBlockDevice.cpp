@@ -354,14 +354,14 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    #ifdef SDHI_DEBUG
    Serial.println("[CALL]: SDCardBlockDevice::read");
    #endif
-   Serial.println("--> A");
+   //Serial.println("--> A");
    if(open() == BLOCK_DEVICE_OK) {
-      Serial.println("--> B");
+      //Serial.println("--> B");
       if(SDCardBlockDevice::initialized) {
-         Serial.println("--> C");
+         //Serial.println("--> C");
          uint8_t *block = new uint8_t[read_block_size]; 
          if(block != nullptr) {
-            Serial.println("--> D");
+            //Serial.println("--> D");
             int64_t internal_size = (int64_t)_size;
             uint32_t block_num_start = (add / read_block_size);
             uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
@@ -378,7 +378,7 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
             #endif
             rv = FSP_SUCCESS;
             while(internal_size > 0 && rv == FSP_SUCCESS) {
-               Serial.println("--> E");
+               //Serial.println("--> E");
                uint32_t bytes_to_copy = (internal_size > byte_left_in_block) ? byte_left_in_block : (uint32_t)internal_size;
                #ifdef SDHI_DEBUG
                Serial.print("[LOG] bytes_to_copy is: ");
@@ -410,12 +410,12 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
                   block_num_start++;
                }
             }
-            Serial.println("Delete");
+            //Serial.println("Delete");
             delete []block;
          }
       }
    }
-   Serial.println("--> Z");
+   //Serial.println("--> Z");
    return (int)rv; 
 }
 
