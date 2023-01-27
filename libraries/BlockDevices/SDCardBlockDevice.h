@@ -128,6 +128,9 @@ public:
   virtual bd_size_t get_read_size() const override;
   virtual bd_size_t size() const override;
   virtual const char *get_type() const override;
+  bool is_card_present() { return card_inserted; }
+  bool is_card_initialized() { return initialized; }
+
 };
 
 #endif
