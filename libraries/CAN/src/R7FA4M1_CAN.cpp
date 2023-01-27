@@ -164,17 +164,19 @@ bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
   /* Calculate the CAN bitrate based on the value of this functions parameter.
    */
   static uint32_t const F_CAN_CLK_Hz = 20*1000*1000UL; /* CANMCLK */
-  static uint32_t const CAN_TIME_QUANTA_per_Bit = 32; /* TQ */
+  static uint32_t const TQ_MIN = 8;
+  static uint32_t const TQ_MAX = 25;
+  static uint32_t const SYNC_JUMP_WIDTH = 4;
 
-  auto [is_valid_baudrate, baud_rate_prescaler, time_segment_1, time_segment_2, synchronization_jump_width] =
-    util::calc_can_bit_timing(can_bitrate, F_CAN_CLK_Hz, CAN_TIME_QUANTA_per_Bit);
+  auto [is_valid_baudrate, baud_rate_prescaler, time_segment_1, time_segment_2] =
+    util::calc_can_bit_timing(can_bitrate, F_CAN_CLK_Hz, TQ_MIN, TQ_MAX, SYNC_JUMP_WIDTH);
   init_ok &= is_valid_baudrate;
 
   if (is_valid_baudrate) {
     _can_bit_timing_cfg.baud_rate_prescaler = baud_rate_prescaler;
     _can_bit_timing_cfg.time_segment_1 = time_segment_1;
     _can_bit_timing_cfg.time_segment_2 = time_segment_2;
-    _can_bit_timing_cfg.synchronization_jump_width = synchronization_jump_width;
+    _can_bit_timing_cfg.synchronization_jump_width = SYNC_JUMP_WIDTH;
   }
 
   /* Initialize the peripheral's FSP driver. */

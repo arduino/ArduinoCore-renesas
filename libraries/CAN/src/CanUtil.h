@@ -35,9 +35,8 @@ namespace util
 std::tuple<bool,     /* valid result found */
            uint32_t, /* baud_rate_prescaler */
            uint32_t, /* time_segment_1 */
-           uint32_t, /* time_segment_2 */
-           uint32_t> /* synchronization_jump_width */
-calc_can_bit_timing(CanBitRate const can_bitrate, uint32_t const can_clock_Hz, uint32_t const tq_max);
+           uint32_t> /* time_segment_2 */
+calc_can_bit_timing(CanBitRate const can_bitrate, uint32_t const can_clock_Hz, uint32_t const tq_min, uint32_t const tq_max, uint32_t const sync_jump_width);
 
 /**************************************************************************************
  * NAMESPACE
