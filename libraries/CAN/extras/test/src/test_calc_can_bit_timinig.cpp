@@ -93,9 +93,9 @@ SCENARIO("calc_can_bit_timing", "[calc_can_bit_timing]")
       THEN("")
       {
         REQUIRE(is_valid_baudrate   == true);
-        REQUIRE(baud_rate_prescaler == 4);
-        REQUIRE(time_segment_1      == 35);
-        REQUIRE(time_segment_2      == 11);
+        REQUIRE(baud_rate_prescaler == 6);
+        REQUIRE(time_segment_1      == 23);
+        REQUIRE(time_segment_2      == 8);
       }
     }
     WHEN("CanBitRate::BR_250k")
@@ -105,9 +105,9 @@ SCENARIO("calc_can_bit_timing", "[calc_can_bit_timing]")
       THEN("")
       {
         REQUIRE(is_valid_baudrate          == true);
-        REQUIRE(baud_rate_prescaler        == 2);
-        REQUIRE(time_segment_1             == 35);
-        REQUIRE(time_segment_2             == 11);
+        REQUIRE(baud_rate_prescaler        == 3);
+        REQUIRE(time_segment_1             == 28);
+        REQUIRE(time_segment_2             == 8);
       }
     }
     WHEN("CanBitRate::BR_500k")
@@ -117,9 +117,9 @@ SCENARIO("calc_can_bit_timing", "[calc_can_bit_timing]")
       THEN("")
       {
         REQUIRE(is_valid_baudrate          == true);
-        REQUIRE(baud_rate_prescaler        == 1);
-        REQUIRE(time_segment_1             == 35);
-        REQUIRE(time_segment_2             == 11);
+        REQUIRE(baud_rate_prescaler        == 2);
+        REQUIRE(time_segment_1             == 17);
+        REQUIRE(time_segment_2             == 6);
       }
     }
     WHEN("CanBitRate::BR_1000k")
@@ -131,7 +131,7 @@ SCENARIO("calc_can_bit_timing", "[calc_can_bit_timing]")
         REQUIRE(is_valid_baudrate          == true);
         REQUIRE(baud_rate_prescaler        == 1);
         REQUIRE(time_segment_1             == 17);
-        REQUIRE(time_segment_2             == 5);
+        REQUIRE(time_segment_2             == 6);
       }
     }
   }
