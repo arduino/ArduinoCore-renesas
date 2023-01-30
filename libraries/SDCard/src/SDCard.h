@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-#include "bsp_api.h"
-#include "hal_data.h"
+#include "FATFileSystem.h"
+#include "SDCardBlockDevice.h"
 
 #ifdef __cplusplus
 
@@ -47,9 +47,7 @@ typedef enum {
 
 class SDCardBlockMedia {
 public:
-    SDCardBlockMedia(const rm_filex_block_media_instance_t *block_media_instance,
-                     rm_filex_block_media_instance_ctrl_t *block_media_ctrl,
-                     const rm_filex_block_media_cfg_t *block_media_cfg);
+    SDCardBlockMedia();
 
     /** Initialize and mount the SD card block media
      *
@@ -107,9 +105,9 @@ public:
      *  @param access            File access type
      *  @return                  1 on success or 0 on failure
      */
-    int openFile(FX_FILE *filePtr, char* fileName, FileAccessType access);
+    int openFile(fs_file_t *file, char* fileName, FileAccessType access);
 
-    int closeFile(FX_FILE *filePtr);
+    int closeFile(fs_file_t *file);
 
     /** Open the file, write content into it and close it
      *
@@ -119,7 +117,7 @@ public:
      *  @param len               NUmber of bytes to write
      *  @return                  1 on success or 0 on failure
      */
-    int writeFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, uint32_t len);
+    int writeFile(fs_file_t *file, char* fileName, uint8_t *buf, uint32_t len);
 
     /** Open the file, read its content and close it
      *
@@ -130,7 +128,7 @@ public:
      *  @param readSize          Actual number of bytes read
      *  @return                  1 on success or 0 on failure
      */
-    int readFile(FX_FILE *filePtr, char* fileName, uint8_t *buf, uint32_t len, uint32_t* readSize);
+    int readFile(fs_file_t *file, char* fileName, uint8_t *buf, uint32_t len, uint32_t* readSize);
 
     /** Create a directory in the SD card block media
      *
@@ -167,17 +165,9 @@ public:
     SDCardError getError();
 
 private:
-    sdmmc_card_type_t _card_type;
-    bool _write_protected;
-    uint8_t _sd_state;
+    FATFileSystem fs;
+    SDCardBlockDevice sd;
     bool _first_dir_entry_found;
-
-    const rm_filex_block_media_instance_t *_block_media_instance;
-    rm_filex_block_media_instance_ctrl_t *_block_media_ctrl;
-    const rm_filex_block_media_cfg_t *_block_media_cfg;
-    uint8_t _media_memory[SD_MEDIA_BLOCK_SIZE] BSP_ALIGN_VARIABLE(4);
-
-    uint8_t _sd_error;
 
     int handleError(uint8_t err);
 
