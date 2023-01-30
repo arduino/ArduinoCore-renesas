@@ -91,8 +91,8 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d2].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_HIGH | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    R_IOPORT_PinCfg(NULL, g_pin_cfg[d3].pin,  (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_HIGH | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
    
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) (  IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[cd].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));
+   R_IOPORT_PinCfg(NULL, g_pin_cfg[wp].pin,  (uint32_t) ( IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SDHI_MMC));   
    
    
 
@@ -102,7 +102,7 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
    cfg.p_callback = SDCardBlockDevice::SDCardBlockDeviceCbk;
    cfg.p_context = NULL;
    cfg.block_size = 512;
-   cfg.card_detect = SDMMC_CARD_DETECT_NONE;
+   cfg.card_detect = SDMMC_CARD_DETECT_CD;
    cfg.write_protect = SDMMC_WRITE_PROTECT_NONE;
    cfg.p_extend = NULL;
    #ifdef USE_DMAC
@@ -196,6 +196,7 @@ void SDCardBlockDevice::SDCardBlockDeviceCbk(sdmmc_callback_args_t *arg) {
       switch(event) {
       case SDMMC_EVENT_CARD_REMOVED: // Card removed event.
          SDCardBlockDevice::card_inserted = false;
+         SDCardBlockDevice::initialized = false;
          break;
 
       case SDMMC_EVENT_CARD_INSERTED: // Card inserted event
@@ -269,34 +270,26 @@ int SDCardBlockDevice::open() {
    if(!opened) { 
       /* when opened is called and SD is opened and initialized, it reset all
          also initialization, so once opened... do not open again... */
-      rv = R_SDHI_Open (&ctrl, &cfg);
-      
-      if(rv == FSP_SUCCESS) {
+      if(FSP_SUCCESS == R_SDHI_Open (&ctrl, &cfg)) {
          opened = true;
-         sdmmc_status_t status;
-         if(!SDCardBlockDevice::card_inserted) {
-            rv = R_SDHI_StatusGet (&ctrl, &status);
-            if(status.card_inserted) {
-               SDCardBlockDevice::card_inserted = true;
-            }
-         }
       }
    }
-
-   #ifdef SDHI_DEBUG
-   Serial.print("[LOG] Card inserted is: ");
-   Serial.println(SDCardBlockDevice::card_inserted);  
-   Serial.print("[LOG] Card initialized is: ");
-   Serial.println(SDCardBlockDevice::initialized);     
-   #endif
    
-   if(opened && rv == FSP_SUCCESS && SDCardBlockDevice::card_inserted && !SDCardBlockDevice::initialized) {
+   if(opened && rv == FSP_SUCCESS && !SDCardBlockDevice::card_inserted) {
       R_BSP_SoftwareDelay(1U, BSP_DELAY_UNITS_MILLISECONDS);
-      
+      sdmmc_status_t status;
+      status.card_inserted = 0;
+      rv = R_SDHI_StatusGet (&ctrl, &status);
+      if(status.card_inserted) {
+         SDCardBlockDevice::card_inserted = true;
+      } 
+   }
+
+   if(opened && rv == FSP_SUCCESS && !SDCardBlockDevice::initialized) {
+      R_BSP_SoftwareDelay(1U, BSP_DELAY_UNITS_MILLISECONDS);
       #ifdef SDHI_DEBUG
       Serial.print("[CALL]: +++++++++++++ R_SDHI_MediaInit");
       #endif
-
       rv =  R_SDHI_MediaInit(&ctrl, &sd_card_info);
          #ifdef SDHI_DEBUG
          Serial.print(" result ");
@@ -308,26 +301,28 @@ int SDCardBlockDevice::open() {
          Serial.println(" - MediaInit SUCCESS");
          #endif
          SDCardBlockDevice::initialized = true;
+         read_block_size = sd_card_info.sector_size_bytes;
+         erase_block_size = sd_card_info.sector_size_bytes;
+         write_block_size = sd_card_info.sector_size_bytes;
+         total_size = sd_card_info.sector_count * sd_card_info.sector_size_bytes;
       }
    }
-  
-   if(SDCardBlockDevice::initialized) {
-      read_block_size = sd_card_info.sector_size_bytes;
-      erase_block_size = sd_card_info.sector_size_bytes;
-      write_block_size = sd_card_info.sector_size_bytes;
-      total_size = sd_card_info.sector_count * sd_card_info.sector_size_bytes;
 
-      #ifdef SDHI_DEBUG
-      Serial.print("[LOG] Block size is: ");
-      Serial.println(sd_card_info.sector_size_bytes);  
-      Serial.print("[LOG] Number of block is: ");
-      Serial.println(sd_card_info.sector_count);  
-      Serial.print("[LOG] Total size is: ");
-      Serial.print(total_size / (1024 * 1024));
-      Serial.println(" MB");   
-	   Serial.println("******************************************************************************************");
-      #endif
-   }
+   #ifdef SDHI_DEBUG
+   Serial.print("[LOG] Card inserted is: ");
+   Serial.println(SDCardBlockDevice::card_inserted);  
+   Serial.print("[LOG] Card initialized is: ");
+   Serial.println(SDCardBlockDevice::initialized);     
+   Serial.print("[LOG] Block size is: ");
+   Serial.println(sd_card_info.sector_size_bytes);  
+   Serial.print("[LOG] Number of block is: ");
+   Serial.println(sd_card_info.sector_count);  
+   Serial.print("[LOG] Total size is: ");
+   Serial.print(total_size / (1024 * 1024));
+   Serial.println(" MB");   
+   Serial.println("******************************************************************************************");
+   #endif
+   
 
    return (int)rv;
 }
