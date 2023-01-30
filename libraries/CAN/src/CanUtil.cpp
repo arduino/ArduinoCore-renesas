@@ -15,7 +15,7 @@
 #include "CanUtil.h"
 
 #include <math.h> /* modf */
-#include <iostream>
+
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
@@ -27,15 +27,21 @@ namespace util
  * FUNCTION DEFINITION
  **************************************************************************************/
 
-std::tuple<bool, uint32_t, uint32_t, uint32_t> calc_can_bit_timing(CanBitRate const can_bitrate, uint32_t const can_clock_Hz, uint32_t const tq_min, uint32_t const tq_max, uint32_t const sync_jump_width)
+std::tuple<bool, uint32_t, uint32_t, uint32_t>
+  calc_can_bit_timing(CanBitRate const can_bitrate,
+                      uint32_t const can_clock_Hz,
+                      uint32_t const tq_min,
+                      uint32_t const tq_max,
+                      uint32_t const tseg1_min,
+                      uint32_t const tseg1_max,
+                      uint32_t const tseg2_min,
+                      uint32_t const tseg2_max)
 {
-  /* Calculate the CAN bitrate based on the value of this functions parameter.
-   *
-   * Note: Concerning the calculation of
-   *   - _canfd_bit_timing_cfg.baud_rate_prescaler
+  /* Note: Concerning the calculation of
+   *   - baud_rate_prescaler
    *   - time_segment_1 (TSEG1)
    *   - time_segment_2 (TSEG2)
-   * also compare with Table 32.14, RA6M5 Group User Manual, Rev. 1.10.
+   * also compare with section 30.4.3, RA4M1 Group User Manual, Rev. 1.00, October 2019.
    */
   for (uint32_t tq = tq_max; tq >= tq_min; tq--)
   {
@@ -47,24 +53,15 @@ std::tuple<bool, uint32_t, uint32_t, uint32_t> calc_can_bit_timing(CanBitRate co
     /* If the fractional part is sufficiently close to zero, we have
      * found a valid prescaler configuration.
      */
-    std::cout << "can_bitrate = " << (int)can_bitrate << std::endl;
-    std::cout << "tq = " << tq << std::endl;
-    std::cout << "brp_fract = " << brp_fract << std::endl;
-    if (brp_fract < 0.1)
+    if (brp_fract < 0.01)
     {
-      std::cout << "HELL YEAH" << std::endl;
       uint32_t const baud_rate_prescaler = static_cast<uint32_t>(brp_ipart);
       /* Assign TSEG1 and TSEG2 to set the sample point at 75%. */
-      uint32_t const time_segment_1 = static_cast<int>(static_cast<float>(tq) * 0.75f) - sync_jump_width;
-/*
-      if (time_segment_1 < 4 || time_segment_1 > 16)
-        continue;
-*/
-      uint32_t const time_segment_2 = tq - time_segment_1 - sync_jump_width - 1;
-      //uint32_t const time_segment_2 = static_cast<int>(round(static_cast<float>(tq) * 0.25f)) - 1;
-      std::cout << "time_segment_1 = " << time_segment_1 << std::endl;
-      std::cout << "time_segment_2 = " << time_segment_2 << std::endl;
-
+      uint32_t const time_segment_1 = static_cast<int>(static_cast<float>(tq) * 0.75f) - 1;
+      uint32_t const time_segment_2 = tq - time_segment_1 - 1;
+      /* Check if the found values are within the allowed boundary. */
+      if (time_segment_1 < tseg1_min || time_segment_1 > tseg1_max) continue;
+      if (time_segment_2 < tseg2_min || time_segment_2 > tseg2_max) continue;
       /* We've found a valid configuration, exit here. */
       return std::make_tuple(true, baud_rate_prescaler, time_segment_1, time_segment_2);
     }
