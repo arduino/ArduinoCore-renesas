@@ -18,6 +18,8 @@
 
 #include <IRQManager.h>
 
+#include "CanUtil.h"
+
 /**************************************************************************************
  * PROTOTYPE DEFINITIONS
  **************************************************************************************/
@@ -43,14 +45,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _canfd_bit_timing_cfg
-{
-  /* Actual bitrate: 250000 Hz. Actual sample point: 75 %. */
-  .baud_rate_prescaler = 3,
-  .time_segment_1 = 23,
-  .time_segment_2 = 8,
-  .synchronization_jump_width = 1
-}
+, _canfd_bit_timing_cfg{}
 , _canfd_afl{}
 , _canfd_global_cfg
 {
@@ -79,11 +74,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
   //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
   .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
   .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
-#if BSP_FEATURE_CANFD_FD_SUPPORT
-  .p_data_timing      = &g_canfdfd0_data_timing_cfg,
-#else
   .p_data_timing      = nullptr,
-#endif
   .delay_compensation = (1),
   .p_global_cfg       = &_canfd_global_cfg,
 }
@@ -107,7 +98,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
+bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
 {
   bool init_ok = true;
 
@@ -138,6 +129,27 @@ bool R7FA6M5_CAN::begin(CanBitRate const /* can_bitrate */)
    * can occur.
    */
   _canfd_extended_cfg.global_err_channel = cfg_channel;
+
+  /* Calculate the CAN bitrate based on the value of this functions parameter.
+   */
+  static uint32_t const F_CAN_CLK_Hz = 24*1000*1000UL;
+  static uint32_t const TQ_MIN     =  5;
+  static uint32_t const TQ_MAX     = 49;
+  static uint32_t const TSEG_1_MIN = 2;
+  static uint32_t const TSEG_1_MAX = 39;
+  static uint32_t const TSEG_2_MIN = 2;
+  static uint32_t const TSEG_2_MAX = 10;
+
+  auto [is_valid_baudrate, baud_rate_prescaler, time_segment_1, time_segment_2] =
+    util::calc_can_bit_timing(can_bitrate, F_CAN_CLK_Hz, TQ_MIN, TQ_MAX, TSEG_1_MIN, TSEG_1_MAX, TSEG_2_MIN, TSEG_2_MAX);
+  init_ok &= is_valid_baudrate;
+
+  if (is_valid_baudrate) {
+    _canfd_bit_timing_cfg.baud_rate_prescaler = baud_rate_prescaler;
+    _canfd_bit_timing_cfg.time_segment_1 = time_segment_1;
+    _canfd_bit_timing_cfg.time_segment_2 = time_segment_2;
+    _canfd_bit_timing_cfg.synchronization_jump_width = 1;
+  }
 
   /* Initialize the peripheral's FSP driver. */
   if (R_CANFD_Open(&_canfd_ctrl, &_canfd_cfg) != FSP_SUCCESS)
