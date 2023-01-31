@@ -762,7 +762,7 @@ int FATFileSystem::file_truncate(fs_file_t file, off_t length)
 ////// Dir operations //////
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
 {
-    DIR *dh = new DIR;
+    FATFS_DIR *dh = new FATFS_DIR;
     Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
@@ -781,7 +781,7 @@ int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
 
 int FATFileSystem::dir_close(fs_dir_t dir)
 {
-    DIR *dh = static_cast<DIR *>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     FRESULT res = f_closedir(dh);
@@ -793,7 +793,7 @@ int FATFileSystem::dir_close(fs_dir_t dir)
 
 ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 {
-    DIR *dh = static_cast<DIR *>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
     FILINFO finfo;
 
     lock();
@@ -822,7 +822,7 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 {
-    DIR *dh = static_cast<DIR *>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
     off_t dptr = static_cast<off_t>(dh->dptr);
 
     lock();
@@ -847,7 +847,7 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 
 off_t FATFileSystem::dir_tell(fs_dir_t dir)
 {
-    DIR *dh = static_cast<DIR *>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     off_t offset = dh->dptr;
@@ -858,7 +858,7 @@ off_t FATFileSystem::dir_tell(fs_dir_t dir)
 
 void FATFileSystem::dir_rewind(fs_dir_t dir)
 {
-    DIR *dh = static_cast<DIR *>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     f_rewinddir(dh);
