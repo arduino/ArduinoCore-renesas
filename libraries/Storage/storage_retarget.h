@@ -208,7 +208,7 @@ FileHandle *mbed_override_console(int fd);
 FileHandle *mbed_file_handle(int fd);
 //}
 #endif
-typedef struct DIR_impl FOLDER;
+typedef struct DIR_impl DIR;
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 /* The intent of this section is to unify the errno error values to match
@@ -742,12 +742,12 @@ extern "C" {
     int close(int fildes);
     int stat(const char *path, struct stat *st);
     int statvfs(const char *path, struct statvfs *buf);
-    FOLDER *opendir(const char *);
-    struct dirent *readdir(FOLDER *);
-    int closedir(FOLDER *);
-    void rewinddir(FOLDER *);
-    long telldir(FOLDER *);
-    void seekdir(FOLDER *, long);
+    DIR *opendir(const char *);
+    struct dirent *readdir(DIR *);
+    int closedir(DIR *);
+    void rewinddir(DIR *);
+    long telldir(DIR *);
+    void seekdir(DIR *, long);
     int mkdir(const char *name, mode_t n);
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 #if __cplusplus

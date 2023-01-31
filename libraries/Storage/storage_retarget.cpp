@@ -32,7 +32,7 @@
 
 static PlatformMutex _mutex;
 
-/* FOLDER is typedeffed to struct DIR_impl in header */
+/* DIR is typedeffed to struct DIR_impl in header */
 struct DIR_impl {
     DirHandle *handle;
     struct dirent entry;
@@ -1282,7 +1282,7 @@ extern "C" char *_sys_command_string(char *cmd, int len)
 #endif
 
 #if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
-extern "C" FOLDER *opendir(const char *path)
+extern "C" DIR *opendir(const char *path)
 {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
@@ -1291,7 +1291,7 @@ extern "C" FOLDER *opendir(const char *path)
         return NULL;
     }
 
-    FOLDER *dir = new FOLDER;
+    DIR *dir = new DIR;
     if (!dir) {
         errno = ENOMEM;
         return NULL;
@@ -1307,7 +1307,7 @@ extern "C" FOLDER *opendir(const char *path)
     return dir;
 }
 
-extern "C" struct dirent *readdir(FOLDER *dir)
+extern "C" struct dirent *readdir(DIR *dir)
 {
     int err = dir->handle->read(&dir->entry);
     if (err < 1) {
@@ -1320,7 +1320,7 @@ extern "C" struct dirent *readdir(FOLDER *dir)
     return &dir->entry;
 }
 
-extern "C" int closedir(FOLDER *dir)
+extern "C" int closedir(DIR *dir)
 {
     int err = dir->handle->close();
     delete dir;
@@ -1332,17 +1332,17 @@ extern "C" int closedir(FOLDER *dir)
     }
 }
 
-extern "C" void rewinddir(FOLDER *dir)
+extern "C" void rewinddir(DIR *dir)
 {
     dir->handle->rewind();
 }
 
-extern "C" off_t telldir(FOLDER *dir)
+extern "C" off_t telldir(DIR *dir)
 {
     return dir->handle->tell();
 }
 
-extern "C" void seekdir(FOLDER *dir, off_t off)
+extern "C" void seekdir(DIR *dir, off_t off)
 {
     dir->handle->seek(off);
 }
