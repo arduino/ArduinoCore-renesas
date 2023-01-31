@@ -30,7 +30,7 @@
 #include "../Storage/storage_retarget.h"
 
 #define DMAC_CHANNEL_USED 2
-#define SDHI_DEBUG
+//#define SDHI_DEBUG
 #define USE_DMAC
 
 
