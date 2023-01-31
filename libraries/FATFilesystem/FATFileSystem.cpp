@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "../Filesystems/FatFs/source/diskio.h"
-#include "../Filesystems/FatFs/source/ffconf.h"
-#include "../Filesystems/FatFs/source/ff.h"
+#include "diskio.h"
+#include "ffconf.h"
+#include "ff.h"
 #include "../Storage/storage_common.h"
 //#include "platform/mbed_critical.h"
 //#include "filesystem/mbed_filesystem.h"
@@ -409,8 +409,15 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
         return err;
     }
 
+
+    MKFS_PARM fs_param; //(const MKFS_PARM*)(FM_ANY | FM_SFD)
+    fs_param.fmt = FM_ANY | FM_SFD;           /* Format option (FM_FAT, FM_FAT32, FM_EXFAT and FM_SFD) */
+    fs_param.n_fat = 1;         /* Number of FATs */
+    fs_param.align = 4;         /* Data area alignment (sector) */
+    fs_param.n_root = 1;        /* Number of root directory entries */
+    fs_param.au_size = cluster_size;      /* Cluster size (byte) */
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    FRESULT res = f_mkfs(fs._fsid, (const MKFS_PARM*)(FM_ANY | FM_SFD), NULL, 0);
+    FRESULT res = f_mkfs(fs._fsid, &fs_param , NULL, 0);
     if (res != FR_OK) {
         fs.unmount();
         fs.unlock();

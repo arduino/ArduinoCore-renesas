@@ -19,7 +19,8 @@
 
 #include <stdint.h>
 //#include "platform/mbed_toolchain.h"
-#include "storage_common.h"
+
+#include "storage_retarget.h"
 
 //namespace mbed {
 /** \addtogroup platform-public-api */
