@@ -16,8 +16,8 @@ static uint32_t const CAN_ID = 0x20;
 
 void setup()
 {
-  //Serial.begin(115200);
-  //while (!Serial) { }
+  Serial.begin(115200);
+  while (!Serial) { }
 
   /* You need to enable the CAN transceiver
    * by commenting in below code when using
@@ -30,9 +30,9 @@ void setup()
   digitalWrite(PIN_CAN1_STBY, LOW);
 #endif
 
-  if (!CAN1.begin(CanBitRate::BR_125k))
+  if (!CAN1.begin(CanBitRate::BR_250k))
   {
-    //Serial.println("CAN.begin(...) failed.");
+    Serial.println("CAN.begin(...) failed.");
     for (;;) {}
   }
 }
@@ -53,8 +53,8 @@ void loop()
    */
   if (int const rc = CAN1.write(msg); rc < 0)
   {
-    //Serial.print  ("CAN.write(...) failed with error code ");
-    //Serial.println(rc);
+    Serial.print  ("CAN.write(...) failed with error code ");
+    Serial.println(rc);
     for (;;) { }
   }
 
