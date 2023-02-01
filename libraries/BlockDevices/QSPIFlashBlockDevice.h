@@ -20,13 +20,14 @@
 #ifndef ARDUINO_QSIP_FLASH_BLOCK_DEVICE
 #define ARDUINO_QSPI_FLASH_BLOCK_DEVICE
 
-#define QSPI_FLASH_DEBUG
+//#define QSPI_FLASH_DEBUG
 
 /* base class for block devices */
 #include "blockDevice.h"
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
+#include "../Storage/storage_retarget.h"
 
 #ifdef HAS_QSPI
 
