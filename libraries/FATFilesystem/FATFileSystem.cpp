@@ -417,7 +417,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     fs_param.n_root = 1;        /* Number of root directory entries */
     fs_param.au_size = cluster_size;      /* Cluster size (byte) */
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    FRESULT res = f_mkfs(fs._fsid, &fs_param , NULL, 0);
+    FRESULT res = f_mkfs(fs._fsid, &fs_param , NULL, FF_MAX_SS);
     if (res != FR_OK) {
         fs.unmount();
         fs.unlock();
