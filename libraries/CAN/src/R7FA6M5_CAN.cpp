@@ -33,7 +33,8 @@ extern "C" void canfd_callback(can_callback_args_t * p_args);
 namespace arduino
 {
 
-canfd_afl_entry_t p_canfd0_afl[CANFD_CFG_AFL_CH0_RULE_NUM];
+extern "C" canfd_afl_entry_t CANFD0_AFL[CANFD_CFG_AFL_CH0_RULE_NUM];
+extern "C" canfd_afl_entry_t CANFD1_AFL[CANFD_CFG_AFL_CH1_RULE_NUM];
 
 /**************************************************************************************
  * CTOR/DTOR
@@ -70,7 +71,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 }
 , _canfd_extended_cfg
 {
-  .p_afl              = p_canfd0_afl,
+  .p_afl              = nullptr,
   //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
   .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
   .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
@@ -108,6 +109,14 @@ bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
   auto [cfg_init_ok, cfg_channel] = cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
   init_ok &= cfg_init_ok;
   _canfd_cfg.channel = cfg_channel;
+
+  /* Set the pointer to the right filtering structure. */
+  if (_canfd_cfg.channel == 0)
+    _canfd_extended_cfg.p_afl = CANFD0_AFL;
+  if (_canfd_cfg.channel == 1)
+    _canfd_extended_cfg.p_afl = CANFD1_AFL;
+  else
+    init_ok &= false;
 
   /* Configure the interrupts.
    */
