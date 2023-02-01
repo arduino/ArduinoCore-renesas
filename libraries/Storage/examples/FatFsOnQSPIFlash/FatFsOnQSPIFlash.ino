@@ -42,11 +42,15 @@ void setup() {
   /* list to store all directory in the root */
   std::vector<std::string> dir_list;
 
+  Serial.println();
+  Serial.println("##### TEST QSPI FLASH with FAT FS");
+  Serial.println();
+
   /* 
    *  MOUNTING SDCARD AS FATFS filesystem
    */
    
-  Serial.println("Mounting SDCARD...");
+  Serial.println("Mounting QSPI FLASH...");
   int err =  fs.mount(&block_device);
   if (err) {
     // Reformat if we can't mount the filesystem
@@ -87,6 +91,10 @@ void setup() {
     // Could not open directory
     Serial.println("Error opening SDCARD\n");
     while(1);
+  }
+
+  if(dirIndex == 0) {
+    Serial.println("Empty SDCARD");
   }
 
   bool found_test_folder = false;
@@ -261,9 +269,7 @@ void setup() {
       Serial.println(file_test_name.c_str());
     }
   }  
-  if(dirIndex == 0) {
-    Serial.println("Empty SDCARD");
-  }
+  
 }
 
 void loop() {
