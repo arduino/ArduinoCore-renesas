@@ -6,7 +6,7 @@
   The circuit:
    - Portenta H33 + Portenta Breakout 
 
-  created January 31th, 2014
+  created January 31th, 2023
   by Daniele Aimo
 
   This example code is in the public domain.
@@ -115,7 +115,6 @@ void setup() {
         }
         else if(ent->d_type == DT_DIR) {
           Serial.print("   - [Fold]: ");
-          dir_list.push_back(ent->d_name);
         }
         Serial.println(ent->d_name);
       }
