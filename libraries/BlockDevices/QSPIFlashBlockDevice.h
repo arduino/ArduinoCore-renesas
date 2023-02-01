@@ -27,7 +27,7 @@
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
-#include "../Storage/storage_retarget.h"
+#include "storage_retarget.h"
 
 #ifdef HAS_QSPI
 

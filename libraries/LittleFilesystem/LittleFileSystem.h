@@ -25,7 +25,7 @@
 #include "../Storage/FileSystem.h"
 #include "../BlockDevices/blockDevice.h"
 #include "../Storage/storage_common.h"
-#include "../Filesystems/littlefs/lfs.h"
+#include "lfs.h"
 
 //namespace mbed {
 

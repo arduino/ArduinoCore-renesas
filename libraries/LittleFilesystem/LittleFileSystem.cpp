@@ -23,8 +23,8 @@
 
 
 #include "errno.h"
-#include "../Filesystems/littlefs/lfs.h"
-#include "../Filesystems/littlefs/lfs_util.h"
+#include "lfs.h"
+#include "lfs_util.h"
 
 
 ////// Conversion functions //////
