@@ -4,6 +4,7 @@ collapse/module.driver.i2c_on_iic_master.1685905786=false
 collapse/module.driver.i2c_on_sci_i2c.563178273=false
 collapse/module.driver.i2s_on_ssi.1413043541=false
 collapse/module.driver.pcdc_on_usb.1520727964=false
+collapse/module.driver.sdmmc_on_sdmmc.843679411=false
 collapse/module.driver.spi_on_sci_spi.1917579259=false
 collapse/module.driver.spi_on_spi.1337524815=false
 collapse/module.driver.uart_on_sci_uart.651141941=false
