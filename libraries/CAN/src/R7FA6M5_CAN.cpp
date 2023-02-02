@@ -206,9 +206,30 @@ int R7FA6M5_CAN::write(CanMsg const & msg)
   return 1;
 }
 
-size_t R7FA6M5_CAN::available() const
+size_t R7FA6M5_CAN::available()
 {
-  return _can_rx_buf.available();
+  can_info_t can_info;
+  if (fsp_err_t const rc = R_CANFD_InfoGet(&_canfd_ctrl, &can_info); rc != FSP_SUCCESS)
+    return 0;
+
+  if (can_info.rx_mb_status > 0)
+  {
+    can_frame_t frame;
+    if (fsp_err_t const rc = R_CANFD_Read(&_canfd_ctrl, (can_info.rx_mb_status - 1), &frame); rc != FSP_SUCCESS)
+      return 0;
+
+    /* Extract the received CAN message. */
+    CanMsg const msg
+    (
+      frame.id,
+      frame.data_length_code,
+      frame.data
+    );
+    /* Store the received CAN message in the receive buffer. */
+    _can_rx_buf.enqueue(msg);
+  }
+
+  return can_info.rx_mb_status;
 }
 
 CanMsg R7FA6M5_CAN::read()
@@ -221,7 +242,7 @@ void R7FA6M5_CAN::onCanFDCallback(can_callback_args_t * p_args)
   switch (p_args->event)
   {
     case CAN_EVENT_TX_COMPLETE: break;
-    case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
+    case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now. This is so true.
     {
       /* Extract the received CAN message. */
       CanMsg const msg
