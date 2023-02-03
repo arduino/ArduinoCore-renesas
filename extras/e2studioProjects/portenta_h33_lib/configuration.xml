@@ -975,16 +975,16 @@
       <property id="config.driver.sci_uart.rs485" value="config.driver.sci_uart.rs485.disabled"/>
     </config>
     <config id="config.driver.canfd">
-      <property id="config.driver.canfd.param_checking_enable" value="config.driver.canfd.param_checking_enable.bsp"/>
+      <property id="config.driver.canfd.param_checking_enable" value="config.driver.canfd.param_checking_enable.enabled"/>
       <property id="config.driver.canfd.global_err.ipl" value="board.icu.common.irq.priority12"/>
       <property id="config.driver.canfd.global_err.sources" value=""/>
-      <property id="config.driver.canfd.global_err.cb_channel" value="config.driver.canfd.global_err.cb_channel.0"/>
+      <property id="config.driver.canfd.global_err.cb_channel" value="config.driver.canfd.global_err.cb_channel.1"/>
       <property id="config.driver.canfd.tx_priority" value="config.driver.canfd.tx_priority.buffer"/>
       <property id="config.driver.canfd.dlc_check" value="config.driver.canfd.dlc_check.disabled"/>
       <property id="config.driver.canfd.fd.standard" value="config.driver.canfd.fd.standard.iso"/>
       <property id="config.driver.canfd.fd.protocol_exception" value="config.driver.canfd.fd.protocol_exception.iso"/>
       <property id="config.driver.canfd.fd.overflow" value="config.driver.canfd.fd.overflow.reject"/>
-      <property id="config.driver.canfd.rxmb.number" value="0"/>
+      <property id="config.driver.canfd.rxmb.number" value="2"/>
       <property id="config.driver.canfd.rxmb.size" value="config.driver.canfd.rxmb.size.8"/>
       <property id="config.driver.canfd.rxfifo.ipl" value="board.icu.common.irq.priority12"/>
       <property id="config.driver.canfd.rxfifo.0.enable" value="config.driver.canfd.rxfifo.0.enable.enabled"/>
@@ -992,7 +992,7 @@
       <property id="config.driver.canfd.rxfifo.0.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.0.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.0.depth" value="enum.driver.canfd.fifo.depth.16"/>
-      <property id="config.driver.canfd.rxfifo.1.enable" value="config.driver.canfd.rxfifo.1.enable.disabled"/>
+      <property id="config.driver.canfd.rxfifo.1.enable" value="config.driver.canfd.rxfifo.1.enable.enabled"/>
       <property id="config.driver.canfd.rxfifo.1.int_mode" value="enum.driver.canfd.fifo.int_mode.every_frame"/>
       <property id="config.driver.canfd.rxfifo.1.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.1.payload" value="enum.driver.canfd.fifo.payload.8"/>
@@ -1027,8 +1027,8 @@
       <property id="config.driver.canfd.rxfifo.7.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.7.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.7.depth" value="enum.driver.canfd.fifo.depth.16"/>
-      <property id="config.driver.canfd.afl.ch0_num" value="32"/>
-      <property id="config.driver.canfd.afl.ch1_num" value="0"/>
+      <property id="config.driver.canfd.afl.ch0_num" value="1"/>
+      <property id="config.driver.canfd.afl.ch1_num" value="1"/>
     </config>
     <config id="config.driver.gpt">
       <property id="config.driver.gpt.param_checking_enable" value="config.driver.gpt.param_checking_enable.bsp"/>
