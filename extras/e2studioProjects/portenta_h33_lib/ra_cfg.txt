@@ -289,16 +289,16 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     
   Module "CAN FD (r_canfd)"
-    Parameter Checking: Default (BSP)
+    Parameter Checking: Enabled
     Global Error Interrupt: Priority: Priority 12
     Global Error Interrupt: Sources: 
-    Global Error Interrupt: Callback Channel: Channel 0
+    Global Error Interrupt: Callback Channel: Channel 1
     Transmission Priority: Buffer Number
     DLC Check: Disabled
     Flexible Data (FD): FD Frame Format: ISO 11898-1
     Flexible Data (FD): Protocol Exceptions: Enabled (ISO 11898-1)
     Flexible Data (FD): Payload Overflow: Reject
-    Reception: Message Buffers: Number of Buffers: 0
+    Reception: Message Buffers: Number of Buffers: 2
     Reception: Message Buffers: Payload Size: 8 bytes
     Reception: FIFOs: Interrupt Priority: Priority 12
     Reception: FIFOs: FIFO 0: Enable: Enabled
@@ -306,7 +306,7 @@ FSP Configuration
     Reception: FIFOs: FIFO 0: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 0: Payload Size: 8 bytes
     Reception: FIFOs: FIFO 0: Depth: 16 stages
-    Reception: FIFOs: FIFO 1: Enable: Disabled
+    Reception: FIFOs: FIFO 1: Enable: Enabled
     Reception: FIFOs: FIFO 1: Interrupt Mode: Every Frame
     Reception: FIFOs: FIFO 1: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 1: Payload Size: 8 bytes
@@ -341,8 +341,8 @@ FSP Configuration
     Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
     Reception: FIFOs: FIFO 7: Depth: 16 stages
-    Reception: Acceptance Filtering: Channel 0 Rule Count: 32
-    Reception: Acceptance Filtering: Channel 1 Rule Count: 0
+    Reception: Acceptance Filtering: Channel 0 Rule Count: 1
+    Reception: Acceptance Filtering: Channel 1 Rule Count: 1
     
   Module "I2C Master (r_iic_master)"
     Parameter Checking: Default (BSP)

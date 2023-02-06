@@ -33,7 +33,8 @@ extern "C" void canfd_callback(can_callback_args_t * p_args);
 namespace arduino
 {
 
-canfd_afl_entry_t p_canfd0_afl[CANFD_CFG_AFL_CH0_RULE_NUM];
+extern "C" canfd_afl_entry_t CANFD0_AFL[CANFD_CFG_AFL_CH0_RULE_NUM];
+extern "C" canfd_afl_entry_t CANFD1_AFL[CANFD_CFG_AFL_CH1_RULE_NUM];
 
 /**************************************************************************************
  * CTOR/DTOR
@@ -70,7 +71,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
 }
 , _canfd_extended_cfg
 {
-  .p_afl              = p_canfd0_afl,
+  .p_afl              = nullptr,
   //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
   .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
   .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
@@ -108,6 +109,14 @@ bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
   auto [cfg_init_ok, cfg_channel] = cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
   init_ok &= cfg_init_ok;
   _canfd_cfg.channel = cfg_channel;
+
+  /* Set the pointer to the right filtering structure. */
+  if (_canfd_cfg.channel == 0)
+    _canfd_extended_cfg.p_afl = CANFD0_AFL;
+  if (_canfd_cfg.channel == 1)
+    _canfd_extended_cfg.p_afl = CANFD1_AFL;
+  else
+    init_ok &= false;
 
   /* Configure the interrupts.
    */
@@ -197,9 +206,30 @@ int R7FA6M5_CAN::write(CanMsg const & msg)
   return 1;
 }
 
-size_t R7FA6M5_CAN::available() const
+size_t R7FA6M5_CAN::available()
 {
-  return _can_rx_buf.available();
+  can_info_t can_info;
+  if (fsp_err_t const rc = R_CANFD_InfoGet(&_canfd_ctrl, &can_info); rc != FSP_SUCCESS)
+    return 0;
+
+  if (can_info.rx_mb_status > 0)
+  {
+    can_frame_t frame;
+    if (fsp_err_t const rc = R_CANFD_Read(&_canfd_ctrl, (can_info.rx_mb_status - 1), &frame); rc != FSP_SUCCESS)
+      return 0;
+
+    /* Extract the received CAN message. */
+    CanMsg const msg
+    (
+      frame.id,
+      frame.data_length_code,
+      frame.data
+    );
+    /* Store the received CAN message in the receive buffer. */
+    _can_rx_buf.enqueue(msg);
+  }
+
+  return can_info.rx_mb_status;
 }
 
 CanMsg R7FA6M5_CAN::read()
@@ -212,7 +242,7 @@ void R7FA6M5_CAN::onCanFDCallback(can_callback_args_t * p_args)
   switch (p_args->event)
   {
     case CAN_EVENT_TX_COMPLETE: break;
-    case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now.
+    case CAN_EVENT_RX_COMPLETE: // Currently driver don't support this. This is unreachable code for now. This is so true.
     {
       /* Extract the received CAN message. */
       CanMsg const msg
