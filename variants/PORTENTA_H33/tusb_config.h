@@ -12,6 +12,25 @@
  extern "C" {
 #endif
 
+/*
+ * USB PORT 0 CONFIGURATION: HOST, FULL SPEED
+ */
+
+// RHPort number used for device can be defined by board.mk, default to port 0
+#ifndef BOARD_TUH_RHPORT
+#define BOARD_TUH_RHPORT      0
+#endif
+
+#define CFG_TUSB_RHPORT0_MODE   (OPT_MODE_HOST | OPT_MODE_FULL_SPEED)
+
+#ifndef BOARD_TUH_MAX_SPEED
+#define BOARD_TUH_MAX_SPEED   OPT_MODE_FULL_SPEED
+#endif
+
+/*
+ * USB PORT 1 CONFIGURATION: DEVICE, HIGH SPEED
+ */
+
 // RHPort number used for device can be defined by board.mk, default to port 0
 #ifndef BOARD_TUD_RHPORT
 #define BOARD_TUD_RHPORT      1
