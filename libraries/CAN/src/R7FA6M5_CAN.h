@@ -61,7 +61,7 @@ public:
 
 
   int write(CanMsg const & msg);
-  size_t available() const;
+  size_t available();
   CanMsg read();
 
 
