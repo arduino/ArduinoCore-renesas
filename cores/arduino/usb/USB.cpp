@@ -232,12 +232,14 @@ void _usbfs_interrupt_handler(void)
 
 #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_HOST
   tuh_int_handler(0);
+  tuh_task();
 #endif
 
 #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_DEVICE
   tud_int_handler(0);
-#endif
   tud_task();
+#endif
+  
 }
 
 void _usbhs_interrupt_handler(void)
