@@ -221,7 +221,7 @@ int R7FA4M1_CAN::write(CanMsg const & msg)
   return 1;
 }
 
-size_t R7FA4M1_CAN::available() const
+size_t R7FA4M1_CAN::available()
 {
   return _can_rx_buf.available();
 }
