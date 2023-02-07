@@ -8,41 +8,57 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef ARDUINOCORE_RENESAS_CANUTIL_H
-#define ARDUINOCORE_RENESAS_CANUTIL_H
+#ifndef ARDUINOCORE_RENESAS_HARDWARECAN_H
+#define ARDUINOCORE_RENESAS_HARDWARECAN_H
 
 /**************************************************************************************
  * INCLUDE
  **************************************************************************************/
 
-#include <cstdint>
+#include "CanMsg.h"
 
-#include <tuple>
+/**************************************************************************************
+ * TYPEDEF
+ **************************************************************************************/
 
-#include "HardwareCAN.h"
+enum class CanBitRate : int
+{
+  BR_125k  =  125000,
+  BR_250k  =  250000,
+  BR_500k  =  500000,
+  BR_1000k = 1000000,
+};
 
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
 
-namespace util
+namespace arduino
 {
 
 /**************************************************************************************
- * FUNCTION DECLARATION
+ * CLASS DECLARATION
  **************************************************************************************/
 
-std::tuple<bool,     /* valid result found */
-           uint32_t, /* baud_rate_prescaler */
-           uint32_t, /* time_segment_1 */
-           uint32_t> /* time_segment_2 */
-calc_can_bit_timing(CanBitRate const can_bitrate, uint32_t const can_clock_Hz, uint32_t const tq_min, uint32_t const tq_max,
-                    uint32_t const tseg1_min, uint32_t const tseg1_max, uint32_t const tseg2_min, uint32_t const tseg2_max);
+class HardwareCAN
+{
+public:
+  virtual ~HardwareCAN() {}
+
+
+  virtual bool begin(CanBitRate const can_bitrate) = 0;
+  virtual void end() = 0;
+
+
+  virtual int write(CanMsg const &msg) = 0;
+  virtual size_t available() = 0;
+  virtual CanMsg read() = 0;
+};
 
 /**************************************************************************************
  * NAMESPACE
  **************************************************************************************/
 
-} /* util */
+} /* arduino */
 
-#endif /* ARDUINOCORE_RENESAS_CANUTIL_H */
+#endif /* ARDUINOCORE_RENESAS_HARDWARECAN_H */

@@ -19,14 +19,14 @@
 
 #ifdef ARDUINO_PORTENTA_H33
 
+#include "HardwareCAN.h"
+
 #include  <tuple>
 
 #include "bsp_api.h"
 
 #include "r_canfd.h"
 
-#include "CanMsg.h"
-#include "CanConst.h"
 #include "CanMsgRingbuffer.h"
 
 /**************************************************************************************
@@ -46,23 +46,24 @@ namespace arduino
  * CLASS DECLARATION
  **************************************************************************************/
 
-class R7FA6M5_CAN
+class R7FA6M5_CAN final : public HardwareCAN
 {
 public:
   R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin);
+  virtual ~R7FA6M5_CAN() { }
 
 
-  bool begin(CanBitRate const can_bitrate);
-  void end();
+  bool begin(CanBitRate const can_bitrate) override;
+  void end() override;
 
 
   int enableInternalLoopback();
   int disableInternalLoopback();
 
 
-  int write(CanMsg const & msg);
-  size_t available();
-  CanMsg read();
+  int write(CanMsg const & msg) override;
+  size_t available() override;
+  CanMsg read() override;
 
 
   inline bool isError(int & err_code) const { err_code = _err_code; return _is_error; }
