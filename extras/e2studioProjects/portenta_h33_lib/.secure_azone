@@ -6,6 +6,8 @@
             <slot name="P108" secure="false"/>
         </peripheral>
         <peripheral name="PORT2" group="PORT">
+            <slot name="P205" secure="false"/>
+            <slot name="P206" secure="false"/>
             <slot name="P211" secure="false"/>
             <slot name="P214" secure="false"/>
         </peripheral>
@@ -15,6 +17,12 @@
         <peripheral name="PORT4" group="PORT">
             <slot name="P405" secure="false"/>
             <slot name="P406" secure="false"/>
+            <slot name="P410" secure="false"/>
+            <slot name="P411" secure="false"/>
+            <slot name="P412" secure="false"/>
+            <slot name="P413" secure="false"/>
+            <slot name="P414" secure="false"/>
+            <slot name="P415" secure="false"/>
         </peripheral>
         <peripheral name="PORT7" group="PORT">
             <slot name="P700" secure="false"/>
@@ -41,6 +49,7 @@
         <peripheral name="AGT0" group="AGT" security=""/>
         <peripheral name="ETHERC0" group="ETHERC" security=""/>
         <peripheral name="QSPI" security=""/>
+        <peripheral name="SDHI0" group="SDHI" security=""/>
         <peripheral name="ICU">
             <slot name="IRQ0" secure="false"/>
             <slot name="IRQ1" secure="false"/>
@@ -70,6 +79,8 @@
             <slot name="IRQ25" secure="false"/>
             <slot name="IRQ26" secure="false"/>
             <slot name="IRQ27" secure="false"/>
+            <slot name="IRQ28" secure="false"/>
+            <slot name="IRQ29" secure="false"/>
         </peripheral>
     </partition>
 </azone>

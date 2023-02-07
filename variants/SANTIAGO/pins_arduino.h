@@ -145,9 +145,9 @@ static const uint8_t SS  =  PIN_SPI_CS;
 /* EEPROM DEFINES */
 
 #define ARDUINO_FLASH_TYPE  LP_FLASH
-#define EEPROM_BASE_ADDRESS 0x40100000
-#define EEPROM_LENGHT       0x2000
-#define EEPROM_BLOCK        0x400
+#define FLASH_BASE_ADDRESS  0x40100000
+#define FLASH_TOTAL_SIZE    0x2000
+#define FLASH_BLOCK_SIZE    0x400
 
 // TODO: removeme
 #ifdef __cplusplus

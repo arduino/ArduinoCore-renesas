@@ -138,6 +138,10 @@ static const uint8_t SS  =  PIN_SPI_CS;
 /****** ETHERNET CORE DEFINES *******/
 #define ETHERNET_HOWMANY   1
 
+/****** SDCARD CORE DEFINES *******/
+#define SDCARD_HOWMANY     1
+
+
 #define EXT_INTERRUPTS_HOWMANY 8
 
 #define USE_4BIT_SDCARD   1
@@ -147,9 +151,34 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define USB_NAME          "Portenta H33"
 
 #define ARDUINO_FLASH_TYPE  HP_FLASH
-#define EEPROM_BASE_ADDRESS 0x08000000
-#define EEPROM_LENGHT       0x2000
-#define EEPROM_BLOCK        0x40
+#define FLASH_BASE_ADDRESS  0x08000000
+#define FLASH_TOTAL_SIZE    0x2000
+#define FLASH_BLOCK_SIZE    0x40
+
+#define PIN_QSPI_CLK     (116)
+#define PIN_QSPI_SS      (117)
+#define PIN_QSPI_D0      (118)
+#define PIN_QSPI_D1      (119)
+#define PIN_QSPI_D2      (120)
+#define PIN_QSPI_D3      (121)
+
+#define HAS_QSPI
+
+#define QSPI_TOTAL_SIZE       (0x1000000) 
+#define QSPI_READ_BLOCK_SIZE  (0x100)
+#define QSPI_ERASE_BLOCK_SIZE (0x1000)
+#define QSPI_WRITE_BLOCK_SIZE (0x100)
+
+#define HAS_SDHI
+
+#define PIN_SDHI_CLK (84)
+#define PIN_SDHI_CMD (85)
+#define PIN_SDHI_D0  (86)
+#define PIN_SDHI_D1  (87)
+#define PIN_SDHI_D2  (88)
+#define PIN_SDHI_D3  (89)
+#define PIN_SDHI_CD  (90)  
+#define PIN_SDHI_WP  (91)
 
 /* Portenta Vision Shield compatibility */
 #define LORA_RESET          2 //PWM2

@@ -18,7 +18,11 @@
 #define SPI_MASTER_REQ_NUM          4
 #define CAN_REQ_NUM                 3
 #define ETHERNET_REQ_NUM            1
+#define SDCARD_REQ_NUM              3
 #define ETHERNET_PRIORITY          12
+#define SDCARD_ACCESS_PRIORITY     12
+#define SDCARD_DMA_REQ_PRIORITY    12
+#define SDCARD_CARD_PRIORITY       12
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
@@ -904,7 +908,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_ETHERNET && cfg != NULL) {
         ether_cfg_t *eth = (ether_cfg_t *)cfg;
-        if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM && eth->irq == FSP_INVALID_VECTOR) {
+        if ((last_interrupt_index + ETHERNET_REQ_NUM) < PROG_IRQ_NUM && eth->irq == FSP_INVALID_VECTOR) {
             eth->irq = (IRQn_Type)last_interrupt_index;
             eth->interrupt_priority = ETHERNET_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ether_eint_isr;
@@ -951,6 +955,49 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     }
 #endif /* CANFD_HOWMANY > 0 */
 
+#if SDCARD_HOWMANY > 0
+    /* **********************************************************************
+                                    SDCARD
+       ********************************************************************** */
+    else if(p == IRQ_SDCARD && cfg != NULL) {
+        sdmmc_cfg_t *sd_cfg = (sdmmc_cfg_t *)cfg;
+        /* SDCARD_ACCESS */
+        if ((last_interrupt_index + SDCARD_REQ_NUM) < PROG_IRQ_NUM ) {
+            if(sd_cfg->access_irq == FSP_INVALID_VECTOR) {
+
+                sd_cfg->access_irq = (IRQn_Type)last_interrupt_index;
+                sd_cfg->access_ipl = SDCARD_ACCESS_PRIORITY;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_accs_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_ACCS);
+                last_interrupt_index++;
+            }
+            /*
+            this interrupt is neeed if DTC is used but it must not be used if
+            DMA is used 
+            -----------
+            if(sd_cfg->dma_req_irq == FSP_INVALID_VECTOR) {
+                sd_cfg->dma_req_irq = (IRQn_Type)last_interrupt_index;
+                sd_cfg->dma_req_ipl = SDCARD_DMA_REQ_PRIORITY;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_dma_req_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_DMA_REQ);
+                last_interrupt_index++;
+            }
+            */
+            if(sd_cfg->card_irq == FSP_INVALID_VECTOR) {
+                sd_cfg->card_irq = (IRQn_Type)last_interrupt_index;
+                sd_cfg->card_ipl = SDCARD_CARD_PRIORITY;
+                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_card_isr;
+                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_CARD);
+                last_interrupt_index++;
+            }
+        }
+
+        if(sd_cfg->access_irq == FSP_INVALID_VECTOR || sd_cfg->dma_req_irq == FSP_INVALID_VECTOR || sd_cfg->card_irq == FSP_INVALID_VECTOR) {
+            rv = false;
+        }
+        rv = true;
+    }
+#endif
     else {
         rv = false;
     }

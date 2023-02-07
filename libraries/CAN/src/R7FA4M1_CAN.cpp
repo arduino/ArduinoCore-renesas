@@ -18,6 +18,8 @@
 
 #include <IRQManager.h>
 
+#include "CanUtil.h"
+
 /**************************************************************************************
  * DEFINE
  **************************************************************************************/
@@ -47,14 +49,7 @@ R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
 , _is_error{false}
 , _err_code{0}
 , _can_rx_buf{}
-, _can_bit_timing_cfg
-{
-  /* Actual bitrate: 250000 Hz. Actual Bit Time Ratio: 75 %. */
-  .baud_rate_prescaler = 1 + 3 /* Division value of baud rate prescaler */,
-  .time_segment_1 = 11,
-  .time_segment_2 = 4,
-  .synchronization_jump_width = 4
-}
+, _can_bit_timing_cfg{}
 , _can_mailbox_mask
 {
   CAN_DEFAULT_MASK,
@@ -112,7 +107,7 @@ R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
 }
 , _can_extended_cfg
 {
-  .clock_source   = CAN_CLOCK_SOURCE_CANMCLK,
+  .clock_source   = CAN_CLOCK_SOURCE_PCLKB,
   .p_mailbox_mask = _can_mailbox_mask,
   .p_mailbox      = _can_mailbox,
   .global_id_mode = CAN_GLOBAL_ID_MODE_EXTENDED,
@@ -141,7 +136,7 @@ R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool R7FA4M1_CAN::begin(CanBitRate const /* can_bitrate */)
+bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
 {
   bool init_ok = true;
 
@@ -159,6 +154,28 @@ bool R7FA4M1_CAN::begin(CanBitRate const /* can_bitrate */)
   };
   init_ok &= IRQManager::getInstance().addPeripheral(IRQ_CAN, &irq_req);
 
+  /* Calculate the CAN bitrate based on the value of this functions parameter.
+   */
+  static uint32_t const F_CAN_CLK_Hz = 24*1000*1000UL;
+  static uint32_t const TQ_MIN     = 8;
+  static uint32_t const TQ_MAX     = 25;
+  static uint32_t const TSEG_1_MIN = 4;
+  static uint32_t const TSEG_1_MAX = 16;
+  static uint32_t const TSEG_2_MIN = 2;
+  static uint32_t const TSEG_2_MAX = 8;
+
+  auto [is_valid_baudrate, baud_rate_prescaler, time_segment_1, time_segment_2] =
+    util::calc_can_bit_timing(can_bitrate, F_CAN_CLK_Hz, TQ_MIN, TQ_MAX, TSEG_1_MIN, TSEG_1_MAX, TSEG_2_MIN, TSEG_2_MAX);
+  init_ok &= is_valid_baudrate;
+
+  if (is_valid_baudrate) {
+    _can_bit_timing_cfg.baud_rate_prescaler = baud_rate_prescaler;
+    _can_bit_timing_cfg.time_segment_1 = time_segment_1;
+    _can_bit_timing_cfg.time_segment_2 = time_segment_2;
+    _can_bit_timing_cfg.synchronization_jump_width = 1;
+  }
+
+  /* Initialize the peripheral's FSP driver. */
   if (R_CAN_Open(&_can_ctrl, &_can_cfg) != FSP_SUCCESS)
     init_ok = false;
 
