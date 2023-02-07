@@ -1,1 +1,3 @@
-.idea/
+.idea
+cores/arduino/mydebug.cpp
+libraries/Storage/.development
