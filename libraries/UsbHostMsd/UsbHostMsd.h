@@ -46,6 +46,7 @@ public:
     virtual const char *get_type() const override;
     virtual bool select_lun(uint8_t lun);
     virtual uint8_t get_lun_num();
+    bool attach_detected_callback(void (*cbk)());
     
 private:
     uint8_t get_lun();

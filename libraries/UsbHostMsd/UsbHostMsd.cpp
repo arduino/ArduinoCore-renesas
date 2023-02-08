@@ -25,16 +25,7 @@ extern "C" uint8_t usb_host_msd_get_default_lun();
 extern "C" uint8_t usb_host_msd_get_lun_num();
 extern "C" uint32_t usb_host_msd_get_num_of_blocks(uint8_t lun);
 extern "C" uint32_t usb_host_msd_get_block_size(uint8_t lun);
-
-
-#define CBW_SIGNATURE   0x43425355
-#define CSW_SIGNATURE   0x53425355
-
-#define DEVICE_TO_HOST  0x80
-#define HOST_TO_DEVICE  0x00
-
-#define GET_MAX_LUN             (0xFE)
-#define BO_MASS_STORAGE_RESET   (0xFF)
+extern "C" void usb_host_msd_attach_mnt_cbk(void (*fnc)(void));
 
 
 /* -------------------------------------------------------------------------- */
@@ -243,3 +234,6 @@ const char *USBHostMSD::get_type() const {
     return "USBMSD";
 }
 
+bool USBHostMSD::attach_detected_callback(void (*cbk)()) {
+    usb_host_msd_attach_mnt_cbk(cbk);
+}

@@ -67,7 +67,11 @@ uint32_t usb_host_msd_get_block_size(uint8_t lun) {
   return 0; 
 }
 
+static void (*mount_fnc)(void) = NULL;
 
+void usb_host_msd_attach_mnt_cbk(void (*fnc)(void)) {
+  mount_fnc = fnc;
+}
 
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
@@ -121,6 +125,10 @@ void tuh_msc_mount_cb(uint8_t dev_addr) {
       }
     }
     device_address = dev_addr;
+
+    if(mount_fnc != NULL) {
+      mount_fnc();
+    }
   }
 
   

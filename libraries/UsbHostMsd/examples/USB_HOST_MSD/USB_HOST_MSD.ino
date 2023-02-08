@@ -26,16 +26,18 @@
 USBHostMSD block_device; 
 FATFileSystem fs(TEST_FS_NAME);
 
-extern "C" void log_init();
-extern "C" int mylogadd(const char *fmt, ...) ;
-extern "C" void empty_log();
-
 std::string root_folder       = std::string("/") + std::string(TEST_FS_NAME);
 std::string folder_test_name  = root_folder + std::string("/") + std::string(TEST_FOLDER_NAME);
 std::string file_test_name    = folder_test_name + std::string("/") + std::string(TEST_FILE); 
 
+/* this callback will be called when a Mass Storage Device is plugged in */
+void device_attached_callback(void) {
+  Serial.println();
+  Serial.println("++++ Mass Storage Device detected ++++");
+  Serial.println();
+}
+
 void setup() {
-  log_init();
   /*
    *  SERIAL INITIALIZATION
    */
@@ -44,8 +46,13 @@ void setup() {
      
   }
   
+  Serial.println();
   Serial.println("*** USB HOST Mass Storage Device example ***");
- 
+  Serial.println();
+  
+  /* attache the callback so that when the device is inserted the device_attached_callback
+     will be automatically called */
+  block_device.attach_detected_callback(device_attached_callback);
   /* list to store all directory in the root */
   std::vector<std::string> dir_list;
 
@@ -62,7 +69,6 @@ void setup() {
           Serial.print(".");
           if(count % 30 == 0) {
             Serial.println();
-            empty_log();
           }
         }
         count++;
@@ -105,7 +111,9 @@ void setup() {
       }
       else if(ent->d_type == DT_DIR) {
         Serial.print("- [Fold]: ");
-        dir_list.push_back(ent->d_name);
+        if(ent->d_name[0] != '.') { /* avoid hidden folders (.Trash might contain a lot of files) */
+          dir_list.push_back(ent->d_name);
+        }
       }
       Serial.println(ent->d_name);
       dirIndex++;
@@ -116,6 +124,10 @@ void setup() {
     // Could not open directory
     Serial.println("Error opening USB Mass Storage Device\n");
     while(1);
+  }
+
+  if(dirIndex == 0) {
+    Serial.println("Empty SDCARD");
   }
 
   bool found_test_folder = false;
@@ -144,7 +156,6 @@ void setup() {
         }
         else if(ent->d_type == DT_DIR) {
           Serial.print("   - [Fold]: ");
-          dir_list.push_back(ent->d_name);
         }
         Serial.println(ent->d_name);
       }
@@ -291,9 +302,7 @@ void setup() {
       Serial.println(file_test_name.c_str());
     }
   }  
-  if(dirIndex == 0) {
-    Serial.println("Empty SDCARD");
-  }
+  
 }
 
 void loop() {
