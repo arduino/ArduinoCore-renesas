@@ -113,8 +113,8 @@
 // MSC Buffer size of Device Mass storage
 #define CFG_TUD_MSC_EP_BUFSIZE   512
 
-#define CFG_TUSB_DEBUG_PRINTF mylogadd
-#define CFG_TUSB_DEBUG        3
+//#define CFG_TUSB_DEBUG_PRINTF mylogadd
+//#define CFG_TUSB_DEBUG        3
 
 #ifdef __cplusplus
  }
