@@ -20,6 +20,11 @@
 #include "UsbHostMsd.h"
 
 
+extern "C" int usb_host_msd_get_device_address();
+extern "C" uint8_t usb_host_msd_get_default_lun();
+extern "C" uint8_t usb_host_msd_get_lun_num();
+extern "C" uint32_t usb_host_msd_get_num_of_blocks(uint8_t lun);
+extern "C" uint32_t usb_host_msd_get_block_size(uint8_t lun);
 
 
 #define CBW_SIGNATURE   0x43425355
@@ -31,172 +36,210 @@
 #define GET_MAX_LUN             (0xFE)
 #define BO_MASS_STORAGE_RESET   (0xFF)
 
-USBHostMSD::USBHostMSD()
-{
-    
+
+/* -------------------------------------------------------------------------- */
+/*                               CONSTRUCTOR                                  */
+/* -------------------------------------------------------------------------- */
+USBHostMSD::USBHostMSD() : selected_lun(-1), block_size(0) { }
+
+/* -------------------------------------------------------------------------- */
+/*                                   INIT                                     */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::init() {
+   return BLOCK_DEVICE_OK;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                   OPEN                                     */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::open() {
+   return BLOCK_DEVICE_OK;
+}
 
+/* -------------------------------------------------------------------------- */
+/*                                  DEINIT                                    */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::deinit() {
+   return BLOCK_DEVICE_OK;
+}
 
-bool USBHostMSD::connected()
-{
+/* -------------------------------------------------------------------------- */
+/*                                   CLOSE                                    */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::close() {
+   return BLOCK_DEVICE_OK;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         PROGRAM - 'remapped' on write                      */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
+   return write(buffer, addr, _size);
+}
+
+/* -------------------------------------------------------------------------- */
+/*    CONNECTED (if mount callback has been called and address is assigned)   */
+/* -------------------------------------------------------------------------- */
+bool USBHostMSD::connected() {
+    if(usb_host_msd_get_device_address() >= 0) {
+        if(tuh_msc_mounted(usb_host_msd_get_device_address())){
+            block_size = (bd_size_t)usb_host_msd_get_block_size(get_lun());
+            num_of_blocks = usb_host_msd_get_num_of_blocks(get_lun());
+            total_size = block_size * num_of_blocks;
+            return true;
+        }
+    }
     return false;
 }
 
-bool USBHostMSD::connect()
-{
-
-   
-    return false;
+/* -------------------------------------------------------------------------- */
+/*                 CONNECT - just remapped on CONNECTED                       */
+/* -------------------------------------------------------------------------- */
+bool USBHostMSD::connect() {
+    return connected();
 }
 
-/*virtual*/ void USBHostMSD::setVidPid(uint16_t vid, uint16_t pid)
-{
-    // we don't check VID/PID for MSD driver
-}
-
-/*virtual*/ bool USBHostMSD::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
-{
-    
-    return false;
-}
-
-/*virtual*/ //bool USBHostMSD::useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir) //Must return true if the endpoint will be used
-//{
-    
-    //return false;
-//}
-
-/*
-int USBHostMSD::testUnitReady()
-{
-    return 0;
+/* -------------------------------------------------------------------------- */
+/*                                      */
+/* -------------------------------------------------------------------------- */
+static bool in_progress = false;
+bool complete_cb(uint8_t dev_addr, msc_cbw_t const* cbw, msc_csw_t const* csw) {
+    in_progress = false;
 }
 
 
-int USBHostMSD::readCapacity()
-{
-    return 0;
-}
-
-
-int USBHostMSD::SCSIRequestSense()
-{
-    return 0;
-}
-
-
-int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code)
-{
-    
-    return 0;
-}
-
-int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
-{
-    
-
-    return 0;
-}
-
-
-int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t * data, uint32_t transfer_len)
-{
-
-    
-    
-
-    return 0;
-}
-
-
-int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int direction)
-{
-   return 0;
-}
-
-int USBHostMSD::getMaxLun()
-{
-    return 0;
-}
-*/
-int USBHostMSD::init()
-{
-    return 0;
-}
-
-int USBHostMSD::program(const void *buffer, bd_addr_t addr, bd_size_t size)
-{
+/* -------------------------------------------------------------------------- */
+/*                                WRITE                                     */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::write(const void *buffer, bd_addr_t addr, bd_size_t size) {
     uint32_t block_number, count;
     uint8_t *buf = (uint8_t *)buffer;
-    if (!disk_init) {
-        init();
-    }
-    if (!disk_init) {
-        return -1;
-    }
-    block_number =  addr / block_size;
-    count = size /block_size;
+    if (connected()) {
+        while(!tuh_msc_ready(usb_host_msd_get_device_address())) {
+            delay(10);
+        }
 
-    for (uint32_t b = block_number; b < block_number + count; b++) {
-        /*
-        if (dataTransfer(buf, b, 1, HOST_TO_DEVICE))
-            return -1;
-        */
-        buf += block_size;
+        block_number =  addr / block_size;
+        count = size / block_size;
+
+        for (uint32_t b = block_number; b < block_number + count; b++) {
+            in_progress = true;
+            if(tuh_msc_write10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb)) {
+                while(in_progress) {
+
+                }
+                buf += block_size;
+            }
+            else {
+                return -1;
+            }
+        }
+        return 0;
     }
-    return 0;
+    return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                READ                                        */
+/* -------------------------------------------------------------------------- */
 int USBHostMSD::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     uint32_t block_number, count;
     uint8_t *buf = (uint8_t *)buffer;
-    if (!disk_init) {
-        init();
-    }
-    if (!disk_init) {
-        return -1;
-    }
-    block_number =  addr / block_size;
-    count = size / block_size;
+    if (connected()) {
+        while(!tuh_msc_ready(usb_host_msd_get_device_address())) {
+            delay(10);
+        }
 
-    for (uint32_t b = block_number; b < block_number + count; b++) {
-        /*
-        if (dataTransfer(buf, b, 1, DEVICE_TO_HOST))
-            return -1;
-        */
-        buf += block_size;
+        block_number =  addr / block_size;
+        count = size / block_size;
+
+        for (uint32_t b = block_number; b < block_number + count; b++) {
+            in_progress = true;
+            if(tuh_msc_read10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb)) {
+                while(in_progress) {
+
+                }
+                buf += block_size;
+            }
+            else {
+                return -1;
+            }
+        }
+        return 0;
     }
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/*        GET THE SELECTED lun or the default one if none is selected         */
+/* -------------------------------------------------------------------------- */
+uint8_t USBHostMSD::get_lun() {
+    if(selected_lun == -1) {
+        return usb_host_msd_get_default_lun();
+    }
+    else {
+        return selected_lun;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* SELECT a LUN it return true if the selected lun is correct (lower than the max)         */
+/* -------------------------------------------------------------------------- */
+bool USBHostMSD::select_lun(uint8_t lun) {
+    if(lun < usb_host_msd_get_lun_num()) {
+        selected_lun = lun;
+        return true;
+    }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/*           GET THE MAX NUMBER OF LUN OF THE DEVICE                          */
+/* -------------------------------------------------------------------------- */
+uint8_t USBHostMSD::get_lun_num() {
+    return usb_host_msd_get_lun_num();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                ERASE                                       */
+/* -------------------------------------------------------------------------- */
+int USBHostMSD::erase(bd_addr_t addr, bd_size_t size) {
     return 0;
 }
 
-int USBHostMSD::erase(bd_addr_t addr, bd_size_t size)
-{
-    return 0;
-}
-
+/* -------------------------------------------------------------------------- */
+/*                             READ SIZE                                      */
+/* -------------------------------------------------------------------------- */
 bd_size_t USBHostMSD::get_read_size() const {
-    return (disk_init ? (bd_size_t)block_size : -1);
+    return (bd_size_t)block_size;
 }
 
-bd_size_t USBHostMSD::get_program_size() const
-{
-    return (disk_init ? (bd_size_t)block_size : -1);
-}
-bd_size_t USBHostMSD::get_erase_size() const
-{
-    return (disk_init ? (bd_size_t)block_size : -1);
+/* -------------------------------------------------------------------------- */
+/*                             PROGRAM SIZE                                   */
+/* -------------------------------------------------------------------------- */
+bd_size_t USBHostMSD::get_program_size() const {
+    return (bd_size_t)block_size;
 }
 
-bd_size_t USBHostMSD::size() const
-{
-    //USB_DBG("FILESYSTEM: size ");
-    return (disk_init ? (bd_size_t)block_size : 0);
+/* -------------------------------------------------------------------------- */
+/*                             ERASE   SIZE                                   */
+/* -------------------------------------------------------------------------- */
+bd_size_t USBHostMSD::get_erase_size() const {
+    return (bd_size_t)block_size;
 }
 
-const char *USBHostMSD::get_type() const
-{
+/* -------------------------------------------------------------------------- */
+/*                             TOTAL   SIZE                                   */
+/* -------------------------------------------------------------------------- */
+bd_size_t USBHostMSD::size() const {
+    return (bd_size_t)total_size;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 TYPE                                       */
+/* -------------------------------------------------------------------------- */
+const char *USBHostMSD::get_type() const {
     return "USBMSD";
 }
 

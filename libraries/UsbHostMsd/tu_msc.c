@@ -25,7 +25,49 @@
 
 #include "tusb.h"
 
+#define USB_DEBUG
+
 #if CFG_TUH_MSC
+
+
+typedef struct tag_usb_msc_device {
+  uint32_t num_of_block;
+  uint32_t block_size;
+} usb_msc_device_t;
+
+
+
+static int device_address = -1;
+static uint32_t num_of_block = 0;
+static uint32_t block_size = 0;
+static uint8_t max_lun = 0;
+
+static usb_msc_device_t *usb_msc_device = NULL;
+
+int usb_host_msd_get_device_address() { return device_address; }
+uint8_t usb_host_msd_get_default_lun() { return 0; }
+uint8_t usb_host_msd_get_lun_num() { return 0; }
+
+
+uint32_t usb_host_msd_get_num_of_blocks(uint8_t lun) { 
+  if(usb_msc_device != 0) {
+    if(lun < max_lun) {
+      return usb_msc_device[lun].num_of_block;
+    }
+  }
+  return 0; 
+}
+
+uint32_t usb_host_msd_get_block_size(uint8_t lun) { 
+  if(usb_msc_device != 0) {
+    if(lun < max_lun) {
+      return usb_msc_device[lun].block_size;
+    }
+  }
+  return 0; 
+}
+
+
 
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
@@ -55,7 +97,33 @@ bool inquiry_complete_cb(uint8_t dev_addr, msc_cbw_t const* cbw, msc_csw_t const
 
 //------------- IMPLEMENTATION -------------//
 void tuh_msc_mount_cb(uint8_t dev_addr) {
-  mylogadd("[CALL]: tuh_msc_mount_cb %i ++++++++ MOUNT", dev_addr);  
+  #ifdef USB_DEBUG
+  mylogadd("[EVENT]: Mass Storage Device - MOUNT -> device address %i", dev_addr); 
+  #endif
+
+  max_lun = tuh_msc_get_maxlun(dev_addr);
+
+  #ifdef USB_DEBUG
+  mylogadd("       : Max LUN %i", dev_addr); 
+  #endif
+  
+  if(max_lun > 0) {
+    if(usb_msc_device != NULL) {
+      free(usb_msc_device);
+      usb_msc_device = NULL;
+    }
+    usb_msc_device = (usb_msc_device_t *)malloc(sizeof(usb_msc_device_t) * max_lun);
+    
+    if(usb_msc_device != NULL) {
+      for(int i = 0; i < max_lun; i++) {
+        usb_msc_device[i].num_of_block = tuh_msc_get_block_count(dev_addr, i);
+        usb_msc_device[i].block_size = tuh_msc_get_block_size(dev_addr, i);
+      }
+    }
+    device_address = dev_addr;
+  }
+
+  
 
   //uint8_t const lun = 0;
   //tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb);
@@ -81,7 +149,15 @@ void tuh_msc_mount_cb(uint8_t dev_addr) {
 
 void tuh_msc_umount_cb(uint8_t dev_addr) {
   (void) dev_addr;
+  #ifdef USB_DEBUG
   mylogadd("[CALL]: tuh_msc_umount_cb %i --------- UMOUNT", dev_addr);  
+  #endif
+  if(usb_msc_device != NULL) {
+    free(usb_msc_device);
+    usb_msc_device = NULL;
+  }
+
+  device_address = -1;
 
 //  uint8_t phy_disk = dev_addr-1;
 //
