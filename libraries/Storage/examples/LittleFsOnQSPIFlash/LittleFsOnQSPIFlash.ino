@@ -7,7 +7,7 @@
    - Portenta H33 + Portenta Breakout 
 
   created February 1st, 2023
-  by Daniele Aimo
+  by Daniele Aimo (d.aimo@arduino.cc)
 
   This example code is in the public domain.
 */
@@ -39,13 +39,13 @@ void setup() {
   while(!Serial) {
      
   }
-
+  Serial.println();
+  Serial.println("##### TEST QSPI FLASH with LITTLE FS");
+  Serial.println();
   /* list to store all directory in the root */
   std::vector<std::string> dir_list;
 
-  Serial.println();
-  Serial.println("##### TEST QSPI FLASH with FAT FS");
-  Serial.println();
+  
 
   /* 
    *  MOUNTING SDCARD AS FATFS filesystem
