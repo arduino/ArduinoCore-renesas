@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_dtc.h"
+#include "r_transfer_api.h"
+#include "r_sdhi.h"
+#include "r_sdmmc_api.h"
 #include "r_qspi.h"
 #include "r_spi_flash_api.h"
 #include "r_ether_phy.h"
@@ -21,8 +25,6 @@
 #include "rm_adpcm_decoder.h"
 #include "r_flash_hp.h"
 #include "r_flash_api.h"
-#include "r_dtc.h"
-#include "r_transfer_api.h"
 #include "r_dmac.h"
 #include "r_transfer_api.h"
 #include "r_lpm.h"
@@ -52,6 +54,22 @@
 #include "r_adc.h"
 #include "r_adc_api.h"
 FSP_HEADER
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t SDIO_DTC;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t SDIO_DTC_ctrl;
+extern const transfer_cfg_t SDIO_DTC_cfg;
+/** SDMMC on SDMMC Instance. */
+extern const sdmmc_instance_t SDHI_1;
+
+/** Access the SDMMC instance using these structures when calling API functions directly (::p_api is not used). */
+extern sdhi_instance_ctrl_t SDHI_1_ctrl;
+extern sdmmc_cfg_t SDHI_1_cfg;
+
+#ifndef NULL
+void NULL(sdmmc_callback_args_t *p_args);
+#endif
 extern const spi_flash_instance_t g_qspi0;
 extern qspi_instance_ctrl_t g_qspi0_ctrl;
 extern const spi_flash_cfg_t g_qspi0_cfg;

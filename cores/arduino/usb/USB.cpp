@@ -232,12 +232,14 @@ void _usbfs_interrupt_handler(void)
 
 #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_HOST
   tuh_int_handler(0);
+  tuh_task();
 #endif
 
 #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_DEVICE
   tud_int_handler(0);
-#endif
   tud_task();
+#endif
+  
 }
 
 void _usbhs_interrupt_handler(void)
@@ -268,11 +270,17 @@ void __USBStart() {
         return;
     }
 
-    /* Enable USB_BASE */
+    /* 
+     * ENABLE USB
+     */
     R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
     R_MSTP->MSTPCRB &= ~(1U << 11U);
     R_MSTP->MSTPCRB &= ~(1U << 12U);
     R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
+
+    /*
+     * CONFIGURE USB INTERRUPTS
+     */
 
 #ifdef CFG_TUSB_RHPORT0_MODE
 #if (CFG_TUSB_RHPORT0_MODE != 0)
@@ -294,7 +302,15 @@ void __USBStart() {
 
     __SetupUSBDescriptor();
 
+    /* 
+     * INIT Tiny USB
+     */
+
+    assert(BOARD_TUD_RHPORT != BOARD_TUH_RHPORT); 
+    /* init device port*/
     tud_init(BOARD_TUD_RHPORT);
+    /* init host port */
+    tuh_init(BOARD_TUH_RHPORT);
 
 #if 0 //defined(AZURE_RTOS_THREADX)
     static TX_BYTE_POOL byte_pool_0;

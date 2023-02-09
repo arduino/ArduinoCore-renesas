@@ -12,6 +12,25 @@
  extern "C" {
 #endif
 
+/*
+ * USB PORT 0 CONFIGURATION: HOST, FULL SPEED
+ */
+
+// RHPort number used for device can be defined by board.mk, default to port 0
+#ifndef BOARD_TUH_RHPORT
+#define BOARD_TUH_RHPORT      0
+#endif
+
+#define CFG_TUSB_RHPORT0_MODE   (OPT_MODE_HOST | OPT_MODE_FULL_SPEED)
+
+#ifndef BOARD_TUH_MAX_SPEED
+#define BOARD_TUH_MAX_SPEED   OPT_MODE_FULL_SPEED
+#endif
+
+/*
+ * USB PORT 1 CONFIGURATION: DEVICE, HIGH SPEED
+ */
+
 // RHPort number used for device can be defined by board.mk, default to port 0
 #ifndef BOARD_TUD_RHPORT
 #define BOARD_TUD_RHPORT      1
@@ -82,6 +101,8 @@
 #define CFG_TUD_VENDOR           0
 #define CFG_TUD_DFU_RUNTIME      1
 
+#define CFG_TUH_MSC              1
+
 // CDC FIFO size of TX and RX
 #define CFG_TUD_CDC_RX_BUFSIZE   ((TUD_OPT_HIGH_SPEED ? 512 : 64) * 8)
 #define CFG_TUD_CDC_TX_BUFSIZE   ((TUD_OPT_HIGH_SPEED ? 512 : 64) * 8)
@@ -92,6 +113,8 @@
 // MSC Buffer size of Device Mass storage
 #define CFG_TUD_MSC_EP_BUFSIZE   512
 
+//#define CFG_TUSB_DEBUG_PRINTF mylogadd
+//#define CFG_TUSB_DEBUG        3
 
 #ifdef __cplusplus
  }

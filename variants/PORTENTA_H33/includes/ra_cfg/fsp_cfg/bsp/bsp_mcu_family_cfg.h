@@ -99,7 +99,7 @@ extern "C" {
             (((1 > 0) ? 0U : 1U) << 1) /* CRC */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 3) /* CTSU */ | \
             (((1 > 0) ? 0U : 1U) << 8) /* SSIE0 */ | \
-            (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 12) /* SDHI0 */ | \
+            (((1 > 0) ? 0U : 1U) << 12) /* SDHI0 */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 13) /* DOC */ | \
             (((RA_NOT_DEFINED > 0) ? 0U : 1U) << 31) /* SCE9 */ | \
             0x7fffcef4) /* Unused */
@@ -142,7 +142,7 @@ extern "C" {
 #ifndef BSP_TZ_CFG_MSSAR
 #define BSP_TZ_CFG_MSSAR (\
             (((1 > 0) ? 0U : 1U) << 0) /* ELC */ | \
-            (((7 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
+            (((8 > 0) ? 0U : 1U) << 1) /* DTC_DMAC */ | \
             0xfffffffc) /* Unused */
 #endif
 
@@ -248,7 +248,7 @@ extern "C" {
 #endif
 
 /* Set DTCSTSAR if the Secure program uses the DTC. */
-#if 6 == RA_NOT_DEFINED
+#if 7 == RA_NOT_DEFINED
  #define BSP_TZ_CFG_DTC_USED (0U)
 #else
 #define BSP_TZ_CFG_DTC_USED (1U)
