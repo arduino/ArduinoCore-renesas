@@ -306,11 +306,14 @@ void __USBStart() {
      * INIT Tiny USB
      */
 
+#ifdef BOARD_TUH_RHPORT
     assert(BOARD_TUD_RHPORT != BOARD_TUH_RHPORT); 
-    /* init device port*/
-    tud_init(BOARD_TUD_RHPORT);
     /* init host port */
     tuh_init(BOARD_TUH_RHPORT);
+#endif
+
+    /* init device port*/
+    tud_init(BOARD_TUD_RHPORT);
 
 #if 0 //defined(AZURE_RTOS_THREADX)
     static TX_BYTE_POOL byte_pool_0;
