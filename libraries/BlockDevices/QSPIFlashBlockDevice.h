@@ -122,6 +122,7 @@ public:
   virtual bd_size_t get_read_size() const override;
   virtual bd_size_t size() const override;
   virtual const char *get_type() const override;
+  virtual int get_erase_value() const override { return 0xFF; }
 
 };
 
