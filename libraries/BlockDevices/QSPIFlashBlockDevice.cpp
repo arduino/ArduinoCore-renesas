@@ -35,7 +35,8 @@ QSPIFlashBlockDevice::QSPIFlashBlockDevice(  pin_t _ck,
    total_size((bd_size_t)QSPI_TOTAL_SIZE),
    read_block_size((bd_size_t)QSPI_READ_BLOCK_SIZE),
    erase_block_size((bd_size_t)QSPI_ERASE_BLOCK_SIZE),
-   write_block_size((bd_size_t)QSPI_WRITE_BLOCK_SIZE) {
+   write_block_size((bd_size_t)QSPI_WRITE_BLOCK_SIZE),
+   opened(false) {
    
    ext_cfg.min_qssl_deselect_cycles = QSPI_QSSL_MIN_HIGH_LEVEL_4_QSPCLK;
    ext_cfg.qspclk_div = QSPI_QSPCLK_DIV_2;
@@ -94,12 +95,10 @@ int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
 /*                                  OPEN                                      */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::open() {
-   static bool opened = false;
    fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
    if(!opened) {
-      opened = true;
-
+   
       R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[cs].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[io0].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
@@ -172,7 +171,8 @@ fsp_err_t QSPIFlashBlockDevice::get_flash_status() {
 /*                                  CLOSE                                     */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::close() {
-   fsp_err_t rv = R_QSPI_Close(&ctrl);;
+   fsp_err_t rv = R_QSPI_Close(&ctrl);
+   opened = false;
    return (int)rv;
 }
 
@@ -186,6 +186,14 @@ int QSPIFlashBlockDevice::close() {
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
+
+   if(!opened) {
+      rv = (fsp_err_t)open();
+   }
+
+   if(rv != BLOCK_DEVICE_OK) {
+      return rv;
+   }
 
    if(buffer == nullptr) {
       rv = FSP_ERR_INVALID_ARGUMENT;
@@ -227,6 +235,16 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
+   
+   if(!opened) {
+      rv = (fsp_err_t)open();
+   }
+
+   if(rv != BLOCK_DEVICE_OK) {
+      return rv;
+   }
+
+
    if(buffer == nullptr) {
       rv = FSP_ERR_INVALID_ARGUMENT;
    }
@@ -279,6 +297,16 @@ bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
 int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
+   
+   if(!opened) {
+      rv = (fsp_err_t)open();
+   }
+
+   if(rv != BLOCK_DEVICE_OK) {
+      return rv;
+   }
+
+
    if(is_address_correct(add+_size-1)) {
       int64_t internal_size = _size;
       /* get the starting address of the block */

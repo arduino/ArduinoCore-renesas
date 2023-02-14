@@ -67,6 +67,7 @@
 
 class QSPIFlashBlockDevice : public BlockDevice {
 private:
+  bool opened;
   
   bd_addr_t base_address;
   bd_size_t total_size;
