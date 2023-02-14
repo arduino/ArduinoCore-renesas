@@ -14,16 +14,16 @@
     <option key="#ToolchainVersion#" value="10.3.1.20210824"/>
   </generalSettings>
   <raClockConfiguration>
-    <node id="board.clock.xtal.freq" mul="16000000" option="_edit"/>
+    <node id="board.clock.xtal.freq" mul="0" option="_edit"/>
     <node id="board.clock.pll.source" option="board.clock.pll.source.xtal"/>
-    <node id="board.clock.hoco.freq" option="board.clock.hoco.freq.24m"/>
+    <node id="board.clock.hoco.freq" option="board.clock.hoco.freq.48m"/>
     <node id="board.clock.loco.freq" option="board.clock.loco.freq.32768"/>
     <node id="board.clock.moco.freq" option="board.clock.moco.freq.8m"/>
     <node id="board.clock.subclk.freq" option="board.clock.subclk.freq.32768"/>
     <node id="board.clock.pll.div" option="board.clock.pll.div.4"/>
     <node id="board.clock.pll.mul" option="board.clock.pll.mul.12"/>
     <node id="board.clock.pll.display" option="board.clock.pll.display.value"/>
-    <node id="board.clock.clock.source" option="board.clock.clock.source.pll"/>
+    <node id="board.clock.clock.source" option="board.clock.clock.source.hoco"/>
     <node id="board.clock.iclk.div" option="board.clock.iclk.div.1"/>
     <node id="board.clock.iclk.display" option="board.clock.iclk.display.value"/>
     <node id="board.clock.pclka.div" option="board.clock.pclka.div.1"/>
@@ -36,10 +36,10 @@
     <node id="board.clock.pclkd.display" option="board.clock.pclkd.display.value"/>
     <node id="board.clock.fclk.div" option="board.clock.fclk.div.2"/>
     <node id="board.clock.fclk.display" option="board.clock.fclk.display.value"/>
-    <node id="board.clock.clkout.source" option="board.clock.clkout.source.disabled"/>
+    <node id="board.clock.clkout.source" option="board.clock.clkout.source.subclk"/>
     <node id="board.clock.clkout.div" option="board.clock.clkout.div.1"/>
     <node id="board.clock.clkout.display" option="board.clock.clkout.display.value"/>
-    <node id="board.clock.uclk.source" option="board.clock.uclk.source.pll"/>
+    <node id="board.clock.uclk.source" option="board.clock.uclk.source.hoco"/>
     <node id="board.clock.uclk.display" option="board.clock.clkout.display.value"/>
   </raClockConfiguration>
   <raModuleConfiguration/>
