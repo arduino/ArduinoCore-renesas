@@ -20,9 +20,9 @@
 #define ETHERNET_REQ_NUM            1
 #define SDCARD_REQ_NUM              3
 #define ETHERNET_PRIORITY          12
-#define SDCARD_ACCESS_PRIORITY     12
-#define SDCARD_DMA_REQ_PRIORITY    12
-#define SDCARD_CARD_PRIORITY       12
+#define SDCARD_ACCESS_PRIORITY     10
+#define SDCARD_DMA_REQ_PRIORITY    10
+#define SDCARD_CARD_PRIORITY       10
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
 #define USB_PRIORITY               12
