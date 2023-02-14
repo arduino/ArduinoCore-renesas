@@ -86,12 +86,20 @@ pin_size_t digitalPinToInterrupt(pin_size_t pin);
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
+#ifndef NO_USB
 #define Serial  SerialUSB
 #define Serial1 _UART1_
 #define Serial2 _UART2_
 #define Serial3 _UART3_
 #define Serial4 _UART4_
 #define Serial5 _UART5_
+#else
+#define Serial _UART1_
+#define Serial1 _UART2_
+#define Serial2 _UART3_
+#define Serial3 _UART4_
+#define Serial4 _UART5_
+#endif
 
 #include "pins_arduino.h"
 

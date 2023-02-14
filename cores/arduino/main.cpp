@@ -92,8 +92,10 @@ void arduino_main(void)
 
    _init();
    initVariant();
+#ifndef NO_USB
    __USBStart();
    Serial.begin(115200);
+#endif
    startAgt();
    setup();
    while (1)
