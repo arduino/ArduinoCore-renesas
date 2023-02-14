@@ -590,6 +590,20 @@ bd_size_t SDCardBlockDevice::size() const {
    return total_size;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/*                 AVAILABLE - tell if the SD is available or not             */
+/* -------------------------------------------------------------------------- */
+bool SDCardBlockDevice::available() {
+   if(open() == BLOCK_DEVICE_OK) {
+      if(SDCardBlockDevice::initialized) {
+         return true;
+      }
+   }
+   return false;
+}
+
+
 const char *SDCardBlockDevice::get_type() const {
     return "SDCARD";
 }

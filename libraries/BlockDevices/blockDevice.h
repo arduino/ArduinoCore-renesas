@@ -73,6 +73,8 @@ public:
 
    virtual int get_erase_value() const { return -1; }
 
+   virtual bool available() { return true; }
+
     
    virtual bd_size_t size() const = 0; 
    virtual bool is_valid_read(bd_addr_t addr, bd_size_t size) const {
