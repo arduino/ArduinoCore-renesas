@@ -94,40 +94,45 @@ int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
 /*                                  OPEN                                      */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::open() {
-   fsp_err_t rv;
+   static bool opened = false;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[cs].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[io0].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[io1].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[io2].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-   R_IOPORT_PinCfg(NULL, g_pin_cfg[io3].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
-    
-   uint8_t data_sreg[SREG_SIZE] = STATUS_REG_PAYLOAD;
-   uint8_t sreg_data = 0;
+   if(!opened) {
+      opened = true;
 
-   rv = R_QSPI_Open(&ctrl, &cfg);
-   if(rv == FSP_SUCCESS) {
-      rv = R_QSPI_DirectWrite(&ctrl, &(cfg.write_enable_command), ONE_BYTE, false);
-   }
-   if(rv == FSP_SUCCESS) {
-      rv = get_flash_status();
-   }
-   if(rv == FSP_SUCCESS) {
-      rv = R_QSPI_DirectWrite(&ctrl, data_sreg, SREG_SIZE, false);
-   }
-   if(rv == FSP_SUCCESS) {
-      rv = get_flash_status();
-   }
-   if(rv == FSP_SUCCESS) {
-      rv = R_QSPI_DirectWrite(&ctrl, &(cfg.status_command), ONE_BYTE, true);
-   }
-   if(rv == FSP_SUCCESS) {
-      rv = R_QSPI_DirectRead(&ctrl, &sreg_data, ONE_BYTE);
-   }        
-   if(rv == FSP_SUCCESS) {
-      if (SET_SREG_VALUE == sreg_data) {
-         rv = (fsp_err_t)BLOCK_DEVICE_OK;
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[cs].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[io0].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[io1].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[io2].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+      R_IOPORT_PinCfg(NULL, g_pin_cfg[io3].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
+       
+      uint8_t data_sreg[SREG_SIZE] = STATUS_REG_PAYLOAD;
+      uint8_t sreg_data = 0;
+
+      rv = R_QSPI_Open(&ctrl, &cfg);
+      if(rv == FSP_SUCCESS) {
+         rv = R_QSPI_DirectWrite(&ctrl, &(cfg.write_enable_command), ONE_BYTE, false);
+      }
+      if(rv == FSP_SUCCESS) {
+         rv = get_flash_status();
+      }
+      if(rv == FSP_SUCCESS) {
+         rv = R_QSPI_DirectWrite(&ctrl, data_sreg, SREG_SIZE, false);
+      }
+      if(rv == FSP_SUCCESS) {
+         rv = get_flash_status();
+      }
+      if(rv == FSP_SUCCESS) {
+         rv = R_QSPI_DirectWrite(&ctrl, &(cfg.status_command), ONE_BYTE, true);
+      }
+      if(rv == FSP_SUCCESS) {
+         rv = R_QSPI_DirectRead(&ctrl, &sreg_data, ONE_BYTE);
+      }        
+      if(rv == FSP_SUCCESS) {
+         if (SET_SREG_VALUE == sreg_data) {
+            rv = (fsp_err_t)BLOCK_DEVICE_OK;
+         }
       }
    }
    return (int)rv;

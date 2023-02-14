@@ -22,8 +22,12 @@ void usb_msd_set_dev_ptr(USBMSD *prt);
 /* -------------------------------------------------------------------------- */
 USBMSD::USBMSD(BlockDevice *bd) {
     _bd = bd;
-    _bd->init();
+    
     usb_msd_set_dev_ptr(this);
+}
+
+bool USBMSD::begin() {
+    _bd->init();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -37,6 +41,7 @@ USBMSD::~USBMSD() {
 /* AVAILABLE                                                                  */
 /* -------------------------------------------------------------------------- */
 bool USBMSD::available() {
+    begin();
     return _bd->available();
 }
 
@@ -44,6 +49,7 @@ bool USBMSD::available() {
 /* GET BLOCK COUNT                                                            */
 /* -------------------------------------------------------------------------- */
 uint32_t USBMSD::get_block_count() {
+    begin();
     return (_bd->size() / BLOCK_SIZE);
 }
 
@@ -51,6 +57,7 @@ uint32_t USBMSD::get_block_count() {
 /* GET BLOCK SIZE                                                             */
 /* -------------------------------------------------------------------------- */
 uint16_t USBMSD::get_block_size() {
+    begin();
     return BLOCK_SIZE;
 }
 
@@ -61,6 +68,7 @@ extern "C" int mylogadd(const char *fmt, ...) ;
 /* -------------------------------------------------------------------------- */
 int USBMSD::read(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
     //mylogadd("READ %i %i %i", lba, offset, bufsize) ;
+    begin();
     bd_addr_t add = (bd_addr_t)((lba * BLOCK_SIZE) + offset);
     int retval = _bd->read(buffer, add, (bd_size_t)bufsize);
     if(retval == 0) {
@@ -84,6 +92,7 @@ extern void print_buffer(uint8_t *buff, uint32_t _size);
 /* -------------------------------------------------------------------------- */
 int USBMSD::write(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
     //mylogadd("WRITE %i %i %i", lba, offset, bufsize) ;
+    begin();
     bd_addr_t add = (bd_addr_t)((lba * BLOCK_SIZE) + offset);
 
     //mylogadd("   add %i" , add);

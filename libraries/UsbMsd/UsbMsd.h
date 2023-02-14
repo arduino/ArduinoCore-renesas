@@ -22,6 +22,7 @@ public:
     uint16_t get_block_size();
     int read(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize);
     int write(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize);
+    bool begin();
 
 
 };
