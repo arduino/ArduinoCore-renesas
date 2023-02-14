@@ -51,6 +51,17 @@ extern "C" {
 #define USBD_HID_EP    (0x83)
 #endif
 
+#ifndef USBD_MSD_EP_OUT
+#define USBD_MSD_EP_OUT (0x04)
+#endif
+
+#ifndef USBD_MSD_EP_IN
+#define USBD_MSD_EP_IN (0x84)
+#endif
+
+#define USBD_MSD_IN_OUT_SIZE (512)
+
+
 #define USBD_CDC_CMD_MAX_SIZE (8)
 #if (CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE)
 #define USBD_CDC_IN_OUT_MAX_SIZE (512)
@@ -112,13 +123,17 @@ const uint8_t *tud_descriptor_configuration_cb(uint8_t index) {
 void __SetupUSBDescriptor() {
     if (!usbd_desc_cfg) {
 
-        uint8_t interface_count = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
+        uint8_t interface_count = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0) + (__USBInstallMSD ? 1 : 0);
 
         uint8_t cdc_desc[TUD_CDC_DESC_LEN + TUD_DFU_RT_DESC_LEN] = {
             // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
             TUD_CDC_DESCRIPTOR(USBD_ITF_CDC, USBD_STR_CDC, USBD_CDC_EP_CMD, USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN, USBD_CDC_IN_OUT_MAX_SIZE),
             TUD_DFU_RT_DESCRIPTOR(USBD_ITF_CDC+2, USBD_STR_DFU_RT, 0x0d, 1000, 4096),
         };
+
+        /*
+         * -----    HID
+         */ 
 
         size_t hid_report_len = 0;
         if (__USBGetHIDReport) {
@@ -130,7 +145,19 @@ void __SetupUSBDescriptor() {
             TUD_HID_DESCRIPTOR(hid_itf, 0, HID_ITF_PROTOCOL_NONE, hid_report_len, USBD_HID_EP, CFG_TUD_HID_EP_BUFSIZE, 10)
         };
 
-        int usbd_desc_len = TUD_CONFIG_DESC_LEN + (__USBInstallSerial ? sizeof(cdc_desc) : 0) + (__USBGetHIDReport ? sizeof(hid_desc) : 0);
+        /*
+         * -----    MASS STORAGE DEVICE
+         */ 
+
+        uint8_t msd_itf = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
+        uint8_t msd_desc[TUD_MSC_DESC_LEN] = {
+            // Interface number, string index, EP Out & EP In address, EP size
+            TUD_MSC_DESCRIPTOR(msd_itf, 0, USBD_MSD_EP_OUT, USBD_MSD_EP_IN, USBD_MSD_IN_OUT_SIZE)   
+        };
+
+        
+
+        int usbd_desc_len = TUD_CONFIG_DESC_LEN + (__USBInstallSerial ? sizeof(cdc_desc) : 0) + (__USBGetHIDReport ? sizeof(hid_desc) : 0) + (__USBInstallMSD ? sizeof(msd_desc) : 0);
 
         uint8_t tud_cfg_desc[TUD_CONFIG_DESC_LEN] = {
             // Config number, interface count, string index, total length, attribute, power in mA
@@ -151,6 +178,10 @@ void __SetupUSBDescriptor() {
             if (__USBGetHIDReport) {
                 memcpy(ptr, hid_desc, sizeof(hid_desc));
                 ptr += sizeof(hid_desc);
+            }
+            if (__USBInstallMSD) {
+                memcpy(ptr, msd_desc, sizeof(msd_desc));
+                ptr += sizeof(msd_desc);
             }
         }
     }
@@ -328,7 +359,7 @@ void __USBStart() {
 // Invoked when received GET_REPORT control request
 // Application must fill buffer report's content and return its length.
 // Return zero will cause the stack to STALL request
-extern "C" uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen) {
+extern "C"  __attribute((weak)) uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer, uint16_t reqlen) {
     // TODO not implemented
     (void) instance;
     (void) report_id;
@@ -341,7 +372,7 @@ extern "C" uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, h
 
 // Invoked when received SET_REPORT control request or
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
-extern "C" void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
+extern "C" __attribute((weak)) void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
     // TODO set LED based on CAPLOCK, NUMLOCK etc...
     (void) instance;
     (void) report_id;
@@ -349,5 +380,41 @@ extern "C" void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_r
     (void) buffer;
     (void) bufsize;
 }
+extern "C" int mylogadd(const char *fmt, ...) ;
+
+extern "C" __attribute((weak))  int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
+    mylogadd("tud_msc_read10_cb BAD WEAK CALL");
+    return 0;
+}
+
+
+extern "C" __attribute((weak)) int32_t tud_msc_write10_cb (uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
+    mylogadd("tud_msc_write10_cb BAD WEAK CALL");
+    return 0;
+}
+
+
+extern "C"  __attribute((weak)) void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
+    mylogadd("tud_msc_inquiry_cb BAD WEAK CALL");
+}
+
+
+extern "C"  __attribute((weak)) bool tud_msc_test_unit_ready_cb(uint8_t lun) {
+    mylogadd("tud_msc_test_unit_ready_cb BAD WEAK CALL");
+    return false;
+}
+
+
+extern "C"  __attribute((weak))  void tud_msc_capacity_cb(uint8_t lun, uint32_t* block_count, uint16_t* block_size) {
+   mylogadd("tud_msc_capacity_cb BAD WEAK CALL");
+}
+
+
+extern "C"  __attribute((weak))  int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, uint16_t bufsize) {
+    mylogadd("tud_msc_scsi_cb BAD WEAK CALL");
+    return -1;
+}
+
+
 
 #endif
