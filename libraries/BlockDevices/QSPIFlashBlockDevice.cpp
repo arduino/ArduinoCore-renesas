@@ -96,9 +96,11 @@ int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::open() {
    fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
+   static bool opened = false;
 
    if(!opened) {
-   
+
+      opened = true;
       R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[cs].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[io0].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
