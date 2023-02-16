@@ -21,6 +21,8 @@
 
 #ifdef HAS_QSPI
 
+
+extern "C" int mylogadd(const char *fmt, ...) ;
 /* -------------------------------------------------------------------------- */
 /*                               CONSTRUCTOR                                  */
 /* -------------------------------------------------------------------------- */
@@ -91,16 +93,20 @@ int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
    return write(buffer, addr, _size);
 }
 
+#ifdef DEBUG_MSD
+extern "C" int mylogadd(const char *fmt, ...) ;
+#endif
+
 /* -------------------------------------------------------------------------- */
 /*                                  OPEN                                      */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::open() {
    fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
-   static bool opened = false;
-
+   
    if(!opened) {
-
+      
       opened = true;
+
       R_IOPORT_PinCfg(NULL, g_pin_cfg[ck].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[cs].pin,  (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
       R_IOPORT_PinCfg(NULL, g_pin_cfg[io0].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_QSPI));
@@ -191,10 +197,9 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
 
    if(!opened) {
       rv = (fsp_err_t)open();
-   }
-
-   if(rv != BLOCK_DEVICE_OK) {
-      return rv;
+      if(rv != BLOCK_DEVICE_OK) {
+         return rv;
+      }
    }
 
    if(buffer == nullptr) {
@@ -202,6 +207,9 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    }
    else {
       if(is_address_correct(add+_size-1)) {
+         #ifdef DEBUG_MSD
+         mylogadd("QSPI READ %i, %i", add, _size);
+         #endif
          rv = (fsp_err_t)BLOCK_DEVICE_OK;
          int64_t internal_size = _size;
          uint32_t byte_left_in_bank = read_block_size - read_block_size % add;
@@ -231,6 +239,8 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    return (int)rv; 
 }
 
+#define INTERNAL_BLOCK_SIZE 256
+
 /* -------------------------------------------------------------------------- */
 /* WRITE 'size' byte form buffer to the "logical" address specified by 'addr' 
    NOTE: buffer MUST be equal or greater than 'size'                          */
@@ -240,20 +250,21 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
    
    if(!opened) {
       rv = (fsp_err_t)open();
+      if(rv != BLOCK_DEVICE_OK) {
+         return rv;
+      }
    }
-
-   if(rv != BLOCK_DEVICE_OK) {
-      return rv;
-   }
-
 
    if(buffer == nullptr) {
       rv = FSP_ERR_INVALID_ARGUMENT;
    }
    else {
       if(is_address_correct(add+_size-1)) {
+         #ifdef DEBUG_MSD
+         mylogadd("QSPI WRITE %i, %i", add, _size);
+         #endif
          int64_t internal_size = _size;
-         uint32_t bytes_left_in_page = write_block_size - (add % write_block_size);
+         uint32_t bytes_left_in_page = INTERNAL_BLOCK_SIZE - (add % INTERNAL_BLOCK_SIZE);
          uint8_t *source = (uint8_t *)buffer;
          rv = FSP_SUCCESS;
          while(internal_size > 0 && rv == FSP_SUCCESS) {
@@ -277,7 +288,7 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
             internal_size -= bytes_to_write;
             source += bytes_to_write;
             add += bytes_to_write;
-            bytes_left_in_page = write_block_size;
+            bytes_left_in_page = INTERNAL_BLOCK_SIZE;
             if(rv == FSP_SUCCESS)
                rv = get_flash_status();
          }
@@ -302,12 +313,10 @@ int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    if(!opened) {
       rv = (fsp_err_t)open();
+      if(rv != BLOCK_DEVICE_OK) {
+         return rv;
+      }
    }
-
-   if(rv != BLOCK_DEVICE_OK) {
-      return rv;
-   }
-
 
    if(is_address_correct(add+_size-1)) {
       int64_t internal_size = _size;

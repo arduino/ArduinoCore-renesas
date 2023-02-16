@@ -380,7 +380,7 @@ extern "C" __attribute((weak)) void tud_hid_set_report_cb(uint8_t instance, uint
     (void) buffer;
     (void) bufsize;
 }
-extern "C" int mylogadd(const char *fmt, ...) ;
+
 
 extern "C" __attribute((weak))  int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
    
