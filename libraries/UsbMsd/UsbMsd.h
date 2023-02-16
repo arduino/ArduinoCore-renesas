@@ -6,23 +6,28 @@
 
 #define MSD_ERROR -1
 
+//#define DEBUG_MSD
+
 class USBMSD {
 
 private:
-    BlockDevice *_bd;
+    BlockDevice **_bd;
+    int num;
     
 public:    
     USBMSD() = delete;
     USBMSD(BlockDevice *bd);
+    USBMSD(std::initializer_list<BlockDevice *> args);
     virtual ~USBMSD();
-    int read(void *buffer, bd_addr_t addr, bd_size_t size);
-    int write(const void *buffer, bd_addr_t addr, bd_size_t size);
-    bool available();
-    uint32_t get_block_count();
-    uint16_t get_block_size();
-    int read(uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize);
-    int write(uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize);
-    bool begin();
+    int read(uint8_t lun, void *buffer, bd_addr_t addr, bd_size_t size);
+    int write(uint8_t lun,const void *buffer, bd_addr_t addr, bd_size_t size);
+    bool available(uint8_t lun);
+    uint32_t get_block_count(uint8_t lun);
+    uint16_t get_block_size(uint8_t lun);
+    int read(uint8_t lun,uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize);
+    int write(uint8_t lun,uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize);
+    bool begin(uint8_t lun);
+    int get_lun() {return num;}
 
 
 };
