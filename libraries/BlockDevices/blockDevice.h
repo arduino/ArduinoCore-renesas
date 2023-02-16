@@ -40,9 +40,11 @@ typedef pin_size_t pin_t;
 
 class BlockDevice {
 private:
-   virtual int open() = 0;
-   virtual int close() = 0;
-   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
+   virtual int open() {}
+   virtual int close() {}
+   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) {
+      program(buffer, addr, size);
+   }
 
 
 public:
