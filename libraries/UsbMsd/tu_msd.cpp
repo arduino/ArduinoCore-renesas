@@ -24,6 +24,10 @@
 
 #define MAX_LUN 1
 
+#ifdef DEBUG_MSD
+extern "C" int mylogadd(const char *fmt, ...) ;
+#endif
+
 static const uint8_t VENDOR_ID[8] = {'A', 'R', 'D', 'U', 'I', 'N', 'O', ' '};
 static const uint8_t PRODUCT_ID[16] = {'M','A','S','S',' ','S','T','O','R','A','G','E',' ','D','E','V'};
 static const uint8_t PRODUCT_REV[4] = {'0','0','0','1'};
@@ -32,8 +36,6 @@ static USBMSD *dev_ptr = NULL;
 static bool device_available = false;
 
 extern "C" bool tud_msc_set_sense(uint8_t lun, uint8_t sense_key, uint8_t add_sense_code, uint8_t add_sense_qualifier);
-
-
 
 #ifdef cplusplus
 extern "C" {
@@ -69,7 +71,7 @@ void usb_msd_set_dev_ptr(USBMSD *ptr) {
 //                      and return failed status in command status wrapper phase.
 int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
    if(device_available) {
-      int rv = dev_ptr->read(lba, offset, buffer, bufsize);
+      int rv = dev_ptr->read(lun,lba, offset, buffer, bufsize);
       return rv;
    }
    else {
@@ -91,14 +93,9 @@ int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buf
 //                       and return failed status in command status wrapper phase.
 //
 // TODO change buffer to const uint8_t*
-
-
-
-
-
 int32_t tud_msc_write10_cb (uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
    if(device_available) {
-      int rv = dev_ptr->write(lba, offset, buffer, bufsize);
+      int rv = dev_ptr->write(lun,lba, offset, buffer, bufsize);
       return rv;
    }
    else {
@@ -122,7 +119,7 @@ void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16
 bool tud_msc_test_unit_ready_cb(uint8_t lun) {
 /* -------------------------------------------------------------------------- */   
    if(device_available) {
-      if(dev_ptr->available()) {
+      if(dev_ptr->available(lun)) {
          /* available no error */
          tud_msc_set_sense(0, 0, 0, 0);
          return true;
@@ -139,8 +136,8 @@ bool tud_msc_test_unit_ready_cb(uint8_t lun) {
 // Application update block count and block size
 void tud_msc_capacity_cb(uint8_t lun, uint32_t* block_count, uint16_t* block_size) {
    if(device_available) {
-      *block_count = dev_ptr->get_block_count();
-      *block_size = dev_ptr->get_block_size();
+      *block_count = dev_ptr->get_block_count(lun);
+      *block_size = dev_ptr->get_block_size(lun);
    }
    else {
       *block_count = 0;
@@ -172,18 +169,19 @@ const uint8_t inquiry[] = { 0x00, 0x80, 0x00, 0x01,
 const uint8_t sense6[] = { 0x03, 0x00, 0x00, 0x00 };                   
 
 int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, uint16_t bufsize) {
-   
   int32_t resplen = 0;
+  
+  #ifdef DEBUG_MSD
+  mylogadd("SCSI cb %X", scsi_cmd[0]);
+  #endif
 
   switch (scsi_cmd[0]) {
     case 0x12: //INQUIRY
-      
       resplen = sizeof(inquiry);
       memcpy(buffer, inquiry, (size_t) resplen);
       break;
 
-    case 0x1A: //MODE_SENSE6
-      
+    case 0x1A: //MODE_SENSE6      
       resplen = sizeof(sense6);
       memcpy(buffer, sense6, (size_t) resplen);
       break;  
@@ -192,11 +190,7 @@ int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, u
       resplen = 0;
       break;
 
-
     default:
-      
-
-      //mylogadd("CMD non gestito %i",scsi_cmd[0]);
       // Set Sense = Invalid Command Operation
       tud_msc_set_sense(lun, SCSI_SENSE_ILLEGAL_REQUEST, 0x20, 0x00);
 
@@ -216,7 +210,7 @@ int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, u
 // Invoked when received GET_MAX_LUN request, required for multiple LUNs implementation
 uint8_t tud_msc_get_maxlun_cb(void) {
    if(device_available) {
-      return MAX_LUN;
+      return dev_ptr->get_lun();
    }
    else {
       return 0;
