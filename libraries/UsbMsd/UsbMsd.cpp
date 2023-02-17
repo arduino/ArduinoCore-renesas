@@ -12,8 +12,9 @@ void usb_msd_set_dev_ptr(USBMSD *prt);
 /* -------------------------------------------------------------------------- */
 /* Add Mass Storage USB capability when present                               */
 /* -------------------------------------------------------------------------- */
+#ifdef DO_NOT_USE
 void __USBInstallMSD() {}
-
+#endif
 
 USBMSD::USBMSD(std::initializer_list<BlockDevice *> args) {
     _bd = new BlockDevice *[args.size()];
@@ -92,7 +93,9 @@ uint16_t USBMSD::get_block_size(uint8_t lun) {
 /* READ                                                                       */
 /* -------------------------------------------------------------------------- */
 int USBMSD::read(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
-   
+    
+    
+
     if(!begin(lun)) {
         #ifdef DEBUG_MSD
         mylogadd("READ FAILED 1 %i %i %i", lun, lba, offset) ;
@@ -100,23 +103,37 @@ int USBMSD::read(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint3
         return MSD_ERROR;
     }
 
-    bd_addr_t add = (bd_addr_t)((lba * _bd[lun]->get_erase_size()) + offset);
+    bd_size_t block_size = _bd[lun]->get_erase_size();
+    bd_addr_t block_address = (bd_addr_t)((lba * block_size) + offset);
+
+    Serial1.print("R BLOCK ADDRESS ");
+    Serial1.print(block_address) ;
+    Serial1.print(" "); 
+    Serial1.println(block_address, HEX) ; 
     int retval = 1;
     if(lun < num) {
-        retval = _bd[lun]->read(buffer, add, (bd_size_t)bufsize);
+        retval = _bd[lun]->read(buffer, block_address, (bd_size_t)bufsize);
     }
     if(retval == 0) {
         return bufsize;
     }
     else {
         #ifdef DEBUG_MSD
-        mylogadd("READ FAILED %i %i %i", lun, lba, offset) ;
+        mylogadd("READ FAILED %i %i %i error %i bufsize %i", lun, lba, offset, retval, bufsize) ;
         #endif
         return MSD_ERROR;
     }
 }
 
 
+uint8_t write_buff[512];
+
+void print_u8(uint8_t t) {
+    if(t < 10) {
+        Serial1.print('0');
+    }
+    Serial1.print(t,HEX);
+}
 
 /* -------------------------------------------------------------------------- */
 /* WRITE                                                                      */
@@ -137,54 +154,60 @@ int USBMSD::write(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, u
         return MSD_ERROR;
     }
 
-    bd_addr_t add = (bd_addr_t)((lba * _bd[lun]->get_erase_size()) + offset);
 
     bd_size_t block_size = _bd[lun]->get_erase_size();
-    uint8_t *bk = new uint8_t[block_size];
-    uint8_t *buff = buffer;
+    bd_addr_t block_address = (bd_addr_t)((lba * block_size) + offset);
 
-    int err = MSD_ERROR;
-
-    if(bk != nullptr) {
-        int64_t internal_size = (int64_t)bufsize;
-        bd_addr_t block_address = block_size * (add / block_size);
-        
-        uint32_t byte_left_in_block =  block_size - (add % block_size);
-        
-        err = 0;
-        while(internal_size > 0 && err == 0) {
-            /* 
-             * READ the block as erase dimension (4096 bytes) 
-             */
-            bool erase_needed = false;
-            err = _bd[lun]->read(bk, block_address, block_size);
-            
-            /*
-             * Write in RAM
-             */
-            if(err == 0) {
-                uint32_t bytes_to_copy = (uint32_t)((internal_size > byte_left_in_block) ? byte_left_in_block : internal_size);
-                uint8_t *ptr = bk + block_size - byte_left_in_block;
-                for(int i = 0; i < bytes_to_copy; i++) {
-                    if(*(ptr+i) != _bd[lun]->get_erase_value()) {
-                        erase_needed = true;
-                    }
-                    *(ptr + i) = *(buffer + i);
-                }
-                if(erase_needed) {
-                    err = _bd[lun]->erase(block_address,block_size);
-                }
-            }
-            if(err == 0) {   
-                err = _bd[lun]->program(bk, block_address, block_size);
-            }
-            block_address += block_size;
-            buff += byte_left_in_block;
-            internal_size -= byte_left_in_block;
-            byte_left_in_block = block_size;
+    if(offset != 0) {
+        while(1) {
+            Serial.println("OFFSET != 0");
+            delay(1000);
         }
-        delete []bk;
     }
+
+    if(bufsize != block_size) {
+        while(1) {
+            Serial.println("BUFFSIZE != _bd[lun]->get_erase_size()");
+            delay(1000);
+        }
+    }
+
+    if(block_size != 512) {
+        while(1) {
+            Serial.println("BUFFSIZE != 512");
+            delay(1000);
+        }
+    }
+
+    for(int i = 0;i < 512; i++) {
+        write_buff[i] = buffer[i];
+    }
+
+    Serial1.print("W BLOCK ADDRESS ");
+    Serial1.print(block_address) ;
+    Serial1.print(" "); 
+    Serial1.print(block_address, HEX) ; 
+    Serial1.print(" ");
+    Serial1.println((uint32_t)write_buff);  
+      
+    int err = _bd[lun]->erase(block_address,block_size);
+    if(err == 0) {
+        err = _bd[lun]->program(write_buff, block_address, block_size);
+    }
+   
+    int index = 0;
+    for(int i = 0; i < 16; i++) {
+        for(int j = 0; j < 32; j++) {
+            print_u8(write_buff[index]);
+            Serial1.print(" ");
+            index++;
+        }
+        Serial1.println();
+        
+         
+    }
+
+
 
     if(err == 0) {
         return bufsize;

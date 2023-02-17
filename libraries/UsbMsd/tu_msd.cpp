@@ -71,8 +71,8 @@ void usb_msd_set_dev_ptr(USBMSD *ptr) {
 //                      and return failed status in command status wrapper phase.
 int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
    if(device_available) {
-      int rv = dev_ptr->read(lun,lba, offset, buffer, bufsize);
-      return rv;
+      //int rv = dev_ptr->read(lun,lba, offset, buffer, bufsize);
+      return 5;//rv;
    }
    else {
       return 0;
@@ -95,8 +95,8 @@ int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buf
 // TODO change buffer to const uint8_t*
 int32_t tud_msc_write10_cb (uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
    if(device_available) {
-      int rv = dev_ptr->write(lun,lba, offset, buffer, bufsize);
-      return rv;
+      //int rv = dev_ptr->write(lun,lba, offset, buffer, bufsize);
+      return 5;//rv;
    }
    else {
       return 0;
