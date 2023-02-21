@@ -12,12 +12,15 @@ class USBMSD {
 
 private:
     BlockDevice **_bd;
+    uint8_t *msd_buffer;
+    uint32_t msd_buffer_size;
     int num;
     
 public:    
     USBMSD() = delete;
     USBMSD(BlockDevice *bd);
     USBMSD(std::initializer_list<BlockDevice *> args);
+    bool allocate_msd_buffer(uint32_t s);
     virtual ~USBMSD();
     int read(uint8_t lun, void *buffer, bd_addr_t addr, bd_size_t size);
     int write(uint8_t lun,const void *buffer, bd_addr_t addr, bd_size_t size);

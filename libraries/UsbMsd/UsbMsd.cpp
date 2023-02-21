@@ -12,11 +12,11 @@ void usb_msd_set_dev_ptr(USBMSD *prt);
 /* -------------------------------------------------------------------------- */
 /* Add Mass Storage USB capability when present                               */
 /* -------------------------------------------------------------------------- */
-#ifdef DO_NOT_USE
-void __USBInstallMSD() {}
-#endif
 
-USBMSD::USBMSD(std::initializer_list<BlockDevice *> args) {
+void __USBInstallMSD() {}
+
+
+USBMSD::USBMSD(std::initializer_list<BlockDevice *> args) : msd_buffer(nullptr), msd_buffer_size(0) {
     _bd = new BlockDevice *[args.size()];
     num = args.size();
 
@@ -29,7 +29,7 @@ USBMSD::USBMSD(std::initializer_list<BlockDevice *> args) {
 /* -------------------------------------------------------------------------- */
 /* CONSTRUCTOR -> initalize block device and pass a "hook" to the tu_msd module */
 /* -------------------------------------------------------------------------- */
-USBMSD::USBMSD(BlockDevice *bd) {
+USBMSD::USBMSD(BlockDevice *bd) : msd_buffer(nullptr), msd_buffer_size(0) {
     _bd = new BlockDevice *[0];
     _bd[0] = bd;
     num = 1;
@@ -39,7 +39,9 @@ USBMSD::USBMSD(BlockDevice *bd) {
 
 bool USBMSD::begin(uint8_t lun) {
     if(lun < num){
+
        if(_bd[lun]->init() == 0) {
+
          return true;
        }
     }
@@ -52,6 +54,9 @@ bool USBMSD::begin(uint8_t lun) {
 /* -------------------------------------------------------------------------- */
 USBMSD::~USBMSD() {
     delete []_bd;
+    if(msd_buffer != nullptr) {
+        delete []msd_buffer;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,35 +92,74 @@ uint16_t USBMSD::get_block_size(uint8_t lun) {
     return _bd[lun]->get_erase_size();
 }
 
+bool USBMSD::allocate_msd_buffer(uint32_t s) {
+    if(msd_buffer != nullptr && s == msd_buffer_size) {
+        return true;
+    }
 
+    if(msd_buffer != nullptr) {
+        delete []msd_buffer;
+        msd_buffer = nullptr;
+    }
+
+    msd_buffer = new uint8_t[s];
+
+    if(msd_buffer != nullptr) {
+        msd_buffer_size = s;
+        return true;
+    }
+
+    return false;
+}
 
 /* -------------------------------------------------------------------------- */
 /* READ                                                                       */
 /* -------------------------------------------------------------------------- */
 int USBMSD::read(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
     
-    
-
     if(!begin(lun)) {
         #ifdef DEBUG_MSD
-        mylogadd("READ FAILED 1 %i %i %i", lun, lba, offset) ;
+        mylogadd("READ FAILED 1 %i %i %i %i", lun, lba, offset, bufsize) ;
         #endif
         return MSD_ERROR;
     }
 
+    uint32_t size_to_return = bufsize;
     bd_size_t block_size = _bd[lun]->get_erase_size();
-    bd_addr_t block_address = (bd_addr_t)((lba * block_size) + offset);
+    bd_addr_t requested_address = (bd_addr_t)((lba * block_size) + offset);
+    uint32_t block_offset = (requested_address % block_size);
+    bd_addr_t block_address = requested_address - block_offset;
+    uint8_t *buf_out = (uint8_t *)buffer;
 
-    Serial1.print("R BLOCK ADDRESS ");
-    Serial1.print(block_address) ;
-    Serial1.print(" "); 
-    Serial1.println(block_address, HEX) ; 
-    int retval = 1;
-    if(lun < num) {
-        retval = _bd[lun]->read(buffer, block_address, (bd_size_t)bufsize);
+    #ifdef DEBUG_MSD
+    //mylogadd("READ %i %i %i %i - %i", lun, lba, offset, bufsize, requested_address) ;
+    #endif
+
+
+    if(!allocate_msd_buffer(block_size)) {
+        return MSD_ERROR;
     }
+
+    int retval = 0;
+
+    while(bufsize > 0 && retval == 0) {
+        retval = _bd[lun]->read(msd_buffer, block_address, block_size);
+        uint32_t bytes_to_copy = bufsize > (block_size - block_offset) ? (block_size - block_offset) : bufsize;
+        
+        for(int i = 0; i < bytes_to_copy; i++) {
+            *(buf_out+i) = *(msd_buffer + block_offset + i);
+        }
+
+
+        //memcpy(buf_out, msd_buffer + block_offset, bytes_to_copy);
+        block_offset = 0;
+        block_address += block_size;
+        bufsize -= bytes_to_copy;
+        buf_out += bytes_to_copy;
+    } 
+
     if(retval == 0) {
-        return bufsize;
+        return size_to_return;
     }
     else {
         #ifdef DEBUG_MSD
@@ -126,20 +170,16 @@ int USBMSD::read(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint3
 }
 
 
-uint8_t write_buff[512];
 
-void print_u8(uint8_t t) {
-    if(t < 10) {
-        Serial1.print('0');
-    }
-    Serial1.print(t,HEX);
-}
 
 /* -------------------------------------------------------------------------- */
 /* WRITE                                                                      */
 /* -------------------------------------------------------------------------- */
 int USBMSD::write(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
     
+    
+    
+
     if(lun >= num) {
         #ifdef DEBUG_MSD
         mylogadd("WRITE FAILED 1 %i %i %i", lun, lba, offset) ;
@@ -153,64 +193,47 @@ int USBMSD::write(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, u
         #endif
         return MSD_ERROR;
     }
-
-
+    
+    uint32_t size_to_return = bufsize;
     bd_size_t block_size = _bd[lun]->get_erase_size();
-    bd_addr_t block_address = (bd_addr_t)((lba * block_size) + offset);
+    bd_addr_t requested_address = (bd_addr_t)((lba * block_size) + offset);
+    uint32_t block_offset = (requested_address % block_size);
+    bd_addr_t block_address = requested_address - block_offset;
 
-    if(offset != 0) {
-        while(1) {
-            Serial.println("OFFSET != 0");
-            delay(1000);
+    #ifdef DEBUG_MSD
+    mylogadd("WRITE %i %i %i %i - %X", lun, lba, offset, bufsize, requested_address) ;
+    #endif
+
+
+    
+    uint8_t *buf_out = (uint8_t *)buffer;
+
+    if(!allocate_msd_buffer(block_size)) {
+        return MSD_ERROR;
+    }
+    
+    int err = 0;  
+
+    while(bufsize > 0 && err == 0) {
+        err = _bd[lun]->read(msd_buffer, block_address, block_size);
+        uint32_t bytes_to_copy = bufsize > (block_size - block_offset) ? (block_size - block_offset) : bufsize;
+		for(int i = 0; i < bytes_to_copy; i++) {
+            *(msd_buffer + block_offset + i) = *(buf_out+i); 
         }
-    }
-
-    if(bufsize != block_size) {
-        while(1) {
-            Serial.println("BUFFSIZE != _bd[lun]->get_erase_size()");
-            delay(1000);
+        if(err == 0) {
+            _bd[lun]->erase(block_address,block_size);
         }
-    }
-
-    if(block_size != 512) {
-        while(1) {
-            Serial.println("BUFFSIZE != 512");
-            delay(1000);
+        if(err == 0) {
+            err = _bd[lun]->program(msd_buffer, block_address, block_size);
         }
-    }
-
-    for(int i = 0;i < 512; i++) {
-        write_buff[i] = buffer[i];
-    }
-
-    Serial1.print("W BLOCK ADDRESS ");
-    Serial1.print(block_address) ;
-    Serial1.print(" "); 
-    Serial1.print(block_address, HEX) ; 
-    Serial1.print(" ");
-    Serial1.println((uint32_t)write_buff);  
-      
-    int err = _bd[lun]->erase(block_address,block_size);
-    if(err == 0) {
-        err = _bd[lun]->program(write_buff, block_address, block_size);
-    }
-   
-    int index = 0;
-    for(int i = 0; i < 16; i++) {
-        for(int j = 0; j < 32; j++) {
-            print_u8(write_buff[index]);
-            Serial1.print(" ");
-            index++;
-        }
-        Serial1.println();
-        
-         
-    }
-
-
+        block_offset = 0;
+        block_address += block_size;
+        bufsize -= bytes_to_copy;
+        buf_out += bytes_to_copy;
+    } 
 
     if(err == 0) {
-        return bufsize;
+        return size_to_return;
     }
     #ifdef DEBUG_MSD
     mylogadd("WRITE FAILED %i %i %i", lun, lba, offset) ;
