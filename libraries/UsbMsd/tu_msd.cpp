@@ -71,8 +71,8 @@ void usb_msd_set_dev_ptr(USBMSD *ptr) {
 //                      and return failed status in command status wrapper phase.
 int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
    if(device_available) {
-      //int rv = dev_ptr->read(lun,lba, offset, buffer, bufsize);
-      return 5;//rv;
+      int rv = dev_ptr->read(lun,lba, offset, buffer, bufsize);
+      return rv;
    }
    else {
       return 0;
@@ -95,8 +95,8 @@ int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buf
 // TODO change buffer to const uint8_t*
 int32_t tud_msc_write10_cb (uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
    if(device_available) {
-      //int rv = dev_ptr->write(lun,lba, offset, buffer, bufsize);
-      return 5;//rv;
+      int rv = dev_ptr->write(lun,lba, offset, buffer, bufsize);
+      return rv;
    }
    else {
       return 0;
@@ -122,9 +122,16 @@ bool tud_msc_test_unit_ready_cb(uint8_t lun) {
       if(dev_ptr->available(lun)) {
          /* available no error */
          tud_msc_set_sense(0, 0, 0, 0);
+
+         #ifdef DEBUG_MSD
+         mylogadd("    OK!");
+         #endif
          return true;
       }
       else {
+         #ifdef DEBUG_MSD
+         mylogadd(" ERROR");
+         #endif
          /* Not Ready - medium not present */
          tud_msc_set_sense(0, 2, 0x3A, 0x00);
       }

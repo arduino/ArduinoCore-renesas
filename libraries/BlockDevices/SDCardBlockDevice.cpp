@@ -33,6 +33,8 @@ volatile CmdStatus SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
             
 extern "C" void r_sdhi_transfer_callback(sdhi_instance_ctrl_t *p_ctrl);
 
+extern "C" int mylogadd(const char *fmt, ...) ;
+
 void g_sdmmc_dmac_callback(dmac_callback_args_t *p_args)
 {
     r_sdhi_transfer_callback ((sdhi_instance_ctrl_t*) p_args->p_context);
@@ -352,16 +354,17 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
       return rv;
    } 
 
+   
+
    if(open() == BLOCK_DEVICE_OK) {
       if(SDCardBlockDevice::initialized) { 
          uint32_t num_of_blocks = (_size / read_block_size);
          uint32_t start_add_of_block = (add / read_block_size);
          rv = FSP_SUCCESS;
          for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-            Serial1.print("R ");
-            Serial1.println(add + (i * read_block_size));
-            Serial1.print(" ");
-            Serial1.println(start_add_of_block + i);
+
+
+
             rv = R_SDHI_Read (&ctrl, (uint8_t *)(buffer + (i * read_block_size)), start_add_of_block + i, 1);
             if(rv == FSP_SUCCESS) {
                rv = wait_for_completition();
@@ -389,6 +392,8 @@ int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size)
    if(!is_valid_program(add,_size)){
       return rv;
    } 
+
+   
    
    if(open() == BLOCK_DEVICE_OK) {
       if(SDCardBlockDevice::initialized) {
@@ -396,10 +401,6 @@ int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size)
          uint32_t start_block_number = (add / write_block_size);
          rv = FSP_SUCCESS;
          for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-            Serial1.print("W ");
-            Serial1.println(add + (i * write_block_size));
-            Serial1.print(" - ");
-            Serial1.println((uint32_t)(buffer + (i * write_block_size)));
             rv = R_SDHI_Write (&ctrl, (uint8_t *)(buffer + (i * write_block_size)), start_block_number + i, 1);
             if(rv == FSP_SUCCESS) {
                rv = wait_for_completition();
@@ -427,14 +428,14 @@ int SDCardBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
       return rv;
    } 
 
+   
+
    if(open() == BLOCK_DEVICE_OK) {
       if(SDCardBlockDevice::initialized) {
          uint32_t num_of_blocks = (_size / erase_block_size);
          uint32_t start_block_number = (add / erase_block_size);
          rv = FSP_SUCCESS;
          for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-            Serial1.print("E ");
-            Serial1.println(add + (i * erase_block_size));
             rv = R_SDHI_Erase (&ctrl, start_block_number + i, 1);
             if(rv == FSP_SUCCESS) {
                rv = wait_for_completition();
