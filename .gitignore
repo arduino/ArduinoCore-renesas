@@ -1,3 +1,4 @@
 .idea
 cores/arduino/mydebug.cpp
 libraries/Storage/.development
+cores/arduino/mydebug.cpp.donotuse

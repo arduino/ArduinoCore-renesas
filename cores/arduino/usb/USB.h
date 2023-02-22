@@ -20,6 +20,7 @@ extern void __USBInstallSerial() __attribute__((weak));
 extern void __USBInstallKeyboard() __attribute__((weak));
 extern void __USBInstallMouse() __attribute__((weak));
 extern void __USBInstallMIDI() __attribute__((weak));
+extern void __USBInstallMSD() __attribute__((weak));
 
 // HID report ID inquiry (report ID will vary depending on the number/type of other HID)
 extern uint8_t* __USBGetHIDReport(size_t* len) __attribute__((weak));

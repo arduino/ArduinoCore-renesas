@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <string.h>
 
+//#define DEBUG_MSD
+extern "C" int mylogadd(const char *fmt, ...) ;
 //namespace mbed {
 
 // On disk structures, all entries are little endian
@@ -287,9 +289,22 @@ int MBRBlockDevice::init()
 
     // Get partition attributes
     sector = std::max<uint32_t>(_bd->get_erase_size(), 512);
+    #ifdef DEBUG_MSD
+    mylogadd("MBR sectort %i", sector);
+    #endif
+
     _type = table->entries[_part - 1].type;
     _offset = fromle32(table->entries[_part - 1].lba_offset) * sector;
+    #ifdef DEBUG_MSD
+    mylogadd("MBR _offset %i", _offset);
+    #endif
+
     _size   = fromle32(table->entries[_part - 1].lba_size)   * sector;
+
+    #ifdef DEBUG_MSD
+    mylogadd("MBR _size %i", _size);
+    #endif
+    
 
     // Check that block addresses are valid
     if (!_bd->is_valid_erase(_offset, _size)) {
@@ -342,7 +357,9 @@ int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     if (!is_valid_read(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
-
+    #ifdef DEBUG_MSD
+    mylogadd("MBR READ %i, %i", addr + _offset, size);
+    #endif
     return _bd->read(b, addr + _offset, size);
 }
 
@@ -355,7 +372,9 @@ int MBRBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     if (!is_valid_program(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
-
+    #ifdef DEBUG_MSD
+    mylogadd("MBR WRITE %i, %i", addr + _offset, size);
+    #endif
     return _bd->program(b, addr + _offset, size);
 }
 

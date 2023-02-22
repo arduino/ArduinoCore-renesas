@@ -33,6 +33,8 @@ volatile CmdStatus SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
             
 extern "C" void r_sdhi_transfer_callback(sdhi_instance_ctrl_t *p_ctrl);
 
+extern "C" int mylogadd(const char *fmt, ...) ;
+
 void g_sdmmc_dmac_callback(dmac_callback_args_t *p_args)
 {
     r_sdhi_transfer_callback ((sdhi_instance_ctrl_t*) p_args->p_context);
@@ -305,6 +307,7 @@ int SDCardBlockDevice::open() {
          erase_block_size = sd_card_info.sector_size_bytes;
          write_block_size = sd_card_info.sector_size_bytes;
          total_size = sd_card_info.sector_count * sd_card_info.sector_size_bytes;
+         
       }
    }
 
@@ -347,75 +350,30 @@ int SDCardBlockDevice::close() {
 int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    
-   #ifdef SDHI_DEBUG
-   Serial.println("[CALL]: SDCardBlockDevice::read");
-   #endif
-   //Serial.println("--> A");
+   if(!is_valid_read(add,_size)){
+      return rv;
+   } 
+
    if(open() == BLOCK_DEVICE_OK) {
-      //Serial.println("--> B");
-      if(SDCardBlockDevice::initialized) {
-         //Serial.println("--> C");
-         uint8_t *block = new uint8_t[read_block_size]; 
-         if(block != nullptr) {
-            //Serial.println("--> D");
-            int64_t internal_size = (int64_t)_size;
-            uint32_t block_num_start = (add / read_block_size);
-            uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
-            uint32_t start_copy_from = (add % read_block_size);
-            uint8_t *dest = (uint8_t *)buffer; 
-            #ifdef SDHI_DEBUG
-            memset(block,0xAB,read_block_size);
-            Serial.print("[LOG] block start is: ");
-            Serial.println(block_num_start);  
-            Serial.print("[LOG] byte_left_in_block is: ");
-            Serial.println(byte_left_in_block);  
-            Serial.print("[LOG] start_copy_from is: ");
-            Serial.println(start_copy_from);
-            #endif
-            rv = FSP_SUCCESS;
-            while(internal_size > 0 && rv == FSP_SUCCESS) {
-               //Serial.println("--> E");
-               uint32_t bytes_to_copy = (internal_size > byte_left_in_block) ? byte_left_in_block : (uint32_t)internal_size;
-               #ifdef SDHI_DEBUG
-               Serial.print("[LOG] bytes_to_copy is: ");
-               Serial.println(bytes_to_copy); 
-               Serial.print("[CALL] _____________________ R_SDHI_Read on block ");
-               Serial.print(block_num_start);  
-               #endif
-               SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
-               rv = R_SDHI_Read (&ctrl, block, block_num_start, 1);
-               while(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS) {
-                  #ifdef SDHI_DEBUG
-                  //Serial.println("reading ...");  
-                  #endif
-               }
-               #ifdef SDHI_DEBUG
-               Serial.print(" retun value ");
-               Serial.print(rv); 
-               if(rv == FSP_SUCCESS) {
-                  Serial.println(" - SUCCESS");
-                  //print_buffer(block, read_block_size);
-               }
-               Serial.println();
-               #endif
-               if(rv == FSP_SUCCESS) {
-                  #ifdef SDHI_DEBUG
-                  //Serial.println("------ MEMCPY ------");
-                  #endif
-                  memcpy(dest,block + start_copy_from, bytes_to_copy);
-                  internal_size -= bytes_to_copy;
-                  byte_left_in_block = read_block_size;
-                  dest += bytes_to_copy;
-                  start_copy_from = 0;
-                  block_num_start++;
-               }
+      if(SDCardBlockDevice::initialized) { 
+         uint32_t num_of_blocks = (_size / read_block_size);
+         uint32_t start_add_of_block = (add / read_block_size);
+         rv = FSP_SUCCESS;
+         for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
+            rv = R_SDHI_Read (&ctrl, (uint8_t *)(buffer + (i * read_block_size)), start_add_of_block + i, 1);
+            if(rv == FSP_SUCCESS) {
+               rv = wait_for_completition();
             }
-            //Serial.println("Delete");
-            delete []block;
          }
       }
+      else {
+         rv = FSP_ERR_NOT_INITIALIZED;
+      }
    }
-   //Serial.println("--> Z");
+   else {
+      rv = FSP_ERR_NOT_OPEN;
+   }
+   
    return (int)rv; 
 }
 
@@ -425,162 +383,114 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
 /* -------------------------------------------------------------------------- */
 int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
-   #ifdef SDHI_DEBUG
-   Serial.println("[CALL]: SDCardBlockDevice::write");
-   #endif
+
+   if(!is_valid_program(add,_size)){
+      return rv;
+   } 
+
+   
+   
    if(open() == BLOCK_DEVICE_OK) {
       if(SDCardBlockDevice::initialized) {
-         uint8_t *block = new uint8_t[read_block_size]; 
-         if(block != nullptr) {
-            int64_t internal_size = (int64_t)_size;
-            uint32_t block_num_start = (add / read_block_size);
-            uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
-            uint32_t start_copy_from = (add % read_block_size);
-            uint8_t *source = (uint8_t *)buffer; 
-            #ifdef SDHI_DEBUG
-            memset(block,0xAB,read_block_size);
-            Serial.print("[LOG] block start is: ");
-            Serial.println(block_num_start);  
-            Serial.print("[LOG] byte_left_in_block is: ");
-            Serial.println(byte_left_in_block);  
-            Serial.print("[LOG] start_copy_from is: ");
-            Serial.println(start_copy_from);
-            #endif
-            rv = FSP_SUCCESS;
-            while(internal_size > 0 && rv == FSP_SUCCESS) {
-               uint32_t bytes_to_copy = (internal_size > byte_left_in_block) ? byte_left_in_block : (uint32_t)internal_size;
-               #ifdef SDHI_DEBUG
-               Serial.print("[LOG] bytes_to_copy is: ");
-               Serial.println(bytes_to_copy); 
-               Serial.print("[CALL] _____________________ R_SDHI_Read on block ");
-               Serial.print(block_num_start);  
-               #endif
-               SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
-               rv = R_SDHI_Read (&ctrl, block, block_num_start, 1);
-               while(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS) {
-                  #ifdef SDHI_DEBUG
-                  //Serial.println("reading ...");  
-                  #endif
-               }
-               #ifdef SDHI_DEBUG
-               Serial.print(" retun value ");
-               Serial.print(rv); 
-               if(rv == FSP_SUCCESS) {
-                  Serial.println(" - SUCCESS");
-                  //print_buffer(block, read_block_size);
-               }
-               Serial.println();
-               #endif
-               if(rv == FSP_SUCCESS) {
-                  memcpy(block + start_copy_from, source, bytes_to_copy);
-                  #ifdef SDHI_DEBUG 
-                  Serial.print("[CALL] ^^^^^^^^^^^^^^^^^^^^^^^ R_SDHI_Write on block ");
-                  Serial.print(block_num_start);  
-                  #endif
-                  SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
-                  rv = R_SDHI_Write (&ctrl, block, block_num_start, 1);
-                  while(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS) {
-                     #ifdef SDHI_DEBUG
-                     //Serial.println("reading ...");  
-                     #endif
-                  }
-                  #ifdef SDHI_DEBUG
-                  Serial.print(" retun value ");
-                  Serial.print(rv); 
-                  if(rv == FSP_SUCCESS) {
-                     Serial.println(" - SUCCESS");
-                     //print_buffer(block, read_block_size);
-                  }
-                  Serial.println();
-                  #endif
-                  internal_size -= bytes_to_copy;
-                  byte_left_in_block = read_block_size;
-                  source += bytes_to_copy;
-                  start_copy_from = 0;
-                  block_num_start++;
-               }
+         uint32_t num_of_blocks = (_size / write_block_size);
+         uint32_t start_block_number = (add / write_block_size);
+         rv = FSP_SUCCESS;
+         for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
+            rv = R_SDHI_Write (&ctrl, (uint8_t *)(buffer + (i * write_block_size)), start_block_number + i, 1);
+            if(rv == FSP_SUCCESS) {
+               rv = wait_for_completition();
             }
-            delete []block;
          }
       }
+      else {
+         rv = FSP_ERR_NOT_INITIALIZED;
+      } 
    }
-   return (int)rv;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Tells if the "logical" address add is correct                              */
-/* -------------------------------------------------------------------------- */
-bool SDCardBlockDevice::is_address_correct(bd_addr_t add) {
-   return (add < total_size) ? true : false;
+   else {
+      rv = FSP_ERR_NOT_OPEN;
+   }  
+   return (int)rv; 
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                  ERASE                                     */
 /* -------------------------------------------------------------------------- */
 int SDCardBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
-   #ifdef SDHI_DEBUG
-   Serial.println("[CALL]: SDCardBlockDevice::erase");
-   #endif
+   
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS; 
+
+   if(!is_valid_erase(add,_size)){
+      return rv;
+   } 
+
+   
+
    if(open() == BLOCK_DEVICE_OK) {
       if(SDCardBlockDevice::initialized) {
-         int64_t internal_size = (int64_t)_size;
-         uint32_t block_num_start = (add / read_block_size);
-         uint32_t byte_left_in_block =  read_block_size - (add % read_block_size);
-         #ifdef SDHI_DEBUG
-         Serial.print("[LOG] block start is: ");
-         Serial.println(block_num_start);  
-         Serial.print("[LOG] byte_left_in_block is: ");
-         Serial.println(byte_left_in_block);  
-         #endif
+         uint32_t num_of_blocks = (_size / erase_block_size);
+         uint32_t start_block_number = (add / erase_block_size);
          rv = FSP_SUCCESS;
-         while(internal_size > 0 && rv == FSP_SUCCESS) {
-            #ifdef SDHI_DEBUG
-            Serial.print("[CALL] ~~~~~~~~~~~~~~~~~~~~~~~~~ R_SDHI_Erase on block ");
-            Serial.print(block_num_start);  
-            #endif
-            rv = R_SDHI_Erase (&ctrl, block_num_start, 1 );
-            
+         for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
+            rv = R_SDHI_Erase (&ctrl, start_block_number + i, 1);
             if(rv == FSP_SUCCESS) {
-               int32_t timeout = 10000;
-               sdmmc_status_t status;
-               status.transfer_in_progress = 0;             
-               do {
-                  rv = R_SDHI_StatusGet (&ctrl, &status);
-                  R_BSP_SoftwareDelay(10U, BSP_DELAY_UNITS_MILLISECONDS);
-                  timeout--;
-                  #ifdef SDHI_DEBUG
-                  Serial.println("WAITING for erasing to finish ...");  
-                  #endif
-               } while(status.transfer_in_progress && timeout > 0);
-
-               if(status.transfer_in_progress) {
-                  rv = FSP_ERR_TIMEOUT;
-               }
+               rv = wait_for_completition();
             }
-
-            internal_size -= byte_left_in_block;
-            byte_left_in_block = read_block_size;
-            block_num_start++;
          }
       }
+      else {
+         rv = FSP_ERR_NOT_INITIALIZED;
+      } 
    }
-   
+   else {
+      rv = FSP_ERR_NOT_OPEN;
+   }  
    return (int)rv;
 }
+
+/* -------------------------------------------------------------------------- */
+/*          Function to wait for the completition of an operation             */
+/* -------------------------------------------------------------------------- */
+fsp_err_t SDCardBlockDevice::wait_for_completition() {
+   fsp_err_t rv = FSP_SUCCESS;
+   int32_t timeout = 1000000;
+   sdmmc_status_t status;
+   status.transfer_in_progress = 0;    
+   SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;       
+   do {
+      rv = R_SDHI_StatusGet (&ctrl, &status);
+      if(status.transfer_in_progress == 0 || SDCardBlockDevice::st == CmdStatus::SUCCESS) {
+         SDCardBlockDevice::st = CmdStatus::SUCCESS;
+         continue;
+      }
+      R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MICROSECONDS);
+      
+      timeout--;
+   } while(timeout > 0 && SDCardBlockDevice::st == CmdStatus::IN_PROGRESS);
+   
+   if(SDCardBlockDevice::st == CmdStatus::IN_PROGRESS) {
+      
+      rv = FSP_ERR_TIMEOUT;
+   }
+
+}
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                             GET BLOCK SIZEs                                */
 /* -------------------------------------------------------------------------- */
 bd_size_t SDCardBlockDevice::get_program_size() const {
+   
    return write_block_size;
 }
 
 bd_size_t SDCardBlockDevice::get_erase_size() const {
+   
    return erase_block_size;
 }
 
 bd_size_t SDCardBlockDevice::get_read_size() const {
+   
    return read_block_size;
 }
 /* -------------------------------------------------------------------------- */
@@ -589,6 +499,20 @@ bd_size_t SDCardBlockDevice::get_read_size() const {
 bd_size_t SDCardBlockDevice::size() const {
    return total_size;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/*                 AVAILABLE - tell if the SD is available or not             */
+/* -------------------------------------------------------------------------- */
+bool SDCardBlockDevice::available() {
+   if(open() == BLOCK_DEVICE_OK) {
+      if(SDCardBlockDevice::initialized) {
+         return true;
+      }
+   }
+   return false;
+}
+
 
 const char *SDCardBlockDevice::get_type() const {
     return "SDCARD";
