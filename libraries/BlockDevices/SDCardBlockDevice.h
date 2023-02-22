@@ -68,7 +68,6 @@ private:
   bd_size_t read_block_size;
   bd_size_t erase_block_size;
   bd_size_t write_block_size;
-  bool is_address_correct(bd_addr_t add);
   sdhi_instance_ctrl_t  ctrl;
   sdmmc_cfg_t           cfg;
   
@@ -103,6 +102,7 @@ private:
   virtual int open() override;
   virtual int close() override;
   bool opened;
+  fsp_err_t wait_for_completition();
 public:
 
   SDCardBlockDevice( pin_t _ck, 
@@ -129,6 +129,7 @@ public:
   virtual bd_size_t get_read_size() const override;
   virtual bd_size_t size() const override;
   virtual const char *get_type() const override;
+  virtual bool available() override;
   bool is_card_present() { return card_inserted; }
   bool is_card_initialized() { return initialized; }
 

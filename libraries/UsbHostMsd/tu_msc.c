@@ -25,7 +25,7 @@
 
 #include "tusb.h"
 
-#define USB_DEBUG
+//#define USB_DEBUG
 
 #if CFG_TUH_MSC
 
