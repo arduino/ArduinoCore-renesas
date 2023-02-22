@@ -61,6 +61,10 @@
 /* default memory value */
 #define DEFAULT_MEM_VAL                 (0xFF)
 
+
+#define WRITE_INTERNAL_BLOCK_SIZE        256
+#define READ_PAGE_SIZE                   0x4000000
+
 /* -------------------------------------------------------------------------- */
 /* CLASS QSPIFlashBlockDevice - to access micro internal flash                    */
 /* -------------------------------------------------------------------------- */
@@ -124,6 +128,16 @@ public:
   virtual bd_size_t size() const override;
   virtual const char *get_type() const override;
   virtual int get_erase_value() const override { return 0xFF; }
+  
+  virtual bool is_valid_read(bd_addr_t addr, bd_size_t size) const override {
+     return (addr + size <= this->size());
+  }
+  
+  virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const override{
+     return ( addr % WRITE_INTERNAL_BLOCK_SIZE == 0 && size % WRITE_INTERNAL_BLOCK_SIZE == 0 && addr + size <= this->size());
+  }
+ 
+  
 
 };
 
