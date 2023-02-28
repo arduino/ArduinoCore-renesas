@@ -149,12 +149,15 @@ void __SetupUSBDescriptor() {
          * -----    MASS STORAGE DEVICE
          */ 
 
+#if CFG_TUD_MSC
         uint8_t msd_itf = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
         uint8_t msd_desc[TUD_MSC_DESC_LEN] = {
             // Interface number, string index, EP Out & EP In address, EP size
             TUD_MSC_DESCRIPTOR(msd_itf, 0, USBD_MSD_EP_OUT, USBD_MSD_EP_IN, USBD_MSD_IN_OUT_SIZE)   
         };
-
+#else
+        uint8_t msd_desc[0] = {};
+#endif
         
 
         int usbd_desc_len = TUD_CONFIG_DESC_LEN + (__USBInstallSerial ? sizeof(cdc_desc) : 0) + (__USBGetHIDReport ? sizeof(hid_desc) : 0) + (__USBInstallMSD ? sizeof(msd_desc) : 0);
