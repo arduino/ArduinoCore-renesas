@@ -86,6 +86,21 @@ pin_size_t digitalPinToInterrupt(pin_size_t pin);
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
+// analog extra functionalities
+
+typedef enum _ar_aref {
+  AR_INTERNAL,
+  AR_INTERNAL_1_5V,
+  AR_INTERNAL_2_0V,
+  AR_INTERNAL_2_5V,
+  AR_EXTERNAL,
+  AR_DEFAULT,
+} ar_aref;
+
+#if defined(__cplusplus)
+float analogReference();
+#endif
+
 #ifndef NO_USB
 #define Serial  SerialUSB
 #define Serial1 _UART1_

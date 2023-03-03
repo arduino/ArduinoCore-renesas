@@ -92,6 +92,7 @@ void arduino_main(void)
 
    _init();
    initVariant();
+   analogReference();
 #ifndef NO_USB
    __USBStart();
    Serial.begin(115200);

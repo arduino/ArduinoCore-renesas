@@ -119,6 +119,8 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_02_PIN_06,    P206   }, /* (33) D33  */
   { BSP_IO_PORT_02_PIN_13,    P213   }, /* (34) D34  */
   { BSP_IO_PORT_02_PIN_12,    P212   }, /* (35) D35  */
+
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (36) Analog voltage measure pin  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
