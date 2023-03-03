@@ -1,6 +1,4 @@
 [submodule "extras/tinyusb"]
 	path = extras/tinyusb
 	url = git@github.com:bcmi-labs/tinyusb.git
-[submodule "libraries/ESPhost/src/protobuf/repo"]
-	path = libraries/ESPhost/src/protobuf/repo
-	url = git@github.com:protobuf-c/protobuf-c.git
+
