@@ -28,6 +28,8 @@
 #include "r_spi.h"
 #include "r_spi_api.h"
 
+using CbkFuncRx_f = void(*)();
+
 #define ESP_HOSTED_SPI_DRIVER_OK   0
 #define ESP_HOSTED_SPI_DRIVER_INIT_IRQ_FAILED 1
 #define ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN   2
@@ -36,9 +38,14 @@
 
 /* init the SPI driver */
 int esp_host_spi_init(void);
-/* check if something has to be sent to or received from ESP32 and, if necessary
-   performs an actual spi transaction, to send and receive*/
-int esp_host_spi_transaction(void);
+
+/* after the message has been sent to the queue to the ESP32 call this function
+   to tell the driver there is something to send */
+void esp_host_notify_spi_driver_to_tx(void);
+
+/* call this function to register a callback to be called when a message has
+   been received from ESP32 */
+void esp_host_set_cb_rx(CbkFuncRx_f fnc);
 
 
 

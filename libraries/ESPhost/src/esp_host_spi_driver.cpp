@@ -68,6 +68,9 @@ static external_irq_cfg_t   _esp_host_icu_cfg;
 
 static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
 
+
+static CbkFuncRx_f esp_host_cb_rx_msg = nullptr;
+
 /* #############################
  * PRIVATE Functions declaration
  * ############################# */
@@ -79,6 +82,10 @@ static void ext_irq_callback(void);
 /* execute SPI communication, send the content of tx_buffer to ESP32, put the
    message received from ESP32 in rx_buffer */
 static int esp_host_send_and_receive(void);
+
+/* check if something has to be sent to or received from ESP32 and, if necessary
+   performs an actual spi transaction, to send and receive*/
+static int esp_host_spi_transaction(void);
 
 
 /* ################
@@ -178,6 +185,31 @@ int esp_host_spi_init(void) {
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
 
+
+static bool tx_buffer_ready = false;
+
+void esp_host_notify_spi_driver_to_tx(void) {
+
+   /* if there is something to send esp32_receive_msg_to_be_sent_on_SPI will 
+      return true and put the message to be sent on the tx_buffer */
+   while(esp32_receive_msg_to_be_sent_on_SPI(tx_buffer, MAX_SPI_BUFFER_SIZE)) {
+      tx_buffer_ready = true;
+      esp_host_spi_transaction();
+   }
+
+}
+
+
+void esp_host_set_cb_rx(CbkFuncRx_f fnc) {
+   esp_host_cb_rx_msg = fnc;
+}
+
+
+
+/* ################################
+ * PRIVATE Functions implementation
+ * ################################ */
+
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_transaction(void) {
 /* -------------------------------------------------------------------------- */
@@ -187,23 +219,25 @@ int esp_host_spi_transaction(void) {
    R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
    R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
 
-   if(handshake == BSP_IO_LEVEL_HIGH) {
-      /* ESP is ready to accept a new transaction */
-      if(data_ready == BSP_IO_LEVEL_HIGH || esp32_receive_msg_to_be_sent_on_SPI(tx_buffer, MAX_SPI_BUFFER_SIZE)) {
+   
+   /* ESP is ready to accept a new transaction */
+   while(data_ready == BSP_IO_LEVEL_HIGH || tx_buffer_ready) {
+      if(handshake == BSP_IO_LEVEL_HIGH) {
          /* there is something to send or to receive */
          if(esp_host_send_and_receive() == ESP_HOSTED_SPI_DRIVER_OK) {
-            /* SPI transaction went OK, so check if something has been received */
+            tx_buffer_ready = false;
+            /* SPI transaction went OK */
+            esp32_send_msg_to_application(rx_buffer, MAX_SPI_BUFFER_SIZE);
+            if(esp_host_cb_rx_msg != nullptr) {
+               esp_host_cb_rx_msg();
+            }
          }
       }
    }
-
    
-
 }
 
-/* ################################
- * PRIVATE Functions implementation
- * ################################ */
+
 
 static int esp_host_send_and_receive(void) {
    _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
@@ -237,6 +271,5 @@ static void spi_callback(spi_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 static void ext_irq_callback(void) {
 /* -------------------------------------------------------------------------- */   
-   
-
+   esp_host_spi_transaction();
 }

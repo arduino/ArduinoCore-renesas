@@ -211,6 +211,13 @@ private:
       return checksum;
    }
 
+   void reset_without_delete() {
+      buf = nullptr;
+      dim = 0;
+      payload_header = nullptr;
+      proto_dim = 0;
+   }
+
 public:
    /*
     * CONSTRUCTORS (the 1 with argument to send message to SPI, the defaul one
@@ -343,9 +350,12 @@ public:
    void set_flags(uint8_t flags)            { payload_header->flags = flags; }
    uint8_t get_flags()                      { return payload_header->flags; }
    void set_payload_len(uint16_t len)       { payload_header->len = (uint16_t)len;}
-   uint16_t get_payload_len(uint16_t len)   { return (uint16_t)payload_header->len;}
+   uint16_t get_payload_len(void)           { return (uint16_t)payload_header->len;}
    void set_payload_offset(uint16_t offset) { payload_header->offset = (uint16_t)offset;}
    uint16_t get_payload_offset()            { return (uint16_t)payload_header->offset;}
+   void set_seq_num(uint16_t sq)            { payload_header->seq_num = sq;}
+   uint16_t get_seq_num()                   { return payload_header->seq_num;}
+
    void set_checksum() { 
       payload_header->checksum = htole16(compute_checksum(buf,dim)); 
    }
@@ -376,6 +386,8 @@ public:
         payload_header = m.payload_header;
         proto_dim      = m.proto_dim;
     }
+
+
    
    void clear() {
       if(buf != nullptr) {
@@ -392,7 +404,7 @@ public:
    bool store_rx_buffer(uint8_t *buffer, uint32_t d) {
       /* rx_payload_len is TLV + PROTO */
       uint16_t rx_payload_len = verify_payload_header(buffer);
-      if( rx_payload_len > 0 && verify_rx_tlv_header(buffer)) {
+      if( rx_payload_len > 0 ) {
          /* verify the length and the checksum are correct, if ok it is safe to 
             initialize the message */
 
@@ -405,6 +417,38 @@ public:
             memcpy(buf,buffer,request_size);
          }
       }      
+   }
+   /* message to add payload in case of FRAGMENTS */
+   bool add_msg(CMsg &msg) {
+      if(buf == nullptr && dim == 0) {
+         /* message was never used, simply steal from the msg */
+         buf = msg.get_buffer();
+         dim = msg.get_size();
+         payload_header = (esp_payload_header *)buf;
+         proto_dim = 0; //msg.get_protobuf_dim(); /* should alway be 0 when this function is called */
+         /* reset the message added so that is not deleted if clear is called */
+         msg.reset_without_delete();
+
+      }
+      else {
+         uint16_t new_bigger_dim = dim + msg.get_payload_len();
+         uint8_t *new_bigger_buf = new uint8_t[new_bigger_dim];
+         if(new_bigger_buf != nullptr) {
+            /* copy the old data in the new bigger buffer */
+            memcpy(new_bigger_buf,buf,dim);
+            memcpy(new_bigger_buf+dim,msg.get_buffer() + esp_payload_header_size,msg.get_payload_len());
+            proto_dim = 0; //msg.get_protobuf_dim(); /* should alway be 0 when this function is called */
+            msg.clear();
+            clear();
+            buf = new_bigger_buf;
+            dim = new_bigger_dim;
+            payload_header = (esp_payload_header *)buf; 
+         }
+         else {
+            return false;
+         }
+      }
+
    }    
 
    uint8_t *get_buffer() {return buf;}
