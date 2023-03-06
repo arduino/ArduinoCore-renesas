@@ -19,13 +19,13 @@
 
 #ifdef ARDUINO_SANTIAGO
 
-#include "HardwareCAN.h"
+#include "api/HardwareCAN.h"
 
 #include "bsp_api.h"
 
 #include "r_can.h"
 
-#include "CanMsgRingbuffer.h"
+#include "SyncCanMsgRingbuffer.h"
 
 /**************************************************************************************
  * TYPEDEF
@@ -78,7 +78,7 @@ private:
   int const _can_rx_pin;
   bool _is_error;
   int _err_code;
-  CanMsgRingbuffer _can_rx_buf;
+  SyncCanMsgRingbuffer _can_rx_buf;
 
   can_instance_ctrl_t _can_ctrl;
   can_bit_timing_cfg_t _can_bit_timing_cfg;

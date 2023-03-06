@@ -19,7 +19,7 @@
 
 #include <tuple>
 
-#include "HardwareCAN.h"
+#include "api/HardwareCAN.h"
 
 /**************************************************************************************
  * NAMESPACE
