@@ -1,12 +1,12 @@
 #ifndef ESP_HOST_CONTROL_H
 #define ESP_HOST_CONTROL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include <stdbool.h>
 #include "esp_hosted_config.pb-c.h"
+#include "esp_host_protocol.h"
+#include "esp_hosted_platform.h"
 
 #define SUCCESS                              0
 #define FAILURE                              -1
@@ -541,9 +541,7 @@ int close_socket(int sock);
 /* i.e. original ctrl_app_send_req*/
 int esp_host_ctrl_send_req(ctrl_cmd_t *app_req);
 
-#ifdef __cplusplus
-}
-#endif
+
 
 
 #endif

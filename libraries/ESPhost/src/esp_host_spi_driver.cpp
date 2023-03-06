@@ -34,7 +34,7 @@
  * Configuration defines 
  * ##################### */
 
-#define MAX_SPI_BUFFER_SIZE   1600
+
 
 /* FSP SPI Channel */
 #define SPI_CHANNEL  (1) 
@@ -74,11 +74,7 @@ static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
 
 static void spi_callback(spi_callback_args_t *p_args);
 static void ext_irq_callback(void);
-/* checks if a message is present in the queue to be sent to ESP32
-   verify is a valid message
-   format the tx_buffer accordingly to the message to be sent 
-   return true if there is something to be sent, false otherwise */
-static bool esp_host_get_msg_to_ESP(void);
+
 
 /* execute SPI communication, send the content of tx_buffer to ESP32, put the
    message received from ESP32 in rx_buffer */
@@ -193,7 +189,7 @@ int esp_host_spi_transaction(void) {
 
    if(handshake == BSP_IO_LEVEL_HIGH) {
       /* ESP is ready to accept a new transaction */
-      if(data_ready == BSP_IO_LEVEL_HIGH || esp_host_get_msg_to_ESP()) {
+      if(data_ready == BSP_IO_LEVEL_HIGH || esp32_receive_msg_to_be_sent_on_SPI(tx_buffer, MAX_SPI_BUFFER_SIZE)) {
          /* there is something to send or to receive */
          if(esp_host_send_and_receive() == ESP_HOSTED_SPI_DRIVER_OK) {
             /* SPI transaction went OK, so check if something has been received */
@@ -224,24 +220,6 @@ static int esp_host_send_and_receive(void) {
 }
 
 
-/* The purpose of this function is to:
-   1. prepare the tx_buffer to receive a new buffer to be sent (memset to 0)
-   2. get a new buffer to be transmitted from the queue
-   3. verify if the buffer received is actually to be sent
-
-   it returns true if the buffer has to be sent, false otherwise */
-static bool esp_host_get_msg_to_ESP(void) {
-   bool rv = false;
-   bool msg_available = false;
-   CMsg msg = get_raw_message_to_EPS32(&msg_available);
-   if(msg_available) {
-      if(to_esp32_check_and_copy_message(msg.get_buffer(), tx_buffer, MAX_SPI_BUFFER_SIZE)) {
-         rv = true;
-      }
-   }
-   msg.clear();
-   return rv;
-}
 
 
 /* -------------------------------------------------------------------------- */

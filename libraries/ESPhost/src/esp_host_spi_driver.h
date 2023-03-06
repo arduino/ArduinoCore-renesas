@@ -23,7 +23,6 @@
 
 #include "Arduino.h"
 #include "IRQManager.h"
-#include "esp_host_queues.h"
 #include "esp_host_protocol.h"
 
 #include "r_spi.h"

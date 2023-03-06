@@ -18,36 +18,45 @@
      Foundation, Inc.,51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA */
 /* ########################################################################## */
 
-#include "esp_host_queues.h"
+#include "esp_hosted_platform.h"
 
-
-/* SHORT DESCRITION:
-   This file contains the queues and the function used for the communication
-   between the spi driver and the higher sw layer */
-
-
-
-
-
-
-
-bool store_message_from_ESP32(uint8_t *buf, uint32_t size) {
-   
-   return false;
+/* -------- Memory ---------- */
+void* hosted_malloc(size_t size) {
+   return malloc(size);
 }
 
-bool read_message_from_ESP32(uint8_t *buf, uint32_t size) {
-   
-   return false;
+void* hosted_calloc(size_t blk_no, size_t size) {
+   void* ptr = malloc(blk_no*size);
+   if (!ptr) {
+      return NULL;
+   }
+
+   memset(ptr, 0, blk_no*size);
+   return ptr;
 }
 
-bool store_message_to_ESP32(uint8_t *buf, uint32_t size) {
-   
-   return false;
+void hosted_free(void* ptr) {
+   if(ptr) {
+      free(ptr);
+      ptr=NULL;
+   }
 }
 
-bool read_message_to_ESP32(uint8_t *buf, uint32_t size) {
-   
-   return false;
-}
+void *hosted_realloc(void *mem, size_t newsize) {
+   void *p = NULL;
 
+   if (newsize == 0) {
+      mem_free(mem);
+      return NULL;
+   }
+
+   p = hosted_malloc(newsize);
+   if (p) {
+      /* zero the memory */
+      if (mem != NULL) {
+         memcpy(p, mem, newsize);
+         mem_free(mem);
+      }
+   }
+   return p;
+}
