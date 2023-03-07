@@ -11,13 +11,25 @@ void esp_host_msg_received() {
    CMsg msg;
    if(application_receive_msg_from_esp32(msg)) {
       if(msg.get_if_type() == ESP_SERIAL_IF) {
-         /* control message received */
+         /* control message received, please note that the msg is automatically
+            cleared by the add_msg function (its pointers are stealed and all
+            is nullified) */
          cumulative_msg.add_msg(msg);
          if(msg.get_flags() & MORE_FRAGMENT) {
-            
+            /* if FRAGMENT is active, wait for other fragments to complete the
+               message*/
          }
          else {
-            /* send to application ------- TO BE CONTINUED */
+            /* if no more FRAGMENT is active 
+               first verify the tlv header */
+            if(cumulative_msg.verify_tlv_header()) {
+               /* here the */
+
+            }
+            else {
+               /* something is wrong in the tlv header... delete it */
+               cumulative_msg.clear();
+            }
          }
       }
       else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {

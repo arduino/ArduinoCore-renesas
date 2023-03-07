@@ -314,6 +314,39 @@ public:
 
    }
 
+   /* verify a TLV structure */
+   bool verify_tlv_header() {
+      /* verify type name */
+      if(buf[esp_tlv_header_ep_name_type_pos] != PROTO_PSER_TLV_T_EPNAME) {
+         return false;
+      }
+      /* verify type data */
+      if(buf[esp_tlv_header_ep_data_type_pos]  != PROTO_PSER_TLV_T_DATA) {
+         return false;
+      }
+
+      /* verify ep_name length */
+      uint16_t l = buf[esp_tlv_header_ep_name_len_low_pos];
+      l += ((uint16_t)buf[esp_tlv_header_ep_name_len_high_pos] << 8);
+
+      if(l != esp_ep_name_len) {
+         return false;
+      }
+      
+      /* verify ep_name value*/
+      if ((strncmp((char* )(buf + esp_tlv_header_payload_pos),CTRL_EP_NAME_RESP,esp_ep_name_len) == 0) ||
+          (strncmp((char* )(buf + esp_tlv_header_payload_pos),CTRL_EP_NAME_EVENT,esp_ep_name_len) == 0)) {
+         /* calculate protobuf dim */
+      proto_dim = buf[esp_tlv_header_ep_data_len_low_pos];
+      proto_dim += buf[esp_tlv_header_ep_data_len_high_pos] << 8;
+      return true;
+      }
+      else {
+         return false;
+      }
+
+   }
+
    /* ---------------------------------------
     * function to deal with the esp structure 
     * --------------------------------------- */
