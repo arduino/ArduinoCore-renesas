@@ -209,12 +209,13 @@ void esp_host_set_cb_rx(CbkFuncRx_f fnc) {
 /* ################################
  * PRIVATE Functions implementation
  * ################################ */
+bsp_io_level_t handshake;
+   bsp_io_level_t data_ready;
 
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_transaction(void) {
 /* -------------------------------------------------------------------------- */
-   bsp_io_level_t handshake;
-   bsp_io_level_t data_ready;
+   
 
    R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
    R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
@@ -222,6 +223,7 @@ int esp_host_spi_transaction(void) {
    
    /* ESP is ready to accept a new transaction */
    while(data_ready == BSP_IO_LEVEL_HIGH || tx_buffer_ready) {
+
       if(handshake == BSP_IO_LEVEL_HIGH) {
          /* there is something to send or to receive */
          if(esp_host_send_and_receive() == ESP_HOSTED_SPI_DRIVER_OK) {
@@ -233,6 +235,7 @@ int esp_host_spi_transaction(void) {
             }
          }
       }
+      R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
    }
    
 }

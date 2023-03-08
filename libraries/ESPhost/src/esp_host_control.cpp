@@ -921,6 +921,8 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
    if(msg.is_valid() && failure_status == 0) {
       /* 8. Pack in protobuf and send the request */
       ctrl_msg__pack(&req, msg.get_protobuf_ptr());
+      application_send_msg_to_esp32(msg, CTRL_EP_NAME_RESP, ESP_SERIAL_IF, 0);
+      esp_host_notify_spi_driver_to_tx();
    }
    else {
       msg.clear();
