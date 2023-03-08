@@ -1,7 +1,7 @@
 #include "esp_host_control.h"
 
-
-
+#define MORE_FRAGMENT (1 << 0)
+static CMsg cumulative_msg;
 
 #define MAX_INTERFACE_LEN            IFNAMSIZ
 #define MAC_SIZE_BYTES               6
@@ -69,129 +69,564 @@
     buff_to_free1 = (uint8_t*)req_payload;
 
 
-/* Control response callbacks
- * These will be updated per control request received
- * 1. If application wants to use synchrounous, i.e. Wait till the response received
- *    after current control request is sent or timeout occurs,
- *    application will pass this callback in request as NULL.
- * 2. If application wants to use `asynchrounous`, i.e. Just send the request and
- *    unblock for next processing, application will assign function pointer in
- *    control request, which will be registered here.
- *    When the response comes, the this registered callback function will be called
- *    with input as response
- */
-static ctrl_resp_cb_t ctrl_resp_cb_table [CTRL_RESP_MAX - CTRL_RESP_BASE] = { NULL };
 
-/* Control event callbacks
- * These will be updated when user registers event callback
- * using `set_event_callback` API
- * 1. If application does not register event callback,
- *    Events received from ESP32 will be dropped
- * 2. If application registers event callback,
- *    and when registered event is received from ESP32,
- *    event callback will be called asynchronously
- */
-static ctrl_event_cb_t ctrl_event_cb_table[CTRL_EVENT_MAX - CTRL_EVENT_BASE] = { NULL };
+static ctrl_cmd_t answer;
 
-/* Returns CALLBACK_AVAILABLE if a non NULL control event
- * callback is available. It will return failure -
- *     MSG_ID_OUT_OF_ORDER - if request msg id is unsupported
- *     CALLBACK_NOT_REGISTERED - if aync callback is not available
- **/
-static int is_event_callback_registered(int event)
-{
-   int event_cb_tbl_idx = event - CTRL_EVENT_BASE;
+/* #############
+ *  PARSE EVENT
+ * ############# */
 
-   if ((event<=CTRL_EVENT_BASE) || (event>=CTRL_EVENT_MAX)) {
-      //printf("Could not identify event[%u]\n", event);
-      return MSG_ID_OUT_OF_ORDER;
+static int esp_host_parse_event(CtrlMsg *ctrl_msg) {
+   int rv = FAILURE;
+
+   if (!ctrl_msg) {
+      return FAILURE;
+   }   
+
+   memset(&answer,0x00, sizeof(ctrl_cmd_t));
+
+   answer.msg_type          = CTRL_EVENT;
+   answer.msg_id            = ctrl_msg->msg_id;
+   answer.resp_event_status = SUCCESS;
+
+   switch (ctrl_msg->msg_id) {
+      case CTRL_EVENT_ESP_INIT: 
+         rv = SUCCESS;  
+         break;
+      case CTRL_EVENT_HEARTBEAT: 
+         if(ctrl_msg->event_heartbeat) {
+            answer.u.e_heartbeat.hb_num = ctrl_msg->event_heartbeat->hb_num;
+            rv = SUCCESS;
+         }
+         break;
+      case CTRL_EVENT_STATION_DISCONNECT_FROM_AP: 
+         if(ctrl_msg->event_station_disconnect_from_ap) {
+            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_ap->resp;
+            rv = SUCCESS;
+         } 
+         break;
+      case CTRL_EVENT_STATION_DISCONNECT_FROM_ESP_SOFTAP: 
+         if(ctrl_msg->event_station_disconnect_from_esp_softap) {
+            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_esp_softap->resp;
+            if(answer.resp_event_status == SUCCESS) {
+               if(ctrl_msg->event_station_disconnect_from_esp_softap->mac.data) {
+                  strncpy(answer.u.e_sta_disconnected.mac,(char *)ctrl_msg->event_station_disconnect_from_esp_softap->mac.data, ctrl_msg->event_station_disconnect_from_esp_softap->mac.len);
+                  rv = SUCCESS;
+               }
+            }
+         }
+         break;
+      default: 
+         break;
    }
 
-   if (ctrl_event_cb_table[event_cb_tbl_idx]) {
-      return CALLBACK_AVAILABLE;
+   return rv;
+}
+
+/* ################
+ *  PARSE RESPONSE
+ * ################ */
+static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
+   int rv = FAILURE;
+
+   if (!ctrl_msg) {
+      return FAILURE;
+   } 
+
+   memset(&answer,0x00, sizeof(ctrl_cmd_t));
+
+   answer.msg_type          = CTRL_EVENT;
+   answer.msg_id            = ctrl_msg->msg_id;
+
+   uint16_t i = 0;
+
+   
+
+   /* 3. parse CtrlMsg into ctrl_cmd_t */
+   switch (ctrl_msg->msg_id) {
+      case CTRL_RESP_GET_MAC_ADDR : {
+         uint8_t len_l = min(ctrl_msg->resp_get_mac_address->mac.len, MAX_MAC_STR_LEN-1);
+
+         CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address);
+         CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address->mac.data);
+         CHECK_CTRL_MSG_FAILED(resp_get_mac_address);
+
+         strncpy(answer.u.wifi_mac.mac,
+            (char *)ctrl_msg->resp_get_mac_address->mac.data, len_l);
+         answer.u.wifi_mac.mac[len_l] = '\0';
+         break;
+      } case CTRL_RESP_SET_MAC_ADDRESS : {
+         CHECK_CTRL_MSG_NON_NULL(resp_set_mac_address);
+         CHECK_CTRL_MSG_FAILED(resp_set_mac_address);
+         break;
+      } case CTRL_RESP_GET_WIFI_MODE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_get_wifi_mode);
+         CHECK_CTRL_MSG_FAILED(resp_get_wifi_mode);
+
+         answer.u.wifi_mode.mode = ctrl_msg->resp_get_wifi_mode->mode;
+         break;
+      } case CTRL_RESP_SET_WIFI_MODE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_set_wifi_mode);
+         CHECK_CTRL_MSG_FAILED(resp_set_wifi_mode);
+         break;
+      } case CTRL_RESP_GET_AP_SCAN_LIST : {
+         CtrlMsgRespScanResult *rp = ctrl_msg->resp_scan_ap_list;
+         wifi_ap_scan_list_t *ap = &answer.u.wifi_ap_scan;
+         wifi_scanlist_t *list = NULL;
+
+         CHECK_CTRL_MSG_NON_NULL(resp_scan_ap_list);
+         CHECK_CTRL_MSG_FAILED(resp_scan_ap_list);
+
+         ap->count = rp->count;
+         if (rp->count) {
+
+            CHECK_CTRL_MSG_NON_NULL_VAL(ap->count,"No APs available");
+            list = (wifi_scanlist_t *)hosted_calloc(ap->count,
+                  sizeof(wifi_scanlist_t));
+            CHECK_CTRL_MSG_NON_NULL_VAL(list, "Malloc Failed");
+         }
+
+         for (i=0; i<rp->count; i++) {
+
+            if (rp->entries[i]->ssid.len)
+               memcpy(list[i].ssid, (char *)rp->entries[i]->ssid.data,
+                  rp->entries[i]->ssid.len);
+
+            if (rp->entries[i]->bssid.len)
+               memcpy(list[i].bssid, (char *)rp->entries[i]->bssid.data,
+                  rp->entries[i]->bssid.len);
+
+            list[i].channel = rp->entries[i]->chnl;
+            list[i].rssi = rp->entries[i]->rssi;
+            list[i].encryption_mode = rp->entries[i]->sec_prot;
+         }
+
+         ap->out_list = list;
+         /* Note allocation, to be freed later by app */
+         answer.free_buffer_func = hosted_free;
+         answer.free_buffer_handle = list;
+         break;
+      } case CTRL_RESP_GET_AP_CONFIG : {
+         CHECK_CTRL_MSG_NON_NULL(resp_get_ap_config);
+         wifi_ap_config_t *p = &answer.u.wifi_ap_config;
+
+         answer.resp_event_status = ctrl_msg->resp_get_ap_config->resp;
+
+         switch (ctrl_msg->resp_get_ap_config->resp) {
+
+            case CTRL_ERR_NOT_CONNECTED:
+               strncpy(p->status, NOT_CONNECTED_STR, STATUS_LENGTH);
+               p->status[STATUS_LENGTH-1] = '\0';
+               command_log("Station is not connected to AP \n");
+               goto fail_parse_ctrl_msg2;
+               break;
+
+            case SUCCESS:
+               strncpy(p->status, SUCCESS_STR, STATUS_LENGTH);
+               p->status[STATUS_LENGTH-1] = '\0';
+               if (ctrl_msg->resp_get_ap_config->ssid.data) {
+                  strncpy((char *)p->ssid,
+                        (char *)ctrl_msg->resp_get_ap_config->ssid.data,
+                        MAX_SSID_LENGTH-1);
+                  p->ssid[MAX_SSID_LENGTH-1] ='\0';
+               }
+               if (ctrl_msg->resp_get_ap_config->bssid.data) {
+                  uint8_t len_l = 0;
+
+                  len_l = min(ctrl_msg->resp_get_ap_config->bssid.len,
+                        MAX_MAC_STR_LEN-1);
+                  strncpy((char *)p->bssid,
+                        (char *)ctrl_msg->resp_get_ap_config->bssid.data,
+                        len_l);
+                  p->bssid[len_l] = '\0';
+               }
+
+               p->channel = ctrl_msg->resp_get_ap_config->chnl;
+               p->rssi = ctrl_msg->resp_get_ap_config->rssi;
+               p->encryption_mode = ctrl_msg->resp_get_ap_config->sec_prot;
+               break;
+
+            case FAILURE:
+            default:
+               /* intentional fall-through */
+               strncpy(p->status, FAILURE_STR, STATUS_LENGTH);
+               p->status[STATUS_LENGTH-1] = '\0';
+               command_log("Failed to get AP config \n");
+               goto fail_parse_ctrl_msg2;
+               break;
+         }
+         break;
+      } case CTRL_RESP_CONNECT_AP : {
+         uint8_t len_l = 0;
+         CHECK_CTRL_MSG_NON_NULL(resp_connect_ap);
+
+         answer.resp_event_status = ctrl_msg->resp_connect_ap->resp;
+
+         switch(ctrl_msg->resp_connect_ap->resp) {
+            case CTRL_ERR_INVALID_PASSWORD:
+               command_log("Invalid password for SSID\n");
+               goto fail_parse_ctrl_msg2;
+               break;
+            case CTRL_ERR_NO_AP_FOUND:
+               command_log("SSID: not found/connectable\n");
+               goto fail_parse_ctrl_msg2;
+               break;
+            case SUCCESS:
+               CHECK_CTRL_MSG_NON_NULL(resp_connect_ap->mac.data);
+               CHECK_CTRL_MSG_FAILED(resp_connect_ap);
+               break;
+            default:
+               CHECK_CTRL_MSG_FAILED(resp_connect_ap);
+               command_log("Connect AP failed\n");
+               goto fail_parse_ctrl_msg2;
+               break;
+         }
+         len_l = min(ctrl_msg->resp_connect_ap->mac.len, MAX_MAC_STR_LEN-1);
+         strncpy(answer.u.wifi_ap_config.out_mac,
+               (char *)ctrl_msg->resp_connect_ap->mac.data, len_l);
+         answer.u.wifi_ap_config.out_mac[len_l] = '\0';
+         break;
+      } case CTRL_RESP_DISCONNECT_AP : {
+         CHECK_CTRL_MSG_NON_NULL(resp_disconnect_ap);
+         CHECK_CTRL_MSG_FAILED(resp_disconnect_ap);
+         break;
+      } case CTRL_RESP_GET_SOFTAP_CONFIG : {
+         CHECK_CTRL_MSG_NON_NULL(resp_get_softap_config);
+         CHECK_CTRL_MSG_FAILED(resp_get_softap_config);
+
+         if (ctrl_msg->resp_get_softap_config->ssid.data) {
+            uint16_t len = ctrl_msg->resp_get_softap_config->ssid.len;
+            uint8_t *data = ctrl_msg->resp_get_softap_config->ssid.data;
+            uint8_t *app_str = answer.u.wifi_softap_config.ssid;
+
+            memcpy(app_str, data, len);
+            if (len<MAX_SSID_LENGTH)
+               app_str[len] = '\0';
+            else
+               app_str[MAX_SSID_LENGTH-1] = '\0';
+         }
+
+         if (ctrl_msg->resp_get_softap_config->pwd.data) {
+            memcpy(answer.u.wifi_softap_config.pwd,
+                  ctrl_msg->resp_get_softap_config->pwd.data,
+                  ctrl_msg->resp_get_softap_config->pwd.len);
+            answer.u.wifi_softap_config.pwd[MAX_PWD_LENGTH-1] = '\0';
+         }
+
+         answer.u.wifi_softap_config.channel =
+            ctrl_msg->resp_get_softap_config->chnl;
+         answer.u.wifi_softap_config.encryption_mode =
+            ctrl_msg->resp_get_softap_config->sec_prot;
+         answer.u.wifi_softap_config.max_connections =
+            ctrl_msg->resp_get_softap_config->max_conn;
+         answer.u.wifi_softap_config.ssid_hidden =
+            ctrl_msg->resp_get_softap_config->ssid_hidden;
+         answer.u.wifi_softap_config.bandwidth =
+            (wifi_bandwidth_e)ctrl_msg->resp_get_softap_config->bw;
+
+         break;
+      } case CTRL_RESP_SET_SOFTAP_VND_IE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_set_softap_vendor_specific_ie);
+         CHECK_CTRL_MSG_FAILED(resp_set_softap_vendor_specific_ie);
+         break;
+      } case CTRL_RESP_START_SOFTAP : {
+         uint8_t len_l = 0;
+         CHECK_CTRL_MSG_NON_NULL(resp_start_softap);
+         CHECK_CTRL_MSG_FAILED(resp_start_softap);
+         CHECK_CTRL_MSG_NON_NULL(resp_start_softap->mac.data);
+
+         len_l = min(ctrl_msg->resp_connect_ap->mac.len, MAX_MAC_STR_LEN-1);
+         strncpy(answer.u.wifi_softap_config.out_mac,
+               (char *)ctrl_msg->resp_connect_ap->mac.data, len_l);
+         answer.u.wifi_softap_config.out_mac[len_l] = '\0';
+         break;
+      } case CTRL_RESP_GET_SOFTAP_CONN_STA_LIST : {
+         wifi_softap_conn_sta_list_t *ap = &answer.u.wifi_softap_con_sta;
+         wifi_connected_stations_list_t *list = ap->out_list;
+         CtrlMsgRespSoftAPConnectedSTA *rp =
+            ctrl_msg->resp_softap_connected_stas_list;
+
+         CHECK_CTRL_MSG_FAILED(resp_softap_connected_stas_list);
+
+         ap->count = rp->num;
+         CHECK_CTRL_MSG_NON_NULL_VAL(ap->count,"No Stations connected");
+         if(ap->count) {
+            CHECK_CTRL_MSG_NON_NULL(resp_softap_connected_stas_list);
+            list = (wifi_connected_stations_list_t *)hosted_calloc(
+                  ap->count, sizeof(wifi_connected_stations_list_t));
+            CHECK_CTRL_MSG_NON_NULL_VAL(list, "Malloc Failed");
+         }
+
+         for (i=0; i<ap->count; i++) {
+            memcpy(list[i].bssid, (char *)rp->stations[i]->mac.data,
+                  rp->stations[i]->mac.len);
+            list[i].rssi = rp->stations[i]->rssi;
+         }
+         answer.u.wifi_softap_con_sta.out_list = list;
+
+         /* Note allocation, to be freed later by app */
+         answer.free_buffer_func = hosted_free;
+         answer.free_buffer_handle = list;
+
+         break;
+      } case CTRL_RESP_STOP_SOFTAP : {
+         CHECK_CTRL_MSG_NON_NULL(resp_stop_softap);
+         CHECK_CTRL_MSG_FAILED(resp_stop_softap);
+         break;
+      } case CTRL_RESP_SET_PS_MODE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_set_power_save_mode);
+         CHECK_CTRL_MSG_FAILED(resp_set_power_save_mode);
+         break;
+      } case CTRL_RESP_GET_PS_MODE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_get_power_save_mode);
+         CHECK_CTRL_MSG_FAILED(resp_get_power_save_mode);
+         answer.u.wifi_ps.ps_mode = ctrl_msg->resp_get_power_save_mode->mode;
+         break;
+      } case CTRL_RESP_OTA_BEGIN : {
+         CHECK_CTRL_MSG_NON_NULL(resp_ota_begin);
+         CHECK_CTRL_MSG_FAILED(resp_ota_begin);
+         if (ctrl_msg->resp_ota_begin->resp) {
+            command_log("OTA Begin Failed\n");
+            goto fail_parse_ctrl_msg;
+         }
+         break;
+      } case CTRL_RESP_OTA_WRITE : {
+         CHECK_CTRL_MSG_NON_NULL(resp_ota_write);
+         CHECK_CTRL_MSG_FAILED(resp_ota_write);
+         if (ctrl_msg->resp_ota_write->resp) {
+            command_log("OTA write failed\n");
+            goto fail_parse_ctrl_msg;
+         }
+         break;
+      } case CTRL_RESP_OTA_END : {
+         CHECK_CTRL_MSG_NON_NULL(resp_ota_end);
+         if (ctrl_msg->resp_ota_end->resp) {
+            command_log("OTA write failed\n");
+            goto fail_parse_ctrl_msg;
+         }
+         break;
+      } case CTRL_RESP_SET_WIFI_MAX_TX_POWER: {
+         CHECK_CTRL_MSG_NON_NULL(req_set_wifi_max_tx_power);
+         switch (ctrl_msg->resp_set_wifi_max_tx_power->resp)
+         {
+            case FAILURE:
+               command_log("Failed to set max tx power\n");
+               goto fail_parse_ctrl_msg;
+               break;
+            case SUCCESS:
+               break;
+            case CTRL_ERR_OUT_OF_RANGE:
+               command_log("Power is OutOfRange. Check api doc for reference\n");
+               goto fail_parse_ctrl_msg;
+               break;
+            default:
+               command_log("unexpected response\n");
+               goto fail_parse_ctrl_msg;
+               break;
+         }
+         break;
+      } case CTRL_RESP_GET_WIFI_CURR_TX_POWER: {
+         CHECK_CTRL_MSG_NON_NULL(resp_get_wifi_curr_tx_power);
+         CHECK_CTRL_MSG_FAILED(resp_get_wifi_curr_tx_power);
+         answer.u.wifi_tx_power.power =
+            ctrl_msg->resp_get_wifi_curr_tx_power->wifi_curr_tx_power;
+         break;
+      } case CTRL_RESP_CONFIG_HEARTBEAT: {
+         CHECK_CTRL_MSG_NON_NULL(resp_config_heartbeat);
+         CHECK_CTRL_MSG_FAILED(resp_config_heartbeat);
+         break;
+      } default: {
+         command_log("Unsupported Control Resp[%u]\n", ctrl_msg->msg_id);
+         goto fail_parse_ctrl_msg;
+         break;
+      }
    }
 
-   return CALLBACK_NOT_REGISTERED;
+   /* 4. Free up buffers */
+   ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   ctrl_msg = NULL;
+   answer.resp_event_status = SUCCESS;
+   return SUCCESS;
+
+   /* 5. Free up buffers in failure cases */
+fail_parse_ctrl_msg:
+   ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   ctrl_msg = NULL;
+   answer.resp_event_status = FAILURE;
+   return FAILURE;
+
+fail_parse_ctrl_msg2:
+   ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   ctrl_msg = NULL;
+   return FAILURE;
 }
 
 
-/* Check and call control response asynchronous callback if available
- * else flag error
- *     MSG_ID_OUT_OF_ORDER - if response id is not understandable
- *     CALLBACK_NOT_REGISTERED - callback is not registered
- **/
-static int call_async_resp_callback(ctrl_cmd_t *app_resp)
-{
-   if ((app_resp->msg_id <= CTRL_RESP_BASE) ||
-       (app_resp->msg_id >= CTRL_RESP_MAX)) {
-      return MSG_ID_OUT_OF_ORDER;
+
+static bool esp_host_answer_received = false; 
+
+static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
+   if(ans == nullptr) {
+      return FAILURE;
    }
 
-   if (ctrl_resp_cb_table[app_resp->msg_id-CTRL_RESP_BASE]) {
-      return ctrl_resp_cb_table[app_resp->msg_id-CTRL_RESP_BASE](app_resp);
+   /*
+    * HANDLE EVENTs -> only handled by event callbacks
+    */
+
+   if(ans->msg_type == CTRL_MSG_TYPE__Event) {
+      if(esp_host_is_event_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) { 
+         if(esp_host_parse_event(ans) == SUCCESS) {
+            esp_host_call_event_cb(ans->msg_id, &answer);
+         } 
+      }
    }
-
-   return CALLBACK_NOT_REGISTERED;
-}
-
-/* Check and call control event asynchronous callback if available
- * else flag error
- *     MSG_ID_OUT_OF_ORDER - if event id is not understandable
- *     CALLBACK_NOT_REGISTERED - callback is not registered
- **/
-static int call_event_callback(ctrl_cmd_t *app_event)
-{
-   if ((app_event->msg_id <= CTRL_EVENT_BASE) ||
-       (app_event->msg_id >= CTRL_EVENT_MAX)) {
-      return MSG_ID_OUT_OF_ORDER;
+   else if(ans->msg_type == CTRL_MSG_TYPE__Resp) {
+      if(esp_host_parse_response(ans) == SUCCESS) {
+         if(esp_host_is_response_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) {
+            esp_host_call_response_cb(ans->msg_id, &answer);
+         }
+         else {
+            esp_host_answer_received = true;
+         }
+      }
    }
-
-   if (ctrl_event_cb_table[app_event->msg_id-CTRL_EVENT_BASE]) {
-      return ctrl_event_cb_table[app_event->msg_id-CTRL_EVENT_BASE](app_event);
-   }
-
-   return CALLBACK_NOT_REGISTERED;
+   return SUCCESS;
 }
 
 
 
-/* Set asynchronous control response callback from control **request**
- * In case of synchronous request, `resp_cb` will be NULL and table
- * `ctrl_resp_cb_table` will be updated with NULL
- * In case of asynchronous request, valid callback will be cached
- **/
-static int set_async_resp_callback(int req_msg_id, ctrl_resp_cb_t resp_cb)
-{
-   /* Assign(Replace) response callback passed */
-   int exp_resp_msg_id = (req_msg_id - CTRL_REQ_BASE + CTRL_RESP_BASE);
-   if (exp_resp_msg_id >= CTRL_RESP_MAX) {
-      //printf("Not able to map new request to resp id\n");
-      return MSG_ID_OUT_OF_ORDER;
-   } else {
-      ctrl_resp_cb_table[exp_resp_msg_id-CTRL_RESP_BASE] = resp_cb;
-      return CALLBACK_SET_SUCCESS;
+
+
+
+void esp_host_msg_received() {
+   CMsg msg;
+   if(application_receive_msg_from_esp32(msg)) {
+      if(msg.get_if_type() == ESP_SERIAL_IF) {
+         /* control message received, please note that the msg is automatically
+            cleared by the add_msg function (its pointers are stealed and all
+            is nullified) */
+         cumulative_msg.add_msg(msg);
+         if(msg.get_flags() & MORE_FRAGMENT) {
+            /* if FRAGMENT is active, wait for other fragments to complete the
+               message*/
+         }
+         else {
+            /* if no more FRAGMENT is active 
+               first verify the tlv header */
+            if(cumulative_msg.verify_tlv_header()) {
+               /* here the message can be processed */
+               CtrlMsg *ans = NULL;
+               ans = ctrl_msg__unpack(NULL, cumulative_msg.get_protobuf_dim(), cumulative_msg.get_protobuf_ptr());
+               if(ans) {
+                  esp_host_process_ctrl_answer(ans);
+                  ctrl_msg__free_unpacked(ans, NULL);
+               }
+            }
+            cumulative_msg.clear();
+         }
+      }
+      else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
+         /* net if message received */
+      }
+      else if(msg.get_if_type() == ESP_PRIV_IF) {
+
+      }
+      else if(msg.get_if_type() == ESP_TEST_IF) {
+         
+      }
    }
+
+
+#ifdef TO_BE_REMOVED
+   /* process received buffer for all possible interface types */
+      if (buf_handle.if_type == ESP_SERIAL_IF) {
+
+         /* serial interface path */
+         serial_rx_handler(&buf_handle);
+
+      } else if((buf_handle.if_type == ESP_STA_IF) ||
+            (buf_handle.if_type == ESP_AP_IF)) {
+         priv = get_priv(buf_handle.if_type, buf_handle.if_num);
+
+         if (priv) {
+            buffer = (struct pbuf *)malloc(sizeof(struct pbuf));
+            assert(buffer);
+
+            buffer->len = buf_handle.payload_len;
+            buffer->payload = malloc(buf_handle.payload_len);
+            assert(buffer->payload);
+
+            memcpy(buffer->payload, buf_handle.payload,
+                  buf_handle.payload_len);
+
+            netdev_rx(priv->netdev, buffer);
+         }
+
+      } else if (buf_handle.if_type == ESP_PRIV_IF) {
+         buffer = (struct pbuf *)malloc(sizeof(struct pbuf));
+         assert(buffer);
+
+         buffer->len = buf_handle.payload_len;
+         buffer->payload = malloc(buf_handle.payload_len);
+         assert(buffer->payload);
+
+         memcpy(buffer->payload, buf_handle.payload,
+               buf_handle.payload_len);
+
+         process_priv_communication(buffer);
+         /* priv transaction received */
+         printf("Received INIT event\n\r");
+
+         event = (struct esp_priv_event *) (payload);
+         if (event->event_type == ESP_PRIV_EVENT_INIT) {
+            /* halt spi transactions for some time,
+             * this is one time delay, to give breathing
+             * time to slave before spi trans start */
+            stop_spi_transactions_for_msec(50000);
+            if (spi_drv_evt_handler_fp) {
+               spi_drv_evt_handler_fp(TRANSPORT_ACTIVE);
+            }
+         } else {
+            /* User can re-use this type of transaction */
+         }
+      } else if (buf_handle.if_type == ESP_TEST_IF) {
+#if TEST_RAW_TP
+         update_test_raw_tp_rx_len(buf_handle.payload_len);
+#endif
+      } else {
+         printf("unknown type %d \n\r", buf_handle.if_type);
+      }
+
+      /* Free buffer handle */
+      /* When buffer offloaded to other module, that module is
+       * responsible for freeing buffer. In case not offloaded or
+       * failed to offload, buffer should be freed here.
+       */
+      if (buf_handle.free_buf_handle) {
+         buf_handle.free_buf_handle(buf_handle.priv_buffer_handle);
+      }
+   }
+   #endif
+
 }
 
-/* Set asynchronous control response callback from control **response**
- * In case of synchronous request, `resp_cb` will be NULL and table
- * `ctrl_resp_cb_table` will be updated with NULL
- * In case of asynchronous request, valid callback will be cached
- **/
-static int is_async_resp_callback_registered_by_resp_msg_id(int resp_msg_id)
-{
-   if ((resp_msg_id <= CTRL_RESP_BASE) || (resp_msg_id >= CTRL_RESP_MAX)) {
-      //printf("resp id[%u] out of range\n", resp_msg_id);
-      return MSG_ID_OUT_OF_ORDER;
-   }
 
-   if (ctrl_resp_cb_table[resp_msg_id-CTRL_RESP_BASE]) {
-      return CALLBACK_AVAILABLE;
-   }
 
-   return CALLBACK_NOT_REGISTERED;
+int esp_host_wait_for_answer(ctrl_cmd_t *req) {
+   esp_host_answer_received = false;
+   uint32_t timeout_ms = req->cmd_timeout_sec * 1000;
+   for (auto const start = millis(); (!esp_host_answer_received && (millis() - start < timeout_ms)); ) {
+        __NOP();
+   }
+   if(esp_host_answer_received) {
+      req = &answer;
+      return SUCCESS;
+   }
+   return FAILURE;
+
+
 }
-
 
 
 
