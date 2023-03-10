@@ -69,6 +69,9 @@ recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUIN
 ## Compile c++ files
 recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
 
+## Compile asm files
+recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {includes} {build.extra_flags} {build.extra_ldflags} {compiler.cpp.extra_flags} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
+
 ## Create archives
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
