@@ -44,6 +44,11 @@
               "packager": "arduino",
               "version": "0.11.0-arduino5",
               "name": "dfu-util"
+            },
+            {
+              "packager": "arduino",
+              "version": "1.9.1-arduino5",
+              "name": "bossac"
             }
           ],
           "discoveryDependencies": [
