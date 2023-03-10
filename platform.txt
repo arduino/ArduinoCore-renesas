@@ -103,3 +103,5 @@ tools.dfu-util.upload.params.quiet=
 # tools.dfu-util.upload.pattern="{path}/{cmd}" --device {upload.vid}:{pid.0},:{upload.pid} -D "{build.path}/{build.project_name}.bin" -a{upload.interface} -R
 # -Q introduced with latest dfu-util
 tools.dfu-util.upload.pattern="{path}/{cmd}" --device {upload.vid}:{pid.0},:{upload.pid} -D "{build.path}/{build.project_name}.bin" -a{upload.interface} -Q
+
+pluggable_discovery.required=builtin:dfu-discovery
