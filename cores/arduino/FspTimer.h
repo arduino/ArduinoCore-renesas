@@ -58,8 +58,8 @@ class GPTimer {
        
     }
     
-    gpt_instance_ctrl_t ctrl;
-    gpt_extended_cfg_t ext_cfg;
+    gpt_instance_ctrl_t ctrl = { 0 };
+    gpt_extended_cfg_t ext_cfg = { 0 };
     
 
 };
