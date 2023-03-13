@@ -59,6 +59,6 @@ bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd);
 
 int analogRead(bsp_io_port_pin_t pinNumber);
 
-
+void analogWriteDAC(pin_size_t pinNumber, int value);
 
 #endif

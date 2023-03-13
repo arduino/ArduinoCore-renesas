@@ -141,6 +141,9 @@ static const uint8_t A6 = PIN_A6;
 #define WIRE_SDA_PIN      20
 #define WIRE_SCL_PIN      21
 
+#define DAC      (25u)
+#define DAC1     (26u)
+
 // TODO: removeme
 #ifdef __cplusplus
 extern "C"
