@@ -103,6 +103,12 @@ static const uint8_t A5 = PIN_A5;
 #define GTP32_HOWMANY     2
 #define AGT_HOWMANY       2
 
+/****** WIRE CORE DEFINES ******/
+
+#define WIRE_HOWMANY      1
+#define WIRE_SDA_PIN      20
+#define WIRE_SCL_PIN      21
+
 // TODO: removeme
 #ifdef __cplusplus
 extern "C"

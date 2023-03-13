@@ -4,6 +4,18 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_dac8.h"
+#include "r_dac_api.h"
+#include "r_dac.h"
+#include "r_dac_api.h"
+#include "r_dtc.h"
+#include "r_transfer_api.h"
+#include "r_sci_i2c.h"
+#include "r_i2c_master_api.h"
+#include "r_iic_slave.h"
+#include "r_i2c_slave_api.h"
+#include "r_iic_master.h"
+#include "r_i2c_master_api.h"
 #include "r_adc.h"
 #include "r_adc_api.h"
 #include "r_gpt.h"
@@ -16,6 +28,53 @@
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 FSP_HEADER
+/** DAC on DAC8 Instance. */
+extern const dac_instance_t g_dac8_0;
+
+/** Access the DAC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dac8_instance_ctrl_t g_dac8_0_ctrl;
+extern const dac_cfg_t g_dac8_0_cfg;
+/** DAC on DAC Instance. */
+extern const dac_instance_t g_dac0;
+
+/** Access the DAC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dac_instance_ctrl_t g_dac0_ctrl;
+extern const dac_cfg_t g_dac0_cfg;
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer0;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer0_ctrl;
+extern const transfer_cfg_t g_transfer0_cfg;
+extern const i2c_master_cfg_t g_i2c0_cfg;
+/* I2C on SCI Instance. */
+extern const i2c_master_instance_t g_i2c0;
+#ifndef sci_i2c_master_callback
+void sci_i2c_master_callback(i2c_master_callback_args_t *p_args);
+#endif
+
+extern const sci_i2c_extended_cfg_t g_i2c0_cfg_extend;
+extern sci_i2c_instance_ctrl_t g_i2c0_ctrl;
+/** I2C Slave on IIC Instance. */
+extern const i2c_slave_instance_t g_i2c_slave0;
+
+/** Access the I2C Slave instance using these structures when calling API functions directly (::p_api is not used). */
+extern iic_slave_instance_ctrl_t g_i2c_slave0_ctrl;
+extern const i2c_slave_cfg_t g_i2c_slave0_cfg;
+
+#ifndef NULL
+void NULL(i2c_slave_callback_args_t *p_args);
+#endif
+/* I2C Master on IIC Instance. */
+extern const i2c_master_instance_t g_i2c_master0;
+
+/** Access the I2C Master instance using these structures when calling API functions directly (::p_api is not used). */
+extern iic_master_instance_ctrl_t g_i2c_master0_ctrl;
+extern const i2c_master_cfg_t g_i2c_master0_cfg;
+
+#ifndef NULL
+void NULL(i2c_master_callback_args_t *p_args);
+#endif
 /** ADC on ADC Instance. */
 extern const adc_instance_t g_adc0;
 

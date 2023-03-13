@@ -115,7 +115,7 @@ FSP Configuration
       P914 13 - - - - Disabled - - "USB_FS0: DP" - None - - 
       P915 12 - - - - Disabled - - "USB_FS0: DM" - None - - 
       RES# 16 SYSTEM0_RES - - - - - - - - IO "Read only" - 
-      SBIAS/VREFI 24 "SDADC0_VREFI / SDADC0_SBIAS" - - - - - - - - IO "Read only" - 
+      SBIAS/VREFI 24 "SDADC0_SBIAS / SDADC0_VREFI" - - - - - - - - IO "Read only" - 
       VCC 8 SYSTEM0_VCC - - - - - - - - IO "Read only" - 
       VCCUSB 14 USB_FS0_VCC - - - - - - - - IO "Read only" - 
       VCCUSBLDO 15 USB_FS0_VCCLDO - - - - - - - - IO "Read only" - 
@@ -173,6 +173,29 @@ FSP Configuration
     Clock Source: PCLKD
     
   Module "ADC (r_adc)"
+    Parameter Checking: Default (BSP)
+    
+  Module "I2C Master (r_iic_master)"
+    Parameter Checking: Default (BSP)
+    DTC on Transmission and Reception: Enabled
+    10-bit slave addressing: Enabled
+    
+  Module "I2C Slave (r_iic_slave)"
+    Parameter Checking: Default (BSP)
+    
+  Module "I2C Master (r_sci_i2c)"
+    Parameter Checking: Default (BSP)
+    DTC on Transmission and Reception: Enabled
+    10-bit slave addressing: Enabled
+    
+  Module "Transfer (r_dtc)"
+    Parameter Checking: Default (BSP)
+    Linker section to keep DTC vector table: .fsp_dtc_vector_table
+    
+  Module "DAC (r_dac)"
+    Parameter Checking: Default (BSP)
+    
+  Module "DAC8 (r_dac8)"
     Parameter Checking: Default (BSP)
     
   HAL
@@ -358,4 +381,77 @@ FSP Configuration
       Interrupts: Window Compare A Interrupt Priority: Disabled
       Interrupts: Window Compare B Interrupt Priority: Disabled
       Extra: ADC Ring Buffer: Not Supported
+      
+    Instance "g_i2c_master0 I2C Master (r_iic_master)"
+      Name: g_i2c_master0
+      Channel: 0
+      Rate: Standard
+      Rise Time (ns): 120
+      Fall Time (ns): 120
+      Duty Cycle (%): 50
+      Slave Address: 0x00
+      Address Mode: 7-Bit
+      Timeout Mode: Short Mode
+      Timeout during SCL Low: Enabled
+      Callback: NULL
+      Interrupt Priority Level: Priority 2
+      
+    Instance "g_i2c_slave0 I2C Slave (r_iic_slave)"
+      Name: g_i2c_slave0
+      Channel: 0
+      Rate: Standard
+      Internal Reference Clock: PCLKB / 1
+      Digital Noise Filter Stage Select: 3-stage filter
+      Slave Address: 0x08
+      General Call: Disabled
+      Address Mode: 7-Bit
+      Clock Stretching: Disabled
+      Callback: NULL
+      Interrupt Priority Level: Transmit, Receive, and Transmit End: Priority 2
+      Interrupt Priority Level: Error: Priority 2
+      
+    Instance "g_i2c0 I2C Master (r_sci_i2c)"
+      Name: g_i2c0
+      Channel: 0
+      Slave Address : 0x00
+      Address Mode: 7-Bit
+      Rate: Standard
+      SDA Output Delay (nano seconds): 300
+      Noise filter setting: Use clock signal divided by 1 with noise filter
+      Bit Rate Modulation: Enable
+      Callback: sci_i2c_master_callback
+      Interrupt Priority Level: Priority 2
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Disabled
+      
+    Instance "g_transfer0 Transfer (r_dtc) Disabled"
+      Name: g_transfer0
+      Mode: Normal
+      Transfer Size: 2 Bytes
+      Destination Address Mode: Fixed
+      Source Address Mode: Fixed
+      Repeat Area (Unused in Normal Mode): Source
+      Destination Pointer: NULL
+      Source Pointer: NULL
+      Interrupt Frequency: After all transfers have completed
+      Number of Transfers: 0
+      Number of Blocks (Valid only in Block Mode): 0
+      Activation Source: Disabled
+      
+    Instance "g_dac0 DAC (r_dac)"
+      Name: g_dac0
+      Channel: 0
+      Synchronize with ADC: Disabled
+      Data Format: Right Justified
+      Output Amplifier: Disabled
+      Charge Pump (Requires MOCO active): Disabled
+      Internal Output: Enabled by default
+      ELC Trigger Source: Disabled
+      
+    Instance "g_dac8_0 DAC8 (r_dac8)"
+      Name: g_dac8_0
+      Channel: 0
+      D/A A/D Synchronous Conversion: Disabled
+      DAC Mode: Normal Mode
+      Real-time Trigger Event: Disabled
+      Charge Pump (Requires MOCO active): Enabled
       
