@@ -1,7 +1,19 @@
 #include "Arduino.h"
 #include "pinmux.inc"
+const uint16_t P014[] = { LAST_ITEM_GUARD };
+const uint16_t P302[] = { LAST_ITEM_GUARD };
+const uint16_t P015[] = { LAST_ITEM_GUARD };
+const uint16_t P401[] = { LAST_ITEM_GUARD };
+const uint16_t P215[] = { LAST_ITEM_GUARD };
+const uint16_t P214[] = { LAST_ITEM_GUARD };
+const uint16_t P108[] = { LAST_ITEM_GUARD };
+const uint16_t P300[] = { LAST_ITEM_GUARD };
+const uint16_t P104[] = { LAST_ITEM_GUARD };
+const uint16_t P409[] = { LAST_ITEM_GUARD };
+const uint16_t P105[] = { LAST_ITEM_GUARD };
+const uint16_t P206[] = { LAST_ITEM_GUARD };
 
-std::array<uint16_t, 3> getPinCfgs(const pinsize_t pin, PinCfgReq_t req) {
+std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req) {
 
   std::array<uint16_t, 3> ret = {0 , 0, 0};
   if (pin > g_pin_cfg_size) {
@@ -58,10 +70,39 @@ std::array<uint16_t, 3> getPinCfgs(const pinsize_t pin, PinCfgReq_t req) {
 }
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
-  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (0) D0  -------------------------  DIGITAL  */
-  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (1) D1  */
-  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (1) D1  */
-  { BSP_IO_PORT_01_PIN_10,    P110   }, /* (1) D1  */
+ 	  
+	  { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
+	  { BSP_IO_PORT_03_PIN_02,    P302   }, /* (1) D1  */
+	  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (2) D2  */
+	  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (3) D3~ */
+	  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (4) D4  */
+	  { BSP_IO_PORT_00_PIN_15,    P015   }, /* (5) D5~ */
+	  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (6) D6~ */
+	  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (7) D8  */
+	  { BSP_IO_PORT_04_PIN_01,    P401   }, /* (8) D7  */
+	  { BSP_IO_PORT_05_PIN_02,    P502   }, /* (9) D9~  */
+	  { BSP_IO_PORT_02_PIN_14,    P214   }, /* (10) D11~ */
+	  { BSP_IO_PORT_02_PIN_15,    P215   }, /* (11) D10~ */
+	  { BSP_IO_PORT_02_PIN_13,    P213   }, /* (12) D12 */
+	  { BSP_IO_PORT_02_PIN_12,    P212   }, /* (13) D13 */
+	  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (14) D14 */
+	  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (15) D15 */
+	  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (16) A0  D16 --------------------------  ANALOG  */
+	  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (17) A1  D17  */ 
+	  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (18) A2  D18  */
+	  { BSP_IO_PORT_01_PIN_04,    P104   }, /* (19) A3  D19  */
+	  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (20) A4  D20  */
+	  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (21) A5  D21  */
+	  { BSP_IO_PORT_01_PIN_05,    P105   }, /* (22) A6  D22  */
+		  		  
+	  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (23) D23 ------------------------- TX   */
+	  { BSP_IO_PORT_01_PIN_10,    P110   }, /* (24) D24 ------------------------- RX   */
+	  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (25) D25 ------------------------- DAC1 */
+      { BSP_IO_PORT_05_PIN_00,    P500   }, /* (26) D26 ------------------------- DAC2 */
+	  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (27) D27  */
+		  
+	
+	  
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
