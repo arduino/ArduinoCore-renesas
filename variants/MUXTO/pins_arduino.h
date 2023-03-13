@@ -15,7 +15,7 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (6u)
-#define NUM_ANALOG_OUTPUTS   (1u)
+#define NUM_ANALOG_OUTPUTS   (2u)
 
 #define I2C_COUNT           (I2C_COUNT_fn())
 #define SPI_COUNT           (SPI_COUNT_fn())
@@ -126,13 +126,13 @@ static const uint8_t A6 = PIN_A6;
 #define UART2_RX_PIN        1
 
 #define USB_VID           (0x2341)
-#define USB_PID           (0x0058)
+#define USB_PID           (0x006C)
 #define USB_NAME          "SCIENCE R3"
 
 #define NO_1200_BPS_RESET   1
 
-#define GPT_HOWMANY       7
-#define GTP32_HOWMANY     2
+#define GPT_HOWMANY       6
+#define GTP32_HOWMANY     1
 #define AGT_HOWMANY       2
 
 /****** WIRE CORE DEFINES ******/
@@ -143,6 +143,8 @@ static const uint8_t A6 = PIN_A6;
 
 #define DAC      (25u)
 #define DAC1     (26u)
+
+#define IS_DAC_8(x)     ((x == DAC) ? true : false)
 
 // TODO: removeme
 #ifdef __cplusplus
