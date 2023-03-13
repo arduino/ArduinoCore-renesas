@@ -28,6 +28,9 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define PIN_A3   (19u)
 #define PIN_A4   (20u)
 #define PIN_A5   (21u)
+#define PIN_A6   (22u)
+
+
 
 #undef A0
 #undef A1
@@ -35,12 +38,15 @@ extern "C" unsigned int SCI_COUNT_fn();
 #undef A3
 #undef A4
 #undef A5
+#undef A6
+
 static const uint8_t A0 = PIN_A0;
 static const uint8_t A1 = PIN_A1;
 static const uint8_t A2 = PIN_A2;
 static const uint8_t A3 = PIN_A3;
 static const uint8_t A4 = PIN_A4;
 static const uint8_t A5 = PIN_A5;
+static const uint8_t A6 = PIN_A6;
 
 // Digital pins
 // -----------
@@ -60,6 +66,20 @@ static const uint8_t A5 = PIN_A5;
 #undef D13
 #undef D14
 #undef D15
+#undef D16
+#undef D17
+#undef D18
+#undef D19
+#undef D20
+#undef D21
+#undef D22
+#undef D23
+#undef D24
+#undef D25
+#undef D26
+#undef D27
+
+
 #define D0  (0u)
 #define D1  (1u)
 #define D2  (2u)
@@ -76,14 +96,26 @@ static const uint8_t A5 = PIN_A5;
 #define D13 (13u)
 #define D14 (14u)
 #define D15 (15u)
+#define D16 (16u)
+#define D17 (17u)
+#define D18 (18u)
+#define D19 (19u)
+#define D20 (20u)
+#define D21 (21u)
+#define D22 (22u)
+#define D23 (23u)
+#define D24 (24u)
+#define D25 (25u)
+#define D26 (26u)
+#define D27 (27u)
 
 // LEDs
 // ----
-#define PIN_LED     (3u)
-#define LED_BUILTIN PIN_LED
-#define LEDR        (22u)
-#define LEDG        (13u)
-#define LEDB        (23u)
+//#define PIN_LED     (3u)
+//#define LED_BUILTIN PIN_LED
+//#define LEDR        (22u)
+//#define LEDG        (13u)
+//#define LEDB        (23u)
 
 /****** UART CORE DEFINES ******/
 
@@ -95,7 +127,7 @@ static const uint8_t A5 = PIN_A5;
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0058)
-#define USB_NAME          "Nano Every"
+#define USB_NAME          "SCIENCE R3"
 
 #define NO_1200_BPS_RESET   1
 

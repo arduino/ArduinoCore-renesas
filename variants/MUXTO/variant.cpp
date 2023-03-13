@@ -78,28 +78,28 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 	  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (4) D4  */
 	  { BSP_IO_PORT_00_PIN_15,    P015   }, /* (5) D5~ */
 	  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (6) D6~ */
-	  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (8) D8  */
-	  { BSP_IO_PORT_04_PIN_01,    P401   }, /* (7) D7  */
+	  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (7) D8  */
+	  { BSP_IO_PORT_04_PIN_01,    P401   }, /* (8) D7  */
 	  { BSP_IO_PORT_05_PIN_02,    P502   }, /* (9) D9~  */
-	  { BSP_IO_PORT_02_PIN_14,    P214   }, /* (11) D11~ */
-	  { BSP_IO_PORT_02_PIN_15,    P215   }, /* (10) D10~ */
+	  { BSP_IO_PORT_02_PIN_14,    P214   }, /* (10) D11~ */
+	  { BSP_IO_PORT_02_PIN_15,    P215   }, /* (11) D10~ */
 	  { BSP_IO_PORT_02_PIN_13,    P213   }, /* (12) D12 */
 	  { BSP_IO_PORT_02_PIN_12,    P212   }, /* (13) D13 */
 	  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (14) D14 */
 	  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (15) D15 */
-	  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (16) A0  --------------------------  ANALOG  */
-	  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (17) A1  */
-	  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (18) A2  */
-	  { BSP_IO_PORT_01_PIN_04,    P104   }, /* (19) A3  */
-	  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (20) A4  */
-	  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (21) A5  */
-	  { BSP_IO_PORT_01_PIN_05,    P105   }, /* (22) A6  */
+	  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (16) A0  D16 --------------------------  ANALOG  */
+	  { BSP_IO_PORT_01_PIN_02,    P102   }, /* (17) A1  D17  */ 
+	  { BSP_IO_PORT_01_PIN_03,    P103   }, /* (18) A2  D18  */
+	  { BSP_IO_PORT_01_PIN_04,    P104   }, /* (19) A3  D19  */
+	  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (20) A4  D20  */
+	  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (21) A5  D21  */
+	  { BSP_IO_PORT_01_PIN_05,    P105   }, /* (22) A6  D22  */
 		  		  
-	  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (23) D16 ------------------------- TX   */
-	  { BSP_IO_PORT_01_PIN_10,    P110   }, /* (24) D17 ------------------------- RX   */
-	  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (25) D18 ------------------------- DAC1 */
-      { BSP_IO_PORT_05_PIN_00,    P500   }, /* (26) D19 ------------------------- DAC2 */
-	  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (27) D20  */
+	  { BSP_IO_PORT_01_PIN_09,    P109   }, /* (23) D23 ------------------------- TX   */
+	  { BSP_IO_PORT_01_PIN_10,    P110   }, /* (24) D24 ------------------------- RX   */
+	  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (25) D25 ------------------------- DAC1 */
+      { BSP_IO_PORT_05_PIN_00,    P500   }, /* (26) D26 ------------------------- DAC2 */
+	  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (27) D27  */
 		  
 	
 	  
