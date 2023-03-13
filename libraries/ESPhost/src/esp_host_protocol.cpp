@@ -39,11 +39,14 @@ bool esp32_receive_msg_to_be_sent_on_SPI(uint8_t *buffer, uint16_t dim) {
 
 
 bool esp32_send_msg_to_application(uint8_t *buffer, uint16_t dim) {
+   bool rv = false;
    CMsg msg;
    if(msg.store_rx_buffer(buffer, dim)) {
-      return from_ESP32_queue.store(msg);
+      rv = from_ESP32_queue.store(msg);
    }
-   return false;
+   /* reset rx_buffer in any case after copy */
+   memset(buffer,0x00, dim);
+   return rv;
 }
 
 bool application_receive_msg_from_esp32(CMsg &msg) {

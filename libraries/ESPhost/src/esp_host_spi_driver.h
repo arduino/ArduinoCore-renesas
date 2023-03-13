@@ -26,7 +26,7 @@
 #include "esp_host_protocol.h"
 
 #include "r_spi.h"
-#include "r_spi_api.h"
+#include "r_sci_spi.h"
 
 using CbkFuncRx_f = void(*)();
 

@@ -37,25 +37,24 @@
 
 
 /* FSP SPI Channel */
-#define SPI_CHANNEL  (1) 
+#define SPI_CHANNEL  (0) 
 
 #define EXT_IRQ_CHANNEL (0)
 
 /* GPIOs */
-#define HANDSHAKE         BSP_IO_PORT_08_PIN_06  
-#define DATA_READY        BSP_IO_PORT_08_PIN_03
-#define DATA_READY_PIN    100
+#define HANDSHAKE         BSP_IO_PORT_05_PIN_05  //BSP_IO_PORT_08_PIN_06  
+#define DATA_READY        BSP_IO_PORT_08_PIN_02  //BSP_IO_PORT_08_PIN_03
+#define DATA_READY_PIN    33                     //100
 
 /* SPI PIN definition */
 #define ESP_MISO   BSP_IO_PORT_01_PIN_00
 #define ESP_MOSI   BSP_IO_PORT_01_PIN_01
 #define ESP_CK     BSP_IO_PORT_01_PIN_02
-#define ESP_CS     BSP_IO_PORT_01_PIN_03
+#define ESP_CS     BSP_IO_PORT_01_PIN_03 // TODO: il vero CS è P104
 
 /* #################
  * PRIVATE Variables
  * ################# */
-
 static uint8_t rx_buffer[MAX_SPI_BUFFER_SIZE];
 static uint8_t tx_buffer[MAX_SPI_BUFFER_SIZE];
 
@@ -65,6 +64,8 @@ static spi_extended_cfg_t   _esp_host_spi_ext_cfg;
 
 static icu_instance_ctrl_t  _esp_host_icu_ctrl;
 static external_irq_cfg_t   _esp_host_icu_cfg;
+
+static sci_spi_extended_cfg_t _sci_spi_ext_cfg;
 
 static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
 
@@ -85,7 +86,7 @@ static int esp_host_send_and_receive(void);
 
 /* check if something has to be sent to or received from ESP32 and, if necessary
    performs an actual spi transaction, to send and receive*/
-static int esp_host_spi_transaction(void);
+int esp_host_spi_transaction(void);
 
 
 /* ################
@@ -99,28 +100,32 @@ static int esp_host_spi_transaction(void);
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_init(void) {
    
+   
+
    /* ++++++++++++++++++++++++++++++++++
     *  GPIOs (HANDSHAKE and DATA_READY)
     * ++++++++++++++++++++++++++++++++++ */
    R_IOPORT_PinCfg(NULL, HANDSHAKE, IOPORT_CFG_PORT_DIRECTION_INPUT);
    /* DATA READY is configure in attach interrupt function below */
-   #ifdef EXPLICIT_PIN_CONFIGURATION
+   //#ifdef EXPLICIT_PIN_CONFIGURATION
    R_IOPORT_PinCfg(NULL, DATA_READY, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
-   #endif
+
+   R_IOPORT_PinCfg(NULL, ESP_CS, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
+   //#endif
 
    /* +++++
     *  SPI
     * +++++ */
 
    /*  INIT SPI peripheral PINs */
-   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MISO, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
-   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MOSI, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
-   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CK,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
-   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CS,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MISO, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MOSI, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CK,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
+   //R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CS,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
 
    /* SPI configuration */
 
-   _esp_host_spi_cfg.p_extend       = &_esp_host_spi_ext_cfg;
+   _esp_host_spi_cfg.p_extend       = &_sci_spi_ext_cfg;//_esp_host_spi_ext_cfg;
    _esp_host_spi_cfg.p_callback     = spi_callback; 
    _esp_host_spi_cfg.channel        = SPI_CHANNEL;
    _esp_host_spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
@@ -158,6 +163,18 @@ int esp_host_spi_init(void) {
    _esp_host_spi_ext_cfg.ssl_negation_delay = SPI_DELAY_COUNT_1;
    _esp_host_spi_ext_cfg.next_access_delay  = SPI_DELAY_COUNT_1;
 
+   _sci_spi_ext_cfg.clk_div.cks  = 0;
+   _sci_spi_ext_cfg.clk_div.brr  = 11;
+   _sci_spi_ext_cfg.clk_div.mddr = 0;
+
+
+   R_SCI_SPI_CalculateBitrate (1000000, &(_sci_spi_ext_cfg.clk_div), false);
+
+
+   
+  
+
+
   /* +++++++++++
    * INTERRUPTS
    * +++++++++++ */
@@ -168,7 +185,7 @@ int esp_host_spi_init(void) {
      .hw_channel = (uint8_t)SPI_CHANNEL,
    };
     
-   if(!IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req)) {
+   if(!IRQManager::getInstance().addPeripheral(IRQ_SCI_SPI_MASTER, &irq_req)) {
      return ESP_HOSTED_SPI_DRIVER_INIT_IRQ_FAILED;
    }
 
@@ -179,9 +196,10 @@ int esp_host_spi_init(void) {
     * +++++++++ */
 
    /* Configure the SPI using the FSP HAL functionlity. */
-   if (FSP_SUCCESS != R_SPI_Open(&_esp_host_spi_ctrl, &_esp_host_spi_cfg)) {
+   if (FSP_SUCCESS != R_SCI_SPI_Open(&_esp_host_spi_ctrl, &_esp_host_spi_cfg)) {
       return ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN;
    }
+   
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
 
@@ -236,23 +254,27 @@ int esp_host_spi_transaction(void) {
          }
       }
       R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
+      R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
    }
    
 }
 
 
 
-static int esp_host_send_and_receive(void) {
+int esp_host_send_and_receive(void) {
    _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
-   fsp_err_t err = R_SPI_WriteRead (&_esp_host_spi_ctrl, tx_buffer, rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
+   R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_LOW);
+   fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, tx_buffer, rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
    if(err == FSP_SUCCESS) {
       for (auto const start = millis(); (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_status) && (millis() - start < 1000); ) {
         __NOP();
       }
    }
    if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) {
+      R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
       return ESP_HOSTED_SPI_DRIVER_OK;
    }
+   R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
    return ESP_HOSTED_SPI_SPI_TRANSACTION_ERR;
 }
 

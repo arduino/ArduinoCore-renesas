@@ -132,7 +132,7 @@ struct esp_priv_event {
 #define CTRL_EP_NAME_RESP                         "ctrlResp"
 #define CTRL_EP_NAME_EVENT                        "ctrlEvnt"
 
-const uint16_t esp_ep_name_len = sizeof(CTRL_EP_NAME_RESP);
+const uint16_t esp_ep_name_len = strlen(CTRL_EP_NAME_RESP);
 const uint16_t esp_payload_header_size = sizeof(struct esp_payload_header);
 const uint16_t esp_tlv_header_size = 1 + 2 + esp_ep_name_len + 1 + 2;
 
@@ -140,7 +140,7 @@ const uint16_t esp_tlv_header_ep_name_type_pos = esp_payload_header_size + 1;
 const uint16_t esp_tlv_header_ep_name_len_low_pos = esp_tlv_header_ep_name_type_pos + 1;
 const uint16_t esp_tlv_header_ep_name_len_high_pos = esp_tlv_header_ep_name_len_low_pos + 1;
 const uint16_t esp_tlv_header_ep_name_pos = esp_tlv_header_ep_name_len_high_pos + 1;
-const uint16_t esp_tlv_header_ep_data_type_pos = esp_tlv_header_ep_name_pos + sizeof(CTRL_EP_NAME_RESP);
+const uint16_t esp_tlv_header_ep_data_type_pos = esp_tlv_header_ep_name_pos + strlen(CTRL_EP_NAME_RESP);
 const uint16_t esp_tlv_header_ep_data_len_low_pos = esp_tlv_header_ep_data_type_pos + 1;
 const uint16_t esp_tlv_header_ep_data_len_high_pos = esp_tlv_header_ep_data_len_low_pos + 1;
 const uint16_t esp_tlv_header_payload_pos = esp_tlv_header_ep_data_len_high_pos + 1;
@@ -193,8 +193,8 @@ private:
       buf = new uint8_t[d];
       if(buf != nullptr) {
          /* memset all the buffer to 0 */
-         memset(buf, 0x00, dim);
          dim = d;
+         memset(buf, 0x00, dim);
          return dim;
       }
       return 0;
