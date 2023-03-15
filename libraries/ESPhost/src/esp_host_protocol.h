@@ -136,7 +136,7 @@ const uint16_t esp_ep_name_len = strlen(CTRL_EP_NAME_RESP);
 const uint16_t esp_payload_header_size = sizeof(struct esp_payload_header);
 const uint16_t esp_tlv_header_size = 1 + 2 + esp_ep_name_len + 1 + 2;
 
-const uint16_t esp_tlv_header_ep_name_type_pos = esp_payload_header_size + 1;
+const uint16_t esp_tlv_header_ep_name_type_pos = esp_payload_header_size;
 const uint16_t esp_tlv_header_ep_name_len_low_pos = esp_tlv_header_ep_name_type_pos + 1;
 const uint16_t esp_tlv_header_ep_name_len_high_pos = esp_tlv_header_ep_name_len_low_pos + 1;
 const uint16_t esp_tlv_header_ep_name_pos = esp_tlv_header_ep_name_len_high_pos + 1;
@@ -248,7 +248,7 @@ public:
    /* get_protobuf_ptr() can be used to get the position the protobuffer is.
       That is used when protobuf pack function is used */
    uint8_t *get_protobuf_ptr() { return buf + esp_payload_header_size + esp_tlv_header_size; }  
-   uint16_t get_protobuf_dim() { proto_dim; } 
+   uint16_t get_protobuf_dim() { return proto_dim; } 
 
 
    /* ---------------------------------------
@@ -256,6 +256,7 @@ public:
     * --------------------------------------- */
    
    /* set tlv structure */
+  
    bool set_tlv_header(const char *ep_name) {
       /* ALL ep_name must have the same length */
       if(strlen(ep_name) != esp_ep_name_len) {
@@ -301,8 +302,8 @@ public:
       }
       
       /* verify ep_name value*/
-      if ((strncmp((char* )(b + esp_tlv_header_payload_pos),CTRL_EP_NAME_RESP,esp_ep_name_len) == 0) ||
-          (strncmp((char* )(b + esp_tlv_header_payload_pos),CTRL_EP_NAME_EVENT,esp_ep_name_len) == 0)) {
+      if ((strncmp((char* )(b + esp_tlv_header_ep_name_pos),CTRL_EP_NAME_RESP,esp_ep_name_len) == 0) ||
+          (strncmp((char* )(b + esp_tlv_header_ep_name_pos),CTRL_EP_NAME_EVENT,esp_ep_name_len) == 0)) {
          /* calculate protobuf dim */
       proto_dim = b[esp_tlv_header_ep_data_len_low_pos];
       proto_dim += b[esp_tlv_header_ep_data_len_high_pos] << 8;
@@ -332,10 +333,11 @@ public:
       if(l != esp_ep_name_len) {
          return false;
       }
+
       
       /* verify ep_name value*/
-      if ((strncmp((char* )(buf + esp_tlv_header_payload_pos),CTRL_EP_NAME_RESP,esp_ep_name_len) == 0) ||
-          (strncmp((char* )(buf + esp_tlv_header_payload_pos),CTRL_EP_NAME_EVENT,esp_ep_name_len) == 0)) {
+      if ((strncmp((char* )(buf + esp_tlv_header_ep_name_pos),CTRL_EP_NAME_RESP,esp_ep_name_len) == 0) ||
+          (strncmp((char* )(buf + esp_tlv_header_ep_name_pos),CTRL_EP_NAME_EVENT,esp_ep_name_len) == 0)) {
          /* calculate protobuf dim */
       proto_dim = buf[esp_tlv_header_ep_data_len_low_pos];
       proto_dim += buf[esp_tlv_header_ep_data_len_high_pos] << 8;
@@ -498,7 +500,7 @@ public:
 
 };
 
-
+bool application_send_msg_to_esp32(CMsg &msg);
 bool application_send_msg_to_esp32(CMsg &msg, const char *ep_name, uint8_t if_type, uint8_t if_num);
 bool esp32_receive_msg_to_be_sent_on_SPI(uint8_t *buffer, uint16_t dim);
 bool esp32_send_msg_to_application(uint8_t *buffer, uint16_t dim);

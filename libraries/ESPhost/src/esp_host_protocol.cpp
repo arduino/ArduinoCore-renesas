@@ -23,6 +23,10 @@ bool application_send_msg_to_esp32(CMsg &msg, const char *ep_name, uint8_t if_ty
    return to_ESP32_queue.store(msg);
 }
 
+bool application_send_msg_to_esp32(CMsg &msg) {
+   return to_ESP32_queue.store(msg);
+}
+
 /* this function has to be called by SPI driver to get a buffer to be sent via SPI  
    buffer is the destination buffer */
 

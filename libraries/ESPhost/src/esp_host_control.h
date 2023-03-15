@@ -13,7 +13,7 @@
 
 
 
-void esp_host_msg_received();
+int esp_host_msg_received(ctrl_cmd_t **ans);
 
 
 int esp_host_wait_for_answer(ctrl_cmd_t *req);

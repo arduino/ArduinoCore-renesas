@@ -55,8 +55,11 @@
 /* #################
  * PRIVATE Variables
  * ################# */
-static uint8_t rx_buffer[MAX_SPI_BUFFER_SIZE];
-static uint8_t tx_buffer[MAX_SPI_BUFFER_SIZE];
+static volatile unsigned int pi_msg_to_get_from_esp32 = 0;
+
+
+static volatile uint8_t rx_buffer[MAX_SPI_BUFFER_SIZE];
+static volatile uint8_t tx_buffer[MAX_SPI_BUFFER_SIZE];
 
 static spi_instance_ctrl_t  _esp_host_spi_ctrl;
 static spi_cfg_t            _esp_host_spi_cfg;
@@ -92,6 +95,13 @@ int esp_host_spi_transaction(void);
 /* ################
  * PUBLIC Functions
  * ################ */
+
+bool esp_host_are_msg_to_receive() {
+   if(pi_msg_to_get_from_esp32) {
+      return true;
+   }
+   return false;
+}
 
 /* -------------------------------------------------------------------------- */
 /* INIT THE SPI DRIVER (to always called at first)                            
@@ -210,10 +220,9 @@ void esp_host_notify_spi_driver_to_tx(void) {
 
    /* if there is something to send esp32_receive_msg_to_be_sent_on_SPI will 
       return true and put the message to be sent on the tx_buffer */
-   while(esp32_receive_msg_to_be_sent_on_SPI(tx_buffer, MAX_SPI_BUFFER_SIZE)) {
-      tx_buffer_ready = true;
+   
       esp_host_spi_transaction();
-   }
+   
 
 }
 
@@ -227,55 +236,80 @@ void esp_host_set_cb_rx(CbkFuncRx_f fnc) {
 /* ################################
  * PRIVATE Functions implementation
  * ################################ */
-bsp_io_level_t handshake;
-   bsp_io_level_t data_ready;
+
+bsp_io_level_t data_ready;
 
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_transaction(void) {
 /* -------------------------------------------------------------------------- */
+   bool data_to_be_tx = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)tx_buffer, MAX_SPI_BUFFER_SIZE);
+
+   
    
 
-   R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
    R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
 
    
    /* ESP is ready to accept a new transaction */
-   while(data_ready == BSP_IO_LEVEL_HIGH || tx_buffer_ready) {
+   if(data_ready == BSP_IO_LEVEL_HIGH || data_to_be_tx) {
 
-      if(handshake == BSP_IO_LEVEL_HIGH) {
          /* there is something to send or to receive */
          if(esp_host_send_and_receive() == ESP_HOSTED_SPI_DRIVER_OK) {
-            tx_buffer_ready = false;
+            
             /* SPI transaction went OK */
-            esp32_send_msg_to_application(rx_buffer, MAX_SPI_BUFFER_SIZE);
-            if(esp_host_cb_rx_msg != nullptr) {
-               esp_host_cb_rx_msg();
-            }
+            esp32_send_msg_to_application((uint8_t*)rx_buffer, MAX_SPI_BUFFER_SIZE);
+                 
          }
-      }
-      R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
-      R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
+         R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
    }
+   
    
 }
 
 
 
+
+
+
 int esp_host_send_and_receive(void) {
+   int rv = ESP_HOSTED_SPI_SPI_TRANSACTION_ERR;
+   int time_num = 0;
+
+   bsp_io_level_t handshake;
+   do {
+      R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
+      if(handshake == BSP_IO_LEVEL_HIGH) {
+         break;
+      }
+      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+      time_num++;
+
+
+   } while(time_num < 5000);
+
    _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_LOW);
-   fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, tx_buffer, rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
+   R_BSP_SoftwareDelay(1000, BSP_DELAY_UNITS_MICROSECONDS);
+   memset((void *)rx_buffer,0x00, MAX_SPI_BUFFER_SIZE);
+   fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)tx_buffer, (void *)rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
    if(err == FSP_SUCCESS) {
-      for (auto const start = millis(); (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_status) && (millis() - start < 1000); ) {
-        __NOP();
+      
+      
+
+      while(time_num < 5000) { // 100 usec * 5000 = 500 ms
+         if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE || _spi_cb_status == SPI_EVENT_TRANSFER_ABORTED) {
+            rv = ESP_HOSTED_SPI_DRIVER_OK;
+            break;
+         }
+         R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+         time_num++;
       }
-   }
-   if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) {
-      R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
-      return ESP_HOSTED_SPI_DRIVER_OK;
+      
    }
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
-   return ESP_HOSTED_SPI_SPI_TRANSACTION_ERR;
+   /* memset the tx buffer so that is ready for response without a request */
+   //memset((void *)tx_buffer,0x00, MAX_SPI_BUFFER_SIZE);
+   return rv;
 }
 
 
@@ -296,5 +330,6 @@ static void spi_callback(spi_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 static void ext_irq_callback(void) {
 /* -------------------------------------------------------------------------- */   
-   esp_host_spi_transaction();
+   //pi_msg_to_get_from_esp32++;
+   //esp_host_send_and_receive();
 }

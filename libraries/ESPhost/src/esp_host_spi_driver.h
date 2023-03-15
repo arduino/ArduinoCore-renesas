@@ -47,6 +47,8 @@ void esp_host_notify_spi_driver_to_tx(void);
    been received from ESP32 */
 void esp_host_set_cb_rx(CbkFuncRx_f fnc);
 
+bool esp_host_are_msg_to_receive();
+
 
 
 

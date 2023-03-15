@@ -443,21 +443,21 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
    }
 
    /* 4. Free up buffers */
-   ctrl_msg__free_unpacked(ctrl_msg, NULL);
-   ctrl_msg = NULL;
+   //ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   //ctrl_msg = NULL;
    answer.resp_event_status = SUCCESS;
    return SUCCESS;
 
    /* 5. Free up buffers in failure cases */
 fail_parse_ctrl_msg:
-   ctrl_msg__free_unpacked(ctrl_msg, NULL);
-   ctrl_msg = NULL;
+   //ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   //ctrl_msg = NULL;
    answer.resp_event_status = FAILURE;
    return FAILURE;
 
 fail_parse_ctrl_msg2:
-   ctrl_msg__free_unpacked(ctrl_msg, NULL);
-   ctrl_msg = NULL;
+   //ctrl_msg__free_unpacked(ctrl_msg, NULL);
+   //ctrl_msg = NULL;
    return FAILURE;
 }
 
@@ -496,30 +496,49 @@ static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
 
 
 
+uint16_t dbg_dim;
+uint8_t *dbg_ptr;
 
-
-
-void esp_host_msg_received() {
+int esp_host_msg_received(ctrl_cmd_t **response) {
+   int rv = 0;
    CMsg msg;
    if(application_receive_msg_from_esp32(msg)) {
       if(msg.get_if_type() == ESP_SERIAL_IF) {
          /* control message received, please note that the msg is automatically
             cleared by the add_msg function (its pointers are stealed and all
             is nullified) */
-         cumulative_msg.add_msg(msg);
+         
          if(msg.get_flags() & MORE_FRAGMENT) {
             /* if FRAGMENT is active, wait for other fragments to complete the
                message*/
+            cumulative_msg.add_msg(msg);
          }
          else {
+            cumulative_msg.add_msg(msg);
             /* if no more FRAGMENT is active 
                first verify the tlv header */
             if(cumulative_msg.verify_tlv_header()) {
                /* here the message can be processed */
                CtrlMsg *ans = NULL;
-               ans = ctrl_msg__unpack(NULL, cumulative_msg.get_protobuf_dim(), cumulative_msg.get_protobuf_ptr());
-               if(ans) {
-                  esp_host_process_ctrl_answer(ans);
+               dbg_dim = cumulative_msg.get_protobuf_dim();
+               dbg_ptr = cumulative_msg.get_protobuf_ptr();
+               //unsigned char *bresp = (unsigned char *)malloc(dbg_dim + 1);
+               //memset(bresp,0x00,dbg_dim);
+               //unsigned char bresp[dbg_dim] = {0x08, 0x02, 0x10, 0xc9, 0x01, 0xca, 0x0c, 0x13, 0x0a, 0x11, 0x36, 0x30, 0x3a, 0x35, 0x35, 0x3a, 0x66, 0x39, 0x3a, 0x63, 0x30, 0x3a, 0x30, 0x65, 0x3a, 0x64, 0x63}; 
+               //memcpy(bresp,dbg_ptr,dbg_dim);
+
+
+               
+
+
+
+
+               ans = ctrl_msg__unpack(NULL, dbg_dim, dbg_ptr);
+               if(ans != NULL) {
+                  if(esp_host_process_ctrl_answer(ans) == SUCCESS) {
+                     *response = &answer;
+                     rv = 5;
+                  }
                   ctrl_msg__free_unpacked(ans, NULL);
                }
             }
@@ -536,7 +555,8 @@ void esp_host_msg_received() {
          
       }
    }
-
+   
+   return rv;
 
 #ifdef TO_BE_REMOVED
    /* process received buffer for all possible interface types */
@@ -611,13 +631,16 @@ void esp_host_msg_received() {
 
 }
 
-
+extern void esp_host_spi_transaction(void);
 
 int esp_host_wait_for_answer(ctrl_cmd_t *req) {
    esp_host_answer_received = false;
    uint32_t timeout_ms = req->cmd_timeout_sec * 1000;
+  
+   
    for (auto const start = millis(); (!esp_host_answer_received && (millis() - start < timeout_ms)); ) {
-        __NOP();
+      esp_host_spi_transaction();
+      // __NOP();
    }
    if(esp_host_answer_received) {
       req = &answer;
