@@ -95,7 +95,9 @@ void arduino_main(void)
    __DSB();
    __enable_irq();
 
+#ifdef BACKTRACE_SUPPORT
    cm_backtrace_init(PROJECT_NAME, "RENESAS", "0");
+#endif
 
    _init();
    initVariant();
@@ -112,10 +114,12 @@ void arduino_main(void)
    }
 }
 
+#ifdef BACKTRACE_SUPPORT
 /* for printf compatibility */
 extern "C" __attribute__((weak)) int _write (int fhdl, const void *buf, size_t count) {
   Serial.write_raw((uint8_t*)buf, count);
 }
+#endif
 
 #ifdef AZURE_RTOS_THREADX
 extern "C" {
