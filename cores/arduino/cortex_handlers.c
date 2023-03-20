@@ -12,14 +12,11 @@ int illegal_instruction_execution(void) {
   return bad_instruction();
 }
 */
+#endif
 
-/* On hard fault, copy HARDFAULT_PSP to the sp reg so gdb can give a trace */
-void **HARDFAULT_PSP;
-register void *stack_pointer asm("sp");
-void HardFault_Handler(void) {
-    asm("mrs %0, psp" : "=r"(HARDFAULT_PSP) : :);
-    stack_pointer = HARDFAULT_PSP;
+void Stacktrace_Handler(void) {
+    asm("MOV     r0, lr");                  /* get lr */
+    asm("MOV     r1, sp");                  /* get stack pointer (current is MSP) */
+    asm("BL      cm_backtrace_fault");
     while(1);
 }
-
-#endif
