@@ -41,16 +41,29 @@
 
 #define EXT_IRQ_CHANNEL (0)
 
+#ifdef USE_ESP32_C3_DEVKIT_RUST_1
 /* GPIOs */
-#define HANDSHAKE         BSP_IO_PORT_05_PIN_05  //BSP_IO_PORT_08_PIN_06  
-#define DATA_READY        BSP_IO_PORT_08_PIN_02  //BSP_IO_PORT_08_PIN_03
-#define DATA_READY_PIN    33                     //100
+#define HANDSHAKE         BSP_IO_PORT_05_PIN_05  
+#define DATA_READY        BSP_IO_PORT_08_PIN_02  
+#define DATA_READY_PIN    33                     
 
 /* SPI PIN definition */
 #define ESP_MISO   BSP_IO_PORT_01_PIN_00
 #define ESP_MOSI   BSP_IO_PORT_01_PIN_01
 #define ESP_CK     BSP_IO_PORT_01_PIN_02
-#define ESP_CS     BSP_IO_PORT_01_PIN_03 // TODO: il vero CS è P104
+#define ESP_CS     BSP_IO_PORT_01_PIN_03 
+#else
+/* GPIOs */
+#define HANDSHAKE         BSP_IO_PORT_08_PIN_06  
+#define DATA_READY        BSP_IO_PORT_08_PIN_03
+#define DATA_READY_PIN    100
+
+/* SPI PIN definition */
+#define ESP_MISO   BSP_IO_PORT_01_PIN_00
+#define ESP_MOSI   BSP_IO_PORT_01_PIN_01
+#define ESP_CK     BSP_IO_PORT_01_PIN_02
+#define ESP_CS     BSP_IO_PORT_01_PIN_04 
+#endif
 
 /* #################
  * PRIVATE Variables
