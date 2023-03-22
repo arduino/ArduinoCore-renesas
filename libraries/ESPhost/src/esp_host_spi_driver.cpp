@@ -163,7 +163,7 @@ int esp_host_spi_init(void) {
    _esp_host_spi_cfg.eri_ipl        = (12);
    _esp_host_spi_cfg.operating_mode = SPI_MODE_MASTER;
    _esp_host_spi_cfg.clk_phase      = SPI_CLK_PHASE_EDGE_ODD;
-   _esp_host_spi_cfg.clk_polarity   = SPI_CLK_POLARITY_LOW;
+   _esp_host_spi_cfg.clk_polarity   = SPI_CLK_POLARITY_HIGH;
    _esp_host_spi_cfg.mode_fault     = SPI_MODE_FAULT_ERROR_DISABLE;
    _esp_host_spi_cfg.bit_order      = SPI_BIT_ORDER_MSB_FIRST;
    _esp_host_spi_cfg.p_transfer_tx  = NULL;
@@ -193,7 +193,7 @@ int esp_host_spi_init(void) {
    _sci_spi_ext_cfg.clk_div.mddr = 0;
 
 
-   R_SCI_SPI_CalculateBitrate (1000000, &(_sci_spi_ext_cfg.clk_div), false);
+   R_SCI_SPI_CalculateBitrate (100000, &(_sci_spi_ext_cfg.clk_div), false);
 
 
    
