@@ -108,7 +108,7 @@ composta.build.fpu=-mfpu=fpv5-sp-d16
 composta.build.float-abi=-mfloat-abi=hard
 
 composta.build.board=SANTIAGO_COMPOSTA
-composta.build.defines=-DF_CPU=48000000 -DNO_USB
+composta.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
 composta.vid.0=0x2341
 composta.pid.0=0x0069
 composta.vid.1=0x2341

@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "usb/USB.h"
+#include "cm_backtrace/cm_backtrace.h"
 
 /* TODO: make me configurable by the variant */
 extern const uint32_t __StackTop;
@@ -59,6 +60,7 @@ void unsecure_registers() {
 #endif
 
 
+extern "C" void Stacktrace_Handler(void);
 
 void arduino_main(void)
 {
@@ -84,11 +86,18 @@ void arduino_main(void)
    for (_i=0; _i<BSP_ICU_VECTOR_MAX_ENTRIES; _i++) {
       *(irq_vector_table + _i +BSP_CORTEX_VECTOR_TABLE_ENTRIES) = (uint32_t)g_vector_table[_i];
    }
-   
+
+   // "install" stacktrace print over Hardfault handler
+   *(irq_vector_table + 3) = (uint32_t)Stacktrace_Handler;
+
    SCB->VTOR = (uint32_t)irq_vector_table;
 
    __DSB();
    __enable_irq();
+
+#ifdef BACKTRACE_SUPPORT
+   cm_backtrace_init(PROJECT_NAME, "RENESAS", "0");
+#endif
 
    _init();
    initVariant();
@@ -104,6 +113,13 @@ void arduino_main(void)
       loop();
    }
 }
+
+#ifdef BACKTRACE_SUPPORT
+/* for printf compatibility */
+extern "C" __attribute__((weak)) int _write (int fhdl, const void *buf, size_t count) {
+  Serial.write_raw((uint8_t*)buf, count);
+}
+#endif
 
 #ifdef AZURE_RTOS_THREADX
 extern "C" {
