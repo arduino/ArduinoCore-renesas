@@ -15,8 +15,6 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#if !defined(USE_TINYUSB) && !defined(NO_USB)
-
 #include <Arduino.h>
 #include "IRQManager.h"
 #include "USB.h"
@@ -296,6 +294,8 @@ extern "C" {
     void tud_set_irq_usbhs(IRQn_Type q);
 }
 
+__attribute__((weak)) void configure_usb_mux() {}
+
 void __USBStart() {
     USBIrqCfg_t usb_irq_cfg;
 
@@ -303,6 +303,8 @@ void __USBStart() {
         // Already called
         return;
     }
+
+    configure_usb_mux();
 
     /* 
      * ENABLE USB
@@ -420,7 +422,3 @@ extern "C"  __attribute((weak))  int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t c
     
     return -1;
 }
-
-
-
-#endif

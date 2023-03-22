@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "usb/USB.h"
 #include "cm_backtrace/cm_backtrace.h"
 
 /* TODO: make me configurable by the variant */

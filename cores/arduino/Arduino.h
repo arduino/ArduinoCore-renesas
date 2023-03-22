@@ -117,5 +117,6 @@ float analogReference();
 #endif
 
 #include "pins_arduino.h"
+#include "usb/USB.h"
 
 #endif //__ARDUINO__H__

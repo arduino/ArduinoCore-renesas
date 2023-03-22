@@ -124,6 +124,7 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_02_PIN_13,    P213   }, /* (38) D38  */
 
   { BSP_IO_PORT_05_PIN_00,    P500   }, /* (39) Analog voltage measure pin  */
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (40) USB switch, drive high for RA4  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
@@ -138,6 +139,19 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
     }
   }
   return rv;
+}
+
+#define BSP_PRV_PRCR_KEY                (0xA500U)
+#define BSP_PRV_PRCR_PRC1_UNLOCK        ((BSP_PRV_PRCR_KEY) | 0x2U)
+#define BSP_PRV_PRCR_LOCK               ((BSP_PRV_PRCR_KEY) | 0x0U)
+// if _USBStart is called, this will swap the USB port over the ESP one
+void configure_usb_mux() {
+  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
+  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 12;
+  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
+
+  pinMode(40, OUTPUT);
+  digitalWrite(40, HIGH);
 }
 
 #include "FspTimer.h"
