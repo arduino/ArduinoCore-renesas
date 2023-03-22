@@ -34,7 +34,7 @@
  * Configuration defines 
  * ##################### */
 
-
+#define ESP_HOST_DEBUG_ENABLED
 
 /* FSP SPI Channel */
 #define SPI_CHANNEL  (0) 
@@ -72,8 +72,8 @@
 static volatile unsigned int pi_msg_to_get_from_esp32 = 0;
 
 
-static volatile uint8_t rx_buffer[MAX_SPI_BUFFER_SIZE];
-static volatile uint8_t tx_buffer[MAX_SPI_BUFFER_SIZE];
+static volatile uint8_t esp32_spi_rx_buffer[MAX_SPI_BUFFER_SIZE];
+static volatile uint8_t esp32_spi_tx_buffer[MAX_SPI_BUFFER_SIZE];
 
 static spi_instance_ctrl_t  _esp_host_spi_ctrl;
 static spi_cfg_t            _esp_host_spi_cfg;
@@ -254,78 +254,134 @@ void esp_host_set_cb_rx(CbkFuncRx_f fnc) {
  * PRIVATE Functions implementation
  * ################################ */
 
-bsp_io_level_t data_ready;
+
+/* esp_host_spi_transaction:
+   1. verify if there is something to receive or to transmit 
+   2. if there is something to receive or to transmit calls esp_host_send_and_receive() 
+   3. if esp_host_send_and_receive() actually receive a valid message */
 
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_transaction(void) {
 /* -------------------------------------------------------------------------- */
-   bool data_to_be_tx = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)tx_buffer, MAX_SPI_BUFFER_SIZE);
-
+   int rv = ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX;
    
-   
-
+   bsp_io_level_t data_ready;
    R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
+   bool data_to_be_rx = (data_ready == BSP_IO_LEVEL_HIGH);
 
-   
-   /* ESP is ready to accept a new transaction */
-   if(data_ready == BSP_IO_LEVEL_HIGH || data_to_be_tx) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("RX data? ");
+   Serial.println(data_to_be_rx);
+   #endif
 
-         /* there is something to send or to receive */
-         if(esp_host_send_and_receive() == ESP_HOSTED_SPI_DRIVER_OK) {
-            
-            /* SPI transaction went OK */
-            esp32_send_msg_to_application((uint8_t*)rx_buffer, MAX_SPI_BUFFER_SIZE);
-                 
-         }
-         R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
+   bool data_to_be_tx = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
+
+   if(!data_to_be_tx) {
+      /* there are no data to be transmitted -> memset the tx buffer to 0 */
+      memset((void*)esp32_spi_tx_buffer,0x00,MAX_SPI_BUFFER_SIZE);
    }
-   
-   
+
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("TX data? ");
+   Serial.println(data_to_be_tx);
+   #endif
+
+   if(data_to_be_rx || data_to_be_tx) {
+      rv = esp_host_send_and_receive();
+         /* there is something to send or to receive */
+      if(rv == ESP_HOSTED_SPI_DRIVER_OK) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("RX SPI DATA:");
+         for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
+            Serial.print(esp32_spi_rx_buffer[i],HEX);
+            Serial.print(" ");
+         }
+         Serial.println();
+         #endif
+         /* SPI transaction went OK */
+         if(esp32_send_msg_to_application((uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
+            rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
+         }    
+      }
+   }
+   return rv; 
 }
 
 
-
-
-
-
+/* -------------------------------------------------------------------------- */
 int esp_host_send_and_receive(void) {
+/* -------------------------------------------------------------------------- */   
    int rv = ESP_HOSTED_SPI_SPI_TRANSACTION_ERR;
    int time_num = 0;
-
+   
+   /* VERIFY IF ESP32 is ready to accept a SPI transaction */
+   bool esp_ready = false;
    bsp_io_level_t handshake;
    do {
       R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
-      if(handshake == BSP_IO_LEVEL_HIGH) {
+      esp_ready = (handshake == BSP_IO_LEVEL_HIGH);
+      if(esp_ready) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.print("ESP ready? ");
+         Serial.println(esp_ready);
+         #endif
          break;
       }
       R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
       time_num++;
-
-
    } while(time_num < 5000);
 
-   _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
-   R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_LOW);
-   R_BSP_SoftwareDelay(1000, BSP_DELAY_UNITS_MICROSECONDS);
-   memset((void *)rx_buffer,0x00, MAX_SPI_BUFFER_SIZE);
-   fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)tx_buffer, (void *)rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
-   if(err == FSP_SUCCESS) {
+   if(esp_ready) {
+      /* Put CS LOW */
+      R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_LOW);
+      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
       
+      /* memset RX buffer */
+      memset((void *)esp32_spi_rx_buffer,0x00, MAX_SPI_BUFFER_SIZE);
       
+      _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
+      
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.print("Execute SPI tx/rx ");
+      #endif
 
-      while(time_num < 5000) { // 100 usec * 5000 = 500 ms
-         if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE || _spi_cb_status == SPI_EVENT_TRANSFER_ABORTED) {
-            rv = ESP_HOSTED_SPI_DRIVER_OK;
-            break;
-         }
-         R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
-         time_num++;
+      if(FSP_SUCCESS == R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS)) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("OK");
+         #endif
+
+         bool exited = false;
+         /* wait for SPI transaction to finish */
+         time_num = 0;
+         do {
+            if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) { 
+               rv = ESP_HOSTED_SPI_DRIVER_OK;
+               exited = true;
+            }
+            else if(_spi_cb_status == SPI_EVENT_TRANSFER_ABORTED) {
+               rv = ESP_HOSTED_SPI_TX_RX_ABORTED;
+               exited = true;
+            }
+            R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+            time_num++;
+         } while(time_num < 5000 && !exited);
+
+         if(!exited) {
+            rv = ESP_HOSTED_SPI_TIMEOUT;
+         }         
       }
-      
+      else {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("FAILED");
+         #endif
+      }
    }
+   else {
+      rv = ESP_HOSTED_SPI_ESP_NOT_READY;
+   }
+
+   /* in any case de-select ESP32 */
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
-   /* memset the tx buffer so that is ready for response without a request */
-   //memset((void *)tx_buffer,0x00, MAX_SPI_BUFFER_SIZE);
    return rv;
 }
 

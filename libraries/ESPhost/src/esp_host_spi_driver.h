@@ -35,6 +35,10 @@ using CbkFuncRx_f = void(*)();
 #define ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN   2
 #define ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX    3
 #define ESP_HOSTED_SPI_SPI_TRANSACTION_ERR    4
+#define ESP_HOSTED_SPI_ESP_NOT_READY          5
+#define ESP_HOSTED_SPI_TX_RX_ABORTED          6
+#define ESP_HOSTED_SPI_TIMEOUT                7
+#define ESP_HOSTED_SPI_MESSAGE_RECEIVED       8
 
 /* init the SPI driver */
 int esp_host_spi_init(void);
