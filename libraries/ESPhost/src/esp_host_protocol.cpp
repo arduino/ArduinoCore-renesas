@@ -32,10 +32,10 @@ bool application_send_msg_to_esp32(CMsg &msg) {
 
 bool esp32_receive_msg_to_be_sent_on_SPI(uint8_t *buffer, uint16_t dim) {
    bool read_ok = false;
+   memset(buffer,0x00,dim);
    CMsg msg = to_ESP32_queue.read(&read_ok);
    if(read_ok) {
       /* read copy into buffer and delete the buffer in the msg !*/
-      memset(buffer,0x00,dim);
       return msg.read(buffer,dim);
    }
    return false;
