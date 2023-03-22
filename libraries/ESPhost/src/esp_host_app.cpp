@@ -46,7 +46,53 @@ CMsg esp_host_prepare_msg(int protobuf_len, CtrlMsg *ptr) {
 
 extern int esp_host_spi_transaction(void) ;
 
+
+CMsg get_wifi_mac_address_request_msg(int mode) {
+   /* actual CtrlMsg esp-host structure - to be packed in a protobuf */
+   CtrlMsg   req = {0};
+   
+   /* protobuf initialization */
+   ctrl_msg__init(&req);
+
+   /* request for MAC address */
+   req.msg_id = (CtrlMsgId)CTRL_MSG_ID__Req_GetMACAddress;
+   req.payload_case = (CtrlMsg__PayloadCase) CTRL_MSG_ID__Req_GetMACAddress;
+
+   /* allocation of the */
+   CtrlMsgReqGetMacAddress *payload = new CtrlMsgReqGetMacAddress;
+
+   if(payload != nullptr) {
+      req.req_get_mac_address = payload;
+
+      ctrl_msg__req__get_mac_address__init(payload);
+      payload->mode = CTRL__WIFI_MODE__STA;    // TOBEVERIFIED!
+
+      int protobuf_len = ctrl_msg__get_packed_size(&req);
+      CMsg msg(protobuf_len);
+      
+      if(msg.is_valid()){
+         /* pack request into the message */
+         ctrl_msg__pack(&req, msg.get_protobuf_ptr());
+         msg.set_tlv_header(CTRL_EP_NAME_RESP);
+         msg.set_payload_header(ESP_SERIAL_IF, 0);
+      }
+   
+      delete payload;
+      return msg;
+   }
+   /* if something went wrong return an empty message */
+   return CMsg(0);
+}
+
 int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
+   CMsg msg = get_wifi_mac_address_request_msg(mode);
+   if(msg.is_valid()) {
+      application_send_msg_to_esp32(msg);
+   }
+}
+
+
+int esp_host_get_wifi_mac_address_v0(int mode, char *mac_out, int mac_out_dim) {
 
    CtrlMsg   req = {0};
 
@@ -54,7 +100,7 @@ int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
    req.msg_id = (CtrlMsgId)CTRL_MSG_ID__Req_GetMACAddress;
    req.payload_case = (CtrlMsg__PayloadCase) CTRL_MSG_ID__Req_GetMACAddress;
 
-   CtrlMsgReqGetMacAddress *field = new CtrlMsgReqGetMacAddress; //(CtrlMsgReqGetMacAddress *)malloc(sizeof(CtrlMsgReqGetMacAddress));
+   CtrlMsgReqGetMacAddress *field = new CtrlMsgReqGetMacAddress; 
 
    if(field != nullptr) {
       req.req_get_mac_address = field;

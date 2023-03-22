@@ -270,8 +270,13 @@ int esp_host_spi_transaction(void) {
    bool data_to_be_rx = (data_ready == BSP_IO_LEVEL_HIGH);
 
    #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("RX data? ");
-   Serial.println(data_to_be_rx);
+   Serial.print("**** RX data? ");
+   if(data_to_be_rx) {
+      Serial.println("YES!!!!!");
+   }
+   else {
+      Serial.println("no");
+   }
    #endif
 
    bool data_to_be_tx = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
@@ -282,8 +287,13 @@ int esp_host_spi_transaction(void) {
    }
 
    #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("TX data? ");
-   Serial.println(data_to_be_tx);
+   Serial.print("**** TX data? ");
+   if(data_to_be_tx) {
+      Serial.println("YES!!!!!");
+   }
+   else {
+      Serial.println("no");
+   }
    #endif
 
    if(data_to_be_rx || data_to_be_tx) {
@@ -342,7 +352,13 @@ int esp_host_send_and_receive(void) {
       _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
       
       #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.print("Execute SPI tx/rx ");
+      Serial.println("Execute SPI tx/rx ");
+      Serial.print("TX DATA: ");
+      for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
+         Serial.print(esp32_spi_tx_buffer[i]);
+         Serial.print(" ");
+      }
+      Serial.println();
       #endif
 
       if(FSP_SUCCESS == R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS)) {
@@ -356,6 +372,14 @@ int esp_host_send_and_receive(void) {
          do {
             if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) { 
                rv = ESP_HOSTED_SPI_DRIVER_OK;
+               #ifdef ESP_HOST_DEBUG_ENABLED
+               Serial.print("RX DATA: ");
+               for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
+                  Serial.print(esp32_spi_rx_buffer[i]);
+                  Serial.print(" ");
+               }
+               Serial.println();
+               #endif
                exited = true;
             }
             else if(_spi_cb_status == SPI_EVENT_TRANSFER_ABORTED) {
