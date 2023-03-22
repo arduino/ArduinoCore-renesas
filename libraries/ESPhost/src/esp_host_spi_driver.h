@@ -43,13 +43,8 @@ using CbkFuncRx_f = void(*)();
 /* init the SPI driver */
 int esp_host_spi_init(void);
 
-/* after the message has been sent to the queue to the ESP32 call this function
-   to tell the driver there is something to send */
-void esp_host_notify_spi_driver_to_tx(void);
 
-/* call this function to register a callback to be called when a message has
-   been received from ESP32 */
-void esp_host_set_cb_rx(CbkFuncRx_f fnc);
+
 
 bool esp_host_are_msg_to_receive();
 
