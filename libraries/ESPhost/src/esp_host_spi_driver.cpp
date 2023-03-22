@@ -110,12 +110,7 @@ int esp_host_spi_transaction(void);
  * PUBLIC Functions
  * ################ */
 
-bool esp_host_are_msg_to_receive() {
-   if(pi_msg_to_get_from_esp32) {
-      return true;
-   }
-   return false;
-}
+
 
 /* -------------------------------------------------------------------------- */
 /* INIT THE SPI DRIVER (to always called at first)                            
@@ -123,9 +118,6 @@ bool esp_host_are_msg_to_receive() {
  * configuration                                                              */
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_init(void) {
-   
-   
-
    /* ++++++++++++++++++++++++++++++++++
     *  GPIOs (HANDSHAKE and DATA_READY)
     * ++++++++++++++++++++++++++++++++++ */
@@ -263,6 +255,38 @@ bool esp_host_there_are_data_to_be_tx() {
 }
 
 
+int esp_host_perform_spi_communication() {
+   int rv = ESP_HOSTED_SPI_DRIVER_OK;
+   int res = 0;
+   /* it exits if there is some transaction error or if there is no more
+      data to be tx ox rx*/
+   do {
+      res = esp_host_spi_transaction();
+      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.print("Execute single SPI transaction ");
+      Serial.println(res);
+      #endif
+
+
+      if(res == ESP_HOSTED_SPI_DRIVER_OK || 
+         res == ESP_HOSTED_SPI_MESSAGE_RECEIVED ||
+         res == ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX) {
+         /* those are good possible results */
+      }
+      else {
+         /* exit for ERROR */
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("!!!!! SPI TRANSACTION ERROR ");
+         #endif
+         rv = res;
+         break;
+      }
+   }
+   while(res != ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX);
+   return rv;
+}
+
 
 /* ################################
  * PRIVATE Functions implementation
@@ -282,7 +306,6 @@ int esp_host_spi_transaction(void) {
    bool data_to_be_rx = esp_host_there_are_data_to_be_rx();
    bool data_to_be_tx = esp_host_there_are_data_to_be_tx();
    
-
    if(data_to_be_rx || data_to_be_tx) {
       rv = esp_host_send_and_receive();
          /* there is something to send or to receive */
@@ -334,7 +357,7 @@ int esp_host_send_and_receive(void) {
       Serial.println("Execute SPI tx/rx ");
       Serial.print("TX DATA: ");
       for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
-         Serial.print(esp32_spi_tx_buffer[i]);
+         Serial.print(esp32_spi_tx_buffer[i], HEX);
          Serial.print(" ");
       }
       Serial.println();
@@ -354,7 +377,7 @@ int esp_host_send_and_receive(void) {
                #ifdef ESP_HOST_DEBUG_ENABLED
                Serial.print("RX DATA: ");
                for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
-                  Serial.print(esp32_spi_rx_buffer[i]);
+                  Serial.print(esp32_spi_rx_buffer[i], HEX);
                   Serial.print(" ");
                }
                Serial.println();

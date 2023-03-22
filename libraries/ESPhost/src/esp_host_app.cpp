@@ -85,10 +85,22 @@ CMsg get_wifi_mac_address_request_msg(int mode) {
 }
 
 int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
+   int rv = ESP_HOSTED_OK;
    CMsg msg = get_wifi_mac_address_request_msg(mode);
    if(msg.is_valid()) {
       application_send_msg_to_esp32(msg);
+      if(esp_host_perform_spi_communication() == ESP_HOSTED_SPI_DRIVER_OK) {
+
+      }
+      else {
+         rv = ESP_HOSTED_ERROR_SPI_COMMUNICATION;
+      }
+      
    }
+   else {
+      rv = ESP_HOSTED_ERROR_MSG_PREPARATION;
+   }
+   return rv;
 }
 
 
