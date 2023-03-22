@@ -131,20 +131,21 @@ void display_char(int letter) {
   }
 }
 
-void turnLed(int idx, bool on) {
-  size_t pin_anode = pins[idx][0] + led_zero_index;
-  size_t pin_catode = pins[idx][1] + led_zero_index;
+#define LED_MATRIX_PORT0_MASK       ((1 << 3) | (1 << 4) | (1 << 11) | (1 << 12) | (1 << 13) | (1 << 15))
+#define LED_MATRIX_PORT2_MASK       ((1 << 4) | (1 << 5) | (1 << 6) | (1 << 12) | (1 << 13))
 
-  for (int i = led_zero_index; i < led_zero_index + leds_howmany; i++) {
-    //if (i != pin_anode && i != pin_catode) {
-    pinMode(i, INPUT);
-    //}
-  }
+void turnLed(int idx, bool on) {
+  R_PORT0->PCNTR1 &= ~((uint32_t) LED_MATRIX_PORT0_MASK);
+  R_PORT2->PCNTR1 &= ~((uint32_t) LED_MATRIX_PORT2_MASK);
+
   if (on) {
-    pinMode(pin_anode, OUTPUT);
-    pinMode(pin_catode, OUTPUT);
-    digitalWrite(pin_anode, HIGH);
-    digitalWrite(pin_catode, LOW);
+    bsp_io_port_pin_t pin_a = g_pin_cfg[pins[idx][0] + led_zero_index].pin;
+    R_PFS->PORT[pin_a >> 8].PIN[pin_a & 0xFF].PmnPFS =
+      IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PORT_OUTPUT_HIGH;
+
+    bsp_io_port_pin_t pin_c = g_pin_cfg[pins[idx][1] + led_zero_index].pin;
+    R_PFS->PORT[pin_c >> 8].PIN[pin_c & 0xFF].PmnPFS =
+      IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PORT_OUTPUT_LOW;
   }
 }
 
