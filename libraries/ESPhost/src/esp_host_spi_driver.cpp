@@ -192,13 +192,7 @@ int esp_host_spi_init(void) {
    _sci_spi_ext_cfg.clk_div.brr  = 11;
    _sci_spi_ext_cfg.clk_div.mddr = 0;
 
-
    R_SCI_SPI_CalculateBitrate (100000, &(_sci_spi_ext_cfg.clk_div), false);
-
-
-   
-  
-
 
   /* +++++++++++
    * INTERRUPTS
@@ -230,22 +224,42 @@ int esp_host_spi_init(void) {
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
 
+/*
+ This function checks the DATA READY pin drive by ESP. It returns:
+ - true if ESP has data to be transmitted (received by host)
+ - false if ESP has no data to be transmitted
+ */
+bool esp_host_there_are_data_to_be_rx() {
+   bsp_io_level_t data_ready;
+   R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
+   bool rv = (data_ready == BSP_IO_LEVEL_HIGH);
 
-static bool tx_buffer_ready = false;
-
-void esp_host_notify_spi_driver_to_tx(void) {
-
-   /* if there is something to send esp32_receive_msg_to_be_sent_on_SPI will 
-      return true and put the message to be sent on the tx_buffer */
-   
-      esp_host_spi_transaction();
-   
-
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("**** RX data? ");
+   if(rv) {
+      Serial.println("YES!!!!!");
+   }
+   else {
+      Serial.println("no");
+   }
+   #endif
+   return rv;
 }
 
+bool esp_host_there_are_data_to_be_tx() {
+   /* the function esp32_receive_msg_to_be_sent_on_SPI memset the tx buffer to 0 if there are no data to be tx*/
+   bool rv = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
 
-void esp_host_set_cb_rx(CbkFuncRx_f fnc) {
-   esp_host_cb_rx_msg = fnc;
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("**** TX data? ");
+   if(rv) {
+      Serial.println("YES!!!!!");
+   }
+   else {
+      Serial.println("no");
+   }
+   #endif
+   return rv;
 }
 
 
@@ -265,49 +279,14 @@ int esp_host_spi_transaction(void) {
 /* -------------------------------------------------------------------------- */
    int rv = ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX;
    
-   bsp_io_level_t data_ready;
-   R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
-   bool data_to_be_rx = (data_ready == BSP_IO_LEVEL_HIGH);
-
-   #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("**** RX data? ");
-   if(data_to_be_rx) {
-      Serial.println("YES!!!!!");
-   }
-   else {
-      Serial.println("no");
-   }
-   #endif
-
-   bool data_to_be_tx = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
-
-   if(!data_to_be_tx) {
-      /* there are no data to be transmitted -> memset the tx buffer to 0 */
-      memset((void*)esp32_spi_tx_buffer,0x00,MAX_SPI_BUFFER_SIZE);
-   }
-
-   #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("**** TX data? ");
-   if(data_to_be_tx) {
-      Serial.println("YES!!!!!");
-   }
-   else {
-      Serial.println("no");
-   }
-   #endif
+   bool data_to_be_rx = esp_host_there_are_data_to_be_rx();
+   bool data_to_be_tx = esp_host_there_are_data_to_be_tx();
+   
 
    if(data_to_be_rx || data_to_be_tx) {
       rv = esp_host_send_and_receive();
          /* there is something to send or to receive */
       if(rv == ESP_HOSTED_SPI_DRIVER_OK) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("RX SPI DATA:");
-         for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
-            Serial.print(esp32_spi_rx_buffer[i],HEX);
-            Serial.print(" ");
-         }
-         Serial.println();
-         #endif
          /* SPI transaction went OK */
          if(esp32_send_msg_to_application((uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
             rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
