@@ -88,14 +88,20 @@ int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
    int rv = ESP_HOSTED_OK;
    CMsg msg = get_wifi_mac_address_request_msg(mode);
    if(msg.is_valid()) {
-      application_send_msg_to_esp32(msg);
-      if(esp_host_perform_spi_communication() == ESP_HOSTED_SPI_DRIVER_OK) {
+      esp_host_send_msg_to_esp32(msg);
+     
 
+      if(esp_host_perform_spi_communication() == ESP_HOSTED_SPI_DRIVER_OK) {
+         
+
+         CtrlMsg *ans;
+         if(ESP_HOST_CTRL_CTRL_MSG_RX == esp_host_get_msgs_received(&ans)) {
+
+         }
       }
       else {
          rv = ESP_HOSTED_ERROR_SPI_COMMUNICATION;
       }
-      
    }
    else {
       rv = ESP_HOSTED_ERROR_MSG_PREPARATION;
@@ -124,7 +130,7 @@ int esp_host_get_wifi_mac_address_v0(int mode, char *mac_out, int mac_out_dim) {
       ctrl_msg__pack(&req, msg.get_protobuf_ptr());
       msg.set_tlv_header(CTRL_EP_NAME_RESP);
       msg.set_payload_header(ESP_SERIAL_IF, 0);
-      application_send_msg_to_esp32(msg);
+      esp_host_send_msg_to_esp32(msg);
       delete field;
    }
 

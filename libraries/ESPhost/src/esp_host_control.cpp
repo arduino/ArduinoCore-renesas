@@ -499,10 +499,104 @@ static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
 uint16_t dbg_dim;
 uint8_t *dbg_ptr;
 
+/* 
+ * Function for CONTROL messages
+ * This function gets a CMsg, verify the correctness of the tlv header (remember
+ * that the payload header is verified when the message is put into the
+ * received message queue, so no need to verify it here)
+ * It returns a CtrlMsg if all is good or nullptr otherwise
+ * REMEMBER: the CtrlMsg must be deleted!
+ * 
+ */
+CtrlMsg *esp_host_analyze_serial_ctrl_msg(CMsg& msg) {
+   static CMsg msg_accumulator;
+   CtrlMsg *rv = nullptr;
+   
+   /* need to save the more message here because msg is deleted in add_msg function
+      and only the payload is copied so that the flags are lost */
+   bool more_msg = msg.get_flags() & MORE_FRAGMENT;
+    
+   msg_accumulator.add_msg(msg);
+
+   if( !more_msg) {
+       
+      /* there a not more fragment to wait for -> process the message */
+       if(msg_accumulator.verify_tlv_header()) {
+         /* header is correct */
+                  
+         dbg_dim = msg_accumulator.get_protobuf_dim();
+         
+         dbg_ptr = msg_accumulator.get_protobuf_ptr();
+         
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.print("[RX msg] Protobuf dim: ");
+         Serial.println(dbg_dim);
+         Serial.print("[RX msg] Protobuf ptr: 0x");
+         Serial.println((uint32_t)dbg_ptr, HEX);
+         #endif
+         rv = ctrl_msg__unpack(NULL, dbg_dim, dbg_ptr);
+      }
+      
+      msg_accumulator.clear();
+   }
+   
+   return rv;
+
+
+}
+
+
+
+
+/* this function explore the queue of the message received and send each message
+   to the appropriate function to be handled */
+int esp_host_get_msgs_received(CtrlMsg **response) {
+   int rv = ESP_HOST_CTRL_EMPTY_RX_QUEUE;// ESP_HOST_CTRL_OK;
+  
+   
+   CMsg msg;
+   while(esp_host_get_msg_from_esp32(msg)) {
+      
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.print("[RX msg]: ");
+      #endif
+
+
+      if(msg.get_if_type() == ESP_SERIAL_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("Serial CONTROL MESSAGE");
+         #endif
+         
+         *response = esp_host_analyze_serial_ctrl_msg(msg);
+         if(*response != nullptr) {
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("Response received");
+            #endif
+            rv = ESP_HOST_CTRL_CTRL_MSG_RX;
+            break;
+         }
+         
+      }
+      else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
+         /* net if message received */
+      }
+      else if(msg.get_if_type() == ESP_PRIV_IF) {
+
+      }
+      else if(msg.get_if_type() == ESP_TEST_IF) {
+         
+      }
+   }
+   return rv;
+}
+
+
+
+
 int esp_host_msg_received(ctrl_cmd_t **response) {
    int rv = 0;
    CMsg msg;
-   if(application_receive_msg_from_esp32(msg)) {
+   if(false) {
       if(msg.get_if_type() == ESP_SERIAL_IF) {
          /* control message received, please note that the msg is automatically
             cleared by the add_msg function (its pointers are stealed and all
@@ -944,7 +1038,7 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
    if(msg.is_valid() && failure_status == 0) {
       /* 8. Pack in protobuf and send the request */
       ctrl_msg__pack(&req, msg.get_protobuf_ptr());
-      application_send_msg_to_esp32(msg, CTRL_EP_NAME_RESP, ESP_SERIAL_IF, 0);
+      //application_send_msg_to_esp32(msg, CTRL_EP_NAME_RESP, ESP_SERIAL_IF, 0);
       //esp_host_notify_spi_driver_to_tx();
    }
    else {

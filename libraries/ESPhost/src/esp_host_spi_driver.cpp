@@ -34,7 +34,7 @@
  * Configuration defines 
  * ##################### */
 
-#define ESP_HOST_DEBUG_ENABLED
+
 
 /* FSP SPI Channel */
 #define SPI_CHANNEL  (0) 
@@ -240,7 +240,7 @@ bool esp_host_there_are_data_to_be_rx() {
 
 bool esp_host_there_are_data_to_be_tx() {
    /* the function esp32_receive_msg_to_be_sent_on_SPI memset the tx buffer to 0 if there are no data to be tx*/
-   bool rv = esp32_receive_msg_to_be_sent_on_SPI((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
+   bool rv = esp_host_esp32_get_msg_from_app((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
 
    #ifdef ESP_HOST_DEBUG_ENABLED
    Serial.print("**** TX data? ");
@@ -284,6 +284,12 @@ int esp_host_perform_spi_communication() {
       }
    }
    while(res != ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX);
+   
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("esp_host_perform_spi_communication ");
+   Serial.println(rv);
+   #endif
+
    return rv;
 }
 
@@ -310,9 +316,17 @@ int esp_host_spi_transaction(void) {
       rv = esp_host_send_and_receive();
          /* there is something to send or to receive */
       if(rv == ESP_HOSTED_SPI_DRIVER_OK) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("MESSAGE RECEIVED ");
+         #endif
          /* SPI transaction went OK */
-         if(esp32_send_msg_to_application((uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
+         if(esp_host_esp32_send_to_app((const uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
+            
             rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.print("RECEIVED MESSAGE QUEUED ");
+            Serial.println(rv);
+            #endif
          }    
       }
    }

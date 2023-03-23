@@ -1,7 +1,7 @@
 #ifndef ESP_HOST_PROTOCOL_H
 #define ESP_HOST_PROTOCOL_H
 
-
+#define DEBUG_ESP_HOST_PROTOCOL
 
 #define MAX_SPI_BUFFER_SIZE   1600
 
@@ -190,6 +190,7 @@ private:
    
    /* allocate the buffer and set dim */
    uint32_t allocate(uint32_t d) {
+      dim = 0;
       buf = new uint8_t[d];
       if(buf != nullptr) {
          /* memset all the buffer to 0 */
@@ -227,20 +228,132 @@ public:
 
    /* Default constructor: use it for messages coming from ESP32, then call store
       function to store the arrived message into the CMsg object*/
-   CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0} {}
+   CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0} {
+      
+
+   }
 
    /* Constructor with argument proto_size: use it for messages directed to the 
       ESP32 and pass it the size of the protobuf.
       This constructor will allocate a bigger buffer able to contain also 
       the TLV structure and esp_payload_header */
    CMsg(uint16_t proto_size) : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{proto_size} {
+      
       uint16_t request_size = proto_dim + esp_payload_header_size + esp_tlv_header_size;
       if(request_size == allocate(request_size)) {
+         
+
          /* initialize payload header to point at the beginning of the buffer */
          payload_header = (struct esp_payload_header *)buf;
       }
    }
+
+   void clear() {
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.print("[CMsg] clear ");
+      #endif
+      if(buf != nullptr) {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println("msg buffer deleted!");
+         #endif
+         delete []buf;
+         buf = nullptr;
+         dim = 0;
+      }
+      else {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println("msg buffer NOT deleted!");
+         #endif
+      }
+      payload_header = nullptr;
+      proto_dim = 0;
+   }
+
+
+   ~CMsg() { 
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.println("[CMsg] DESTRUCTOR");
+      #endif
+      clear(); 
+   }
    
+   CMsg(const CMsg& m) {
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.println("[CMsg] COPY");
+      #endif
+      if(allocate(m.dim) == m.dim) {
+         memcpy(buf,m.buf,dim);
+         payload_header = m.payload_header;
+         proto_dim      = m.proto_dim;
+      }
+      else {
+         payload_header = nullptr;
+         proto_dim      = 0;
+      }
+   }
+
+   CMsg(CMsg&& m) {
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.println("[CMsg] MOVE");
+      #endif
+      buf            = m.buf;
+      dim            = m.dim;
+      payload_header = m.payload_header;
+      proto_dim      = m.proto_dim;
+      m.reset_without_delete();
+   }
+   
+   CMsg& operator=(const CMsg& m) {
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.print("[CMsg] assign COPY operator");
+      #endif
+      if(this != &m) {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println(" ACTUAL!");
+         #endif
+         clear();
+         if(allocate(m.dim) == m.dim) {
+            memcpy(buf,m.buf,dim);
+            payload_header = m.payload_header;
+            proto_dim      = m.proto_dim;
+         }
+         else {
+            payload_header = nullptr;
+            proto_dim      = 0;
+         }
+      }
+      else {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println(" bad!");
+         #endif
+      }
+      return *this;
+    }
+   
+   CMsg& operator=(CMsg&& m) {
+      #ifdef DEBUG_ESP_HOST_PROTOCOL
+      Serial.print("[CMsg] assign MOVE operator");
+      #endif
+      if(this != &m) {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println(" ACTUAL!");
+         #endif
+         clear();
+         buf            = m.buf;
+         dim            = m.dim;
+         payload_header = m.payload_header;
+         proto_dim      = m.proto_dim;
+         m.reset_without_delete();
+      }
+      else {
+         #ifdef DEBUG_ESP_HOST_PROTOCOL
+         Serial.println(" bad!");
+         #endif
+
+      }
+
+   }
+
    /* a function to verify buffer is valid, dim is set only if allocation is good */
    bool is_valid() {
       return (proto_dim > 0 && dim > 0);
@@ -319,10 +432,12 @@ public:
    bool verify_tlv_header() {
       /* verify type name */
       if(buf[esp_tlv_header_ep_name_type_pos] != PROTO_PSER_TLV_T_EPNAME) {
+         Serial.println("A");
          return false;
       }
       /* verify type data */
       if(buf[esp_tlv_header_ep_data_type_pos]  != PROTO_PSER_TLV_T_DATA) {
+         Serial.println("B");
          return false;
       }
 
@@ -331,6 +446,7 @@ public:
       l += ((uint16_t)buf[esp_tlv_header_ep_name_len_high_pos] << 8);
 
       if(l != esp_ep_name_len) {
+         Serial.println("C");
          return false;
       }
 
@@ -341,9 +457,11 @@ public:
          /* calculate protobuf dim */
       proto_dim = buf[esp_tlv_header_ep_data_len_low_pos];
       proto_dim += buf[esp_tlv_header_ep_data_len_high_pos] << 8;
+      Serial.println("D");
       return true;
       }
       else {
+         Serial.println("D");
          return false;
       }
 
@@ -362,18 +480,21 @@ public:
 
    /* verify the payload header received from SPI it returns the payload's length
       i.e. TLV struct +  proto*/
-   uint32_t verify_payload_header(uint8_t *b) {
+   uint32_t verify_payload_header(const uint8_t *b) {
       
       struct esp_payload_header *ph = (esp_payload_header *)b;
+      
       if(ph->offset != esp_payload_header_size) {
          return 0; /* i.e. 0 to signal something is wrong */
       }
+
       if(ph->len > MAX_SPI_BUFFER_SIZE - esp_payload_header_size) {
          return 0; /* i.e. 0 to signal something is wrong */
       }
       if(!verify_rx_checksum(ph, ph->len + esp_payload_header_size)){
          return 0; /* i.e. 0 to signal something is wrong */
       }
+     
       return ph->len;
    }
 
@@ -406,37 +527,15 @@ public:
    }
 
 
-   ~CMsg() { clear(); }
    
-   CMsg(const CMsg& m) {
-        buf            = m.buf;
-        dim            = m.dim;
-        payload_header = m.payload_header;
-        proto_dim      = m.proto_dim;
-   }
-   
-   void operator=(const CMsg& m) {
-        buf            = m.buf;
-        dim            = m.dim;
-        payload_header = m.payload_header;
-        proto_dim      = m.proto_dim;
-    }
 
 
    
-   void clear() {
-      if(buf != nullptr) {
-         delete []buf;
-         buf = nullptr;
-         dim = 0;
-      }
-      payload_header = nullptr;
-      proto_dim = 0;
-   }
+   
    /* it is supposed that the buffer contains the received message from SPI
       that would always be static buffer rx_buffer with a fixed dimension
       of 1600 bytes */
-   bool store_rx_buffer(uint8_t *buffer, uint32_t d) {
+   bool store_rx_buffer(const uint8_t *buffer, uint32_t d) {
       /* rx_payload_len is TLV + PROTO */
       uint16_t rx_payload_len = verify_payload_header(buffer);
       if( rx_payload_len > 0 ) {
@@ -450,8 +549,10 @@ public:
             /* initialize payload header to point at the beginning of the buffer */
             payload_header = (esp_payload_header *)buf;
             memcpy(buf,buffer,request_size);
+            return true;
          }
-      }      
+      }     
+      return false;
    }
    /* message to add payload in case of FRAGMENTS */
    bool add_msg(CMsg &msg) {
@@ -500,11 +601,12 @@ public:
 
 };
 
-bool application_send_msg_to_esp32(CMsg &msg);
-bool application_send_msg_to_esp32(CMsg &msg, const char *ep_name, uint8_t if_type, uint8_t if_num);
-bool esp32_receive_msg_to_be_sent_on_SPI(uint8_t *buffer, uint16_t dim);
-bool esp32_send_msg_to_application(uint8_t *buffer, uint16_t dim);
-bool application_receive_msg_from_esp32(CMsg &msg);
+void esp_host_send_msg_to_esp32(CMsg &msg);
+bool esp_host_esp32_get_msg_from_app(uint8_t *buffer, uint16_t dim);
+bool esp_host_esp32_send_to_app(const uint8_t *buffer, uint16_t dim);
+bool esp_host_get_msg_from_esp32(CMsg &msg);
+
+
 
 
 

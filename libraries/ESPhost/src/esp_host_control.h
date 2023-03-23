@@ -11,7 +11,11 @@
 #include "esp_host_spi_driver.h"
 
 
+#define ESP_HOST_CTRL_OK 0
+#define ESP_HOST_CTRL_EMPTY_RX_QUEUE 1
+#define ESP_HOST_CTRL_CTRL_MSG_RX    2
 
+int esp_host_get_msgs_received(CtrlMsg **response);
 
 int esp_host_msg_received(ctrl_cmd_t **ans);
 
