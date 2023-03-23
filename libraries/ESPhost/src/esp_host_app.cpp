@@ -84,6 +84,38 @@ CMsg get_wifi_mac_address_request_msg(int mode) {
    return CMsg(0);
 }
 
+int get_wifi_mac_address_from_response(CtrlMsg *ans, char *mac_out, int mac_out_dim) {
+   if(ans != nullptr) {
+   
+   
+
+   if(ans->msg_id == CTRL_RESP_GET_MAC_ADDR) {
+      if(ans->resp_get_mac_address != nullptr) {
+         if(ans->resp_get_mac_address->mac.data != nullptr) {
+            if(ans->resp_get_mac_address->resp == 0) {
+               memset(mac_out,0x00,mac_out_dim);
+               uint8_t len_l = min(ans->resp_get_mac_address->mac.len, mac_out_dim-1);
+               strncpy(mac_out,(char *)ans->resp_get_mac_address->mac.data, len_l);
+
+               /* CANCELLARE IL CONTROL MESSAGE !!!!!!!!*/
+
+            }
+
+         }
+      
+      }
+
+
+   }
+
+   }
+
+   
+   return 0;
+
+}
+
+
 int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
    int rv = ESP_HOSTED_OK;
    CMsg msg = get_wifi_mac_address_request_msg(mode);
@@ -96,7 +128,7 @@ int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
 
          CtrlMsg *ans;
          if(ESP_HOST_CTRL_CTRL_MSG_RX == esp_host_get_msgs_received(&ans)) {
-
+            get_wifi_mac_address_from_response(ans, mac_out, mac_out_dim);
          }
       }
       else {

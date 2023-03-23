@@ -488,11 +488,12 @@ static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
       }
    }
    else if(ans->msg_type == CTRL_MSG_TYPE__Resp) {
-      if(esp_host_parse_response(ans) == SUCCESS) {
+      
          #ifdef ESP_HOST_DEBUG_ENABLED
          Serial.println("! MESSAGE RECEIVED");
          #endif
          if(esp_host_is_response_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) {
+            /* TODO: incorrect callback !!!!!!!!!!! */
             esp_host_call_response_cb(ans->msg_id, &answer);
             rv = ESP_HOST_CTRL_CTRL_MSG_RX_BUT_HANDLED_BY_CB;
          }
@@ -502,7 +503,7 @@ static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
             Serial.println("! MESSAGE RECEIVED A");
             #endif
          }
-      }
+      
    }
    return rv;
 }
@@ -551,7 +552,6 @@ static CtrlMsg *esp_host_get_ctrl_msg(CMsg& msg) {
 int esp_host_get_msgs_received(CtrlMsg **response) {
    int rv = ESP_HOST_CTRL_EMPTY_RX_QUEUE;
   
-   
    CMsg msg;
    while(esp_host_get_msg_from_esp32(msg)) {
       
@@ -565,12 +565,16 @@ int esp_host_get_msgs_received(CtrlMsg **response) {
          Serial.print("Serial CONTROL MESSAGE");
          #endif
          
+         /* response MUST BE deleted */
          *response = esp_host_get_ctrl_msg(msg);
          if(*response != nullptr) {
             #ifdef ESP_HOST_DEBUG_ENABLED
             Serial.println("    correctly received");
             #endif
-            esp_host_process_ctrl_answer(*response);
+            if(esp_host_process_ctrl_answer(*response) == ESP_HOST_CTRL_EVENT_MESSAGE_RX) {
+               rv = ESP_HOST_CTRL_CTRL_MSG_RX;
+               break;
+            }
          }
          
       }
