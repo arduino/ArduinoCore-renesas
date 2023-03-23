@@ -1,7 +1,7 @@
 #ifndef ESP_HOST_PROTOCOL_H
 #define ESP_HOST_PROTOCOL_H
 
-#define DEBUG_ESP_HOST_PROTOCOL
+//#define DEBUG_ESP_HOST_PROTOCOL
 
 #define MAX_SPI_BUFFER_SIZE   1600
 
@@ -432,12 +432,12 @@ public:
    bool verify_tlv_header() {
       /* verify type name */
       if(buf[esp_tlv_header_ep_name_type_pos] != PROTO_PSER_TLV_T_EPNAME) {
-         Serial.println("A");
+         
          return false;
       }
       /* verify type data */
       if(buf[esp_tlv_header_ep_data_type_pos]  != PROTO_PSER_TLV_T_DATA) {
-         Serial.println("B");
+         
          return false;
       }
 
@@ -446,7 +446,7 @@ public:
       l += ((uint16_t)buf[esp_tlv_header_ep_name_len_high_pos] << 8);
 
       if(l != esp_ep_name_len) {
-         Serial.println("C");
+         
          return false;
       }
 
@@ -457,11 +457,11 @@ public:
          /* calculate protobuf dim */
       proto_dim = buf[esp_tlv_header_ep_data_len_low_pos];
       proto_dim += buf[esp_tlv_header_ep_data_len_high_pos] << 8;
-      Serial.println("D");
+      
       return true;
       }
       else {
-         Serial.println("D");
+         
          return false;
       }
 
