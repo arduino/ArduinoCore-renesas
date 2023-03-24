@@ -6,6 +6,9 @@
 
 const uint8_t REQ_WIFI_MAC_ADDRESS = (uint8_t)CTRL_MSG_ID__Req_GetMACAddress;
 
+
+
+
 typedef enum {
    WIFI_MODE_NONE = CTRL__WIFI_MODE__NONE,
    WIFI_MODE_STA = CTRL__WIFI_MODE__STA,
