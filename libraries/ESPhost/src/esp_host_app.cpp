@@ -94,7 +94,7 @@ int get_wifi_mac_address_from_response(CtrlMsg *ans, char *mac_out, int mac_out_
          if(ans->resp_get_mac_address->mac.data != nullptr) {
             if(ans->resp_get_mac_address->resp == 0) {
                memset(mac_out,0x00,mac_out_dim);
-               uint8_t len_l = min(ans->resp_get_mac_address->mac.len, mac_out_dim-1);
+               uint8_t len_l = (ans->resp_get_mac_address->mac.len < mac_out_dim-1) ? ans->resp_get_mac_address->mac.len : mac_out_dim-1;
                strncpy(mac_out,(char *)ans->resp_get_mac_address->mac.data, len_l);
 
                /* CANCELLARE IL CONTROL MESSAGE !!!!!!!!*/
@@ -118,7 +118,12 @@ int get_wifi_mac_address_from_response(CtrlMsg *ans, char *mac_out, int mac_out_
 
 int esp_host_get_wifi_mac_address(int mode, char *mac_out, int mac_out_dim) {
    int rv = ESP_HOSTED_OK;
-   CMsg msg = get_wifi_mac_address_request_msg(mode);
+   
+   CControlRequest<CtrlMsgReqGetMacAddress> req(REQ_WIFI_MAC_ADDRESS, ctrl_msg__req__get_mac_address__init);
+   CMsg msg = req.get_wifi_mac_address_msg((WifiMode_t)mode);
+
+
+   //CMsg msg = get_wifi_mac_address_request_msg(mode);
    if(msg.is_valid()) {
       esp_host_send_msg_to_esp32(msg);
      

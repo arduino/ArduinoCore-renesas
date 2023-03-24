@@ -5,6 +5,8 @@
 
 #include <stdbool.h>
 
+
+
 #include "esp_host_protocol.h"
 #include "esp_hosted_platform.h"
 #include "esp_host_callbacks.h"

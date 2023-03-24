@@ -26,7 +26,7 @@
 #include <string.h>
 
 #define command_log(...) 
-#define min(X, Y)                    (((X) < (Y)) ? (X) : (Y))
+//#define min(X, Y)                    (((X) < (Y)) ? (X) : (Y))
 
 #define mem_free(x)                            \
 {                                              \

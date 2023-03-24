@@ -1,5 +1,6 @@
 #include "esp_host_control.h"
 
+#include "CControlRequest.h"
 #define MORE_FRAGMENT (1 << 0)
 static CMsg cumulative_msg;
 
@@ -145,7 +146,8 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
    /* 3. parse CtrlMsg into ctrl_cmd_t */
    switch (ctrl_msg->msg_id) {
       case CTRL_RESP_GET_MAC_ADDR : {
-         uint8_t len_l = min(ctrl_msg->resp_get_mac_address->mac.len, MAX_MAC_STR_LEN-1);
+         
+         uint8_t len_l = (ctrl_msg->resp_get_mac_address->mac.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_get_mac_address->mac.len : MAX_MAC_STR_LEN-1;
 
          CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address);
          CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address->mac.data);
@@ -233,8 +235,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
                if (ctrl_msg->resp_get_ap_config->bssid.data) {
                   uint8_t len_l = 0;
 
-                  len_l = min(ctrl_msg->resp_get_ap_config->bssid.len,
-                        MAX_MAC_STR_LEN-1);
+                  len_l = (ctrl_msg->resp_get_ap_config->bssid.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_get_ap_config->bssid.len : MAX_MAC_STR_LEN-1;
                   strncpy((char *)p->bssid,
                         (char *)ctrl_msg->resp_get_ap_config->bssid.data,
                         len_l);
@@ -281,7 +282,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
                goto fail_parse_ctrl_msg2;
                break;
          }
-         len_l = min(ctrl_msg->resp_connect_ap->mac.len, MAX_MAC_STR_LEN-1);
+         len_l = (ctrl_msg->resp_connect_ap->mac.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_connect_ap->mac.len : MAX_MAC_STR_LEN-1;
          strncpy(answer.u.wifi_ap_config.out_mac,
                (char *)ctrl_msg->resp_connect_ap->mac.data, len_l);
          answer.u.wifi_ap_config.out_mac[len_l] = '\0';
@@ -335,7 +336,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
          CHECK_CTRL_MSG_FAILED(resp_start_softap);
          CHECK_CTRL_MSG_NON_NULL(resp_start_softap->mac.data);
 
-         len_l = min(ctrl_msg->resp_connect_ap->mac.len, MAX_MAC_STR_LEN-1);
+         len_l =(ctrl_msg->resp_connect_ap->mac.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_connect_ap->mac.len : MAX_MAC_STR_LEN-1;
          strncpy(answer.u.wifi_softap_config.out_mac,
                (char *)ctrl_msg->resp_connect_ap->mac.data, len_l);
          answer.u.wifi_softap_config.out_mac[len_l] = '\0';
@@ -755,7 +756,7 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
          ctrl_msg__req__set_mac_address__init(req_payload);
 
          req_payload->mode = p->mode;
-         req_payload->mac.len = min(strlen(p->mac), MAX_MAC_STR_LEN);
+         req_payload->mac.len = (strlen(p->mac) < MAX_MAC_STR_LEN) ? strlen(p->mac) : MAX_MAC_STR_LEN;
          req_payload->mac.data = (uint8_t *)p->mac;
 
          break;

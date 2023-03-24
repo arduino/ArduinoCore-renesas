@@ -232,13 +232,7 @@ typedef struct {
 } event_station_disconn_t;
 
 
-typedef enum {
-   WIFI_MODE_NONE = CTRL__WIFI_MODE__NONE,
-   WIFI_MODE_STA = CTRL__WIFI_MODE__STA,
-   WIFI_MODE_AP = CTRL__WIFI_MODE__AP,
-   WIFI_MODE_APSTA = CTRL__WIFI_MODE__APSTA,
-   WIFI_MODE_MAX
-} wifi_mode_e;
+
 
 typedef enum {
    WIFI_AUTH_OPEN = CTRL__WIFI_SEC_PROT__Open,
