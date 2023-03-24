@@ -31,6 +31,8 @@
 
 
 /* error return value */
+#define ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE     -5
+#define ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE        -4
 #define ESP_CONTROL_ERROR_MSG_PREPARATION              -3
 #define ESP_CONTROL_ERROR_SPI_COMMUNICATION            -2
 #define ESP_CONTROL_CTRL_ERROR                         -1
@@ -50,12 +52,14 @@ public:
    ~CEspControl();
 
    int getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size);
+   int getWifiMode(WifiMode_t &mode);
 
 private:
    CEspControl();
 
    int process_msgs_received(CtrlMsg **response);
    int process_ctrl_response(CtrlMsg *ans);
+   int perform_esp_communication(CMsg& msg,  CtrlMsg **response);
 
 
 };

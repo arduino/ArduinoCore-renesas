@@ -1,7 +1,7 @@
 #ifndef EPS_HOST_CALLBACK_H
 #define EPS_HOST_CALLBACK_H
 
-#include "esp_host_data_structures.h"
+#include "CCtrlWrapper.h"
 
 
 

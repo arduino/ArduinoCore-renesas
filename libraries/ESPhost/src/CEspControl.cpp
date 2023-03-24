@@ -181,7 +181,7 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
             #ifdef ESP_HOST_DEBUG_ENABLED
             Serial.println("    correctly received");
             #endif
-            if(process_ctrl_response(*response) == ESP_CONTROL_MSG_RX) {
+            if(process_ctrl_response(*response) == ESP_CONTROL_EVENT_MESSAGE_RX) {
                rv = ESP_CONTROL_MSG_RX;
                break;
             }
@@ -202,67 +202,47 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
 }
 
 
-int get_wifi_mac_address_from_response(CtrlMsg *ans, char *mac_out, int mac_out_dim) {
-   if(ans != nullptr) {
-   
-   
+int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
+   int rv = ESP_CONTROL_MSG_RX; 
 
-   if(ans->msg_id == CTRL_RESP_GET_MAC_ADDR) {
-      if(ans->resp_get_mac_address != nullptr) {
-         if(ans->resp_get_mac_address->mac.data != nullptr) {
-            if(ans->resp_get_mac_address->resp == 0) {
-               memset(mac_out,0x00,mac_out_dim);
-               uint8_t len_l = (ans->resp_get_mac_address->mac.len < mac_out_dim-1) ? ans->resp_get_mac_address->mac.len : mac_out_dim-1;
-               strncpy(mac_out,(char *)ans->resp_get_mac_address->mac.data, len_l);
-
-               /* CANCELLARE IL CONTROL MESSAGE !!!!!!!!*/
-
-            }
-
-         }
-      
-      }
-
-
+   if(msg.is_valid()) {
+      /* if the message is valid send it to the spi driver in oder to be 
+         sent to ESP32 */
+      CEspCom::send_msg_to_esp(msg);
    }
-
-   }
-
    
-   return 0;
-
+   /* send to and receive from all the messages for ESP */
+   esp_host_perform_spi_communication();
+   
+   /* process all the received messages, untill a control message is found */
+   
+   if(ESP_CONTROL_MSG_RX != process_msgs_received(response)) {
+      rv = ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE;      
+   }
+   return rv;
 }
 
 /* -------------------------------------------------------------------------- */
 /* GET WIFI MAC ADDRESS */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size) {
+   CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
-   
    /* message request preparation */
-   CCtrlMsgWrapper<CtrlMsgReqGetMacAddress> req(REQ_WIFI_MAC_ADDRESS, ctrl_msg__req__get_mac_address__init);
+   CCtrlMsgWrapper<CtrlMsgReqGetMacAddress> req(CTRL_REQ_GET_MAC_ADDR, ctrl_msg__req__get_mac_address__init);
    CMsg msg = req.get_wifi_mac_address_msg((WifiMode_t)mode);
    
-   if(msg.is_valid()) {
-      /* send the message */
-      CEspCom::send_msg_to_esp(msg);
-     
-      if(!esp_host_perform_spi_communication()) {
-         CtrlMsg *ans;
-         if(ESP_CONTROL_MSG_RX == process_msgs_received(&ans)) {
-            get_wifi_mac_address_from_response(ans, mac, mac_buf_size);
-         }
-         else {
-            rv = 55;
-         }
-      }
-      else {
-         rv = ESP_CONTROL_ERROR_SPI_COMMUNICATION;
-      }
+   rv = perform_esp_communication(msg, &ans);
+   if(ESP_CONTROL_MSG_RX == rv) {
+      if(!CCtrlTranslate::extractMacAddress(ans, mac, mac_buf_size)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      } 
    }
-   else {
-      rv = ESP_CONTROL_ERROR_MSG_PREPARATION;
-   }
+   ctrl_msg__free_unpacked(ans, NULL);
    return rv;
+}
 
+
+int CEspControl::getWifiMode(WifiMode_t &mode) {
+   
 }
