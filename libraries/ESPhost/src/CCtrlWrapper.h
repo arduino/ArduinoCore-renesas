@@ -494,6 +494,20 @@ public:
       }
       return rv;
    }
+   static bool isSetWifiModeResponse(CtrlMsg *ans) {
+      bool rv = false;
+      if(ans != nullptr) {
+         if(ans->msg_id == CTRL_RESP_SET_WIFI_MODE) {
+            if(ans->resp_set_wifi_mode != nullptr) {
+               if(ans->resp_set_wifi_mode->resp == 0) {
+                  rv = true;
+               }
+            }
+         }
+      }
+      return rv;
+
+   }
 };
 
 
@@ -546,6 +560,14 @@ public:
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_get_mac_address = payload;
+         payload->mode = (CtrlWifiMode)mode;
+      }
+      return getMsg();
+   }
+
+   CMsg setWifiModeMsg(WifiMode_t mode) {
+      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         request.req_set_wifi_mode = payload;
          payload->mode = (CtrlWifiMode)mode;
       }
       return getMsg();

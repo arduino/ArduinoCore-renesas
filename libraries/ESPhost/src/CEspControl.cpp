@@ -275,19 +275,27 @@ int CEspControl::getWifiMode(WifiMode_t &mode) {
    CMsg msg = req.getMsg();
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.println("EXTRACT WIFI MODE ");
-      #endif
       if(!CCtrlTranslate::extractWifiMode(ans, mode)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
    }
-   
-   #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("getWifiMode ");
-   Serial.println(rv);
-   #endif
+   return rv;
+}
+
+
+int CEspControl::setWifiMode(WifiMode_t mode) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<CtrlMsgReqSetMode> req(CTRL_REQ_SET_WIFI_MODE, ctrl_msg__req__set_mode__init);
+   CMsg msg = req.setWifiModeMsg(mode);
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isSetWifiModeResponse(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
    return rv;
 
 }
