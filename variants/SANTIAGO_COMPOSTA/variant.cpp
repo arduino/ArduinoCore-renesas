@@ -147,7 +147,7 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 // if _USBStart is called, this will swap the USB port over the ESP one
 void configure_usb_mux() {
   R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
-  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 12;
+  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 40;
   R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
 
   pinMode(40, OUTPUT);
