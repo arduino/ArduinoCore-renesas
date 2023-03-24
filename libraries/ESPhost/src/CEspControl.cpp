@@ -56,6 +56,152 @@ CEspControl::~CEspControl() {
 }
 
 
+
+static ctrl_cmd_t answer;
+
+/* #############
+ *  PARSE EVENT
+ * ############# */
+
+static int esp_host_parse_event(CtrlMsg *ctrl_msg) {
+   int rv = FAILURE;
+
+   if (!ctrl_msg) {
+      return FAILURE;
+   }   
+
+   memset(&answer,0x00, sizeof(ctrl_cmd_t));
+
+   answer.msg_type          = CTRL_EVENT;
+   answer.msg_id            = ctrl_msg->msg_id;
+   answer.resp_event_status = SUCCESS;
+
+   switch (ctrl_msg->msg_id) {
+      case CTRL_EVENT_ESP_INIT: 
+         rv = SUCCESS;  
+         break;
+      case CTRL_EVENT_HEARTBEAT: 
+         if(ctrl_msg->event_heartbeat) {
+            answer.u.e_heartbeat.hb_num = ctrl_msg->event_heartbeat->hb_num;
+            rv = SUCCESS;
+         }
+         break;
+      case CTRL_EVENT_STATION_DISCONNECT_FROM_AP: 
+         if(ctrl_msg->event_station_disconnect_from_ap) {
+            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_ap->resp;
+            rv = SUCCESS;
+         } 
+         break;
+      case CTRL_EVENT_STATION_DISCONNECT_FROM_ESP_SOFTAP: 
+         if(ctrl_msg->event_station_disconnect_from_esp_softap) {
+            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_esp_softap->resp;
+            if(answer.resp_event_status == SUCCESS) {
+               if(ctrl_msg->event_station_disconnect_from_esp_softap->mac.data) {
+                  strncpy(answer.u.e_sta_disconnected.mac,(char *)ctrl_msg->event_station_disconnect_from_esp_softap->mac.data, ctrl_msg->event_station_disconnect_from_esp_softap->mac.len);
+                  rv = SUCCESS;
+               }
+            }
+         }
+         break;
+      default: 
+         break;
+   }
+
+   return rv;
+}
+
+int CEspControl::process_ctrl_response(CtrlMsg *ans) {
+   int rv = ESP_CONTROL_OK;
+   if(ans == nullptr) {
+      return ESP_CONTROL_CTRL_ERROR;
+   }
+
+   /*
+    * HANDLE EVENTs -> only handled by event callbacks
+    */
+
+   if(ans->msg_type == CTRL_MSG_TYPE__Event) {
+      if(esp_host_is_event_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) { 
+         if(esp_host_parse_event(ans) == SUCCESS) {
+            esp_host_call_event_cb(ans->msg_id, &answer);
+            rv = ESP_CONTROL_EVENT_MESSAGE_RX;
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("! EVENT RECEIVED");
+            #endif
+
+         } 
+      }
+   }
+   else if(ans->msg_type == CTRL_MSG_TYPE__Resp) {
+      
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println("! MESSAGE RECEIVED");
+         #endif
+         if(esp_host_is_response_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) {
+            /* TODO: incorrect callback !!!!!!!!!!! */
+            esp_host_call_response_cb(ans->msg_id, &answer);
+            rv = ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB;
+         }
+         else {
+            rv = ESP_CONTROL_EVENT_MESSAGE_RX;
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("! MESSAGE RECEIVED A");
+            #endif
+         }
+      
+   }
+   return rv;
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* PRIVATE: this function process all received messages from esp untill a control
+ * answer is received */
+/* -------------------------------------------------------------------------- */
+int CEspControl::process_msgs_received(CtrlMsg **response) {
+/* -------------------------------------------------------------------------- */   
+   int rv = ESP_CONTROL_EMPTY_RX_QUEUE;  
+   CMsg msg;
+   /* get the message */
+   while(CEspCom::get_msg_from_esp(msg)) {
+      
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.print("[RX msg]: ");
+      #endif
+
+      if(msg.get_if_type() == ESP_SERIAL_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.print("Serial CONTROL MESSAGE");
+         #endif
+         
+         /* response MUST BE deleted */
+         *response = CCtrlTranslate::CMsg2CtrlMsg(msg);
+         if(*response != nullptr) {
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("    correctly received");
+            #endif
+            if(process_ctrl_response(*response) == ESP_CONTROL_MSG_RX) {
+               rv = ESP_CONTROL_MSG_RX;
+               break;
+            }
+         }
+         
+      }
+      else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
+         /* net if message received */
+      }
+      else if(msg.get_if_type() == ESP_PRIV_IF) {
+
+      }
+      else if(msg.get_if_type() == ESP_TEST_IF) {
+         
+      }
+   }
+   return rv;
+}
+
+
 int get_wifi_mac_address_from_response(CtrlMsg *ans, char *mac_out, int mac_out_dim) {
    if(ans != nullptr) {
    
@@ -94,7 +240,7 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
    int rv = ESP_CONTROL_OK;
    
    /* message request preparation */
-   CControlRequest<CtrlMsgReqGetMacAddress> req(REQ_WIFI_MAC_ADDRESS, ctrl_msg__req__get_mac_address__init);
+   CCtrlMsgWrapper<CtrlMsgReqGetMacAddress> req(REQ_WIFI_MAC_ADDRESS, ctrl_msg__req__get_mac_address__init);
    CMsg msg = req.get_wifi_mac_address_msg((WifiMode_t)mode);
    
    if(msg.is_valid()) {
@@ -103,7 +249,7 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
      
       if(!esp_host_perform_spi_communication()) {
          CtrlMsg *ans;
-         if(2 == esp_host_get_msgs_received(&ans)) {
+         if(ESP_CONTROL_MSG_RX == process_msgs_received(&ans)) {
             get_wifi_mac_address_from_response(ans, mac, mac_buf_size);
          }
          else {

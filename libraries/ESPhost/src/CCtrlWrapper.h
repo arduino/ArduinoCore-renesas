@@ -67,9 +67,6 @@ struct esp_priv_event {
 }__attribute__((packed));
 
 
-
-
-
 typedef enum {
    WIFI_MODE_NONE = CTRL__WIFI_MODE__NONE,
    WIFI_MODE_STA = CTRL__WIFI_MODE__STA,
@@ -79,8 +76,33 @@ typedef enum {
 } WifiMode_t;
 
 
+class CCtrlTranslate {
+public:
+   /* this function extracts a CtrlMsg from a received CMsg 
+      the CtrlMsg obtained from this function has to be deleted! */
+   static CtrlMsg *CMsg2CtrlMsg(CMsg& msg) {
+      static CMsg msg_accumulator;
+      CtrlMsg *rv = nullptr;
+      /* need to save the more message here because msg is deleted in add_msg function
+         and only the payload is copied so that the flags are lost */
+      bool more_msg = msg.get_flags() & MORE_FRAGMENT;
+      msg_accumulator.add_msg(msg);
+      if( !more_msg) {
+         /* there a not more fragment to wait for -> process the message */
+         if(msg_accumulator.verify_tlv_header()) {
+            /* header is correct */
+            rv = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
+         }
+         msg_accumulator.clear();
+      }
+      return rv;
+   }
+
+};
+
+
 template<typename T>
-class CControlRequest {
+class CCtrlMsgWrapper {
 private:
    T *payload;
    CtrlMsg request;
@@ -99,7 +121,8 @@ private:
    }
 
 public:
-   CControlRequest(int request_id, void (*init)(T *)) {
+   /* ----------------------------------------------------------------------- */
+   CCtrlMsgWrapper(int request_id, void (*init)(T *)) {
       /* init the protobuf request*/
       memset(&request,0x00,sizeof(request));
       ctrl_msg__init(&request);
@@ -115,6 +138,9 @@ public:
          }
       }
    }
+   
+   /* ----------------------------------------------------------------------- */
+
    CMsg get_wifi_mac_address_msg(WifiMode_t mode) {
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_get_mac_address = payload;
@@ -123,7 +149,7 @@ public:
       return get_msg();
    }
 
-   ~CControlRequest() {
+   ~CCtrlMsgWrapper() {
       if(payload != nullptr) {
          delete payload;
       }

@@ -1,6 +1,6 @@
 #include "esp_host_control.h"
 
-#include "CControlRequest.h"
+#include "CCtrlWrapper.h"
 #define MORE_FRAGMENT (1 << 0)
 static CMsg cumulative_msg;
 
@@ -467,46 +467,7 @@ fail_parse_ctrl_msg2:
 
 
 static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
-   int rv = ESP_HOST_CTRL_OK;
-   if(ans == nullptr) {
-      return ESP_HOST_CTRL_ERROR;
-   }
-
-   /*
-    * HANDLE EVENTs -> only handled by event callbacks
-    */
-
-   if(ans->msg_type == CTRL_MSG_TYPE__Event) {
-      if(esp_host_is_event_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) { 
-         if(esp_host_parse_event(ans) == SUCCESS) {
-            esp_host_call_event_cb(ans->msg_id, &answer);
-            rv = ESP_HOST_CTRL_EVENT_MESSAGE_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("! EVENT RECEIVED");
-            #endif
-
-         } 
-      }
-   }
-   else if(ans->msg_type == CTRL_MSG_TYPE__Resp) {
-      
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("! MESSAGE RECEIVED");
-         #endif
-         if(esp_host_is_response_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) {
-            /* TODO: incorrect callback !!!!!!!!!!! */
-            esp_host_call_response_cb(ans->msg_id, &answer);
-            rv = ESP_HOST_CTRL_CTRL_MSG_RX_BUT_HANDLED_BY_CB;
-         }
-         else {
-            rv = ESP_HOST_CTRL_EVENT_MESSAGE_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("! MESSAGE RECEIVED A");
-            #endif
-         }
-      
-   }
-   return rv;
+   
 }
 
 
@@ -523,74 +484,13 @@ static int esp_host_process_ctrl_answer(CtrlMsg *ans) {
  * 
  */
 static CtrlMsg *esp_host_get_ctrl_msg(CMsg& msg) {
-   static CMsg msg_accumulator;
-   CtrlMsg *rv = nullptr;
    
-   /* need to save the more message here because msg is deleted in add_msg function
-      and only the payload is copied so that the flags are lost */
-   bool more_msg = msg.get_flags() & MORE_FRAGMENT;
-    
-   msg_accumulator.add_msg(msg);
-
-   if( !more_msg) {
-       
-      /* there a not more fragment to wait for -> process the message */
-       if(msg_accumulator.verify_tlv_header()) {
-         /* header is correct */
-         rv = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
-      }
-      
-      msg_accumulator.clear();
-   }
-   return rv;
 }
 
 
 
 
-/* this function explore the queue of the message received and send each message
-   to the appropriate function to be handled */
-int esp_host_get_msgs_received(CtrlMsg **response) {
-   int rv = ESP_HOST_CTRL_EMPTY_RX_QUEUE;
-  
-   CMsg msg;
-   while(CEspCom::get_msg_from_esp(msg)) {
-      
-      #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.print("[RX msg]: ");
-      #endif
 
-
-      if(msg.get_if_type() == ESP_SERIAL_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.print("Serial CONTROL MESSAGE");
-         #endif
-         
-         /* response MUST BE deleted */
-         *response = esp_host_get_ctrl_msg(msg);
-         if(*response != nullptr) {
-            #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("    correctly received");
-            #endif
-            if(esp_host_process_ctrl_answer(*response) == ESP_HOST_CTRL_EVENT_MESSAGE_RX) {
-               rv = ESP_HOST_CTRL_CTRL_MSG_RX;
-               break;
-            }
-         }
-         
-      }
-      else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
-         /* net if message received */
-      }
-      else if(msg.get_if_type() == ESP_PRIV_IF) {
-
-      }
-      else if(msg.get_if_type() == ESP_TEST_IF) {
-         
-      }
-   }
-   return rv;
-}
 
 
 

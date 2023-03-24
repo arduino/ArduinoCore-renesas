@@ -25,13 +25,22 @@
 #ifndef _ARDUINO_ESP_CONTROL_CLASS_H
 #define _ARDUINO_ESP_CONTROL_CLASS_H
 
-#include "CControlRequest.h"
+#include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
+#include "esp_host_callbacks.h"
 
-#define ESP_CONTROL_OK    0
- 
-#define ESP_CONTROL_ERROR_MSG_PREPARATION 1 
-#define ESP_CONTROL_ERROR_SPI_COMMUNICATION 2
+
+/* error return value */
+#define ESP_CONTROL_ERROR_MSG_PREPARATION              -3
+#define ESP_CONTROL_ERROR_SPI_COMMUNICATION            -2
+#define ESP_CONTROL_CTRL_ERROR                         -1
+/* ok return value */
+#define ESP_CONTROL_OK                                  0
+/* valid return values */ 
+#define ESP_CONTROL_EMPTY_RX_QUEUE                      1
+#define ESP_CONTROL_MSG_RX                              2
+#define ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB            3
+#define ESP_CONTROL_EVENT_MESSAGE_RX                    4 
 
 class CEspControl {
 public:
@@ -45,7 +54,8 @@ public:
 private:
    CEspControl();
 
-
+   int process_msgs_received(CtrlMsg **response);
+   int process_ctrl_response(CtrlMsg *ans);
 
 
 };
