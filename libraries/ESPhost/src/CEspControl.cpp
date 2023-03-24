@@ -20,16 +20,10 @@
 
 #include "CEspControl.h"
 
-#include "esp_host_data_structures.h"
 
-extern void esp_host_send_msg_to_esp32(CMsg &msg);
-extern bool esp_host_esp32_get_msg_from_app(uint8_t *buffer, uint16_t dim);
-extern bool esp_host_esp32_send_to_app(const uint8_t *buffer, uint16_t dim);
-extern bool esp_host_get_msg_from_esp32(CMsg &msg);
 extern int esp_host_perform_spi_communication();
-
 extern int esp_host_spi_init(void);
-extern int esp_host_get_msgs_received(CtrlMsg **response);
+
 
 /* -------------------------------------------------------------------------- */
 /* GET INSTANCE SINGLETONE FUNCTION */
@@ -244,5 +238,5 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
 
 
 int CEspControl::getWifiMode(WifiMode_t &mode) {
-   
+
 }
