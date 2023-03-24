@@ -454,6 +454,7 @@ public:
          /* there a not more fragment to wait for -> process the message */
          if(msg_accumulator.verify_tlv_header()) {
             /* header is correct */
+            Serial.println("ABRACADABRA");
             rv = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
          }
          msg_accumulator.clear();
@@ -479,6 +480,20 @@ public:
       }
       return rv;
    }
+   static bool extractWifiMode(CtrlMsg *ans, WifiMode_t &mode) {
+      bool rv = false;
+      if(ans != nullptr) {
+         if(ans->msg_id == CTRL_RESP_GET_WIFI_MODE) {
+            if(ans->resp_get_wifi_mode != nullptr) {
+               if(ans->resp_get_wifi_mode->resp == 0) {
+                  mode = (WifiMode_t)ans->resp_get_wifi_mode->mode;
+                  rv = true;
+               }
+            }
+         }
+      }
+      return rv;
+   }
 };
 
 
@@ -488,7 +503,33 @@ private:
    T *payload;
    CtrlMsg request;
    
-   CMsg get_msg() {
+   
+   void init_ctrl_msg(int request_id) {
+      /* init the protobuf request*/
+      memset(&request,0x00,sizeof(request));
+      ctrl_msg__init(&request);
+      /* set the id of the message and the payload case */
+      request.msg_id = (CtrlMsgId)request_id;
+      request.payload_case = (CtrlMsg__PayloadCase)request_id;
+   }
+public:
+   CCtrlMsgWrapper()  = delete;
+   CCtrlMsgWrapper(int request_id) : payload(nullptr) {
+      init_ctrl_msg(request_id);
+   }
+   /* ----------------------------------------------------------------------- */
+   CCtrlMsgWrapper(int request_id, void (*init)(T *)) {
+      init_ctrl_msg(request_id);
+      /* allocate the payload */
+      payload = new T;
+      /* call the init function for the payload */
+      if(payload != nullptr) {
+         if(init != nullptr) {
+            init(payload);
+         }
+      }
+   }
+   CMsg getMsg() {
       int protobuf_len = ctrl_msg__get_packed_size(&request);
       CMsg msg(protobuf_len);
       if(msg.is_valid()){
@@ -500,34 +541,14 @@ private:
       }
       return CMsg(0);
    }
-
-public:
-   /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper(int request_id, void (*init)(T *)) {
-      /* init the protobuf request*/
-      memset(&request,0x00,sizeof(request));
-      ctrl_msg__init(&request);
-      /* set the id of the message and the payload case */
-      request.msg_id = (CtrlMsgId)request_id;
-      request.payload_case = (CtrlMsg__PayloadCase)request_id;
-      /* allocate the payload */
-      payload = new T;
-      /* call the init function for the payload */
-      if(payload != nullptr) {
-         if(init != nullptr) {
-            init(payload);
-         }
-      }
-   }
-   
    /* ----------------------------------------------------------------------- */
 
-   CMsg get_wifi_mac_address_msg(WifiMode_t mode) {
+   CMsg getWifiMacAddressMsg(WifiMode_t mode) {
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_get_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
       }
-      return get_msg();
+      return getMsg();
    }
 
    ~CCtrlMsgWrapper() {

@@ -20,6 +20,7 @@
 
 #include "CEspControl.h"
 
+#define ESP_HOST_DEBUG_ENABLED
 
 extern int esp_host_perform_spi_communication();
 extern int esp_host_spi_init(void);
@@ -39,7 +40,7 @@ CEspControl& CEspControl::getInstance() {
 /* -------------------------------------------------------------------------- */
 CEspControl::CEspControl() {
 /* -------------------------------------------------------------------------- */
-   esp_host_spi_init();
+   
 }
 /* -------------------------------------------------------------------------- */
 /* DESTRUCTOR */
@@ -175,7 +176,14 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
             #ifdef ESP_HOST_DEBUG_ENABLED
             Serial.println("    correctly received");
             #endif
-            if(process_ctrl_response(*response) == ESP_CONTROL_EVENT_MESSAGE_RX) {
+            int res = process_ctrl_response(*response);
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("process_ctrl_response result ");
+            Serial.println(res);
+            #endif
+
+
+            if(res == ESP_CONTROL_EVENT_MESSAGE_RX) {
                rv = ESP_CONTROL_MSG_RX;
                break;
             }
@@ -205,14 +213,29 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
       CEspCom::send_msg_to_esp(msg);
    }
    
-   /* send to and receive from all the messages for ESP */
-   esp_host_perform_spi_communication();
    
-   /* process all the received messages, untill a control message is found */
+   int time_num = 0;
    
-   if(ESP_CONTROL_MSG_RX != process_msgs_received(response)) {
-      rv = ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE;      
-   }
+   /* VERIFY IF ESP32 is ready to accept a SPI transaction */
+   bool esp_ready = false;
+   bsp_io_level_t handshake;
+   do {
+      /* send to and receive from all the messages for ESP */
+      esp_host_perform_spi_communication();
+   
+      /* process all the received messages, untill a control message is found */
+      if(ESP_CONTROL_MSG_RX != process_msgs_received(response)) {
+         rv = ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE;      
+      }
+      else {
+         rv = ESP_CONTROL_MSG_RX;
+         break;
+      }
+      
+      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+      time_num++;
+   } while(time_num < 5000);
+
    return rv;
 }
 
@@ -224,19 +247,47 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
    CCtrlMsgWrapper<CtrlMsgReqGetMacAddress> req(CTRL_REQ_GET_MAC_ADDR, ctrl_msg__req__get_mac_address__init);
-   CMsg msg = req.get_wifi_mac_address_msg((WifiMode_t)mode);
+   CMsg msg = req.getWifiMacAddressMsg((WifiMode_t)mode);
    
-   rv = perform_esp_communication(msg, &ans);
-   if(ESP_CONTROL_MSG_RX == rv) {
+   
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.println("EXTRACT MAC ADDRESS ");
+      #endif
       if(!CCtrlTranslate::extractMacAddress(ans, mac, mac_buf_size)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
-      } 
+      }
+      ctrl_msg__free_unpacked(ans, NULL);
+
    }
-   ctrl_msg__free_unpacked(ans, NULL);
+   
    return rv;
 }
 
-
+/* -------------------------------------------------------------------------- */
+/* GET WIFI MODE */
+/* -------------------------------------------------------------------------- */
 int CEspControl::getWifiMode(WifiMode_t &mode) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_MODE);
+   CMsg msg = req.getMsg();
+
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.println("EXTRACT WIFI MODE ");
+      #endif
+      if(!CCtrlTranslate::extractWifiMode(ans, mode)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("getWifiMode ");
+   Serial.println(rv);
+   #endif
+   return rv;
 
 }
