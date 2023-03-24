@@ -99,7 +99,7 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
    
    if(msg.is_valid()) {
       /* send the message */
-      esp_host_send_msg_to_esp32(msg);
+      CEspCom::send_msg_to_esp(msg);
      
       if(!esp_host_perform_spi_communication()) {
          CtrlMsg *ans;

@@ -554,7 +554,7 @@ int esp_host_get_msgs_received(CtrlMsg **response) {
    int rv = ESP_HOST_CTRL_EMPTY_RX_QUEUE;
   
    CMsg msg;
-   while(esp_host_get_msg_from_esp32(msg)) {
+   while(CEspCom::get_msg_from_esp(msg)) {
       
       #ifdef ESP_HOST_DEBUG_ENABLED
       Serial.print("[RX msg]: ");

@@ -1,6 +1,6 @@
 #ifndef _ARDUINO_ESP_MESSAGE_CLASS_H
 #define _ARDUINO_ESP_MESSAGE_CLASS_H
-
+#include "Arduino.h"
 #include <string.h>
 
 #define MAX_SPI_BUFFER_SIZE   1600

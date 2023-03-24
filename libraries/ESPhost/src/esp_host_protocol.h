@@ -95,13 +95,6 @@ struct esp_priv_event {
 
 
 
-void esp_host_send_msg_to_esp32(CMsg &msg);
-bool esp_host_esp32_get_msg_from_app(uint8_t *buffer, uint16_t dim);
-bool esp_host_esp32_send_to_app(const uint8_t *buffer, uint16_t dim);
-bool esp_host_get_msg_from_esp32(CMsg &msg);
-
-
-
 
 
 

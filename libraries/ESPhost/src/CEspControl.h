@@ -26,6 +26,7 @@
 #define _ARDUINO_ESP_CONTROL_CLASS_H
 
 #include "CControlRequest.h"
+#include "CEspCommunication.h"
 
 #define ESP_CONTROL_OK    0
  

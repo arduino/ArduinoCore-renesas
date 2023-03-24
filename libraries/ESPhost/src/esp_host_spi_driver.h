@@ -25,7 +25,8 @@
 
 #include "Arduino.h"
 #include "IRQManager.h"
-#include "esp_host_protocol.h"
+#include "CEspCommunication.h"
+//#include "esp_host_protocol.h"
 
 #include "r_spi.h"
 #include "r_sci_spi.h"
