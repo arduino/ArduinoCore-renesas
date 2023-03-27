@@ -262,7 +262,7 @@ static void dump_stack(uint32_t stack_start_addr, size_t stack_size, uint32_t *s
     }
     cmb_println(print_info[PRINT_THREAD_STACK_INFO]);
     for (; (uint32_t) stack_pointer < stack_start_addr + stack_size; stack_pointer++) {
-        cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+        cmb_println("  addr: %08x    data: %08x", (unsigned int)stack_pointer, (unsigned int)*stack_pointer);
     }
     cmb_println("====================================");
 }
@@ -397,7 +397,7 @@ void cm_backtrace_assert(uint32_t sp) {
     uint32_t cur_stack_pointer = cmb_get_sp();
 #endif
 
-    cmb_println("");
+    cmb_println("\n");
     cm_backtrace_firmware_info();
 
 #ifdef CMB_USING_OS_PLATFORM
@@ -584,7 +584,7 @@ void cm_backtrace_fault(uint32_t fault_handler_lr, uint32_t fault_handler_sp) {
 
     on_fault = true;
 
-    cmb_println("");
+    cmb_println("\n");
     cm_backtrace_firmware_info();
 
 #ifdef CMB_USING_OS_PLATFORM

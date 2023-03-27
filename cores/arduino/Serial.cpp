@@ -326,4 +326,5 @@ size_t UART::write_raw(uint8_t* c, size_t len) {
     R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
     i++;
   }
+  return len;
 }

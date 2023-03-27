@@ -36,7 +36,7 @@ void unsecure_registers() {
     uint32_t interrupt_security_state[BSP_ICU_VECTOR_MAX_ENTRIES / BSP_PRV_BITS_PER_WORD];
     memset(&interrupt_security_state, UINT8_MAX, sizeof(interrupt_security_state));
 
-    for (uint32_t i = 0U; i < BSP_ICU_VECTOR_MAX_ENTRIES; i++)
+    for (size_t i = 0U; i < BSP_ICU_VECTOR_MAX_ENTRIES; i++)
     {
          /* This is a secure vector. Clear the associated bit. */
          uint32_t index = i / BSP_PRV_BITS_PER_WORD;
@@ -47,7 +47,7 @@ void unsecure_registers() {
     /* The Secure Attribute managed within the ARM CPU NVIC must match the security attribution of IELSEn
      * (Reference section 13.2.9 in the RA6M4 manual R01UH0890EJ0050). */
     uint32_t volatile * p_icusarg = &R_CPSCU->ICUSARG;
-    for (uint32_t i = 0U; i < BSP_ICU_VECTOR_MAX_ENTRIES / BSP_PRV_BITS_PER_WORD; i++)
+    for (size_t i = 0U; i < BSP_ICU_VECTOR_MAX_ENTRIES / BSP_PRV_BITS_PER_WORD; i++)
     {
         p_icusarg[i]  = interrupt_security_state[i];
         NVIC->ITNS[i] = interrupt_security_state[i];
@@ -78,7 +78,7 @@ void arduino_main(void)
 
    __disable_irq();
    irq_vector_table = (volatile uint32_t *)APPLICATION_VECTOR_TABLE_ADDRESS_RAM;
-   int _i;
+   size_t _i;
    for (_i=0; _i<BSP_CORTEX_VECTOR_TABLE_ENTRIES; _i++) {
       *(irq_vector_table + _i) = (uint32_t)__VECTOR_TABLE[_i];
    }
@@ -116,6 +116,7 @@ void arduino_main(void)
 #ifdef BACKTRACE_SUPPORT
 /* for printf compatibility */
 extern "C" __attribute__((weak)) int _write (int fhdl, const void *buf, size_t count) {
+  (void)fhdl;
   Serial.write_raw((uint8_t*)buf, count);
 }
 #endif
