@@ -10,6 +10,7 @@ using namespace std;
 #include "CMsg.h"
 
 /* error return value */
+#define ESP_CONTROL_MAX_WIFI_POWER_OUT_OF_RANGE        -8
 #define ESP_CONTROL_ACCESS_POINT_NOT_FOUND             -7
 #define ESP_CONTROL_INVALID_PASSWORD                   -6
 #define ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE     -5
@@ -574,6 +575,35 @@ public:
       return checkResponsePayload<CtrlMsgRespOTAEnd>(ans, (int)CTRL_RESP_OTA_END, ans->resp_ota_end);
    }
 
+   static bool isSoftAccessPointStopped(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespGetStatus>(ans, (int)CTRL_RESP_STOP_SOFTAP, ans->resp_stop_softap);
+   }
+
+   static bool extractCurrentWifiTxPower(CtrlMsg *ans, uint32_t &max_power) {
+      if(checkResponsePayload<CtrlMsgRespGetWifiCurrTxPower>(ans, (int)CTRL_RESP_GET_WIFI_CURR_TX_POWER, ans->resp_get_wifi_curr_tx_power)) {
+         max_power = ans->resp_get_wifi_curr_tx_power->wifi_curr_tx_power;
+         return true;
+      }
+      return false;
+   }
+
+
+   static int isWifiMaxPowerSet(CtrlMsg *ans) {
+      int rv = ESP_CONTROL_CTRL_ERROR;
+      if(checkResponsePayload<CtrlMsgRespSetWifiMaxTxPower>(ans, (int)CTRL_RESP_SET_WIFI_MAX_TX_POWER, ans->resp_set_wifi_max_tx_power)) {
+         if(ans->resp_set_wifi_max_tx_power->resp == FAILURE) {
+            rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+         }
+         else if(ans->resp_set_wifi_max_tx_power->resp == CTRL_ERR_OUT_OF_RANGE) {
+            rv = ESP_CONTROL_MAX_WIFI_POWER_OUT_OF_RANGE;
+         }
+         else {
+            rv = ESP_CONTROL_OK;
+         }
+      }
+      return rv;
+   }
+
    static bool getPowerSaveModeSet(CtrlMsg *ans, int &power_save_mode) {
       if(checkResponsePayload<CtrlMsgRespGetMode>(ans, (int)CTRL_RESP_GET_PS_MODE, ans->resp_get_power_save_mode)) {
          power_save_mode = ans->resp_get_power_save_mode->mode;
@@ -583,7 +613,7 @@ public:
    }
 
    static int extractAccessPointConfig(CtrlMsg *ans, wifi_ap_config_t &ap) {
-      int rv = ESP_CONTROL_OK;
+      int rv = ESP_CONTROL_CTRL_ERROR;
       if(checkResponsePayload<CtrlMsgRespGetAPConfig>(ans, (int)CTRL_RESP_GET_AP_CONFIG, ans->resp_get_ap_config), false) {
          if(ans->resp_get_ap_config->resp == CTRL_ERR_NOT_CONNECTED) {
             rv = ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED;
@@ -604,7 +634,7 @@ public:
    }
 
    static int isAccessPointConnected(CtrlMsg *ans, wifi_ap_config_t &ap) {
-      int rv = ESP_CONTROL_OK;
+      int rv = ESP_CONTROL_CTRL_ERROR;
       if(checkResponsePayload<CtrlMsgRespConnectAP>(ans, (int)CTRL_RESP_CONNECT_AP, ans->resp_connect_ap), false) {
          if(ans->resp_connect_ap->resp == CTRL_ERR_INVALID_PASSWORD) {
             rv = ESP_CONTROL_INVALID_PASSWORD;
@@ -777,6 +807,17 @@ public:
             payload->listen_interval = interval;
             payload_set = true;
          }
+      }
+      return getMsg();
+   }
+
+   /* ----------------------------------------------------------------------- */
+   CMsg setWifiMaxTxPowerMsg(uint32_t max_power) {
+      payload_set = false;
+      if(payload != nullptr) {
+         request.req_set_wifi_max_tx_power = payload;
+         payload->wifi_max_tx_power = max_power;
+         payload_set = true;
       }
       return getMsg();
    }

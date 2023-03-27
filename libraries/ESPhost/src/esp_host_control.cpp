@@ -224,30 +224,6 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
          answer.free_buffer_handle = list;
 
          break;
-      } case CTRL_RESP_STOP_SOFTAP : {
-         CHECK_CTRL_MSG_NON_NULL(resp_stop_softap);
-         CHECK_CTRL_MSG_FAILED(resp_stop_softap);
-         break;
-      } case CTRL_RESP_SET_WIFI_MAX_TX_POWER: {
-         CHECK_CTRL_MSG_NON_NULL(req_set_wifi_max_tx_power);
-         switch (ctrl_msg->resp_set_wifi_max_tx_power->resp)
-         {
-            case FAILURE:
-               command_log("Failed to set max tx power\n");
-               goto fail_parse_ctrl_msg;
-               break;
-            case SUCCESS:
-               break;
-            case CTRL_ERR_OUT_OF_RANGE:
-               command_log("Power is OutOfRange. Check api doc for reference\n");
-               goto fail_parse_ctrl_msg;
-               break;
-            default:
-               command_log("unexpected response\n");
-               goto fail_parse_ctrl_msg;
-               break;
-         }
-         break;
       } case CTRL_RESP_GET_WIFI_CURR_TX_POWER: {
          CHECK_CTRL_MSG_NON_NULL(resp_get_wifi_curr_tx_power);
          CHECK_CTRL_MSG_FAILED(resp_get_wifi_curr_tx_power);

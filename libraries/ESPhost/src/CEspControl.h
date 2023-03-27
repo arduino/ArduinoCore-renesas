@@ -56,15 +56,25 @@ public:
    int endOTA();
    int otaWrite(ota_write_t &ow);
 
+   int stopSoftAccessPoint();
+
+   int getWifiCurrentTxPower(uint32_t &max_power);
+   int setWifiMaxTxPower(uint32_t max_power);
+
+
+
+
+
+
+
 
    int getSoftAccessPointConfig();
    int getSoftConnectedStationList();
-   int stopSoftAccessPoint();
+   
    int setSoftAccessPointVndIe();
    int startSoftAccessPoint();
    
-   int getWifiCurrentTxPower();
-   int setWifiMaxTxPower();
+   
 
    int configureHeartbeat();
 

@@ -481,11 +481,7 @@ int CEspControl::beginOTA() {
     }
     ctrl_msg__free_unpacked(ans, NULL); 
    }
-  
-
    return rv;
-
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -503,11 +499,64 @@ int CEspControl::endOTA() {
     }
     ctrl_msg__free_unpacked(ans, NULL); 
    }
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* STOP SOFT ACCESS POINT */
+/* -------------------------------------------------------------------------- */
+int CEspControl::stopSoftAccessPoint() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_STOP_SOFTAP);
+   CMsg msg = req.getMsg();
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isSoftAccessPointStopped(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+  
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* SET WIFI MAX TX POWER */
+/* -------------------------------------------------------------------------- */
+int CEspControl::setWifiMaxTxPower(uint32_t max_power) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<CtrlMsgReqSetWifiMaxTxPower> req(CTRL_REQ_SET_WIFI_MAX_TX_POWER, ctrl_msg__req__set_wifi_max_tx_power__init);
+   CMsg msg = req.setWifiMaxTxPowerMsg(max_power);
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      rv = CCtrlTranslate::isWifiMaxPowerSet(ans);
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
   
 
    return rv;
 
+}
 
+/* -------------------------------------------------------------------------- */
+/* GET WIFI CURRENT TX POWER */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getWifiCurrentTxPower(uint32_t &max_power) {
+
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_CURR_TX_POWER);
+   CMsg msg = req.getMsg();
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::extractCurrentWifiTxPower(ans, max_power)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   return rv;
 }
 
 
@@ -545,38 +594,13 @@ int CEspControl::getSoftConnectedStationList() {
    return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-/* STOP SOFT ACCESS POINT */
-/* -------------------------------------------------------------------------- */
-int CEspControl::stopSoftAccessPoint() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_STOP_SOFTAP);
-   CMsg msg = req.getMsg();
-  
-
-   return rv;
-}
 
 
 
 
-/* -------------------------------------------------------------------------- */
-/* END OTA */
-/* -------------------------------------------------------------------------- */
-int CEspControl::getWifiCurrentTxPower() {
 
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_CURR_TX_POWER);
-   CMsg msg = req.getMsg();
-  
 
-   return rv;
 
-}
 
 
 
@@ -617,20 +641,7 @@ int CEspControl::startSoftAccessPoint() {
 
 
 
-int CEspControl::setWifiMaxTxPower() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_WIFI_MAX_TX_POWER);
-   
 
-
-   CMsg msg /* TODO !!!*/;
-  
-
-   return rv;
-
-}
 
  int CEspControl::configureHeartbeat() {
    CtrlMsg *ans;
