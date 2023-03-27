@@ -321,3 +321,238 @@ int CEspControl::setWifiMode(WifiMode_t mode) {
    return rv;
 
 }
+
+/* -------------------------------------------------------------------------- */
+/* GET ACCESS POINT CONFIG */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getAccessPointConfig() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_CONFIG);
+   CMsg msg = req.getMsg();
+
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* DISCONNECT ACCESS POINT */
+/* -------------------------------------------------------------------------- */
+int CEspControl::disconnectAccessPoint() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_DISCONNECT_AP);
+   CMsg msg = req.getMsg();
+
+
+   return rv;
+}
+/* -------------------------------------------------------------------------- */
+/* GET SOFT ACCESS POINT CONFIG */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getSoftAccessPointConfig() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONFIG);
+   CMsg msg = req.getMsg();
+
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GET SOFT CONNECTED STATION LIST */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getSoftConnectedStationList() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONN_STA_LIST);
+   CMsg msg = req.getMsg();
+
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* STOP SOFT ACCESS POINT */
+/* -------------------------------------------------------------------------- */
+int CEspControl::stopSoftAccessPoint() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_STOP_SOFTAP);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GET PS MODE */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getPsMode() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_PS_MODE);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* BEGIN OTA */
+/* -------------------------------------------------------------------------- */
+int CEspControl::beginOTA() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_BEGIN);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* END OTA */
+/* -------------------------------------------------------------------------- */
+int CEspControl::endOTA() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_END);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* END OTA */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getWifiCurrentTxPower() {
+
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_CURR_TX_POWER);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* GET ACCESS POINT SCAN LIST */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getAccessPointScanList() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_SCAN_LIST);
+   CMsg msg = req.getMsg();
+  
+
+   return rv;
+}
+
+
+int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_CONNECT_AP);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+}
+
+int CEspControl::setSoftAccessPointVndIe() {
+
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_SOFTAP_VND_IE);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+
+}
+
+int CEspControl::startSoftAccessPoint() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_START_SOFTAP);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+
+}
+
+int CEspControl::setPsMode() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_PS_MODE);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+}
+
+
+int CEspControl::setWifiMaxTxPower() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_WIFI_MAX_TX_POWER);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+
+}
+
+ int CEspControl::configureHeartbeat() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_CONFIG_HEARTBEAT);
+   
+
+
+   CMsg msg /* TODO !!!*/;
+  
+
+   return rv;
+ }

@@ -56,6 +56,28 @@ public:
    int getWifiMode(WifiMode_t &mode);
    int setWifiMode(WifiMode_t mode);
 
+   int getAccessPointConfig();
+   int disconnectAccessPoint();
+   int getSoftAccessPointConfig();
+   int getSoftConnectedStationList();
+   int stopSoftAccessPoint();
+   int getAccessPointScanList(int timeout);
+   int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval);
+   int setSoftAccessPointVndIe();
+   int startSoftAccessPoint();
+   
+   int getPsMode();
+   int setPsMode();
+   
+   int beginOTA();
+   int endOTA();
+   int OtaWrite();
+
+   int getWifiCurrentTxPower();
+   int setWifiMaxTxPower();
+
+   int configureHeartbeat();
+
 private:
    CEspControl();
 

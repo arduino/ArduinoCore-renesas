@@ -145,33 +145,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
 
    /* 3. parse CtrlMsg into ctrl_cmd_t */
    switch (ctrl_msg->msg_id) {
-      case CTRL_RESP_GET_MAC_ADDR : {
-         
-         uint8_t len_l = (ctrl_msg->resp_get_mac_address->mac.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_get_mac_address->mac.len : MAX_MAC_STR_LEN-1;
-
-         CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address);
-         CHECK_CTRL_MSG_NON_NULL(resp_get_mac_address->mac.data);
-         CHECK_CTRL_MSG_FAILED(resp_get_mac_address);
-
-         strncpy(answer.u.wifi_mac.mac,
-            (char *)ctrl_msg->resp_get_mac_address->mac.data, len_l);
-         answer.u.wifi_mac.mac[len_l] = '\0';
-         break;
-      } case CTRL_RESP_SET_MAC_ADDRESS : {
-         CHECK_CTRL_MSG_NON_NULL(resp_set_mac_address);
-         CHECK_CTRL_MSG_FAILED(resp_set_mac_address);
-         break;
-      } case CTRL_RESP_GET_WIFI_MODE : {
-         CHECK_CTRL_MSG_NON_NULL(resp_get_wifi_mode);
-         CHECK_CTRL_MSG_FAILED(resp_get_wifi_mode);
-
-         answer.u.wifi_mode.mode = ctrl_msg->resp_get_wifi_mode->mode;
-         break;
-      } case CTRL_RESP_SET_WIFI_MODE : {
-         CHECK_CTRL_MSG_NON_NULL(resp_set_wifi_mode);
-         CHECK_CTRL_MSG_FAILED(resp_set_wifi_mode);
-         break;
-      } case CTRL_RESP_GET_AP_SCAN_LIST : {
+      case CTRL_RESP_GET_AP_SCAN_LIST : {
          CtrlMsgRespScanResult *rp = ctrl_msg->resp_scan_ap_list;
          wifi_ap_scan_list_t *ap = &answer.u.wifi_ap_scan;
          wifi_scanlist_t *list = NULL;
@@ -611,7 +585,7 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
 
    /* 3. identify request and compose CtrlMsg */
    switch(req.msg_id) {
-      case CTRL_REQ_GET_WIFI_MODE:
+      
       case CTRL_REQ_GET_AP_CONFIG:
       case CTRL_REQ_DISCONNECT_AP:
       case CTRL_REQ_GET_SOFTAP_CONFIG:
@@ -628,38 +602,7 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
          if (app_req->cmd_timeout_sec < DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT)
             app_req->cmd_timeout_sec = DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT;
          break;
-      case CTRL_REQ_SET_MAC_ADDR: {
-         wifi_mac_t * p = &app_req->u.wifi_mac;
-         CTRL_ALLOC_ASSIGN(CtrlMsgReqSetMacAddress, req_set_mac_address);
-
-         if ((p->mode <= WIFI_MODE_NONE) ||
-             (p->mode >= WIFI_MODE_APSTA)||
-             (!strlen(p->mac)) ||
-             (strlen(p->mac) > MAX_MAC_STR_LEN)) {
-            command_log("Invalid parameter\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-         ctrl_msg__req__set_mac_address__init(req_payload);
-
-         req_payload->mode = p->mode;
-         req_payload->mac.len = (strlen(p->mac) < MAX_MAC_STR_LEN) ? strlen(p->mac) : MAX_MAC_STR_LEN;
-         req_payload->mac.data = (uint8_t *)p->mac;
-
-         break;
-      } case CTRL_REQ_SET_WIFI_MODE: {
-         wifi_mode_t * p = &app_req->u.wifi_mode;
-         CTRL_ALLOC_ASSIGN(CtrlMsgReqSetMode, req_set_wifi_mode);
-
-         if ((p->mode < WIFI_MODE_NONE) || (p->mode >= WIFI_MODE_MAX)) {
-            command_log("Invalid wifi mode\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-         ctrl_msg__req__set_mode__init(req_payload);
-         req_payload->mode = p->mode;
-         break;
-      } case CTRL_REQ_CONNECT_AP: {
+      case CTRL_REQ_CONNECT_AP: {
          wifi_ap_config_t * p = &app_req->u.wifi_ap_config;
          CTRL_ALLOC_ASSIGN(CtrlMsgReqConnectAP,req_connect_ap);
 
