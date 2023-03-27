@@ -444,6 +444,73 @@ int CEspControl::setPowerSaveMode(int power_save_mode) {
 }
 
 
+/* -------------------------------------------------------------------------- */
+/* OTA WRITE */
+/* -------------------------------------------------------------------------- */
+int CEspControl::otaWrite(ota_write_t &ow) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   
+   CCtrlMsgWrapper<CtrlMsgReqOTAWrite> req(CTRL_REQ_OTA_WRITE, ctrl_msg__req__otawrite__init);
+   CMsg msg = req.otaWriteMsg(ow);
+
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+    if(!CCtrlTranslate::getOtaWriteResult(ans)) {
+       rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+    }
+    ctrl_msg__free_unpacked(ans, NULL); 
+   }
+
+   return rv;
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* BEGIN OTA */
+/* -------------------------------------------------------------------------- */
+int CEspControl::beginOTA() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_BEGIN);
+   CMsg msg = req.getMsg();
+    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+    if(!CCtrlTranslate::isOtaBegun(ans)) {
+       rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+    }
+    ctrl_msg__free_unpacked(ans, NULL); 
+   }
+  
+
+   return rv;
+
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* END OTA */
+/* -------------------------------------------------------------------------- */
+int CEspControl::endOTA() {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_END);
+   CMsg msg = req.getMsg();
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+    if(!CCtrlTranslate::isOtaEnded(ans)) {
+       rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+    }
+    ctrl_msg__free_unpacked(ans, NULL); 
+   }
+  
+
+   return rv;
+
+
+}
+
+
 /* ??????????????????????????????????????????????????????????????????????????? */
 
 
@@ -494,37 +561,6 @@ int CEspControl::stopSoftAccessPoint() {
 
 
 
-/* -------------------------------------------------------------------------- */
-/* BEGIN OTA */
-/* -------------------------------------------------------------------------- */
-int CEspControl::beginOTA() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_BEGIN);
-   CMsg msg = req.getMsg();
-  
-
-   return rv;
-
-
-}
-
-/* -------------------------------------------------------------------------- */
-/* END OTA */
-/* -------------------------------------------------------------------------- */
-int CEspControl::endOTA() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_END);
-   CMsg msg = req.getMsg();
-  
-
-   return rv;
-
-
-}
 
 /* -------------------------------------------------------------------------- */
 /* END OTA */

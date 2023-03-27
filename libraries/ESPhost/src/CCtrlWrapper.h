@@ -562,6 +562,18 @@ public:
       return checkResponsePayload<CtrlMsgRespSetMode>(ans, (int)CTRL_RESP_SET_PS_MODE, ans->resp_set_power_save_mode);  
    }
 
+   static bool getOtaWriteResult(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespOTAWrite>(ans, (int)CTRL_RESP_OTA_WRITE, ans->resp_ota_write);  
+   }
+
+   static bool isOtaBegun(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespOTABegin>(ans, (int)CTRL_RESP_OTA_BEGIN, ans->resp_ota_begin);
+   }
+
+   static bool isOtaEnded(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespOTAEnd>(ans, (int)CTRL_RESP_OTA_END, ans->resp_ota_end);
+   }
+
    static bool getPowerSaveModeSet(CtrlMsg *ans, int &power_save_mode) {
       if(checkResponsePayload<CtrlMsgRespGetMode>(ans, (int)CTRL_RESP_GET_PS_MODE, ans->resp_get_power_save_mode)) {
          power_save_mode = ans->resp_get_power_save_mode->mode;
@@ -731,6 +743,17 @@ public:
       if(payload != nullptr && power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
          request.req_set_power_save_mode = payload;
          payload->mode = (CtrlWifiPowerSave)power_save_mode;
+         payload_set = true;
+      }
+      return getMsg();
+   }
+   /* ----------------------------------------------------------------------- */
+   CMsg otaWriteMsg(ota_write_t &ow) {
+      payload_set = false;
+      if(payload != nullptr) {
+         request.req_ota_write = payload;
+         payload->ota_data.data = ow.ota_data;
+         payload->ota_data.len = ow.ota_data_len;
          payload_set = true;
       }
       return getMsg();

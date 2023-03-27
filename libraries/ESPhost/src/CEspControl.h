@@ -52,6 +52,10 @@ public:
    int getPowerSaveMode(int &power_save_mode);
    int setPowerSaveMode(int power_save_mode);
 
+   int beginOTA();
+   int endOTA();
+   int otaWrite(ota_write_t &ow);
+
 
    int getSoftAccessPointConfig();
    int getSoftConnectedStationList();
@@ -59,13 +63,6 @@ public:
    int setSoftAccessPointVndIe();
    int startSoftAccessPoint();
    
-
-   
-   
-   int beginOTA();
-   int endOTA();
-   int OtaWrite();
-
    int getWifiCurrentTxPower();
    int setWifiMaxTxPower();
 

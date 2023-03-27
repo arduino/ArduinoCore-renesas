@@ -228,38 +228,6 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
          CHECK_CTRL_MSG_NON_NULL(resp_stop_softap);
          CHECK_CTRL_MSG_FAILED(resp_stop_softap);
          break;
-      } case CTRL_RESP_SET_PS_MODE : {
-         CHECK_CTRL_MSG_NON_NULL(resp_set_power_save_mode);
-         CHECK_CTRL_MSG_FAILED(resp_set_power_save_mode);
-         break;
-      } case CTRL_RESP_GET_PS_MODE : {
-         CHECK_CTRL_MSG_NON_NULL(resp_get_power_save_mode);
-         CHECK_CTRL_MSG_FAILED(resp_get_power_save_mode);
-         answer.u.wifi_ps.ps_mode = ctrl_msg->resp_get_power_save_mode->mode;
-         break;
-      } case CTRL_RESP_OTA_BEGIN : {
-         CHECK_CTRL_MSG_NON_NULL(resp_ota_begin);
-         CHECK_CTRL_MSG_FAILED(resp_ota_begin);
-         if (ctrl_msg->resp_ota_begin->resp) {
-            command_log("OTA Begin Failed\n");
-            goto fail_parse_ctrl_msg;
-         }
-         break;
-      } case CTRL_RESP_OTA_WRITE : {
-         CHECK_CTRL_MSG_NON_NULL(resp_ota_write);
-         CHECK_CTRL_MSG_FAILED(resp_ota_write);
-         if (ctrl_msg->resp_ota_write->resp) {
-            command_log("OTA write failed\n");
-            goto fail_parse_ctrl_msg;
-         }
-         break;
-      } case CTRL_RESP_OTA_END : {
-         CHECK_CTRL_MSG_NON_NULL(resp_ota_end);
-         if (ctrl_msg->resp_ota_end->resp) {
-            command_log("OTA write failed\n");
-            goto fail_parse_ctrl_msg;
-         }
-         break;
       } case CTRL_RESP_SET_WIFI_MAX_TX_POWER: {
          CHECK_CTRL_MSG_NON_NULL(req_set_wifi_max_tx_power);
          switch (ctrl_msg->resp_set_wifi_max_tx_power->resp)
