@@ -145,123 +145,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
 
    /* 3. parse CtrlMsg into ctrl_cmd_t */
    switch (ctrl_msg->msg_id) {
-      case CTRL_RESP_GET_AP_SCAN_LIST : {
-         CtrlMsgRespScanResult *rp = ctrl_msg->resp_scan_ap_list;
-         wifi_ap_scan_list_t *ap = &answer.u.wifi_ap_scan;
-         wifi_scanlist_t *list = NULL;
-
-         CHECK_CTRL_MSG_NON_NULL(resp_scan_ap_list);
-         CHECK_CTRL_MSG_FAILED(resp_scan_ap_list);
-
-         ap->count = rp->count;
-         if (rp->count) {
-
-            CHECK_CTRL_MSG_NON_NULL_VAL(ap->count,"No APs available");
-            list = (wifi_scanlist_t *)hosted_calloc(ap->count,
-                  sizeof(wifi_scanlist_t));
-            CHECK_CTRL_MSG_NON_NULL_VAL(list, "Malloc Failed");
-         }
-
-         for (i=0; i<rp->count; i++) {
-
-            if (rp->entries[i]->ssid.len)
-               memcpy(list[i].ssid, (char *)rp->entries[i]->ssid.data,
-                  rp->entries[i]->ssid.len);
-
-            if (rp->entries[i]->bssid.len)
-               memcpy(list[i].bssid, (char *)rp->entries[i]->bssid.data,
-                  rp->entries[i]->bssid.len);
-
-            list[i].channel = rp->entries[i]->chnl;
-            list[i].rssi = rp->entries[i]->rssi;
-            list[i].encryption_mode = rp->entries[i]->sec_prot;
-         }
-
-         ap->out_list = list;
-         /* Note allocation, to be freed later by app */
-         answer.free_buffer_func = hosted_free;
-         answer.free_buffer_handle = list;
-         break;
-      } case CTRL_RESP_GET_AP_CONFIG : {
-         CHECK_CTRL_MSG_NON_NULL(resp_get_ap_config);
-         wifi_ap_config_t *p = &answer.u.wifi_ap_config;
-
-         answer.resp_event_status = ctrl_msg->resp_get_ap_config->resp;
-
-         switch (ctrl_msg->resp_get_ap_config->resp) {
-
-            case CTRL_ERR_NOT_CONNECTED:
-               strncpy(p->status, NOT_CONNECTED_STR, STATUS_LENGTH);
-               p->status[STATUS_LENGTH-1] = '\0';
-               command_log("Station is not connected to AP \n");
-               goto fail_parse_ctrl_msg2;
-               break;
-
-            case SUCCESS:
-               strncpy(p->status, SUCCESS_STR, STATUS_LENGTH);
-               p->status[STATUS_LENGTH-1] = '\0';
-               if (ctrl_msg->resp_get_ap_config->ssid.data) {
-                  strncpy((char *)p->ssid,
-                        (char *)ctrl_msg->resp_get_ap_config->ssid.data,
-                        MAX_SSID_LENGTH-1);
-                  p->ssid[MAX_SSID_LENGTH-1] ='\0';
-               }
-               if (ctrl_msg->resp_get_ap_config->bssid.data) {
-                  uint8_t len_l = 0;
-
-                  len_l = (ctrl_msg->resp_get_ap_config->bssid.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_get_ap_config->bssid.len : MAX_MAC_STR_LEN-1;
-                  strncpy((char *)p->bssid,
-                        (char *)ctrl_msg->resp_get_ap_config->bssid.data,
-                        len_l);
-                  p->bssid[len_l] = '\0';
-               }
-
-               p->channel = ctrl_msg->resp_get_ap_config->chnl;
-               p->rssi = ctrl_msg->resp_get_ap_config->rssi;
-               p->encryption_mode = ctrl_msg->resp_get_ap_config->sec_prot;
-               break;
-
-            case FAILURE:
-            default:
-               /* intentional fall-through */
-               strncpy(p->status, FAILURE_STR, STATUS_LENGTH);
-               p->status[STATUS_LENGTH-1] = '\0';
-               command_log("Failed to get AP config \n");
-               goto fail_parse_ctrl_msg2;
-               break;
-         }
-         break;
-      } case CTRL_RESP_CONNECT_AP : {
-         uint8_t len_l = 0;
-         CHECK_CTRL_MSG_NON_NULL(resp_connect_ap);
-
-         answer.resp_event_status = ctrl_msg->resp_connect_ap->resp;
-
-         switch(ctrl_msg->resp_connect_ap->resp) {
-            case CTRL_ERR_INVALID_PASSWORD:
-               command_log("Invalid password for SSID\n");
-               goto fail_parse_ctrl_msg2;
-               break;
-            case CTRL_ERR_NO_AP_FOUND:
-               command_log("SSID: not found/connectable\n");
-               goto fail_parse_ctrl_msg2;
-               break;
-            case SUCCESS:
-               CHECK_CTRL_MSG_NON_NULL(resp_connect_ap->mac.data);
-               CHECK_CTRL_MSG_FAILED(resp_connect_ap);
-               break;
-            default:
-               CHECK_CTRL_MSG_FAILED(resp_connect_ap);
-               command_log("Connect AP failed\n");
-               goto fail_parse_ctrl_msg2;
-               break;
-         }
-         len_l = (ctrl_msg->resp_connect_ap->mac.len < MAX_MAC_STR_LEN-1) ? ctrl_msg->resp_connect_ap->mac.len : MAX_MAC_STR_LEN-1;
-         strncpy(answer.u.wifi_ap_config.out_mac,
-               (char *)ctrl_msg->resp_connect_ap->mac.data, len_l);
-         answer.u.wifi_ap_config.out_mac[len_l] = '\0';
-         break;
-      } case CTRL_RESP_DISCONNECT_AP : {
+      case CTRL_RESP_DISCONNECT_AP : {
          CHECK_CTRL_MSG_NON_NULL(resp_disconnect_ap);
          CHECK_CTRL_MSG_FAILED(resp_disconnect_ap);
          break;
@@ -598,41 +482,8 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
          /* Intentional fallthrough & empty */
          break;
        
-      case CTRL_REQ_GET_AP_SCAN_LIST: 
-         if (app_req->cmd_timeout_sec < DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT)
-            app_req->cmd_timeout_sec = DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT;
-         break;
-      case CTRL_REQ_CONNECT_AP: {
-         wifi_ap_config_t * p = &app_req->u.wifi_ap_config;
-         CTRL_ALLOC_ASSIGN(CtrlMsgReqConnectAP,req_connect_ap);
-
-         if ((strlen((char *)p->ssid) > MAX_SSID_LENGTH) ||
-               (!strlen((char *)p->ssid))) {
-            command_log("Invalid SSID length\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-
-         if (strlen((char *)p->pwd) > MAX_PWD_LENGTH) {
-            command_log("Invalid password length\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-
-         if (strlen((char *)p->bssid) > MAX_MAC_STR_LEN) {
-            command_log("Invalid BSSID length\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-         ctrl_msg__req__connect_ap__init(req_payload);
-
-         req_payload->ssid  = (char *)&p->ssid;
-         req_payload->pwd   = (char *)&p->pwd;
-         req_payload->bssid = (char *)&p->bssid;
-         req_payload->is_wpa3_supported = p->is_wpa3_supported;
-         req_payload->listen_interval = p->listen_interval;
-         break;
-      } case CTRL_REQ_SET_SOFTAP_VND_IE: {
+      
+      case CTRL_REQ_SET_SOFTAP_VND_IE: {
          wifi_softap_vendor_ie_t *p = &app_req->u.wifi_softap_vendor_ie;
          CTRL_ALLOC_ASSIGN(CtrlMsgReqSetSoftAPVendorSpecificIE,
                req_set_softap_vendor_specific_ie);

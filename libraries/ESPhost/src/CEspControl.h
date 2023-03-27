@@ -30,19 +30,7 @@
 #include "esp_host_callbacks.h"
 
 
-/* error return value */
-#define ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE     -5
-#define ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE        -4
-#define ESP_CONTROL_ERROR_MSG_PREPARATION              -3
-#define ESP_CONTROL_ERROR_SPI_COMMUNICATION            -2
-#define ESP_CONTROL_CTRL_ERROR                         -1
-/* ok return value */
-#define ESP_CONTROL_OK                                  0
-/* valid return values */ 
-#define ESP_CONTROL_EMPTY_RX_QUEUE                      1
-#define ESP_CONTROL_MSG_RX                              2
-#define ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB            3
-#define ESP_CONTROL_EVENT_MESSAGE_RX                    4 
+
 
 class CEspControl {
 public:
@@ -56,13 +44,17 @@ public:
    int getWifiMode(WifiMode_t &mode);
    int setWifiMode(WifiMode_t mode);
 
-   int getAccessPointConfig();
+   int getAccessPointScanList(vector<wifi_scanlist_t>& l);
+   int getAccessPointConfig(wifi_ap_config_t &ap);
+   int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval, wifi_ap_config_t &ap_out);
    int disconnectAccessPoint();
+
+   
    int getSoftAccessPointConfig();
    int getSoftConnectedStationList();
    int stopSoftAccessPoint();
-   int getAccessPointScanList(int timeout);
-   int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval);
+   
+   
    int setSoftAccessPointVndIe();
    int startSoftAccessPoint();
    

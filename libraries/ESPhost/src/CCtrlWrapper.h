@@ -1,11 +1,47 @@
 #ifndef _ARDUINO_ESP_CONTROL_REQUEST_CLASS_H
 #define _ARDUINO_ESP_CONTROL_REQUEST_CLASS_H
 
+#include <vector>
+
+using namespace std;
+
 #include "esp_hosted_config.pb-c.h"
 
 #include "CMsg.h"
+
+/* error return value */
+#define ESP_CONTROL_ACCESS_POINT_NOT_FOUND             -7
+#define ESP_CONTROL_INVALID_PASSWORD                   -6
+#define ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE     -5
+#define ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE        -4
+#define ESP_CONTROL_ERROR_MSG_PREPARATION              -3
+#define ESP_CONTROL_ERROR_SPI_COMMUNICATION            -2
+#define ESP_CONTROL_CTRL_ERROR                         -1
+/* ok return value */
+#define ESP_CONTROL_OK                                  0
+/* valid return values */ 
+#define ESP_CONTROL_EMPTY_RX_QUEUE                      1
+#define ESP_CONTROL_MSG_RX                              2
+#define ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB            3
+#define ESP_CONTROL_EVENT_MESSAGE_RX                    4
+#define ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED          5
+
+
+
+
+
 #define SUCCESS                              0
 #define FAILURE                              -1
+
+#define MAX_SSID_LENGTH              32
+#define MIN_PWD_LENGTH               8
+#define MAX_PWD_LENGTH               64
+#define STATUS_LENGTH                14
+#define TIMEOUT_PSERIAL_RESP         30
+#define MIN_CHNL_NO                  1
+#define MAX_CHNL_NO                  11
+#define MIN_CONN_NO                  1
+#define MAX_CONN_NO                  10
 
 #define SSID_LENGTH                          32
 #define MAX_MAC_STR_LEN                      18
@@ -439,6 +475,27 @@ typedef enum {
 } WifiMode_t;
 
 
+template<typename T>
+static bool checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_resp = false) {
+   bool rv = true;
+   if(ans == nullptr) {
+      return false;
+   }
+   if(ans->msg_id != (AppMsgId_e)req) {
+      return false;
+   }
+   if(payload == nullptr) {
+      return false;
+   }
+   if(check_resp) {
+      if(payload->resp != 0) {
+         return false;
+      }
+   }
+   return rv;
+
+}
+
 class CCtrlTranslate {
 public:
    /* this function extracts a CtrlMsg from a received CMsg 
@@ -461,66 +518,117 @@ public:
       return rv;
    }
 
+   static void copyData(uint8_t *dst, int dst_len, uint8_t *src, int scr_len ) {
+      if(src != nullptr && dst != nullptr && dst_len > 0 && scr_len > 0) {
+         memset(dst,0x00,dst_len);
+         uint32_t len = (dst_len < scr_len) ? dst_len : scr_len;
+         memcpy(dst,src,len);
+      }
+   }
+
    static bool extractMacAddress(CtrlMsg *ans, char *mac_out, int mac_out_dim) {
       bool rv = false;
-      if(ans != nullptr) {
-         if(ans->msg_id == CTRL_RESP_GET_MAC_ADDR) {
-            if(ans->resp_get_mac_address != nullptr) {
-               if(ans->resp_get_mac_address->mac.data != nullptr) {
-                  if(ans->resp_get_mac_address->resp == 0) {
-                     memset(mac_out,0x00,mac_out_dim);
-                     uint8_t len_l = (ans->resp_get_mac_address->mac.len < mac_out_dim-1) ? ans->resp_get_mac_address->mac.len : mac_out_dim-1;
-                     strncpy(mac_out,(char *)ans->resp_get_mac_address->mac.data, len_l);
-                     rv = true;
-                  }
-               }
-            }
+      if(checkResponsePayload<CtrlMsgRespGetMacAddress>(ans, (int)CTRL_RESP_GET_MAC_ADDR, ans->resp_get_mac_address)) {
+         if(ans->resp_get_mac_address->mac.data != nullptr) {
+            memset(mac_out,0x00,mac_out_dim);
+            uint8_t len_l = (ans->resp_get_mac_address->mac.len < mac_out_dim-1) ? ans->resp_get_mac_address->mac.len : mac_out_dim-1;
+            strncpy(mac_out,(char *)ans->resp_get_mac_address->mac.data, len_l);
+            rv = true;
          }
       }
       return rv;
    }
+
    static bool checkMacAddressSet(CtrlMsg *ans) {
-      bool rv = false;
-      if(ans != nullptr) {
-         if(ans->msg_id == CTRL_RESP_SET_MAC_ADDRESS) {
-            if(ans->resp_set_mac_address != nullptr) {
-               if(ans->resp_set_mac_address->resp == 0) {
-                  rv = true;
-               }
-            }
-         }
-      }
-      return rv;
+      return checkResponsePayload<CtrlMsgRespSetMacAddress>(ans, (int)CTRL_RESP_SET_MAC_ADDRESS, ans->resp_set_mac_address);
    }
 
    static bool extractWifiMode(CtrlMsg *ans, WifiMode_t &mode) {
-      bool rv = false;
-      if(ans != nullptr) {
-         if(ans->msg_id == CTRL_RESP_GET_WIFI_MODE) {
-            if(ans->resp_get_wifi_mode != nullptr) {
-               if(ans->resp_get_wifi_mode->resp == 0) {
-                  mode = (WifiMode_t)ans->resp_get_wifi_mode->mode;
-                  rv = true;
-               }
-            }
-         }
+      if(checkResponsePayload<CtrlMsgRespGetMode>(ans, (int)CTRL_RESP_GET_WIFI_MODE, ans->resp_get_wifi_mode)) {
+         mode = (WifiMode_t)ans->resp_get_wifi_mode->mode;
+         return true;
       }
-      return rv;
+      return false;
    }
    static bool isSetWifiModeResponse(CtrlMsg *ans) {
-      bool rv = false;
-      if(ans != nullptr) {
-         if(ans->msg_id == CTRL_RESP_SET_WIFI_MODE) {
-            if(ans->resp_set_wifi_mode != nullptr) {
-               if(ans->resp_set_wifi_mode->resp == 0) {
-                  rv = true;
-               }
+      return checkResponsePayload<CtrlMsgRespSetMode>(ans, (int)CTRL_RESP_SET_WIFI_MODE, ans->resp_set_wifi_mode);
+   }
+
+   static bool isAccessPointDisconnected(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespGetStatus>(ans, (int)CTRL_RESP_DISCONNECT_AP, ans->resp_disconnect_ap);  
+   }
+
+   static int extractAccessPointConfig(CtrlMsg *ans, wifi_ap_config_t &ap) {
+      int rv = ESP_CONTROL_OK;
+      if(checkResponsePayload<CtrlMsgRespGetAPConfig>(ans, (int)CTRL_RESP_GET_AP_CONFIG, ans->resp_get_ap_config), false) {
+         if(ans->resp_get_ap_config->resp == CTRL_ERR_NOT_CONNECTED) {
+            rv = ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED;
+         }
+         else if(ans->resp_get_ap_config->resp == 0) {
+            copyData((uint8_t *)&(ap.ssid), SSID_LENGTH, ans->resp_get_ap_config->ssid.data, SSID_LENGTH );
+            copyData((uint8_t *)&(ap.bssid), BSSID_LENGTH, ans->resp_get_ap_config->bssid.data, BSSID_LENGTH );
+            copyData((uint8_t *)&(ap.status), STATUS_LENGTH, (uint8_t *)"SUCCESS", strlen("SUCCESS") );
+            ap.channel         = ans->resp_get_ap_config->chnl;
+            ap.rssi            = ans->resp_get_ap_config->rssi;
+            ap.encryption_mode = ans->resp_get_ap_config->sec_prot;
+         }
+         else {
+            copyData((uint8_t *)&(ap.status), STATUS_LENGTH, (uint8_t *)"FAILURE", strlen("FAILURE") );
+         }
+      }
+      return rv;
+   }
+
+   static int isAccessPointConnected(CtrlMsg *ans, wifi_ap_config_t &ap) {
+      int rv = ESP_CONTROL_OK;
+      if(checkResponsePayload<CtrlMsgRespConnectAP>(ans, (int)CTRL_RESP_CONNECT_AP, ans->resp_connect_ap), false) {
+         if(ans->resp_connect_ap->resp == CTRL_ERR_INVALID_PASSWORD) {
+            rv = ESP_CONTROL_INVALID_PASSWORD;
+         }
+         else if(ans->resp_connect_ap->resp == CTRL_ERR_NO_AP_FOUND) {
+            rv = ESP_CONTROL_ACCESS_POINT_NOT_FOUND;
+         }
+         else if(ans->resp_connect_ap->resp != 0) {
+            rv = ESP_CONTROL_CTRL_ERROR;
+         }
+         else {
+            if(ans->resp_connect_ap->mac.data != nullptr) {
+               copyData((uint8_t *)&(ap.out_mac), MAX_MAC_STR_LEN, (uint8_t *)ans->resp_connect_ap->mac.data, ans->resp_connect_ap->mac.len );
             }
          }
       }
       return rv;
-
    }
+
+
+
+   static bool extractAccessPointList(CtrlMsg *ans, vector<wifi_scanlist_t>& l) {
+      if(checkResponsePayload<CtrlMsgRespScanResult>(ans, (int)CTRL_RESP_GET_AP_SCAN_LIST, ans->resp_scan_ap_list)) {
+         CtrlMsgRespScanResult *rp = ans->resp_scan_ap_list;
+         for(int i = 0; i < rp->count; i++) {
+            wifi_scanlist_t sc;
+            memset((void *)&sc,0x00,sizeof(sc));
+
+            if(rp->entries[i]->ssid.len) {
+               memcpy(sc.ssid,(char *)rp->entries[i]->ssid.data, (rp->entries[i]->ssid.len < SSID_LENGTH) ? rp->entries[i]->ssid.len : SSID_LENGTH);
+            }
+
+            if(rp->entries[i]->bssid.len) {
+               memcpy(sc.bssid,(char *)rp->entries[i]->bssid.data, (rp->entries[i]->bssid.len < BSSID_LENGTH) ? rp->entries[i]->bssid.len : BSSID_LENGTH);
+            }
+
+            sc.channel = rp->entries[i]->chnl;
+            sc.rssi = rp->entries[i]->rssi;
+            sc.encryption_mode = rp->entries[i]->sec_prot;
+
+            l.push_back(sc);
+         }
+         return true;
+      }
+      return false;
+   }
+   
+   
 };
 
 
@@ -605,6 +713,33 @@ public:
       }
       return getMsg();
    }
+
+
+   /* ----------------------------------------------------------------------- */
+   CMsg getConnectAccessPointMsg(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval) {
+      payload_set = false;
+      if(payload != nullptr) {
+         request.req_connect_ap = payload;
+
+         if(ssid != nullptr && strlen(ssid) <=  MAX_SSID_LENGTH &&
+            pwd !=nullptr && strlen(pwd) <= MAX_PWD_LENGTH &&
+            bssid != nullptr && strlen(bssid) <= MAX_MAC_STR_LEN) {
+
+            payload->ssid  = (char *)ssid;
+            payload->pwd   = (char *)pwd;
+            payload->bssid = (char *)bssid;
+            payload->is_wpa3_supported = wpa3_support;
+            payload->listen_interval = interval;
+            payload_set = true;
+         }
+      }
+      return getMsg();
+   }
+   
+
+
+
+
    /* ----------------------------------------------------------------------- */
    ~CCtrlMsgWrapper() {
       if(payload != nullptr) {

@@ -322,19 +322,25 @@ int CEspControl::setWifiMode(WifiMode_t mode) {
 
 }
 
+
 /* -------------------------------------------------------------------------- */
-/* GET ACCESS POINT CONFIG */
+/* GET ACCESS POINT SCAN LIST */
 /* -------------------------------------------------------------------------- */
-int CEspControl::getAccessPointConfig() {
+int CEspControl::getAccessPointScanList(vector<wifi_scanlist_t>& l) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_CONFIG);
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_SCAN_LIST);
    CMsg msg = req.getMsg();
-
-
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::extractAccessPointList(ans,l)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
    return rv;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* DISCONNECT ACCESS POINT */
@@ -345,10 +351,58 @@ int CEspControl::disconnectAccessPoint() {
    /* message request preparation */
    CCtrlMsgWrapper<int> req(CTRL_REQ_DISCONNECT_AP);
    CMsg msg = req.getMsg();
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isAccessPointDisconnected(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   return rv;
+}
 
+/* -------------------------------------------------------------------------- */
+/* GET ACCESS POINT CONFIG */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getAccessPointConfig(wifi_ap_config_t &ap) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_CTRL_ERROR;
+   /* message request preparation */
+   CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_GET_AP_CONFIG, ctrl_msg__req__connect_ap__init);
+   CMsg msg = req.getMsg();
+
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      rv = CCtrlTranslate::extractAccessPointConfig(ans, ap);
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CONNECT ACCESS POINT */
+/* -------------------------------------------------------------------------- */
+int CEspControl::connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval, wifi_ap_config_t &ap_out) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_CONNECT_AP);
+   CMsg msg = req.getConnectAccessPointMsg(ssid, pwd, bssid, wpa3_support,interval);
+   
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      rv = CCtrlTranslate::isAccessPointConnected(ans, ap_out);
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   
 
    return rv;
 }
+
+
+/* ??????????????????????????????????????????????????????????????????????????? */
+
+
+
+
+
 /* -------------------------------------------------------------------------- */
 /* GET SOFT ACCESS POINT CONFIG */
 /* -------------------------------------------------------------------------- */
@@ -453,34 +507,10 @@ int CEspControl::getWifiCurrentTxPower() {
 
 }
 
-/* -------------------------------------------------------------------------- */
-/* GET ACCESS POINT SCAN LIST */
-/* -------------------------------------------------------------------------- */
-int CEspControl::getAccessPointScanList() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_SCAN_LIST);
-   CMsg msg = req.getMsg();
-  
-
-   return rv;
-}
 
 
-int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval) {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_CONNECT_AP);
-   
 
 
-   CMsg msg /* TODO !!!*/;
-  
-
-   return rv;
-}
 
 int CEspControl::setSoftAccessPointVndIe() {
 
