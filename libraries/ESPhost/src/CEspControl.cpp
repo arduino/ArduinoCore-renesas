@@ -397,10 +397,54 @@ int CEspControl::connectAccessPoint(const char *ssid, const char *pwd, const cha
 }
 
 
+
+
+
+/* -------------------------------------------------------------------------- */
+/* GET PS MODE */
+/* -------------------------------------------------------------------------- */
+int CEspControl::getPowerSaveMode(int &power_save_mode) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_PS_MODE);
+   CMsg msg = req.getMsg();
+
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::getPowerSaveModeSet(ans, power_save_mode)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+  
+
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GET PS MODE */
+/* -------------------------------------------------------------------------- */
+int CEspControl::setPowerSaveMode(int power_save_mode) {
+   
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   
+   CCtrlMsgWrapper<CtrlMsgReqSetMode> req(CTRL_REQ_SET_PS_MODE, ctrl_msg__req__set_mode__init);
+   CMsg msg = req.setPowerSaveModeMsg(power_save_mode);
+
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+    if(!CCtrlTranslate::isPowerSaveModeSet(ans)) {
+       rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+    }
+    ctrl_msg__free_unpacked(ans, NULL); 
+   }
+
+   return rv;
+}
+
+
 /* ??????????????????????????????????????????????????????????????????????????? */
-
-
-
 
 
 /* -------------------------------------------------------------------------- */
@@ -416,6 +460,9 @@ int CEspControl::getSoftAccessPointConfig() {
 
    return rv;
 }
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /* GET SOFT CONNECTED STATION LIST */
@@ -445,19 +492,7 @@ int CEspControl::stopSoftAccessPoint() {
    return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-/* GET PS MODE */
-/* -------------------------------------------------------------------------- */
-int CEspControl::getPsMode() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_PS_MODE);
-   CMsg msg = req.getMsg();
-  
 
-   return rv;
-}
 
 /* -------------------------------------------------------------------------- */
 /* BEGIN OTA */
@@ -543,19 +578,7 @@ int CEspControl::startSoftAccessPoint() {
 
 }
 
-int CEspControl::setPsMode() {
-   CtrlMsg *ans;
-   int rv = ESP_CONTROL_OK;
-   /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_PS_MODE);
-   
 
-
-   CMsg msg /* TODO !!!*/;
-  
-
-   return rv;
-}
 
 
 int CEspControl::setWifiMaxTxPower() {

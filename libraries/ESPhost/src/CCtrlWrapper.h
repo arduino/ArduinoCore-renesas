@@ -558,6 +558,18 @@ public:
       return checkResponsePayload<CtrlMsgRespGetStatus>(ans, (int)CTRL_RESP_DISCONNECT_AP, ans->resp_disconnect_ap);  
    }
 
+   static bool isPowerSaveModeSet(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespSetMode>(ans, (int)CTRL_RESP_SET_PS_MODE, ans->resp_set_power_save_mode);  
+   }
+
+   static bool getPowerSaveModeSet(CtrlMsg *ans, int &power_save_mode) {
+      if(checkResponsePayload<CtrlMsgRespGetMode>(ans, (int)CTRL_RESP_GET_PS_MODE, ans->resp_get_power_save_mode)) {
+         power_save_mode = ans->resp_get_power_save_mode->mode;
+         return true;
+      }
+      return false;
+   }
+
    static int extractAccessPointConfig(CtrlMsg *ans, wifi_ap_config_t &ap) {
       int rv = ESP_CONTROL_OK;
       if(checkResponsePayload<CtrlMsgRespGetAPConfig>(ans, (int)CTRL_RESP_GET_AP_CONFIG, ans->resp_get_ap_config), false) {
@@ -709,6 +721,16 @@ public:
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_set_wifi_mode = payload;
          payload->mode = (CtrlWifiMode)mode;
+         payload_set = true;
+      }
+      return getMsg();
+   }
+   /* ----------------------------------------------------------------------- */
+   CMsg setPowerSaveModeMsg(int power_save_mode) {
+       payload_set = false;
+      if(payload != nullptr && power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
+         request.req_set_power_save_mode = payload;
+         payload->mode = (CtrlWifiPowerSave)power_save_mode;
          payload_set = true;
       }
       return getMsg();

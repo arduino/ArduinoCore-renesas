@@ -48,18 +48,19 @@ public:
    int getAccessPointConfig(wifi_ap_config_t &ap);
    int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval, wifi_ap_config_t &ap_out);
    int disconnectAccessPoint();
-
    
+   int getPowerSaveMode(int &power_save_mode);
+   int setPowerSaveMode(int power_save_mode);
+
+
    int getSoftAccessPointConfig();
    int getSoftConnectedStationList();
    int stopSoftAccessPoint();
-   
-   
    int setSoftAccessPointVndIe();
    int startSoftAccessPoint();
    
-   int getPsMode();
-   int setPsMode();
+
+   
    
    int beginOTA();
    int endOTA();

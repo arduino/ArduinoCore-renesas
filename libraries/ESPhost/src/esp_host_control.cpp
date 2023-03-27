@@ -145,11 +145,7 @@ static int esp_host_parse_response(CtrlMsg *ctrl_msg) {
 
    /* 3. parse CtrlMsg into ctrl_cmd_t */
    switch (ctrl_msg->msg_id) {
-      case CTRL_RESP_DISCONNECT_AP : {
-         CHECK_CTRL_MSG_NON_NULL(resp_disconnect_ap);
-         CHECK_CTRL_MSG_FAILED(resp_disconnect_ap);
-         break;
-      } case CTRL_RESP_GET_SOFTAP_CONFIG : {
+       case CTRL_RESP_GET_SOFTAP_CONFIG : {
          CHECK_CTRL_MSG_NON_NULL(resp_get_softap_config);
          CHECK_CTRL_MSG_FAILED(resp_get_softap_config);
 
