@@ -121,26 +121,25 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
             esp_host_call_event_cb(ans->msg_id, &answer);
             rv = ESP_CONTROL_EVENT_MESSAGE_RX;
             #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("! EVENT RECEIVED");
+            Serial.println(" -> EVENT RECEIVED");
             #endif
 
          } 
       }
    }
    else if(ans->msg_type == CTRL_MSG_TYPE__Resp) {
-      
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("! MESSAGE RECEIVED");
-         #endif
          if(esp_host_is_response_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) {
             /* TODO: incorrect callback !!!!!!!!!!! */
             esp_host_call_response_cb(ans->msg_id, &answer);
             rv = ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB;
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println(" -> CTRL MESSAGE HANDLED BY CALLBACK");
+            #endif
          }
          else {
             rv = ESP_CONTROL_EVENT_MESSAGE_RX;
             #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("! MESSAGE RECEIVED A");
+            Serial.println(" -> CTRL MESSAGE HANDLED BY APPLICATION");
             #endif
          }
       
@@ -173,20 +172,15 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
          /* response MUST BE deleted */
          *response = CCtrlTranslate::CMsg2CtrlMsg(msg);
          if(*response != nullptr) {
-            #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("    correctly received");
-            #endif
             int res = process_ctrl_response(*response);
-            #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println("process_ctrl_response result ");
-            Serial.println(res);
-            #endif
-
-
+            
             if(res == ESP_CONTROL_EVENT_MESSAGE_RX) {
                rv = ESP_CONTROL_MSG_RX;
                break;
             }
+         }
+         else {
+            
          }
          
       }
@@ -232,7 +226,7 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
          break;
       }
       
-      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
+      R_BSP_SoftwareDelay(1000, BSP_DELAY_UNITS_MICROSECONDS);
       time_num++;
    } while(time_num < 5000);
 
@@ -265,6 +259,32 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
 }
 
 /* -------------------------------------------------------------------------- */
+/* SET WIFI MAC ADDRESS */
+/* -------------------------------------------------------------------------- */
+int CEspControl::setWifiMacAddress(WifiMode_t mode,const char* mac, uint8_t mac_buf_size) {
+   CtrlMsg *ans;
+   int rv = ESP_CONTROL_OK;
+   /* message request preparation */
+   CCtrlMsgWrapper<CtrlMsgReqSetMacAddress> req(CTRL_REQ_SET_MAC_ADDR, ctrl_msg__req__set_mac_address__init);
+   CMsg msg = req.setWifiMacAddressMsg((WifiMode_t)mode, mac, mac_buf_size);
+   
+   
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.println("CHECK MAC ADDRESS IS SET");
+      #endif
+      if(!CCtrlTranslate::checkMacAddressSet(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL);
+
+   }
+   
+   return rv;
+
+}
+
+/* -------------------------------------------------------------------------- */
 /* GET WIFI MODE */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getWifiMode(WifiMode_t &mode) {
@@ -283,7 +303,9 @@ int CEspControl::getWifiMode(WifiMode_t &mode) {
    return rv;
 }
 
-
+/* -------------------------------------------------------------------------- */
+/* SET WIFI MODE */
+/* -------------------------------------------------------------------------- */
 int CEspControl::setWifiMode(WifiMode_t mode) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;

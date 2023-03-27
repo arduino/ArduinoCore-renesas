@@ -52,6 +52,7 @@ public:
    ~CEspControl();
 
    int getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size);
+   int setWifiMacAddress(WifiMode_t mode, const char* mac, uint8_t mac_buf_size);
    int getWifiMode(WifiMode_t &mode);
    int setWifiMode(WifiMode_t mode);
 

@@ -628,20 +628,7 @@ int esp_host_ctrl_send_req(ctrl_cmd_t *app_req) {
          if (app_req->cmd_timeout_sec < DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT)
             app_req->cmd_timeout_sec = DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT;
          break;
-      case CTRL_REQ_GET_MAC_ADDR: {
-         CTRL_ALLOC_ASSIGN(CtrlMsgReqGetMacAddress, req_get_mac_address);
-
-         if ((app_req->u.wifi_mac.mode <= WIFI_MODE_NONE) ||
-             (app_req->u.wifi_mac.mode >= WIFI_MODE_APSTA)) {
-            command_log("Invalid parameter\n");
-            failure_status = CTRL_ERR_INCORRECT_ARG;
-            break;
-         }
-         ctrl_msg__req__get_mac_address__init(req_payload);
-         req_payload->mode = app_req->u.wifi_mac.mode;
-
-         break;
-      } case CTRL_REQ_SET_MAC_ADDR: {
+      case CTRL_REQ_SET_MAC_ADDR: {
          wifi_mac_t * p = &app_req->u.wifi_mac;
          CTRL_ALLOC_ASSIGN(CtrlMsgReqSetMacAddress, req_set_mac_address);
 

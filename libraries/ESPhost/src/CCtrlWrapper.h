@@ -454,7 +454,6 @@ public:
          /* there a not more fragment to wait for -> process the message */
          if(msg_accumulator.verify_tlv_header()) {
             /* header is correct */
-            Serial.println("ABRACADABRA");
             rv = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
          }
          msg_accumulator.clear();
@@ -480,6 +479,20 @@ public:
       }
       return rv;
    }
+   static bool checkMacAddressSet(CtrlMsg *ans) {
+      bool rv = false;
+      if(ans != nullptr) {
+         if(ans->msg_id == CTRL_RESP_SET_MAC_ADDRESS) {
+            if(ans->resp_set_mac_address != nullptr) {
+               if(ans->resp_set_mac_address->resp == 0) {
+                  rv = true;
+               }
+            }
+         }
+      }
+      return rv;
+   }
+
    static bool extractWifiMode(CtrlMsg *ans, WifiMode_t &mode) {
       bool rv = false;
       if(ans != nullptr) {
@@ -516,7 +529,7 @@ class CCtrlMsgWrapper {
 private:
    T *payload;
    CtrlMsg request;
-   
+   bool payload_set;
    
    void init_ctrl_msg(int request_id) {
       /* init the protobuf request*/
@@ -525,7 +538,10 @@ private:
       /* set the id of the message and the payload case */
       request.msg_id = (CtrlMsgId)request_id;
       request.payload_case = (CtrlMsg__PayloadCase)request_id;
+
+      payload_set = true;
    }
+
 public:
    CCtrlMsgWrapper()  = delete;
    CCtrlMsgWrapper(int request_id) : payload(nullptr) {
@@ -543,10 +559,11 @@ public:
          }
       }
    }
+   /* ----------------------------------------------------------------------- */
    CMsg getMsg() {
       int protobuf_len = ctrl_msg__get_packed_size(&request);
       CMsg msg(protobuf_len);
-      if(msg.is_valid()){
+      if(msg.is_valid() && payload_set){
          /* pack request into the message */
          ctrl_msg__pack(&request, msg.get_protobuf_ptr());
          msg.set_tlv_header(CTRL_EP_NAME_RESP);
@@ -556,23 +573,39 @@ public:
       return CMsg(0);
    }
    /* ----------------------------------------------------------------------- */
-
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {
+      payload_set = false;
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_get_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
+         payload_set = true;
       }
       return getMsg();
    }
-
+   /* ----------------------------------------------------------------------- */
+   CMsg setWifiMacAddressMsg(WifiMode_t mode, const char *mac, uint8_t mac_len) {
+      payload_set = false;
+      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE 
+         && mac != nullptr && mac_len < MAX_MAC_STR_LEN) {
+         request.req_set_mac_address = payload;
+         payload->mode = (CtrlWifiMode)mode;
+         payload->mac.len = (mac_len < MAX_MAC_STR_LEN) ? mac_len : MAX_MAC_STR_LEN;
+         payload->mac.data = (uint8_t *)mac;
+         payload_set = true;
+      }
+      return getMsg();
+   }
+   /* ----------------------------------------------------------------------- */
    CMsg setWifiModeMsg(WifiMode_t mode) {
+      payload_set = false;
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
          request.req_set_wifi_mode = payload;
          payload->mode = (CtrlWifiMode)mode;
+         payload_set = true;
       }
       return getMsg();
    }
-
+   /* ----------------------------------------------------------------------- */
    ~CCtrlMsgWrapper() {
       if(payload != nullptr) {
          delete payload;

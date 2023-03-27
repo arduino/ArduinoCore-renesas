@@ -226,7 +226,7 @@ bool esp_host_there_are_data_to_be_rx() {
    R_IOPORT_PinRead(NULL, DATA_READY, &data_ready);
    bool rv = (data_ready == BSP_IO_LEVEL_HIGH);
 
-   #ifdef ESP_HOST_DEBUG_ENABLED
+   #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
    Serial.print("**** RX data? ");
    if(rv) {
       Serial.println("YES!!!!!");
@@ -242,7 +242,7 @@ bool esp_host_there_are_data_to_be_tx() {
    /* the function esp32_receive_msg_to_be_sent_on_SPI memset the tx buffer to 0 if there are no data to be tx*/
    bool rv = CEspCom::get_msg_from_app((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
 
-   #ifdef ESP_HOST_DEBUG_ENABLED
+   #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
    Serial.print("**** TX data? ");
    if(rv) {
       Serial.println("YES!!!!!");
@@ -263,12 +263,6 @@ int esp_host_perform_spi_communication() {
    do {
       res = esp_host_spi_transaction();
       R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
-      #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.print("Execute single SPI transaction ");
-      Serial.println(res);
-      #endif
-
-
       if(res == ESP_HOSTED_SPI_DRIVER_OK || 
          res == ESP_HOSTED_SPI_MESSAGE_RECEIVED ||
          res == ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX) {
@@ -277,19 +271,14 @@ int esp_host_perform_spi_communication() {
       else {
          /* exit for ERROR */
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("!!!!! SPI TRANSACTION ERROR ");
+         Serial.println("[ERROR]: SPI TRANSACTION ERROR! ");
+         Serial.print(res);
          #endif
          rv = res;
          break;
       }
    }
    while(res != ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX);
-   
-   #ifdef ESP_HOST_DEBUG_ENABLED
-   Serial.print("esp_host_perform_spi_communication ");
-   Serial.println(rv);
-   #endif
-
    return rv;
 }
 
@@ -317,17 +306,22 @@ int esp_host_spi_transaction(void) {
          /* there is something to send or to receive */
       if(rv == ESP_HOSTED_SPI_DRIVER_OK) {
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("MESSAGE RECEIVED ");
+         Serial.print("  [SPI]: MESSAGE RECEIVED");
          #endif
          /* SPI transaction went OK */
          if(CEspCom::send_msg_to_app((const uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
             
             rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
             #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.print("RECEIVED MESSAGE QUEUED ");
-            Serial.println(rv);
+            Serial.println("AND QUEUED to APP");
             #endif
-         }    
+         }
+         else {
+            #ifdef ESP_HOST_DEBUG_ENABLED
+            Serial.println("BUT NOT QUEUED to APP");
+            #endif
+         }
+
       }
    }
    return rv; 
@@ -347,7 +341,7 @@ int esp_host_send_and_receive(void) {
       R_IOPORT_PinRead(NULL, HANDSHAKE, &handshake);
       esp_ready = (handshake == BSP_IO_LEVEL_HIGH);
       if(esp_ready) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.print("ESP ready? ");
          Serial.println(esp_ready);
          #endif
@@ -368,8 +362,8 @@ int esp_host_send_and_receive(void) {
       _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
       
       #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.println("Execute SPI tx/rx ");
-      Serial.print("TX DATA: ");
+      Serial.println("  [SPI] Execute single SPI transaction:");
+      Serial.print("  [SPI] TX DATA: ");
       for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
          Serial.print(esp32_spi_tx_buffer[i], HEX);
          Serial.print(" ");
@@ -378,10 +372,6 @@ int esp_host_send_and_receive(void) {
       #endif
 
       if(FSP_SUCCESS == R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS)) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("OK");
-         #endif
-
          bool exited = false;
          /* wait for SPI transaction to finish */
          time_num = 0;
@@ -389,7 +379,7 @@ int esp_host_send_and_receive(void) {
             if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) { 
                rv = ESP_HOSTED_SPI_DRIVER_OK;
                #ifdef ESP_HOST_DEBUG_ENABLED
-               Serial.print("RX DATA: ");
+               Serial.print("  [SPI] RX DATA: ");
                for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
                   Serial.print(esp32_spi_rx_buffer[i], HEX);
                   Serial.print(" ");
@@ -412,7 +402,7 @@ int esp_host_send_and_receive(void) {
       }
       else {
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("FAILED");
+         Serial.println("[ERROR]: SPI TRANSACTION FAILED!");
          #endif
       }
    }
