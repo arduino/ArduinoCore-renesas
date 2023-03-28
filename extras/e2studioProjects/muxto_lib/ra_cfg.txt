@@ -115,7 +115,7 @@ FSP Configuration
       P914 13 - - - - Disabled - - "USB_FS0: DP" - None - - 
       P915 12 - - - - Disabled - - "USB_FS0: DM" - None - - 
       RES# 16 SYSTEM0_RES - - - - - - - - IO "Read only" - 
-      SBIAS/VREFI 24 "SDADC0_SBIAS / SDADC0_VREFI" - - - - - - - - IO "Read only" - 
+      SBIAS/VREFI 24 "SDADC0_VREFI / SDADC0_SBIAS" - - - - - - - - IO "Read only" - 
       VCC 8 SYSTEM0_VCC - - - - - - - - IO "Read only" - 
       VCCUSB 14 USB_FS0_VCC - - - - - - - - IO "Read only" - 
       VCCUSBLDO 15 USB_FS0_VCCLDO - - - - - - - - IO "Read only" - 
@@ -454,4 +454,18 @@ FSP Configuration
       DAC Mode: Normal Mode
       Real-time Trigger Event: Disabled
       Charge Pump (Requires MOCO active): Enabled
+      
+    Instance "g_transfer1 Transfer (r_dtc) Disabled"
+      Name: g_transfer1
+      Mode: Normal
+      Transfer Size: 2 Bytes
+      Destination Address Mode: Fixed
+      Source Address Mode: Fixed
+      Repeat Area (Unused in Normal Mode): Source
+      Destination Pointer: NULL
+      Source Pointer: NULL
+      Interrupt Frequency: After each transfer
+      Number of Transfers: 0
+      Number of Blocks (Valid only in Block Mode): 0
+      Activation Source: Disabled
       
