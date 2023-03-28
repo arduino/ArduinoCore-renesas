@@ -1,7 +1,7 @@
 #include "Arduino.h"
-#include "IRQManager.h"
 #include "pwm.h"
 #include "analog.h"
+#include "dac.h"
 #include "bsp_api.h"
 #include "hal_data.h"
 
@@ -707,46 +707,6 @@ int analogWriteResolution() {
   return _writeResolution;
 }
 
-#ifdef DAC
-class DAC_Container {
-public:
-  DAC_Container(int ch) {
-    ext_cfg.enable_charge_pump = 0;
-    ext_cfg.data_format = DAC_DATA_FORMAT_FLUSH_RIGHT;
-    ext_cfg.output_amplifier_enabled = 0;
-    ext_cfg.internal_output_enabled = false;
-    cfg.p_extend = &ext_cfg;
-    cfg.channel = ch;
-  }
-  dac_instance_ctrl_t ctrl;
-  dac_extended_cfg_t ext_cfg;
-  dac_cfg_t cfg;
-};
-
-static DAC_Container dac[] = {
-  DAC_Container(0),
-  #if NUM_ANALOG_OUTPUTS > 1
-  DAC_Container(1),
-  #endif
-  #if NUM_ANALOG_OUTPUTS > 2
-  DAC_Container(2),
-  #endif
-  #if NUM_ANALOG_OUTPUTS > 3
-  DAC_Container(3),
-  #endif
-};
-
-void analogWriteDAC(pin_size_t pinNumber, int value) {
-  R_DAC_Open(&dac[pinNumber - DAC].ctrl, &dac[pinNumber - DAC].cfg);
-
-  // DAC is 12 bit, so remap _writeResolution to (1 << 12)
-  value = map(value, 0, (1 << _writeResolution), 0, (1 << 12));
-
-  R_DAC_Write(&dac[pinNumber - DAC].ctrl, value);
-  R_DAC_Start(&dac[pinNumber - DAC].ctrl);
-}
-#endif
-
 #define DEFAULT_PERIOD_MSEC    (2)
 #define DEFAULT_RAW_PERIOD_32  (0x17ea7) /* 490 Hz ~ 0.0020408125 seconds */
 #define DEFAULT_RAW_PERIOD_16  (0x5fa9)  /* 490 Hz ~ 0.00204075 seconds */
@@ -791,17 +751,30 @@ class PwmArray {
   PwmOut* pwm_outs[(GPT_HOWMANY+AGT_HOWMANY)*2] = {nullptr};
 };
 
+
+
 static PwmArray pwms{};
 
 void analogWrite(pin_size_t pinNumber, int value)
 {
-#ifdef DAC
-  //Check if it is a valid DAC pin
-  if (((int)((int)pinNumber - DAC) >= 0) && ((pinNumber - DAC) < NUM_ANALOG_OUTPUTS)) {
-    analogWriteDAC(pinNumber, value);
+#if (DAC12_HOWMANY > 0) || (DAC8_HOWMANY > 0)
+  if (IS_DAC(pinNumber)) {
+    auto cfg_dac = getPinCfgs(pinNumber, PIN_CFG_REQ_DAC);
+    if(IS_DAC_8BIT(cfg_dac[0])) {
+      #if DAC8_HOWMANY > 0
+      if(GET_CHANNEL(cfg_dac[0]) < DAC8_HOWMANY) {
+        _dac8[GET_CHANNEL(cfg_dac[0])].analogWrite(value);
+      }
+      #endif
+    }
+    else {
+      if(GET_CHANNEL(cfg_dac[0]) < DAC12_HOWMANY) {
+        _dac12[GET_CHANNEL(cfg_dac[0])].analogWrite(value);
+      }
+    }
     return;
   }
-#endif //DAC
+#endif
 
   PwmOut *ptr = pwms.get(pinNumber);
 

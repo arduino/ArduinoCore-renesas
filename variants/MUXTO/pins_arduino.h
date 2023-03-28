@@ -22,6 +22,19 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define UART_COUNT          (UART_COUNT_fn())
 #define SCI_COUNT           (SCI_COUNT_fn())
 
+#undef DAC_MAX_CONVERSION_PERIOD
+#define DAC_MAX_CONVERSION_PERIOD   1
+
+#define DAC8_HOWMANY  (1)
+#define DAC12_HOWMANY (1)
+#define DAC         26
+#define DAC2        25
+#define IS_DAC(x)                                (x == DAC || x == DAC2)
+#define DAC_ADDRESS_12_CH0                       R_DAC_BASE
+#define DAC_ADDRESS_8_CH0                        R_DAC8_BASE
+// TODO: check if true
+#define DAC_ADDRESS_8_CH1                        (R_DAC8_BASE+1)
+
 #define PIN_A0   (16u)
 #define PIN_A1   (17u)
 #define PIN_A2   (18u)
@@ -140,11 +153,6 @@ static const uint8_t A6 = PIN_A6;
 #define WIRE_HOWMANY      1
 #define WIRE_SDA_PIN      20
 #define WIRE_SCL_PIN      21
-
-#define DAC      (25u)
-#define DAC1     (26u)
-
-#define IS_DAC_8(x)     ((x == DAC) ? true : false)
 
 // TODO: removeme
 #ifdef __cplusplus

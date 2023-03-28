@@ -17,6 +17,12 @@ SCI_CHANNEL|PIN_RX_MISO_SCL|CHANNEL_9|SCI_ODD_CFG|LAST_ITEM_GUARD
 };
 #define P408 P408_b
 
+const uint16_t P014_b[] = {
+PIN_DAC|CHANNEL_0,
+PIN_ANALOG|CHANNEL_9|LAST_ITEM_GUARD
+};
+#define P014 P014_b
+
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
   { BSP_IO_PORT_03_PIN_01,    P301   }, /* (0) D0  -------------------------  DIGITAL  */
   { BSP_IO_PORT_03_PIN_02,    P302   }, /* (1) D1  */

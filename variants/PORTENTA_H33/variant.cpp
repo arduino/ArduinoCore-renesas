@@ -24,6 +24,19 @@ PIN_SCK|CHANNEL_0|LAST_ITEM_GUARD
 };
 #define P204 P204_b
 
+const uint16_t P015_b[] = {
+PIN_DAC|CHANNEL_1,
+PIN_ANALOG|CHANNEL_13|ADC_0,
+PIN_INTERRUPT|CHANNEL_13|LAST_ITEM_GUARD
+};
+#define P015 P015_b
+
+const uint16_t P014_b[] = {
+PIN_DAC|CHANNEL_0,
+PIN_ANALOG|CHANNEL_12|ADC_0|LAST_ITEM_GUARD
+};
+#define P014 P014_b
+
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
 
   // MKR

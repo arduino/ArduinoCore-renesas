@@ -8,10 +8,26 @@ const uint16_t P215[] = { LAST_ITEM_GUARD };
 const uint16_t P214[] = { LAST_ITEM_GUARD };
 const uint16_t P108[] = { LAST_ITEM_GUARD };
 const uint16_t P300[] = { LAST_ITEM_GUARD };
-const uint16_t P104[] = { LAST_ITEM_GUARD };
-const uint16_t P409[] = { LAST_ITEM_GUARD };
-const uint16_t P105[] = { LAST_ITEM_GUARD };
+const uint16_t P104[] = { PIN_ANALOG | CHANNEL_20 | LAST_ITEM_GUARD };
+const uint16_t P409[] = { PIN_SCL    | CHANNEL_0  | LAST_ITEM_GUARD };
+const uint16_t P105[] = { PIN_ANALOG | CHANNEL_21 | LAST_ITEM_GUARD };
 const uint16_t P206[] = { LAST_ITEM_GUARD };
+
+const uint16_t P013_b[] = {
+PIN_DAC|DAC_8BIT|CHANNEL_0,
+PIN_ANALOG|CHANNEL_5,
+PIN_PWM|CHANNEL_6|PWM_CHANNEL_B|GPT_ODD_CFG|LAST_ITEM_GUARD
+};
+#define P013 P013_b
+
+const uint16_t P500_b[] = {
+PIN_DAC|CHANNEL_0,
+PIN_ANALOG|CHANNEL_0,
+PIN_PWM|CHANNEL_5|PWM_CHANNEL_A|GPT_ODD_CFG,
+PIN_INTERRUPT|CHANNEL_3,
+SCI_CHANNEL|PIN_RX_MISO_SCL|CHANNEL_0|SCI_EVEN_CFG|LAST_ITEM_GUARD
+};
+#define P500 P500_b
 
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
 
@@ -35,8 +51,8 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (17) A1  D17  */
   { BSP_IO_PORT_01_PIN_03,    P103   }, /* (18) A2  D18  */
   { BSP_IO_PORT_01_PIN_04,    P104   }, /* (19) A3  D19  */
-  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (20) A4  D20  SDA */
-  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (21) A5  D21  SCL */
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (20) A4  D20  SDA - PAY ATTENTION: this pin has NOT analog input capability */
+  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (21) A5  D21  SCL - PAY ATTENTION: this pin has NOT analog input capability */
   { BSP_IO_PORT_01_PIN_05,    P105   }, /* (22) A6  D22  */
 
   { BSP_IO_PORT_01_PIN_09,    P109   }, /* (23) D23 ------------------------- TX   */
