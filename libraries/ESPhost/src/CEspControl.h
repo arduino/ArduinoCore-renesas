@@ -45,9 +45,15 @@ public:
    int setWifiMode(WifiMode_t mode);
 
    int getAccessPointScanList(vector<wifi_scanlist_t>& l);
-   int getAccessPointConfig(wifi_ap_config_t &ap);
    int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval, wifi_ap_config_t &ap_out);
+   int getAccessPointConfig(wifi_ap_config_t &ap);
    int disconnectAccessPoint();
+
+   int getSoftAccessPointConfig(softap_config_t &sap_cfg);
+   int getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l);
+   int setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie);
+   int startSoftAccessPoint(softap_config_t &cfg);
+   int configureHeartbeat(bool enable, int32_t duration);
    
    int getPowerSaveMode(int &power_save_mode);
    int setPowerSaveMode(int power_save_mode);
@@ -61,11 +67,7 @@ public:
    int getWifiCurrentTxPower(uint32_t &max_power);
    int setWifiMaxTxPower(uint32_t max_power);
 
-   int getSoftAccessPointConfig(softap_config_t &sap_cfg);
-   int getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l);
-   int setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie);
-   int startSoftAccessPoint(softap_config_t &cfg);
-   int configureHeartbeat(bool enable, int32_t duration);
+   
 
 private:
    CEspControl();
