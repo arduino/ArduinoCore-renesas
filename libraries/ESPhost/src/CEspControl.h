@@ -61,22 +61,11 @@ public:
    int getWifiCurrentTxPower(uint32_t &max_power);
    int setWifiMaxTxPower(uint32_t max_power);
 
-
-
-
-
-
-
-
-   int getSoftAccessPointConfig();
-   int getSoftConnectedStationList();
-   
-   int setSoftAccessPointVndIe();
-   int startSoftAccessPoint();
-   
-   
-
-   int configureHeartbeat();
+   int getSoftAccessPointConfig(softap_config_t &sap_cfg);
+   int getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l);
+   int setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie);
+   int startSoftAccessPoint(softap_config_t &cfg);
+   int configureHeartbeat(bool enable, int32_t duration);
 
 private:
    CEspControl();

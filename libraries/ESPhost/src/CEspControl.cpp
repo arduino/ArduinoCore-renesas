@@ -560,98 +560,103 @@ int CEspControl::getWifiCurrentTxPower(uint32_t &max_power) {
 }
 
 
-/* ??????????????????????????????????????????????????????????????????????????? */
-
-
 /* -------------------------------------------------------------------------- */
 /* GET SOFT ACCESS POINT CONFIG */
 /* -------------------------------------------------------------------------- */
-int CEspControl::getSoftAccessPointConfig() {
+int CEspControl::getSoftAccessPointConfig(softap_config_t &sap_cfg) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONFIG);
    CMsg msg = req.getMsg();
-
-
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::extractSoftAccessPointConfig(ans, sap_cfg)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
    return rv;
 }
-
-
 
 
 /* -------------------------------------------------------------------------- */
 /* GET SOFT CONNECTED STATION LIST */
 /* -------------------------------------------------------------------------- */
-int CEspControl::getSoftConnectedStationList() {
+int CEspControl::getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONN_STA_LIST);
    CMsg msg = req.getMsg();
-
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::extractSoftConnectedStationList(ans, l)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
 
    return rv;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-int CEspControl::setSoftAccessPointVndIe() {
+/* -------------------------------------------------------------------------- */
+/* SET SOFT ACCESS POINT VENDOR IE */
+/* -------------------------------------------------------------------------- */
+int CEspControl::setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie) {
 
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_SET_SOFTAP_VND_IE);
-   
-
-
-   CMsg msg /* TODO !!!*/;
-  
+   CCtrlMsgWrapper<CtrlMsgReqSetSoftAPVendorSpecificIE> req(CTRL_REQ_SET_SOFTAP_VND_IE, ctrl_msg__req__set_soft_apvendor_specific_ie__init);
+   CMsg msg = req.setSoftAccessPointVndIeMsg(vendor_ie);
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isSoftAccessPointVndIeSet(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+   CtrlMsgReqSetSoftAPVendorSpecificIE *payload = req.getPayload();
+   if(payload->vendor_ie_data != nullptr) {
+      delete payload->vendor_ie_data;
+   }
 
    return rv;
-
 }
 
-int CEspControl::startSoftAccessPoint() {
+/* -------------------------------------------------------------------------- */
+/* START SOFT ACCESS POINT  */
+/* -------------------------------------------------------------------------- */
+int CEspControl::startSoftAccessPoint(softap_config_t &cfg) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_START_SOFTAP);
-   
-
-
-   CMsg msg /* TODO !!!*/;
-  
-
+   CCtrlMsgWrapper<CtrlMsgReqStartSoftAP> req(CTRL_REQ_START_SOFTAP, ctrl_msg__req__start_soft_ap__init);
+   CMsg msg = req.startSoftAccessPointMsg(cfg);
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isSoftAccessPointStarted(ans, cfg)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
+ 
    return rv;
-
 }
 
 
-
-
-
-
- int CEspControl::configureHeartbeat() {
+/* -------------------------------------------------------------------------- */
+/* CONFIGURE HEARTBEAT  */
+/* -------------------------------------------------------------------------- */
+int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
-   CCtrlMsgWrapper<int> req(CTRL_REQ_CONFIG_HEARTBEAT);
-   
-
-
-   CMsg msg /* TODO !!!*/;
+   CCtrlMsgWrapper<CtrlMsgReqConfigHeartbeat> req(CTRL_REQ_CONFIG_HEARTBEAT, ctrl_msg__req__config_heartbeat__init);
+   CMsg msg = req.configureHeartbeatMsg(enable, duration);
+   if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
+      if(!CCtrlTranslate::isHeartbeatConfigured(ans)) {
+         rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      ctrl_msg__free_unpacked(ans, NULL); 
+   }
   
 
    return rv;

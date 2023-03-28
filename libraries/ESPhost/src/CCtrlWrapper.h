@@ -551,6 +551,17 @@ public:
       }
       return false;
    }
+
+   static bool isSoftAccessPointStarted(CtrlMsg *ans, softap_config_t &sap_cfg) {      
+      if(checkResponsePayload<CtrlMsgRespStartSoftAP>(ans, (int)CTRL_RESP_START_SOFTAP, ans->resp_start_softap)) {
+         copyData((uint8_t*)sap_cfg.out_mac, MAX_MAC_STR_LEN, ans->resp_start_softap->mac.data,  ans->resp_start_softap->mac.len );
+      }
+   }
+
+   static bool isSoftAccessPointVndIeSet(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespSetSoftAPVendorSpecificIE>(ans, (int)CTRL_RESP_SET_SOFTAP_VND_IE, ans->resp_set_softap_vendor_specific_ie);
+   }
+
    static bool isSetWifiModeResponse(CtrlMsg *ans) {
       return checkResponsePayload<CtrlMsgRespSetMode>(ans, (int)CTRL_RESP_SET_WIFI_MODE, ans->resp_set_wifi_mode);
    }
@@ -578,6 +589,11 @@ public:
    static bool isSoftAccessPointStopped(CtrlMsg *ans) {
       return checkResponsePayload<CtrlMsgRespGetStatus>(ans, (int)CTRL_RESP_STOP_SOFTAP, ans->resp_stop_softap);
    }
+
+   static bool isHeartbeatConfigured(CtrlMsg *ans) {
+      return checkResponsePayload<CtrlMsgRespConfigHeartbeat>(ans, (int)CTRL_RESP_CONFIG_HEARTBEAT, ans->resp_config_heartbeat);
+   }
+
 
    static bool extractCurrentWifiTxPower(CtrlMsg *ans, uint32_t &max_power) {
       if(checkResponsePayload<CtrlMsgRespGetWifiCurrTxPower>(ans, (int)CTRL_RESP_GET_WIFI_CURR_TX_POWER, ans->resp_get_wifi_curr_tx_power)) {
@@ -610,6 +626,37 @@ public:
          return true;
       }
       return false;
+   }
+
+   static bool extractSoftConnectedStationList(CtrlMsg *ans, vector<wifi_connected_stations_list_t>& l) {
+      if(checkResponsePayload<CtrlMsgRespSoftAPConnectedSTA>(ans, (int)CTRL_RESP_GET_SOFTAP_CONN_STA_LIST, ans->resp_softap_connected_stas_list)) {
+         CtrlMsgRespSoftAPConnectedSTA *rp = ans->resp_softap_connected_stas_list;
+
+         for(int i = 0; i < rp->num; i++) {
+            wifi_connected_stations_list_t cs;
+            memset((void *)&cs,0x00,sizeof(cs));
+            copyData((uint8_t *)&(cs.bssid), BSSID_LENGTH, rp->stations[i]->mac.data, rp->stations[i]->mac.len );
+            cs.rssi = rp->stations[i]->rssi;  
+            l.push_back(cs);
+         }
+         return true;
+      }
+   }
+
+
+   static bool extractSoftAccessPointConfig(CtrlMsg *ans,softap_config_t &sap_cfg) {
+      if(checkResponsePayload<CtrlMsgRespGetSoftAPConfig>(ans, (int)CTRL_RESP_GET_SOFTAP_CONFIG, ans->resp_get_softap_config)) {
+         
+
+         copyData((uint8_t *)&(sap_cfg.ssid), SSID_LENGTH, ans->resp_get_softap_config->ssid.data, ans->resp_get_softap_config->ssid.len );
+         copyData((uint8_t *)&(sap_cfg.pwd), SSID_LENGTH, ans->resp_get_softap_config->pwd.data, ans->resp_get_softap_config->pwd.len );
+         sap_cfg.channel = ans->resp_get_softap_config->chnl;
+         sap_cfg.encryption_mode = ans->resp_get_softap_config->sec_prot;
+         sap_cfg.max_connections = ans->resp_get_softap_config->max_conn;
+         sap_cfg.ssid_hidden = ans->resp_get_softap_config->ssid_hidden;
+         sap_cfg.bandwidth = (wifi_bandwidth_e)ans->resp_get_softap_config->bw;
+      }
+
    }
 
    static int extractAccessPointConfig(CtrlMsg *ans, wifi_ap_config_t &ap) {
@@ -686,6 +733,8 @@ public:
 };
 
 
+
+
 template<typename T>
 class CCtrlMsgWrapper {
 private:
@@ -704,7 +753,15 @@ private:
       payload_set = true;
    }
 
+  
+
+
+
 public:
+   T* getPayload()  {
+      return payload;
+   }
+
    CCtrlMsgWrapper()  = delete;
    CCtrlMsgWrapper(int request_id) : payload(nullptr) {
       init_ctrl_msg(request_id);
@@ -822,12 +879,116 @@ public:
       return getMsg();
    }
    
+  
+   
+   /* ----------------------------------------------------------------------- */
+   CMsg setSoftAccessPointVndIeMsg(wifi_softap_vendor_ie_t &vendor_ie) {
+      payload_set = false;
+      if(payload != nullptr) {
+         if(vendor_ie.type <= WIFI_VND_IE_TYPE_ASSOC_RESP && 
+            vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && 
+            vendor_ie.idx <= WIFI_VND_IE_ID_1 && 
+            vendor_ie.idx >= WIFI_VND_IE_ID_0 &&
+            vendor_ie.vnd_ie.payload != nullptr) {
 
+            payload->enable = vendor_ie.enable;
+            payload->type = (CtrlVendorIEType)vendor_ie.type;
+            payload->idx = (CtrlVendorIEID)vendor_ie.idx;
 
+            /* PAY ATTENTION: this is the only case something additional respect to
+               the payload is allocated... this need to be deleted afterwards... */
+            payload->vendor_ie_data = new CtrlMsgReqVendorIEData;
+
+            if(payload->vendor_ie_data) {
+               
+               ctrl_msg__req__vendor_iedata__init(payload->vendor_ie_data);
+               payload->vendor_ie_data->element_id = vendor_ie.vnd_ie.element_id;
+               payload->vendor_ie_data->length = vendor_ie.vnd_ie.length;
+               payload->vendor_ie_data->vendor_oui.data = vendor_ie.vnd_ie.vendor_oui;
+               payload->vendor_ie_data->vendor_oui.len = VENDOR_OUI_BUF;
+               payload->vendor_ie_data->payload.data = vendor_ie.vnd_ie.payload;
+               payload->vendor_ie_data->payload.len = vendor_ie.vnd_ie.payload_len;
+            
+               payload_set = true;
+            }
+         }
+      }
+      return getMsg();
+   }
+
+   /* ----------------------------------------------------------------------- */
+   CMsg startSoftAccessPointMsg(softap_config_t &cfg) {
+      payload_set = false;
+      
+      bool cfg_ok = true;
+
+      if(strlen((char *)&cfg.ssid) > MAX_SSID_LENGTH  ||
+         strlen((char *)&cfg.ssid) == 0 ) {
+         /* INVALID SSID */
+         cfg_ok = false;
+      }
+
+      if((strlen((char *)&cfg.pwd) > MAX_PWD_LENGTH) ||
+             ((cfg.encryption_mode == WIFI_AUTH_OPEN) &&
+              (strlen((char *)&cfg.pwd) < MIN_PWD_LENGTH)) ) {
+         /* INVALID BASS*/
+         cfg_ok = false;
+      }
+      if((cfg.channel < MIN_CHNL_NO) ||
+              (cfg.channel > MAX_CHNL_NO)) {
+         /* INVALID CHANNEL */
+         cfg_ok = false;
+      }
+      if((cfg.encryption_mode < WIFI_AUTH_OPEN) ||
+             (cfg.encryption_mode == WIFI_AUTH_WEP) ||
+             (cfg.encryption_mode > WIFI_AUTH_WPA_WPA2_PSK)) {
+         /* ENCRYPTION NOT SUPPORTED */
+         cfg_ok = false;
+      }
+      if((cfg.max_connections < MIN_CONN_NO) ||
+             (cfg.max_connections > MAX_CONN_NO)) {
+         /* INVALID CONNECTION NUMBER */
+         cfg_ok = false;
+      }
+      if((cfg.bandwidth < WIFI_BW_HT20) ||
+              (cfg.bandwidth > WIFI_BW_HT40)) {
+         /* INVALID BANDWIDTH */
+         cfg_ok = false;
+      }
+      
+         /* ... all seems to be correct ... */
+      if(payload != nullptr && cfg_ok) {
+         payload->ssid = (char *)&cfg.ssid;
+         payload->pwd = (char *)(char *)&cfg.pwd;
+         payload->chnl = cfg.channel;
+         payload->sec_prot = (CtrlWifiSecProt)cfg.encryption_mode;
+         payload->max_conn = cfg.max_connections;
+         payload->ssid_hidden = cfg.ssid_hidden;
+         payload->bw = cfg.bandwidth;  
+
+         payload_set = true; 
+      }
+
+      return getMsg();
+   }
+
+   CMsg  configureHeartbeatMsg(bool enable, int32_t duration) {
+      payload_set = false;
+      if(payload != nullptr) {
+         payload->enable = enable;
+         payload->duration = duration;
+         payload_set = true; 
+      }
+
+      return getMsg();
+
+   }
 
 
    /* ----------------------------------------------------------------------- */
    ~CCtrlMsgWrapper() {
+      
+
       if(payload != nullptr) {
          delete payload;
       }
