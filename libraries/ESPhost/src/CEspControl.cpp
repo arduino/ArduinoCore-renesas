@@ -170,7 +170,7 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
          #endif
          
          /* response MUST BE deleted */
-         *response = CCtrlTranslate::CMsg2CtrlMsg(msg);
+         *response = CCtrlMsgWrapper<int>::CMsg2CtrlMsg(msg);
          if(*response != nullptr) {
             int res = process_ctrl_response(*response);
             
@@ -248,7 +248,7 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
       #ifdef ESP_HOST_DEBUG_ENABLED
       Serial.println("EXTRACT MAC ADDRESS ");
       #endif
-      if(!CCtrlTranslate::extractMacAddress(ans, mac, mac_buf_size)) {
+      if(!req.extractMacAddress(ans, mac, mac_buf_size)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL);
@@ -273,7 +273,7 @@ int CEspControl::setWifiMacAddress(WifiMode_t mode,const char* mac, uint8_t mac_
       #ifdef ESP_HOST_DEBUG_ENABLED
       Serial.println("CHECK MAC ADDRESS IS SET");
       #endif
-      if(!CCtrlTranslate::checkMacAddressSet(ans)) {
+      if(!req.checkMacAddressSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL);
@@ -295,7 +295,7 @@ int CEspControl::getWifiMode(WifiMode_t &mode) {
    CMsg msg = req.getMsg();
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::extractWifiMode(ans, mode)) {
+      if(!req.extractWifiMode(ans, mode)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -313,7 +313,7 @@ int CEspControl::setWifiMode(WifiMode_t mode) {
    CCtrlMsgWrapper<CtrlMsgReqSetMode> req(CTRL_REQ_SET_WIFI_MODE, ctrl_msg__req__set_mode__init);
    CMsg msg = req.setWifiModeMsg(mode);
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isSetWifiModeResponse(ans)) {
+      if(!req.isSetWifiModeResponse(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -333,7 +333,7 @@ int CEspControl::getAccessPointScanList(vector<wifi_scanlist_t>& l) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_SCAN_LIST);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::extractAccessPointList(ans,l)) {
+      if(!req.extractAccessPointList(ans,l)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -352,7 +352,7 @@ int CEspControl::disconnectAccessPoint() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_DISCONNECT_AP);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isAccessPointDisconnected(ans)) {
+      if(!req.isAccessPointDisconnected(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -371,7 +371,7 @@ int CEspControl::getAccessPointConfig(wifi_ap_config_t &ap) {
    CMsg msg = req.getMsg();
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      rv = CCtrlTranslate::extractAccessPointConfig(ans, ap);
+      rv = req.extractAccessPointConfig(ans, ap);
       ctrl_msg__free_unpacked(ans, NULL); 
    }
    return rv;
@@ -388,7 +388,7 @@ int CEspControl::connectAccessPoint(const char *ssid, const char *pwd, const cha
    CMsg msg = req.getConnectAccessPointMsg(ssid, pwd, bssid, wpa3_support,interval);
    
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      rv = CCtrlTranslate::isAccessPointConnected(ans, ap_out);
+      rv = req.isAccessPointConnected(ans, ap_out);
       ctrl_msg__free_unpacked(ans, NULL); 
    }
    
@@ -411,7 +411,7 @@ int CEspControl::getPowerSaveMode(int &power_save_mode) {
    CMsg msg = req.getMsg();
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::getPowerSaveModeSet(ans, power_save_mode)) {
+      if(!req.getPowerSaveModeSet(ans, power_save_mode)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -434,7 +434,7 @@ int CEspControl::setPowerSaveMode(int power_save_mode) {
    CMsg msg = req.setPowerSaveModeMsg(power_save_mode);
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-    if(!CCtrlTranslate::isPowerSaveModeSet(ans)) {
+    if(!req.isPowerSaveModeSet(ans)) {
        rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
     }
     ctrl_msg__free_unpacked(ans, NULL); 
@@ -456,7 +456,7 @@ int CEspControl::otaWrite(ota_write_t &ow) {
    CMsg msg = req.otaWriteMsg(ow);
 
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-    if(!CCtrlTranslate::getOtaWriteResult(ans)) {
+    if(!req.getOtaWriteResult(ans)) {
        rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
     }
     ctrl_msg__free_unpacked(ans, NULL); 
@@ -476,7 +476,7 @@ int CEspControl::beginOTA() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_BEGIN);
    CMsg msg = req.getMsg();
     if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-    if(!CCtrlTranslate::isOtaBegun(ans)) {
+    if(!req.isOtaBegun(ans)) {
        rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
     }
     ctrl_msg__free_unpacked(ans, NULL); 
@@ -494,7 +494,7 @@ int CEspControl::endOTA() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_END);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-    if(!CCtrlTranslate::isOtaEnded(ans)) {
+    if(!req.isOtaEnded(ans)) {
        rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
     }
     ctrl_msg__free_unpacked(ans, NULL); 
@@ -512,7 +512,7 @@ int CEspControl::stopSoftAccessPoint() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_STOP_SOFTAP);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isSoftAccessPointStopped(ans)) {
+      if(!req.isSoftAccessPointStopped(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -531,7 +531,7 @@ int CEspControl::setWifiMaxTxPower(uint32_t max_power) {
    CCtrlMsgWrapper<CtrlMsgReqSetWifiMaxTxPower> req(CTRL_REQ_SET_WIFI_MAX_TX_POWER, ctrl_msg__req__set_wifi_max_tx_power__init);
    CMsg msg = req.setWifiMaxTxPowerMsg(max_power);
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      rv = CCtrlTranslate::isWifiMaxPowerSet(ans);
+      rv = req.isWifiMaxPowerSet(ans);
       ctrl_msg__free_unpacked(ans, NULL); 
    }
   
@@ -551,7 +551,7 @@ int CEspControl::getWifiCurrentTxPower(uint32_t &max_power) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_CURR_TX_POWER);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::extractCurrentWifiTxPower(ans, max_power)) {
+      if(!req.extractCurrentWifiTxPower(ans, max_power)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -570,7 +570,7 @@ int CEspControl::getSoftAccessPointConfig(softap_config_t &sap_cfg) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONFIG);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::extractSoftAccessPointConfig(ans, sap_cfg)) {
+      if(!req.extractSoftAccessPointConfig(ans, sap_cfg)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -589,7 +589,7 @@ int CEspControl::getSoftConnectedStationList(vector<wifi_connected_stations_list
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONN_STA_LIST);
    CMsg msg = req.getMsg();
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::extractSoftConnectedStationList(ans, l)) {
+      if(!req.extractSoftConnectedStationList(ans, l)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -609,7 +609,7 @@ int CEspControl::setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie) {
    CCtrlMsgWrapper<CtrlMsgReqSetSoftAPVendorSpecificIE> req(CTRL_REQ_SET_SOFTAP_VND_IE, ctrl_msg__req__set_soft_apvendor_specific_ie__init);
    CMsg msg = req.setSoftAccessPointVndIeMsg(vendor_ie);
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isSoftAccessPointVndIeSet(ans)) {
+      if(!req.isSoftAccessPointVndIeSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -632,7 +632,7 @@ int CEspControl::startSoftAccessPoint(softap_config_t &cfg) {
    CCtrlMsgWrapper<CtrlMsgReqStartSoftAP> req(CTRL_REQ_START_SOFTAP, ctrl_msg__req__start_soft_ap__init);
    CMsg msg = req.startSoftAccessPointMsg(cfg);
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isSoftAccessPointStarted(ans, cfg)) {
+      if(!req.isSoftAccessPointStarted(ans, cfg)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
@@ -652,7 +652,7 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    CCtrlMsgWrapper<CtrlMsgReqConfigHeartbeat> req(CTRL_REQ_CONFIG_HEARTBEAT, ctrl_msg__req__config_heartbeat__init);
    CMsg msg = req.configureHeartbeatMsg(enable, duration);
    if(ESP_CONTROL_MSG_RX == perform_esp_communication(msg, &ans)) {
-      if(!CCtrlTranslate::isHeartbeatConfigured(ans)) {
+      if(!req.isHeartbeatConfigured(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
       ctrl_msg__free_unpacked(ans, NULL); 
