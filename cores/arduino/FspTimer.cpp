@@ -84,7 +84,7 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
                     timer_cfg.channel = channel;
                     gpt_used_channel[channel] = TIMER_USED;
                     init_ok = true;
-                } else if (mode == TIMER_USED) {
+                } else if (mode == TIMER_MODE_PWM) {
                     // check if compatible PWM on another channel
                     timer_cfg.channel = channel;
                     memcpy(&(gpt_timer->ext_cfg), __get_timer_for_channel(channel)->get_cfg()->p_extend, sizeof(gpt_extended_cfg_t));
