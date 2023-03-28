@@ -387,7 +387,11 @@ const rtc_error_adjustment_cfg_t rtc_err_cfg = {
     .adjustment_type = RTC_ERROR_ADJUSTMENT_NONE,
     .adjustment_value = 0, };
 rtc_cfg_t rtc_cfg  = { 
-    .clock_source = RTC_CLOCK_SOURCE_LOCO, 
+    // TODO: change me to RTC_CLOCK_SOURCE_SUBCLK when capacitors are mounted
+    // https://arduino.atlassian.net/browse/HWH33-204
+    // Fixes counting time in VBAT mode on H33
+    // Leave as is for Santiago
+    .clock_source = RTC_CLOCK_SOURCE_LOCO,
     .freq_compare_value_loco = 255, 
     .p_err_cfg = &rtc_err_cfg, 
     .alarm_ipl = (12), 
