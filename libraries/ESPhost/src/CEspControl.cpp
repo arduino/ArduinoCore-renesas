@@ -120,7 +120,7 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
          if(esp_host_parse_event(ans) == SUCCESS) {
             esp_host_call_event_cb(ans->msg_id, &answer);
             rv = ESP_CONTROL_EVENT_MESSAGE_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println(" -> EVENT RECEIVED");
             #endif
 
@@ -132,13 +132,13 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
             /* TODO: incorrect callback !!!!!!!!!!! */
             esp_host_call_response_cb(ans->msg_id, &answer);
             rv = ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println(" -> CTRL MESSAGE HANDLED BY CALLBACK");
             #endif
          }
          else {
             rv = ESP_CONTROL_EVENT_MESSAGE_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println(" -> CTRL MESSAGE HANDLED BY APPLICATION");
             #endif
          }
@@ -160,12 +160,12 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
    /* get the message */
    while(CEspCom::get_msg_from_esp(msg)) {
       
-      #ifdef ESP_HOST_DEBUG_ENABLED
+      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
       Serial.print("[RX msg]: ");
       #endif
 
       if(msg.get_if_type() == ESP_SERIAL_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.print("Serial CONTROL MESSAGE");
          #endif
          
@@ -219,10 +219,9 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
        received */
 /* -------------------------------------------------------------------------- */
 int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
-   int rv = ESP_CONTROL_MSG_RX; 
+   int rv = ESP_CONTROL_OK; 
 
    if(msg.is_valid()) {
-      Serial.println("perform_esp_communication is valid");
       /* if the message is valid send it to the spi driver in oder to be 
          sent to ESP32 */
       CEspCom::send_msg_to_esp(msg);
@@ -244,11 +243,14 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
       if(ESP_CONTROL_MSG_RX != process_msgs_received(response)) {
          if(rv != ESP_CONTROL_WRONG_REQUEST_INVALID_MSG) {
             rv = ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE;
-         }       
+         }  
+         else {
+            break;
+         }     
       }
       else {
          if(rv != ESP_CONTROL_WRONG_REQUEST_INVALID_MSG) {
-            rv = ESP_CONTROL_MSG_RX;
+            rv = ESP_CONTROL_OK;
          } 
          break;
       }
@@ -266,12 +268,11 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
 int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
-   Serial.println("getWiFiAddress");
    /* message request preparation */
    CCtrlMsgWrapper<CtrlMsgReqGetMacAddress> req(CTRL_REQ_GET_MAC_ADDR, ctrl_msg__req__get_mac_address__init);
    CMsg msg = req.getWifiMacAddressMsg((WifiMode_t)mode);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractMacAddress(ans, mac, mac_buf_size)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -290,7 +291,7 @@ int CEspControl::setWifiMacAddress(WifiMode_t mode,const char* mac, uint8_t mac_
    CCtrlMsgWrapper<CtrlMsgReqSetMacAddress> req(CTRL_REQ_SET_MAC_ADDR, ctrl_msg__req__set_mac_address__init);
    CMsg msg = req.setWifiMacAddressMsg((WifiMode_t)mode, mac, mac_buf_size);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.checkMacAddressSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -308,7 +309,7 @@ int CEspControl::getWifiMode(WifiMode_t &mode) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_MODE);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractWifiMode(ans, mode)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -326,7 +327,7 @@ int CEspControl::setWifiMode(WifiMode_t mode) {
    CCtrlMsgWrapper<CtrlMsgReqSetMode> req(CTRL_REQ_SET_WIFI_MODE, ctrl_msg__req__set_mode__init);
    CMsg msg = req.setWifiModeMsg(mode);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isSetWifiModeResponse(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -346,7 +347,7 @@ int CEspControl::getAccessPointScanList(vector<wifi_scanlist_t>& l) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_SCAN_LIST);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractAccessPointList(ans,l)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -365,7 +366,7 @@ int CEspControl::disconnectAccessPoint() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_DISCONNECT_AP);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isAccessPointDisconnected(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -383,7 +384,7 @@ int CEspControl::getAccessPointConfig(wifi_ap_config_t &ap) {
    CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_GET_AP_CONFIG, ctrl_msg__req__connect_ap__init);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       rv = req.extractAccessPointConfig(ans, ap);
    }
    return rv;
@@ -399,7 +400,7 @@ int CEspControl::connectAccessPoint(const char *ssid, const char *pwd, const cha
    CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_CONNECT_AP);
    CMsg msg = req.getConnectAccessPointMsg(ssid, pwd, bssid, wpa3_support,interval);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       rv = req.isAccessPointConnected(ans, ap_out);
    }
    return rv;
@@ -415,7 +416,7 @@ int CEspControl::getPowerSaveMode(int &power_save_mode) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_PS_MODE);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.getPowerSaveModeSet(ans, power_save_mode)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }  
@@ -434,7 +435,7 @@ int CEspControl::setPowerSaveMode(int power_save_mode) {
    CCtrlMsgWrapper<CtrlMsgReqSetMode> req(CTRL_REQ_SET_PS_MODE, ctrl_msg__req__set_mode__init);
    CMsg msg = req.setPowerSaveModeMsg(power_save_mode);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isPowerSaveModeSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -453,7 +454,7 @@ int CEspControl::otaWrite(ota_write_t &ow) {
    CCtrlMsgWrapper<CtrlMsgReqOTAWrite> req(CTRL_REQ_OTA_WRITE, ctrl_msg__req__otawrite__init);
    CMsg msg = req.otaWriteMsg(ow);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.getOtaWriteResult(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -471,7 +472,7 @@ int CEspControl::beginOTA() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_BEGIN);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isOtaBegun(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -489,7 +490,7 @@ int CEspControl::endOTA() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_OTA_END);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isOtaEnded(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       } 
@@ -507,7 +508,7 @@ int CEspControl::stopSoftAccessPoint() {
    CCtrlMsgWrapper<int> req(CTRL_REQ_STOP_SOFTAP);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isSoftAccessPointStopped(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -525,7 +526,7 @@ int CEspControl::setWifiMaxTxPower(uint32_t max_power) {
    CCtrlMsgWrapper<CtrlMsgReqSetWifiMaxTxPower> req(CTRL_REQ_SET_WIFI_MAX_TX_POWER, ctrl_msg__req__set_wifi_max_tx_power__init);
    CMsg msg = req.setWifiMaxTxPowerMsg(max_power);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       rv = req.isWifiMaxPowerSet(ans);
    }
    return rv;
@@ -541,7 +542,7 @@ int CEspControl::getWifiCurrentTxPower(uint32_t &max_power) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_WIFI_CURR_TX_POWER);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractCurrentWifiTxPower(ans, max_power)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       } 
@@ -560,7 +561,7 @@ int CEspControl::getSoftAccessPointConfig(softap_config_t &sap_cfg) {
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONFIG);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractSoftAccessPointConfig(ans, sap_cfg)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -579,7 +580,7 @@ int CEspControl::getSoftConnectedStationList(vector<wifi_connected_stations_list
    CCtrlMsgWrapper<int> req(CTRL_REQ_GET_SOFTAP_CONN_STA_LIST);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.extractSoftConnectedStationList(ans, l)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -599,7 +600,7 @@ int CEspControl::setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie) {
    CCtrlMsgWrapper<CtrlMsgReqSetSoftAPVendorSpecificIE> req(CTRL_REQ_SET_SOFTAP_VND_IE, ctrl_msg__req__set_soft_apvendor_specific_ie__init);
    CMsg msg = req.setSoftAccessPointVndIeMsg(vendor_ie);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isSoftAccessPointVndIeSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -622,7 +623,7 @@ int CEspControl::startSoftAccessPoint(softap_config_t &cfg) {
    CCtrlMsgWrapper<CtrlMsgReqStartSoftAP> req(CTRL_REQ_START_SOFTAP, ctrl_msg__req__start_soft_ap__init);
    CMsg msg = req.startSoftAccessPointMsg(cfg);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isSoftAccessPointStarted(ans, cfg)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
@@ -642,7 +643,7 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    CCtrlMsgWrapper<CtrlMsgReqConfigHeartbeat> req(CTRL_REQ_CONFIG_HEARTBEAT, ctrl_msg__req__config_heartbeat__init);
    CMsg msg = req.configureHeartbeatMsg(enable, duration);
    rv = perform_esp_communication(msg, &ans);
-   if(rv == ESP_CONTROL_MSG_RX) {
+   if(rv == ESP_CONTROL_OK) {
       if(!req.isHeartbeatConfigured(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
