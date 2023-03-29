@@ -10,6 +10,7 @@ using namespace std;
 #include "CMsg.h"
 
 /* error return value */
+#define ESP_CONTROL_WRONG_REQUEST_INVALID_MSG          -9
 #define ESP_CONTROL_MAX_WIFI_POWER_OUT_OF_RANGE        -8
 #define ESP_CONTROL_ACCESS_POINT_NOT_FOUND             -7
 #define ESP_CONTROL_INVALID_PASSWORD                   -6
@@ -560,12 +561,16 @@ public:
    /* ----------------------------------------------------------------------- */
    CCtrlMsgWrapper(int request_id, void (*init)(T *)) : answer(nullptr) {
    /* ----------------------------------------------------------------------- */
+      
+      Serial.println("CCtrlMsgWrapper constructor");
       init_ctrl_msg(request_id);
       /* allocate the payload */
       payload = new T;
       /* call the init function for the payload */
       if(payload != nullptr) {
+         Serial.println("CCtrlMsgWrapper constructor A");
          if(init != nullptr) {
+            Serial.println("CCtrlMsgWrapper constructor B");
             init(payload);
          }
       }
@@ -605,7 +610,10 @@ public:
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
+      Serial.print("getWiFiAddressMSG ");
+      Serial.println((int)mode);
       if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         Serial.println("getWiFiAddressMSG A");
          request.req_get_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload_set = true;
