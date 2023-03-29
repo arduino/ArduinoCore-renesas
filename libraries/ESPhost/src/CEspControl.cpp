@@ -381,7 +381,7 @@ int CEspControl::getAccessPointConfig(wifi_ap_config_t &ap) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_CTRL_ERROR;
    /* message request preparation */
-   CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_GET_AP_CONFIG, ctrl_msg__req__connect_ap__init);
+   CCtrlMsgWrapper<int> req(CTRL_REQ_GET_AP_CONFIG);
    CMsg msg = req.getMsg();
    rv = perform_esp_communication(msg, &ans);
    if(rv == ESP_CONTROL_OK) {
@@ -397,7 +397,7 @@ int CEspControl::connectAccessPoint(const char *ssid, const char *pwd, const cha
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
-   CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_CONNECT_AP);
+   CCtrlMsgWrapper<CtrlMsgReqConnectAP> req(CTRL_REQ_CONNECT_AP, ctrl_msg__req__connect_ap__init);
    CMsg msg = req.getConnectAccessPointMsg(ssid, pwd, bssid, wpa3_support,interval);
    rv = perform_esp_communication(msg, &ans);
    if(rv == ESP_CONTROL_OK) {
