@@ -3,6 +3,9 @@
 
 #include "Arduino.h"
 #include "r_dac.h"
+#if DAC8_HOWMANY > 0
+#include "r_dac8.h"
+#endif
 
 #ifndef DAC_MAX_CONVERSION_PERIOD
 #define DAC_MAX_CONVERSION_PERIOD   4
