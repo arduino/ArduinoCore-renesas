@@ -25,11 +25,67 @@
 #ifndef _ARDUINO_ESP_CONTROL_CLASS_H
 #define _ARDUINO_ESP_CONTROL_CLASS_H
 
+/*
+ * configuration defines
+ */ 
+
+#define LWIP_WIFI_HOSTNAME "c33-wifi"
+#define IFNAME0 'w'
+#define IFNAME1 'f'
+#define MAX_TRANSFERT_UNIT 1500
+#define IS_WIFI_DEFAULT_INTERFACE 1
+
+
+
 #include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
 #include "esp_host_callbacks.h"
 #include "CNetIf.h"
 
+#include "lwip/include/lwip/netif.h"
+
+#define WIFI_MAC_ADDRESS_DIM 6
+
+class CNetUtilities {
+public:
+   static int char2int(char ch) {
+      if(ch < 48 || ch > 57) {
+         return -1;
+      }
+      return ch - 48;
+   }
+   static bool twoChar2uint8(char h, char l, uint8_t *out) {
+      int H = char2int(h);
+      int L = char2int(l);
+      if(H == -1 || L == -1) {
+         return false;
+      }
+      *out = H * 10 + L;
+      return true;
+   }
+   /* 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+      X X : X X : X X : X  X  :  X  X  :  X  X */
+   static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
+      if(mac_in[2] != ':' || 
+         mac_in[5] != ':' ||
+         mac_in[8] != ':' ||
+         mac_in[11] != ':' ||
+         mac_in[14] != ':') {
+         return false;
+      }
+
+      if(!twoChar2uint8(mac_in[0],  mac_in[1],  mac_out) ||
+         !twoChar2uint8(mac_in[3],  mac_in[4],  mac_out + 1) ||
+         !twoChar2uint8(mac_in[6],  mac_in[6],  mac_out + 2) ||
+         !twoChar2uint8(mac_in[9],  mac_in[10], mac_out + 3) ||
+         !twoChar2uint8(mac_in[12], mac_in[13], mac_out + 4) ||
+         !twoChar2uint8(mac_in[15], mac_in[16], mac_out + 5) ) {
+         return false;
+      }
+
+      return true;
+   }
+};
 
 
 
@@ -39,6 +95,8 @@ public:
    CEspControl(CEspControl const&)               = delete;
    void operator=(CEspControl const&)            = delete;
    ~CEspControl();
+
+   static uint8_t mac_address[WIFI_MAC_ADDRESS_DIM];
 
    int getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size);
    int setWifiMacAddress(WifiMode_t mode, const char* mac, uint8_t mac_buf_size);
@@ -72,8 +130,12 @@ public:
    int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);
    int sendOnNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
    int receiveFromNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
-
    
+   /* callback to be passed add_netif lwIP function with wifi initialization */
+   static err_t lwip_init_wifi(struct netif *netif);
+   /* callback used to set netif_linkoutput_fn used by lwIP to send packet on
+      the physical interface */
+   static err_t lwip_output(struct netif *netif, struct pbuf *p);
 
 private:
    CEspControl();

@@ -7,6 +7,27 @@ CLwipIf::CLwipIf() {
    /* Initialize lwIP stack, singletone implementation guarantees that lwip is
       initialized just once  */
    lwip_init();
+
+   /* START THE TIMER FOR LWIP tasks - #CORE_DEPENDENT_STUFF */
+   #ifdef LWIP_USE_TIMER
+   uint8_t type = 8;
+   uint8_t ch = FspTimer::get_available_timer(type);
+   
+   if(ch < 0) {
+     ch = FspTimer::get_available_timer(type,true);
+   } 
+
+   timer.begin(TIMER_MODE_PERIODIC, type, ch, 10.0, 50.0, timer_cb);
+   timer.setup_overflow_irq();
+   timer.open();
+   timer.start();
+   #endif
+}
+
+/* -------------------------------------------------------------------------- */
+void CLwipIf::lwip_task() {
+/* -------------------------------------------------------------------------- */   
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,6 +104,14 @@ CNetIf *CLwipIf::add(string name,
       ni->DhcpStart();
    }
 }
+
+#ifdef LWIP_USE_TIMER
+/* -------------------------------------------------------------------------- */
+void CLwipIf::timer_cb(timer_callback_args_t *arg) {
+/*  -------------------------------------------------------------------------- */   
+  CLwipIf::getInstance().lwip_task();
+} 
+#endif
 
 
 /* ########################################################################## */

@@ -1,6 +1,8 @@
 #ifndef _ARDUINO_LWIP_NETIF_H_
 #define _ARDUINO_LWIP_NETIF_H_
 
+#define LWIP_USE_TIMER
+
 #include "Arduino.h"
 
 #include <map>
@@ -12,6 +14,11 @@
 #include "lwip/include/lwip/init.h"
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/ip_addr.h"
+
+#ifdef LWIP_USE_TIMER
+#include "FspTimer.h"
+#endif
+
 
 #define MAX_DHCP_TRIES 4
 
@@ -37,6 +44,9 @@ typedef enum {
   DHCP_RELEASE,
   DHCP_STOP
 } DhcpSt_t;
+
+
+
 
 
 /* -------------------------------------------------------------------------- */
@@ -87,14 +97,17 @@ public:
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
+   /* map to track all the network interfaces created */
+   std::map<string,CNetIf *> net_ifs;
+
+   /* initialize lwIP and timer */
    CLwipIf();
    
-   std::map<string,CNetIf *> net_ifs;
-   
-   void init_lwip();
-   bool is_lwip_initialized;
-
-
+   /* timer */
+   #ifdef LWIP_USE_TIMER
+   FspTimer timer;
+   static void timer_cb(timer_callback_args_t *arg);
+   #endif
 
 public:
    static CLwipIf& getInstance();

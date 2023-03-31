@@ -25,7 +25,7 @@
 extern int esp_host_perform_spi_communication();
 extern int esp_host_spi_init(void);
 
-
+uint8_t CEspControl::mac_address[WIFI_MAC_ADDRESS_DIM];
 /* -------------------------------------------------------------------------- */
 /* GET INSTANCE SINGLETONE FUNCTION */
 /* -------------------------------------------------------------------------- */
@@ -276,6 +276,11 @@ int CEspControl::getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_s
       if(!req.extractMacAddress(ans, mac, mac_buf_size)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
+      else {
+         if(mac_buf_size >= 17) {
+            CNetUtilities::macStr2macArray(mac_address, mac);
+         }
+      }
    }
    
    return rv;
@@ -294,6 +299,9 @@ int CEspControl::setWifiMacAddress(WifiMode_t mode,const char* mac, uint8_t mac_
    if(rv == ESP_CONTROL_OK) {
       if(!req.checkMacAddressSet(ans)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+      }
+      if(mac_buf_size >= 17) {
+         CNetUtilities::macStr2macArray(mac_address, mac);
       }
    }
    return rv;
@@ -650,3 +658,59 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    }
    return rv;
  }
+
+/* -------------------------------------------------------------------------- */
+ err_t CEspControl::lwip_init_wifi(struct netif *netif) {
+/* -------------------------------------------------------------------------- */   
+   char mac[18];
+
+   #if LWIP_NETIF_HOSTNAME
+   /* Initialize interface hostname */
+   netif->hostname = LWIP_WIFI_HOSTNAME;
+   #endif /* LWIP_NETIF_HOSTNAME */
+
+   netif->name[0] = IFNAME0;
+   netif->name[1] = IFNAME1;
+
+   netif->output = etharp_output; /* ??????? */
+   netif->linkoutput = lwip_output;
+   
+   /* getWifiMacAddress automatically makes a copy of mac_address into the 
+      member variable mac_address */
+   //if(CEspControl::getInstance.getWifiMacAddress(WIFI_MODE_NONE, mac, 18) == ESP_CONTROL_OK) {
+     //netif->hwaddr_len = WIFI_MAC_ADDRESS_DIM;
+     //netif->hwaddr = &mac_address[0];
+   //}
+
+   /* maximum transfer unit */
+   netif->mtu = MAX_TRANSFERT_UNIT;
+
+   /* device capabilities */
+   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
+   netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;   /* ???????? */
+
+
+   if(0 == esp_host_spi_init()) {
+      return ERR_OK;
+   }
+
+   return ERR_IF;
+ }  
+
+/* -------------------------------------------------------------------------- */
+err_t CEspControl::lwip_output(struct netif *netif, struct pbuf *p) {
+/* -------------------------------------------------------------------------- */
+   
+   err_t errval = ERR_OK;
+   #ifdef asdfasdfasdfasdfasdfasdfasdfasdf
+   assert (p->tot_len <= ETH_BUFF_DIM);
+   uint16_t bytes_actually_copied = pbuf_copy_partial(p, eth0_tx_buffer, p->tot_len, 0);
+   if(bytes_actually_copied > 0) {
+     if(!eth_output(eth0_tx_buffer, bytes_actually_copied)) {
+       errval = ERR_IF;
+     }
+   }
+   #endif
+  return errval;
+   
+}
