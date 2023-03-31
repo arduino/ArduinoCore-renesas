@@ -28,6 +28,7 @@
 #include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
 #include "esp_host_callbacks.h"
+#include "CNetIf.h"
 
 
 
@@ -66,6 +67,11 @@ public:
 
    int getWifiCurrentTxPower(uint32_t &max_power);
    int setWifiMaxTxPower(uint32_t max_power);
+
+
+   int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);
+   int sendOnNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
+   int receiveFromNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
 
    
 

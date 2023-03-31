@@ -192,10 +192,10 @@ void DHCP_task(struct netif *netif) {
         dhcp_state = D_DHCP_STATE_IDLE;
       }
       else if (netif_is_link_up(netif)) {
-
         ip_addr_set_zero_ip4(&netif->ip_addr);
         ip_addr_set_zero_ip4(&netif->netmask);
         ip_addr_set_zero_ip4(&netif->gw);
+        
         
         dhcp_start(netif);
         
