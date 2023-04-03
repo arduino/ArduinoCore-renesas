@@ -122,9 +122,6 @@ void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /*  ----------------------
  *  DHCP related functions
  *  ---------------------- */ 
-
-
-
 /* -------------------------------------------------------------------------- */
 bool CNetIf::isDhcpAcquired() { return dhcp_acquired; }
 /* -------------------------------------------------------------------------- */
@@ -206,7 +203,7 @@ void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src) {
 
 
 
-
+int CNetIf::id = -1;
 
 
 /* -------------------------------------------------------------------------- */
@@ -214,4 +211,6 @@ CNetIf::CNetIf() {
 /* -------------------------------------------------------------------------- */   
    dhcp_acquired = false;
    dhcp_st = DHCP_IDLE;
+   id++;
+   ni.num = id;
 }

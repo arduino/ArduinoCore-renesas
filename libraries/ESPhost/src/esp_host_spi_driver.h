@@ -51,7 +51,7 @@ int esp_host_spi_init(void);
 /* it performs the spi communication untill there are message to be tx or rx
    (it stops if an error occurred) 
    it returns the error or 0 if all is ok */
-int esp_host_perform_spi_communication();
+int esp_host_perform_spi_communication(bool wait_for_valid_msg);
 
 
 

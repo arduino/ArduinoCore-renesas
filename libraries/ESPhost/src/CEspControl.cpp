@@ -236,8 +236,8 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
    bool esp_ready = false;
    bsp_io_level_t handshake;
    do {
-      /* send to and receive from all the messages for ESP */
-      esp_host_perform_spi_communication();
+      /* send messages untill a valid message is received into the rx queu */
+      esp_host_perform_spi_communication(true);
    
       /* process all the received messages, untill a control message is found */
       if(ESP_CONTROL_MSG_RX != process_msgs_received(response)) {
@@ -261,6 +261,29 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
 
    return rv;
 }
+
+/* -------------------------------------------------------------------------- */
+int CEspControl::send_net_packet(CMsg& msg) {
+/* -------------------------------------------------------------------------- */
+   int rv = ESP_CONTROL_OK; 
+
+   if(msg.is_valid()) {
+      /* if the message is valid send it to the spi driver in oder to be 
+         sent to ESP32 */
+      CEspCom::send_msg_to_esp(msg);
+   }
+   else {
+      rv = ESP_CONTROL_WRONG_REQUEST_INVALID_MSG;
+   }
+   
+   /* send a message without waiting for an answer */
+   esp_host_perform_spi_communication(false);
+
+   return rv;
+}
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /* GET WIFI MAC ADDRESS */
@@ -673,7 +696,7 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    netif->name[1] = IFNAME1;
 
    netif->output = etharp_output; /* ??????? */
-   netif->linkoutput = lwip_output;
+   netif->linkoutput = lwip_output_wifi;
    
    /* getWifiMacAddress automatically makes a copy of mac_address into the 
       member variable mac_address */
@@ -703,19 +726,25 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
  }  
 
 /* -------------------------------------------------------------------------- */
-err_t CEspControl::lwip_output(struct netif *netif, struct pbuf *p) {
+err_t CEspControl::lwip_output_wifi(struct netif *netif, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */
-   
    err_t errval = ERR_OK;
-   #ifdef asdfasdfasdfasdfasdfasdfasdfasdf
-   assert (p->tot_len <= ETH_BUFF_DIM);
-   uint16_t bytes_actually_copied = pbuf_copy_partial(p, eth0_tx_buffer, p->tot_len, 0);
-   if(bytes_actually_copied > 0) {
-     if(!eth_output(eth0_tx_buffer, bytes_actually_copied)) {
-       errval = ERR_IF;
-     }
+   
+   CMsg msg = CCtrlMsgWrapper<int>::getNetIfMsg(ESP_STA_IF, netif->num, p->tot_len);
+   if(msg.is_valid()) {
+      uint16_t bytes_actually_copied = pbuf_copy_partial(p, msg.get_protobuf_ptr(), p->tot_len, 0);
+      if(bytes_actually_copied > 0) {
+         int res = CEspControl::getInstance().send_net_packet(msg);
+         if(res == ESP_HOSTED_SPI_DRIVER_OK || res == ESP_HOSTED_SPI_MESSAGE_RECEIVED) {
+            errval = ERR_IF;
+         } 
+      }
    }
-   #endif
+   else {
+      errval = ERR_IF;
+   }
+
+   
   return errval;
    
 }

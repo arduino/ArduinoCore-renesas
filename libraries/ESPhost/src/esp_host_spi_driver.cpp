@@ -254,8 +254,59 @@ bool esp_host_there_are_data_to_be_tx() {
    return rv;
 }
 
+/* this function calls esp_host_spi_transaction() to perfom spi communication
+   esp_host_spi_transaction() checks if there is somenthing to send (by checking
+   if something is on the tx queue) or something to receive if the DATA_READY
+   pin is high 
+   Only in this case a communication with the SPI is actually performed 
+   Since a single SPI communcation always transmit and receive if something 
+   valid is received this is put into the RX queue
+   At the end esp_host_spi_transaction() can return:
+   - ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX if there is nothing to transmit or receive
+   - ESP_HOSTED_SPI_MESSAGE_RECEIVED if a valid message has ben received and put into the rx_queue 
+   - ESP_HOSTED_SPI_DRIVER_OK if the SPI communication went well but no valid message has beed received 
+   - something different indicating an error into the SPI communication */
+int esp_host_perform_spi_communication(bool wait_for_valid_msg) {
+   int rv = ESP_HOSTED_SPI_DRIVER_OK;
+   bool continue_spi_communication = true;
 
-int esp_host_perform_spi_communication() {
+   do {
+      rv = esp_host_spi_transaction();
+      if(rv == ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX) {
+         /* exit because it makes no sense to execute SPI communication if there is nothing to do */
+         continue_spi_communication = false;
+      }
+      
+      /* if this flag is true we are waiting for an answer from ESP32, this is related to control
+         messages */
+      else if(wait_for_valid_msg && rv == ESP_HOSTED_SPI_MESSAGE_RECEIVED) {
+         
+            /* we received a valid message, we exit to see if the message received is actually
+               the answer we were waiting, although this is not guarantee at this point because
+               we could also have received some network trafic */
+            continue_spi_communication = false;
+      }
+      else if(wait_for_valid_msg && rv == ESP_HOSTED_SPI_DRIVER_OK) {
+         /* in this case we wait to see if new message are arriving */
+         continue_spi_communication = true;
+      }
+      else {
+         /* either, or we do no care to wait or something went wrong during the
+            SPI communication, so we exit */
+         continue_spi_communication = false;
+      }
+      
+
+   } while(continue_spi_communication);
+
+   return rv;
+
+
+
+
+   #ifdef CYCLE_UNTILL_THERE_ARE_MESSAGES
+   /* first implementation: that has a problem when the wifi communication is
+      enabled, messages are continuosly arriving preventig this */
    int rv = ESP_HOSTED_SPI_DRIVER_OK;
    int res = 0;
    /* it exits if there is some transaction error or if there is no more
@@ -280,6 +331,12 @@ int esp_host_perform_spi_communication() {
    }
    while(res != ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX);
    return rv;
+     
+
+
+
+
+   #endif
 }
 
 

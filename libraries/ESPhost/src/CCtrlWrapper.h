@@ -530,7 +530,23 @@ private:
    }
 
 public:
+   /* ----------------------------------------------------------------------- */
+   static CMsg getNetIfMsg(ESP_INTERFACE_TYPE type, uint8_t num, uint16_t dim) {
+   /* ----------------------------------------------------------------------- */
+      /* create a message without the TLV header, besides this message will not
+         manage a CtrlMsg, neither pack it into a protobuf */
+      CMsg msg(dim, false);
+      if(msg.is_valid()) {
+         msg.set_payload_header(type, num);
+         return msg;
+      }
+
+      return CMsg(0,false);
+   }
+
+   /* ----------------------------------------------------------------------- */
    static CtrlMsg *CMsg2CtrlMsg(CMsg& msg) {
+   /* ----------------------------------------------------------------------- */   
       static CMsg msg_accumulator;
       CtrlMsg *rv = nullptr;
       /* need to save the more message here because msg is deleted in add_msg function
@@ -547,11 +563,12 @@ public:
       }
       return rv;
    }
-
+   /* ----------------------------------------------------------------------- */
    T* getPayload()  {
+   /* ----------------------------------------------------------------------- */   
       return payload;
    }
-
+   /* ----------------------------------------------------------------------- */
    CCtrlMsgWrapper()  = delete;
    /* ----------------------------------------------------------------------- */
    CCtrlMsgWrapper(int request_id) : payload(nullptr), answer(nullptr) {
@@ -601,6 +618,8 @@ public:
       }
       return CMsg(0);
    }
+
+   
    
    /* ----------------------------------------------------------------------- */
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {

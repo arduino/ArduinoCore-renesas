@@ -136,7 +136,7 @@ public:
    static err_t lwip_init_wifi(struct netif *netif);
    /* callback used to set netif_linkoutput_fn used by lwIP to send packet on
       the physical interface */
-   static err_t lwip_output(struct netif *netif, struct pbuf *p);
+   static err_t lwip_output_wifi(struct netif *netif, struct pbuf *p);
 
 private:
    CEspControl();
@@ -144,6 +144,7 @@ private:
    int process_msgs_received(CtrlMsg **response);
    int process_ctrl_response(CtrlMsg *ans);
    int perform_esp_communication(CMsg& msg,  CtrlMsg **response);
+   int send_net_packet(CMsg& msg);
 
 
 };
