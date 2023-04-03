@@ -58,6 +58,8 @@ void unsecure_registers() {
 }
 #endif
 
+#define stringify(s) str(s)
+#define str(s) #s
 
 extern "C" void Stacktrace_Handler(void);
 
@@ -95,7 +97,7 @@ void arduino_main(void)
    __enable_irq();
 
 #ifdef BACKTRACE_SUPPORT
-   cm_backtrace_init(PROJECT_NAME, "RENESAS", "0");
+   cm_backtrace_init(stringify(PROJECT_NAME), "RENESAS", "0");
 #endif
 
    _init();
