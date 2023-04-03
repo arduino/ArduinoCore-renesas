@@ -677,10 +677,15 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    
    /* getWifiMacAddress automatically makes a copy of mac_address into the 
       member variable mac_address */
-   //if(CEspControl::getInstance.getWifiMacAddress(WIFI_MODE_NONE, mac, 18) == ESP_CONTROL_OK) {
-     //netif->hwaddr_len = WIFI_MAC_ADDRESS_DIM;
-     //netif->hwaddr = &mac_address[0];
-   //}
+   if(CEspControl::getInstance().getWifiMacAddress(WIFI_MODE_NONE, mac, (uint8_t) 18) == ESP_CONTROL_OK) {
+     netif->hwaddr_len = WIFI_MAC_ADDRESS_DIM;
+     netif->hwaddr[0] = mac_address[0];
+     netif->hwaddr[1] = mac_address[2];
+     netif->hwaddr[2] = mac_address[3];
+     netif->hwaddr[3] = mac_address[4];
+     netif->hwaddr[4] = mac_address[5];
+     netif->hwaddr[5] = mac_address[6];
+   }
 
    /* maximum transfer unit */
    netif->mtu = MAX_TRANSFERT_UNIT;
@@ -690,7 +695,7 @@ int CEspControl::configureHeartbeat(bool enable, int32_t duration) {
    netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;   /* ???????? */
 
 
-   if(0 == esp_host_spi_init()) {
+   if(ESP_HOSTED_SPI_DRIVER_OK == esp_host_spi_init()) {
       return ERR_OK;
    }
 
