@@ -490,6 +490,5 @@ static void spi_callback(spi_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 static void ext_irq_callback(void) {
 /* -------------------------------------------------------------------------- */   
-   //pi_msg_to_get_from_esp32++;
-   //esp_host_send_and_receive();
+   //esp_host_spi_transaction();
 }

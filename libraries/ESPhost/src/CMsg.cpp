@@ -39,6 +39,7 @@ uint32_t CMsg::allocate(uint32_t d) {
       /* memset all the buffer to 0 */
       dim = d;
       memset(buf, 0x00, dim);
+      payload_header = (struct esp_payload_header *)buf;
       return dim;
    }
    return 0;
@@ -64,7 +65,7 @@ void CMsg::reset_without_delete() {
    dim            = 0;
    payload_header = nullptr;
    proto_dim      = 0;
-   tlv_size       = 0;
+   //tlv_size       = 0;
 }
 
 
@@ -74,7 +75,9 @@ void CMsg::reset_without_delete() {
 
 
 /* -------------------------------------------------------------------------- */
-CMsg::CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0} {}
+CMsg::CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0}, tlv_size(esp_tlv_header_size) {
+   
+}
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -92,11 +95,7 @@ CMsg::CMsg(uint16_t proto_size, bool use_tlv /*= true*/) : buf{nullptr},
       request_size = proto_dim + esp_payload_header_size;
       tlv_size = 0;
    }  
-
-   if(request_size == allocate(request_size)) {
-      /* initialize payload header to point at the beginning of the buffer */
-      payload_header = (struct esp_payload_header *)buf;
-   }
+   allocate(request_size);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -223,7 +222,7 @@ void CMsg::clear() {
    }
    payload_header = nullptr;
    proto_dim = 0;
-   tlv_size = 0;
+   //tlv_size = 0;
 }
 
 /* -------------------------------------------------------------------------- */ 
@@ -342,6 +341,18 @@ uint32_t CMsg::verify_payload_header(const uint8_t *b) {
    return ph->len;
 }
 
+/* -------------------------------------------------------------------------- */
+void CMsg::set_tlv_size() {
+/* -------------------------------------------------------------------------- */   
+   if(get_if_type() == ESP_SERIAL_IF) {
+      tlv_size = esp_tlv_header_size;
+   }
+   else {
+      tlv_size = 0;
+      proto_dim = get_payload_len();
+   }
+}
+
 
 /* setter / getter functions */ 
 void CMsg::set_if_type(uint8_t if_type)        { payload_header->if_type = if_type; }
@@ -375,10 +386,33 @@ bool CMsg::verify_rx_checksum(struct esp_payload_header *ph, uint16_t len) {
 }
 
 /* -------------------------------------------------------------------------- */
+void CMsg::debug_print(const char* title) {
+/* -------------------------------------------------------------------------- */   
+   Serial.println(title);
+   Serial.print("dim: ");
+   Serial.println(dim);
+   Serial.print("proto_dim: ");
+   Serial.println(proto_dim);
+   Serial.print("tlv_size: ");
+   Serial.println(tlv_size);
+
+   for(int i = 0; i < dim; i++) {
+      Serial.print(*(buf+i),HEX);
+      Serial.print(" ");
+   }
+   Serial.println();
+}
+
+/* store_rx_buffer receives all type of messages: 
+   - serial control messages have a tlv header
+   - other type don't... */
+
+/* -------------------------------------------------------------------------- */
 bool CMsg::store_rx_buffer(const uint8_t *buffer, uint32_t d) {
 /* -------------------------------------------------------------------------- */   
-   /* rx_payload_len is TLV + PROTO */
+   /* rx_payload_len is TLV + PROTO (tlv can be present or not) */
    uint16_t rx_payload_len = verify_payload_header(buffer);
+   
    if( rx_payload_len > 0 ) {
       /* verify the length and the checksum are correct, if ok it is safe to 
          initialize the message */
@@ -386,10 +420,17 @@ bool CMsg::store_rx_buffer(const uint8_t *buffer, uint32_t d) {
       clear(); /* just in case....*/
 
       uint16_t request_size = esp_payload_header_size + rx_payload_len;
+      /* allocate make the payload_header to point at the beginning of the
+         newly allocate buffer  */
       if(request_size == allocate(request_size)) {
          /* initialize payload header to point at the beginning of the buffer */
-         payload_header = (esp_payload_header *)buf;
+         //payload_header = (esp_payload_header *)buf;
          memcpy(buf,buffer,request_size);
+
+         /* now there are all the information to know if there is a tlv header or not*/
+         set_tlv_size();
+         debug_print("---Store rx buffer: ");
+
          return true;
       }
    }     
@@ -404,7 +445,7 @@ bool CMsg::add_msg(CMsg &msg) {
       buf = msg.get_buffer();
       dim = msg.get_size();
       payload_header = (esp_payload_header *)buf;
-      proto_dim = 0; //msg.get_protobuf_dim(); /* should alway be 0 when this function is called */
+      proto_dim = msg.get_protobuf_dim(); /* should alway be 0 when this function is called */
       /* reset the message added so that is not deleted if clear is called */
       msg.reset_without_delete();
 

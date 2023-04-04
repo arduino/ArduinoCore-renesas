@@ -144,6 +144,7 @@ public:
    bool set_tlv_header(const char *ep_name);
    /* verify a TLV structure */
    bool verify_tlv_header();
+   void set_tlv_size();
 
    /* ---------------------------------------
     * function to deal with the esp structure 
@@ -184,6 +185,8 @@ public:
    uint32_t get_size();
 
    bool read(uint8_t *dest, uint32_t d);
+
+   void debug_print(const char* title);
 };
 
 
