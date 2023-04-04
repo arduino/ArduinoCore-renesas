@@ -19,6 +19,7 @@ using namespace arduino;
 #endif
 
 #include <api/itoa.h>
+#include <strings.h>
 
 #if defined(__cplusplus)
 
