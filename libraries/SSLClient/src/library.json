@@ -1,0 +1,11 @@
+{
+    "name": "SSLClient",
+    "version": "0.0.0",
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>"
+        ]
+    }
+}
