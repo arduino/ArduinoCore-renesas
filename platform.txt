@@ -3,7 +3,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino Renesas fsp Boards
-version=0.6.2
+version=0.6.3
 
 # Compile variables
 # ------------------------
