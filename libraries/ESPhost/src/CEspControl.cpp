@@ -150,23 +150,25 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
 
 
 /* -------------------------------------------------------------------------- */
-/* PRIVATE: this function process all received messages from esp untill a control
- * answer is received */
+/* This function process ONE message from the queue of the received messages 
+   from ESP. 
+   */
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_msgs_received(CtrlMsg **response) {
 /* -------------------------------------------------------------------------- */   
    int rv = ESP_CONTROL_EMPTY_RX_QUEUE;  
    CMsg msg;
    /* get the message */
-   while(CEspCom::get_msg_from_esp(msg)) {
+   if(CEspCom::get_msg_from_esp(msg)) {
       
-      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
-      Serial.print("[RX msg]: ");
+      #ifdef ESP_HOST_DEBUG_ENABLED
+      Serial.print("[RX PROCESS] Receiving message from ESP rx queue -> ");
       #endif
 
       if(msg.get_if_type() == ESP_SERIAL_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
-         Serial.print("Serial CONTROL MESSAGE");
+         
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println(" CONTROL MESSAGE");
          #endif
          
          /* response MUST BE deleted */
@@ -176,7 +178,7 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
             
             if(res == ESP_CONTROL_EVENT_MESSAGE_RX) {
                rv = ESP_CONTROL_MSG_RX;
-               break;
+               //break;
             }
          }
          else {
@@ -185,12 +187,21 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
          
       }
       else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println(" NETWORK MESSAGE");
+         #endif
          /* net if message received */
       }
       else if(msg.get_if_type() == ESP_PRIV_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println(" PRIV MESSAGE");
+         #endif
 
       }
       else if(msg.get_if_type() == ESP_TEST_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.println(" TEST MESSAGE");
+         #endif
          
       }
    }
@@ -257,7 +268,7 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
       
       R_BSP_SoftwareDelay(1000, BSP_DELAY_UNITS_MICROSECONDS);
       time_num++;
-   } while(time_num < 5000);
+   } while(time_num < 50000);
 
    return rv;
 }
@@ -282,7 +293,14 @@ int CEspControl::send_net_packet(CMsg& msg) {
    return rv;
 }
 
-
+void CEspControl::communicateWithEsp() {
+   CtrlMsg *ans = nullptr;
+   esp_host_perform_spi_communication(false);
+   process_msgs_received(&ans);
+   if(ans != nullptr) {
+      Serial.println("-------DELETION NEEDED --------");
+   }
+}
 
 
 /* -------------------------------------------------------------------------- */

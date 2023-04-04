@@ -429,8 +429,6 @@ bool CMsg::store_rx_buffer(const uint8_t *buffer, uint32_t d) {
 
          /* now there are all the information to know if there is a tlv header or not*/
          set_tlv_size();
-         debug_print("---Store rx buffer: ");
-
          return true;
       }
    }     

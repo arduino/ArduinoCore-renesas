@@ -131,6 +131,8 @@ public:
    int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);
    int sendOnNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
    int receiveFromNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
+
+   void communicateWithEsp();
    
    /* callback to be passed add_netif lwIP function with wifi initialization */
    static err_t lwip_init_wifi(struct netif *netif);
