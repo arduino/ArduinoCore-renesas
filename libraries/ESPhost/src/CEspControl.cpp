@@ -114,15 +114,24 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
    /*
     * HANDLE EVENTs -> only handled by event callbacks
     */
+   Serial.println("Process control response");
+   Serial.print("Message type: ");
+   Serial.println(ans->msg_type);
+   Serial.print("Message ID: ");
+   Serial.println(ans->msg_id);
+
+
 
    if(ans->msg_type == CTRL_MSG_TYPE__Event) {
+      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
+      Serial.println(" -> EVENT RECEIVED");
+      #endif
+      
       if(esp_host_is_event_cb_set(ans->msg_id) == CALLBACK_AVAILABLE) { 
          if(esp_host_parse_event(ans) == SUCCESS) {
             esp_host_call_event_cb(ans->msg_id, &answer);
             rv = ESP_CONTROL_EVENT_MESSAGE_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
-            Serial.println(" -> EVENT RECEIVED");
-            #endif
+            
 
          } 
       }
@@ -152,6 +161,8 @@ int CEspControl::process_ctrl_response(CtrlMsg *ans) {
 /* -------------------------------------------------------------------------- */
 /* This function process ONE message from the queue of the received messages 
    from ESP. 
+   
+
    */
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_msgs_received(CtrlMsg **response) {
@@ -189,7 +200,10 @@ int CEspControl::process_msgs_received(CtrlMsg **response) {
       else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
          #ifdef ESP_HOST_DEBUG_ENABLED
          Serial.println(" NETWORK MESSAGE");
+         Serial.print(" Network interface: ");
+         Serial.println(msg.get_if_num());
          #endif
+      
          /* net if message received */
       }
       else if(msg.get_if_type() == ESP_PRIV_IF) {
@@ -236,6 +250,7 @@ int CEspControl::perform_esp_communication(CMsg& msg,  CtrlMsg **response) {
       /* if the message is valid send it to the spi driver in oder to be 
          sent to ESP32 */
       CEspCom::send_msg_to_esp(msg);
+      Serial.println("E");
    }
    else {
       rv = ESP_CONTROL_WRONG_REQUEST_INVALID_MSG;
@@ -293,7 +308,9 @@ int CEspControl::send_net_packet(CMsg& msg) {
    return rv;
 }
 
+/* -------------------------------------------------------------------------- */
 void CEspControl::communicateWithEsp() {
+/* -------------------------------------------------------------------------- */   
    CtrlMsg *ans = nullptr;
    esp_host_perform_spi_communication(false);
    process_msgs_received(&ans);
@@ -668,10 +685,14 @@ int CEspControl::setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie) {
 int CEspControl::startSoftAccessPoint(softap_config_t &cfg) {
    CtrlMsg *ans;
    int rv = ESP_CONTROL_OK;
+   Serial.println("A");
    /* message request preparation */
    CCtrlMsgWrapper<CtrlMsgReqStartSoftAP> req(CTRL_REQ_START_SOFTAP, ctrl_msg__req__start_soft_ap__init);
+   Serial.println("B");
    CMsg msg = req.startSoftAccessPointMsg(cfg);
+   Serial.println("C");
    rv = perform_esp_communication(msg, &ans);
+   Serial.println("D");
    if(rv == ESP_CONTROL_OK) {
       if(!req.isSoftAccessPointStarted(ans, cfg)) {
          rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;

@@ -765,6 +765,7 @@ public:
 
       if(strlen((char *)&cfg.ssid) > MAX_SSID_LENGTH  ||
          strlen((char *)&cfg.ssid) == 0 ) {
+         Serial.println("[ERROR]: Invalid SSID");
          /* INVALID SSID */
          cfg_ok = false;
       }
@@ -773,26 +774,32 @@ public:
              ((cfg.encryption_mode == WIFI_AUTH_OPEN) &&
               (strlen((char *)&cfg.pwd) < MIN_PWD_LENGTH)) ) {
          /* INVALID BASS*/
+         Serial.println("[ERROR]: Invalid password");
          cfg_ok = false;
       }
       if((cfg.channel < MIN_CHNL_NO) ||
               (cfg.channel > MAX_CHNL_NO)) {
          /* INVALID CHANNEL */
+         Serial.println("[ERROR]: Invalid channel ");
          cfg_ok = false;
       }
       if((cfg.encryption_mode < WIFI_AUTH_OPEN) ||
              (cfg.encryption_mode == WIFI_AUTH_WEP) ||
              (cfg.encryption_mode > WIFI_AUTH_WPA_WPA2_PSK)) {
+         Serial.println("[ERROR]: Invalid encryption");
+
          /* ENCRYPTION NOT SUPPORTED */
          cfg_ok = false;
       }
       if((cfg.max_connections < MIN_CONN_NO) ||
              (cfg.max_connections > MAX_CONN_NO)) {
          /* INVALID CONNECTION NUMBER */
+         Serial.println("[ERROR]: Invalid connection number");
          cfg_ok = false;
       }
       if((cfg.bandwidth < WIFI_BW_HT20) ||
               (cfg.bandwidth > WIFI_BW_HT40)) {
+         Serial.println("[ERROR]: Invalid bandwith");
          /* INVALID BANDWIDTH */
          cfg_ok = false;
       }
@@ -806,7 +813,7 @@ public:
          payload->max_conn = cfg.max_connections;
          payload->ssid_hidden = cfg.ssid_hidden;
          payload->bw = cfg.bandwidth;  
-
+         Serial.println("start sofT Access point OK");
          payload_set = true; 
       }
 

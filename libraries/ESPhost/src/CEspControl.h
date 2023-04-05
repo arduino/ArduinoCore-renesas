@@ -113,6 +113,8 @@ public:
    int getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l);
    int setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie);
    int startSoftAccessPoint(softap_config_t &cfg);
+   int stopSoftAccessPoint();
+
    int configureHeartbeat(bool enable, int32_t duration);
    
    int getPowerSaveMode(int &power_save_mode);
@@ -122,7 +124,7 @@ public:
    int endOTA();
    int otaWrite(ota_write_t &ow);
 
-   int stopSoftAccessPoint();
+   
 
    int getWifiCurrentTxPower(uint32_t &max_power);
    int setWifiMaxTxPower(uint32_t max_power);
@@ -142,9 +144,10 @@ public:
 
 private:
    CEspControl();
-
+   /* */
    int process_msgs_received(CtrlMsg **response);
    int process_ctrl_response(CtrlMsg *ans);
+   int process_priv_response(CtrlMsg *ans);
    int perform_esp_communication(CMsg& msg,  CtrlMsg **response);
    int send_net_packet(CMsg& msg);
 
