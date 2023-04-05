@@ -208,21 +208,17 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
 
 uint16_t ArduinoSPI::transfer16(uint16_t data)
 {
-  uint16_t rxbuf;
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+  union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
+  t.val = data;
 
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
+  if (_settings.getBitOrder() == LSBFIRST) {
+    t.lsb = transfer(t.lsb);
+    t.msb = transfer(t.msb);
+  } else {
+    t.msb = transfer(t.msb);
+    t.lsb = transfer(t.lsb);
   }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-      return 0;
-  }
-  return rxbuf;
+  return t.val;
 }
 
 void ArduinoSPI::transfer(void *buf, size_t count)
