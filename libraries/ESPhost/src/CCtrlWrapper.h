@@ -530,6 +530,9 @@ private:
    }
 
 public:
+   CtrlMsg **getAnswerPtrAddress() {return &answer; }
+
+
    /* ----------------------------------------------------------------------- */
    static CMsg getNetIfMsg(ESP_INTERFACE_TYPE type, uint8_t num, uint16_t dim) {
    /* ----------------------------------------------------------------------- */
@@ -595,6 +598,7 @@ public:
          delete payload;
       }
       if(answer != nullptr) {
+         Serial.println("THE answer has been FREE_UNPACKED!");
          ctrl_msg__free_unpacked(answer, NULL);
       }
    }
@@ -844,167 +848,166 @@ public:
     * ======================================================================= */
 
    /* ----------------------------------------------------------------------- */
-   bool extractMacAddress(CtrlMsg *ans, char *mac_out, int mac_out_dim) {
+   bool extractMacAddress(char *mac_out, int mac_out_dim) {
    /* ----------------------------------------------------------------------- */   
       bool rv = false;
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespGetMacAddress>(ans, 
+      if(checkResponsePayload<CtrlMsgRespGetMacAddress>(answer, 
                                                         (int)CTRL_RESP_GET_MAC_ADDR, 
-                                                        ans->resp_get_mac_address)) {
+                                                        answer->resp_get_mac_address)) {
          
-         if(ans->resp_get_mac_address->mac.data != nullptr) {
+         if(answer->resp_get_mac_address->mac.data != nullptr) {
             copyData((uint8_t *)mac_out, 
                      mac_out_dim, 
-                     ans->resp_get_mac_address->mac.data, 
-                     ans->resp_get_mac_address->mac.len);
+                     answer->resp_get_mac_address->mac.data, 
+                     answer->resp_get_mac_address->mac.len);
             rv = true;
          }
       }
       return rv;
    }
    /* ----------------------------------------------------------------------- */
-   bool checkMacAddressSet(CtrlMsg *ans) {
+   bool checkMacAddressSet() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespSetMacAddress>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespSetMacAddress>(answer, 
                                                            (int)CTRL_RESP_SET_MAC_ADDRESS, 
-                                                            ans->resp_set_mac_address);
+                                                            answer->resp_set_mac_address);
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractWifiMode(CtrlMsg *ans, WifiMode_t &mode) {
+   bool extractWifiMode(WifiMode_t &mode) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespGetMode>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespGetMode>(answer, 
                                                  (int)CTRL_RESP_GET_WIFI_MODE, 
-                                                 ans->resp_get_wifi_mode)) {
-         mode = (WifiMode_t)ans->resp_get_wifi_mode->mode;
+                                                 answer->resp_get_wifi_mode)) {
+         mode = (WifiMode_t)answer->resp_get_wifi_mode->mode;
          return true;
       }
       return false;
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointStarted(CtrlMsg *ans, softap_config_t &sap_cfg) {     
+   bool isSoftAccessPointStarted(softap_config_t &sap_cfg) {     
    /* ----------------------------------------------------------------------- */ 
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespStartSoftAP>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespStartSoftAP>(answer, 
                                                      (int)CTRL_RESP_START_SOFTAP, 
-                                                     ans->resp_start_softap)) {
+                                                     answer->resp_start_softap)) {
          
          copyData((uint8_t*)sap_cfg.out_mac, 
                   MAX_MAC_STR_LEN, 
-                  ans->resp_start_softap->mac.data,  
-                  ans->resp_start_softap->mac.len );
+                  answer->resp_start_softap->mac.data,  
+                  answer->resp_start_softap->mac.len );
       }
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointVndIeSet(CtrlMsg *ans) {
+   bool isSoftAccessPointVndIeSet() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespSetSoftAPVendorSpecificIE>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespSetSoftAPVendorSpecificIE>(answer, 
                                                                        (int)CTRL_RESP_SET_SOFTAP_VND_IE, 
-                                                                       ans->resp_set_softap_vendor_specific_ie);
+                                                                       answer->resp_set_softap_vendor_specific_ie);
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSetWifiModeResponse(CtrlMsg *ans) {
+   bool isSetWifiModeResponse() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespSetMode>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespSetMode>(answer, 
                                                      (int)CTRL_RESP_SET_WIFI_MODE, 
-                                                     ans->resp_set_wifi_mode);
+                                                     answer->resp_set_wifi_mode);
    }
 
    /* ----------------------------------------------------------------------- */
-   bool isAccessPointDisconnected(CtrlMsg *ans) {
+   bool isAccessPointDisconnected() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespGetStatus>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespGetStatus>(answer, 
                                                        (int)CTRL_RESP_DISCONNECT_AP, 
-                                                       ans->resp_disconnect_ap);  
+                                                       answer->resp_disconnect_ap);  
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isPowerSaveModeSet(CtrlMsg *ans) {
+   bool isPowerSaveModeSet() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespSetMode>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespSetMode>(answer, 
                                                      (int)CTRL_RESP_SET_PS_MODE, 
-                                                     ans->resp_set_power_save_mode);  
+                                                     answer->resp_set_power_save_mode);  
    }
 
    /* ----------------------------------------------------------------------- */
-   bool getOtaWriteResult(CtrlMsg *ans) {
+   bool getOtaWriteResult() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespOTAWrite>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespOTAWrite>(answer, 
                                                       (int)CTRL_RESP_OTA_WRITE, 
-                                                      ans->resp_ota_write);  
+                                                      answer->resp_ota_write);  
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isOtaBegun(CtrlMsg *ans) {
+   bool isOtaBegun() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespOTABegin>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespOTABegin>(answer, 
                                                       (int)CTRL_RESP_OTA_BEGIN, 
-                                                      ans->resp_ota_begin);
+                                                      answer->resp_ota_begin);
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isOtaEnded(CtrlMsg *ans) {
+   bool isOtaEnded() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespOTAEnd>(ans, 
+     
+      return checkResponsePayload<CtrlMsgRespOTAEnd>(answer, 
                                                     (int)CTRL_RESP_OTA_END, 
-                                                    ans->resp_ota_end);
+                                                    answer->resp_ota_end);
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointStopped(CtrlMsg *ans) {
+   bool isSoftAccessPointStopped() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespGetStatus>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespGetStatus>(answer, 
                                                        (int)CTRL_RESP_STOP_SOFTAP, 
-                                                       ans->resp_stop_softap);
+                                                       answer->resp_stop_softap);
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isHeartbeatConfigured(CtrlMsg *ans) {
+   bool isHeartbeatConfigured() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      return checkResponsePayload<CtrlMsgRespConfigHeartbeat>(ans, 
+      
+      return checkResponsePayload<CtrlMsgRespConfigHeartbeat>(answer, 
                                                              (int)CTRL_RESP_CONFIG_HEARTBEAT, 
-                                                             ans->resp_config_heartbeat);
+                                                             answer->resp_config_heartbeat);
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractCurrentWifiTxPower(CtrlMsg *ans, uint32_t &max_power) {
+   bool extractCurrentWifiTxPower( uint32_t &max_power) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespGetWifiCurrTxPower>(ans, 
+     
+      if(checkResponsePayload<CtrlMsgRespGetWifiCurrTxPower>(answer, 
                                                             (int)CTRL_RESP_GET_WIFI_CURR_TX_POWER, 
-                                                            ans->resp_get_wifi_curr_tx_power)) {
-         max_power = ans->resp_get_wifi_curr_tx_power->wifi_curr_tx_power;
+                                                            answer->resp_get_wifi_curr_tx_power)) {
+         max_power = answer->resp_get_wifi_curr_tx_power->wifi_curr_tx_power;
          return true;
       }
       return false;
    }
 
    /* ----------------------------------------------------------------------- */
-   int isWifiMaxPowerSet(CtrlMsg *ans) {
+   int isWifiMaxPowerSet() {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
+      
       int rv = ESP_CONTROL_CTRL_ERROR;
-      if(checkResponsePayload<CtrlMsgRespSetWifiMaxTxPower>(ans, 
+      if(checkResponsePayload<CtrlMsgRespSetWifiMaxTxPower>(answer, 
                                                            (int)CTRL_RESP_SET_WIFI_MAX_TX_POWER, 
-                                                            ans->resp_set_wifi_max_tx_power)) {
-         if(ans->resp_set_wifi_max_tx_power->resp == FAILURE) {
+                                                            answer->resp_set_wifi_max_tx_power)) {
+         if(answer->resp_set_wifi_max_tx_power->resp == FAILURE) {
             rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
          }
-         else if(ans->resp_set_wifi_max_tx_power->resp == CTRL_ERR_OUT_OF_RANGE) {
+         else if(answer->resp_set_wifi_max_tx_power->resp == CTRL_ERR_OUT_OF_RANGE) {
             rv = ESP_CONTROL_MAX_WIFI_POWER_OUT_OF_RANGE;
          }
          else {
@@ -1015,27 +1018,27 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool getPowerSaveModeSet(CtrlMsg *ans, int &power_save_mode) {
+   bool getPowerSaveModeSet(int &power_save_mode) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespGetMode>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespGetMode>(answer, 
                                                  (int)CTRL_RESP_GET_PS_MODE, 
-                                                 ans->resp_get_power_save_mode)) {
-         power_save_mode = ans->resp_get_power_save_mode->mode;
+                                                 answer->resp_get_power_save_mode)) {
+         power_save_mode = answer->resp_get_power_save_mode->mode;
          return true;
       }
       return false;
    }
    
    /* ----------------------------------------------------------------------- */
-   bool extractSoftConnectedStationList(CtrlMsg *ans, vector<wifi_connected_stations_list_t>& l) {
+   bool extractSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespSoftAPConnectedSTA>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespSoftAPConnectedSTA>(answer, 
                                                             (int)CTRL_RESP_GET_SOFTAP_CONN_STA_LIST, 
-                                                            ans->resp_softap_connected_stas_list)) {
+                                                            answer->resp_softap_connected_stas_list)) {
 
-         CtrlMsgRespSoftAPConnectedSTA *rp = ans->resp_softap_connected_stas_list;
+         CtrlMsgRespSoftAPConnectedSTA *rp = answer->resp_softap_connected_stas_list;
 
          for(int i = 0; i < rp->num; i++) {
             wifi_connected_stations_list_t cs;
@@ -1049,56 +1052,56 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractSoftAccessPointConfig(CtrlMsg *ans,softap_config_t &sap_cfg) {
+   bool extractSoftAccessPointConfig(softap_config_t &sap_cfg) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespGetSoftAPConfig>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespGetSoftAPConfig>(answer, 
                                                          (int)CTRL_RESP_GET_SOFTAP_CONFIG, 
-                                                         ans->resp_get_softap_config)) {
+                                                         answer->resp_get_softap_config)) {
          copyData((uint8_t *)&(sap_cfg.ssid), 
                   SSID_LENGTH, 
-                  ans->resp_get_softap_config->ssid.data, 
-                  ans->resp_get_softap_config->ssid.len );
+                  answer->resp_get_softap_config->ssid.data, 
+                  answer->resp_get_softap_config->ssid.len );
          copyData((uint8_t *)&(sap_cfg.pwd), 
                   PASSWORD_LENGTH, 
-                  ans->resp_get_softap_config->pwd.data, 
-                  ans->resp_get_softap_config->pwd.len );
-         sap_cfg.channel = ans->resp_get_softap_config->chnl;
-         sap_cfg.encryption_mode = ans->resp_get_softap_config->sec_prot;
-         sap_cfg.max_connections = ans->resp_get_softap_config->max_conn;
-         sap_cfg.ssid_hidden = ans->resp_get_softap_config->ssid_hidden;
-         sap_cfg.bandwidth = (wifi_bandwidth_e)ans->resp_get_softap_config->bw;
+                  answer->resp_get_softap_config->pwd.data, 
+                  answer->resp_get_softap_config->pwd.len );
+         sap_cfg.channel = answer->resp_get_softap_config->chnl;
+         sap_cfg.encryption_mode = answer->resp_get_softap_config->sec_prot;
+         sap_cfg.max_connections = answer->resp_get_softap_config->max_conn;
+         sap_cfg.ssid_hidden = answer->resp_get_softap_config->ssid_hidden;
+         sap_cfg.bandwidth = (wifi_bandwidth_e)answer->resp_get_softap_config->bw;
       }
 
    }
    
    /* ----------------------------------------------------------------------- */
-   int extractAccessPointConfig(CtrlMsg *ans, wifi_ap_config_t &ap) {
+   int extractAccessPointConfig(wifi_ap_config_t &ap) {
    /* ----------------------------------------------------------------------- */   
-      answer = ans;
+      
       int rv = ESP_CONTROL_CTRL_ERROR;
-      if(checkResponsePayload<CtrlMsgRespGetAPConfig>(ans, 
+      if(checkResponsePayload<CtrlMsgRespGetAPConfig>(answer, 
                                                      (int)CTRL_RESP_GET_AP_CONFIG, 
-                                                      ans->resp_get_ap_config), false) {
-         if(ans->resp_get_ap_config->resp == CTRL_ERR_NOT_CONNECTED) {
+                                                      answer->resp_get_ap_config), false) {
+         if(answer->resp_get_ap_config->resp == CTRL_ERR_NOT_CONNECTED) {
             rv = ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED;
          }
-         else if(ans->resp_get_ap_config->resp == 0) {
+         else if(answer->resp_get_ap_config->resp == 0) {
             copyData((uint8_t *)&(ap.ssid), 
                      SSID_LENGTH, 
-                     ans->resp_get_ap_config->ssid.data, 
+                     answer->resp_get_ap_config->ssid.data, 
                      SSID_LENGTH );
             copyData((uint8_t *)&(ap.bssid), 
                      BSSID_LENGTH, 
-                     ans->resp_get_ap_config->bssid.data, 
+                     answer->resp_get_ap_config->bssid.data, 
                      BSSID_LENGTH );
             copyData((uint8_t *)&(ap.status), 
                      STATUS_LENGTH, 
                      (uint8_t *)"SUCCESS", 
                      strlen("SUCCESS") );
-            ap.channel         = ans->resp_get_ap_config->chnl;
-            ap.rssi            = ans->resp_get_ap_config->rssi;
-            ap.encryption_mode = ans->resp_get_ap_config->sec_prot;
+            ap.channel         = answer->resp_get_ap_config->chnl;
+            ap.rssi            = answer->resp_get_ap_config->rssi;
+            ap.encryption_mode = answer->resp_get_ap_config->sec_prot;
          }
          else {
             copyData((uint8_t *)&(ap.status), 
@@ -1111,30 +1114,30 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   int isAccessPointConnected(CtrlMsg *ans, wifi_ap_config_t &ap) {
+   int isAccessPointConnected(wifi_ap_config_t &ap) {
    /* ----------------------------------------------------------------------- */
-      answer = ans;
+      
       int rv = ESP_CONTROL_CTRL_ERROR;
-      if(checkResponsePayload<CtrlMsgRespConnectAP>(ans, 
+      if(checkResponsePayload<CtrlMsgRespConnectAP>(answer, 
                                                    (int)CTRL_RESP_CONNECT_AP, 
-                                                   ans->resp_connect_ap), 
+                                                   answer->resp_connect_ap), 
                                                    false) {
 
-         if(ans->resp_connect_ap->resp == CTRL_ERR_INVALID_PASSWORD) {
+         if(answer->resp_connect_ap->resp == CTRL_ERR_INVALID_PASSWORD) {
             rv = ESP_CONTROL_INVALID_PASSWORD;
          }
-         else if(ans->resp_connect_ap->resp == CTRL_ERR_NO_AP_FOUND) {
+         else if(answer->resp_connect_ap->resp == CTRL_ERR_NO_AP_FOUND) {
             rv = ESP_CONTROL_ACCESS_POINT_NOT_FOUND;
          }
-         else if(ans->resp_connect_ap->resp != 0) {
+         else if(answer->resp_connect_ap->resp != 0) {
             rv = ESP_CONTROL_CTRL_ERROR;
          }
          else {
-            if(ans->resp_connect_ap->mac.data != nullptr) {
+            if(answer->resp_connect_ap->mac.data != nullptr) {
                copyData((uint8_t *)&(ap.out_mac), 
                         MAX_MAC_STR_LEN, 
-                        (uint8_t *)ans->resp_connect_ap->mac.data, 
-                        ans->resp_connect_ap->mac.len );
+                        (uint8_t *)answer->resp_connect_ap->mac.data, 
+                        answer->resp_connect_ap->mac.len );
             }
          }
       }
@@ -1143,13 +1146,13 @@ public:
 
 
    /* ----------------------------------------------------------------------- */
-   bool extractAccessPointList(CtrlMsg *ans, vector<wifi_scanlist_t>& l) {
+   bool extractAccessPointList(vector<wifi_scanlist_t>& l) {
    /* ----------------------------------------------------------------------- */
-      answer = ans;
-      if(checkResponsePayload<CtrlMsgRespScanResult>(ans, 
+      
+      if(checkResponsePayload<CtrlMsgRespScanResult>(answer, 
                                                     (int)CTRL_RESP_GET_AP_SCAN_LIST, 
-                                                    ans->resp_scan_ap_list)) {
-         CtrlMsgRespScanResult *rp = ans->resp_scan_ap_list;
+                                                    answer->resp_scan_ap_list)) {
+         CtrlMsgRespScanResult *rp = answer->resp_scan_ap_list;
          for(int i = 0; i < rp->count; i++) {
             wifi_scanlist_t sc;
             memset((void *)&sc,0x00,sizeof(sc));
