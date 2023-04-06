@@ -110,13 +110,9 @@ composta.build.float-abi=-mfloat-abi=hard
 composta.build.board=SANTIAGO_COMPOSTA
 composta.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
 composta.vid.0=0x2341
-composta.pid.0=0x0069
-composta.vid.1=0x2341
-composta.pid.1=0x0369
+composta.pid.0=0x1002
 composta.upload_port.0.vid=0x2341
-composta.upload_port.0.pid=0x0069
-composta.upload_port.1.vid=0x2341
-composta.upload_port.1.pid=0x0369
+composta.upload_port.0.pid=0x1002
 
 composta.compiler.fsp.defines={build.variant.path}/defines.txt
 composta.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -133,7 +129,7 @@ composta.upload.tool.default=bossac
 composta.upload.protocol=sam-ba
 composta.upload.transport=
 composta.upload.vid=0x2341
-composta.upload.pid=0x0369
+composta.upload.pid=0x1002
 composta.upload.use_1200bps_touch=true
 composta.upload.wait_for_upload_port=false
 composta.upload.native_usb=true
