@@ -24,9 +24,13 @@ queue<CMsg> CEspCom::to_ESP32_queue;
 queue<CMsg> CEspCom::from_ESP32_queue;
 
 /* -------------------------------------------------------------------------- */
-void CEspCom::send_msg_to_esp(CMsg &msg) {
+bool CEspCom::send_msg_to_esp(CMsg &msg) {
 /* -------------------------------------------------------------------------- */  
-   CEspCom::to_ESP32_queue.push(std::move(msg));
+   if(msg.is_valid()) {
+      CEspCom::to_ESP32_queue.push(std::move(msg));
+      return true;
+   }
+   return false;
 }
 
 /* -------------------------------------------------------------------------- */

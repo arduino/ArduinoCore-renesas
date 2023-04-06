@@ -97,37 +97,51 @@ public:
    void operator=(CEspControl const&)            = delete;
    ~CEspControl();
 
-   static uint8_t mac_address[WIFI_MAC_ADDRESS_DIM];
+   /* The following functions allow the user to control the ESP32 behaviour 
+      Each of this function has the last one parameter which is function callback
+      If that parameter is different from nullptr then a callback is automatically
+      set up and will be called when the answer to the request will arrive
+      If that parameter is a nullptr then the function will wait for the answer 
+      to arrive and the behaviour will be synchronous.
+      
+      ! IMPORTANT: It turns out that when callback are used the "get" parameters of 
+      the function are unavailable when the function returns. 
 
-   int getWifiMacAddress(WifiMode_t mode, char* mac, uint8_t mac_buf_size);
-   int setWifiMacAddress(WifiMode_t mode, const char* mac, uint8_t mac_buf_size);
-   int getWifiMode(WifiMode_t &mode);
-   int setWifiMode(WifiMode_t mode);
+      ! IMPORTANT: when callbacks are used it is user responsability to call
+                 communicateWithEsp() in order make the communication happen and 
+                 get the callback to eventually be called! */
 
-   int getAccessPointScanList(vector<wifi_scanlist_t>& l);
-   int connectAccessPoint(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval, wifi_ap_config_t &ap_out);
-   int getAccessPointConfig(wifi_ap_config_t &ap);
-   int disconnectAccessPoint();
+   int getWifiMacAddress(WifiMac_t& mac, EspCallback_f cb = nullptr);
+   int setWifiMacAddress(WifiMac_t& mac, EspCallback_f cb = nullptr);
+   int getWifiMode(WifiMode_t &mode, EspCallback_f cb = nullptr);
+   int setWifiMode(WifiMode_t mode, EspCallback_f cb = nullptr);
 
-   int getSoftAccessPointConfig(softap_config_t &sap_cfg);
-   int getSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l);
-   int setSoftAccessPointVndIe(wifi_softap_vendor_ie_t &vendor_ie);
-   int startSoftAccessPoint(softap_config_t &cfg);
-   int stopSoftAccessPoint();
+   int getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f cb = nullptr);
+   int connectAccessPoint(WifiApCfg_t &ap_cfg, EspCallback_f cb = nullptr);
+   int getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb = nullptr);
+   int disconnectAccessPoint(EspCallback_f cb = nullptr);
 
-   int configureHeartbeat(bool enable, int32_t duration);
+   int getSoftAccessPointConfig(SoftApCfg_t &sap_cfg, EspCallback_f cb = nullptr);
+   int getSoftConnectedStationList(vector<WifiConnectedSta_t>& l, EspCallback_f cb = nullptr);
+   int setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCallback_f cb = nullptr);
+   int startSoftAccessPoint(SoftApCfg_t &cfg, EspCallback_f cb = nullptr);
+   int stopSoftAccessPoint(EspCallback_f cb = nullptr);
    
-   int getPowerSaveMode(int &power_save_mode);
-   int setPowerSaveMode(int power_save_mode);
-
-   int beginOTA();
-   int endOTA();
-   int otaWrite(ota_write_t &ow);
-
+   /* heartbeat "answer" is always an event, a callback must be provide in any case */
+   int configureHeartbeat(HeartBeat_t &hb, EspCallback_f cb);
    
+   int getPowerSaveMode(int &power_save_mode, EspCallback_f cb = nullptr);
+   int setPowerSaveMode(int power_save_mode, EspCallback_f cb = nullptr);
 
-   int getWifiCurrentTxPower(uint32_t &max_power);
-   int setWifiMaxTxPower(uint32_t max_power);
+   int beginOTA(EspCallback_f cb = nullptr);
+   int endOTA(EspCallback_f cb = nullptr);
+   int otaWrite(OtaWrite_t &ow, EspCallback_f cb = nullptr);
+
+   int getWifiCurrentTxPower(uint32_t &max_power, EspCallback_f cb = nullptr);
+   int setWifiMaxTxPower(uint32_t max_power, EspCallback_f cb = nullptr);
+
+
+
 
 
    int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);
@@ -141,9 +155,16 @@ public:
    /* callback used to set netif_linkoutput_fn used by lwIP to send packet on
       the physical interface */
    static err_t lwip_output_wifi(struct netif *netif, struct pbuf *p);
-
+   
+   /* timeout for synchronous answer */
+   void setTimeout_ms(uint32_t tout) {timeout_ms = tout; }
+   uint32_t getTimeout_ms() { return timeout_ms; }
 private:
+   uint32_t timeout_ms;
    CEspControl();
+
+   void prepare_and_send_request(AppMsgId_e id, int& res, void *arg, EspCallback_f cb, CCtrlMsgWrapper& rv);
+
    /* dispatches the received message to one of the other handler function below*/
    int process_msgs_received(CCtrlMsgWrapper *ans);
    /* process ctrl messages */
@@ -156,7 +177,7 @@ private:
    int process_net_messages(CCtrlMsgWrapper *ans);
    /* process test messages */
    int process_test_messages(CCtrlMsgWrapper* ans);
-   int perform_esp_communication(CMsg& msg,  CCtrlMsgWrapper* ans);
+   int wait_for_answer(CCtrlMsgWrapper* ans);
    int send_net_packet(CMsg& msg);
 
 

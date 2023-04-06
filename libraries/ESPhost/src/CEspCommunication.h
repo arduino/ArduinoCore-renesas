@@ -38,7 +38,7 @@ private:
    static queue<CMsg> from_ESP32_queue;
 public:
    /* application layer call this function when wants to send a message to esp*/
-   static void send_msg_to_esp(CMsg &msg);
+   static bool send_msg_to_esp(CMsg &msg);
    /* application layer call this function when wants to know if a message 
       from esp is available (function returns true in that case and false 
       otherwise) */

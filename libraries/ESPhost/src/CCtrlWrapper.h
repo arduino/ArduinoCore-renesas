@@ -1,5 +1,30 @@
+/* ########################################################################## */
+/* - File: CCtrlWrapper.h
+   - Copyright (c): 2023 Arduino srl.
+   - Author: Daniele Aimo (d.aimo@arduino.cc)
+
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+     version 2.1 of the License, or (at your option) any later version.
+
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Lesser General Public License for more details.
+
+     You should have received a copy of the GNU Lesser General Public
+     License along with this library; if not, write to the Free Software
+     Foundation, Inc.,51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA */
+/* ########################################################################## */
+
 #ifndef _ARDUINO_ESP_CONTROL_REQUEST_CLASS_H
 #define _ARDUINO_ESP_CONTROL_REQUEST_CLASS_H
+
+
+
+/* This class wraps the original ESP-host code */
+
 
 #include <vector>
 
@@ -29,13 +54,8 @@ using namespace std;
 #define ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB            3
 #define ESP_CONTROL_EVENT_MESSAGE_RX                    4
 #define ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED          5
+#define ESP_CONTROL_MSG_SENT_AND_CB_SET_UP              6
 
-
-
-
-
-#define SUCCESS                              0
-#define FAILURE                              -1
 
 #define MAX_SSID_LENGTH              32
 #define MIN_PWD_LENGTH               8
@@ -54,25 +74,8 @@ using namespace std;
 #define STATUS_LENGTH                        14
 #define VENDOR_OUI_BUF                       3
 
-#define CALLBACK_SET_SUCCESS                 0
-#define CALLBACK_AVAILABLE                   0
-#define CALLBACK_NOT_REGISTERED              -1
-#define MSG_ID_OUT_OF_ORDER                  -2
-
-/* If request is already being served and
- * another request is pending, time period for
- * which new request will wait in seconds
- * */
-#define WAIT_TIME_B2B_CTRL_REQ               5
-#define DEFAULT_CTRL_RESP_TIMEOUT            30
-#define DEFAULT_CTRL_RESP_AP_SCAN_TIMEOUT    (60*3)
-
-
-#define SUCCESS_STR                          "success"
-#define FAILURE_STR                          "failure"
-#define NOT_CONNECTED_STR                    "not_connected"
-
-/*---- Control structures ----*/
+#define SUCCESS                              0
+#define FAILURE                              -1
 
 enum {
    CTRL_ERR_NOT_CONNECTED = 1,
@@ -92,16 +95,6 @@ enum {
    OUT_OF_RANGE
 };
 
-
-typedef enum {
-
-   CTRL_MSGTYPE_INVALID = CTRL_MSG_TYPE__MsgType_Invalid,
-   CTRL_REQ = CTRL_MSG_TYPE__Req,
-   CTRL_RESP = CTRL_MSG_TYPE__Resp,
-   CTRL_EVENT = CTRL_MSG_TYPE__Event,
-   CTRL_MSGTYPE_MAX = CTRL_MSG_TYPE__MsgType_Max,
-
-} AppMsgType_e;
 
 typedef enum {
 
@@ -196,74 +189,14 @@ typedef enum {
 } AppMsgId_e;
 
 
-typedef struct {
-   /* Should be set to WIFI_VENDOR_IE_ELEMENT_ID (0xDD) */
-   uint8_t element_id;
-   /* Len of all bytes in the element data
-    * following this field. Minimum 4 */
-   uint8_t length;
-   /* Vendor identifier (OUI) */
-   uint8_t vendor_oui[VENDOR_OUI_BUF];
-   /* Vendor-specific OUI type */
-   uint8_t vendor_oui_type;
-   /*length of payload field*/
-   uint16_t payload_len;
-   /* Payload. Length is equal to value in 'length' field, minus 4 */
-   uint8_t* payload;
 
-} vendor_ie_data_t;
 
-typedef struct {
-   uint8_t bssid[BSSID_LENGTH];
-   int rssi;
-} wifi_connected_stations_list_t;
 
-typedef struct {
-   int count;
-   /* dynamic list*/
-   wifi_connected_stations_list_t *out_list;
-} wifi_softap_conn_sta_list_t;
 
-typedef struct {
-   int ps_mode;
-} wifi_power_save_t;
 
-typedef enum {
-   WIFI_VND_IE_TYPE_BEACON      = CTRL__VENDOR_IETYPE__Beacon,
-   WIFI_VND_IE_TYPE_PROBE_REQ   = CTRL__VENDOR_IETYPE__Probe_req,
-   WIFI_VND_IE_TYPE_PROBE_RESP  = CTRL__VENDOR_IETYPE__Probe_resp,
-   WIFI_VND_IE_TYPE_ASSOC_REQ   = CTRL__VENDOR_IETYPE__Assoc_req,
-   WIFI_VND_IE_TYPE_ASSOC_RESP  = CTRL__VENDOR_IETYPE__Assoc_resp,
-} wifi_vendor_ie_type_e;
 
-typedef enum {
-   WIFI_VND_IE_ID_0 = CTRL__VENDOR_IEID__ID_0,
-   WIFI_VND_IE_ID_1 = CTRL__VENDOR_IEID__ID_1,
-} wifi_vendor_ie_id_e;
 
-typedef struct {
-   bool enable;
-   wifi_vendor_ie_type_e type;
-   wifi_vendor_ie_id_e idx;
-   vendor_ie_data_t vnd_ie;
-} wifi_softap_vendor_ie_t;
 
-typedef struct {
-   uint8_t *ota_data;
-   uint32_t ota_data_len;
-} ota_write_t;
-
-typedef struct {
-   int power;
-} wifi_tx_power_t;
-
-typedef struct {
-   /* event */
-   uint32_t hb_num;
-   /* Req */
-   uint8_t enable;
-   uint32_t duration;
-} event_heartbeat_t;
 
 typedef struct {
    int32_t reason;
@@ -273,95 +206,16 @@ typedef struct {
 
 
 
-typedef enum {
-   WIFI_AUTH_OPEN = CTRL__WIFI_SEC_PROT__Open,
-   WIFI_AUTH_WEP = CTRL__WIFI_SEC_PROT__WEP,
-   WIFI_AUTH_WPA_PSK = CTRL__WIFI_SEC_PROT__WPA_PSK,
-   WIFI_AUTH_WPA2_PSK = CTRL__WIFI_SEC_PROT__WPA2_PSK,
-   WIFI_AUTH_WPA_WPA2_PSK = CTRL__WIFI_SEC_PROT__WPA_WPA2_PSK,
-   WIFI_AUTH_WPA2_ENTERPRISE = CTRL__WIFI_SEC_PROT__WPA2_ENTERPRISE,
-   WIFI_AUTH_WPA3_PSK = CTRL__WIFI_SEC_PROT__WPA3_PSK,
-   WIFI_AUTH_WPA2_WPA3_PSK = CTRL__WIFI_SEC_PROT__WPA2_WPA3_PSK,
-   WIFI_AUTH_MAX,
-} wifi_auth_mode_e;
-
-typedef enum {
-   WIFI_BW_HT20 = CTRL__WIFI_BW__HT20,
-   WIFI_BW_HT40 = CTRL__WIFI_BW__HT40,
-} wifi_bandwidth_e;
-
-typedef enum {
-   WIFI_PS_MIN_MODEM = CTRL__WIFI_POWER_SAVE__MIN_MODEM,
-   WIFI_PS_MAX_MODEM = CTRL__WIFI_POWER_SAVE__MAX_MODEM,
-   WIFI_PS_INVALID,
-} wifi_ps_type_e;
 
 
 
 
 
-typedef struct {
-   uint8_t ssid[SSID_LENGTH];
-   uint8_t bssid[BSSID_LENGTH];
-   int rssi;
-   int channel;
-   int encryption_mode;
-} wifi_scanlist_t;
 
-
-
-typedef struct {
-   int mode;
-   char mac[MAX_MAC_STR_LEN];
-} wifi_mac_t;
-
-typedef struct {
-   int mode;
-} wifi_mode_t;
-
-typedef struct {
-   uint8_t ssid[SSID_LENGTH];
-   uint8_t pwd[PASSWORD_LENGTH];
-   uint8_t bssid[BSSID_LENGTH];
-   bool is_wpa3_supported;
-   int rssi;
-   int channel;
-   int encryption_mode;
-   uint16_t listen_interval;
-   char status[STATUS_LENGTH];
-   char out_mac[MAX_MAC_STR_LEN];
-} wifi_ap_config_t;
-
-typedef struct {
-   uint8_t ssid[SSID_LENGTH];
-   uint8_t pwd[PASSWORD_LENGTH];
-   int channel;
-   int encryption_mode;
-   int max_connections;
-   bool ssid_hidden;
-   wifi_bandwidth_e bandwidth;
-   char out_mac[MAX_MAC_STR_LEN];
-} softap_config_t;
-
-typedef struct {
-   int count;
-   /* dynamic size */
-   wifi_scanlist_t *out_list;
-} wifi_ap_scan_list_t;
-
-
-
-
-#define PRIO_Q_SERIAL                             0
-#define PRIO_Q_BT                                 1
-#define PRIO_Q_OTHERS                             2
-#define MAX_PRIORITY_QUEUES                       3
 
 /* ESP Payload Header Flags */
 #define MORE_FRAGMENT                             (1 << 0)
 
-/* Serial interface */
-#define SERIAL_IF_FILE                            "/dev/esps0"
 
 
 
@@ -413,6 +267,132 @@ struct esp_priv_event {
 }__attribute__((packed));
 
 
+/* -------------------------------------------------------------------------- */
+typedef enum {
+   WIFI_PS_MIN_MODEM = CTRL__WIFI_POWER_SAVE__MIN_MODEM,
+   WIFI_PS_MAX_MODEM = CTRL__WIFI_POWER_SAVE__MAX_MODEM,
+   WIFI_PS_INVALID,
+} PowerSave_t;
+
+
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   /* event */
+   uint32_t hb_num;
+   /* Req */
+   uint8_t enable;
+   uint32_t duration;
+} HeartBeat_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   /* Should be set to WIFI_VENDOR_IE_ELEMENT_ID (0xDD) */
+   uint8_t element_id;
+   /* Len of all bytes in the element data
+    * following this field. Minimum 4 */
+   uint8_t length;
+   /* Vendor identifier (OUI) */
+   uint8_t vendor_oui[VENDOR_OUI_BUF];
+   /* Vendor-specific OUI type */
+   uint8_t vendor_oui_type;
+   /*length of payload field*/
+   uint16_t payload_len;
+   /* Payload. Length is equal to value in 'length' field, minus 4 */
+   uint8_t* payload;
+} VendorIeData_t;
+
+/* -------------------------------------------------------------------------- */
+typedef enum {
+   WIFI_VND_IE_TYPE_BEACON      = CTRL__VENDOR_IETYPE__Beacon,
+   WIFI_VND_IE_TYPE_PROBE_REQ   = CTRL__VENDOR_IETYPE__Probe_req,
+   WIFI_VND_IE_TYPE_PROBE_RESP  = CTRL__VENDOR_IETYPE__Probe_resp,
+   WIFI_VND_IE_TYPE_ASSOC_REQ   = CTRL__VENDOR_IETYPE__Assoc_req,
+   WIFI_VND_IE_TYPE_ASSOC_RESP  = CTRL__VENDOR_IETYPE__Assoc_resp,
+} VendorIeType_t;
+
+/* -------------------------------------------------------------------------- */
+typedef enum {
+   WIFI_VND_IE_ID_0 = CTRL__VENDOR_IEID__ID_0,
+   WIFI_VND_IE_ID_1 = CTRL__VENDOR_IEID__ID_1,
+} VendorIeId_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   bool enable;
+   VendorIeType_t type;
+   VendorIeId_t idx;
+   VendorIeData_t vnd_ie;
+} WifiVendorSoftApIe_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   uint8_t bssid[BSSID_LENGTH];
+   int rssi;
+} WifiConnectedSta_t;
+
+/* -------------------------------------------------------------------------- */
+typedef enum {
+   WIFI_BW_HT20 = CTRL__WIFI_BW__HT20,
+   WIFI_BW_HT40 = CTRL__WIFI_BW__HT40,
+} WifiBandwidth_t;
+
+/* -------------------------------------------------------------------------- */
+typedef enum {
+   WIFI_AUTH_OPEN = CTRL__WIFI_SEC_PROT__Open,
+   WIFI_AUTH_WEP = CTRL__WIFI_SEC_PROT__WEP,
+   WIFI_AUTH_WPA_PSK = CTRL__WIFI_SEC_PROT__WPA_PSK,
+   WIFI_AUTH_WPA2_PSK = CTRL__WIFI_SEC_PROT__WPA2_PSK,
+   WIFI_AUTH_WPA_WPA2_PSK = CTRL__WIFI_SEC_PROT__WPA_WPA2_PSK,
+   WIFI_AUTH_WPA2_ENTERPRISE = CTRL__WIFI_SEC_PROT__WPA2_ENTERPRISE,
+   WIFI_AUTH_WPA3_PSK = CTRL__WIFI_SEC_PROT__WPA3_PSK,
+   WIFI_AUTH_WPA2_WPA3_PSK = CTRL__WIFI_SEC_PROT__WPA2_WPA3_PSK,
+   WIFI_AUTH_MAX,
+} WifiEnryption_t;
+
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   uint8_t ssid[SSID_LENGTH];
+   uint8_t pwd[PASSWORD_LENGTH];
+   int channel;
+   WifiEnryption_t encryption_mode;
+   int max_connections;
+   bool ssid_hidden;
+   WifiBandwidth_t bandwidth;
+   char out_mac[MAX_MAC_STR_LEN];
+} SoftApCfg_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   uint8_t *ota_data;
+   uint32_t ota_data_len;
+} OtaWrite_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   uint8_t ssid[SSID_LENGTH];
+   uint8_t bssid[BSSID_LENGTH];
+   int rssi;
+   int channel;
+   int encryption_mode;
+} AccessPoint_t;
+
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   uint8_t ssid[SSID_LENGTH];
+   uint8_t pwd[PASSWORD_LENGTH];
+   uint8_t bssid[BSSID_LENGTH];
+   bool is_wpa3_supported;
+   int rssi;
+   int channel;
+   int encryption_mode;
+   uint16_t listen_interval;
+   char status[STATUS_LENGTH];
+   char out_mac[MAX_MAC_STR_LEN];
+} WifiApCfg_t;
+
+/* -------------------------------------------------------------------------- */
 typedef enum {
    WIFI_MODE_NONE = CTRL__WIFI_MODE__NONE,
    WIFI_MODE_STA = CTRL__WIFI_MODE__STA,
@@ -421,44 +401,63 @@ typedef enum {
    WIFI_MODE_MAX
 } WifiMode_t;
 
+/* -------------------------------------------------------------------------- */
+typedef struct {
+   WifiMode_t mode;
+   char mac[MAX_MAC_STR_LEN];
+} WifiMac_t;
 
+/* -------------------------------------------------------------------------- */
 template<typename T>
-static bool checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_resp = false) {
-   bool rv = true;
+static int checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_resp = false) {
+/* -------------------------------------------------------------------------- */   
+   int rv = ESP_CONTROL_OK;
    if(ans == nullptr) {
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
-   if(ans->msg_id != (AppMsgId_e)req) {
-      return false;
+   if(ans->msg_id != (CtrlMsgId)req) {
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    if(payload == nullptr) {
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    if(check_resp) {
       if(payload->resp != 0) {
-         return false;
+         return ESP_CONTROL_OK;
+      }
+      else {
+         return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
       }
    }
-   return rv;
+   return ESP_CONTROL_OK;
 
 }
 
+/* -------------------------------------------------------------------------- */
 template<typename T>
 static T *initPayload(void (*init)(T *)) {
+/* -------------------------------------------------------------------------- */   
    /* allocate the payload */
    T*  rv = new T;
    /* call the init function for the payload */
    if(rv != nullptr) {  
-      if(rv != nullptr) {
+      if(init != nullptr) {
+         
          init(rv);
       }
    }
+   return rv;
 }
 
+class CCtrlMsgWrapper; 
+/* ----------------------------------------------------------------------- */
+template<typename T>
+CMsg getMsgv1(CCtrlMsgWrapper *req, T *payload_to_delete);
 
 
-
+/* -------------------------------------------------------------------------- */
 class CCtrlMsgWrapper {
+/* -------------------------------------------------------------------------- */   
 private:
    void *req_payload;
    CtrlMsg request;
@@ -485,6 +484,13 @@ private:
    }
 
 public:
+   bool isPayloadSet() { return payload_set; }
+   CtrlMsg *getRequest() {return &request; }
+
+   void setRequestId(int request_id) {
+      init_ctrl_msg(request_id);
+   }
+
     /* ----------------------------------------------------------------------- */
    CtrlMsg *getAnswerPtr() {return answer; }
     /* ----------------------------------------------------------------------- */
@@ -596,15 +602,15 @@ public:
    /* ----------------------------------------------------------------------- */
       payload_set = false;
       
-      req_payload = initPayload<CtrlMsgReqGetMacAddress>(ctrl_msg__req__get_mac_address__init);
+      CtrlMsgReqGetMacAddress *payload = initPayload<CtrlMsgReqGetMacAddress>(ctrl_msg__req__get_mac_address__init);
 
-      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
-         CtrlMsgReqGetMacAddress *payload = (CtrlMsgReqGetMacAddress*)req_payload;
+      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         
          request.req_get_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload_set = true;
       }
-      return getMsg();
+      return getMsgv1<CtrlMsgReqGetMacAddress>(this,payload);
    }
    
    /* ----------------------------------------------------------------------- */
@@ -634,16 +640,18 @@ public:
       req_payload = initPayload<CtrlMsgReqSetMode>(ctrl_msg__req__set_mode__init);
 
       if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         
          CtrlMsgReqSetMode *payload = (CtrlMsgReqSetMode *)req_payload;
          request.req_set_wifi_mode = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload_set = true;
+         
       }
       return getMsg();
    }
    
    /* ----------------------------------------------------------------------- */
-   CMsg setPowerSaveModeMsg(int power_save_mode) {
+   CMsg setPowerSaveModeMsg(PowerSave_t power_save_mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
       
@@ -659,7 +667,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   CMsg otaWriteMsg(ota_write_t &ow) {
+   CMsg otaWriteMsg(OtaWrite_t &ow) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
       
@@ -716,7 +724,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   CMsg setSoftAccessPointVndIeMsg(wifi_softap_vendor_ie_t &vendor_ie) {
+   CMsg setSoftAccessPointVndIeMsg(WifiVendorSoftApIe_t &vendor_ie) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
       
@@ -755,7 +763,7 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   CMsg startSoftAccessPointMsg(softap_config_t &cfg) {
+   CMsg startSoftAccessPointMsg(SoftApCfg_t &cfg) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
       
@@ -845,25 +853,27 @@ public:
     * ======================================================================= */
 
    /* ----------------------------------------------------------------------- */
-   bool extractMacAddress(char *mac_out, int mac_out_dim) {
+   int extractMacAddress(char *mac_out, int mac_out_dim) {
    /* ----------------------------------------------------------------------- */   
-      bool rv = false;
-      if(checkResponsePayload<CtrlMsgRespGetMacAddress>(answer, 
+      int rv = checkResponsePayload<CtrlMsgRespGetMacAddress>(answer, 
                                                         (int)CTRL_RESP_GET_MAC_ADDR, 
-                                                        answer->resp_get_mac_address)) {
+                                                        answer->resp_get_mac_address);
+      if(rv == ESP_CONTROL_OK) {
          
          if(answer->resp_get_mac_address->mac.data != nullptr) {
             copyData((uint8_t *)mac_out, 
                      mac_out_dim, 
                      answer->resp_get_mac_address->mac.data, 
                      answer->resp_get_mac_address->mac.len);
-            rv = true;
+         }
+         else {
+            rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
          }
       }
       return rv;
    }
    /* ----------------------------------------------------------------------- */
-   bool checkMacAddressSet() {
+   int checkMacAddressSet() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespSetMacAddress>(answer, 
@@ -872,35 +882,37 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractWifiMode(WifiMode_t &mode) {
+   int extractWifiMode(WifiMode_t &mode) {
    /* ----------------------------------------------------------------------- */   
       
       if(checkResponsePayload<CtrlMsgRespGetMode>(answer, 
                                                  (int)CTRL_RESP_GET_WIFI_MODE, 
-                                                 answer->resp_get_wifi_mode)) {
+                                                 answer->resp_get_wifi_mode) == ESP_CONTROL_OK) {
          mode = (WifiMode_t)answer->resp_get_wifi_mode->mode;
-         return true;
+         return ESP_CONTROL_OK;
       }
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointStarted(softap_config_t &sap_cfg) {     
+   int isSoftAccessPointStarted(SoftApCfg_t &sap_cfg) {     
    /* ----------------------------------------------------------------------- */ 
       
       if(checkResponsePayload<CtrlMsgRespStartSoftAP>(answer, 
                                                      (int)CTRL_RESP_START_SOFTAP, 
-                                                     answer->resp_start_softap)) {
+                                                     answer->resp_start_softap)  == ESP_CONTROL_OK ) {
          
          copyData((uint8_t*)sap_cfg.out_mac, 
                   MAX_MAC_STR_LEN, 
                   answer->resp_start_softap->mac.data,  
                   answer->resp_start_softap->mac.len );
+         return ESP_CONTROL_OK;
       }
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointVndIeSet() {
+   int isSoftAccessPointVndIeSet() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespSetSoftAPVendorSpecificIE>(answer, 
@@ -909,7 +921,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSetWifiModeResponse() {
+   int isSetWifiModeResponse() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespSetMode>(answer, 
@@ -918,7 +930,7 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   bool isAccessPointDisconnected() {
+   int isAccessPointDisconnected() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespGetStatus>(answer, 
@@ -927,7 +939,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isPowerSaveModeSet() {
+   int isPowerSaveModeSet() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespSetMode>(answer, 
@@ -936,7 +948,7 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   bool getOtaWriteResult() {
+   int getOtaWriteResult() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespOTAWrite>(answer, 
@@ -945,7 +957,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isOtaBegun() {
+   int isOtaBegun() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespOTABegin>(answer, 
@@ -954,7 +966,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isOtaEnded() {
+   int isOtaEnded() {
    /* ----------------------------------------------------------------------- */   
      
       return checkResponsePayload<CtrlMsgRespOTAEnd>(answer, 
@@ -963,7 +975,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool isSoftAccessPointStopped() {
+   int isSoftAccessPointStopped() {
    /* ----------------------------------------------------------------------- */   
       
       return checkResponsePayload<CtrlMsgRespGetStatus>(answer, 
@@ -981,16 +993,16 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractCurrentWifiTxPower( uint32_t &max_power) {
+   int extractCurrentWifiTxPower( uint32_t &max_power) {
    /* ----------------------------------------------------------------------- */   
      
       if(checkResponsePayload<CtrlMsgRespGetWifiCurrTxPower>(answer, 
                                                             (int)CTRL_RESP_GET_WIFI_CURR_TX_POWER, 
-                                                            answer->resp_get_wifi_curr_tx_power)) {
+                                                            answer->resp_get_wifi_curr_tx_power)  == ESP_CONTROL_OK ) {
          max_power = answer->resp_get_wifi_curr_tx_power->wifi_curr_tx_power;
-         return true;
+         return ESP_CONTROL_OK;
       }
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
 
    /* ----------------------------------------------------------------------- */
@@ -1000,7 +1012,7 @@ public:
       int rv = ESP_CONTROL_CTRL_ERROR;
       if(checkResponsePayload<CtrlMsgRespSetWifiMaxTxPower>(answer, 
                                                            (int)CTRL_RESP_SET_WIFI_MAX_TX_POWER, 
-                                                            answer->resp_set_wifi_max_tx_power)) {
+                                                            answer->resp_set_wifi_max_tx_power) == ESP_CONTROL_OK ) {
          if(answer->resp_set_wifi_max_tx_power->resp == FAILURE) {
             rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
          }
@@ -1015,46 +1027,47 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   bool getPowerSaveModeSet(int &power_save_mode) {
+   int getPowerSaveModeSet(int &power_save_mode) {
    /* ----------------------------------------------------------------------- */   
       
       if(checkResponsePayload<CtrlMsgRespGetMode>(answer, 
                                                  (int)CTRL_RESP_GET_PS_MODE, 
-                                                 answer->resp_get_power_save_mode)) {
+                                                 answer->resp_get_power_save_mode) == ESP_CONTROL_OK ) {
          power_save_mode = answer->resp_get_power_save_mode->mode;
-         return true;
+         return ESP_CONTROL_OK;
       }
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    
    /* ----------------------------------------------------------------------- */
-   bool extractSoftConnectedStationList(vector<wifi_connected_stations_list_t>& l) {
+   int extractSoftConnectedStationList(vector<WifiConnectedSta_t>& l) {
    /* ----------------------------------------------------------------------- */   
       
       if(checkResponsePayload<CtrlMsgRespSoftAPConnectedSTA>(answer, 
                                                             (int)CTRL_RESP_GET_SOFTAP_CONN_STA_LIST, 
-                                                            answer->resp_softap_connected_stas_list)) {
+                                                            answer->resp_softap_connected_stas_list)== ESP_CONTROL_OK ) {
 
          CtrlMsgRespSoftAPConnectedSTA *rp = answer->resp_softap_connected_stas_list;
 
          for(int i = 0; i < rp->num; i++) {
-            wifi_connected_stations_list_t cs;
+            WifiConnectedSta_t cs;
             memset((void *)&cs,0x00,sizeof(cs));
             copyData((uint8_t *)&(cs.bssid), BSSID_LENGTH, rp->stations[i]->mac.data, rp->stations[i]->mac.len );
             cs.rssi = rp->stations[i]->rssi;  
             l.push_back(cs);
          }
-         return true;
+         return ESP_CONTROL_OK;
       }
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
 
    /* ----------------------------------------------------------------------- */
-   bool extractSoftAccessPointConfig(softap_config_t &sap_cfg) {
+   int extractSoftAccessPointConfig(SoftApCfg_t &sap_cfg) {
    /* ----------------------------------------------------------------------- */   
       
       if(checkResponsePayload<CtrlMsgRespGetSoftAPConfig>(answer, 
                                                          (int)CTRL_RESP_GET_SOFTAP_CONFIG, 
-                                                         answer->resp_get_softap_config)) {
+                                                         answer->resp_get_softap_config) == ESP_CONTROL_OK ) {
          copyData((uint8_t *)&(sap_cfg.ssid), 
                   SSID_LENGTH, 
                   answer->resp_get_softap_config->ssid.data, 
@@ -1064,22 +1077,24 @@ public:
                   answer->resp_get_softap_config->pwd.data, 
                   answer->resp_get_softap_config->pwd.len );
          sap_cfg.channel = answer->resp_get_softap_config->chnl;
-         sap_cfg.encryption_mode = answer->resp_get_softap_config->sec_prot;
+         sap_cfg.encryption_mode = (WifiEnryption_t)answer->resp_get_softap_config->sec_prot;
          sap_cfg.max_connections = answer->resp_get_softap_config->max_conn;
          sap_cfg.ssid_hidden = answer->resp_get_softap_config->ssid_hidden;
-         sap_cfg.bandwidth = (wifi_bandwidth_e)answer->resp_get_softap_config->bw;
+         sap_cfg.bandwidth = (WifiBandwidth_t)answer->resp_get_softap_config->bw;
+         return ESP_CONTROL_OK;
       }
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
 
    }
    
    /* ----------------------------------------------------------------------- */
-   int extractAccessPointConfig(wifi_ap_config_t &ap) {
+   int extractAccessPointConfig(WifiApCfg_t &ap) {
    /* ----------------------------------------------------------------------- */   
       
       int rv = ESP_CONTROL_CTRL_ERROR;
       if(checkResponsePayload<CtrlMsgRespGetAPConfig>(answer, 
                                                      (int)CTRL_RESP_GET_AP_CONFIG, 
-                                                      answer->resp_get_ap_config), false) {
+                                                      answer->resp_get_ap_config, false) == ESP_CONTROL_OK  ){
          if(answer->resp_get_ap_config->resp == CTRL_ERR_NOT_CONNECTED) {
             rv = ESP_CONTROL_ACCESS_POINT_NOT_CONNECTED;
          }
@@ -1099,26 +1114,28 @@ public:
             ap.channel         = answer->resp_get_ap_config->chnl;
             ap.rssi            = answer->resp_get_ap_config->rssi;
             ap.encryption_mode = answer->resp_get_ap_config->sec_prot;
+            rv = ESP_CONTROL_OK;
          }
          else {
             copyData((uint8_t *)&(ap.status), 
                      STATUS_LENGTH, 
                      (uint8_t *)"FAILURE", 
                      strlen("FAILURE") );
+            rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
          }
       }
       return rv;
    }
 
    /* ----------------------------------------------------------------------- */
-   int isAccessPointConnected(wifi_ap_config_t &ap) {
+   int isAccessPointConnected(WifiApCfg_t &ap) {
    /* ----------------------------------------------------------------------- */
       
       int rv = ESP_CONTROL_CTRL_ERROR;
       if(checkResponsePayload<CtrlMsgRespConnectAP>(answer, 
                                                    (int)CTRL_RESP_CONNECT_AP, 
-                                                   answer->resp_connect_ap), 
-                                                   false) {
+                                                   answer->resp_connect_ap, 
+                                                   false) == ESP_CONTROL_OK) {
 
          if(answer->resp_connect_ap->resp == CTRL_ERR_INVALID_PASSWORD) {
             rv = ESP_CONTROL_INVALID_PASSWORD;
@@ -1135,6 +1152,10 @@ public:
                         MAX_MAC_STR_LEN, 
                         (uint8_t *)answer->resp_connect_ap->mac.data, 
                         answer->resp_connect_ap->mac.len );
+               rv = ESP_CONTROL_OK;
+            }
+            else {
+               rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
             }
          }
       }
@@ -1143,15 +1164,15 @@ public:
 
 
    /* ----------------------------------------------------------------------- */
-   bool extractAccessPointList(vector<wifi_scanlist_t>& l) {
+   int extractAccessPointList(vector<AccessPoint_t>& l) {
    /* ----------------------------------------------------------------------- */
       
       if(checkResponsePayload<CtrlMsgRespScanResult>(answer, 
                                                     (int)CTRL_RESP_GET_AP_SCAN_LIST, 
-                                                    answer->resp_scan_ap_list)) {
+                                                    answer->resp_scan_ap_list) == ESP_CONTROL_OK ) {
          CtrlMsgRespScanResult *rp = answer->resp_scan_ap_list;
          for(int i = 0; i < rp->count; i++) {
-            wifi_scanlist_t sc;
+            AccessPoint_t sc;
             memset((void *)&sc,0x00,sizeof(sc));
 
             if(rp->entries[i]->ssid.len) {
@@ -1170,14 +1191,34 @@ public:
 
             l.push_back(sc);
          }
-         return true;
+         return ESP_CONTROL_OK;
       }
-      return false;
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    
 
 };
 
-
+template<typename T>
+CMsg getMsgv1(CCtrlMsgWrapper *req, T *payload_to_delete) {
+/* ----------------------------------------------------------------------- */   
+   int protobuf_len = ctrl_msg__get_packed_size(req->getRequest());
+   CMsg msg(protobuf_len);
+   bool ok = false;
+   if(msg.is_valid() && req->isPayloadSet()){
+      /* pack request into the message */
+      ctrl_msg__pack(req->getRequest(), msg.get_protobuf_ptr());
+      msg.set_tlv_header(CTRL_EP_NAME_RESP);
+      msg.set_payload_header(ESP_SERIAL_IF, 0);
+      ok = true;
+   }
+   delete (T *)payload_to_delete;
+   if(ok) {
+      return msg;
+   }
+   else {
+      return CMsg(0);
+   }
+}
 
 #endif
