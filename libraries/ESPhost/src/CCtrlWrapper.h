@@ -10,6 +10,8 @@ using namespace std;
 #include "CMsg.h"
 
 /* error return value */
+#define ESP_CONTROL_ERROR_WHILE_PROCESS_CTRL_MSG      -11
+#define ESP_CONTROL_UNABLE_TO_CONVERT_CMSG            -10
 #define ESP_CONTROL_WRONG_REQUEST_INVALID_MSG          -9
 #define ESP_CONTROL_MAX_WIFI_POWER_OUT_OF_RANGE        -8
 #define ESP_CONTROL_ACCESS_POINT_NOT_FOUND             -7
@@ -498,14 +500,24 @@ static bool checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_r
 
 }
 
-
-
-
-
 template<typename T>
+static T *initPayload(void (*init)(T *)) {
+   /* allocate the payload */
+   T*  rv = new T;
+   /* call the init function for the payload */
+   if(rv != nullptr) {  
+      if(rv != nullptr) {
+         init(rv);
+      }
+   }
+}
+
+
+
+
 class CCtrlMsgWrapper {
 private:
-   T *payload;
+   void *req_payload;
    CtrlMsg request;
    CtrlMsg *answer;
    bool payload_set;
@@ -530,8 +542,27 @@ private:
    }
 
 public:
-   CtrlMsg **getAnswerPtrAddress() {return &answer; }
+    /* ----------------------------------------------------------------------- */
+   CtrlMsg *getAnswerPtr() {return answer; }
+    /* ----------------------------------------------------------------------- */
 
+    /* ----------------------------------------------------------------------- */
+   CtrlMsgType getType() {
+   /* ----------------------------------------------------------------------- */  
+      if(answer != nullptr) {
+         return answer->msg_type;
+      }
+      return CTRL_MSG_TYPE__MsgType_Invalid;
+   }
+
+   /* ----------------------------------------------------------------------- */
+   CtrlMsgId getId() {
+   /* ----------------------------------------------------------------------- */   
+      if(answer != nullptr) {
+         return answer->msg_id;
+      }
+      return CTRL_MSG_ID__MsgId_Invalid;
+   }
 
    /* ----------------------------------------------------------------------- */
    static CMsg getNetIfMsg(ESP_INTERFACE_TYPE type, uint8_t num, uint16_t dim) {
@@ -548,10 +579,10 @@ public:
    }
 
    /* ----------------------------------------------------------------------- */
-   static CtrlMsg *CMsg2CtrlMsg(CMsg& msg) {
+   bool extractFromMsg(CMsg& msg) {
    /* ----------------------------------------------------------------------- */   
       static CMsg msg_accumulator;
-      CtrlMsg *rv = nullptr;
+      bool rv = false;
       /* need to save the more message here because msg is deleted in add_msg function
          and only the payload is copied so that the flags are lost */
       bool more_msg = msg.get_flags() & MORE_FRAGMENT;
@@ -560,42 +591,34 @@ public:
          /* there a not more fragment to wait for -> process the message */
          if(msg_accumulator.verify_tlv_header()) {
             /* header is correct */
-            rv = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
+            answer = ctrl_msg__unpack(NULL, msg_accumulator.get_protobuf_dim(), msg_accumulator.get_protobuf_ptr());
+            rv = true;
          }
          msg_accumulator.clear();
       }
       return rv;
    }
    /* ----------------------------------------------------------------------- */
-   T* getPayload()  {
+   void* getPayload()  {
    /* ----------------------------------------------------------------------- */   
-      return payload;
+      return req_payload;
    }
    /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper()  = delete;
+   CCtrlMsgWrapper()  : req_payload(nullptr), answer(nullptr) { }
+   
+
+
    /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper(int request_id) : payload(nullptr), answer(nullptr) {
+   CCtrlMsgWrapper(int request_id) : req_payload(nullptr), answer(nullptr) {
    /* ----------------------------------------------------------------------- */   
       init_ctrl_msg(request_id);
    }
-   /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper(int request_id, void (*init)(T *)) : answer(nullptr) {
-   /* ----------------------------------------------------------------------- */
-      init_ctrl_msg(request_id);
-      /* allocate the payload */
-      payload = new T;
-      /* call the init function for the payload */
-      if(payload != nullptr) {  
-         if(init != nullptr) {
-            init(payload);
-         }
-      }
-   }
+   
    /* ----------------------------------------------------------------------- */
    ~CCtrlMsgWrapper() {
    /* ----------------------------------------------------------------------- */
-      if(payload != nullptr) {
-         delete payload;
+      if(req_payload != nullptr) {
+         delete req_payload;
       }
       if(answer != nullptr) {
          Serial.println("THE answer has been FREE_UNPACKED!");
@@ -629,8 +652,11 @@ public:
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      Serial.println((int)mode);
-      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+      
+      req_payload = initPayload<CtrlMsgReqGetMacAddress>(ctrl_msg__req__get_mac_address__init);
+
+      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         CtrlMsgReqGetMacAddress *payload = (CtrlMsgReqGetMacAddress*)req_payload;
          request.req_get_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload_set = true;
@@ -642,8 +668,12 @@ public:
    CMsg setWifiMacAddressMsg(WifiMode_t mode, const char *mac, uint8_t mac_len) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE 
+      
+      req_payload = initPayload<CtrlMsgReqSetMacAddress>(ctrl_msg__req__set_mac_address__init);
+      
+      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE 
          && mac != nullptr && mac_len < MAX_MAC_STR_LEN) {
+         CtrlMsgReqSetMacAddress *payload = (CtrlMsgReqSetMacAddress*)req_payload;
          request.req_set_mac_address = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload->mac.len = (mac_len < MAX_MAC_STR_LEN) ? mac_len : MAX_MAC_STR_LEN;
@@ -657,7 +687,11 @@ public:
    CMsg setWifiModeMsg(WifiMode_t mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+      
+      req_payload = initPayload<CtrlMsgReqSetMode>(ctrl_msg__req__set_mode__init);
+
+      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         CtrlMsgReqSetMode *payload = (CtrlMsgReqSetMode *)req_payload;
          request.req_set_wifi_mode = payload;
          payload->mode = (CtrlWifiMode)mode;
          payload_set = true;
@@ -668,8 +702,12 @@ public:
    /* ----------------------------------------------------------------------- */
    CMsg setPowerSaveModeMsg(int power_save_mode) {
    /* ----------------------------------------------------------------------- */
-       payload_set = false;
-      if(payload != nullptr && power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
+      payload_set = false;
+      
+      req_payload = initPayload<CtrlMsgReqSetMode>(ctrl_msg__req__set_mode__init);
+
+      if(req_payload != nullptr && power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
+         CtrlMsgReqSetMode *payload = (CtrlMsgReqSetMode *)req_payload;
          request.req_set_power_save_mode = payload;
          payload->mode = (CtrlWifiPowerSave)power_save_mode;
          payload_set = true;
@@ -681,7 +719,10 @@ public:
    CMsg otaWriteMsg(ota_write_t &ow) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr) {
+      
+      req_payload = initPayload<CtrlMsgReqOTAWrite>(ctrl_msg__req__otawrite__init);
+      if(req_payload != nullptr) {
+         CtrlMsgReqOTAWrite *payload = (CtrlMsgReqOTAWrite *)req_payload;
          request.req_ota_write = payload;
          payload->ota_data.data = ow.ota_data;
          payload->ota_data.len = ow.ota_data_len;
@@ -695,9 +736,12 @@ public:
    CMsg getConnectAccessPointMsg(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr) {
+      
+      req_payload = initPayload<CtrlMsgReqConnectAP>(ctrl_msg__req__connect_ap__init);
+      if(req_payload != nullptr) {
+         CtrlMsgReqConnectAP *payload = (CtrlMsgReqConnectAP *)req_payload;
          request.req_connect_ap = payload;
-
+         
          if(ssid != nullptr && strlen(ssid) <=  MAX_SSID_LENGTH &&
             pwd !=nullptr && strlen(pwd) <= MAX_PWD_LENGTH &&
             bssid != nullptr && strlen(bssid) <= MAX_MAC_STR_LEN) {
@@ -717,7 +761,10 @@ public:
    CMsg setWifiMaxTxPowerMsg(uint32_t max_power) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr) {
+      
+      req_payload = initPayload<CtrlMsgReqSetWifiMaxTxPower>(ctrl_msg__req__set_wifi_max_tx_power__init);
+      if(req_payload != nullptr) {
+         CtrlMsgReqSetWifiMaxTxPower *payload = (CtrlMsgReqSetWifiMaxTxPower *)req_payload;
          request.req_set_wifi_max_tx_power = payload;
          payload->wifi_max_tx_power = max_power;
          payload_set = true;
@@ -729,7 +776,10 @@ public:
    CMsg setSoftAccessPointVndIeMsg(wifi_softap_vendor_ie_t &vendor_ie) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      if(payload != nullptr) {
+      
+      req_payload = initPayload<CtrlMsgReqSetSoftAPVendorSpecificIE>(ctrl_msg__req__set_soft_apvendor_specific_ie__init);
+      if(req_payload != nullptr) {
+         CtrlMsgReqSetSoftAPVendorSpecificIE *payload = (CtrlMsgReqSetSoftAPVendorSpecificIE *)req_payload;
          if(vendor_ie.type <= WIFI_VND_IE_TYPE_ASSOC_RESP && 
             vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && 
             vendor_ie.idx <= WIFI_VND_IE_ID_1 && 
@@ -765,6 +815,9 @@ public:
    CMsg startSoftAccessPointMsg(softap_config_t &cfg) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
+      
+      req_payload = initPayload<CtrlMsgReqStartSoftAP>(ctrl_msg__req__start_soft_ap__init);
+
       bool cfg_ok = true;
 
       if(strlen((char *)&cfg.ssid) > MAX_SSID_LENGTH  ||
@@ -809,7 +862,8 @@ public:
       }
       
          /* ... all seems to be correct ... */
-      if(payload != nullptr && cfg_ok) {
+      if(req_payload != nullptr && cfg_ok) {
+         CtrlMsgReqStartSoftAP *payload = (CtrlMsgReqStartSoftAP *)req_payload;
          payload->ssid = (char *)&cfg.ssid;
          payload->pwd = (char *)(char *)&cfg.pwd;
          payload->chnl = cfg.channel;
@@ -828,7 +882,10 @@ public:
    CMsg  configureHeartbeatMsg(bool enable, int32_t duration) {
    /* ----------------------------------------------------------------------- */   
       payload_set = false;
-      if(payload != nullptr) {
+      
+      req_payload = initPayload<CtrlMsgReqConfigHeartbeat>(ctrl_msg__req__config_heartbeat__init);
+      if(req_payload != nullptr) {
+         CtrlMsgReqConfigHeartbeat *payload = (CtrlMsgReqConfigHeartbeat *)req_payload;
          payload->enable = enable;
          payload->duration = duration;
          payload_set = true; 
@@ -842,9 +899,6 @@ public:
    /* ======================================================================= 
     * The following functions are ment to extract information from CtrlMsg
     * received from ESP
-    * The CtrlMsg in this case has been extracted from a protobuf and needs 
-    * to be deleted, so each function save the CtrlMsg pointer to be deleted
-    * when the distructor is called 
     * ======================================================================= */
 
    /* ----------------------------------------------------------------------- */

@@ -39,9 +39,9 @@
 
 #include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
-#include "esp_host_callbacks.h"
 #include "esp_host_spi_driver.h"
 #include "CNetIf.h"
+#include "CEspCbks.h"
 
 #include "lwip/include/lwip/netif.h"
 
@@ -144,11 +144,19 @@ public:
 
 private:
    CEspControl();
-   /* */
-   int process_msgs_received(CtrlMsg **response);
-   int process_ctrl_response(CtrlMsg *ans);
-   int process_priv_response(CtrlMsg *ans);
-   int perform_esp_communication(CMsg& msg,  CtrlMsg **response);
+   /* dispatches the received message to one of the other handler function below*/
+   int process_msgs_received(CCtrlMsgWrapper *ans);
+   /* process ctrl messages */
+   int process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper *ans);
+   /* process event messages */
+   int process_event_messages(CCtrlMsgWrapper *ans);
+   /* process priv messages */
+   int process_priv_messages(CCtrlMsgWrapper *ans);
+   /* process net messages */
+   int process_net_messages(CCtrlMsgWrapper *ans);
+   /* process test messages */
+   int process_test_messages(CCtrlMsgWrapper* ans);
+   int perform_esp_communication(CMsg& msg,  CCtrlMsgWrapper* ans);
    int send_net_packet(CMsg& msg);
 
 
