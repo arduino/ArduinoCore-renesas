@@ -51,7 +51,7 @@ CEspControl::~CEspControl() {
 }
 
 
-
+#ifdef NOT_USED
 static ctrl_cmd_t answer;
 
 /* #############
@@ -104,6 +104,7 @@ static int esp_host_parse_event(CtrlMsg *ctrl_msg) {
 
    return rv;
 }
+#endif
 
 /* process net messages */
 /* -------------------------------------------------------------------------- */

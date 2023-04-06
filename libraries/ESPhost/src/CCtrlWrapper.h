@@ -350,63 +350,6 @@ typedef struct {
 } wifi_ap_scan_list_t;
 
 
-typedef struct Ctrl_cmd_t {
-   /* msg type could be 1. req 2. resp 3. notification */
-   uint8_t msg_type;
-
-   /* control path protobuf msg number */
-   uint16_t msg_id;
-
-   /* statusof response or notification */
-   uint8_t resp_event_status;
-
-   union {
-      wifi_mac_t                  wifi_mac;
-      wifi_mode_t                 wifi_mode;
-
-      wifi_ap_scan_list_t         wifi_ap_scan;
-      wifi_ap_config_t            wifi_ap_config;
-
-      softap_config_t             wifi_softap_config;
-      wifi_softap_vendor_ie_t     wifi_softap_vendor_ie;
-      wifi_softap_conn_sta_list_t wifi_softap_con_sta;
-
-      wifi_power_save_t           wifi_ps;
-
-      ota_write_t                 ota_write;
-
-      wifi_tx_power_t             wifi_tx_power;
-
-      event_heartbeat_t           e_heartbeat;
-
-      event_station_disconn_t     e_sta_disconnected;
-   }u;
-
-   /* By default this callback is set to NULL.
-    * When this callback is set by app while triggering request,
-    * it will be automatically called asynchronously
-    * by hosted control lib on receiving control response
-    * in this case app will not be waiting for response.
-    *
-    * Whereas, when this is not set i.e. is NULL, it is understood
-    * as synchronous response, and app after sending request,
-    * will wait till getting a response
-    */
-   int (*ctrl_resp_cb)(struct Ctrl_cmd_t *data);
-
-   /* Wait for timeout duration, if response not received,
-    * it will send timeout response.
-    * Default value for this time out is DEFAULT_CTRL_RESP_TIMEOUT */
-   int cmd_timeout_sec;
-
-   /* assign the data pointer to free by lower layer.
-    * Ignored if assigned as NULL */
-   void *free_buffer_handle;
-
-   /* free handle to be registered
-    * Ignored if assigned as NULL */
-   void (*free_buffer_func)(void *free_buffer_handle);
-} ctrl_cmd_t;
 
 
 #define PRIO_Q_SERIAL                             0
