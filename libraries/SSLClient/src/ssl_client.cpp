@@ -153,7 +153,6 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
     char buf[512];
     int ret, flags;
     //int enable = 1;
-    log_v("Free internal heap before TLS %u", ESP.getFreeHeap());
 
     log_d("Connecting to %s:%d", host, port);
 
@@ -317,8 +316,6 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
     if (cli_key != NULL) {
         mbedtls_pk_free(&ssl_client->client_key);
     }    
-
-    log_v("Free internal heap after TLS %u", ESP.getFreeHeap());
 
     //return ssl_client->socket;
     return 1;
