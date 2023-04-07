@@ -5,13 +5,19 @@
 
 #ifndef ARD_SSL_H
 #define ARD_SSL_H
-#include "mbedtls/platform.h"
-#include "mbedtls/net.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mbedtls/debug.h"
 #include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "ssl_debug.h"
 #include <Client.h>

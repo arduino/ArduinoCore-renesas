@@ -8,14 +8,10 @@
 */
 
 #include "Arduino.h"
-#include <mbedtls/sha256.h>
 #include <mbedtls/oid.h>
 #include <algorithm>
 #include <string>
 #include "ssl_client.h"
-
-//#define ARDUHAL_LOG_LEVEL 5
-//#include <esp32-hal-log.h>
 
 
 #if !defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED) && !defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
