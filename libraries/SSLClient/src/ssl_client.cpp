@@ -144,6 +144,7 @@ void ssl_init(sslclient_context *ssl_client, Client *client)
     mbedtls_ssl_init(&ssl_client->ssl_ctx);
     mbedtls_ssl_config_init(&ssl_client->ssl_conf);
     mbedtls_ctr_drbg_init(&ssl_client->drbg_ctx);
+    mbedtls_ssl_conf_ciphersuites(&ssl_client->ssl_conf, mbedtls_ssl_list_ciphersuites());
 }
 
 
