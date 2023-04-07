@@ -245,7 +245,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         }
 
         log_v("Loading private key");
-        ret = mbedtls_pk_parse_key(&ssl_client->client_key, (const unsigned char *)cli_key, strlen(cli_key) + 1, NULL, 0);
+        ret = mbedtls_pk_parse_key(&ssl_client->client_key, (const unsigned char *)cli_key, strlen(cli_key) + 1, NULL, 0, mbedtls_ctr_drbg_random, &ssl_client->drbg_ctx);
 
         if (ret != 0) {
             return handle_error(ret);
