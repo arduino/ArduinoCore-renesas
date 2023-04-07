@@ -130,6 +130,10 @@ public:
    /* heartbeat "answer" is always an event, a callback must be provide in any case */
    int configureHeartbeat(HeartBeat_t &hb, EspCallback_f cb);
    
+   void listenForInitEvent(EspCallback_f cb);
+   void listenForStationDisconnectEvent(EspCallback_f cb);
+   void listenForDisconnectionFromSoftApEvent(EspCallback_f cb);
+
    int getPowerSaveMode(int &power_save_mode, EspCallback_f cb = nullptr);
    int setPowerSaveMode(int power_save_mode, EspCallback_f cb = nullptr);
 
@@ -141,7 +145,9 @@ public:
    int setWifiMaxTxPower(uint32_t max_power, EspCallback_f cb = nullptr);
 
 
-
+   void begin() {
+       esp_host_spi_init();
+   }
 
 
    int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);

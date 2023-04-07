@@ -434,6 +434,24 @@ static int checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_re
 
 
 /* -------------------------------------------------------------------------- */
+template<typename T>
+static int checkEventPayload(CtrlMsg *ans, int req, T *payload) {
+/* -------------------------------------------------------------------------- */   
+   int rv = ESP_CONTROL_OK;
+   if(ans == nullptr) {
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+   }
+   if(ans->msg_id != (CtrlMsgId)req) {
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+   }
+   if(payload == nullptr) {
+      return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
+   }
+   return ESP_CONTROL_OK;
+}
+
+
+/* -------------------------------------------------------------------------- */
 class CCtrlMsgWrapper {
 /* -------------------------------------------------------------------------- */   
 private:
@@ -1124,6 +1142,55 @@ public:
       return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
    
+   /* ----------------------------------------------------------------------- */
+   int isInitEventReceived() {
+   /* ----------------------------------------------------------------------- */   
+      return checkEventPayload<CtrlMsgEventESPInit>(answer, 
+                                                       (int)CTRL_EVENT_ESP_INIT, 
+                                                       answer->event_esp_init);
+   }
+   
+   /* ----------------------------------------------------------------------- */
+   int isHeartBeatEventReceived(int &hb) {
+   /* ----------------------------------------------------------------------- */   
+      int rv = checkEventPayload<CtrlMsgEventHeartbeat>(answer, 
+                                                        (int)CTRL_EVENT_HEARTBEAT, 
+                                                         answer->event_heartbeat);
+      if(rv == ESP_CONTROL_OK) {
+         hb = answer->event_heartbeat->hb_num;
+      }
+      return rv;
+   }
+
+   /* ----------------------------------------------------------------------- */
+   int isStationDisconnectionEventReceived(int &reason) {
+   /* ----------------------------------------------------------------------- */   
+      int rv = checkEventPayload<CtrlMsgEventStationDisconnectFromAP>(answer, 
+                                                          (int)CTRL_EVENT_STATION_DISCONNECT_FROM_AP, 
+                                                           answer->event_station_disconnect_from_ap);
+      if(rv == ESP_CONTROL_OK) {
+         reason = answer->event_station_disconnect_from_ap->resp;
+      }
+      return rv;
+   }
+   
+   /* ----------------------------------------------------------------------- */
+   int isDisconnectionFromSoftApReceived(char *mac_out, int mac_out_dim) {
+   /* ----------------------------------------------------------------------- */   
+      int rv = checkEventPayload<CtrlMsgEventStationDisconnectFromESPSoftAP>(answer, 
+                                    (int)CTRL_EVENT_STATION_DISCONNECT_FROM_ESP_SOFTAP, 
+                                    answer->event_station_disconnect_from_esp_softap);
+
+      if(rv == ESP_CONTROL_OK) {
+         if(answer->event_station_disconnect_from_esp_softap->resp == SUCCESS) {     
+            copyData((uint8_t *)mac_out, 
+                     mac_out_dim, 
+                     answer->event_station_disconnect_from_esp_softap->mac.data, 
+                     answer->event_station_disconnect_from_esp_softap->mac.len);
+         }
+      }
+      return rv;
+   }
 
 };
 

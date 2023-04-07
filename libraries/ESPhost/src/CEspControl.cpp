@@ -51,60 +51,7 @@ CEspControl::~CEspControl() {
 }
 
 
-#ifdef NOT_USED
-static ctrl_cmd_t answer;
 
-/* #############
- *  PARSE EVENT
- * ############# */
-
-static int esp_host_parse_event(CtrlMsg *ctrl_msg) {
-   int rv = FAILURE;
-
-   if (!ctrl_msg) {
-      return FAILURE;
-   }   
-
-   memset(&answer,0x00, sizeof(ctrl_cmd_t));
-
-   answer.msg_type          = CTRL_EVENT;
-   answer.msg_id            = ctrl_msg->msg_id;
-   answer.resp_event_status = SUCCESS;
-
-   switch (ctrl_msg->msg_id) {
-      case CTRL_EVENT_ESP_INIT: 
-         rv = SUCCESS;  
-         break;
-      case CTRL_EVENT_HEARTBEAT: 
-         if(ctrl_msg->event_heartbeat) {
-            answer.u.e_heartbeat.hb_num = ctrl_msg->event_heartbeat->hb_num;
-            rv = SUCCESS;
-         }
-         break;
-      case CTRL_EVENT_STATION_DISCONNECT_FROM_AP: 
-         if(ctrl_msg->event_station_disconnect_from_ap) {
-            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_ap->resp;
-            rv = SUCCESS;
-         } 
-         break;
-      case CTRL_EVENT_STATION_DISCONNECT_FROM_ESP_SOFTAP: 
-         if(ctrl_msg->event_station_disconnect_from_esp_softap) {
-            answer.resp_event_status = ctrl_msg->event_station_disconnect_from_esp_softap->resp;
-            if(answer.resp_event_status == SUCCESS) {
-               if(ctrl_msg->event_station_disconnect_from_esp_softap->mac.data) {
-                  strncpy(answer.u.e_sta_disconnected.mac,(char *)ctrl_msg->event_station_disconnect_from_esp_softap->mac.data, ctrl_msg->event_station_disconnect_from_esp_softap->mac.len);
-                  rv = SUCCESS;
-               }
-            }
-         }
-         break;
-      default: 
-         break;
-   }
-
-   return rv;
-}
-#endif
 
 /* process net messages */
 /* -------------------------------------------------------------------------- */
@@ -155,16 +102,16 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
 
    if(response->extractFromMsg(msg)) {
       #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.println("Process control response");
-      Serial.print("Message type: ");
-      Serial.println(response->getType());
-      Serial.print("Message ID: ");
+      Serial.print("   [RX PROCESS] Process control response");
+      Serial.print(" MSG TYPE: ");
+      Serial.print(response->getType());
+      Serial.print(" MSG ID: ");
       Serial.println(response->getId());
       #endif
       /* EVENTS______________________________________________________________ */
       if(response->getType() == CTRL_MSG_TYPE__Event) {
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println(" -> EVENT RECEIVED");
+         Serial.println("   [RX PROCESS] -> EVENT RECEIVED");
          #endif
          /* callback will be called if set up */
          CEspCbk::getInstance().callCallback(response->getId(), response);
@@ -177,13 +124,13 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
          if(CEspCbk::getInstance().callCallback(response->getId(), response)) {
             rv = ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB;
             #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println(" -> CTRL MESSAGE HANDLED BY CALLBACK");
+            Serial.println("   [RX PROCESS] -> CTRL MESSAGE HANDLED BY CALLBACK");
             #endif
          }
          else {
             rv = ESP_CONTROL_MSG_RX;
             #ifdef ESP_HOST_DEBUG_ENABLED
-            Serial.println(" -> CTRL MESSAGE HANDLED BY APPLICATION");
+            Serial.println("   [RX PROCESS] -> CTRL MESSAGE HANDLED BY APPLICATION");
             #endif
          }
       }
@@ -210,7 +157,7 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
    if(CEspCom::get_msg_from_esp(msg)) {
       
       #ifdef ESP_HOST_DEBUG_ENABLED
-      Serial.print("[RX PROCESS] Receiving message from ESP rx queue -> ");
+      Serial.print("   [RX PROCESS] Receiving message from ESP rx queue -> ");
       #endif
       /* CONTROL_MESSAGES____________________________________________________ */
       if(msg.get_if_type() == ESP_SERIAL_IF) {
@@ -434,7 +381,11 @@ void CEspControl::prepare_and_send_request(AppMsgId_e id,
       if(CEspCom::send_msg_to_esp(msg)) {
          /* setCallback returns true if a 'true' callback is set up, but it will in any
          case reset the cb if nullptr is passed */
-         if(!CEspCbk::getInstance().setCallback(id, cb)) {
+         if(id == CTRL_REQ_CONFIG_HEARTBEAT) {
+            CEspCbk::getInstance().setCallback(CTRL_EVENT_HEARTBEAT, cb);
+            res = wait_for_answer(&rv);
+         }
+         else if(!CEspCbk::getInstance().setCallback(id, cb)) {
             res = wait_for_answer(&rv);
          }
          else {
@@ -450,6 +401,24 @@ void CEspControl::prepare_and_send_request(AppMsgId_e id,
    
    return;  
 }
+
+/* -------------------------------------------------------------------------- */
+void CEspControl::listenForInitEvent(EspCallback_f cb) {
+/* -------------------------------------------------------------------------- */   
+   CEspCbk::getInstance().setCallback(CTRL_EVENT_ESP_INIT, cb);
+}
+
+/* -------------------------------------------------------------------------- */
+void CEspControl::listenForStationDisconnectEvent(EspCallback_f cb) {
+/* -------------------------------------------------------------------------- */   
+   CEspCbk::getInstance().setCallback(CTRL_EVENT_STATION_DISCONNECT_FROM_AP, cb);
+}   
+/* -------------------------------------------------------------------------- */
+void CEspControl::listenForDisconnectionFromSoftApEvent(EspCallback_f cb) {
+/* -------------------------------------------------------------------------- */   
+   CEspCbk::getInstance().setCallback(CTRL_EVENT_STATION_DISCONNECT_FROM_ESP_SOFTAP, cb);
+}
+
 
 /* --------------------------------------------------
    GENERAL NOTE ABOUT THE REQUEST function structure:
@@ -763,7 +732,7 @@ int CEspControl::configureHeartbeat(HeartBeat_t &hb, EspCallback_f cb) {
    prepare_and_send_request(CTRL_REQ_CONFIG_HEARTBEAT, rv, &hb, cb, req);
    /* since heartbeat is an event we always wait for confirmation when we set, req
       up a cb */
-   if(rv == ESP_CONTROL_OK || rv == ESP_CONTROL_MSG_SENT_AND_CB_SET_UP) {
+   if(rv == ESP_CONTROL_OK) {
       rv = req.isHeartbeatConfigured();
    }
    return rv;
