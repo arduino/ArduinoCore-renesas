@@ -19,6 +19,14 @@
 #include "FspTimer.h"
 #endif
 
+#define NETWORK_INTERFACES_MAX_NUM 3
+
+typedef enum {
+  NI_WIFI_STATION,
+  NI_WIFI_SOFTAP, 
+  NI_ETHERNET  
+} NetIfType_t;
+
 
 #define MAX_DHCP_TRIES 4
 
@@ -45,30 +53,34 @@ typedef enum {
   DHCP_STOP
 } DhcpSt_t;
 
-
-
-
-
+/* Base class implements DHCP, derived class will switch it on or off */
 /* -------------------------------------------------------------------------- */
 class CNetIf {
 /* -------------------------------------------------------------------------- */   
-private:
-   static int id;
-   NetIfRxCb_f rx_cb;
+protected:
+   int    id;
    struct netif ni;
 
    ip_addr_t ip;
    ip_addr_t nm;
    ip_addr_t gw;
-   
-   /* DHCP variables */
+
    DhcpSt_t dhcp_st;
    bool dhcp_acquired;
    void dhcp_task();
-
-
+   
    void setAddr(ip_addr_t *dst, const uint8_t* src);
 public:
+   CNetIf();
+   virtual ~CNetIf();
+   /* DHCP functions */
+   void DhcpStop();
+   void DhcpNotUsed();
+   void DhcpStart();
+   bool isDhcpAcquired(); 
+   /* getters / setters */
+   void setId(int _id) { id = _id; }
+   int getId() {return id;} 
    void setIp(const uint8_t *_ip) { setAddr(&ip, _ip); }
    void setNm(const uint8_t *_nm) { setAddr(&nm, _nm); }
    void setGw(const uint8_t *_gw) { setAddr(&gw, _gw); }
@@ -77,33 +89,60 @@ public:
    ip_addr_t *getNm()       { return &nm; }
    ip_addr_t *getGw()       { return &gw; }
 
-   void task();
-   
-
-   void DhcpStop();
-   void DhcpNotUsed();
-   void DhcpStart();
-   bool isDhcpAcquired(); 
+   /* add */
+   virtual void add() = 0;
+   virtual void task() = 0;  
+};
 
 
 
-   CNetIf();
-   CNetIf(NetIfRxCb_f _rx_cb);
-   int tx(uint8_t *buffer, uint32_t dim);
+/* -------------------------------------------------------------------------- */
+class CClient : public CNetIf {
+/* -------------------------------------------------------------------------- */   
+   protected:
+
+
+   public:
+   CClient();
+   virtual ~CClient();
+   virtual void add() override {}
+   virtual void task() override {}
+
 
 };
 
 
 
+/* -------------------------------------------------------------------------- */
+class CServer : public CNetIf {
+/* -------------------------------------------------------------------------- */   
+   protected:
 
+
+   public:
+   CServer();
+   virtual ~CServer();
+   virtual void add() override;
+   virtual void task() override;
+
+};
+
+
+class CServerUdp : public CNetIf {
+   public:
+   CServerUdp();
+   virtual ~CServerUdp();
+   virtual void add() override;
+   virtual void task() override;
+};
 
 
 /* -------------------------------------------------------------------------- */
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
-   /* map to track all the network interfaces created */
-   std::map<string,CNetIf *> net_ifs;
+   CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
+   
 
    /* initialize lwIP and timer */
    CLwipIf();
@@ -114,25 +153,33 @@ private:
    static void timer_cb(timer_callback_args_t *arg);
    #endif
 
+   CNetIf *setUpWifiStation(const uint8_t* _ip, 
+                            const uint8_t* _gw, 
+                            const uint8_t* _nm);
+
+   CNetIf *setUpWifiSoftAp(const uint8_t* _ip, 
+                           const uint8_t* _gw, 
+                           const uint8_t* _nm);
+
+   CNetIf *setUpEthernet(const uint8_t* _ip, 
+                         const uint8_t* _gw, 
+                         const uint8_t* _nm);
+
 public:
    static CLwipIf& getInstance();
    CLwipIf(CLwipIf const&)            = delete;
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
    
-   /* call when DHCP is used */
-   CNetIf *add(string name, 
-               LwipInit_f init, 
-               LwipInput_f input);
-   /* call when DHCP is not used and address are explicity set */
-   CNetIf *add(string name, 
-               const uint8_t* _ip,
-               const uint8_t* _gw, 
-               const uint8_t* _nm, 
-               LwipInit_f init, 
-               LwipInput_f input);
-   CNetIf close(string name);
-   CNetIf *get(string name);
+   
+   CNetIf *get(NetIfType_t type, 
+               const uint8_t* _ip = nullptr, 
+               const uint8_t* _gw = nullptr, 
+               const uint8_t* _nm = nullptr);
+   
+
+
+   
 
    void lwip_task();
 };

@@ -42,68 +42,77 @@ CLwipIf& CLwipIf::getInstance() {
 /* -------------------------------------------------------------------------- */
 CLwipIf::~CLwipIf() {
 /* -------------------------------------------------------------------------- */   
-   for (auto& [name, ni] : net_ifs) {
-      if(ni != nullptr) {
-         delete ni;
-      }  
+   for(int i = 0; i < NETWORK_INTERFACES_MAX_NUM; i++) {
+      if(net_ifs[i] != nullptr) {
+         delete net_ifs[i];
+         net_ifs[i] = nullptr;
+      }
    }
 }
 
-/* Add an interface: the interface can be retrieved with its name             */
+
 /* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::add(string name, 
+CNetIf *CLwipIf::setUpWifiStation(const uint8_t* _ip, 
+                                  const uint8_t* _gw, 
+                                  const uint8_t* _nm) {
+/* -------------------------------------------------------------------------- */
+  CNetIf *rv = nullptr;
+
+  return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+CNetIf *CLwipIf::setUpWifiSoftAp(const uint8_t* _ip, 
+                                 const uint8_t* _gw, 
+                                 const uint8_t* _nm) {
+/* -------------------------------------------------------------------------- */
+  CNetIf *rv = nullptr;
+
+  return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip, 
+                               const uint8_t* _gw, 
+                               const uint8_t* _nm) {
+/* -------------------------------------------------------------------------- */   
+  CNetIf *rv = nullptr;
+
+  return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* Sort of factory method, dependig on the requested type it setUp a different 
+   Network interface and returns it to the caller */
+/* -------------------------------------------------------------------------- */
+CNetIf *CLwipIf::get(NetIfType_t type, 
                      const uint8_t* _ip, 
                      const uint8_t* _gw, 
-                     const uint8_t* _nm, 
-                     LwipInit_f init, 
-                     LwipInput_f input) {
+                     const uint8_t* _nm) {
 /* -------------------------------------------------------------------------- */
-   /* 1. check if the name has already been used */
-   if(net_ifs.find(name) != net_ifs.end()) {
-      /* the name of the interface is already present ! */
-      return nullptr;
+   CNetIf *rv = nullptr;
+   switch(type) {
+      case NI_WIFI_STATION:
+         rv = setUpWifiStation(_ip, _gw, _nm);
+         break;
+      case NI_WIFI_SOFTAP:
+         rv = setUpWifiSoftAp(_ip, _gw, _nm);
+         break;
+
+      case NI_ETHERNET:
+         setUpEthernet(_ip, _gw, _nm);
+         break;
+
+      default:
+         rv = nullptr;
+         break;
    }
-   /* 2. allocate a new Network interface */
-   CNetIf *ni = new CNetIf();
-   
-   if(ni != nullptr) {
-      /* not really sure if save the addresses is necessary or not... */
-      
-      /* 3. set addresses */
-      ni->setIp(_ip);
-      ni->setGw(_gw);
-      ni->setNm(_nm);
-      
-      /* 4. add network interface to lwIP */
-      if(nullptr == netif_add(ni->getNi(), 
-                              ni->getIp(),
-                              ni->getGw(),
-                              ni->getNm(),
-                              NULL,
-                              init,
-                              input)) {
-         /* 4.1 something went wrong, free memory */
-         delete ni;
-         ni = nullptr;
-      }
-      else {
-         /* 5. add ni to map */
-         net_ifs.insert({name,ni});
-      }
-   }
-   return ni;
+   return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::add(string name, 
-                     LwipInit_f init, 
-                     LwipInput_f input) {
-/* -------------------------------------------------------------------------- */   
-   CNetIf *ni = add(name,nullptr,nullptr,nullptr, init, input);
-   if(ni != nullptr) {
-      ni->DhcpStart();
-   }
-}
+
+
 
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
@@ -115,13 +124,44 @@ void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 
 
 /* ########################################################################## */
-/*                         NETWORK INTERFACE CLASS                            */
+/*                      BASE NETWORK INTERFACE CLASS                          */
 /* ########################################################################## */
 
+/* -------------------------------------------------------------------------- */
+CNetIf::CNetIf() {
+/* -------------------------------------------------------------------------- */   
+   dhcp_acquired = false;
+   dhcp_st = DHCP_IDLE;
+   id = 0;
+   #ifdef CNETWORK_INTERFACE_DEBUG
+   Serial.println("[CNET]: CNetIf constructor");
+   #endif
+}
 
-/*  ----------------------
- *  DHCP related functions
- *  ---------------------- */ 
+/* -------------------------------------------------------------------------- */
+CNetIf::~CNetIf() {
+/* -------------------------------------------------------------------------- */   
+   #ifdef CNETWORK_INTERFACE_DEBUG
+   Serial.println("[CNET]: CNetIf destructor");
+   #endif
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src) {
+/* -------------------------------------------------------------------------- */   
+   ip_addr_set_zero_ip4(dst);
+   if(src != nullptr) {
+      IP_ADDR4(dst, src[0], src[1], src[2], src[3]);
+   }
+}
+
+
+
+
+
+
 /* -------------------------------------------------------------------------- */
 bool CNetIf::isDhcpAcquired() { return dhcp_acquired; }
 /* -------------------------------------------------------------------------- */
@@ -188,29 +228,12 @@ void CNetIf::dhcp_task() {
       break;
 
    }
-   
-}
-
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src) {
-/* -------------------------------------------------------------------------- */   
-   ip_addr_set_zero_ip4(dst);
-   if(src != nullptr) {
-      IP_ADDR4(dst, src[0], src[1], src[2], src[3]);
-   }
 }
 
 
 
-int CNetIf::id = -1;
 
 
-/* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() {
-/* -------------------------------------------------------------------------- */   
-   dhcp_acquired = false;
-   dhcp_st = DHCP_IDLE;
-   id++;
-   ni.num = id;
-}
+
+
+
