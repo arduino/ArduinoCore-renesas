@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef SM_PORT_H_INC
-#define SM_PORT_H_INC
+#ifndef SSL_DEBUG_H_INC
+#define SSL_DEBUG_H_INC
 #include "Arduino.h"
 
 /*
@@ -72,4 +72,4 @@ void mbedtls_debug_print(void *ctx, int level, const char *file, int line, const
 }
 #endif
 
-#endif // #ifndef SM_PORT_H_INC
+#endif // #ifndef SSL_DEBUG_H_INC
