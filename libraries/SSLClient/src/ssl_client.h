@@ -13,6 +13,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 
+#include "ssl_debug.h"
 #include <Client.h>
 
 typedef struct sslclient_context {

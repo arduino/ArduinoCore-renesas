@@ -1,0 +1,74 @@
+/*
+  ssl_debug.h
+  Copyright (c) 2023 Arduino SA.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+#ifndef SM_PORT_H_INC
+#define SM_PORT_H_INC
+#include "Arduino.h"
+
+/*
+ * 0: NONE
+ * 1: ERROR
+ * 2: WARNING
+ * 3: INFO
+ * 4: DEBUG
+ * 5: VERBOSE
+ */
+#define DEBUG_LEVEL 5
+
+#if DEBUG_LEVEL > 0
+    #define log_e smlog_println
+#else
+    #define log_e smlog_none
+#endif
+
+#if DEBUG_LEVEL > 1
+    #define log_w smlog_println
+#else
+    #define log_w smlog_none
+#endif
+
+#if DEBUG_LEVEL > 2
+    #define log_i smlog_println
+#else
+    #define log_i smlog_none
+#endif
+
+#if DEBUG_LEVEL > 3
+    #define log_d smlog_println
+#else
+    #define log_d smlog_none
+#endif
+    
+#if DEBUG_LEVEL > 4
+    #define log_v smlog_println
+#else
+    #define log_v smlog_none
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void smlog_print(const char *format, ...);
+void smlog_println(const char *format, ...);
+void smlog_none(const char *format, ...);
+#ifdef __cplusplus
+}
+#endif
+
+#endif // #ifndef SM_PORT_H_INC
