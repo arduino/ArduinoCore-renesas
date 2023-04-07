@@ -67,6 +67,7 @@ extern "C" {
 void smlog_print(const char *format, ...);
 void smlog_println(const char *format, ...);
 void smlog_none(const char *format, ...);
+void mbedtls_debug_print(void *ctx, int level, const char *file, int line, const char *str);
 #ifdef __cplusplus
 }
 #endif
