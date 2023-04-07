@@ -78,6 +78,29 @@ CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip,
 /* -------------------------------------------------------------------------- */   
   CNetIf *rv = nullptr;
 
+  /* create a new network interface */
+  net_ifs[NI_ETHERNET] = new CNetIf();
+  /* copy it into the returned value */
+  rv = net_ifs[NI_ETHERNET]; 
+
+  if(rv != nullptr) {
+      /* fist set up lwIp */
+
+
+
+
+
+      if(_ip == nullptr) {
+         /* use DHCP, that will reset the address */
+         rv->DhcpStart();
+         rv->dhcp_task();
+      }
+  
+      else {
+         /* use static IP configuration */
+      }
+  
+
   return rv;
 }
 

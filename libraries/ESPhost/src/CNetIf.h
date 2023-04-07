@@ -97,14 +97,14 @@ public:
 
 
 /* -------------------------------------------------------------------------- */
-class CClient : public CNetIf {
+class CEthernet : public CNetIf {
 /* -------------------------------------------------------------------------- */   
    protected:
 
 
    public:
-   CClient();
-   virtual ~CClient();
+   CEthernet();
+   virtual ~CEthernet();
    virtual void add() override {}
    virtual void task() override {}
 
@@ -114,24 +114,25 @@ class CClient : public CNetIf {
 
 
 /* -------------------------------------------------------------------------- */
-class CServer : public CNetIf {
+class CWifiStation : public CNetIf {
 /* -------------------------------------------------------------------------- */   
    protected:
 
 
    public:
-   CServer();
-   virtual ~CServer();
+   CWifiStation();
+   virtual ~CWifiStation();
    virtual void add() override;
    virtual void task() override;
 
 };
 
-
-class CServerUdp : public CNetIf {
+/* -------------------------------------------------------------------------- */
+class CWifiSoftAp : public CNetIf {
+/* -------------------------------------------------------------------------- */   
    public:
-   CServerUdp();
-   virtual ~CServerUdp();
+   CWifiSoftAp();
+   virtual ~CWifiSoftAp();
    virtual void add() override;
    virtual void task() override;
 };
@@ -160,6 +161,9 @@ private:
    CNetIf *setUpWifiSoftAp(const uint8_t* _ip, 
                            const uint8_t* _gw, 
                            const uint8_t* _nm);
+
+   
+
 
    CNetIf *setUpEthernet(const uint8_t* _ip, 
                          const uint8_t* _gw, 
