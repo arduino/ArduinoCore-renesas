@@ -140,7 +140,6 @@ static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
 
 void ssl_init(sslclient_context *ssl_client, Client *client)
 {
-    log_v("Init SSL");
     ssl_client->client = client;
     mbedtls_ssl_init(&ssl_client->ssl_ctx);
     mbedtls_ssl_config_init(&ssl_client->ssl_conf);
