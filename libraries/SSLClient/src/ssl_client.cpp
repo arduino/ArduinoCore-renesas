@@ -279,7 +279,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         }
         if((millis()-handshake_start_time)>ssl_client->handshake_timeout)
 			return -1;
-	    vTaskDelay(10 / portTICK_PERIOD_MS);
+        delay(10);
     }
 
 
