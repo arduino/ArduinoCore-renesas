@@ -430,36 +430,14 @@ static int checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_re
       }
    }
    return ESP_CONTROL_OK;
-
 }
-
-/* -------------------------------------------------------------------------- */
-template<typename T>
-static T *initPayload(void (*init)(T *)) {
-/* -------------------------------------------------------------------------- */   
-   /* allocate the payload */
-   T*  rv = new T;
-   /* call the init function for the payload */
-   if(rv != nullptr) {  
-      if(init != nullptr) {
-         
-         init(rv);
-      }
-   }
-   return rv;
-}
-
-class CCtrlMsgWrapper; 
-/* ----------------------------------------------------------------------- */
-template<typename T>
-CMsg getMsgv1(CCtrlMsgWrapper *req, T *payload_to_delete);
 
 
 /* -------------------------------------------------------------------------- */
 class CCtrlMsgWrapper {
 /* -------------------------------------------------------------------------- */   
 private:
-   void *req_payload;
+   
    CtrlMsg request;
    CtrlMsg *answer;
    bool payload_set;
@@ -484,18 +462,12 @@ private:
    }
 
 public:
-   bool isPayloadSet() { return payload_set; }
-   CtrlMsg *getRequest() {return &request; }
-
+   /* ----------------------------------------------------------------------- */
    void setRequestId(int request_id) {
+   /* ----------------------------------------------------------------------- */   
       init_ctrl_msg(request_id);
    }
-
-    /* ----------------------------------------------------------------------- */
-   CtrlMsg *getAnswerPtr() {return answer; }
-    /* ----------------------------------------------------------------------- */
-
-    /* ----------------------------------------------------------------------- */
+   /* ----------------------------------------------------------------------- */
    CtrlMsgType getType() {
    /* ----------------------------------------------------------------------- */  
       if(answer != nullptr) {
@@ -548,27 +520,15 @@ public:
       return rv;
    }
    /* ----------------------------------------------------------------------- */
-   void* getPayload()  {
-   /* ----------------------------------------------------------------------- */   
-      return req_payload;
-   }
+   CCtrlMsgWrapper()  :  answer(nullptr) { }
    /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper()  : req_payload(nullptr), answer(nullptr) { }
-   
-
-
-   /* ----------------------------------------------------------------------- */
-   CCtrlMsgWrapper(int request_id) : req_payload(nullptr), answer(nullptr) {
+   CCtrlMsgWrapper(int request_id) : answer(nullptr) {
    /* ----------------------------------------------------------------------- */   
       init_ctrl_msg(request_id);
    }
-   
    /* ----------------------------------------------------------------------- */
    ~CCtrlMsgWrapper() {
    /* ----------------------------------------------------------------------- */
-      if(req_payload != nullptr) {
-         delete req_payload;
-      }
       if(answer != nullptr) {
          Serial.println("THE answer has been FREE_UNPACKED!");
          ctrl_msg__free_unpacked(answer, NULL);
@@ -595,38 +555,32 @@ public:
       return CMsg(0);
    }
 
-   
-   
    /* ----------------------------------------------------------------------- */
    CMsg getWifiMacAddressMsg(WifiMode_t mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      CtrlMsgReqGetMacAddress *payload = initPayload<CtrlMsgReqGetMacAddress>(ctrl_msg__req__get_mac_address__init);
-
-      if(payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
-         
-         request.req_get_mac_address = payload;
-         payload->mode = (CtrlWifiMode)mode;
+      CtrlMsgReqGetMacAddress payload;
+      ctrl_msg__req__get_mac_address__init(&payload);
+      if(mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         request.req_get_mac_address = &payload;
+         payload.mode = (CtrlWifiMode)mode;
          payload_set = true;
       }
-      return getMsgv1<CtrlMsgReqGetMacAddress>(this,payload);
+      return getMsg();
    }
    
    /* ----------------------------------------------------------------------- */
    CMsg setWifiMacAddressMsg(WifiMode_t mode, const char *mac, uint8_t mac_len) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqSetMacAddress>(ctrl_msg__req__set_mac_address__init);
-      
-      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE 
+      CtrlMsgReqSetMacAddress payload;
+      ctrl_msg__req__set_mac_address__init(&payload);
+      if(mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE 
          && mac != nullptr && mac_len < MAX_MAC_STR_LEN) {
-         CtrlMsgReqSetMacAddress *payload = (CtrlMsgReqSetMacAddress*)req_payload;
-         request.req_set_mac_address = payload;
-         payload->mode = (CtrlWifiMode)mode;
-         payload->mac.len = (mac_len < MAX_MAC_STR_LEN) ? mac_len : MAX_MAC_STR_LEN;
-         payload->mac.data = (uint8_t *)mac;
+         request.req_set_mac_address = &payload;
+         payload.mode = (CtrlWifiMode)mode;
+         payload.mac.len = (mac_len < MAX_MAC_STR_LEN) ? mac_len : MAX_MAC_STR_LEN;
+         payload.mac.data = (uint8_t *)mac;
          payload_set = true;
       }
       return getMsg();
@@ -636,16 +590,12 @@ public:
    CMsg setWifiModeMsg(WifiMode_t mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqSetMode>(ctrl_msg__req__set_mode__init);
-
-      if(req_payload != nullptr && mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
-         
-         CtrlMsgReqSetMode *payload = (CtrlMsgReqSetMode *)req_payload;
-         request.req_set_wifi_mode = payload;
-         payload->mode = (CtrlWifiMode)mode;
+      CtrlMsgReqSetMode payload;
+      ctrl_msg__req__set_mode__init(&payload);
+      if(mode < WIFI_MODE_MAX && mode > WIFI_MODE_NONE) {
+         request.req_set_wifi_mode = &payload;
+         payload.mode = (CtrlWifiMode)mode;
          payload_set = true;
-         
       }
       return getMsg();
    }
@@ -654,13 +604,11 @@ public:
    CMsg setPowerSaveModeMsg(PowerSave_t power_save_mode) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqSetMode>(ctrl_msg__req__set_mode__init);
-
-      if(req_payload != nullptr && power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
-         CtrlMsgReqSetMode *payload = (CtrlMsgReqSetMode *)req_payload;
-         request.req_set_power_save_mode = payload;
-         payload->mode = (CtrlWifiPowerSave)power_save_mode;
+      CtrlMsgReqSetMode payload;
+      ctrl_msg__req__set_mode__init(&payload);
+      if(power_save_mode < WIFI_PS_INVALID && power_save_mode >= WIFI_PS_MIN_MODEM) {
+         request.req_set_power_save_mode = &payload;
+         payload.mode = (CtrlWifiPowerSave)power_save_mode;
          payload_set = true;
       }
       return getMsg();
@@ -670,15 +618,12 @@ public:
    CMsg otaWriteMsg(OtaWrite_t &ow) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqOTAWrite>(ctrl_msg__req__otawrite__init);
-      if(req_payload != nullptr) {
-         CtrlMsgReqOTAWrite *payload = (CtrlMsgReqOTAWrite *)req_payload;
-         request.req_ota_write = payload;
-         payload->ota_data.data = ow.ota_data;
-         payload->ota_data.len = ow.ota_data_len;
-         payload_set = true;
-      }
+      CtrlMsgReqOTAWrite payload;
+      ctrl_msg__req__otawrite__init(&payload);   
+      request.req_ota_write = &payload;
+      payload.ota_data.data = ow.ota_data;
+      payload.ota_data.len = ow.ota_data_len;
+      payload_set = true;
       return getMsg();
    }
 
@@ -687,23 +632,18 @@ public:
    CMsg getConnectAccessPointMsg(const char *ssid, const char *pwd, const char *bssid, bool wpa3_support, uint32_t interval) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqConnectAP>(ctrl_msg__req__connect_ap__init);
-      if(req_payload != nullptr) {
-         CtrlMsgReqConnectAP *payload = (CtrlMsgReqConnectAP *)req_payload;
-         request.req_connect_ap = payload;
-         
-         if(ssid != nullptr && strlen(ssid) <=  MAX_SSID_LENGTH &&
-            pwd !=nullptr && strlen(pwd) <= MAX_PWD_LENGTH &&
-            bssid != nullptr && strlen(bssid) <= MAX_MAC_STR_LEN) {
-
-            payload->ssid  = (char *)ssid;
-            payload->pwd   = (char *)pwd;
-            payload->bssid = (char *)bssid;
-            payload->is_wpa3_supported = wpa3_support;
-            payload->listen_interval = interval;
-            payload_set = true;
-         }
+      CtrlMsgReqConnectAP payload;
+      ctrl_msg__req__connect_ap__init(&payload);
+      request.req_connect_ap = &payload;
+      if(ssid != nullptr && strlen(ssid) <=  MAX_SSID_LENGTH &&
+         pwd !=nullptr && strlen(pwd) <= MAX_PWD_LENGTH &&
+         bssid != nullptr && strlen(bssid) <= MAX_MAC_STR_LEN) {
+         payload.ssid  = (char *)ssid;
+         payload.pwd   = (char *)pwd;
+         payload.bssid = (char *)bssid;
+         payload.is_wpa3_supported = wpa3_support;
+         payload.listen_interval = interval;
+         payload_set = true;
       }
       return getMsg();
    }
@@ -711,15 +651,12 @@ public:
    /* ----------------------------------------------------------------------- */
    CMsg setWifiMaxTxPowerMsg(uint32_t max_power) {
    /* ----------------------------------------------------------------------- */
-      payload_set = false;
+      CtrlMsgReqSetWifiMaxTxPower payload;
+      ctrl_msg__req__set_wifi_max_tx_power__init(&payload);
+      request.req_set_wifi_max_tx_power = &payload;
+      payload.wifi_max_tx_power = max_power;
+      payload_set = true;
       
-      req_payload = initPayload<CtrlMsgReqSetWifiMaxTxPower>(ctrl_msg__req__set_wifi_max_tx_power__init);
-      if(req_payload != nullptr) {
-         CtrlMsgReqSetWifiMaxTxPower *payload = (CtrlMsgReqSetWifiMaxTxPower *)req_payload;
-         request.req_set_wifi_max_tx_power = payload;
-         payload->wifi_max_tx_power = max_power;
-         payload_set = true;
-      }
       return getMsg();
    }
    
@@ -727,47 +664,42 @@ public:
    CMsg setSoftAccessPointVndIeMsg(WifiVendorSoftApIe_t &vendor_ie) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
+      CtrlMsgReqSetSoftAPVendorSpecificIE payload;
+      ctrl_msg__req__set_soft_apvendor_specific_ie__init(&payload);
       
-      req_payload = initPayload<CtrlMsgReqSetSoftAPVendorSpecificIE>(ctrl_msg__req__set_soft_apvendor_specific_ie__init);
-      if(req_payload != nullptr) {
-         CtrlMsgReqSetSoftAPVendorSpecificIE *payload = (CtrlMsgReqSetSoftAPVendorSpecificIE *)req_payload;
-         if(vendor_ie.type <= WIFI_VND_IE_TYPE_ASSOC_RESP && 
-            vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && 
-            vendor_ie.idx <= WIFI_VND_IE_ID_1 && 
-            vendor_ie.idx >= WIFI_VND_IE_ID_0 &&
-            vendor_ie.vnd_ie.payload != nullptr) {
+      if(vendor_ie.type <= WIFI_VND_IE_TYPE_ASSOC_RESP && 
+         vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && 
+         vendor_ie.idx <= WIFI_VND_IE_ID_1 && 
+         vendor_ie.idx >= WIFI_VND_IE_ID_0 &&
+         vendor_ie.vnd_ie.payload != nullptr) {
+         
+         request.req_set_softap_vendor_specific_ie = &payload;
 
-            payload->enable = vendor_ie.enable;
-            payload->type = (CtrlVendorIEType)vendor_ie.type;
-            payload->idx = (CtrlVendorIEID)vendor_ie.idx;
-
-            /* PAY ATTENTION: this is the only case something additional respect to
-               the payload is allocated... this need to be deleted afterwards... */
-            payload->vendor_ie_data = new CtrlMsgReqVendorIEData;
-
-            if(payload->vendor_ie_data) {
-               
-               ctrl_msg__req__vendor_iedata__init(payload->vendor_ie_data);
-               payload->vendor_ie_data->element_id = vendor_ie.vnd_ie.element_id;
-               payload->vendor_ie_data->length = vendor_ie.vnd_ie.length;
-               payload->vendor_ie_data->vendor_oui.data = vendor_ie.vnd_ie.vendor_oui;
-               payload->vendor_ie_data->vendor_oui.len = VENDOR_OUI_BUF;
-               payload->vendor_ie_data->payload.data = vendor_ie.vnd_ie.payload;
-               payload->vendor_ie_data->payload.len = vendor_ie.vnd_ie.payload_len;
-            
-               payload_set = true;
-            }
-         }
+         payload.enable = vendor_ie.enable;
+         payload.type = (CtrlVendorIEType)vendor_ie.type;
+         payload.idx = (CtrlVendorIEID)vendor_ie.idx;
+         CtrlMsgReqVendorIEData vendor_data;
+         ctrl_msg__req__vendor_iedata__init(&vendor_data);
+         payload.vendor_ie_data = &vendor_data;
+         payload.vendor_ie_data->element_id = vendor_ie.vnd_ie.element_id;
+         payload.vendor_ie_data->length = vendor_ie.vnd_ie.length;
+         payload.vendor_ie_data->vendor_oui.data = vendor_ie.vnd_ie.vendor_oui;
+         payload.vendor_ie_data->vendor_oui.len = VENDOR_OUI_BUF;
+         payload.vendor_ie_data->payload.data = vendor_ie.vnd_ie.payload;
+         payload.vendor_ie_data->payload.len = vendor_ie.vnd_ie.payload_len;
+         payload_set = true;  
       }
       return getMsg();
+      
    }
 
    /* ----------------------------------------------------------------------- */
    CMsg startSoftAccessPointMsg(SoftApCfg_t &cfg) {
    /* ----------------------------------------------------------------------- */
       payload_set = false;
+      CtrlMsgReqStartSoftAP payload;
+      ctrl_msg__req__start_soft_ap__init(&payload);
       
-      req_payload = initPayload<CtrlMsgReqStartSoftAP>(ctrl_msg__req__start_soft_ap__init);
 
       bool cfg_ok = true;
 
@@ -813,15 +745,16 @@ public:
       }
       
          /* ... all seems to be correct ... */
-      if(req_payload != nullptr && cfg_ok) {
-         CtrlMsgReqStartSoftAP *payload = (CtrlMsgReqStartSoftAP *)req_payload;
-         payload->ssid = (char *)&cfg.ssid;
-         payload->pwd = (char *)(char *)&cfg.pwd;
-         payload->chnl = cfg.channel;
-         payload->sec_prot = (CtrlWifiSecProt)cfg.encryption_mode;
-         payload->max_conn = cfg.max_connections;
-         payload->ssid_hidden = cfg.ssid_hidden;
-         payload->bw = cfg.bandwidth;  
+      if(cfg_ok) {
+         request.req_start_softap = &payload;
+
+         payload.ssid = (char *)&cfg.ssid;
+         payload.pwd = (char *)(char *)&cfg.pwd;
+         payload.chnl = cfg.channel;
+         payload.sec_prot = (CtrlWifiSecProt)cfg.encryption_mode;
+         payload.max_conn = cfg.max_connections;
+         payload.ssid_hidden = cfg.ssid_hidden;
+         payload.bw = cfg.bandwidth;  
          Serial.println("start sofT Access point OK");
          payload_set = true; 
       }
@@ -832,18 +765,13 @@ public:
    /* ----------------------------------------------------------------------- */
    CMsg  configureHeartbeatMsg(bool enable, int32_t duration) {
    /* ----------------------------------------------------------------------- */   
-      payload_set = false;
-      
-      req_payload = initPayload<CtrlMsgReqConfigHeartbeat>(ctrl_msg__req__config_heartbeat__init);
-      if(req_payload != nullptr) {
-         CtrlMsgReqConfigHeartbeat *payload = (CtrlMsgReqConfigHeartbeat *)req_payload;
-         payload->enable = enable;
-         payload->duration = duration;
-         payload_set = true; 
-      }
-
+      CtrlMsgReqConfigHeartbeat payload;
+      ctrl_msg__req__config_heartbeat__init(&payload);
+      request.req_config_heartbeat = &payload;
+      payload.enable = enable;
+      payload.duration = duration;
+      payload_set = true; 
       return getMsg();
-
    }
 
 
@@ -1199,26 +1127,6 @@ public:
 
 };
 
-template<typename T>
-CMsg getMsgv1(CCtrlMsgWrapper *req, T *payload_to_delete) {
-/* ----------------------------------------------------------------------- */   
-   int protobuf_len = ctrl_msg__get_packed_size(req->getRequest());
-   CMsg msg(protobuf_len);
-   bool ok = false;
-   if(msg.is_valid() && req->isPayloadSet()){
-      /* pack request into the message */
-      ctrl_msg__pack(req->getRequest(), msg.get_protobuf_ptr());
-      msg.set_tlv_header(CTRL_EP_NAME_RESP);
-      msg.set_payload_header(ESP_SERIAL_IF, 0);
-      ok = true;
-   }
-   delete (T *)payload_to_delete;
-   if(ok) {
-      return msg;
-   }
-   else {
-      return CMsg(0);
-   }
-}
+
 
 #endif

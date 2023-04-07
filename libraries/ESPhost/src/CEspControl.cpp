@@ -204,12 +204,6 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
 /* -------------------------------------------------------------------------- */   
-   
-  /* OCCORRE RIVEDERE TUTTO IL PERCORSO DI RICEZIONE E USARE I PUNTATORI
-     IN QUESTO MODO POSSO PASSARE UN PUNTATORE NULL QUANDO NON STO ASPETTANDO
-     UNA RISPOSTA (DA FARE.....) */
-
-
    int rv = ESP_CONTROL_EMPTY_RX_QUEUE;  
    CMsg msg;
    /* get the message */
@@ -742,10 +736,7 @@ int CEspControl::setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCal
    if(rv == ESP_CONTROL_OK) {
       rv = req.isSoftAccessPointVndIeSet();
    }
-   CtrlMsgReqSetSoftAPVendorSpecificIE *payload = (CtrlMsgReqSetSoftAPVendorSpecificIE *)req.getPayload();
-   if(payload->vendor_ie_data != nullptr) {
-      delete payload->vendor_ie_data;
-   }
+   
    return rv;
 }
 
