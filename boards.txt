@@ -1,6 +1,6 @@
 ##############################################################
 
-portenta_h33.name=Portenta H33 (RA6M5)
+portenta_h33.name=Arduino Portenta C33
 portenta_h33.build.core=arduino
 portenta_h33.build.crossprefix=arm-none-eabi-
 portenta_h33.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -48,7 +48,7 @@ portenta_h33.upload.maximum_data_size=523624
 
 ##############################################################
 
-santiago.name=Santiago (RA4M1)
+santiago.name=Arduino Uno R4 Minima
 santiago.build.core=arduino
 santiago.build.crossprefix=arm-none-eabi-
 santiago.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -96,7 +96,7 @@ santiago.upload.maximum_data_size=32768
 
 ##############################################################
 
-composta.name=Santiago Leven (RA4M1)
+composta.name=Arduino Uno R4 WiFi
 composta.build.core=arduino
 composta.build.crossprefix=arm-none-eabi-
 composta.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -138,7 +138,7 @@ composta.upload.maximum_data_size=32768
 
 ##############################################################
 
-muxto.name=Muxto (RA2A1)
+muxto.name=Science Kit R3 Audio Module
 muxto.build.core=arduino
 muxto.build.crossprefix=arm-none-eabi-
 muxto.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
