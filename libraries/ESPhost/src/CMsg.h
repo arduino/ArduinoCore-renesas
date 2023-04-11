@@ -136,6 +136,8 @@ public:
       or the data to be sent and received by network interfaces */
    uint8_t *get_protobuf_ptr();  
    uint16_t get_protobuf_dim(); 
+   uint8_t *data();
+   
 
    /* ---------------------------------------
     * function to deal with the TLV structure 

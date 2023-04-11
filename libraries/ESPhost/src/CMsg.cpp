@@ -239,6 +239,14 @@ uint8_t* CMsg::get_protobuf_ptr() {
    return buf + esp_payload_header_size + tlv_size; 
 }  
 
+/* this function is equivalent to the get_protobuf_ptr when tlv_size is 0 
+   use it only in case of net message to be sent */
+/* -------------------------------------------------------------------------- */ 
+uint8_t *CMsg::data() {
+/* -------------------------------------------------------------------------- */    
+   return buf + esp_payload_header_size; 
+}
+
 /* -------------------------------------------------------------------------- */   
 uint16_t CMsg::get_protobuf_dim() { 
 /* -------------------------------------------------------------------------- */   

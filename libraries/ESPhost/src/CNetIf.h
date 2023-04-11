@@ -8,18 +8,93 @@
 #include <map>
 #include <string>
 #include <queue>
-
+#include "CCtrlWrapper.h"
+#include "CEspControl.h"
 #include "IPAddress.h"
 #include "lwip/include/lwip/netif.h"
 #include "lwip/include/lwip/init.h"
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/ip_addr.h"
+#include "lwip/include/netif/ethernet.h"
 
 #ifdef LWIP_USE_TIMER
 #include "FspTimer.h"
 #endif
 
+#define MAC_ADDRESS_DIM            6
 #define NETWORK_INTERFACES_MAX_NUM 3
+
+#define WIFI_INIT_TIMEOUT_MS  10000
+
+/* DEFAULT ADDRESS FOR ETHERNET CONFIGURATION */
+
+/*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
+#define IP_ETH_0   (uint8_t) 192
+#define IP_ETH_1   (uint8_t) 168
+#define IP_ETH_2   (uint8_t) 0
+#define IP_ETH_3   (uint8_t) 10
+
+/*NETMASK*/
+#define NM_ETH_0   (uint8_t) 255
+#define NM_ETH_1   (uint8_t) 255
+#define NM_ETH_2   (uint8_t) 255
+#define NM_ETH_3   (uint8_t) 0
+
+/*Gateway Address*/
+#define GW_ETH_0   (uint8_t) 192
+#define GW_ETH_1   (uint8_t) 168
+#define GW_ETH_2   (uint8_t) 0
+#define GW_ETH_3   (uint8_t) 1
+
+/* DEFAULT ADDRESS FOR WIFI STATION CONFIGURATION */
+
+/*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
+#define IP_WST_0   (uint8_t) 192
+#define IP_WST_1   (uint8_t) 168
+#define IP_WST_2   (uint8_t) 0
+#define IP_WST_3   (uint8_t) 10
+
+/*NETMASK*/
+#define NM_WST_0   (uint8_t) 255
+#define NM_WST_1   (uint8_t) 255
+#define NM_WST_2   (uint8_t) 255
+#define NM_WST_3   (uint8_t) 0
+
+/*Gateway Address*/
+#define GW_WST_0   (uint8_t) 192
+#define GW_WST_1   (uint8_t) 168
+#define GW_WST_2   (uint8_t) 0
+#define GW_WST_3   (uint8_t) 1
+
+/* DEFAULT ADDRESS FOR WIFI SOFT AP CONFIGURATION */
+
+/*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
+#define IP_WSA_0   (uint8_t) 192
+#define IP_WSA_1   (uint8_t) 168
+#define IP_WSA_2   (uint8_t) 0
+#define IP_WSA_3   (uint8_t) 10
+
+/*NETMASK*/
+#define NM_WSA_0   (uint8_t) 255
+#define NM_WSA_1   (uint8_t) 255
+#define NM_WSA_2   (uint8_t) 255
+#define NM_WSA_3   (uint8_t) 0
+
+/*Gateway Address*/
+#define GW_WSA_0   (uint8_t) 192
+#define GW_WSA_1   (uint8_t) 168
+#define GW_WSA_2   (uint8_t) 0
+#define GW_WSA_3   (uint8_t) 1
+
+#define ETH_IFNAME0 'e'
+#define ETH_IFNAME1 't'
+
+#define WST_IFNAME0 'w'
+#define WST_IFNAME1 'f'
+
+#define WSA_IFNAME0 'w'
+#define WSA_IFNAME1 'a'
+
 
 typedef enum {
   NI_WIFI_STATION,
@@ -38,10 +113,6 @@ class CNetIf;
 using NetIfRxCb_f = int (*)(CNetIf *);
 using LwipInit_f =  err_t (*)(struct netif *netif);
 using LwipInput_f = err_t (*)(struct pbuf *p, struct netif *inp);
-
-#define NET_IP_ADD_TYPE 0
-#define NET_GW_ADD_TYPE 1
-#define NET_NM_ADD_TYPE 2 
 
 
 typedef enum {
@@ -69,7 +140,7 @@ protected:
    bool dhcp_acquired;
    void dhcp_task();
    
-   void setAddr(ip_addr_t *dst, const uint8_t* src);
+   void setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def);
 public:
    CNetIf();
    virtual ~CNetIf();
@@ -81,17 +152,21 @@ public:
    /* getters / setters */
    void setId(int _id) { id = _id; }
    int getId() {return id;} 
-   void setIp(const uint8_t *_ip) { setAddr(&ip, _ip); }
-   void setNm(const uint8_t *_nm) { setAddr(&nm, _nm); }
-   void setGw(const uint8_t *_gw) { setAddr(&gw, _gw); }
+   
    struct netif *getNi()    { return &ni; }
    ip_addr_t *getIp()       { return &ip; }
    ip_addr_t *getNm()       { return &nm; }
    ip_addr_t *getGw()       { return &gw; }
 
    /* add */
-   virtual void add() = 0;
+   virtual void begin(const uint8_t* _ip, 
+                      const uint8_t* _gw, 
+                      const uint8_t* _nm) = 0;
    virtual void task() = 0;  
+
+   virtual void setIp(const uint8_t *_ip) = 0;
+   virtual void setNm(const uint8_t *_nm) = 0;
+   virtual void setGw(const uint8_t *_gw) = 0;
 };
 
 
@@ -105,8 +180,15 @@ class CEthernet : public CNetIf {
    public:
    CEthernet();
    virtual ~CEthernet();
-   virtual void add() override {}
+   virtual void begin(const uint8_t* _ip, 
+                      const uint8_t* _gw, 
+                      const uint8_t* _nm) override;
    virtual void task() override {}
+
+
+   void setIp(const uint8_t *_ip) override;
+   void setNm(const uint8_t *_nm) override;
+   void setGw(const uint8_t *_gw) override;
 
 
 };
@@ -122,8 +204,14 @@ class CWifiStation : public CNetIf {
    public:
    CWifiStation();
    virtual ~CWifiStation();
-   virtual void add() override;
+   virtual void begin(const uint8_t* _ip, 
+                      const uint8_t* _gw, 
+                      const uint8_t* _nm) override;
    virtual void task() override;
+
+   void setIp(const uint8_t *_ip) override;
+   void setNm(const uint8_t *_nm) override;
+   void setGw(const uint8_t *_gw) override;
 
 };
 
@@ -133,8 +221,14 @@ class CWifiSoftAp : public CNetIf {
    public:
    CWifiSoftAp();
    virtual ~CWifiSoftAp();
-   virtual void add() override;
+   virtual void begin(const uint8_t* _ip, 
+                      const uint8_t* _gw, 
+                      const uint8_t* _nm) override;
    virtual void task() override;
+
+   void setIp(const uint8_t *_ip) override;
+   void setNm(const uint8_t *_nm) override;
+   void setGw(const uint8_t *_gw) override;
 };
 
 
@@ -154,6 +248,10 @@ private:
    static void timer_cb(timer_callback_args_t *arg);
    #endif
 
+
+   CNetIf *_get(NetIfType_t t);
+
+
    CNetIf *setUpWifiStation(const uint8_t* _ip, 
                             const uint8_t* _gw, 
                             const uint8_t* _nm);
@@ -162,12 +260,13 @@ private:
                            const uint8_t* _gw, 
                            const uint8_t* _nm);
 
-   
-
-
    CNetIf *setUpEthernet(const uint8_t* _ip, 
                          const uint8_t* _gw, 
                          const uint8_t* _nm);
+
+   static bool hw_initialized;
+   static int initEventCb(CCtrlMsgWrapper *resp);
+
 
 public:
    static CLwipIf& getInstance();
@@ -175,13 +274,21 @@ public:
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
    
+   static err_t initEth(struct netif* ni);
+   static err_t initWifiStation(struct netif* ni);
+   static err_t initWifiSoftAp(struct netif* ni);
+
+   static err_t ouputEth(struct netif *ni, struct pbuf *p);
+   static err_t outputWifiStation(struct netif *netif, struct pbuf *p);
+   static err_t outputWifiSoftAp(struct netif *netif, struct pbuf *p);
    
    CNetIf *get(NetIfType_t type, 
                const uint8_t* _ip = nullptr, 
                const uint8_t* _gw = nullptr, 
                const uint8_t* _nm = nullptr);
    
-
+   bool setMacAddress(NetIfType_t type, uint8_t* mac);
+   int getMacAddress(NetIfType_t type, uint8_t* mac);
 
    
 

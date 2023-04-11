@@ -29,13 +29,8 @@
  * configuration defines
  */ 
 
-#define LWIP_WIFI_HOSTNAME "c33-wifi"
-#define IFNAME0 'w'
-#define IFNAME1 'f'
-#define MAX_TRANSFERT_UNIT 1500
-#define IS_WIFI_DEFAULT_INTERFACE 1
 
-
+#include <string>
 
 #include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
@@ -85,6 +80,19 @@ public:
       }
 
       return true;
+   }
+
+   static void macArray2macStr(char *mac_out, const uint8_t *mac_in) {
+      string MAC = "";
+      for(int i = 0; i < WIFI_MAC_ADDRESS_DIM; i++) {
+         MAC += std::to_string(*(mac_in + i));
+         if(i < WIFI_MAC_ADDRESS_DIM - 1) {
+            MAC += ":";
+         }
+      }
+      for(int i = 0; i < MAC.size(); i++ ) {
+         *(mac_out + i) = MAC[i];
+      }  
    }
 };
 
@@ -144,23 +152,17 @@ public:
    int getWifiCurrentTxPower(uint32_t &max_power, EspCallback_f cb = nullptr);
    int setWifiMaxTxPower(uint32_t max_power, EspCallback_f cb = nullptr);
 
+   int sendBuffer(ESP_INTERFACE_TYPE type, uint8_t num, uint8_t *buf, uint16_t dim);
+   
 
-   void begin() {
-       esp_host_spi_init();
-   }
+   void initSpiDriver() { esp_host_spi_init(); }
 
 
-   int addNetworkInterface(string name, NetIfRxCb_f _rx_cb);
-   int sendOnNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
-   int receiveFromNetworkInterface(string name, uint8_t *buffer, uint32_t dim);
+   
 
    void communicateWithEsp();
    
-   /* callback to be passed add_netif lwIP function with wifi initialization */
-   static err_t lwip_init_wifi(struct netif *netif);
-   /* callback used to set netif_linkoutput_fn used by lwIP to send packet on
-      the physical interface */
-   static err_t lwip_output_wifi(struct netif *netif, struct pbuf *p);
+   
    
    /* timeout for synchronous answer */
    void setTimeout_ms(uint32_t tout) {timeout_ms = tout; }

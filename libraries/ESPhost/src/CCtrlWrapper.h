@@ -503,13 +503,16 @@ public:
       return CTRL_MSG_ID__MsgId_Invalid;
    }
 
+   /* get a msg to be sent by a network interface, i.e. the network send buf */
    /* ----------------------------------------------------------------------- */
-   static CMsg getNetIfMsg(ESP_INTERFACE_TYPE type, uint8_t num, uint16_t dim) {
+   CMsg getNetIfMsg(ESP_INTERFACE_TYPE type, uint8_t num,uint8_t *buf, uint16_t dim) {
    /* ----------------------------------------------------------------------- */
       /* create a message without the TLV header, besides this message will not
          manage a CtrlMsg, neither pack it into a protobuf */
       CMsg msg(dim, false);
       if(msg.is_valid()) {
+         /* copy the buffer into the "protobuf" place as data */
+         memcpy(msg.data(), buf, dim);
          msg.set_payload_header(type, num);
          return msg;
       }

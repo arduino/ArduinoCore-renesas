@@ -49,10 +49,6 @@ CEspControl::~CEspControl() {
 /* -------------------------------------------------------------------------- */
 
 }
-
-
-
-
 /* process net messages */
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_net_messages(CCtrlMsgWrapper* response) {
@@ -278,6 +274,16 @@ int CEspControl::send_net_packet(CMsg& msg) {
 
    return rv;
 }
+
+/* -------------------------------------------------------------------------- */
+int CEspControl::sendBuffer(ESP_INTERFACE_TYPE type, uint8_t num, uint8_t *buf, uint16_t dim) {
+/* -------------------------------------------------------------------------- */
+   CCtrlMsgWrapper req; 
+   CMsg msg = req.getNetIfMsg(type, num, buf, dim);
+   return send_net_packet(msg);
+}
+
+
 
 /* -------------------------------------------------------------------------- */
 void CEspControl::communicateWithEsp() {
@@ -738,64 +744,3 @@ int CEspControl::configureHeartbeat(HeartBeat_t &hb, EspCallback_f cb) {
    return rv;
  }
 
-/* -------------------------------------------------------------------------- */
- err_t CEspControl::lwip_init_wifi(struct netif *netif) {
-/* -------------------------------------------------------------------------- */   
-   WifiMac_t MAC;
-
-   #if LWIP_NETIF_HOSTNAME
-   /* Initialize interface hostname */
-   netif->hostname = LWIP_WIFI_HOSTNAME;
-   #endif /* LWIP_NETIF_HOSTNAME */
-
-   netif->name[0] = IFNAME0;
-   netif->name[1] = IFNAME1;
-
-   netif->output = etharp_output; /* ??????? */
-   netif->linkoutput = lwip_output_wifi;
-   
-   /* getWifiMacAddress automatically makes a copy of mac_address into the 
-      member variable mac_address */
-   if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-     netif->hwaddr_len = WIFI_MAC_ADDRESS_DIM;
-     
-   }
-
-   /* maximum transfer unit */
-   netif->mtu = MAX_TRANSFERT_UNIT;
-
-   /* device capabilities */
-   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-   netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;   /* ???????? */
-
-
-   if(ESP_HOSTED_SPI_DRIVER_OK == esp_host_spi_init()) {
-      return ERR_OK;
-   }
-
-   return ERR_IF;
- }  
-
-/* -------------------------------------------------------------------------- */
-err_t CEspControl::lwip_output_wifi(struct netif *netif, struct pbuf *p) {
-/* -------------------------------------------------------------------------- */
-   err_t errval = ERR_OK;
-   
-   CMsg msg = CCtrlMsgWrapper::getNetIfMsg(ESP_STA_IF, netif->num, p->tot_len);
-   if(msg.is_valid()) {
-      uint16_t bytes_actually_copied = pbuf_copy_partial(p, msg.get_protobuf_ptr(), p->tot_len, 0);
-      if(bytes_actually_copied > 0) {
-         int res = CEspControl::getInstance().send_net_packet(msg);
-         if(res == ESP_HOSTED_SPI_DRIVER_OK || res == ESP_HOSTED_SPI_MESSAGE_RECEIVED) {
-            errval = ERR_IF;
-         } 
-      }
-   }
-   else {
-      errval = ERR_IF;
-   }
-
-   
-  return errval;
-   
-}

@@ -110,7 +110,7 @@ int esp_host_spi_transaction(void);
  * PUBLIC Functions
  * ################ */
 
-
+static bool spi_driver_initialized = false;
 
 /* -------------------------------------------------------------------------- */
 /* INIT THE SPI DRIVER (to always called at first)                            
@@ -118,6 +118,12 @@ int esp_host_spi_transaction(void);
  * configuration                                                              */
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_init(void) {
+   
+   if(spi_driver_initialized) {
+      return ESP_HOSTED_SPI_DRIVER_OK;
+   }
+
+ 
    /* ++++++++++++++++++++++++++++++++++
     *  GPIOs (HANDSHAKE and DATA_READY)
     * ++++++++++++++++++++++++++++++++++ */
@@ -212,6 +218,8 @@ int esp_host_spi_init(void) {
    }
    
    R_IOPORT_PinWrite(NULL, ESP_RESET, BSP_IO_LEVEL_HIGH);
+
+   spi_driver_initialized = true;
 
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
