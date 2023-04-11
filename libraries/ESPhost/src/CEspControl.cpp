@@ -58,13 +58,6 @@ int CEspControl::process_net_messages(CCtrlMsgWrapper* response) {
 
 
    
-/* process event messages */
-/* -------------------------------------------------------------------------- */
-int CEspControl::process_event_messages(CCtrlMsgWrapper* response) {
-/* -------------------------------------------------------------------------- */   
-
-   
-}
 
 /* process priv messages */
 /* -------------------------------------------------------------------------- */

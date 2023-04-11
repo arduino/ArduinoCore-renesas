@@ -177,8 +177,7 @@ private:
    int process_msgs_received(CCtrlMsgWrapper *ans);
    /* process ctrl messages */
    int process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper *ans);
-   /* process event messages */
-   int process_event_messages(CCtrlMsgWrapper *ans);
+   
    /* process priv messages */
    int process_priv_messages(CCtrlMsgWrapper *ans);
    /* process net messages */
