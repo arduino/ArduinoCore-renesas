@@ -97,7 +97,7 @@ void arduino_main(void)
    __enable_irq();
 
 #ifdef BACKTRACE_SUPPORT
-   cm_backtrace_init(stringify(PROJECT_NAME), "RENESAS", "0");
+   cm_backtrace_init(stringify(PROJECT_NAME), "RA", __DATE__);
 #endif
 
    _init();
