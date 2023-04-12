@@ -15,6 +15,7 @@
 #include "lwip/include/lwip/init.h"
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/ip_addr.h"
+#include "lwip/include/lwip/timeouts.h"
 #include "lwip/include/netif/ethernet.h"
 
 #ifdef LWIP_USE_TIMER
@@ -183,7 +184,7 @@ class CEthernet : public CNetIf {
    virtual void begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) override;
-   virtual void task() override {}
+   virtual void task() override;
 
 
    void setIp(const uint8_t *_ip) override;
@@ -236,7 +237,7 @@ class CWifiSoftAp : public CNetIf {
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
-   CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
+   static CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
    
 
    /* initialize lwIP and timer */
@@ -251,21 +252,14 @@ private:
 
    CNetIf *_get(NetIfType_t t);
 
-
-   CNetIf *setUpWifiStation(const uint8_t* _ip, 
-                            const uint8_t* _gw, 
-                            const uint8_t* _nm);
-
-   CNetIf *setUpWifiSoftAp(const uint8_t* _ip, 
-                           const uint8_t* _gw, 
-                           const uint8_t* _nm);
-
    CNetIf *setUpEthernet(const uint8_t* _ip, 
                          const uint8_t* _gw, 
                          const uint8_t* _nm);
 
-   static bool hw_initialized;
+   static bool wifi_hw_initialized;
    static int initEventCb(CCtrlMsgWrapper *resp);
+
+   static void initWifiHw();
 
 
 public:
@@ -274,14 +268,31 @@ public:
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
    
+   /* 
+    * these functions are passed to netif_add function as 'init' function for
+    * that network interface
+    */
+
    static err_t initEth(struct netif* ni);
    static err_t initWifiStation(struct netif* ni);
    static err_t initWifiSoftAp(struct netif* ni);
+
+   /* 
+    * these functions are passed to are set to netif->linkoutput function during
+    * the execution of the previous init function
+    */
 
    static err_t ouputEth(struct netif *ni, struct pbuf *p);
    static err_t outputWifiStation(struct netif *netif, struct pbuf *p);
    static err_t outputWifiSoftAp(struct netif *netif, struct pbuf *p);
    
+   /* when you 'get' a network interface, you get a pointer to one of the pointers
+      held by net_ifs array
+      if the array element then an attempt to set up the network interface is made
+      this function actually calls the private function setUp... and that ones
+      call the private _get */
+
+
    CNetIf *get(NetIfType_t type, 
                const uint8_t* _ip = nullptr, 
                const uint8_t* _gw = nullptr, 

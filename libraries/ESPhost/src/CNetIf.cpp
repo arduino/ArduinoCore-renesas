@@ -13,7 +13,7 @@ const uint8_t default_wsa_ip[4] = {IP_WSA_0, IP_WSA_1, IP_WSA_2, IP_WSA_3};
 const uint8_t default_wsa_nm[4] = {NM_WSA_0, NM_WSA_1, NM_WSA_2, NM_WSA_3};
 const uint8_t default_wsa_gw[4] = {GW_WSA_0, GW_WSA_1, GW_WSA_2, GW_WSA_3};
 
-
+CNetIf * CLwipIf::net_ifs[] = {nullptr};
 
 /* -------------------------------------------------------------------------- */
 CLwipIf::CLwipIf() {
@@ -41,7 +41,20 @@ CLwipIf::CLwipIf() {
 /* -------------------------------------------------------------------------- */
 void CLwipIf::lwip_task() {
 /* -------------------------------------------------------------------------- */   
+   if(net_ifs[NI_ETHERNET]  != nullptr) {
+      net_ifs[NI_ETHERNET]->task();
+   }
 
+   if(net_ifs[NI_WIFI_STATION]  != nullptr) {
+      net_ifs[NI_WIFI_STATION]->task();
+   }
+
+   if(net_ifs[NI_WIFI_SOFTAP]  != nullptr) {
+      net_ifs[NI_WIFI_SOFTAP]->task();
+   }
+
+   /* Handle LwIP timeouts */
+   sys_check_timeouts();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -63,6 +76,7 @@ CLwipIf::~CLwipIf() {
       }
    }
 }
+
 
 /* This function returns a newly allocate Network interface if the interface 
    was not allocated before or nullptr if the Network Interface was already 
@@ -91,33 +105,31 @@ CNetIf *CLwipIf::_get(NetIfType_t t) {
       }
    }
    return rv;
-
-   
-
 }
 
 
-/* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::setUpWifiStation(const uint8_t* _ip, 
-                                  const uint8_t* _gw, 
-                                  const uint8_t* _nm) {
-/* -------------------------------------------------------------------------- */
-  CNetIf *rv = nullptr;
+bool CLwipIf::wifi_hw_initialized = false; 
 
-  
+/* -------------------------------------------------------------------------- */
+int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
+   CLwipIf::wifi_hw_initialized = true;
+}
+/* -------------------------------------------------------------------------- */
+void CLwipIf::initWifiHw() {
+/* -------------------------------------------------------------------------- */   
+   if(!CLwipIf::wifi_hw_initialized) {
 
-  return rv;
+      CEspControl::getInstance().listenForInitEvent(initEventCb);
+      CEspControl::getInstance().initSpiDriver();
+
+      int time_num = 0;
+      while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::wifi_hw_initialized) {
+         R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
+         time_num++;
+      }
+   }
 }
 
-/* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::setUpWifiSoftAp(const uint8_t* _ip, 
-                                 const uint8_t* _gw, 
-                                 const uint8_t* _nm) {
-/* -------------------------------------------------------------------------- */
-  CNetIf *rv = nullptr;
-
-  return rv;
-}
 
 /* -------------------------------------------------------------------------- */
 CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip, 
@@ -137,7 +149,6 @@ CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip,
   return rv;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* Sort of factory method, dependig on the requested type it setUp a different 
    Network interface and returns it to the caller */
@@ -150,14 +161,37 @@ CNetIf *CLwipIf::get(NetIfType_t type,
    CNetIf *rv = nullptr;
    switch(type) {
       case NI_WIFI_STATION:
-         rv = setUpWifiStation(_ip, _gw, _nm);
+         rv = _get(NI_WIFI_STATION);
+         if(rv != nullptr) {
+            initWifiHw();
+            rv->begin(_ip,_gw,_nm);
+            /* id is set up based on the presence of the 'other' wifi interface */
+            if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
+               rv->setId(1);
+            }
+            else {
+               rv->setId(0);
+            }
+         }
          break;
       case NI_WIFI_SOFTAP:
-         rv = setUpWifiSoftAp(_ip, _gw, _nm);
+         rv = _get(NI_WIFI_SOFTAP);
+         if(rv != nullptr) {
+            initWifiHw();
+            rv->begin(_ip,_gw,_nm);
+            /* id is set up based on the presence of the 'other' wifi interface */
+            if(net_ifs[NI_WIFI_STATION] != nullptr) {
+               rv->setId(1);
+            }
+            else {
+               rv->setId(0);
+            }
+         }
+
          break;
 
       case NI_ETHERNET:
-         setUpEthernet(_ip, _gw, _nm);
+         rv = setUpEthernet(_ip, _gw, _nm);
          break;
 
       default:
@@ -238,7 +272,11 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
    if(buf != nullptr) {
       uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
       if(bytes_actually_copied > 0) {
-         if(CEspControl::getInstance().sendBuffer(ESP_STA_IF, 0, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
+         int ifn = 0;
+         if(net_ifs[NI_WIFI_STATION] != nullptr) {
+            ifn = net_ifs[NI_WIFI_STATION]->getId();
+         }
+         if(CEspControl::getInstance().sendBuffer(ESP_STA_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
             errval = ERR_OK;
          }
       }
@@ -272,15 +310,6 @@ err_t CLwipIf::initWifiStation(struct netif* _ni) {
    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
    _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
-   CEspControl::getInstance().listenForInitEvent(initEventCb);
-   CEspControl::getInstance().initSpiDriver();
-
-   int time_num = 0;
-   while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::hw_initialized) {
-      R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
-      time_num++;
-   }
-
    /* set MAC hardware address */
    _ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, _ni->hwaddr);
   
@@ -300,7 +329,12 @@ err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf *p) {
    if(buf != nullptr) {
       uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
       if(bytes_actually_copied > 0) {
-         if(CEspControl::getInstance().sendBuffer(ESP_AP_IF, 0, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
+         int ifn = 0;
+         if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
+            ifn = net_ifs[NI_WIFI_SOFTAP]->getId();
+         }
+
+         if(CEspControl::getInstance().sendBuffer(ESP_AP_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
             errval = ERR_OK;
          }
       }
@@ -312,11 +346,7 @@ err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf *p) {
 
 
 
-bool CLwipIf::hw_initialized = false; 
 
-int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-   hw_initialized = true;
-}
 
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::initWifiSoftAp(struct netif* _ni) {
@@ -342,14 +372,7 @@ err_t CLwipIf::initWifiSoftAp(struct netif* _ni) {
    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
    _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
-   CEspControl::getInstance().listenForInitEvent(initEventCb);
-   CEspControl::getInstance().initSpiDriver();
-
-   int time_num = 0;
-   while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::hw_initialized) {
-      R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
-      time_num++;
-   }
+   
 
    /* set MAC hardware address */
    _ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_SOFTAP, _ni->hwaddr);
@@ -542,10 +565,11 @@ void CEthernet::setGw(const uint8_t *_gw) {
    setAddr(&ip,_gw, (const uint8_t*)&default_eth_ip);
 }
 
-
+/* -------------------------------------------------------------------------- */
 void CEthernet::begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
+/* -------------------------------------------------------------------------- */   
    setIp(_ip);
    setGw(_gw);
    setNm(_nm);
@@ -569,6 +593,13 @@ void CEthernet::begin(const uint8_t* _ip,
     /* Set the link callback function, this function is called on change of link status */
      //netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
   #endif /* LWIP_NETIF_LINK_CALLBACK */
+}
+
+/* -------------------------------------------------------------------------- */
+void CEthernet::task() {
+/* -------------------------------------------------------------------------- */   
+
+
 }
 
 /* ########################################################################## */
@@ -617,6 +648,37 @@ void CWifiStation::begin(const uint8_t* _ip,
      //netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
   #endif /* LWIP_NETIF_LINK_CALLBACK */
    
+}
+
+/* -------------------------------------------------------------------------- */
+void CWifiStation::task() {
+/* -------------------------------------------------------------------------- */   
+   /* get messages and process it  */
+   uint8_t if_num;
+   uint16_t dim;
+
+   /* shall we verify something about if_num??? */
+
+   uint8_t *buf = CEspControl::getInstance().getStationRx(if_num, dim);
+
+   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+   if(p != NULL) {
+      /* Copy ethernet frame into pbuf */
+      pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
+      delete []buf;
+
+      if(ni.input(p, &ni) != ERR_OK) {
+         pbuf_free(p);
+      }
+   }
+
+   #if LWIP_DHCP
+   static unsigned long dhcp_last_time_call = 0;
+   if(dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
+     dhcp_task();
+   }
+   #endif
+
 }
 
 
@@ -668,3 +730,29 @@ void CWifiSoftAp::begin(const uint8_t* _ip,
 }
 
 
+/* -------------------------------------------------------------------------- */
+void CWifiSoftAp::task() {
+/* -------------------------------------------------------------------------- */   
+   /* get messages and process it  */
+   uint8_t if_num;
+   uint16_t dim;
+   uint8_t *buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
+  
+   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+   if(p != NULL) {
+      /* Copy ethernet frame into pbuf */
+      pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
+      delete []buf;
+
+      if(ni.input(p, &ni) != ERR_OK) {
+         pbuf_free(p);
+      }
+   }
+
+   #if LWIP_DHCP
+   static unsigned long dhcp_last_time_call = 0;
+   if(dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
+     dhcp_task();
+   }
+   #endif
+}

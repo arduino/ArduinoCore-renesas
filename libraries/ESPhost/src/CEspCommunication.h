@@ -36,6 +36,8 @@ class CEspCom {
 private:
    static queue<CMsg> to_ESP32_queue;
    static queue<CMsg> from_ESP32_queue;
+   static queue<CMsg> rxStationQueue;
+   static queue<CMsg> rxSoftApQueue;
 public:
    /* application layer call this function when wants to send a message to esp*/
    static bool send_msg_to_esp(CMsg &msg);
@@ -56,6 +58,11 @@ public:
       it the latter case the buffer is memset to 0 (dummy message to be used
       if there is something to be received from esp and nothing to be sent to)*/
    static bool get_msg_from_app(uint8_t *buffer, uint16_t dim);
+
+   static bool storeStationMsg(CMsg &msg);
+   static bool storeSoftApMsg(CMsg &msg); 
+   static bool getMsgForStation(CMsg &msg);
+   static bool getMsgForSoftAp(CMsg &msg);
 
 };
 

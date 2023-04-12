@@ -49,12 +49,7 @@ CEspControl::~CEspControl() {
 /* -------------------------------------------------------------------------- */
 
 }
-/* process net messages */
-/* -------------------------------------------------------------------------- */
-int CEspControl::process_net_messages(CCtrlMsgWrapper* response) {
-/* -------------------------------------------------------------------------- */   
 
-}
 
 
    
@@ -69,8 +64,42 @@ int CEspControl::process_priv_messages(CCtrlMsgWrapper* response) {
 /* process test messages */
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_test_messages(CCtrlMsgWrapper* response) {
-
+   
 }
+
+
+/* -------------------------------------------------------------------------- */
+uint8_t *CEspControl::getStationRx(uint8_t &if_num, uint16_t &dim) {
+/* -------------------------------------------------------------------------- */   
+   uint8_t *rv = nullptr;
+   CMsg msg; 
+   if(CEspCom::getMsgForStation(msg)) {
+      if_num = msg.get_if_num();
+      dim = msg.get_protobuf_dim();
+      rv = new uint8_t[dim];
+      if(rv != nullptr) {
+         memcpy(rv,msg.data(),dim);
+      }
+   }
+   return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t *CEspControl::getSoftApRx(uint8_t &if_num, uint16_t &dim) {
+/* -------------------------------------------------------------------------- */   
+   uint8_t *rv = nullptr;
+   CMsg msg; 
+   if(CEspCom::getMsgForStation(msg)) {
+      if_num = msg.get_if_num();
+      dim = msg.get_protobuf_dim();
+      rv = new uint8_t[dim];
+      if(rv != nullptr) {
+         memcpy(rv,msg.data(),dim);
+      }
+   }
+   return rv;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* PROCESS CONTROL MESSAGES */
@@ -176,14 +205,21 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
          } 
       }
       /* NETWORK_MESSAGES____________________________________________________ */
-      else if(msg.get_if_type() == ESP_STA_IF || msg.get_if_type() == ESP_AP_IF) {
+      else if(msg.get_if_type() == ESP_STA_IF) {
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println(" NETWORK MESSAGE");
-         Serial.print(" Network interface: ");
+         Serial.print(" NETWORK MESSAGE");
+         Serial.print(" Station ");
          Serial.println(msg.get_if_num());
          #endif
-          
-         
+         CEspCom::storeStationMsg(msg); 
+      }
+      else if(msg.get_if_type() == ESP_AP_IF) {
+         #ifdef ESP_HOST_DEBUG_ENABLED
+         Serial.print(" NETWORK MESSAGE");
+         Serial.print(" Soft Ap ");
+         Serial.println(msg.get_if_num());
+         #endif
+         CEspCom::storeSoftApMsg(msg); 
       }
       /* PRIV_MESSAGES_______________________________________________________ */
       else if(msg.get_if_type() == ESP_PRIV_IF) {

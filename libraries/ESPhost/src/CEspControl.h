@@ -154,6 +154,10 @@ public:
 
    int sendBuffer(ESP_INTERFACE_TYPE type, uint8_t num, uint8_t *buf, uint16_t dim);
    
+   uint8_t *getStationRx(uint8_t &if_num, uint16_t &dim);
+   uint8_t *getSoftApRx(uint8_t &if_num, uint16_t &dim);
+
+   
 
    void initSpiDriver() { esp_host_spi_init(); }
 
@@ -180,8 +184,7 @@ private:
    
    /* process priv messages */
    int process_priv_messages(CCtrlMsgWrapper *ans);
-   /* process net messages */
-   int process_net_messages(CCtrlMsgWrapper *ans);
+   
    /* process test messages */
    int process_test_messages(CCtrlMsgWrapper* ans);
    int wait_for_answer(CCtrlMsgWrapper* ans);

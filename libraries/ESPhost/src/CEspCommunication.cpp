@@ -22,7 +22,8 @@
 
 queue<CMsg> CEspCom::to_ESP32_queue;
 queue<CMsg> CEspCom::from_ESP32_queue;
-
+queue<CMsg> CEspCom::rxStationQueue;
+queue<CMsg> CEspCom::rxSoftApQueue;
 /* -------------------------------------------------------------------------- */
 bool CEspCom::send_msg_to_esp(CMsg &msg) {
 /* -------------------------------------------------------------------------- */  
@@ -70,4 +71,48 @@ bool CEspCom::get_msg_from_app(uint8_t *buffer, uint16_t dim) {
       rv = false;
    }
    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+bool CEspCom::storeStationMsg(CMsg &msg) {
+/* -------------------------------------------------------------------------- */   
+   if(msg.is_valid()) {
+      CEspCom::rxStationQueue.push(std::move(msg));
+      return true;
+   }
+   return false;
+
+}
+
+/* -------------------------------------------------------------------------- */
+bool CEspCom::storeSoftApMsg(CMsg &msg) {
+/* -------------------------------------------------------------------------- */   
+   if(msg.is_valid()) {
+      CEspCom::rxSoftApQueue.push(std::move(msg));
+      return true;
+   }
+   return false;
+
+}    
+
+/* -------------------------------------------------------------------------- */
+bool CEspCom::getMsgForStation(CMsg &msg) {
+/* -------------------------------------------------------------------------- */
+   if(CEspCom::rxStationQueue.size() > 0) {
+      msg = CEspCom::rxStationQueue.front();
+      CEspCom::rxStationQueue.pop();
+      return true;
+   }
+   return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool CEspCom::getMsgForSoftAp(CMsg &msg) {
+/* -------------------------------------------------------------------------- */
+   if(CEspCom::rxSoftApQueue.size() > 0) {
+      msg = CEspCom::rxSoftApQueue.front();
+      CEspCom::rxSoftApQueue.pop();
+      return true;
+   }
+   return false;
 }
