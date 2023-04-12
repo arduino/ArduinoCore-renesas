@@ -164,15 +164,16 @@ public:
     void next() {
         uint32_t frame[3];
         static int j = 0;
-        frame[0] = reverse(*(_frames+(j*3)+0));
-        frame[1] = reverse(*(_frames+(j*3)+1));
-        frame[2] = reverse(*(_frames+(j*3)+2));
+        frame[0] = reverse(*(_frames+(j*4)+0));
+        frame[1] = reverse(*(_frames+(j*4)+1));
+        frame[2] = reverse(*(_frames+(j*4)+2));
+        _interval = *(_frames+(j*4)+3);
         j = (j + 1) % _lines;
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
     }
-    void load_wrapper(const uint32_t frames[][3], uint32_t howMany) {
+    void load_wrapper(const uint32_t frames[][4], uint32_t howMany) {
         _frames = (uint32_t*)frames;
-        _lines = (howMany / 3) / sizeof(uint32_t);
+        _lines = (howMany / 4) / sizeof(uint32_t);
     }
 private:
     uint32_t* _frames;
