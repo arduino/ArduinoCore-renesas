@@ -14,6 +14,9 @@ const uint8_t default_wsa_nm[4] = {NM_WSA_0, NM_WSA_1, NM_WSA_2, NM_WSA_3};
 const uint8_t default_wsa_gw[4] = {GW_WSA_0, GW_WSA_1, GW_WSA_2, GW_WSA_3};
 
 CNetIf * CLwipIf::net_ifs[] = {nullptr};
+bool CLwipIf::wifi_hw_initialized = false; 
+bool CLwipIf::connected_to_access_point = false; 
+WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
 
 /* -------------------------------------------------------------------------- */
 CLwipIf::CLwipIf() {
@@ -108,27 +111,7 @@ CNetIf *CLwipIf::_get(NetIfType_t t) {
 }
 
 
-bool CLwipIf::wifi_hw_initialized = false; 
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-   CLwipIf::wifi_hw_initialized = true;
-}
-/* -------------------------------------------------------------------------- */
-void CLwipIf::initWifiHw() {
-/* -------------------------------------------------------------------------- */   
-   if(!CLwipIf::wifi_hw_initialized) {
-
-      CEspControl::getInstance().listenForInitEvent(initEventCb);
-      CEspControl::getInstance().initSpiDriver();
-
-      int time_num = 0;
-      while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::wifi_hw_initialized) {
-         R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
-         time_num++;
-      }
-   }
-}
 
 
 /* -------------------------------------------------------------------------- */
@@ -150,6 +133,47 @@ CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip,
 }
 
 /* -------------------------------------------------------------------------- */
+int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
+   if(CLwipIf::connected_to_access_point) {
+      wifi_status = WL_DISCONNECTED;
+   }
+}
+
+
+/* -------------------------------------------------------------------------- */
+int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
+   wifi_hw_initialized = true;
+}
+
+
+/* -------------------------------------------------------------------------- */
+void CLwipIf::initWifiHw(bool asStation) {
+/* -------------------------------------------------------------------------- */   
+   if(!wifi_hw_initialized) {
+      
+      CEspControl::getInstance().listenForStationDisconnectEvent(disconnectEventcb);
+      CEspControl::getInstance().listenForInitEvent(initEventCb);
+      if(CEspControl::getInstance().initSpiDriver() == 0) {
+         wifi_status = WL_NO_SSID_AVAIL;
+      }
+
+      int time_num = 0;
+      while(time_num < WIFI_INIT_TIMEOUT_MS && !wifi_hw_initialized) {
+         R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
+         time_num++;
+      }
+
+      if(asStation) {
+         CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+      }
+      else {
+         CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
+      }
+   }
+}
+
+
+/* -------------------------------------------------------------------------- */
 /* Sort of factory method, dependig on the requested type it setUp a different 
    Network interface and returns it to the caller */
 /* -------------------------------------------------------------------------- */
@@ -163,7 +187,7 @@ CNetIf *CLwipIf::get(NetIfType_t type,
       case NI_WIFI_STATION:
          rv = _get(NI_WIFI_STATION);
          if(rv != nullptr) {
-            initWifiHw();
+            initWifiHw(true);
             rv->begin(_ip,_gw,_nm);
             /* id is set up based on the presence of the 'other' wifi interface */
             if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
@@ -177,7 +201,7 @@ CNetIf *CLwipIf::get(NetIfType_t type,
       case NI_WIFI_SOFTAP:
          rv = _get(NI_WIFI_SOFTAP);
          if(rv != nullptr) {
-            initWifiHw();
+            initWifiHw(false);
             rv->begin(_ip,_gw,_nm);
             /* id is set up based on the presence of the 'other' wifi interface */
             if(net_ifs[NI_WIFI_STATION] != nullptr) {
@@ -423,8 +447,137 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
    return rv;
 }
 
+/* -------------------------------------------------------------------------- */
+int CLwipIf::scanForAp() {
+/* -------------------------------------------------------------------------- */   
+   access_points.clear();
+   
+   int res = CEspControl::getInstance().getAccessPointScanList(access_points);
+   if(res == ESP_CONTROL_OK) {
+      wifi_status = WL_SCAN_COMPLETED;
+   }
+   else {
+      wifi_status = WL_NO_SSID_AVAIL;
+   }
+}
 
+/* -------------------------------------------------------------------------- */
+int CLwipIf::getApNum() { return access_points.size(); }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+const char *CLwipIf::getSSID(uint8_t i){
+/* -------------------------------------------------------------------------- */   
+   if(access_points.size() > 0 && i < access_points.size()) {
+      return (const char *)access_points[i].ssid;
+   }
+   return nullptr;
+}
 
+/* -------------------------------------------------------------------------- */
+int32_t CLwipIf::getRSSI(uint8_t i) {
+/* -------------------------------------------------------------------------- */   
+   if(access_points.size() > 0 && i < access_points.size()) {
+      return (int32_t)access_points[i].rssi;
+   }
+   return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CLwipIf::getEncrType(uint8_t i){
+/* -------------------------------------------------------------------------- */   
+   if(access_points.size() > 0 && i < access_points.size()) {
+      return (uint8_t)access_points[i].encryption_mode;
+   }
+   return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t *CLwipIf::getBSSID(uint8_t i, uint8_t *bssid) {
+/* -------------------------------------------------------------------------- */   
+   if(access_points.size() > 0 && i < access_points.size()) {
+      CNetUtilities::macStr2macArray(bssid, (const char*)access_points[i].bssid);
+      return bssid;
+   }
+   return nullptr;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CLwipIf::getChannel(uint8_t i) {
+/* -------------------------------------------------------------------------- */   
+   if(access_points.size() > 0 && i < access_points.size()) {
+      return (uint8_t)access_points[i].channel;
+   }
+   return 0;
+}
+/* -------------------------------------------------------------------------- */
+int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
+/* -------------------------------------------------------------------------- */ 
+   WifiApCfg_t ap;
+    
+   bool found = false;
+   uint8_t index = 0;
+   for(uint8_t i = 0; i < access_points.size(); i++) {
+      if(strcmp(ssid, (const char *)access_points[i].ssid) == 0) {
+         found = true;
+         index = i;
+      }
+   }
+
+   if(found) {
+      memset(ap.ssid,0x00,SSID_LENGTH);
+      memcpy(ap.ssid,access_points[index].ssid,SSID_LENGTH);
+      memset(ap.pwd,0x00,PASSWORD_LENGTH);
+      if(pwd != nullptr) {
+         memcpy(ap.pwd,pwd, (strlen(pwd) < PASSWORD_LENGTH) ? strlen(pwd) : PASSWORD_LENGTH) ;
+      }
+      memset(ap.bssid,0x00,BSSID_LENGTH);
+      memcpy(ap.bssid,access_points[index].bssid,BSSID_LENGTH);
+   }
+
+   if(CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
+      CLwipIf::connected_to_access_point = true;
+      wifi_status = WL_CONNECTED;
+      CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
+      return ESP_CONTROL_OK;
+   }
+   else {
+      wifi_status = WL_CONNECT_FAILED;
+      CLwipIf::connected_to_access_point = false;
+   }
+   return ESP_CONTROL_CTRL_ERROR;
+}
+
+/* -------------------------------------------------------------------------- */
+const char* CLwipIf::getSSID() {
+/* -------------------------------------------------------------------------- */   
+   return (const char *)access_point_cfg.ssid;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t *CLwipIf::getBSSID(uint8_t *bssid) {
+/* -------------------------------------------------------------------------- */   
+   CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.bssid);
+   return bssid;
+}
+
+/* -------------------------------------------------------------------------- */
+uint32_t CLwipIf::getRSSI() {
+/* -------------------------------------------------------------------------- */   
+   return (uint32_t)access_point_cfg.rssi;
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CLwipIf::getEncrType() {
+/* -------------------------------------------------------------------------- */   
+   return (uint8_t)access_point_cfg.encryption_mode;
+}
+
+/* -------------------------------------------------------------------------- */
+int CLwipIf::disconnectFromAp() {
+/* -------------------------------------------------------------------------- */   
+   wifi_status = WL_DISCONNECTED;
+   return CEspControl::getInstance().disconnectAccessPoint();
+}
 
 
 #ifdef LWIP_USE_TIMER
@@ -446,6 +599,13 @@ CNetIf::CNetIf() {
    dhcp_acquired = false;
    dhcp_st = DHCP_IDLE;
    id = 0;
+   memset(hostname,0x00,MAX_HOSTNAME_DIM);
+   hostname[0] = 'C';
+   hostname[1] = '3';
+   hostname[2] = '3';
+   #if LWIP_NETIF_HOSTNAME
+   ni.hostname = (const char *)&hostname;
+   #endif
    #ifdef CNETWORK_INTERFACE_DEBUG
    Serial.println("[CNET]: CNetIf constructor");
    #endif
@@ -681,6 +841,16 @@ void CWifiStation::task() {
 
 }
 
+/* -------------------------------------------------------------------------- */
+int CWifiStation::getMacAddress(uint8_t *mac) {
+/* -------------------------------------------------------------------------- */   
+   WifiMac_t MAC;
+   MAC.mode = WIFI_MODE_STA;
+   int rv = CEspControl::getInstance().getWifiMacAddress(MAC);
+   CNetUtilities::macStr2macArray(mac, (const char*)MAC.mac);
+   return rv;
+}
+
 
 /* ########################################################################## */
 /*                      CWifiSoftAp NETWORK INTERFACE CLASS                   */
@@ -755,4 +925,14 @@ void CWifiSoftAp::task() {
      dhcp_task();
    }
    #endif
+}
+
+/* -------------------------------------------------------------------------- */
+int CWifiSoftAp::getMacAddress(uint8_t *mac) {
+/* -------------------------------------------------------------------------- */   
+   WifiMac_t MAC;
+   MAC.mode = WIFI_MODE_AP;
+   int rv = CEspControl::getInstance().getWifiMacAddress(MAC);
+   CNetUtilities::macStr2macArray(mac, (const char*)MAC.mac);
+   return rv;
 }

@@ -24,6 +24,7 @@
 
 #define MAC_ADDRESS_DIM            6
 #define NETWORK_INTERFACES_MAX_NUM 3
+#define MAX_HOSTNAME_DIM           253
 
 #define WIFI_INIT_TIMEOUT_MS  10000
 
@@ -96,6 +97,22 @@
 #define WSA_IFNAME0 'w'
 #define WSA_IFNAME1 'a'
 
+typedef enum {
+   WL_NO_SHIELD = 255,
+   WL_NO_MODULE = WL_NO_SHIELD,
+   WL_IDLE_STATUS = 0,
+   WL_NO_SSID_AVAIL,
+   WL_SCAN_COMPLETED,
+   WL_CONNECTED,
+   WL_CONNECT_FAILED,
+   WL_CONNECTION_LOST,
+   WL_DISCONNECTED,
+   WL_AP_LISTENING,
+   WL_AP_CONNECTED,
+   WL_AP_FAILED
+} WifiStatus_t;
+
+
 
 typedef enum {
   NI_WIFI_STATION,
@@ -132,6 +149,9 @@ class CNetIf {
 protected:
    int    id;
    struct netif ni;
+   #if LWIP_NETIF_HOSTNAME
+   char hostname[MAX_HOSTNAME_DIM];
+   #endif
 
    ip_addr_t ip;
    ip_addr_t nm;
@@ -159,6 +179,15 @@ public:
    ip_addr_t *getNm()       { return &nm; }
    ip_addr_t *getGw()       { return &gw; }
 
+   uint32_t getIpAdd() { return ip4_addr_get_u32(&(ni.ip_addr));}
+   uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.gw));}
+   uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.netmask));}
+
+   void setHostname(const char* name) {
+      memset(hostname,0x00,MAX_HOSTNAME_DIM);
+      memcpy(hostname,name,strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
+   }
+
    /* add */
    virtual void begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
@@ -168,6 +197,8 @@ public:
    virtual void setIp(const uint8_t *_ip) = 0;
    virtual void setNm(const uint8_t *_nm) = 0;
    virtual void setGw(const uint8_t *_gw) = 0;
+
+   virtual int getMacAddress(uint8_t *mac) = 0;
 };
 
 
@@ -192,6 +223,8 @@ class CEthernet : public CNetIf {
    void setGw(const uint8_t *_gw) override;
 
 
+   virtual int getMacAddress(uint8_t *mac) {}
+
 };
 
 
@@ -214,6 +247,8 @@ class CWifiStation : public CNetIf {
    void setNm(const uint8_t *_nm) override;
    void setGw(const uint8_t *_gw) override;
 
+   virtual int getMacAddress(uint8_t *mac) override;
+
 };
 
 /* -------------------------------------------------------------------------- */
@@ -230,6 +265,8 @@ class CWifiSoftAp : public CNetIf {
    void setIp(const uint8_t *_ip) override;
    void setNm(const uint8_t *_nm) override;
    void setGw(const uint8_t *_gw) override;
+
+   virtual int getMacAddress(uint8_t *mac) override;
 };
 
 
@@ -238,7 +275,7 @@ class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
    static CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
-   
+   static WifiStatus_t wifi_status;
 
    /* initialize lwIP and timer */
    CLwipIf();
@@ -248,7 +285,9 @@ private:
    FspTimer timer;
    static void timer_cb(timer_callback_args_t *arg);
    #endif
-
+   
+   vector<AccessPoint_t> access_points;
+   WifiApCfg_t access_point_cfg;
 
    CNetIf *_get(NetIfType_t t);
 
@@ -257,11 +296,12 @@ private:
                          const uint8_t* _nm);
 
    static bool wifi_hw_initialized;
+   static bool connected_to_access_point;
    static int initEventCb(CCtrlMsgWrapper *resp);
+   static void initWifiHw(bool asStation);
+   static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
-   static void initWifiHw();
-
-
+   
 public:
    static CLwipIf& getInstance();
    CLwipIf(CLwipIf const&)            = delete;
@@ -300,6 +340,23 @@ public:
    
    bool setMacAddress(NetIfType_t type, uint8_t* mac);
    int getMacAddress(NetIfType_t type, uint8_t* mac);
+
+   
+   int scanForAp();
+   int getApNum();
+   const char *getSSID(uint8_t i);
+   int32_t getRSSI(uint8_t i);
+   uint8_t getEncrType(uint8_t i);
+   uint8_t *getBSSID(uint8_t i, uint8_t *bssid);
+   uint8_t getChannel(uint8_t i);
+   int connectToAp(const char *ssid, const char *pwd);
+   int disconnectFromAp();
+   const char* getSSID();
+   uint8_t *getBSSID(uint8_t *bssid);
+   uint32_t getRSSI();
+   uint8_t getEncrType();
+
+   WifiStatus_t getWifiStatus() { return wifi_status; }
 
    
 

@@ -125,6 +125,7 @@ public:
    int setWifiMode(WifiMode_t mode, EspCallback_f cb = nullptr);
 
    int getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f cb = nullptr);
+
    int connectAccessPoint(WifiApCfg_t &ap_cfg, EspCallback_f cb = nullptr);
    int getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb = nullptr);
    int disconnectAccessPoint(EspCallback_f cb = nullptr);
@@ -158,8 +159,10 @@ public:
    uint8_t *getSoftApRx(uint8_t &if_num, uint16_t &dim);
 
    
+   
+   
 
-   void initSpiDriver() { esp_host_spi_init(); }
+   int initSpiDriver() { return esp_host_spi_init(); }
 
 
    
