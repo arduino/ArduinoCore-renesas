@@ -594,11 +594,8 @@ void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /* ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() {
+CNetIf::CNetIf() : dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
 /* -------------------------------------------------------------------------- */   
-   dhcp_acquired = false;
-   dhcp_st = DHCP_IDLE;
-   id = 0;
    memset(hostname,0x00,MAX_HOSTNAME_DIM);
    hostname[0] = 'C';
    hostname[1] = '3';
@@ -620,9 +617,6 @@ CNetIf::~CNetIf() {
 
 }
 
-
-
-
 /* -------------------------------------------------------------------------- */
 void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def) {
 /* -------------------------------------------------------------------------- */   
@@ -635,19 +629,135 @@ void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def) {
    }
 }
 
+/* -------------------------------------------------------------------------- */
+void CNetIf::DhcpNotUsed() {
+/* -------------------------------------------------------------------------- */   
+   DhcpStop();
+   dhcp_inform(getNi());
+}
 
 /* -------------------------------------------------------------------------- */
-bool CNetIf::isDhcpAcquired() { return dhcp_acquired; }
+int CNetIf::checkLease() {
+/* -------------------------------------------------------------------------- */   
+   int rc = DHCP_CHECK_NONE;
+
+   task();
+   rc = dhcp_get_lease_state();
+
+   if (rc != _dhcp_lease_state) {
+     switch (_dhcp_lease_state) {
+       case DHCP_CHECK_NONE:
+         _dhcp_lease_state = rc;
+         rc = DHCP_CHECK_NONE;
+         break;
+
+      case DHCP_CHECK_RENEW_OK:
+         _dhcp_lease_state = rc;
+         if (rc == DHCP_CHECK_NONE) {
+           rc = DHCP_CHECK_RENEW_OK;
+         } else {
+           rc = DHCP_CHECK_RENEW_FAIL;
+         }
+         break;
+
+      case DHCP_CHECK_REBIND_OK:
+         _dhcp_lease_state = rc;
+         if (rc == DHCP_CHECK_NONE) {
+           rc = DHCP_CHECK_REBIND_OK;
+         } else {
+           rc = DHCP_CHECK_REBIND_FAIL;
+         }
+         break;
+
+      default:
+         _dhcp_lease_state = DHCP_CHECK_NONE;
+         break;
+      }
+   }
+
+  return rc;
+}
+
+
 /* -------------------------------------------------------------------------- */
-void CNetIf::DhcpStart() { dhcp_st = DHCP_START; }
+uint8_t CNetIf::dhcp_get_lease_state() {
+/* -------------------------------------------------------------------------- */   
+   uint8_t res = 0;
+   struct dhcp *dhcp = (struct dhcp *)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
+
+   if (dhcp->state == DHCP_STATE_RENEWING) {
+      res = 2;
+   } else if (dhcp->state == DHCP_STATE_REBINDING) {
+      res = 4;
+   }
+   return res;
+}
+
+
 /* -------------------------------------------------------------------------- */
-void CNetIf::DhcpStop()  { 
-   if(dhcp_st == DHCP_GOT && netif_is_link_up(getNi())) {
-      dhcp_st = DHCP_RELEASE; 
+bool CNetIf::dhcp_request() {
+/* -------------------------------------------------------------------------- */
+   /* make a DHCP request: it runs till an address is acquired or a timeout 
+      expires */
+   unsigned long startTime = millis();
+   bool acquired = false;
+
+   do{
+      task();
+      acquired = isDhcpAcquired();
+      if(!acquired && ((millis() - startTime) > dhcp_timeout)) {
+         break;
+      }
+
+   } while(!acquired);
+
+   return acquired;
+}
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::dhcp_reset() {
+/* -------------------------------------------------------------------------- */
+   /* it resets the DHCP status to IDLE */
+   while(dhcp_st != DHCP_IDLE_STATUS) {
+      task();
+   }
+}
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::DhcpSetTimeout(unsigned long t) {
+/* -------------------------------------------------------------------------- */   
+   dhcp_timeout = t;
+}
+
+/* -------------------------------------------------------------------------- */
+bool CNetIf::isDhcpAcquired() { 
+   return dhcp_acquired; 
+}
+/* -------------------------------------------------------------------------- */
+bool CNetIf::DhcpStart() {
+   /* first stop / reset */
+   DhcpStop();
+   /* then actually start */
+   dhcp_started = true;
+   dhcp_st = DHCP_START_STATUS; 
+   return dhcp_request();
+
+}
+/* -------------------------------------------------------------------------- */
+void CNetIf::DhcpStop()  {
+/* -------------------------------------------------------------------------- */   
+   dhcp_started = false;
+   if(dhcp_st == DHCP_IDLE_STATUS) {
+      return;
+   }
+   if(dhcp_st == DHCP_GOT_STATUS && netif_is_link_up(getNi())) {
+      dhcp_st = DHCP_RELEASE_STATUS; 
    }
    else {
-      dhcp_st = DHCP_STOP;
+      dhcp_st = DHCP_STOP_STATUS;
    }
+   dhcp_reset();
+   
 }
 /* -------------------------------------------------------------------------- */
 void CNetIf::dhcp_task() {
@@ -656,49 +766,55 @@ void CNetIf::dhcp_task() {
    struct dhcp *lwip_dhcp;
    
    switch(dhcp_st){
-      case DHCP_IDLE:
+      case DHCP_IDLE_STATUS:
          /* nothing to do... wait for DhcpStart() to start the process */
       break;
-      case DHCP_START:
+      case DHCP_START_STATUS:
          if(netif_is_link_up(getNi())) {
             ip_addr_set_zero_ip4(&(getNi()->ip_addr));
             ip_addr_set_zero_ip4(&(getNi()->netmask));
             ip_addr_set_zero_ip4(&(getNi()->gw));
             /* start lwIP dhcp */
             dhcp_start(getNi());
-            dhcp_st = DHCP_WAIT;
+            dhcp_st = DHCP_WAIT_STATUS;
          }
       break;
-      case DHCP_WAIT:
+      case DHCP_WAIT_STATUS:
          if(netif_is_link_up(getNi())) {
             if (dhcp_supplied_address(getNi())) {
-               dhcp_st = DHCP_GOT;
+               dhcp_st = DHCP_GOT_STATUS;
             } 
             else {
                /* TIMEOUT */
                lwip_dhcp = (struct dhcp *)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
                if (lwip_dhcp->tries > MAX_DHCP_TRIES) {
-                 dhcp_st = DHCP_STOP;
+                 dhcp_st = DHCP_STOP_STATUS;
                }
             }
          }
          else {
-            dhcp_st = DHCP_START;
+            dhcp_st = DHCP_START_STATUS;
          }
       break;
-      case DHCP_GOT:
-         if (!dhcp_supplied_address(getNi())) {
-            dhcp_st = DHCP_GOT;
+      case DHCP_GOT_STATUS:
+         if (!netif_is_link_up(getNi())) {
+            dhcp_st = DHCP_STOP_STATUS;
          } 
 
       break;
-      case DHCP_RELEASE:
+      case DHCP_RELEASE_STATUS:
          dhcp_release(getNi());
-         dhcp_st = DHCP_STOP;
+         dhcp_st = DHCP_STOP_STATUS;
       break;
-      case DHCP_STOP:
+      case DHCP_STOP_STATUS:
+
          dhcp_stop(getNi());
-         dhcp_st = DHCP_IDLE;
+         if(dhcp_started) {
+            dhcp_st = DHCP_START_STATUS;
+         }
+         else {
+            dhcp_st = DHCP_IDLE_STATUS;
+         }
       break;
 
    }

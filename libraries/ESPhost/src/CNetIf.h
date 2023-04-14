@@ -11,11 +11,15 @@
 #include "CCtrlWrapper.h"
 #include "CEspControl.h"
 #include "IPAddress.h"
-#include "lwip/include/lwip/netif.h"
-#include "lwip/include/lwip/init.h"
-#include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/ip_addr.h"
+#include "lwip/include/lwip/dhcp.h"
+#include "lwip/include/lwip/udp.h"
+#include "lwip/include/lwip/tcp.h"
+#include "lwip/include/lwip/opt.h"
+#include "lwip/include/lwip/init.h"
 #include "lwip/include/lwip/timeouts.h"
+#include "lwip/include/lwip/dns.h"
+#include "lwip/include/lwip/prot/dhcp.h"
 #include "lwip/include/netif/ethernet.h"
 
 #ifdef LWIP_USE_TIMER
@@ -132,14 +136,19 @@ using NetIfRxCb_f = int (*)(CNetIf *);
 using LwipInit_f =  err_t (*)(struct netif *netif);
 using LwipInput_f = err_t (*)(struct pbuf *p, struct netif *inp);
 
+#define DHCP_CHECK_NONE         (0)
+#define DHCP_CHECK_RENEW_FAIL   (1)
+#define DHCP_CHECK_RENEW_OK     (2)
+#define DHCP_CHECK_REBIND_FAIL  (3)
+#define DHCP_CHECK_REBIND_OK    (4)
 
 typedef enum {
-  DHCP_IDLE,
-  DHCP_START,
-  DHCP_WAIT,
-  DHCP_GOT,
-  DHCP_RELEASE,
-  DHCP_STOP
+  DHCP_IDLE_STATUS,
+  DHCP_START_STATUS,
+  DHCP_WAIT_STATUS,
+  DHCP_GOT_STATUS,
+  DHCP_RELEASE_STATUS,
+  DHCP_STOP_STATUS
 } DhcpSt_t;
 
 /* Base class implements DHCP, derived class will switch it on or off */
@@ -157,19 +166,34 @@ protected:
    ip_addr_t nm;
    ip_addr_t gw;
 
+   unsigned long dhcp_timeout;
    DhcpSt_t dhcp_st;
+   bool dhcp_started;
    bool dhcp_acquired;
+   uint8_t _dhcp_lease_state;
    void dhcp_task();
+   void dhcp_reset();
+   bool dhcp_request();
+   uint8_t dhcp_get_lease_state();
    
    void setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def);
 public:
    CNetIf();
    virtual ~CNetIf();
-   /* DHCP functions */
+   /* -------------- 
+    * DHCP functions 
+    * -------------- */
+   void DhcpSetTimeout(unsigned long t);
+   /* stops DHCP */
    void DhcpStop();
+   /* tells DHCP is not used on that interface */
    void DhcpNotUsed();
-   void DhcpStart();
+   /* starts DHCP and tries to acquire addresses, return true if acquired, false otherwise */
+   bool DhcpStart();
+   /* tells if DHCP has acquired addresses or not */
    bool isDhcpAcquired(); 
+   int checkLease();
+   
    /* getters / setters */
    void setId(int _id) { id = _id; }
    int getId() {return id;} 
