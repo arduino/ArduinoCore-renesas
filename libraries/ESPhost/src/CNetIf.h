@@ -124,7 +124,7 @@ typedef enum {
   NI_ETHERNET  
 } NetIfType_t;
 
-
+#define MAX_CLIENT  32
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
@@ -158,6 +158,12 @@ typedef enum {
   DHCP_STOP_STATUS
 } DhcpSt_t;
 
+
+ip_addr_t *u8_to_ip_addr(uint8_t *ipu8, ip_addr_t *ipaddr);
+
+
+uint32_t ip_addr_to_u32(ip_addr_t *ipaddr) ;
+
 /* Base class implements DHCP, derived class will switch it on or off */
 /* -------------------------------------------------------------------------- */
 class CNetIf {
@@ -183,10 +189,7 @@ protected:
    bool dhcp_request();
    uint8_t dhcp_get_lease_state();
    
-   int dns_num;
-   static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
-   int8_t get_ip_address_from_hostname(const char *hostname, uint32_t *ipaddr);
-   int inet2aton(const char *aIPAddrString, IPAddress &aResult);
+   IPAddress _dnsServerAddress;
    
    void setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def);
 public:
@@ -195,6 +198,7 @@ public:
    /* -------------- 
     * DHCP functions 
     * -------------- */
+   bool DhcpIsStarted() { return dhcp_started; }
    void DhcpSetTimeout(unsigned long t);
    /* stops DHCP */
    void DhcpStop();
@@ -206,14 +210,7 @@ public:
    bool isDhcpAcquired(); 
    int checkLease();
 
-   /* --------------
-    * DNS functions
-    * -------------- */
    
-   int getHostByName(const char *aHostname, IPAddress &aResult);
-   void beginDns(IPAddress aDNSServer);
-   void addDns(IPAddress aDNSServer);
-   IPAddress getDns(int _num = 0);
 
 
    
@@ -348,12 +345,25 @@ private:
    static void initWifiHw(bool asStation);
    static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
+   int dns_num;
+   static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+   int8_t get_ip_address_from_hostname(const char *hostname, uint32_t *ipaddr);
+   int inet2aton(const char *aIPAddrString, IPAddress &aResult);
    
 public:
    static CLwipIf& getInstance();
    CLwipIf(CLwipIf const&)            = delete;
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
+
+   /* --------------
+    * DNS functions
+    * -------------- */
+   
+   int getHostByName(const char *aHostname, IPAddress &aResult);
+   void beginDns(IPAddress aDNSServer);
+   void addDns(IPAddress aDNSServer);
+   IPAddress getDns(int _num = 0);
    
    /* 
     * these functions are passed to netif_add function as 'init' function for
@@ -385,7 +395,9 @@ public:
                const uint8_t* _gw = nullptr, 
                const uint8_t* _nm = nullptr);
    
-   bool setMacAddress(NetIfType_t type, uint8_t* mac);
+   /* this function set the mac address of the corresponding interface to mac 
+      and set this value for lwip */
+   bool setMacAddress(NetIfType_t type, uint8_t* mac = nullptr);
    int getMacAddress(NetIfType_t type, uint8_t* mac);
 
    
