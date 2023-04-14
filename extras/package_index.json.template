@@ -120,18 +120,18 @@
               "checksum": "SHA-256:c76eae00874a44265029b452303fb355e9ffa006e7ba214ca7ae01b1416867da"
             },
             {
-              "host": "arm-linux-gnueabihf",
+              "host": "aarch64-linux-gnu",
               "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
               "archiveFileName": "bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
-              "size": "362365",
-              "checksum": "SHA-256:a0680ac5067ca8134f28fd7f86320d4c3099c782cefecd2e9b1edfde57f5947b"
-            },
-            {
-              "host": "aarch64-linux-gnu",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxarm.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-linuxarm.tar.gz",
               "size": "442901",
               "checksum": "SHA-256:f91dbbe90d57dd8074cd9b0ca7a2f5d41ee71bdf15e9bfd68bf2048a08e4a286"
+            },
+            {
+              "host": "arm-linux-gnueabihf",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxarm.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-linuxarm.tar.gz",
+              "size": "362365",
+              "checksum": "SHA-256:a0680ac5067ca8134f28fd7f86320d4c3099c782cefecd2e9b1edfde57f5947b"
             },
             {
               "host": "x86_64-linux-gnu",
