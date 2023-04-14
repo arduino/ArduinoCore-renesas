@@ -126,6 +126,7 @@ typedef enum {
 
 
 #define MAX_DHCP_TRIES 4
+#define TIMEOUT_DNS_REQUEST 10000U
 
 
 using namespace std;
@@ -141,6 +142,12 @@ using LwipInput_f = err_t (*)(struct pbuf *p, struct netif *inp);
 #define DHCP_CHECK_RENEW_OK     (2)
 #define DHCP_CHECK_REBIND_FAIL  (3)
 #define DHCP_CHECK_REBIND_OK    (4)
+
+#define SUCCESS          1
+#define TIMED_OUT        -1
+#define INVALID_SERVER   -2
+#define TRUNCATED        -3
+#define INVALID_RESPONSE -4
 
 typedef enum {
   DHCP_IDLE_STATUS,
@@ -176,6 +183,11 @@ protected:
    bool dhcp_request();
    uint8_t dhcp_get_lease_state();
    
+   int dns_num;
+   static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+   int8_t get_ip_address_from_hostname(const char *hostname, uint32_t *ipaddr);
+   int inet2aton(const char *aIPAddrString, IPAddress &aResult);
+   
    void setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def);
 public:
    CNetIf();
@@ -193,6 +205,17 @@ public:
    /* tells if DHCP has acquired addresses or not */
    bool isDhcpAcquired(); 
    int checkLease();
+
+   /* --------------
+    * DNS functions
+    * -------------- */
+   
+   int getHostByName(const char *aHostname, IPAddress &aResult);
+   void beginDns(IPAddress aDNSServer);
+   void addDns(IPAddress aDNSServer);
+   IPAddress getDns(int _num = 0);
+
+
    
    /* getters / setters */
    void setId(int _id) { id = _id; }

@@ -594,7 +594,7 @@ void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /* ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() : dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
+CNetIf::CNetIf() : dns_num(-1), dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
 /* -------------------------------------------------------------------------- */   
    memset(hostname,0x00,MAX_HOSTNAME_DIM);
    hostname[0] = 'C';
@@ -628,6 +628,11 @@ void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def) {
       IP_ADDR4(dst, def[0], def[1], def[2], def[3]);
    }
 }
+
+
+/* ***************************************************************************
+ *                               DHCP related functions
+ * ****************************************************************************/
 
 /* -------------------------------------------------------------------------- */
 void CNetIf::DhcpNotUsed() {
@@ -692,7 +697,6 @@ uint8_t CNetIf::dhcp_get_lease_state() {
    }
    return res;
 }
-
 
 /* -------------------------------------------------------------------------- */
 bool CNetIf::dhcp_request() {
@@ -818,6 +822,168 @@ void CNetIf::dhcp_task() {
       break;
 
    }
+}
+
+/* ***************************************************************************
+ *                               DNS related functions
+ * ****************************************************************************/
+
+/* -------------------------------------------------------------------------- */
+void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+/* -------------------------------------------------------------------------- */   
+  if (ipaddr != NULL) {
+    *((uint32_t *)callback_arg) = ip4_addr_get_u32(ipaddr);
+  } else {
+    *((uint32_t *)callback_arg) = 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+int8_t CNetIf::get_ip_address_from_hostname(const char *hostname, uint32_t *ipaddr) {
+/* -------------------------------------------------------------------------- */   
+  ip_addr_t iphost;
+  err_t err;
+  unsigned long dns_request_sent = 0;
+  int8_t ret = 0;
+
+  *ipaddr = 0;
+  err = dns_gethostbyname(hostname, &iphost, &dns_callback, ipaddr);
+
+  switch (err) {
+    case ERR_OK:
+      *ipaddr = ip4_addr_get_u32(&iphost);
+      ret = 1;
+      break;
+
+    case ERR_INPROGRESS:
+      dns_request_sent = millis();
+      while (*ipaddr == 0) {
+        task(); 
+        if ((millis() - dns_request_sent) >= TIMEOUT_DNS_REQUEST) {
+          ret = -1;
+          break;
+        }
+      }
+
+      if (ret == 0) {
+        if (*ipaddr == 0) {
+          ret = -2;
+        } else {
+          ret = 1;
+        }
+      }
+      break;
+
+    case ERR_ARG:
+      ret = -4;
+      break;
+
+    default:
+      ret = -4;
+      break;
+  }
+
+  return ret;
+}
+
+/* -------------------------------------------------------------------------- */
+int CNetIf::getHostByName(const char *aHostname, IPAddress &aResult) {
+/* -------------------------------------------------------------------------- */   
+   int ret = 0;
+   uint32_t ipResult = 0;
+
+   // See if it's a numeric IP address
+   if (inet2aton(aHostname, aResult)) {
+     // It is, our work here is done
+     return SUCCESS;
+   }
+
+   // Check we've got a valid DNS server to use
+   if (dns_num < 0) {
+     return INVALID_SERVER;
+   }
+   #if LWIP_DNS
+   ret = get_ip_address_from_hostname(aHostname, &ipResult);
+   aResult = IPAddress(ipResult);
+   #endif
+   return ret;
+}
+
+
+/* -------------------------------------------------------------------------- */
+int CNetIf::inet2aton(const char *address, IPAddress &result) {
+/* -------------------------------------------------------------------------- */   
+  uint16_t acc = 0; // Accumulator
+  uint8_t dots = 0;
+
+  if (address == NULL) {
+    return 0;
+  }
+
+  while (*address) {
+    char c = *address++;
+    if (c >= '0' && c <= '9') {
+      acc = acc * 10 + (c - '0');
+      if (acc > 255) {
+        // Value out of [0..255] range
+        return 0;
+      }
+    } else if (c == '.') {
+      if (dots == 3) {
+        // Too much dots (there must be 3 dots)
+        return 0;
+      }
+      result[dots++] = acc;
+      acc = 0;
+    } else {
+      // Invalid char
+      return 0;
+    }
+  }
+
+  if (dots != 3) {
+    // Too few dots (there must be 3 dots)
+    return 0;
+  }
+  result[3] = acc;
+  return 1;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::beginDns(IPAddress aDNSServer) {
+/* -------------------------------------------------------------------------- */   
+   addDns(aDNSServer);
+}
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::addDns(IPAddress aDNSServer) {
+/* -------------------------------------------------------------------------- */   
+   #if LWIP_DNS
+   ip_addr_t ip;
+   dns_num++;
+   uint8_t *dnsaddr = aDNSServer.raw_address();
+   /* DNS initialized by DHCP when call dhcp_start() */
+   if (DHCP_IDLE_STATUS == dhcp_st) {
+     dns_init();
+     IP_ADDR4(&ip, dnsaddr[0], dnsaddr[1], dnsaddr[2], dnsaddr[3]);
+     dns_setserver(dns_num, &ip);
+     
+   }
+   #endif
+}
+
+/* -------------------------------------------------------------------------- */
+IPAddress CNetIf::getDns(int _num) {
+/* -------------------------------------------------------------------------- */
+   #if LWIP_DNS
+   const ip_addr_t *tmp = dns_getserver(_num);
+   return IPAddress(ip4_addr_get_u32(tmp));
+   #else
+   IPAddress(0,0,0,0);
+   #endif   
+
 }
 
 
