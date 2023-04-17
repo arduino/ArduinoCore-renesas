@@ -148,10 +148,7 @@ int lwIpClient::read() {
 /* -------------------------------------------------------------------------- */  
   uint8_t b;
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
-    
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-
-    //pbuffer_get_data(&(_tcp_client->data), &b, 1);
+    pbuffer_get_data(&(_tcp_client->data), &b, 1);
     return b;
   }
   // No data available
@@ -162,8 +159,7 @@ int lwIpClient::read() {
 int lwIpClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */  
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-    return 1; //pbuffer_get_data(&(_tcp_client->data), buf, size);
+    return pbuffer_get_data(&(_tcp_client->data), buf, size);
   }
   return -1;
 }

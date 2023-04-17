@@ -8,6 +8,7 @@
 #include "CNetIf.h"
 #include "lwipTypes.h"
 #include "lwipTcp.h"
+#include "lwipMem.h"
 
 class lwIpClient : public Client {
 
