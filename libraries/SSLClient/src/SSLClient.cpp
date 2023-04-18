@@ -318,3 +318,8 @@ void SSLClient::setHandshakeTimeout(unsigned long handshake_timeout)
 {
     sslclient->handshake_timeout = handshake_timeout * 1000;
 }
+
+void SSLClient::setTimeout(unsigned long seconds)
+{
+    _timeout = seconds * 1000;
+}
