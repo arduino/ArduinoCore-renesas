@@ -29,7 +29,7 @@
  * 4: DEBUG
  * 5: VERBOSE
  */
-#define DEBUG_LEVEL 5
+#define DEBUG_LEVEL 1
 
 #if DEBUG_LEVEL > 0
     #define log_e smlog_println
