@@ -30,12 +30,14 @@ SSLClient::SSLClient()
 
     sslclient = new sslclient_context;
     ssl_init(sslclient, nullptr);
-    sslclient->handshake_timeout = 120000;
+    _timeout = 1000;
     _CA_cert = NULL;
     _cert = NULL;
     _private_key = NULL;
     _pskIdent = NULL;
     _psKey = NULL;
+
+    sslclient->handshake_timeout = 5000;
 }
 
 SSLClient::SSLClient(Client* client)
@@ -44,13 +46,14 @@ SSLClient::SSLClient(Client* client)
 
     sslclient = new sslclient_context;
     ssl_init(sslclient, client);
-    sslclient->handshake_timeout = 120000;
+    _timeout = 1000;
     _CA_cert = NULL;
     _cert = NULL;
     _private_key = NULL;
     _pskIdent = NULL;
     _psKey = NULL;
 
+    sslclient->handshake_timeout = 5000;
 }
 
 SSLClient::~SSLClient()
@@ -101,9 +104,6 @@ int SSLClient::connect(IPAddress ip, uint16_t port, const char *_CA_cert, const 
 int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, const char *_cert, const char *_private_key)
 {
     log_d("Connecting to %s:%d", host, port);
-    if(_timeout > 0){
-        sslclient->handshake_timeout = _timeout;
-    }
     int ret = start_ssl_client(sslclient, host, port, _timeout, _CA_cert, _cert, _private_key, NULL, NULL);
     _lastError = ret;
     if (ret < 0) {
@@ -123,9 +123,6 @@ int SSLClient::connect(IPAddress ip, uint16_t port, const char *pskIdent, const 
 
 int SSLClient::connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey) {
     log_v("start_ssl_client with PSK");
-    if(_timeout > 0){
-        sslclient->handshake_timeout = _timeout;
-    }
     int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, _pskIdent, _psKey);
     _lastError = ret;
     if (ret < 0) {
