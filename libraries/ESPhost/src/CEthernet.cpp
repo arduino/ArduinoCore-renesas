@@ -12,14 +12,14 @@
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  int tv = 0;
+  int rv = 0;
 
   ni = CLwipIf::getInstance().get(NI_ETHERNET);
   if(ni != nullptr) {
     rv = (int)ni->DhcpStart();
   }
   
-  return ret;
+  return rv;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -49,18 +49,19 @@ void CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */
 void CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
+  
   ni = CLwipIf::getInstance().get(NI_ETHERNET,  local_ip.raw_address(), gateway.raw_address(), subnet.raw_address());
   if(ni != nullptr) {
     /* If there is a local DHCP informs it of our manual IP configuration to prevent IP conflict */
-    rv = (int)ni->DhcpNotUsed();
+    ni->DhcpNotUsed();
   }
-  CLwipIf::getInstance().addDns(IPAddress aDNSServer);
+  CLwipIf::getInstance().addDns(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac_address, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
+  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
   begin(timeout, responseTimeout);
   return ret;
 }

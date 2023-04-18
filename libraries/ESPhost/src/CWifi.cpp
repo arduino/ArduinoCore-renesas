@@ -5,6 +5,16 @@ CWifi::CWifi() : _timeout(50000) {}
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
+const char* CWifi::firmwareVersion() {
+/* -------------------------------------------------------------------------- */   
+   /* silly "dummy" implementation to keep compatibility, at the present
+      the WiFi fw does not return any version number */
+   return WIFI_FIRMWARE_LATEST_VERSION;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */   
    ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
@@ -16,8 +26,7 @@ int CWifi::begin(const char* ssid) {
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */   
    ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
-   CLwipIf::getInstance().connectToAp(ssid, passphrase);
-   
+   CLwipIf::getInstance().connectToAp(ssid, passphrase); 
 }
 
 /* -------------------------------------------------------------------------- */

@@ -411,7 +411,7 @@ typedef struct {
 template<typename T>
 static int checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_resp = false) {
 /* -------------------------------------------------------------------------- */   
-   int rv = ESP_CONTROL_OK;
+   
    if(ans == nullptr) {
       return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
@@ -689,9 +689,9 @@ public:
       ctrl_msg__req__set_soft_apvendor_specific_ie__init(&payload);
       
       if(vendor_ie.type <= WIFI_VND_IE_TYPE_ASSOC_RESP && 
-         vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && 
+         /*vendor_ie.type >= WIFI_VND_IE_TYPE_BEACON && */ 
          vendor_ie.idx <= WIFI_VND_IE_ID_1 && 
-         vendor_ie.idx >= WIFI_VND_IE_ID_0 &&
+         /* vendor_ie.idx >= WIFI_VND_IE_ID_0 && */
          vendor_ie.vnd_ie.payload != nullptr) {
          
          request.req_set_softap_vendor_specific_ie = &payload;
@@ -744,7 +744,7 @@ public:
          Serial.println("[ERROR]: Invalid channel ");
          cfg_ok = false;
       }
-      if((cfg.encryption_mode < WIFI_AUTH_OPEN) ||
+      if(/*( cfg.encryption_mode < WIFI_AUTH_OPEN) || */
              (cfg.encryption_mode == WIFI_AUTH_WEP) ||
              (cfg.encryption_mode > WIFI_AUTH_WPA_WPA2_PSK)) {
          Serial.println("[ERROR]: Invalid encryption");
@@ -998,7 +998,7 @@ public:
 
          CtrlMsgRespSoftAPConnectedSTA *rp = answer->resp_softap_connected_stas_list;
 
-         for(int i = 0; i < rp->num; i++) {
+         for(unsigned int i = 0; i < rp->num; i++) {
             WifiConnectedSta_t cs;
             memset((void *)&cs,0x00,sizeof(cs));
             copyData((uint8_t *)&(cs.bssid), BSSID_LENGTH, rp->stations[i]->mac.data, rp->stations[i]->mac.len );
@@ -1120,7 +1120,7 @@ public:
                                                     (int)CTRL_RESP_GET_AP_SCAN_LIST, 
                                                     answer->resp_scan_ap_list) == ESP_CONTROL_OK ) {
          CtrlMsgRespScanResult *rp = answer->resp_scan_ap_list;
-         for(int i = 0; i < rp->count; i++) {
+         for(unsigned int i = 0; i < rp->count; i++) {
             AccessPoint_t sc;
             memset((void *)&sc,0x00,sizeof(sc));
 

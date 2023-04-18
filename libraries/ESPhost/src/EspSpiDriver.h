@@ -53,6 +53,8 @@ int esp_host_spi_init(void);
    it returns the error or 0 if all is ok */
 int esp_host_perform_spi_communication(bool wait_for_valid_msg);
 
+bool isEspSpiInitialized() ;
+
 
 
 

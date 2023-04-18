@@ -318,8 +318,10 @@ int CEspControl::sendBuffer(ESP_INTERFACE_TYPE type, uint8_t num, uint8_t *buf, 
 /* -------------------------------------------------------------------------- */
 void CEspControl::communicateWithEsp() {
 /* -------------------------------------------------------------------------- */   
-   esp_host_perform_spi_communication(false);
-   process_msgs_received(nullptr);
+   if(isEspSpiInitialized()) {
+      esp_host_perform_spi_communication(false);
+      process_msgs_received(nullptr);
+   }
 }
 
 
@@ -493,6 +495,10 @@ void CEspControl::listenForDisconnectionFromSoftApEvent(EspCallback_f cb) {
 /* GET WIFI MAC ADDRESS: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getWifiMacAddress(WifiMac_t& CAM, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getWifiMacAddress");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_GET_MAC_ADDR, rv, &CAM, cb, req);
@@ -506,6 +512,10 @@ int CEspControl::getWifiMacAddress(WifiMac_t& CAM, EspCallback_f cb) {
 /* SET WIFI MAC ADDRESS: see GENERAL NOTE ABOUT THE REQUEST function structure above  */
 /* -------------------------------------------------------------------------- */
 int CEspControl::setWifiMacAddress(WifiMac_t& CAM, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::setWifiMacAddress");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    /* message request preparation */
    CCtrlMsgWrapper req; 
@@ -521,6 +531,10 @@ int CEspControl::setWifiMacAddress(WifiMac_t& CAM, EspCallback_f cb) {
 /* GET WIFI MODE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getWifiMode(WifiMode_t &mode, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getWifiMode");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_WIFI_MODE, rv, nullptr, cb, req);
@@ -535,6 +549,10 @@ int CEspControl::getWifiMode(WifiMode_t &mode, EspCallback_f cb) {
 /* SET WIFI MODE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::setWifiMode(WifiMode_t mode, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::setWifiMode");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_SET_WIFI_MODE, rv, &mode, cb, req);   
@@ -549,6 +567,10 @@ int CEspControl::setWifiMode(WifiMode_t mode, EspCallback_f cb) {
 /* GET ACCESS POINT SCAN LIST: see GENERAL NOTE ABOUT THE REQUEST function structure above*/
 /* -------------------------------------------------------------------------- */
 int CEspControl::getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getAccessPointScanList");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_GET_AP_SCAN_LIST, rv, nullptr, cb, req);
@@ -563,6 +585,10 @@ int CEspControl::getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f 
 /* DISCONNECT ACCESS POINT: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::disconnectAccessPoint(EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::disconnectAccessPoint");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_DISCONNECT_AP, rv, nullptr, cb, req);
@@ -576,6 +602,10 @@ int CEspControl::disconnectAccessPoint(EspCallback_f cb) {
 /* GET ACCESS POINT CONFIG: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getAccessPointConfig");
+   #endif
+
    int rv = ESP_CONTROL_CTRL_ERROR;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_AP_CONFIG, rv, nullptr, cb, req);
@@ -590,6 +620,10 @@ int CEspControl::getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb) {
 /* -------------------------------------------------------------------------- */
 int CEspControl::connectAccessPoint(WifiApCfg_t &ap_cfg,  
                                     EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::connectAccessPoint");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_CONNECT_AP, rv, &ap_cfg, cb, req);
@@ -603,6 +637,10 @@ int CEspControl::connectAccessPoint(WifiApCfg_t &ap_cfg,
 /* GET PS MODE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getPowerSaveMode(int &power_save_mode, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getPowerSaveMode");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_PS_MODE, rv, nullptr, cb, req);   
@@ -616,6 +654,10 @@ int CEspControl::getPowerSaveMode(int &power_save_mode, EspCallback_f cb) {
 /* GET PS MODE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::setPowerSaveMode(int power_save_mode, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::setPowerSaveMode");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_SET_PS_MODE, rv, &power_save_mode, cb, req); 
@@ -629,6 +671,10 @@ int CEspControl::setPowerSaveMode(int power_save_mode, EspCallback_f cb) {
 /* OTA WRITE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::otaWrite(OtaWrite_t &ow, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::otaWrite");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_OTA_WRITE, rv, &ow, cb, req);
@@ -642,6 +688,10 @@ int CEspControl::otaWrite(OtaWrite_t &ow, EspCallback_f cb) {
 /* BEGIN OTA: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::beginOTA(EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::beginOTA");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_OTA_BEGIN, rv, nullptr, cb, req);
@@ -655,6 +705,10 @@ int CEspControl::beginOTA(EspCallback_f cb) {
 /* END OTA: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::endOTA(EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::endOTA");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_OTA_END, rv, nullptr, cb, req);
@@ -668,6 +722,11 @@ int CEspControl::endOTA(EspCallback_f cb) {
 /* STOP SOFT ACCESS POINT: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::stopSoftAccessPoint(EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::stopSoftAccessPoint");
+   #endif
+
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_STOP_SOFTAP, rv, nullptr, cb, req);
@@ -681,6 +740,10 @@ int CEspControl::stopSoftAccessPoint(EspCallback_f cb) {
 /* SET WIFI MAX TX POWER: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::setWifiMaxTxPower(uint32_t max_power, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::setWifiMaxTxPower");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_SET_WIFI_MAX_TX_POWER, rv, &max_power, cb, req);
@@ -694,6 +757,10 @@ int CEspControl::setWifiMaxTxPower(uint32_t max_power, EspCallback_f cb) {
 /* GET WIFI CURRENT TX POWER: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getWifiCurrentTxPower(uint32_t &max_power, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getWifiCurrentTxPower");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_WIFI_CURR_TX_POWER, rv, nullptr, cb, req);
@@ -708,6 +775,10 @@ int CEspControl::getWifiCurrentTxPower(uint32_t &max_power, EspCallback_f cb) {
 /* GET SOFT ACCESS POINT CONFIG: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getSoftAccessPointConfig(SoftApCfg_t &sap_cfg, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getSoftAccessPointConfig");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_SOFTAP_CONFIG, rv, nullptr, cb, req);
@@ -722,6 +793,10 @@ int CEspControl::getSoftAccessPointConfig(SoftApCfg_t &sap_cfg, EspCallback_f cb
 /* GET SOFT CONNECTED STATION LIST: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::getSoftConnectedStationList(vector<WifiConnectedSta_t>& l, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::getSoftConnectedStationList");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_SOFTAP_CONN_STA_LIST, rv, nullptr, cb, req);
@@ -735,6 +810,10 @@ int CEspControl::getSoftConnectedStationList(vector<WifiConnectedSta_t>& l, EspC
 /* SET SOFT ACCESS POINT VENDOR IE: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::setSoftAccessPointVndIe");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_SET_SOFTAP_VND_IE, rv, nullptr, cb, req);
@@ -749,6 +828,10 @@ int CEspControl::setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCal
 /* START SOFT ACCESS POINT: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
 int CEspControl::startSoftAccessPoint(SoftApCfg_t &cfg, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::startSoftAccessPoint");
+   #endif
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_START_SOFTAP, rv, &cfg, cb, req);
@@ -763,6 +846,11 @@ int CEspControl::startSoftAccessPoint(SoftApCfg_t &cfg, EspCallback_f cb) {
 /* CONFIGURE HEARTBEAT: see GENERAL NOTE ABOUT THE REQUEST function structure above  */
 /* -------------------------------------------------------------------------- */
 int CEspControl::configureHeartbeat(HeartBeat_t &hb, EspCallback_f cb) {
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.println("[REQUEST] CEspControl::configureHeartbeat");
+   #endif
+
+
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
    prepare_and_send_request(CTRL_REQ_CONFIG_HEARTBEAT, rv, &hb, cb, req);

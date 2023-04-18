@@ -5,6 +5,7 @@
 #include "IPAddress.h"
 
 #include "CNetIf.h"
+#include "lwipMem.h"
 
 enum EthernetLinkStatus {
   Unknown,

@@ -18,6 +18,8 @@ bool CLwipIf::wifi_hw_initialized = false;
 bool CLwipIf::connected_to_access_point = false; 
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
 
+FspTimer CLwipIf::timer;
+
 ip_addr_t *u8_to_ip_addr(uint8_t *ipu8, ip_addr_t *ipaddr) {
   IP_ADDR4(ipaddr, ipu8[0], ipu8[1], ipu8[2], ipu8[3]);
   return ipaddr;
@@ -29,7 +31,7 @@ uint32_t ip_addr_to_u32(ip_addr_t *ipaddr) {
 }
 
 /* -------------------------------------------------------------------------- */
-CLwipIf::CLwipIf() : dns_num(-1){
+CLwipIf::CLwipIf() : dns_num(-1) , willing_to_start_sync_req(false) , async_requests_ongoing(true) {
 /* -------------------------------------------------------------------------- */   
    /* Initialize lwIP stack, singletone implementation guarantees that lwip is
       initialized just once  */
@@ -54,6 +56,10 @@ CLwipIf::CLwipIf() : dns_num(-1){
 /* -------------------------------------------------------------------------- */
 void CLwipIf::lwip_task() {
 /* -------------------------------------------------------------------------- */   
+   if(CLwipIf::wifi_hw_initialized)
+      CEspControl::getInstance().communicateWithEsp();
+
+
    if(net_ifs[NI_ETHERNET]  != nullptr) {
       net_ifs[NI_ETHERNET]->task();
    }
@@ -68,6 +74,12 @@ void CLwipIf::lwip_task() {
 
    /* Handle LwIP timeouts */
    sys_check_timeouts();
+
+   if(willing_to_start_sync_req) {
+      timer.disable_overflow_irq();
+      willing_to_start_sync_req = false;
+      async_requests_ongoing = false;
+   }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -109,7 +121,7 @@ CNetIf *CLwipIf::_get(NetIfType_t t) {
             break;
 
             case NI_ETHERNET:
-               rv = new CEthernet();
+               rv = new CEth();
             break;
             default:
             break;
@@ -152,34 +164,59 @@ int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-   wifi_hw_initialized = true;
+   Serial.println("wifi_hw_initialized!");
+   CLwipIf::wifi_hw_initialized = true;
 }
 
 
 /* -------------------------------------------------------------------------- */
-void CLwipIf::initWifiHw(bool asStation) {
+bool CLwipIf::initWifiHw(bool asStation) {
 /* -------------------------------------------------------------------------- */   
-   if(!wifi_hw_initialized) {
+   bool rv = true;
+   
+   if(!CLwipIf::wifi_hw_initialized) {
       
-      CEspControl::getInstance().listenForStationDisconnectEvent(disconnectEventcb);
-      CEspControl::getInstance().listenForInitEvent(initEventCb);
+      CEspControl::getInstance().listenForStationDisconnectEvent(CLwipIf::disconnectEventcb);
+      CEspControl::getInstance().listenForInitEvent(CLwipIf::initEventCb);
       if(CEspControl::getInstance().initSpiDriver() == 0) {
          wifi_status = WL_NO_SSID_AVAIL;
       }
 
-      int time_num = 0;
-      while(time_num < WIFI_INIT_TIMEOUT_MS && !wifi_hw_initialized) {
-         R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
-         time_num++;
-      }
+      
 
-      if(asStation) {
-         CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
-      }
-      else {
-         CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
+      if(wifi_status == WL_NO_SSID_AVAIL) {
+         Serial.println("start wait");
+         
+         int time_num = 0;
+         while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::wifi_hw_initialized) {
+            CEspControl::getInstance().communicateWithEsp();
+            R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MILLISECONDS);
+            time_num++;
+         }
+         
+         Serial.println("exit wait");
+         
+         if(asStation) {
+            Serial.println("Call wifi mode set");
+            CLwipIf::getInstance().startSyncRequest();
+            if(CEspControl::getInstance().setWifiMode(WIFI_MODE_STA) == ESP_CONTROL_OK) {
+               CLwipIf::getInstance().restartAsyncRequest();
+               Serial.println("Scan for access points");
+               CLwipIf::getInstance().scanForAp();
+               
+            }
+         }
+         else {
+            CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
+         }
       }
    }
+
+   if(wifi_status != WL_SCAN_COMPLETED) {
+      rv = false;
+   }
+   
+   return rv;
 }
 
 
@@ -195,9 +232,10 @@ CNetIf *CLwipIf::get(NetIfType_t type,
    CNetIf *rv = nullptr;
    switch(type) {
       case NI_WIFI_STATION:
+         Serial.println("CLwipIf::get NI_WIFI_STATION");
          rv = _get(NI_WIFI_STATION);
          if(rv != nullptr) {
-            initWifiHw(true);
+            CLwipIf::initWifiHw(true);
             rv->begin(_ip,_gw,_nm);
             /* id is set up based on the presence of the 'other' wifi interface */
             if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
@@ -211,7 +249,7 @@ CNetIf *CLwipIf::get(NetIfType_t type,
       case NI_WIFI_SOFTAP:
          rv = _get(NI_WIFI_SOFTAP);
          if(rv != nullptr) {
-            initWifiHw(false);
+            CLwipIf::initWifiHw(false);
             rv->begin(_ip,_gw,_nm);
             /* id is set up based on the presence of the 'other' wifi interface */
             if(net_ifs[NI_WIFI_STATION] != nullptr) {
@@ -437,17 +475,24 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
    int rv = 0;
    WifiMac_t MAC;
-   int res = CEspControl::getInstance().getWifiMacAddress(MAC);
+
+   
+
+   
    if(type == NI_WIFI_STATION) {
       MAC.mode = WIFI_MODE_STA;
+      CLwipIf::getInstance().startSyncRequest();
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
+         CLwipIf::getInstance().startSyncRequest();
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
    }
    else if(type == NI_WIFI_SOFTAP) {
       MAC.mode = WIFI_MODE_AP;
+      CLwipIf::getInstance().startSyncRequest();
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
+         CLwipIf::getInstance().startSyncRequest();
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
@@ -456,6 +501,8 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
       // TODO
       rv = MAC_ADDRESS_DIM;
    }
+
+   
    return rv;
 }
 
@@ -463,8 +510,9 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
 int CLwipIf::scanForAp() {
 /* -------------------------------------------------------------------------- */   
    access_points.clear();
-   
+   CLwipIf::getInstance().startSyncRequest();
    int res = CEspControl::getInstance().getAccessPointScanList(access_points);
+   CLwipIf::getInstance().restartAsyncRequest();
    if(res == ESP_CONTROL_OK) {
       wifi_status = WL_SCAN_COMPLETED;
    }
@@ -671,7 +719,7 @@ int CLwipIf::getHostByName(const char *aHostname, IPAddress &aResult) {
    // See if it's a numeric IP address
    if (inet2aton(aHostname, aResult)) {
      // It is, our work here is done
-     return SUCCESS;
+     return 1;
    }
 
    // Check we've got a valid DNS server to use
@@ -1013,25 +1061,25 @@ void CNetIf::dhcp_task() {
 /* ########################################################################## */
 /*                      ETHERNET NETWORK INTERFACE CLASS                      */
 /* ########################################################################## */
-CEthernet::CEthernet() {}
-CEthernet::~CEthernet() {}
+CEth::CEth() {}
+CEth::~CEth() {}
 
 
 
-void CEthernet::setIp(const uint8_t *_ip) {
+void CEth::setIp(const uint8_t *_ip) {
    setAddr(&ip,_ip, (const uint8_t*)&default_eth_ip);
 }
 
-void CEthernet::setNm(const uint8_t *_nm) {
+void CEth::setNm(const uint8_t *_nm) {
    setAddr(&ip,_nm, (const uint8_t*)&default_eth_ip);
 }
 
-void CEthernet::setGw(const uint8_t *_gw) {
+void CEth::setGw(const uint8_t *_gw) {
    setAddr(&ip,_gw, (const uint8_t*)&default_eth_ip);
 }
 
 /* -------------------------------------------------------------------------- */
-void CEthernet::begin(const uint8_t* _ip, 
+void CEth::begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
 /* -------------------------------------------------------------------------- */   
@@ -1061,7 +1109,7 @@ void CEthernet::begin(const uint8_t* _ip,
 }
 
 /* -------------------------------------------------------------------------- */
-void CEthernet::task() {
+void CEth::task() {
 /* -------------------------------------------------------------------------- */   
 
 
@@ -1126,14 +1174,17 @@ void CWifiStation::task() {
 
    uint8_t *buf = CEspControl::getInstance().getStationRx(if_num, dim);
 
-   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-   if(p != NULL) {
-      /* Copy ethernet frame into pbuf */
-      pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
-      delete []buf;
+   if(buf != nullptr) {
 
-      if(ni.input(p, &ni) != ERR_OK) {
-         pbuf_free(p);
+      struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+      if(p != NULL) {
+         /* Copy ethernet frame into pbuf */
+         pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
+         delete []buf;
+
+         if(ni.input(p, &ni) != ERR_OK) {
+            pbuf_free(p);
+         }
       }
    }
 
@@ -1213,14 +1264,19 @@ void CWifiSoftAp::task() {
    uint16_t dim;
    uint8_t *buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
   
-   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-   if(p != NULL) {
-      /* Copy ethernet frame into pbuf */
-      pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
-      delete []buf;
+   if(buf != nullptr) {
 
-      if(ni.input(p, &ni) != ERR_OK) {
-         pbuf_free(p);
+   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+
+
+      if(p != NULL) {
+         /* Copy ethernet frame into pbuf */
+         pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
+         delete []buf;
+
+         if(ni.input(p, &ni) != ERR_OK) {
+            pbuf_free(p);
+         }
       }
    }
 

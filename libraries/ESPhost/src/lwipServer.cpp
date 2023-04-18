@@ -3,7 +3,7 @@ extern "C" {
 }
 
 #include "CNetIf.h"
-#include "lwIpClient.h"
+#include "lwipClient.h"
 #include "lwipServer.h"
 
 lwipServer::lwipServer(uint16_t port)

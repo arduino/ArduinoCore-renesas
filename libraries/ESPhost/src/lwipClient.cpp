@@ -5,7 +5,7 @@ extern "C" {
 #include "Arduino.h"
 
 
-#include "lwIpClient.h"
+#include "lwipClient.h"
 
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient() : _tcp_client(NULL)

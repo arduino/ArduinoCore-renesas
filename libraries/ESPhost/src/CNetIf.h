@@ -1,7 +1,7 @@
 #ifndef _ARDUINO_LWIP_NETIF_H_
 #define _ARDUINO_LWIP_NETIF_H_
 
-#define LWIP_USE_TIMER
+//#define LWIP_USE_TIMER
 
 #include "Arduino.h"
 
@@ -21,6 +21,8 @@
 #include "lwip/include/lwip/dns.h"
 #include "lwip/include/lwip/prot/dhcp.h"
 #include "lwip/include/netif/ethernet.h"
+
+#define LWIP_USE_TIMER
 
 #ifdef LWIP_USE_TIMER
 #include "FspTimer.h"
@@ -143,7 +145,7 @@ using LwipInput_f = err_t (*)(struct pbuf *p, struct netif *inp);
 #define DHCP_CHECK_REBIND_FAIL  (3)
 #define DHCP_CHECK_REBIND_OK    (4)
 
-#define SUCCESS          1
+
 #define TIMED_OUT        -1
 #define INVALID_SERVER   -2
 #define TRUNCATED        -3
@@ -248,14 +250,14 @@ public:
 
 
 /* -------------------------------------------------------------------------- */
-class CEthernet : public CNetIf {
+class CEth: public CNetIf {
 /* -------------------------------------------------------------------------- */   
    protected:
 
 
    public:
-   CEthernet();
-   virtual ~CEthernet();
+   CEth();
+   virtual ~CEth();
    virtual void begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) override;
@@ -314,6 +316,8 @@ class CWifiSoftAp : public CNetIf {
 };
 
 
+
+
 /* -------------------------------------------------------------------------- */
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
@@ -321,12 +325,15 @@ private:
    static CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
    static WifiStatus_t wifi_status;
 
+   bool willing_to_start_sync_req;
+   bool async_requests_ongoing;
+
    /* initialize lwIP and timer */
    CLwipIf();
    
    /* timer */
    #ifdef LWIP_USE_TIMER
-   FspTimer timer;
+   static FspTimer timer;
    static void timer_cb(timer_callback_args_t *arg);
    #endif
    
@@ -342,7 +349,7 @@ private:
    static bool wifi_hw_initialized;
    static bool connected_to_access_point;
    static int initEventCb(CCtrlMsgWrapper *resp);
-   static void initWifiHw(bool asStation);
+   static bool initWifiHw(bool asStation);
    static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
    int dns_num;
@@ -355,6 +362,22 @@ public:
    CLwipIf(CLwipIf const&)            = delete;
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
+
+   void startSyncRequest() {
+      if(async_requests_ongoing) {
+         synchronized {
+           willing_to_start_sync_req = true;
+         }
+         while(willing_to_start_sync_req) {
+            delay(1);
+         }
+      }
+   }
+
+   void restartAsyncRequest() {
+      async_requests_ongoing = true;
+      timer.enable_overflow_irq();
+   }
 
    /* --------------
     * DNS functions

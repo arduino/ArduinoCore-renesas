@@ -28,7 +28,7 @@
  * Includes 
  * ######## */
 
-#include "esp_host_spi_driver.h"
+#include "EspSpiDriver.h"
 
 /* #####################
  * Configuration defines 
@@ -112,6 +112,10 @@ int esp_host_spi_transaction(void);
 
 static bool spi_driver_initialized = false;
 
+bool isEspSpiInitialized() {
+   return spi_driver_initialized;
+}
+
 /* -------------------------------------------------------------------------- */
 /* INIT THE SPI DRIVER (to always called at first)                            
  * SPI driver also use 2 PIN (handshake and data ready) to synchronize SPI 
@@ -119,6 +123,8 @@ static bool spi_driver_initialized = false;
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_init(void) {
    
+   Serial.println("esp_host_spi_init");
+
    if(spi_driver_initialized) {
       return ESP_HOSTED_SPI_DRIVER_OK;
    }
@@ -220,6 +226,8 @@ int esp_host_spi_init(void) {
    R_IOPORT_PinWrite(NULL, ESP_RESET, BSP_IO_LEVEL_HIGH);
 
    spi_driver_initialized = true;
+
+   Serial.println("esp_host_spi_init - END");
 
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }

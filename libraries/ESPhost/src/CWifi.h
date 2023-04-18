@@ -3,6 +3,8 @@
 
 #include "CNetIf.h"
 
+#define WIFI_FIRMWARE_LATEST_VERSION "1.5.0"
+
 class CWifi {
 private: 
    unsigned long _timeout;
