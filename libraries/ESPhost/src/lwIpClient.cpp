@@ -8,25 +8,25 @@ extern "C" {
 #include "lwIpClient.h"
 
 /* -------------------------------------------------------------------------- */
-lwIpClient::lwIpClient() : _tcp_client(NULL)
+lwipClient::lwipClient() : _tcp_client(NULL)
 {}
 /* -------------------------------------------------------------------------- */
 
 /* Deprecated constructor. Keeps compatibility with W5100 architecture
 sketches but sock is ignored. */
 /* -------------------------------------------------------------------------- */
-lwIpClient::lwIpClient(uint8_t sock) : _tcp_client(NULL)
+lwipClient::lwipClient(uint8_t sock) : _tcp_client(NULL)
 {}
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-lwIpClient::lwIpClient(struct tcp_struct *tcpClient) {
+lwipClient::lwipClient(struct tcp_struct *tcpClient) {
   _tcp_client = tcpClient;
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::connect(const char *host, uint16_t port) {
+int lwipClient::connect(const char *host, uint16_t port) {
 /* -------------------------------------------------------------------------- */  
   IPAddress remote_addr;
   int ret = CLwipIf::getInstance().getHostByName(host, remote_addr);
@@ -38,7 +38,7 @@ int lwIpClient::connect(const char *host, uint16_t port) {
 }
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::connect(IPAddress ip, uint16_t port) {
+int lwipClient::connect(IPAddress ip, uint16_t port) {
 /* -------------------------------------------------------------------------- */  
   if (_tcp_client == NULL) {
     /* Allocates memory for client */
@@ -81,13 +81,13 @@ int lwIpClient::connect(IPAddress ip, uint16_t port) {
 }
 
 /* -------------------------------------------------------------------------- */
-size_t lwIpClient::write(uint8_t b) {
+size_t lwipClient::write(uint8_t b) {
 /* -------------------------------------------------------------------------- */  
   return write(&b, 1);
 }
 
 /* -------------------------------------------------------------------------- */
-size_t lwIpClient::write(const uint8_t *buf, size_t size) {
+size_t lwipClient::write(const uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */  
   if ((_tcp_client == NULL) || (_tcp_client->pcb == NULL) ||
       (buf == NULL) || (size == 0)) {
@@ -134,7 +134,7 @@ size_t lwIpClient::write(const uint8_t *buf, size_t size) {
 }
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::available() {
+int lwipClient::available() {
 /* -------------------------------------------------------------------------- */  
   CLwipIf::getInstance().lwip_task();
   if (_tcp_client != NULL) {
@@ -144,7 +144,7 @@ int lwIpClient::available() {
 }
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::read() {
+int lwipClient::read() {
 /* -------------------------------------------------------------------------- */  
   uint8_t b;
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
@@ -156,7 +156,7 @@ int lwIpClient::read() {
 }
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::read(uint8_t *buf, size_t size) {
+int lwipClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */  
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
     return pbuffer_get_data(&(_tcp_client->data), buf, size);
@@ -165,7 +165,7 @@ int lwIpClient::read(uint8_t *buf, size_t size) {
 }
 
 /* -------------------------------------------------------------------------- */
-int lwIpClient::peek() {
+int lwipClient::peek() {
 /* -------------------------------------------------------------------------- */  
   uint8_t b;
   // Unlike recv, peek doesn't check to see if there's any data available, so we must
@@ -177,7 +177,7 @@ int lwIpClient::peek() {
 }
 
 /* -------------------------------------------------------------------------- */
-void lwIpClient::flush() {
+void lwipClient::flush() {
 /* -------------------------------------------------------------------------- */  
   if ((_tcp_client == NULL) || (_tcp_client->pcb == NULL)) {
     return;
@@ -187,7 +187,7 @@ void lwIpClient::flush() {
 }
 
 /* -------------------------------------------------------------------------- */
-void lwIpClient::stop() {
+void lwipClient::stop() {
 /* -------------------------------------------------------------------------- */  
   if (_tcp_client == NULL) {
     return;
@@ -200,7 +200,7 @@ void lwIpClient::stop() {
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t lwIpClient::connected() {
+uint8_t lwipClient::connected() {
 /* -------------------------------------------------------------------------- */
   uint8_t s = status();
   return ((available() && (s == TCP_CLOSING)) ||
@@ -208,7 +208,7 @@ uint8_t lwIpClient::connected() {
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t lwIpClient::status() {
+uint8_t lwipClient::status() {
   if (_tcp_client == NULL) {
     return TCP_NONE;
   }
@@ -219,13 +219,13 @@ uint8_t lwIpClient::status() {
 // EthernetServer::available() as the condition in an if-statement.
 
 /* -------------------------------------------------------------------------- */
-lwIpClient::operator bool() {
+lwipClient::operator bool() {
   /* -------------------------------------------------------------------------- */
   return (_tcp_client && (_tcp_client->state != TCP_CLOSING));
 }
 
 /* -------------------------------------------------------------------------- */
-bool lwIpClient::operator==(const lwIpClient &rhs) {
+bool lwipClient::operator==(const lwipClient &rhs) {
 /* -------------------------------------------------------------------------- */  
   return _tcp_client == rhs._tcp_client && _tcp_client->pcb == rhs._tcp_client->pcb;
 }
@@ -234,7 +234,7 @@ bool lwIpClient::operator==(const lwIpClient &rhs) {
 specific to the W5100 architecture. To keep the compatibility we leave it and
 returns always 0. */
 /* -------------------------------------------------------------------------- */
-uint8_t lwIpClient::getSocketNumber() {
+uint8_t lwipClient::getSocketNumber() {
 /* -------------------------------------------------------------------------- */  
   return 0;
 }

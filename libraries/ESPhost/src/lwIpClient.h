@@ -10,12 +10,12 @@
 #include "lwipTcp.h"
 #include "lwipMem.h"
 
-class lwIpClient : public Client {
+class lwipClient : public Client {
 
   public:
-    lwIpClient();
-    lwIpClient(uint8_t sock);
-    lwIpClient(struct tcp_struct *tcpClient);
+    lwipClient();
+    lwipClient(uint8_t sock);
+    lwipClient(struct tcp_struct *tcpClient);
 
     uint8_t status();
     virtual int connect(IPAddress ip, uint16_t port);
@@ -38,8 +38,8 @@ class lwIpClient : public Client {
     {
       return bool() != value;
     }
-    virtual bool operator==(const lwIpClient &);
-    virtual bool operator!=(const lwIpClient &rhs)
+    virtual bool operator==(const lwipClient &);
+    virtual bool operator!=(const lwipClient &rhs)
     {
       return !this->operator==(rhs);
     };
@@ -61,7 +61,7 @@ class lwIpClient : public Client {
       _timeout = timeout;
    }
 
-   friend class EthernetServer;
+   friend class lwipServer;
 
     using Print::write;
 
