@@ -90,7 +90,7 @@ public:
             MAC += ":";
          }
       }
-      for(int i = 0; i < MAC.size(); i++ ) {
+      for(unsigned int i = 0; i < MAC.size(); i++ ) {
          *(mac_out + i) = MAC[i];
       }  
    }

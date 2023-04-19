@@ -79,15 +79,37 @@ static spi_instance_ctrl_t  _esp_host_spi_ctrl;
 static spi_cfg_t            _esp_host_spi_cfg;
 static spi_extended_cfg_t   _esp_host_spi_ext_cfg;
 
-static icu_instance_ctrl_t  _esp_host_icu_ctrl;
-static external_irq_cfg_t   _esp_host_icu_cfg;
+static int spi_rx_waiting = 0;
+
+bool arePendingRxMsg() {
+   bool rv = spi_rx_waiting > 0 ? true : false;
+   spi_rx_waiting--;
+   return rv;
+}
+
+
+static bool spi_transaction_in_progress = false;
+
+bool isSpiTransactionInProgress() { 
+   bool rv = spi_transaction_in_progress;
+   //Serial.println("TEST");
+   if(spi_transaction_in_progress == false) {
+      //Serial.println("IN PROGRESS");
+      spi_transaction_in_progress = true;
+   } 
+   return rv;
+}
+void setSpiTransactionInPRogress() { spi_transaction_in_progress  = true; }
+
+//static icu_instance_ctrl_t  _esp_host_icu_ctrl;
+//static external_irq_cfg_t   _esp_host_icu_cfg;
 
 static sci_spi_extended_cfg_t _sci_spi_ext_cfg;
 
 static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
 
 
-static CbkFuncRx_f esp_host_cb_rx_msg = nullptr;
+//static CbkFuncRx_f esp_host_cb_rx_msg = nullptr;
 
 /* #############################
  * PRIVATE Functions declaration
@@ -314,45 +336,8 @@ int esp_host_perform_spi_communication(bool wait_for_valid_msg) {
       
 
    } while(continue_spi_communication);
-
+   
    return rv;
-
-
-
-
-   #ifdef CYCLE_UNTILL_THERE_ARE_MESSAGES
-   /* first implementation: that has a problem when the wifi communication is
-      enabled, messages are continuosly arriving preventig this */
-   int rv = ESP_HOSTED_SPI_DRIVER_OK;
-   int res = 0;
-   /* it exits if there is some transaction error or if there is no more
-      data to be tx ox rx*/
-   do {
-      res = esp_host_spi_transaction();
-      R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
-      if(res == ESP_HOSTED_SPI_DRIVER_OK || 
-         res == ESP_HOSTED_SPI_MESSAGE_RECEIVED ||
-         res == ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX) {
-         /* those are good possible results */
-      }
-      else {
-         /* exit for ERROR */
-         #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("[ERROR]: SPI TRANSACTION ERROR! ");
-         Serial.print(res);
-         #endif
-         rv = res;
-         break;
-      }
-   }
-   while(res != ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX);
-   return rv;
-     
-
-
-
-
-   #endif
 }
 
 
@@ -378,24 +363,28 @@ int esp_host_spi_transaction(void) {
       rv = esp_host_send_and_receive();
          /* there is something to send or to receive */
       if(rv == ESP_HOSTED_SPI_DRIVER_OK) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.print("  [SPI]: MESSAGE RECEIVED");
          #endif
          /* SPI transaction went OK */
          if(CEspCom::send_msg_to_app((const uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
             
             rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println("AND QUEUED to APP");
             #endif
          }
          else {
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println("BUT NOT QUEUED to APP");
             #endif
          }
 
       }
+   }
+   else {
+      
+      spi_transaction_in_progress = false;
    }
    return rv; 
 }
@@ -434,7 +423,7 @@ int esp_host_send_and_receive(void) {
       
       _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
       
-      #ifdef ESP_HOST_DEBUG_ENABLED
+      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
       Serial.println("  [SPI] Execute single SPI transaction:");
       Serial.print("  [SPI] TX DATA: ");
       for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
@@ -443,15 +432,20 @@ int esp_host_send_and_receive(void) {
       }
       Serial.println();
       #endif
-
-      if(FSP_SUCCESS == R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS)) {
+      
+      fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
+      
+      if(err == FSP_SUCCESS) {
          bool exited = false;
          /* wait for SPI transaction to finish */
          time_num = 0;
          do {
+            
             if(_spi_cb_status == SPI_EVENT_TRANSFER_COMPLETE) { 
                rv = ESP_HOSTED_SPI_DRIVER_OK;
-               #ifdef ESP_HOST_DEBUG_ENABLED
+               
+               //Serial.println("NO MORE IN PROGRESS");
+               #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
                Serial.print("  [SPI] RX DATA: ");
                for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
                   Serial.print(esp32_spi_rx_buffer[i], HEX);
@@ -468,14 +462,16 @@ int esp_host_send_and_receive(void) {
             R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
             time_num++;
          } while(time_num < 5000 && !exited);
-
+         spi_transaction_in_progress = false;
          if(!exited) {
+            //Serial.print("SPI TIMEOUT");
             rv = ESP_HOSTED_SPI_TIMEOUT;
          }         
       }
       else {
          #ifdef ESP_HOST_DEBUG_ENABLED
-         Serial.println("[ERROR]: SPI TRANSACTION FAILED!");
+         Serial.print("[ERROR]: SPI TRANSACTION FAILED! ");
+         Serial.println(err);
          #endif
       }
    }
@@ -506,5 +502,5 @@ static void spi_callback(spi_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 static void ext_irq_callback(void) {
 /* -------------------------------------------------------------------------- */   
-   //esp_host_spi_transaction();
+   spi_rx_waiting++;
 }

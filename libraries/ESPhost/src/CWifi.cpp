@@ -1,7 +1,8 @@
 #include "CWifi.h"
 
 /* -------------------------------------------------------------------------- */
-CWifi::CWifi() : _timeout(50000) {}
+CWifi::CWifi() : _timeout(50000), ni(nullptr) {
+}
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -17,70 +18,92 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */   
-   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   if(ni == nullptr) {
+      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   }
    CLwipIf::getInstance().connectToAp(ssid, nullptr);
+   return CLwipIf::getInstance().getWifiStatus();
 }
 
 
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */   
-   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   if(ni == nullptr) {
+      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   }
    CLwipIf::getInstance().connectToAp(ssid, passphrase); 
+   return CLwipIf::getInstance().getWifiStatus();
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid) {
 /* -------------------------------------------------------------------------- */   
+   (void)(ssid);
    ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   
+   return 1;
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
+   (void)(ssid);
+   (void)(channel);
    ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   
+   return 1;
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 /* -------------------------------------------------------------------------- */   
+   (void)(ssid);
+   (void)(passphrase);
    ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-
+   return 1;
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
+   (void)(ssid);
+   (void)(passphrase);
+   (void)(channel);
+   
    ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-
+   return 1;
 }
 
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */   
-   
+   (void)(local_ip);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */   
-   
+   (void)(local_ip);
+   (void)(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */   
-   
+   (void)(local_ip);
+   (void)(dns_server);
+   (void)(gateway);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
-   
+   (void)(local_ip);
+   (void)(dns_server);
+   (void)(gateway);
+   (void)(subnet);
 }
+
 
 
 

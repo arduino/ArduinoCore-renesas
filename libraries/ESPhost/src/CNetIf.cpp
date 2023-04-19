@@ -103,34 +103,7 @@ CLwipIf::~CLwipIf() {
 }
 
 
-/* This function returns a newly allocate Network interface if the interface 
-   was not allocated before or nullptr if the Network Interface was already 
-   allocated */
-/* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::_get(NetIfType_t t) {
-/* -------------------------------------------------------------------------- */   
-   CNetIf *rv = nullptr;
-   if(t >= 0 && t < NETWORK_INTERFACES_MAX_NUM) {
-      if(net_ifs[t] == nullptr) {
-         switch(t) {
-            case NI_WIFI_STATION:
-               rv = new CWifiStation();
-            break;
-            case NI_WIFI_SOFTAP:
-               rv = new CWifiSoftAp();
-            break;
 
-            case NI_ETHERNET:
-               rv = new CEth();
-            break;
-            default:
-            break;
-         }
-         net_ifs[t] = rv;
-      }
-   }
-   return rv;
-}
 
 
 
@@ -142,8 +115,8 @@ CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip,
                                const uint8_t* _nm) {
 /* -------------------------------------------------------------------------- */   
   /* get return nullptr if ni was already allocated */
-  CNetIf *rv = _get(NI_ETHERNET);
-
+  
+  CNetIf *rv = nullptr;
   if(rv != nullptr) {
       
 
@@ -170,6 +143,16 @@ int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
 
 
 /* -------------------------------------------------------------------------- */
+int CLwipIf::setWifiMode(WifiMode_t mode) {
+/* -------------------------------------------------------------------------- */   
+      CLwipIf::getInstance().startSyncRequest();
+      int rv = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+      CLwipIf::getInstance().restartAsyncRequest();
+      return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
 bool CLwipIf::initWifiHw(bool asStation) {
 /* -------------------------------------------------------------------------- */   
    bool rv = true;
@@ -182,8 +165,6 @@ bool CLwipIf::initWifiHw(bool asStation) {
          wifi_status = WL_NO_SSID_AVAIL;
       }
 
-      
-
       if(wifi_status == WL_NO_SSID_AVAIL) {
          Serial.println("start wait");
          
@@ -195,15 +176,14 @@ bool CLwipIf::initWifiHw(bool asStation) {
          }
          
          Serial.println("exit wait");
-         
          if(asStation) {
             Serial.println("Call wifi mode set");
-            CLwipIf::getInstance().startSyncRequest();
-            if(CEspControl::getInstance().setWifiMode(WIFI_MODE_STA) == ESP_CONTROL_OK) {
-               CLwipIf::getInstance().restartAsyncRequest();
+            
+            int res = CLwipIf::getInstance().setWifiMode(WIFI_MODE_STA);
+
+            if( res == ESP_CONTROL_OK) {
                Serial.println("Scan for access points");
                CLwipIf::getInstance().scanForAp();
-               
             }
          }
          else {
@@ -220,6 +200,11 @@ bool CLwipIf::initWifiHw(bool asStation) {
 }
 
 
+
+
+
+
+
 /* -------------------------------------------------------------------------- */
 /* Sort of factory method, dependig on the requested type it setUp a different 
    Network interface and returns it to the caller */
@@ -229,48 +214,53 @@ CNetIf *CLwipIf::get(NetIfType_t type,
                      const uint8_t* _gw, 
                      const uint8_t* _nm) {
 /* -------------------------------------------------------------------------- */
+   static int id = 0;
    CNetIf *rv = nullptr;
-   switch(type) {
-      case NI_WIFI_STATION:
-         Serial.println("CLwipIf::get NI_WIFI_STATION");
-         rv = _get(NI_WIFI_STATION);
-         if(rv != nullptr) {
-            CLwipIf::initWifiHw(true);
-            rv->begin(_ip,_gw,_nm);
-            /* id is set up based on the presence of the 'other' wifi interface */
-            if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
-               rv->setId(1);
+   bool isStation = true;
+   bool isEth = false;
+
+   if(type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
+      if(net_ifs[type] == nullptr) {
+         switch(type) {
+            case NI_WIFI_STATION:
+               Serial.println("CLwipIf::get (FIRST TIME) NI_WIFI_STATION");
+               net_ifs[type] = new CWifiStation();
+               isStation = true;
+            break;
+            
+            case NI_WIFI_SOFTAP:
+               Serial.println("CLwipIf::get (FIRST TIME) NI_WIFI_SOFTAP");
+               net_ifs[type] = new CWifiSoftAp();
+               isStation = false;
+            break;
+
+            case NI_ETHERNET:
+               Serial.println("CLwipIf::get (FIRST TIME) NI_ETHERNET");
+               net_ifs[type] = new CEth();
+               isEth = true;
+            break;
+            default:
+            break;
+         }
+         
+         if(net_ifs[type] != nullptr) {
+            Serial.println("CLwipIf::get (FIRST TIME) INITIALIZATION");
+            if(!isEth) {
+               CLwipIf::initWifiHw(isStation);
+               net_ifs[type]->begin(_ip,_gw,_nm);
+               net_ifs[type]->setId(0);
             }
             else {
-               rv->setId(0);
+
             }
+
          }
-         break;
-      case NI_WIFI_SOFTAP:
-         rv = _get(NI_WIFI_SOFTAP);
-         if(rv != nullptr) {
-            CLwipIf::initWifiHw(false);
-            rv->begin(_ip,_gw,_nm);
-            /* id is set up based on the presence of the 'other' wifi interface */
-            if(net_ifs[NI_WIFI_STATION] != nullptr) {
-               rv->setId(1);
-            }
-            else {
-               rv->setId(0);
-            }
-         }
-
-         break;
-
-      case NI_ETHERNET:
-         rv = setUpEthernet(_ip, _gw, _nm);
-         break;
-
-      default:
-         rv = nullptr;
-         break;
+      }
+      Serial.println("CLwipIf::get");
+      rv = net_ifs[type];
    }
    return rv;
+   
 }
 
 
@@ -475,24 +465,19 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
    int rv = 0;
    WifiMac_t MAC;
-
    
-
+   CLwipIf::getInstance().startSyncRequest();
    
    if(type == NI_WIFI_STATION) {
       MAC.mode = WIFI_MODE_STA;
-      CLwipIf::getInstance().startSyncRequest();
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-         CLwipIf::getInstance().startSyncRequest();
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
    }
    else if(type == NI_WIFI_SOFTAP) {
       MAC.mode = WIFI_MODE_AP;
-      CLwipIf::getInstance().startSyncRequest();
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-         CLwipIf::getInstance().startSyncRequest();
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
@@ -502,7 +487,7 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
       rv = MAC_ADDRESS_DIM;
    }
 
-   
+   CLwipIf::getInstance().startSyncRequest();
    return rv;
 }
 
@@ -573,7 +558,7 @@ uint8_t CLwipIf::getChannel(uint8_t i) {
 int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
 /* -------------------------------------------------------------------------- */ 
    WifiApCfg_t ap;
-    
+   int rv =  ESP_CONTROL_CTRL_ERROR;
    bool found = false;
    uint8_t index = 0;
    for(uint8_t i = 0; i < access_points.size(); i++) {
@@ -584,6 +569,8 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
    }
 
    if(found) {
+      Serial.println("SSID found!");
+
       memset(ap.ssid,0x00,SSID_LENGTH);
       memcpy(ap.ssid,access_points[index].ssid,SSID_LENGTH);
       memset(ap.pwd,0x00,PASSWORD_LENGTH);
@@ -592,19 +579,26 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
       }
       memset(ap.bssid,0x00,BSSID_LENGTH);
       memcpy(ap.bssid,access_points[index].bssid,BSSID_LENGTH);
-   }
 
-   if(CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
-      CLwipIf::connected_to_access_point = true;
-      wifi_status = WL_CONNECTED;
-      CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
-      return ESP_CONTROL_OK;
+      CLwipIf::getInstance().startSyncRequest();
+      if(CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
+         CLwipIf::connected_to_access_point = true;
+         Serial.println("############### CONNECTED TO ACCESS POINT");
+         wifi_status = WL_CONNECTED;
+         CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
+         rv = ESP_CONTROL_OK;
+      }
+      else {
+         wifi_status = WL_CONNECT_FAILED;
+         CLwipIf::connected_to_access_point = false;
+      }
+
+      CLwipIf::getInstance().restartAsyncRequest();
    }
    else {
-      wifi_status = WL_CONNECT_FAILED;
-      CLwipIf::connected_to_access_point = false;
+      Serial.println("SSID not found in the list of available AP");
    }
-   return ESP_CONTROL_CTRL_ERROR;
+   return rv;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -640,10 +634,29 @@ int CLwipIf::disconnectFromAp() {
 }
 
 
+void toggle_led_debug() {
+   static int i = 0;
+   static bool st = false;
+   i++;
+   if(i > 5) {
+      if(st) {
+         digitalWrite(LED_BUILTIN, HIGH);
+      }
+      else {
+         digitalWrite(LED_BUILTIN, LOW);
+      }
+      st = !st;
+      i = 0;
+   }
+}
+
+
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
 void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /*  -------------------------------------------------------------------------- */   
+  
+  toggle_led_debug();
   CLwipIf::getInstance().lwip_task();
 } 
 #endif

@@ -59,13 +59,15 @@ CEspControl::~CEspControl() {
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_priv_messages(CCtrlMsgWrapper* response) {
 /* -------------------------------------------------------------------------- */   
-
+   (void)(response);
+   return 0;
 }
 
 /* process test messages */
 /* -------------------------------------------------------------------------- */
 int CEspControl::process_test_messages(CCtrlMsgWrapper* response) {
-   
+   (void)(response);
+   return 0;
 }
 
 
@@ -175,12 +177,12 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
    /* get the message */
    if(CEspCom::get_msg_from_esp(msg)) {
       
-      #ifdef ESP_HOST_DEBUG_ENABLED
+      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
       Serial.print("   [RX PROCESS] Receiving message from ESP rx queue -> ");
       #endif
       /* CONTROL_MESSAGES____________________________________________________ */
       if(msg.get_if_type() == ESP_SERIAL_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.println(" CONTROL MESSAGE");
          #endif
          /* At this point we are sure we are dealing with a control message 
@@ -264,14 +266,14 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
 /* -------------------------------------------------------------------------- */
 int CEspControl::wait_for_answer(CCtrlMsgWrapper* response) {
    int rv = ESP_CONTROL_ERROR_MISSING_CTRL_RESPONSE; 
-   int time_num = 0;
+   unsigned int time_num = 0;
    
    do {
       /* send messages untill a valid message is received into the rx queu */
       esp_host_perform_spi_communication(true);
    
       if(process_msgs_received(response) == ESP_CONTROL_MSG_RX) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.println(" WAIT FOR ANSWER OK!!!!!");
          #endif
          rv = ESP_CONTROL_OK;
@@ -318,7 +320,7 @@ int CEspControl::sendBuffer(ESP_INTERFACE_TYPE type, uint8_t num, uint8_t *buf, 
 /* -------------------------------------------------------------------------- */
 void CEspControl::communicateWithEsp() {
 /* -------------------------------------------------------------------------- */   
-   if(isEspSpiInitialized()) {
+   if(isEspSpiInitialized() && !isSpiTransactionInProgress()) {
       esp_host_perform_spi_communication(false);
       process_msgs_received(nullptr);
    }
@@ -411,7 +413,7 @@ void CEspControl::prepare_and_send_request(AppMsgId_e id,
          /* UNKNOWN MESSAGE */
          go_on = false;
          res = ESP_CONTROL_WRONG_REQUEST_INVALID_MSG;
-         Serial.println("A ESP_CONTROL_WRONG_REQUEST_INVALID_MSG");
+         //Serial.println("A ESP_CONTROL_WRONG_REQUEST_INVALID_MSG");
       break;
    }
    
@@ -428,12 +430,12 @@ void CEspControl::prepare_and_send_request(AppMsgId_e id,
          }
          else {
             res = ESP_CONTROL_MSG_SENT_AND_CB_SET_UP;
-            Serial.println("B ESP_CONTROL_MSG_SENT_AND_CB_SET_UP");
+            //Serial.println("B ESP_CONTROL_MSG_SENT_AND_CB_SET_UP");
          }
       }
       else {
          res = ESP_CONTROL_WRONG_REQUEST_INVALID_MSG;
-         Serial.println("C ESP_CONTROL_WRONG_REQUEST_INVALID_MSG");
+         //Serial.println("C ESP_CONTROL_WRONG_REQUEST_INVALID_MSG");
       }
    }
    
@@ -559,6 +561,13 @@ int CEspControl::setWifiMode(WifiMode_t mode, EspCallback_f cb) {
    if(rv == ESP_CONTROL_OK) {
       rv = req.isSetWifiModeResponse();
    }
+
+   #ifdef ESP_HOST_DEBUG_ENABLED
+   Serial.print("[RESPONSE] CEspControl::setWifiMode ");
+   Serial.println(rv);
+   #endif
+
+
    return rv;
 }
 

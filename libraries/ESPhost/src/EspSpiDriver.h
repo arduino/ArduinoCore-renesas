@@ -54,6 +54,10 @@ int esp_host_spi_init(void);
 int esp_host_perform_spi_communication(bool wait_for_valid_msg);
 
 bool isEspSpiInitialized() ;
+bool arePendingRxMsg();
+
+bool isSpiTransactionInProgress();
+void setSpiTransactionInPRogress();
 
 
 

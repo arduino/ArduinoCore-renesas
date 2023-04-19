@@ -2,6 +2,7 @@
 #define _ARDUINO_LWIP_NETIF_H_
 
 //#define LWIP_USE_TIMER
+#define UNUSED(x) (void)(x)
 
 #include "Arduino.h"
 
@@ -269,7 +270,10 @@ class CEth: public CNetIf {
    void setGw(const uint8_t *_gw) override;
 
 
-   virtual int getMacAddress(uint8_t *mac) {}
+   virtual int getMacAddress(uint8_t *mac) {
+      UNUSED(mac);
+      return 1;
+   }
 
 };
 
@@ -322,11 +326,13 @@ class CWifiSoftAp : public CNetIf {
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
-   static CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
-   static WifiStatus_t wifi_status;
-
+   int dns_num;
    bool willing_to_start_sync_req;
    bool async_requests_ongoing;
+
+   static CNetIf * net_ifs[NETWORK_INTERFACES_MAX_NUM];
+   static WifiStatus_t wifi_status;
+   
 
    /* initialize lwIP and timer */
    CLwipIf();
@@ -340,7 +346,7 @@ private:
    vector<AccessPoint_t> access_points;
    WifiApCfg_t access_point_cfg;
 
-   CNetIf *_get(NetIfType_t t);
+   
 
    CNetIf *setUpEthernet(const uint8_t* _ip, 
                          const uint8_t* _gw, 
@@ -352,7 +358,7 @@ private:
    static bool initWifiHw(bool asStation);
    static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
-   int dns_num;
+   
    static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
    int8_t get_ip_address_from_hostname(const char *hostname, uint32_t *ipaddr);
    int inet2aton(const char *aIPAddrString, IPAddress &aResult);
@@ -376,6 +382,7 @@ public:
 
    void restartAsyncRequest() {
       async_requests_ongoing = true;
+      delay(10);
       timer.enable_overflow_irq();
    }
 
@@ -439,6 +446,9 @@ public:
    uint8_t getEncrType();
 
    WifiStatus_t getWifiStatus() { return wifi_status; }
+
+
+   int setWifiMode(WifiMode_t mode);
 
    
 

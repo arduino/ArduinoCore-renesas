@@ -437,7 +437,7 @@ static int checkResponsePayload(CtrlMsg *ans, int req, T *payload, bool check_re
 template<typename T>
 static int checkEventPayload(CtrlMsg *ans, int req, T *payload) {
 /* -------------------------------------------------------------------------- */   
-   int rv = ESP_CONTROL_OK;
+   
    if(ans == nullptr) {
       return ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
    }
@@ -551,7 +551,7 @@ public:
    ~CCtrlMsgWrapper() {
    /* ----------------------------------------------------------------------- */
       if(answer != nullptr) {
-         Serial.println("THE answer has been FREE_UNPACKED!");
+         //Serial.println("THE answer has been FREE_UNPACKED!");
          ctrl_msg__free_unpacked(answer, NULL);
       }
    }
