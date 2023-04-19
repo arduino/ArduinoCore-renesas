@@ -6,4 +6,4 @@
 	url = git@github.com:bcmi-labs/santiago-leven-usb-bridge
 [submodule "extras/tls/mbedtls"]
 	path = extras/tls/mbedtls
-	url = git@github.com:Mbed-TLS/mbedtls.git
+	url = git@github.com:bcmi-labs/mbedtls.git
