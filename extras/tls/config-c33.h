@@ -106,11 +106,12 @@
 #define MBEDTLS_DEBUG_C
 #define MBEDTLS_PLATFORM_PRINTF_MACRO smlog_println
 
+/* Load certificates from silesystem */
+#define MBEDTLS_FS_IO
+#define MBEDTLS_FS_IO_ALT
+
 /* TODO we will need this for server certificate check */
 //#define MBEDTLS_HAVE_TIME
-
-/* TODO we will need to enable this to load certificates from QSPI flash */
-//#define MBEDTLS_FS_IO
 
 /* Reduce RAM usage */
 #define MBEDTLS_ECP_FIXED_POINT_OPTIM 0         /* To reduce peak memory usage */
