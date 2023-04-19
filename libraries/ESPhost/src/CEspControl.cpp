@@ -209,7 +209,7 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
       }
       /* NETWORK_MESSAGES____________________________________________________ */
       else if(msg.get_if_type() == ESP_STA_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.print(" NETWORK MESSAGE");
          Serial.print(" Station ");
          Serial.println(msg.get_if_num());
@@ -302,7 +302,8 @@ int CEspControl::send_net_packet(CMsg& msg) {
    }
    
    /* send a message without waiting for an answer */
-   esp_host_perform_spi_communication(false);
+   Serial.println("SEND ------ NET ......... PACKET");
+   //esp_host_perform_spi_communication(false);
 
    return rv;
 }

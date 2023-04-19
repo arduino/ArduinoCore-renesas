@@ -389,7 +389,7 @@ int esp_host_spi_transaction(void) {
    return rv; 
 }
 
-
+extern void getESPDebugLog();
 /* -------------------------------------------------------------------------- */
 int esp_host_send_and_receive(void) {
 /* -------------------------------------------------------------------------- */   
@@ -423,7 +423,7 @@ int esp_host_send_and_receive(void) {
       
       _spi_cb_status = SPI_EVENT_ERR_MODE_FAULT;
       
-      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
+      #ifdef ESP_HOST_DEBUG_ENABLED
       Serial.println("  [SPI] Execute single SPI transaction:");
       Serial.print("  [SPI] TX DATA: ");
       for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
@@ -445,7 +445,7 @@ int esp_host_send_and_receive(void) {
                rv = ESP_HOSTED_SPI_DRIVER_OK;
                
                //Serial.println("NO MORE IN PROGRESS");
-               #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
+               #ifdef ESP_HOST_DEBUG_ENABLED
                Serial.print("  [SPI] RX DATA: ");
                for(int i = 0; i < MAX_SPI_BUFFER_SIZE; i++) {
                   Serial.print(esp32_spi_rx_buffer[i], HEX);
@@ -481,6 +481,8 @@ int esp_host_send_and_receive(void) {
 
    /* in any case de-select ESP32 */
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
+
+   getESPDebugLog();
    return rv;
 }
 

@@ -214,7 +214,8 @@ public:
    int checkLease();
 
    
-
+   virtual void setLinkUp();
+   virtual void setLinkDown();
 
    
    /* getters / setters */

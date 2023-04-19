@@ -20,8 +20,9 @@ int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */   
    if(ni == nullptr) {
       ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+      CLwipIf::getInstance().connectToAp(ssid, nullptr);
+      ni->DhcpStart();
    }
-   CLwipIf::getInstance().connectToAp(ssid, nullptr);
    return CLwipIf::getInstance().getWifiStatus();
 }
 
@@ -31,8 +32,9 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */   
    if(ni == nullptr) {
       ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+      CLwipIf::getInstance().connectToAp(ssid, passphrase); 
+      ni->DhcpStart();
    }
-   CLwipIf::getInstance().connectToAp(ssid, passphrase); 
    return CLwipIf::getInstance().getWifiStatus();
 }
 

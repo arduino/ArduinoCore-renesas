@@ -131,6 +131,9 @@ CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip,
 int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
    if(CLwipIf::connected_to_access_point) {
       wifi_status = WL_DISCONNECTED;
+      if(net_ifs[NI_WIFI_STATION] != nullptr) {
+         net_ifs[NI_WIFI_STATION]->setLinkDown();
+      }
    }
 }
 
@@ -338,6 +341,16 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
          if(net_ifs[NI_WIFI_STATION] != nullptr) {
             ifn = net_ifs[NI_WIFI_STATION]->getId();
          }
+
+         Serial.println("Bytes LWIP wants to send: ");
+      
+         for(int i = 0; i < bytes_actually_copied; i++) {
+            Serial.print(buf[i], HEX);
+            Serial.print(" ");
+         }
+         Serial.println();
+
+
          if(CEspControl::getInstance().sendBuffer(ESP_STA_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
             errval = ERR_OK;
          }
@@ -584,9 +597,18 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
       if(CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
          CLwipIf::connected_to_access_point = true;
          Serial.println("############### CONNECTED TO ACCESS POINT");
+         
+         
          wifi_status = WL_CONNECTED;
          CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
          rv = ESP_CONTROL_OK;
+
+         /* when we get the connection to access point we are sure we are STATION 
+            and we are connected */
+         if(net_ifs[NI_WIFI_STATION] != nullptr) {
+            net_ifs[NI_WIFI_STATION]->setLinkUp();
+         }
+
       }
       else {
          wifi_status = WL_CONNECT_FAILED;
@@ -630,7 +652,14 @@ uint8_t CLwipIf::getEncrType() {
 int CLwipIf::disconnectFromAp() {
 /* -------------------------------------------------------------------------- */   
    wifi_status = WL_DISCONNECTED;
-   return CEspControl::getInstance().disconnectAccessPoint();
+   CLwipIf::getInstance().startSyncRequest();
+   int rv = CEspControl::getInstance().disconnectAccessPoint();
+   CLwipIf::getInstance().restartAsyncRequest();
+   wifi_status = WL_DISCONNECTED;
+   if(net_ifs[NI_WIFI_STATION] != nullptr) {
+      net_ifs[NI_WIFI_STATION]->setLinkDown();
+   }
+   return rv;
 }
 
 
@@ -1020,6 +1049,7 @@ void CNetIf::dhcp_task() {
       break;
       case DHCP_START_STATUS:
          if(netif_is_link_up(getNi())) {
+            Serial.println("----------------------------------- DHCP start");
             ip_addr_set_zero_ip4(&(getNi()->ip_addr));
             ip_addr_set_zero_ip4(&(getNi()->netmask));
             ip_addr_set_zero_ip4(&(getNi()->gw));
@@ -1047,6 +1077,7 @@ void CNetIf::dhcp_task() {
       break;
       case DHCP_GOT_STATUS:
          if (!netif_is_link_up(getNi())) {
+            Serial.println("----------------------------------- DHCP got!");
             dhcp_st = DHCP_STOP_STATUS;
          } 
 
@@ -1069,6 +1100,22 @@ void CNetIf::dhcp_task() {
    }
 }
 
+/* -------------------------------------------------------------------------- */
+void CNetIf::setLinkUp() {
+/* -------------------------------------------------------------------------- */   
+   netif_set_link_up(&ni);
+   /* When the netif is fully configured this function must be called.*/
+   netif_set_up(&ni);
+}
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::setLinkDown() {
+/* -------------------------------------------------------------------------- */   
+   netif_set_link_down(&ni);
+   /* When the netif is fully configured this function must be called.*/
+   netif_set_down(&ni);
+
+}
 
 
 /* ########################################################################## */
@@ -1188,6 +1235,7 @@ void CWifiStation::task() {
    uint8_t *buf = CEspControl::getInstance().getStationRx(if_num, dim);
 
    if(buf != nullptr) {
+      //Serial.println("Wifi Station - msg rx");
 
       struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
       if(p != NULL) {
