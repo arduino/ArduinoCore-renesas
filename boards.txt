@@ -152,9 +152,13 @@ muxto.build.float-abi=
 muxto.build.board=MUXTO
 muxto.build.defines=-DF_CPU=48000000 -DFIRST_BULK_PIPE=4
 muxto.vid.0=0x2341
-muxto.pid.0=0x0058
+muxto.pid.0=0x006C
+muxto.vid.1=0x2341
+muxto.pid.1=0x016C
 muxto.upload_port.0.vid=0x2341
-muxto.upload_port.0.pid=0x0058
+muxto.upload_port.0.pid=0x006C
+muxto.upload_port.1.vid=0x2341
+muxto.upload_port.1.pid=0x016C
 
 muxto.compiler.fsp.defines={build.variant.path}/defines.txt
 muxto.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -172,7 +176,7 @@ muxto.upload.protocol=
 muxto.upload.transport=
 muxto.upload.vid=0x2341
 # temporary, recompile bootloader with the right PID
-muxto.upload.pid=0x0369
+muxto.upload.pid=0x016C
 muxto.upload.address=0x00010000
 muxto.upload.interface=0
 muxto.upload.use_1200bps_touch=false
