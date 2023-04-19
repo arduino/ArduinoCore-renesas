@@ -31,6 +31,7 @@ SSLClient::SSLClient()
     sslclient = new sslclient_context;
     ssl_init(sslclient, nullptr);
     _timeout = 1000;
+    _use_insecure = false;
     _CA_cert = NULL;
     _cert = NULL;
     _private_key = NULL;
@@ -47,6 +48,7 @@ SSLClient::SSLClient(Client* client)
     sslclient = new sslclient_context;
     ssl_init(sslclient, client);
     _timeout = 1000;
+    _use_insecure = false;
     _CA_cert = NULL;
     _cert = NULL;
     _private_key = NULL;
@@ -104,7 +106,7 @@ int SSLClient::connect(IPAddress ip, uint16_t port, const char *_CA_cert, const 
 int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, const char *_cert, const char *_private_key)
 {
     log_d("Connecting to %s:%d", host, port);
-    int ret = start_ssl_client(sslclient, host, port, _timeout, _CA_cert, _cert, _private_key, NULL, NULL);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, _CA_cert, _cert, _private_key, NULL, NULL, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
@@ -123,7 +125,7 @@ int SSLClient::connect(IPAddress ip, uint16_t port, const char *pskIdent, const 
 
 int SSLClient::connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey) {
     log_v("start_ssl_client with PSK");
-    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, _pskIdent, _psKey);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, _pskIdent, _psKey, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
@@ -220,6 +222,16 @@ uint8_t SSLClient::connected()
     read(&dummy, 0);
 
     return _connected;
+}
+
+void SSLClient::setInsecure()
+{
+    _CA_cert = NULL;
+    _cert = NULL;
+    _private_key = NULL;
+    _pskIdent = NULL;
+    _psKey = NULL;
+    _use_insecure = true;
 }
 
 void SSLClient::setCACert (const char *rootCA)
