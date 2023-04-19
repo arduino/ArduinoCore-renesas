@@ -136,6 +136,9 @@ static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
 
 void ssl_init(sslclient_context *ssl_client, Client *client)
 {
+    // reset embedded pointers to zero
+    memset(ssl_client, 0, sizeof(sslclient_context));
+
     ssl_client->client = client;
     mbedtls_ssl_init(&ssl_client->ssl_ctx);
     mbedtls_ssl_config_init(&ssl_client->ssl_conf);
@@ -198,6 +201,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         mbedtls_ssl_conf_ca_chain(&ssl_client->ssl_conf, &ssl_client->ca_cert, NULL);
         //mbedtls_ssl_conf_verify(&ssl_client->ssl_ctx, my_verify, NULL );
         if (ret < 0) {
+            mbedtls_x509_crt_free(&ssl_client->ca_cert);
             return handle_error(ret);
         }
     } else if (pskIdent != NULL && psKey != NULL) {
@@ -243,6 +247,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
 
         ret = mbedtls_x509_crt_parse(&ssl_client->client_cert, (const unsigned char *)cli_cert, strlen(cli_cert) + 1);
         if (ret < 0) {
+            mbedtls_x509_crt_free(&ssl_client->client_cert);
             return handle_error(ret);
         }
 
@@ -250,6 +255,8 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         ret = mbedtls_pk_parse_key(&ssl_client->client_key, (const unsigned char *)cli_key, strlen(cli_key) + 1, NULL, 0, mbedtls_ctr_drbg_random, &ssl_client->drbg_ctx);
 
         if (ret != 0) {
+            mbedtls_x509_crt_free(&ssl_client->client_cert);
+            mbedtls_pk_free(&ssl_client->client_key);
             return handle_error(ret);
         }
 
@@ -329,10 +336,25 @@ void stop_ssl_socket(sslclient_context *ssl_client, const char *rootCABuff, cons
 
     ssl_client->client->stop();
 
+    mbedtls_x509_crt_free(&ssl_client->ca_cert);
+    mbedtls_x509_crt_free(&ssl_client->client_cert);
+    mbedtls_pk_free(&ssl_client->client_key);
+
     mbedtls_ssl_free(&ssl_client->ssl_ctx);
     mbedtls_ssl_config_free(&ssl_client->ssl_conf);
     mbedtls_ctr_drbg_free(&ssl_client->drbg_ctx);
     mbedtls_entropy_free(&ssl_client->entropy_ctx);
+
+    //save timeouts and client ptr
+    int handshake_timeout = ssl_client->handshake_timeout;
+    Client* client = ssl_client->client;
+
+    // reset embedded pointers to zero
+    memset(ssl_client, 0, sizeof(sslclient_context));
+
+    // restore timeout and client
+    ssl_client->handshake_timeout = handshake_timeout;
+    ssl_client->client = client;
 }
 
 
