@@ -271,6 +271,7 @@ char *SSLClient::_streamLoad(Stream& stream, size_t size) {
 }
 
 bool SSLClient::loadCACert(Stream& stream, size_t size) {
+  if (_CA_cert != NULL) free(const_cast<char*>(_CA_cert));
   char *dest = _streamLoad(stream, size);
   bool ret = false;
   if (dest) {
@@ -281,6 +282,7 @@ bool SSLClient::loadCACert(Stream& stream, size_t size) {
 }
 
 bool SSLClient::loadCertificate(Stream& stream, size_t size) {
+  if (_cert != NULL) free(const_cast<char*>(_cert));
   char *dest = _streamLoad(stream, size);
   bool ret = false;
   if (dest) {
@@ -291,6 +293,7 @@ bool SSLClient::loadCertificate(Stream& stream, size_t size) {
 }
 
 bool SSLClient::loadPrivateKey(Stream& stream, size_t size) {
+  if (_private_key != NULL) free(const_cast<char*>(_private_key));
   char *dest = _streamLoad(stream, size);
   bool ret = false;
   if (dest) {
