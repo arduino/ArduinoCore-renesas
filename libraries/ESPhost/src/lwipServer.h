@@ -8,7 +8,7 @@ class lwipClient;
 
 class lwipServer :
   public Server {
-  private:
+  protected:
     uint16_t _port;
     struct tcp_struct _tcp_server;
     struct tcp_struct *_tcp_client[MAX_CLIENT];
