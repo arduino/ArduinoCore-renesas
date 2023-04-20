@@ -29,10 +29,17 @@ lwipClient::lwipClient(struct tcp_struct *tcpClient) {
 int lwipClient::connect(const char *host, uint16_t port) {
 /* -------------------------------------------------------------------------- */  
   IPAddress remote_addr;
+
+  Serial.print("++++++++ lwipClient connect:");
+  Serial.println(host);
+
   int ret = CLwipIf::getInstance().getHostByName(host, remote_addr);
+  Serial.println(remote_addr);
   if (ret == 1) {
+    Serial.print("A");
     return connect(remote_addr, port);
   } else {
+    Serial.print("B");
     return 0;
   }
 }

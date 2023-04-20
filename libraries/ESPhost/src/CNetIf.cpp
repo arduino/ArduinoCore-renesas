@@ -769,10 +769,12 @@ int CLwipIf::getHostByName(const char *aHostname, IPAddress &aResult) {
      return 1;
    }
 
-   // Check we've got a valid DNS server to use
-   if (dns_num < 0) {
+   if(getDns(0) == IPAddress(0,0,0,0)) {
+      Serial.println("INVALID DNS SERVER !!!!!!!");
      return INVALID_SERVER;
    }
+
+   
    #if LWIP_DNS
    ret = get_ip_address_from_hostname(aHostname, &ipResult);
    aResult = IPAddress(ipResult);
@@ -855,6 +857,11 @@ void CLwipIf::addDns(IPAddress aDNSServer) {
    }
    #endif
 }
+
+//bool CLwipIf::isDnsAvailable() {
+
+//}
+
 
 /* -------------------------------------------------------------------------- */
 IPAddress CLwipIf::getDns(int _num) {
