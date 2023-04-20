@@ -301,10 +301,6 @@ int CEspControl::send_net_packet(CMsg& msg) {
       rv = ESP_CONTROL_WRONG_REQUEST_INVALID_MSG;
    }
    
-   /* send a message without waiting for an answer */
-   Serial.println("SEND ------ NET ......... PACKET");
-   //esp_host_perform_spi_communication(false);
-
    return rv;
 }
 

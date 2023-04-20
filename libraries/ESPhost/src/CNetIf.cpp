@@ -342,6 +342,7 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
             ifn = net_ifs[NI_WIFI_STATION]->getId();
          }
 
+         #ifdef DEBUG_OUTPUT_DISABLED
          Serial.println("Bytes LWIP wants to send: ");
       
          for(int i = 0; i < bytes_actually_copied; i++) {
@@ -349,6 +350,7 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
             Serial.print(" ");
          }
          Serial.println();
+         #endif
 
 
          if(CEspControl::getInstance().sendBuffer(ESP_STA_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
@@ -484,6 +486,9 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
    if(type == NI_WIFI_STATION) {
       MAC.mode = WIFI_MODE_STA;
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
+         //Serial.print("++++++++++++++++++ SETTING MAC ADDRESS TO:  ");
+         //Serial.println(MAC.mac);
+
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
@@ -1061,6 +1066,7 @@ void CNetIf::dhcp_task() {
       case DHCP_WAIT_STATUS:
          if(netif_is_link_up(getNi())) {
             if (dhcp_supplied_address(getNi())) {
+               Serial.println("----------------------------------- DHCP got!");
                dhcp_st = DHCP_GOT_STATUS;
             } 
             else {
@@ -1077,7 +1083,7 @@ void CNetIf::dhcp_task() {
       break;
       case DHCP_GOT_STATUS:
          if (!netif_is_link_up(getNi())) {
-            Serial.println("----------------------------------- DHCP got!");
+            
             dhcp_st = DHCP_STOP_STATUS;
          } 
 

@@ -37,28 +37,14 @@
 #include "EspSpiDriver.h"
 #include "CNetIf.h"
 #include "CEspCbks.h"
-
+#include <string>
 #include "lwip/include/lwip/netif.h"
 
 #define WIFI_MAC_ADDRESS_DIM 6
 
 class CNetUtilities {
 public:
-   static int char2int(char ch) {
-      if(ch < 48 || ch > 57) {
-         return -1;
-      }
-      return ch - 48;
-   }
-   static bool twoChar2uint8(char h, char l, uint8_t *out) {
-      int H = char2int(h);
-      int L = char2int(l);
-      if(H == -1 || L == -1) {
-         return false;
-      }
-      *out = H * 10 + L;
-      return true;
-   }
+   
    /* 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
       X X : X X : X X : X  X  :  X  X  :  X  X */
    static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
@@ -70,13 +56,9 @@ public:
          return false;
       }
 
-      if(!twoChar2uint8(mac_in[0],  mac_in[1],  mac_out) ||
-         !twoChar2uint8(mac_in[3],  mac_in[4],  mac_out + 1) ||
-         !twoChar2uint8(mac_in[6],  mac_in[6],  mac_out + 2) ||
-         !twoChar2uint8(mac_in[9],  mac_in[10], mac_out + 3) ||
-         !twoChar2uint8(mac_in[12], mac_in[13], mac_out + 4) ||
-         !twoChar2uint8(mac_in[15], mac_in[16], mac_out + 5) ) {
-         return false;
+      for(int i = 0; i < 6; i++) {
+         std::string str_num(mac_in+(i*3),2);
+         *(mac_out+i) = std::stoul(str_num,nullptr,16);
       }
 
       return true;
