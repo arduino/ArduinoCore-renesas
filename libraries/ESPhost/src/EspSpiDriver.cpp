@@ -215,7 +215,7 @@ int esp_host_spi_init(void) {
    _sci_spi_ext_cfg.clk_div.brr  = 11;
    _sci_spi_ext_cfg.clk_div.mddr = 0;
 
-   R_SCI_SPI_CalculateBitrate (100000, &(_sci_spi_ext_cfg.clk_div), false);
+   R_SCI_SPI_CalculateBitrate (24000000, &(_sci_spi_ext_cfg.clk_div), false);
 
   /* +++++++++++
    * INTERRUPTS
