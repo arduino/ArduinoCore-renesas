@@ -38,7 +38,6 @@
 #include "CNetIf.h"
 #include "CEspCbks.h"
 #include <string>
-#include "lwip/include/lwip/netif.h"
 
 #define WIFI_MAC_ADDRESS_DIM 6
 

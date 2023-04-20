@@ -145,13 +145,10 @@ bool isEspSpiInitialized() {
 /* -------------------------------------------------------------------------- */
 int esp_host_spi_init(void) {
    
-   Serial.println("esp_host_spi_init");
-
    if(spi_driver_initialized) {
       return ESP_HOSTED_SPI_DRIVER_OK;
    }
 
- 
    /* ++++++++++++++++++++++++++++++++++
     *  GPIOs (HANDSHAKE and DATA_READY)
     * ++++++++++++++++++++++++++++++++++ */
@@ -246,11 +243,7 @@ int esp_host_spi_init(void) {
    }
    
    R_IOPORT_PinWrite(NULL, ESP_RESET, BSP_IO_LEVEL_HIGH);
-
    spi_driver_initialized = true;
-
-   Serial.println("esp_host_spi_init - END");
-
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
 
@@ -426,12 +419,14 @@ int esp_host_send_and_receive(void) {
       #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
       Serial.println("  [SPI] Execute single SPI transaction:");
       Serial.print("  [SPI] TX DATA: ");
-      for(int i = 0; i < 50; i++) {
+      for(int i = 0; i < 200; i++) {
          Serial.print(esp32_spi_tx_buffer[i], HEX);
          Serial.print(" ");
       }
       Serial.println();
       #endif
+
+
       
       fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
       

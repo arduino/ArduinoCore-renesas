@@ -122,7 +122,7 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
       true if there are no more fragments and the full CtrlMsg can be used */
 
    if(response->extractFromMsg(msg)) {
-      #ifdef ESP_HOST_DEBUG_ENABLED
+      #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
       Serial.print("   [RX PROCESS] Process control response");
       Serial.print(" MSG TYPE: ");
       Serial.print(response->getType());
@@ -131,7 +131,7 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
       #endif
       /* EVENTS______________________________________________________________ */
       if(response->getType() == CTRL_MSG_TYPE__Event) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.println("   [RX PROCESS] -> EVENT RECEIVED");
          #endif
          /* callback will be called if set up */
@@ -144,13 +144,13 @@ int CEspControl::process_ctrl_messages(CMsg& msg, CCtrlMsgWrapper* response) {
             this case */
          if(CEspCbk::getInstance().callCallback(response->getId(), response)) {
             rv = ESP_CONTROL_MSG_RX_BUT_HANDLED_BY_CB;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println("   [RX PROCESS] -> CTRL MESSAGE HANDLED BY CALLBACK");
             #endif
          }
          else {
             rv = ESP_CONTROL_MSG_RX;
-            #ifdef ESP_HOST_DEBUG_ENABLED
+            #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
             Serial.println("   [RX PROCESS] -> CTRL MESSAGE HANDLED BY APPLICATION");
             #endif
          }
@@ -217,7 +217,7 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
          CEspCom::storeStationMsg(msg); 
       }
       else if(msg.get_if_type() == ESP_AP_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.print(" NETWORK MESSAGE");
          Serial.print(" Soft Ap ");
          Serial.println(msg.get_if_num());
@@ -226,14 +226,14 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
       }
       /* PRIV_MESSAGES_______________________________________________________ */
       else if(msg.get_if_type() == ESP_PRIV_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.println(" PRIV MESSAGE");
          #endif
 
       }
       /* TEST_MESSAGES_______________________________________________________ */
       else if(msg.get_if_type() == ESP_TEST_IF) {
-         #ifdef ESP_HOST_DEBUG_ENABLED
+         #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
          Serial.println(" TEST MESSAGE");
          #endif
          

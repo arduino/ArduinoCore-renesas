@@ -140,7 +140,6 @@ int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-   Serial.println("wifi_hw_initialized!");
    CLwipIf::wifi_hw_initialized = true;
 }
 
@@ -169,8 +168,6 @@ bool CLwipIf::initWifiHw(bool asStation) {
       }
 
       if(wifi_status == WL_NO_SSID_AVAIL) {
-         Serial.println("start wait");
-         
          int time_num = 0;
          while(time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::wifi_hw_initialized) {
             CEspControl::getInstance().communicateWithEsp();
@@ -178,14 +175,10 @@ bool CLwipIf::initWifiHw(bool asStation) {
             time_num++;
          }
          
-         Serial.println("exit wait");
          if(asStation) {
-            Serial.println("Call wifi mode set");
-            
             int res = CLwipIf::getInstance().setWifiMode(WIFI_MODE_STA);
 
             if( res == ESP_CONTROL_OK) {
-               Serial.println("Scan for access points");
                CLwipIf::getInstance().scanForAp();
             }
          }
@@ -201,12 +194,6 @@ bool CLwipIf::initWifiHw(bool asStation) {
    
    return rv;
 }
-
-
-
-
-
-
 
 /* -------------------------------------------------------------------------- */
 /* Sort of factory method, dependig on the requested type it setUp a different 
@@ -226,19 +213,16 @@ CNetIf *CLwipIf::get(NetIfType_t type,
       if(net_ifs[type] == nullptr) {
          switch(type) {
             case NI_WIFI_STATION:
-               Serial.println("CLwipIf::get (FIRST TIME) NI_WIFI_STATION");
                net_ifs[type] = new CWifiStation();
                isStation = true;
             break;
             
             case NI_WIFI_SOFTAP:
-               Serial.println("CLwipIf::get (FIRST TIME) NI_WIFI_SOFTAP");
                net_ifs[type] = new CWifiSoftAp();
                isStation = false;
             break;
 
             case NI_ETHERNET:
-               Serial.println("CLwipIf::get (FIRST TIME) NI_ETHERNET");
                net_ifs[type] = new CEth();
                isEth = true;
             break;
@@ -247,7 +231,6 @@ CNetIf *CLwipIf::get(NetIfType_t type,
          }
          
          if(net_ifs[type] != nullptr) {
-            Serial.println("CLwipIf::get (FIRST TIME) INITIALIZATION");
             if(!isEth) {
                CLwipIf::initWifiHw(isStation);
                net_ifs[type]->begin(_ip,_gw,_nm);
@@ -259,14 +242,11 @@ CNetIf *CLwipIf::get(NetIfType_t type,
 
          }
       }
-      Serial.println("CLwipIf::get");
       rv = net_ifs[type];
    }
    return rv;
    
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::initEth(struct netif* _ni) {
@@ -486,9 +466,6 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
    if(type == NI_WIFI_STATION) {
       MAC.mode = WIFI_MODE_STA;
       if(CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-         //Serial.print("++++++++++++++++++ SETTING MAC ADDRESS TO:  ");
-         //Serial.println(MAC.mac);
-
          CNetUtilities::macStr2macArray(mac, MAC.mac);
          rv = MAC_ADDRESS_DIM;
       }
@@ -587,8 +564,6 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
    }
 
    if(found) {
-      Serial.println("SSID found!");
-
       memset(ap.ssid,0x00,SSID_LENGTH);
       memcpy(ap.ssid,access_points[index].ssid,SSID_LENGTH);
       memset(ap.pwd,0x00,PASSWORD_LENGTH);
@@ -601,13 +576,9 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
       CLwipIf::getInstance().startSyncRequest();
       if(CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
          CLwipIf::connected_to_access_point = true;
-         Serial.println("############### CONNECTED TO ACCESS POINT");
-         
-         
          wifi_status = WL_CONNECTED;
          CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
          rv = ESP_CONTROL_OK;
-
          /* when we get the connection to access point we are sure we are STATION 
             and we are connected */
          if(net_ifs[NI_WIFI_STATION] != nullptr) {
@@ -770,7 +741,6 @@ int CLwipIf::getHostByName(const char *aHostname, IPAddress &aResult) {
    }
 
    if(getDns(0) == IPAddress(0,0,0,0)) {
-      Serial.println("INVALID DNS SERVER !!!!!!!");
      return INVALID_SERVER;
    }
 
@@ -1061,7 +1031,6 @@ void CNetIf::dhcp_task() {
       break;
       case DHCP_START_STATUS:
          if(netif_is_link_up(getNi())) {
-            Serial.println("----------------------------------- DHCP start");
             ip_addr_set_zero_ip4(&(getNi()->ip_addr));
             ip_addr_set_zero_ip4(&(getNi()->netmask));
             ip_addr_set_zero_ip4(&(getNi()->gw));
@@ -1073,7 +1042,6 @@ void CNetIf::dhcp_task() {
       case DHCP_WAIT_STATUS:
          if(netif_is_link_up(getNi())) {
             if (dhcp_supplied_address(getNi())) {
-               Serial.println("----------------------------------- DHCP got!");
                dhcp_st = DHCP_GOT_STATUS;
             } 
             else {
@@ -1215,11 +1183,8 @@ void CWifiStation::begin(const uint8_t* _ip,
    setNm(_nm);
 
    netif_add(&ni,  getIp(), getNm(), getGw(), NULL, CLwipIf::initWifiStation, ethernet_input);
-
-  /* Registers the default network interface */
-  //if(is_default) {
-    //netif_set_default(&ni);
-  //}
+   netif_set_default(&ni);
+  
 
   if (netif_is_link_up(&ni)) {
     /* When the netif is fully configured this function must be called */

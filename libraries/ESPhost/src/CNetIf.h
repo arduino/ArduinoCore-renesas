@@ -4,14 +4,15 @@
 //#define LWIP_USE_TIMER
 #define UNUSED(x) (void)(x)
 
+#define USE_LWIP_AS_LIBRARY
 #include "Arduino.h"
 
-#include <map>
 #include <string>
 #include <queue>
 #include "CCtrlWrapper.h"
 #include "CEspControl.h"
 #include "IPAddress.h"
+#ifdef USE_LWIP_AS_LIBRARY
 #include "lwip/include/lwip/ip_addr.h"
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/udp.h"
@@ -22,6 +23,10 @@
 #include "lwip/include/lwip/dns.h"
 #include "lwip/include/lwip/prot/dhcp.h"
 #include "lwip/include/netif/ethernet.h"
+#else
+#include "lwIP_Arduino.h"
+#endif
+
 
 #define LWIP_USE_TIMER
 
