@@ -34,6 +34,8 @@
 #include "FspTimer.h"
 #endif
 
+#define MAX_SOFAT_CONNECTION_DEF   5
+
 #define MAC_ADDRESS_DIM            6
 #define NETWORK_INTERFACES_MAX_NUM 3
 #define MAX_HOSTNAME_DIM           253
@@ -452,6 +454,9 @@ public:
    uint8_t getEncrType();
 
    WifiStatus_t getWifiStatus() { return wifi_status; }
+
+
+   int startSoftAp(const char *ssid, const char* passphrase, uint8_t channel);
 
 
    int setWifiMode(WifiMode_t mode);

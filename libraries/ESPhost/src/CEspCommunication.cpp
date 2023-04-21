@@ -62,7 +62,8 @@ bool CEspCom::get_msg_from_app(uint8_t *buffer, uint16_t dim) {
 /* -------------------------------------------------------------------------- */  
    bool rv = false;
    if(CEspCom::to_ESP32_queue.size() > 0) {
-      CEspCom::to_ESP32_queue.front().read(buffer,dim);
+      CMsg msg = std::move(CEspCom::to_ESP32_queue.front());
+      msg.read(buffer,dim);
       CEspCom::to_ESP32_queue.pop();
       rv = true;
    }
@@ -99,7 +100,7 @@ bool CEspCom::storeSoftApMsg(CMsg &msg) {
 bool CEspCom::getMsgForStation(CMsg &msg) {
 /* -------------------------------------------------------------------------- */
    if(CEspCom::rxStationQueue.size() > 0) {
-      msg = CEspCom::rxStationQueue.front();
+      msg = std::move(CEspCom::rxStationQueue.front());
       CEspCom::rxStationQueue.pop();
       return true;
    }
@@ -110,7 +111,7 @@ bool CEspCom::getMsgForStation(CMsg &msg) {
 bool CEspCom::getMsgForSoftAp(CMsg &msg) {
 /* -------------------------------------------------------------------------- */
    if(CEspCom::rxSoftApQueue.size() > 0) {
-      msg = CEspCom::rxSoftApQueue.front();
+      msg = std::move(CEspCom::rxSoftApQueue.front());
       CEspCom::rxSoftApQueue.pop();
       return true;
    }

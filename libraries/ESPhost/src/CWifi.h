@@ -7,6 +7,7 @@
 
 class CWifi {
 private: 
+   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
    unsigned long _timeout;
    CNetIf *ni;
     
@@ -36,12 +37,11 @@ public:
      */
     int begin(const char* ssid, const char *passphrase);
 
+    /* connect as Access Point with  a standard passphrase */
     uint8_t beginAP(const char *ssid);
     uint8_t beginAP(const char *ssid, uint8_t channel);
     uint8_t beginAP(const char *ssid, const char* passphrase);
     uint8_t beginAP(const char *ssid, const char* passphrase, uint8_t channel);
-
-    
 
     /* Change IP configuration settings disabling the DHCP client
         *
@@ -72,7 +72,7 @@ public:
         * param subnet:    Static Subnet mask
         */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-
+    
     /* Change DNS IP configuration
      *
      * param dns_server1: IP configuration for DNS server 1

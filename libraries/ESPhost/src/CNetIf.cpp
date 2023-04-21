@@ -104,11 +104,6 @@ CLwipIf::~CLwipIf() {
 
 
 
-
-
-
-
-
 /* -------------------------------------------------------------------------- */
 CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip, 
                                const uint8_t* _gw, 
@@ -639,6 +634,35 @@ int CLwipIf::disconnectFromAp() {
 }
 
 
+/* -------------------------------------------------------------------------- */
+int CLwipIf::startSoftAp(const char *ssid, const char* passphrase, uint8_t channel) {
+/* -------------------------------------------------------------------------- */
+   CLwipIf::getInstance().startSyncRequest();
+   SoftApCfg_t cfg;
+   memset(cfg.ssid,0x00,SSID_LENGTH);
+   memcpy(cfg.ssid,ssid,(strlen(ssid) < SSID_LENGTH) ? strlen(ssid) : SSID_LENGTH);
+   memset(cfg.pwd,0x00,PASSWORD_LENGTH);
+   if(passphrase == nullptr) {
+      memcpy(cfg.pwd,"arduinocc",strlen("arduinocc"));
+   }
+   else {
+      memcpy(cfg.pwd, passphrase, strlen(passphrase) < PASSWORD_LENGTH ? strlen(passphrase) : PASSWORD_LENGTH);
+   }
+   channel = (channel == 0) ? 1 : channel;
+   cfg.channel = (channel > MAX_CHNL_NO) ? MAX_CHNL_NO : channel;
+
+   cfg.encryption_mode = WIFI_AUTH_WPA_WPA2_PSK;
+   cfg.bandwidth = WIFI_BW_HT40;
+
+   int rv = CEspControl::getInstance().startSoftAccessPoint(cfg);
+   CLwipIf::getInstance().restartAsyncRequest();
+
+   return rv;
+}
+
+
+
+#ifdef DEBUG_USING LED
 void toggle_led_debug() {
    static int i = 0;
    static bool st = false;
@@ -654,14 +678,16 @@ void toggle_led_debug() {
       i = 0;
    }
 }
+#endif
 
 
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
 void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /*  -------------------------------------------------------------------------- */   
-  
+  #ifdef DEBUG_USING LED
   toggle_led_debug();
+  #endif
   CLwipIf::getInstance().lwip_task();
 } 
 #endif

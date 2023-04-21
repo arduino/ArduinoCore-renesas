@@ -38,76 +38,97 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    return CLwipIf::getInstance().getWifiStatus();
 }
 
+/* passphrase is needed so a default one will be set */
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid) {
 /* -------------------------------------------------------------------------- */   
-   (void)(ssid);
-   ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   return 1;
+   return beginAP(ssid,1);
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
-   (void)(ssid);
-   (void)(channel);
-   ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   return 1;
+   return beginAP(ssid,nullptr,channel);
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 /* -------------------------------------------------------------------------- */   
-   (void)(ssid);
-   (void)(passphrase);
-   ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   return 1;
+   return beginAP(ssid,passphrase,1);
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
-   (void)(ssid);
-   (void)(passphrase);
-   (void)(channel);
-   
-   ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
-   return 1;
+   if(ni == nullptr) {
+      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+      CLwipIf::getInstance().startSoftAp(ssid,passphrase,channel); 
+      ni->DhcpStart();
+   }
+   return CLwipIf::getInstance().getWifiStatus();   
 }
+
 
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */   
-   (void)(local_ip);
+   IPAddress _nm(255, 255, 255, 0);
+   IPAddress _gw = local_ip;
+   _gw[3] = 1;
+
+   _config(local_ip, _gw, _nm);
+}
+
+/* -------------------------------------------------------------------------- */
+void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
+/* -------------------------------------------------------------------------- */    
+   if(ni != nullptr) {
+      ni->DhcpStop();
+      ni->DhcpNotUsed();
+
+      IPAddress _nm(255, 255, 255, 0);
+      ni->setIp(local_ip.raw_address());
+      ni->setNm(_nm.raw_address());
+      ni->setGw(gateway.raw_address());
+   }
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */   
-   (void)(local_ip);
-   (void)(dns_server);
+   config(local_ip);
+   CLwipIf::getInstance().addDns(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */   
-   (void)(local_ip);
-   (void)(dns_server);
-   (void)(gateway);
+   IPAddress _nm(255, 255, 255, 0);
+   _config(local_ip, gateway, _nm);
+   CLwipIf::getInstance().addDns(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
-   (void)(local_ip);
-   (void)(dns_server);
-   (void)(gateway);
-   (void)(subnet);
+   config(local_ip, gateway, subnet);
+   CLwipIf::getInstance().addDns(dns_server);
 }
 
+/* -------------------------------------------------------------------------- */
+void CWifi::setDNS(IPAddress dns_server1) {
+/* -------------------------------------------------------------------------- */   
+   CLwipIf::getInstance().addDns(dns_server1);
+}
 
-
+/* -------------------------------------------------------------------------- */
+void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
+/* -------------------------------------------------------------------------- */   
+   CLwipIf::getInstance().addDns(dns_server1);
+   CLwipIf::getInstance().addDns(dns_server2);
+   
+}
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setHostname(const char* name) {
@@ -239,16 +260,6 @@ uint8_t CWifi::status() {
 
 
 
-
-void CWifi::setDNS(IPAddress dns_server1)
-{
-   
-}
-
-void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2)
-{
-   
-}
 
 
 
