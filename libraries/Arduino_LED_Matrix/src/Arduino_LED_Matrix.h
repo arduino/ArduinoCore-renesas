@@ -133,14 +133,15 @@ static uint32_t reverse(uint32_t x)
 }
 
 // TODO: this is dangerous, use with care
-#define load(x)     load_wrapper(x, sizeof(x))
+#define loadSequence(x)      loadWrapper(x, sizeof(x))
+
 
 static uint8_t __attribute__((aligned)) framebuffer[NUM_LEDS / 8];
 
-class LED_Matrix {
+class ArduinoLEDMatrix {
 
 public:
-    LED_Matrix() {}
+    ArduinoLEDMatrix() {}
     // TODO: find a better name
     // autoscroll will be slower than calling next() at precise times
     void autoscroll(uint32_t interval_ms) {
@@ -156,50 +157,73 @@ public:
         uint8_t type;
         uint8_t ch = FspTimer::get_available_timer(type);
         // TODO: avoid passing "this" argument to remove autoscroll
-        led_timer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
-        led_timer.setup_overflow_irq();
-        led_timer.open();
-        led_timer.start();
+        _ledTimer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
+        _ledTimer.setup_overflow_irq();
+        _ledTimer.open();
+        _ledTimer.start();
     }
     void next() {
         uint32_t frame[3];
-        static int j = 0;
-        frame[0] = reverse(*(_frames+(j*4)+0));
-        frame[1] = reverse(*(_frames+(j*4)+1));
-        frame[2] = reverse(*(_frames+(j*4)+2));
-        _interval = *(_frames+(j*4)+3);
-        j = (j + 1) % _lines;
+        frame[0] = reverse(*(_frames+(_currentFrame*4)+0));
+        frame[1] = reverse(*(_frames+(_currentFrame*4)+1));
+        frame[2] = reverse(*(_frames+(_currentFrame*4)+2));
+        _interval = *(_frames+(_currentFrame*4)+3);
+        _currentFrame = (_currentFrame + 1) % _framesCount;
+        if(_currentFrame == 0){
+            if(!_loop){
+                _interval = 0;
+            }
+            if(_callBack != nullptr){
+                _callBack();
+            }
+        }
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
     }
-    void render_buffer(const uint32_t buffer[3]){
-        uint32_t frame[3];
-        static int j = 0;
-        frame[0] = reverse(*(buffer+(j*4)+0));
-        frame[1] = reverse(*(buffer+(j*4)+1));
-        frame[2] = reverse(*(buffer+(j*4)+2));
-        memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
+    void loadFrame(const uint32_t buffer[3]){
+        uint32_t tempBuffer[][4] = {{
+            buffer[0], buffer[1], buffer[2], 0
+        }};
+        loadSequence(tempBuffer);
+        next();
+    }
+    void renderFrame(uint8_t frameNumber){
+        _currentFrame = frameNumber % _framesCount;
+        next();
+        _interval = 0;
+    }
+    void play(bool loop = false){
+        _loop = loop;
+        next();
+    }
+    void loadWrapper(const uint32_t frames[][4], uint32_t howMany) {
+        _currentFrame = 0;
+        _frames = (uint32_t*)frames;
+        _framesCount = (howMany / 4) / sizeof(uint32_t);
+    }
+
+    void setCallback(voidFuncPtr callBack){
+        _callBack = callBack;
     }
     
-    void load_wrapper(const uint32_t frames[][4], uint32_t howMany) {
-        _frames = (uint32_t*)frames;
-        _lines = (howMany / 4) / sizeof(uint32_t);
-    }
 private:
+    int _currentFrame = 0;
     uint32_t* _frames;
-    uint32_t _lines;
+    uint32_t _framesCount;
     uint32_t _interval = 0;
-    uint32_t _last_interval = 0;
-    FspTimer led_timer;
+    uint32_t _lastInterval = 0;
+    bool _loop = false;
+    FspTimer _ledTimer;
+    voidFuncPtr _callBack;
 
     static void turnOnLedISR(timer_callback_args_t *arg) {
         static volatile int i_isr = 0;
         turnLed(i_isr, ((framebuffer[i_isr >> 3] & (1 << (i_isr % 8))) != 0));
         i_isr = (i_isr + 1) % NUM_LEDS;
         if (arg != nullptr && arg->p_context != nullptr) {
-            LED_Matrix* _m = (LED_Matrix*)arg->p_context;
-            if (_m->_interval != 0 && millis() - _m->_last_interval > _m->_interval) {
+            ArduinoLEDMatrix* _m = (ArduinoLEDMatrix*)arg->p_context;
+            if (_m->_interval != 0 && millis() - _m->_lastInterval > _m->_interval) {
                 _m->next();
-                _m->_last_interval = millis();
+                _m->_lastInterval = millis();
             }
         }
     }
