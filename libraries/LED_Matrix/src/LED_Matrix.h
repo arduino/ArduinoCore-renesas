@@ -179,7 +179,7 @@ public:
         frame[2] = reverse(*(buffer+(j*4)+2));
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
     }
-    void render_frame(const )
+    
     void load_wrapper(const uint32_t frames[][4], uint32_t howMany) {
         _frames = (uint32_t*)frames;
         _lines = (howMany / 4) / sizeof(uint32_t);
