@@ -171,6 +171,14 @@ public:
         j = (j + 1) % _lines;
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
     }
+    void render_buffer(const uint32_t _frame[3]){
+        uint32_t frame[3];
+        static int j = 0;
+        frame[0] = reverse(*(_frame+(j*4)+0));
+        frame[1] = reverse(*(_frame+(j*4)+1));
+        frame[2] = reverse(*(_frame+(j*4)+2));
+        memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
+    }
     void load_wrapper(const uint32_t frames[][4], uint32_t howMany) {
         _frames = (uint32_t*)frames;
         _lines = (howMany / 4) / sizeof(uint32_t);
