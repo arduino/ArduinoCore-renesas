@@ -18,11 +18,12 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */   
-   if(ni == nullptr) {
-      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
-      CLwipIf::getInstance().connectToAp(ssid, nullptr);
+   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   CLwipIf::getInstance().connectToAp(ssid, nullptr);
+   if(ni != nullptr) {
       ni->DhcpStart();
    }
+   
    return CLwipIf::getInstance().getWifiStatus();
 }
 
@@ -30,11 +31,13 @@ int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */   
-   if(ni == nullptr) {
-      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
-      CLwipIf::getInstance().connectToAp(ssid, passphrase); 
+   
+   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   CLwipIf::getInstance().connectToAp(ssid, passphrase); 
+   if(ni != nullptr) {
       ni->DhcpStart();
    }
+   
    return CLwipIf::getInstance().getWifiStatus();
 }
 
@@ -60,11 +63,13 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
-   if(ni == nullptr) {
-      ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
-      CLwipIf::getInstance().startSoftAp(ssid,passphrase,channel); 
+   
+   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   CLwipIf::getInstance().startSoftAp(ssid,passphrase,channel); 
+   if(ni != nullptr) {
       ni->DhcpStart();
    }
+   
    return CLwipIf::getInstance().getWifiStatus();   
 }
 
@@ -83,6 +88,7 @@ void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
+   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
@@ -112,7 +118,7 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
-   config(local_ip, gateway, subnet);
+   _config(local_ip, gateway, subnet);
    CLwipIf::getInstance().addDns(dns_server);
 }
 
@@ -164,7 +170,7 @@ uint8_t* CWifi::macAddress(uint8_t* mac) {
 /* -------------------------------------------------------------------------- */
 int8_t CWifi::scanNetworks() {
 /* -------------------------------------------------------------------------- */   
-   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);   
    if(CLwipIf::getInstance().scanForAp() == ESP_CONTROL_OK) {
       return CLwipIf::getInstance().getApNum();
    }
@@ -258,60 +264,55 @@ uint8_t CWifi::status() {
    return CLwipIf::getInstance().getWifiStatus(); 
 }
 
-
-
-
-
-
-
-
-
-
-uint8_t CWifi::reasonCode()
-{
-   
+/* -------------------------------------------------------------------------- */
+int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getHostByName(aHostname,aResult);
 }
 
-int CWifi::hostByName(const char* aHostname, IPAddress& aResult)
-{
-   
+/* -------------------------------------------------------------------------- */
+void CWifi::lowPowerMode() {
+/* -------------------------------------------------------------------------- */   
+   CLwipIf::getInstance().setLowPowerMode();
 }
 
-unsigned long CWifi::getTime()
-{
-   
+/* -------------------------------------------------------------------------- */
+void CWifi::noLowPowerMode() {
+/* -------------------------------------------------------------------------- */   
+   CLwipIf::getInstance().resetLowPowerMode();
 }
 
-void CWifi::lowPowerMode()
-{
-   
+uint8_t CWifi::reasonCode() {
+   return 0;
 }
 
-void CWifi::noLowPowerMode()
-{
-   
+unsigned long CWifi::getTime() {
+   return 0;
 }
 
-int CWifi::ping(const char* hostname, uint8_t ttl)
-{
+
+int CWifi::ping(const char* hostname, uint8_t ttl) {
+   (void)(hostname);
+   (void)(ttl);
+   return 0;
   
 }
 
-int CWifi::ping(const String &hostname, uint8_t ttl)
-{
-   
+int CWifi::ping(const String &hostname, uint8_t ttl) {
+   (void)(hostname);
+   (void)(ttl);
+   return 0;
 }
 
-int CWifi::ping(IPAddress host, uint8_t ttl)
-{
-   
+int CWifi::ping(IPAddress host, uint8_t ttl) {
+   (void)(host);
+   (void)(ttl);
+   return 0;
 }
 
-void CWifi::setTimeout(unsigned long timeout)
-{
-  
+void CWifi::setTimeout(unsigned long timeout) {
+   (void)(timeout);  
 }
-
 
 
 CWifi WiFi;

@@ -494,6 +494,7 @@ int CLwipIf::scanForAp() {
    else {
       wifi_status = WL_NO_SSID_AVAIL;
    }
+   return res;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -658,6 +659,25 @@ int CLwipIf::startSoftAp(const char *ssid, const char* passphrase, uint8_t chann
    CLwipIf::getInstance().restartAsyncRequest();
 
    return rv;
+}
+
+
+/* -------------------------------------------------------------------------- */
+int CLwipIf::setLowPowerMode() {
+/* -------------------------------------------------------------------------- */   
+   CLwipIf::getInstance().startSyncRequest();
+   int rv = CEspControl::getInstance().setPowerSaveMode(1);
+   CLwipIf::getInstance().restartAsyncRequest();
+   return rv; 
+}
+
+/* -------------------------------------------------------------------------- */
+int CLwipIf::resetLowPowerMode() {
+/* -------------------------------------------------------------------------- */
+   CLwipIf::getInstance().startSyncRequest();
+   int rv = CEspControl::getInstance().setPowerSaveMode(0);
+   CLwipIf::getInstance().restartAsyncRequest();
+   return rv; 
 }
 
 

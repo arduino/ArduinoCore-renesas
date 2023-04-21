@@ -457,6 +457,8 @@ public:
 
 
    int startSoftAp(const char *ssid, const char* passphrase, uint8_t channel);
+   int setLowPowerMode();
+   int resetLowPowerMode();
 
 
    int setWifiMode(WifiMode_t mode);

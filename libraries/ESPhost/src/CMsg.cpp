@@ -34,13 +34,18 @@ const uint16_t esp_tlv_header_payload_pos = esp_tlv_header_ep_data_len_high_pos 
 uint32_t CMsg::allocate(uint32_t d) {
 /* -------------------------------------------------------------------------- */   
    dim = 0;
-   buf = new uint8_t[d];
-   if(buf != nullptr) {
-      /* memset all the buffer to 0 */
-      dim = d;
-      memset(buf, 0x00, dim);
-      payload_header = (struct esp_payload_header *)buf;
-      return dim;
+   if(d < 1600) {
+      buf = new uint8_t[d];
+      if(buf != nullptr) {
+         /* memset all the buffer to 0 */
+         dim = d;
+         memset(buf, 0x00, dim);
+         payload_header = (struct esp_payload_header *)buf;
+         return dim;
+      }
+   }
+   else {
+      Serial.println("REQUEST ALLOCATION TOO BIG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    }
    return 0;
 }
@@ -363,9 +368,23 @@ void CMsg::set_tlv_size() {
 
 
 /* setter / getter functions */ 
-void CMsg::set_if_type(uint8_t if_type)        { payload_header->if_type = if_type; }
-uint8_t CMsg::get_if_type()                    { return payload_header->if_type;}
-void CMsg::set_if_num(uint8_t if_num)          { payload_header->if_num = if_num; }
+void CMsg::set_if_type(uint8_t if_type)        { 
+   if(payload_header != nullptr) {
+      payload_header->if_type = if_type;
+   }
+}
+uint8_t CMsg::get_if_type()  { 
+   if(payload_header != nullptr) {
+      return payload_header->if_type;
+   }
+   else {
+      Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      return 10;
+   }
+}
+void CMsg::set_if_num(uint8_t if_num)          { 
+   payload_header->if_num = if_num; 
+}
 uint8_t CMsg::get_if_num()                     { return payload_header->if_num; }
 void CMsg::set_flags(uint8_t flags)            { payload_header->flags = flags; }
 uint8_t CMsg::get_flags()                      { return payload_header->flags; }
