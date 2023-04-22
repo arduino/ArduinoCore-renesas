@@ -175,6 +175,7 @@ public:
             }
             if(_callBack != nullptr){
                 _callBack();
+                _sequenceDone = true;
             }
         }
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
@@ -193,14 +194,22 @@ public:
     }
     void play(bool loop = false){
         _loop = loop;
+        _sequenceDone = false;
         next();
+    }
+    bool sequenceDone(){
+        if(_sequenceDone){
+            _sequenceDone = false;
+            return true;
+        }
+        return false;
     }
     void loadWrapper(const uint32_t frames[][4], uint32_t howMany) {
         _currentFrame = 0;
         _frames = (uint32_t*)frames;
         _framesCount = (howMany / 4) / sizeof(uint32_t);
     }
-
+    // WARNING: callbacks are fired from ISR. The execution time will be limited.
     void setCallback(voidFuncPtr callBack){
         _callBack = callBack;
     }
@@ -213,6 +222,7 @@ private:
     uint32_t _lastInterval = 0;
     bool _loop = false;
     FspTimer _ledTimer;
+    bool _sequenceDone = false;
     voidFuncPtr _callBack;
 
     static void turnOnLedISR(timer_callback_args_t *arg) {
