@@ -133,8 +133,8 @@ static uint32_t reverse(uint32_t x)
 }
 
 // TODO: this is dangerous, use with care
-#define loadSequence(x)      loadWrapper(x, sizeof(x))
-
+#define loadSequence(frames)                loadWrapper(frames, sizeof(frames))
+#define renderBitmap(bitmap, rows, columns) loadPixels(&bitmap[0][0], rows*columns)
 
 static uint8_t __attribute__((aligned)) framebuffer[NUM_LEDS / 8];
 
@@ -186,6 +186,7 @@ public:
         }};
         loadSequence(tempBuffer);
         next();
+        _interval = 0;
     }
     void renderFrame(uint8_t frameNumber){
         _currentFrame = frameNumber % _framesCount;
@@ -204,6 +205,23 @@ public:
         }
         return false;
     }
+
+    void loadPixels(uint8_t *arr, size_t size){
+        uint32_t partialBuffer = 0;
+        uint8_t pixelIndex = 0;
+        uint8_t *frameP = arr;
+        uint32_t *frameHolderP = _frameHolder;
+        while (pixelIndex < size) {
+            partialBuffer |= *frameP++;
+            if ((pixelIndex + 1) % 32 == 0) {
+                *(frameHolderP++) = partialBuffer;
+            }
+            partialBuffer = partialBuffer << 1;
+            pixelIndex++;
+        }
+        loadFrame(_frameHolder);
+    };
+
     void loadWrapper(const uint32_t frames[][4], uint32_t howMany) {
         _currentFrame = 0;
         _frames = (uint32_t*)frames;
@@ -216,6 +234,7 @@ public:
     
 private:
     int _currentFrame = 0;
+    uint32_t _frameHolder[3];
     uint32_t* _frames;
     uint32_t _framesCount;
     uint32_t _interval = 0;
