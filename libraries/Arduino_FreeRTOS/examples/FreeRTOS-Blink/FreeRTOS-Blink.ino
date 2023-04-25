@@ -1,97 +1,33 @@
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
+
 #include <Arduino_FreeRTOS.h>
 
-#include "blinky_thread.h"
+/**************************************************************************************
+ * GLOBAL VARIABLES
+ **************************************************************************************/
 
-extern void blinky_thread_create(void);
-extern TaskHandle_t blinky_thread;
-uint32_t g_fsp_common_thread_count;
-bool g_fsp_common_initialized;
-SemaphoreHandle_t g_fsp_common_initialized_semaphore;
-#if configSUPPORT_STATIC_ALLOCATION
-StaticSemaphore_t g_fsp_common_initialized_semaphore_memory;
-#endif
-void g_hal_init(void);
-/*********************************************************************************************************************
- * @brief This is a weak example initialization error function. It should be overridden by defining a user function
- * with the prototype below.
- * - void rtos_startup_err_callback(void * p_instance, void * p_data)
- *
- * @param[in] p_instance arguments used to identify which instance caused the error and p_data Callback arguments used to identify what error caused the callback.
- **********************************************************************************************************************/
-void rtos_startup_err_callback(void *p_instance, void *p_data)
-{
-  /** Suppress compiler warning for not using parameters. */
-  FSP_PARAMETER_NOT_USED (p_instance);
-  FSP_PARAMETER_NOT_USED (p_data);
+static StaticTask_t blinky_thread_memory;
+static uint8_t blinky_thread_stack[512] BSP_PLACE_IN_SECTION(BSP_UNINIT_SECTION_PREFIX ".stack.blinky_thread") BSP_ALIGN_VARIABLE(BSP_STACK_ALIGNMENT);
+static TaskHandle_t blinky_thread;
+const rm_freertos_port_parameters_t blinky_thread_parameters = { .p_context = (void*) NULL, };
 
-  /** An error has occurred. Please check function arguments for more information. */
-  BSP_CFG_HANDLE_UNRECOVERABLE_ERROR (0);
-}
-
-void rtos_startup_common_init(void);
-void rtos_startup_common_init(void)
-{
-  /* First thread will take care of common initialization. */
-  BaseType_t err;
-  err = xSemaphoreTake (g_fsp_common_initialized_semaphore, portMAX_DELAY);
-  if (pdPASS != err)
-  {
-    /* Check err, problem occurred. */
-    rtos_startup_err_callback (g_fsp_common_initialized_semaphore, 0);
-  }
-
-  /* Only perform common initialization if this is the first thread to execute. */
-  if (false == g_fsp_common_initialized)
-  {
-    /* Later threads will not run this code. */
-    g_fsp_common_initialized = true;
-
-    /* Perform common module initialization. */
-    //g_hal_init ();
-
-    /* Now that common initialization is done, let other threads through. */
-    /* First decrement by 1 since 1 thread has already come through. */
-    g_fsp_common_thread_count--;
-    while (g_fsp_common_thread_count > 0)
-    {
-      err = xSemaphoreGive (g_fsp_common_initialized_semaphore);
-      if (pdPASS != err)
-      {
-        /* Check err, problem occurred. */
-        rtos_startup_err_callback (g_fsp_common_initialized_semaphore, 0);
-      }
-      g_fsp_common_thread_count--;
-    }
-  }
-}
-
+/**************************************************************************************
+ * SETUP/LOOP
+ **************************************************************************************/
 
 void setup()
 {
-  g_fsp_common_thread_count = 0;
-  g_fsp_common_initialized = false;
-
-  /* Create semaphore to make sure common init is done before threads start running. */
-  g_fsp_common_initialized_semaphore =
-#if configSUPPORT_STATIC_ALLOCATION
-    xSemaphoreCreateCountingStatic(
-#else
-    xSemaphoreCreateCounting (
-#endif
-      256,
-      1
-#if configSUPPORT_STATIC_ALLOCATION
-      , &g_fsp_common_initialized_semaphore_memory
-#endif
-    );
-
-  if (NULL == g_fsp_common_initialized_semaphore)
-  {
-    rtos_startup_err_callback (g_fsp_common_initialized_semaphore, 0);
-  }
-
   /* Init RTOS tasks. */
-  blinky_thread_create ();
+  blinky_thread = xTaskCreateStatic (
+    blinky_thread_func,
+    (const char*) "Blinky Thread", 512 / 4, // In words, not bytes
+    (void*) &blinky_thread_parameters, //pvParameters
+    1,
+    (StackType_t*) &blinky_thread_stack,
+    (StaticTask_t*) &blinky_thread_memory
+  );
 
   /* Start the scheduler. */
   vTaskStartScheduler ();
@@ -100,6 +36,20 @@ void setup()
 void loop()
 {
 
+}
+
+void blinky_thread_func(void *pvParameters)
+{
+  /* blinky_thread.setup() */
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+
+  /* blinky_thread.loop() */
+  for(;;)
+  {
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    vTaskDelay(configTICK_RATE_HZ);
+  }
 }
 
 #if configSUPPORT_STATIC_ALLOCATION
