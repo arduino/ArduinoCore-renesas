@@ -27,5 +27,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-// NOTE: memory_regions.ld  SOMETHING FISHY HERE, smaller sizes lead to collissions with vector table. Probably error in vector table length.
