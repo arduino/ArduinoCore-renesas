@@ -111,16 +111,16 @@ FSP_HEADER
 #define configMESSAGE_BUFFER_LENGTH_TYPE size_t
 #endif
 #ifndef configSUPPORT_STATIC_ALLOCATION
-#define configSUPPORT_STATIC_ALLOCATION (1)
+#define configSUPPORT_STATIC_ALLOCATION (0)
 #endif
 #ifndef configSUPPORT_DYNAMIC_ALLOCATION
-#define configSUPPORT_DYNAMIC_ALLOCATION (0)
+#define configSUPPORT_DYNAMIC_ALLOCATION (1)
 #endif
 #ifndef configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE (0)
+#define configTOTAL_HEAP_SIZE (4096)
 #endif
 #ifndef configAPPLICATION_ALLOCATED_HEAP
-#define configAPPLICATION_ALLOCATED_HEAP (0)
+#define configAPPLICATION_ALLOCATED_HEAP (4)
 #endif
 #ifndef configGENERATE_RUN_TIME_STATS
 #define configGENERATE_RUN_TIME_STATS (0)
