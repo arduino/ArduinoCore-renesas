@@ -42,10 +42,11 @@ static const u32_t magic_cookie  = 0x63538263;
 #define DHCP_OPTION_END         255
 
 
-#define DHCPS_DEBUG 1
 
+#ifdef DHCPS_DEBUG
+/* function defined in CNetIf.cpp */
 extern void printDbg(const char *fmt, ...);
-
+#endif
 
 #define DHCPS_LOG    printDbg
 

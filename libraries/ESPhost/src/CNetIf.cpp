@@ -1,14 +1,27 @@
 #include "CNetIf.h"
 
-const uint8_t default_eth_ip[4] = {IP_ETH_3, IP_ETH_2, IP_ETH_1, IP_ETH_0};
-const uint8_t default_eth_nm[4] = {NM_ETH_3, NM_ETH_2, NM_ETH_1, NM_ETH_0};
-const uint8_t default_eth_gw[4] = {GW_ETH_3, GW_ETH_2, GW_ETH_1, GW_ETH_0};
-const uint8_t default_wst_ip[4] = {IP_WST_3, IP_WST_2, IP_WST_1, IP_WST_0};
-const uint8_t default_wst_nm[4] = {NM_WST_3, NM_WST_2, NM_WST_1, NM_WST_0};
-const uint8_t default_wst_gw[4] = {GW_WST_3, GW_WST_2, GW_WST_1, GW_WST_0};
-const uint8_t default_wsa_ip[4] = {IP_WSA_3, IP_WSA_2, IP_WSA_1, IP_WSA_0};
-const uint8_t default_wsa_nm[4] = {NM_WSA_3, NM_WSA_2, NM_WSA_1, NM_WSA_0};
-const uint8_t default_wsa_gw[4] = {GW_WSA_3, GW_WSA_2, GW_WSA_1, GW_WSA_0};
+const uint8_t default_eth_ip[4] = {IP_ETH_0, IP_ETH_1, IP_ETH_2, IP_ETH_3};
+const uint8_t default_eth_nm[4] = {NM_ETH_0, NM_ETH_1, NM_ETH_2, NM_ETH_3};
+const uint8_t default_eth_gw[4] = {GW_ETH_0, GW_ETH_1, GW_ETH_2, GW_ETH_3};
+const uint8_t default_wst_ip[4] = {IP_WST_0, IP_WST_1, IP_WST_2, IP_WST_3};
+const uint8_t default_wst_nm[4] = {NM_WST_0, NM_WST_1, NM_WST_2, NM_WST_3};
+const uint8_t default_wst_gw[4] = {GW_WST_0, GW_WST_1, GW_WST_2, GW_WST_3};
+const uint8_t default_wsa_ip[4] = {IP_WSA_0, IP_WSA_1, IP_WSA_2, IP_WSA_3};
+const uint8_t default_wsa_nm[4] = {NM_WSA_0, NM_WSA_1, NM_WSA_2, NM_WSA_3};
+const uint8_t default_wsa_gw[4] = {GW_WSA_0, GW_WSA_1, GW_WSA_2, GW_WSA_3};
+
+
+/* The following addresses are set by the config functions */
+
+IPAddress default_wifi_ip_add(0,0,0,0);
+IPAddress default_wifi_nm_add(0,0,0,0);
+IPAddress default_wifi_gw_add(0,0,0,0);
+
+void setDefaultWifiIp(IPAddress ip) { default_wifi_ip_add = ip; }
+void setDefaultWifiNm(IPAddress nm) { default_wifi_nm_add = nm; }
+void setDefaultWifiGw(IPAddress gw) { default_wifi_ip_add = gw; }
+
+
 
 CNetIf * CLwipIf::net_ifs[] = {nullptr};
 bool CLwipIf::wifi_hw_initialized = false; 
@@ -909,7 +922,7 @@ IPAddress CLwipIf::getDns(int _num) {
 /* ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() :  ip_address_manually_set(false), dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
+CNetIf::CNetIf() :   dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
 /* -------------------------------------------------------------------------- */   
    memset(hostname,0x00,MAX_HOSTNAME_DIM);
    hostname[0] = 'C';
@@ -937,10 +950,10 @@ void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def) {
 /* -------------------------------------------------------------------------- */   
    ip_addr_set_zero_ip4(dst);
    if(src != nullptr) {
-      IP_ADDR4(dst, src[3], src[2], src[1], src[0]);
+      IP_ADDR4(dst, src[0], src[1], src[2], src[3]);
    }
    else {
-      IP_ADDR4(dst, def[3], def[2], def[1], def[0]);
+      IP_ADDR4(dst, def[0], def[1], def[2], def[3]);
    }
 }
 
@@ -1238,11 +1251,19 @@ void CWifiStation::begin(const uint8_t* _ip,
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
    
-   if(!ip_address_manually_set) {
+  
+   if(default_wifi_ip_add == IPAddress(0,0,0,0)) {
       setIp(_ip);
       setGw(_gw);
       setNm(_nm);
    }
+   else {
+      setIp(default_wifi_ip_add.raw_address());
+      setGw(default_wifi_gw_add.raw_address());
+      setNm(default_wifi_nm_add.raw_address());
+   }
+   
+   
 
    netif_add(&ni,  getIp(), getNm(), getGw(), NULL, CLwipIf::initWifiStation, ethernet_input);
    netif_set_default(&ni);
@@ -1332,11 +1353,17 @@ void CWifiSoftAp::begin(const uint8_t* _ip,
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
    
-   if(!ip_address_manually_set) {
+   if(default_wifi_ip_add == IPAddress(0,0,0,0)) {
       setIp(_ip);
       setGw(_gw);
       setNm(_nm);
    }
+   else {
+      setIp(default_wifi_ip_add.raw_address());
+      setGw(default_wifi_gw_add.raw_address());
+      setNm(default_wifi_nm_add.raw_address());
+   }
+   
 
    netif_add(&ni,  getIp(), getNm(), getGw(), NULL, CLwipIf::initWifiSoftAp, ethernet_input);
    netif_set_default(&ni);
@@ -1394,7 +1421,7 @@ int CWifiSoftAp::getMacAddress(uint8_t *mac) {
    return rv;
 }
 
-#define DHCPS_DEBUG 1
+
 #if DHCPS_DEBUG==1
 char b_dbg[512];
 extern "C" void printDbg(const char *fmt, ...) {

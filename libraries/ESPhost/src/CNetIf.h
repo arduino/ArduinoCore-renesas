@@ -185,7 +185,7 @@ protected:
    char hostname[MAX_HOSTNAME_DIM];
    #endif
 
-   bool ip_address_manually_set;
+   
 
    ip_addr_t ip;
    ip_addr_t nm;
@@ -222,11 +222,8 @@ public:
    bool isDhcpAcquired(); 
    int checkLease();
 
-   void IpAddressSetManually() { ip_address_manually_set = true; }
-
    virtual void setLinkUp();
    virtual void setLinkDown();
-
    
    /* getters / setters */
    void setId(int _id) { id = _id; }
@@ -471,6 +468,9 @@ public:
    void lwip_task();
 };
 
+void setDefaultWifiIp(IPAddress ip);
+void setDefaultWifiNm(IPAddress nm);
+void setDefaultWifiGw(IPAddress ip);
 
 
 #endif

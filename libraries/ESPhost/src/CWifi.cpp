@@ -97,12 +97,14 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
-
-      ni->IpAddressSetManually();
-      IPAddress _nm(255, 255, 255, 0);
       ni->setIp(local_ip.raw_address());
-      ni->setNm(_nm.raw_address());
+      ni->setNm(subnet.raw_address());
       ni->setGw(gateway.raw_address());
+   }
+   else {
+      setDefaultWifiIp(local_ip);
+      setDefaultWifiNm(subnet); 
+      setDefaultWifiGw(gateway);
    }
 }
 
