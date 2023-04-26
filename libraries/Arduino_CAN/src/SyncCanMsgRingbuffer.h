@@ -15,9 +15,8 @@
  * INCLUDE
  **************************************************************************************/
 
-#include <cstdint>
+#include "api/HardwareCAN.h"
 
-#include "CanMsg.h"
 #include "sync.h"
 
 /**************************************************************************************
@@ -31,28 +30,22 @@ namespace arduino
  * CLASS DECLARATION
  **************************************************************************************/
 
-class CanMsgRingbuffer
+class SyncCanMsgRingbuffer
 {
 public:
-  static size_t constexpr RING_BUFFER_SIZE = 32U;
+  SyncCanMsgRingbuffer() : _can_msg_buf{} { }
 
-  CanMsgRingbuffer();
 
-  inline bool isFull() const { synchronized { return (_num_elems == RING_BUFFER_SIZE); } }
-  void enqueue(CanMsg const & msg);
+  bool isFull() const { synchronized { _can_msg_buf.isFull(); } }
+  void enqueue(CanMsg const & msg) { synchronized { _can_msg_buf.enqueue(msg); } }
 
-  inline bool isEmpty() const { synchronized { return (_num_elems == 0); } }
-  CanMsg dequeue();
+  bool isEmpty() const { synchronized { return _can_msg_buf.isEmpty(); } }
+  CanMsg dequeue() { synchronized { return _can_msg_buf.dequeue(); } }
 
-  inline size_t available() const { synchronized { return _num_elems; } }
+  size_t available() const { synchronized { return _can_msg_buf.available(); } }
 
 private:
-  CanMsg _buf[RING_BUFFER_SIZE];
-  volatile size_t _head;
-  volatile size_t _tail;
-  volatile size_t _num_elems;
-
-  inline size_t next(size_t const idx) const { return ((idx + 1) % RING_BUFFER_SIZE); }
+  CanMsgRingbuffer _can_msg_buf;
 };
 
 /**************************************************************************************

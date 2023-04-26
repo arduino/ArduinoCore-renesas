@@ -19,7 +19,7 @@
 
 #ifdef ARDUINO_PORTENTA_H33
 
-#include "HardwareCAN.h"
+#include "api/HardwareCAN.h"
 
 #include  <tuple>
 
@@ -27,7 +27,7 @@
 
 #include "r_canfd.h"
 
-#include "CanMsgRingbuffer.h"
+#include "SyncCanMsgRingbuffer.h"
 
 /**************************************************************************************
  * TYPEDEF
@@ -78,7 +78,7 @@ private:
   int const _can_rx_pin;
   bool _is_error;
   int _err_code;
-  CanMsgRingbuffer _can_rx_buf;
+  SyncCanMsgRingbuffer _can_rx_buf;
 
   canfd_instance_ctrl_t _canfd_ctrl;
   can_bit_timing_cfg_t _canfd_bit_timing_cfg;

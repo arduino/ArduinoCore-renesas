@@ -2,7 +2,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include <CAN.h>
+#include <Arduino_CAN.h>
 
 /**************************************************************************************
  * CONSTANTS
@@ -19,18 +19,7 @@ void setup()
   Serial.begin(115200);
   while (!Serial) { }
 
-  /* You need to enable the CAN transceiver
-   * by commenting in below code when using
-   * a Portenta H33 on a Portenta Max Carrier.
-   * Note: Only CAN1 is available on the Portenta
-   * Max Carrier's RJ10 CAN connector.
-   */
-#if (PIN_CAN1_STBY >= 0)
-  pinMode(PIN_CAN1_STBY, OUTPUT);
-  digitalWrite(PIN_CAN1_STBY, LOW);
-#endif
-
-  if (!CAN1.begin(CanBitRate::BR_250k))
+  if (!CAN.begin(CanBitRate::BR_250k))
   {
     Serial.println("CAN.begin(...) failed.");
     for (;;) {}
@@ -51,7 +40,7 @@ void loop()
   /* Transmit the CAN message, capture and display an
    * error core in case of failure.
    */
-  if (int const rc = CAN1.write(msg); rc < 0)
+  if (int const rc = CAN.write(msg); rc < 0)
   {
     Serial.print  ("CAN.write(...) failed with error code ");
     Serial.println(rc);
