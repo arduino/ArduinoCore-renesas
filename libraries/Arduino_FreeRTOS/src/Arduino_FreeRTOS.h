@@ -10,6 +10,10 @@
 
 #pragma once
 
+#ifndef ARDUINO_PORTENTA_H33
+# error "FreeRTOS is currently only supported for the Portenta C33."
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
