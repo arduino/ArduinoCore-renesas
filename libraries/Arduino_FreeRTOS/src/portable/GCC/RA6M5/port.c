@@ -30,8 +30,8 @@
 /* Scheduler includes. */
 #include "bsp_api.h"
 #include "FreeRTOSConfig.h"
-#include "lib/FreeRTOS-Kernel-v10.5.1/FreeRTOS.h"
-#include "lib/FreeRTOS-Kernel-v10.5.1/task.h"
+#include "../../../lib/FreeRTOS-Kernel-v10.5.1/FreeRTOS.h"
+#include "../../../lib/FreeRTOS-Kernel-v10.5.1/task.h"
 
 #if BSP_TZ_NONSECURE_BUILD
  #include "tz_context.h"
