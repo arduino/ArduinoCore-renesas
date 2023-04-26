@@ -720,6 +720,6 @@
  */
 #define LWIP_DHCP                       1
 
-
+#define LWIP_IP_ACCEPT_UDP_PORT(dst_port) ((dst_port) == PP_NTOHS(67))
 
 #endif

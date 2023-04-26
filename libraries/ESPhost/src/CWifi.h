@@ -43,6 +43,16 @@ public:
     uint8_t beginAP(const char *ssid, const char* passphrase);
     uint8_t beginAP(const char *ssid, const char* passphrase, uint8_t channel);
 
+    void debug1() {
+      if(ni == nullptr) {
+         ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+      }
+    }
+
+    void debug2() {
+
+    }
+
     /* Change IP configuration settings disabling the DHCP client
         *
         * param local_ip:  Static IP configuration

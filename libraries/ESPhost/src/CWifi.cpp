@@ -1,5 +1,10 @@
 #include "CWifi.h"
 
+
+extern "C" void dhcps_start(struct netif *netif);
+
+
+
 /* -------------------------------------------------------------------------- */
 CWifi::CWifi() : _timeout(50000), ni(nullptr) {
 }
@@ -64,10 +69,11 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
    
-   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+   ni = CLwipIf::getInstance().get(NI_WIFI_SOFTAP);
    CLwipIf::getInstance().startSoftAp(ssid,passphrase,channel); 
    if(ni != nullptr) {
-      ni->DhcpStart();
+      
+      dhcps_start(ni->getNi());
    }
    
    return CLwipIf::getInstance().getWifiStatus();   
@@ -88,11 +94,11 @@ void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
-   ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
 
+      ni->IpAddressSetManually();
       IPAddress _nm(255, 255, 255, 0);
       ni->setIp(local_ip.raw_address());
       ni->setNm(_nm.raw_address());

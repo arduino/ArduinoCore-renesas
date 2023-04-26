@@ -92,7 +92,7 @@ uint8_t *CEspControl::getSoftApRx(uint8_t &if_num, uint16_t &dim) {
 /* -------------------------------------------------------------------------- */   
    uint8_t *rv = nullptr;
    CMsg msg; 
-   if(CEspCom::getMsgForStation(msg)) {
+   if(CEspCom::getMsgForSoftAp(msg)) {
       if_num = msg.get_if_num();
       dim = msg.get_protobuf_dim();
       rv = new uint8_t[dim];

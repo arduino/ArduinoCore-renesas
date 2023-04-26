@@ -87,8 +87,8 @@
 /*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
 #define IP_WSA_0   (uint8_t) 192
 #define IP_WSA_1   (uint8_t) 168
-#define IP_WSA_2   (uint8_t) 0
-#define IP_WSA_3   (uint8_t) 10
+#define IP_WSA_2   (uint8_t) 4
+#define IP_WSA_3   (uint8_t) 1
 
 /*NETMASK*/
 #define NM_WSA_0   (uint8_t) 255
@@ -185,6 +185,8 @@ protected:
    char hostname[MAX_HOSTNAME_DIM];
    #endif
 
+   bool ip_address_manually_set;
+
    ip_addr_t ip;
    ip_addr_t nm;
    ip_addr_t gw;
@@ -220,7 +222,8 @@ public:
    bool isDhcpAcquired(); 
    int checkLease();
 
-   
+   void IpAddressSetManually() { ip_address_manually_set = true; }
+
    virtual void setLinkUp();
    virtual void setLinkDown();
 

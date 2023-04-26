@@ -1,17 +1,14 @@
 #include "CNetIf.h"
 
-const uint8_t default_eth_ip[4] = {IP_ETH_0, IP_ETH_1, IP_ETH_2, IP_ETH_3};
-const uint8_t default_eth_nm[4] = {NM_ETH_0, NM_ETH_1, NM_ETH_2, NM_ETH_3};
-const uint8_t default_eth_gw[4] = {GW_ETH_0, GW_ETH_1, GW_ETH_2, GW_ETH_3};
-
-const uint8_t default_wst_ip[4] = {IP_WST_0, IP_WST_1, IP_WST_2, IP_WST_3};
-const uint8_t default_wst_nm[4] = {NM_WST_0, NM_WST_1, NM_WST_2, NM_WST_3};
-const uint8_t default_wst_gw[4] = {GW_WST_0, GW_WST_1, GW_WST_2, GW_WST_3};
-
-
-const uint8_t default_wsa_ip[4] = {IP_WSA_0, IP_WSA_1, IP_WSA_2, IP_WSA_3};
-const uint8_t default_wsa_nm[4] = {NM_WSA_0, NM_WSA_1, NM_WSA_2, NM_WSA_3};
-const uint8_t default_wsa_gw[4] = {GW_WSA_0, GW_WSA_1, GW_WSA_2, GW_WSA_3};
+const uint8_t default_eth_ip[4] = {IP_ETH_3, IP_ETH_2, IP_ETH_1, IP_ETH_0};
+const uint8_t default_eth_nm[4] = {NM_ETH_3, NM_ETH_2, NM_ETH_1, NM_ETH_0};
+const uint8_t default_eth_gw[4] = {GW_ETH_3, GW_ETH_2, GW_ETH_1, GW_ETH_0};
+const uint8_t default_wst_ip[4] = {IP_WST_3, IP_WST_2, IP_WST_1, IP_WST_0};
+const uint8_t default_wst_nm[4] = {NM_WST_3, NM_WST_2, NM_WST_1, NM_WST_0};
+const uint8_t default_wst_gw[4] = {GW_WST_3, GW_WST_2, GW_WST_1, GW_WST_0};
+const uint8_t default_wsa_ip[4] = {IP_WSA_3, IP_WSA_2, IP_WSA_1, IP_WSA_0};
+const uint8_t default_wsa_nm[4] = {NM_WSA_3, NM_WSA_2, NM_WSA_1, NM_WSA_0};
+const uint8_t default_wsa_gw[4] = {GW_WSA_3, GW_WSA_2, GW_WSA_1, GW_WSA_0};
 
 CNetIf * CLwipIf::net_ifs[] = {nullptr};
 bool CLwipIf::wifi_hw_initialized = false; 
@@ -428,6 +425,8 @@ err_t CLwipIf::initWifiSoftAp(struct netif* _ni) {
 
    /* set MAC hardware address */
    _ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_SOFTAP, _ni->hwaddr);
+
+   return ERR_OK;
 }
 
 
@@ -635,6 +634,10 @@ int CLwipIf::disconnectFromAp() {
 }
 
 
+
+
+
+
 /* -------------------------------------------------------------------------- */
 int CLwipIf::startSoftAp(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */
@@ -651,11 +654,21 @@ int CLwipIf::startSoftAp(const char *ssid, const char* passphrase, uint8_t chann
    }
    channel = (channel == 0) ? 1 : channel;
    cfg.channel = (channel > MAX_CHNL_NO) ? MAX_CHNL_NO : channel;
-
+   cfg.max_connections = MAX_SOFAT_CONNECTION_DEF;
    cfg.encryption_mode = WIFI_AUTH_WPA_WPA2_PSK;
    cfg.bandwidth = WIFI_BW_HT40;
+   cfg.ssid_hidden = false;
 
    int rv = CEspControl::getInstance().startSoftAccessPoint(cfg);
+   if(rv == ESP_CONTROL_OK) {
+      wifi_status = WL_AP_LISTENING;
+      if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
+         net_ifs[NI_WIFI_SOFTAP]->setLinkUp();
+      }
+   }
+   else {
+      wifi_status = WL_AP_FAILED;
+   }
    CLwipIf::getInstance().restartAsyncRequest();
 
    return rv;
@@ -896,7 +909,7 @@ IPAddress CLwipIf::getDns(int _num) {
 /* ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() :  dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
+CNetIf::CNetIf() :  ip_address_manually_set(false), dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
 /* -------------------------------------------------------------------------- */   
    memset(hostname,0x00,MAX_HOSTNAME_DIM);
    hostname[0] = 'C';
@@ -924,10 +937,10 @@ void CNetIf::setAddr(ip_addr_t *dst, const uint8_t* src, const uint8_t* def) {
 /* -------------------------------------------------------------------------- */   
    ip_addr_set_zero_ip4(dst);
    if(src != nullptr) {
-      IP_ADDR4(dst, src[0], src[1], src[2], src[3]);
+      IP_ADDR4(dst, src[3], src[2], src[1], src[0]);
    }
    else {
-      IP_ADDR4(dst, def[0], def[1], def[2], def[3]);
+      IP_ADDR4(dst, def[3], def[2], def[1], def[0]);
    }
 }
 
@@ -1158,11 +1171,11 @@ void CEth::setIp(const uint8_t *_ip) {
 }
 
 void CEth::setNm(const uint8_t *_nm) {
-   setAddr(&ip,_nm, (const uint8_t*)&default_eth_ip);
+   setAddr(&nm,_nm, (const uint8_t*)&default_eth_ip);
 }
 
 void CEth::setGw(const uint8_t *_gw) {
-   setAddr(&ip,_gw, (const uint8_t*)&default_eth_ip);
+   setAddr(&gw,_gw, (const uint8_t*)&default_eth_ip);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1214,19 +1227,22 @@ void CWifiStation::setIp(const uint8_t *_ip) {
 }
 
 void CWifiStation::setNm(const uint8_t *_nm) {
-   setAddr(&ip,_nm, (const uint8_t*)&default_wst_nm);
+   setAddr(&nm,_nm, (const uint8_t*)&default_wst_nm);
 }
 
 void CWifiStation::setGw(const uint8_t *_gw) {
-   setAddr(&ip,_gw, (const uint8_t*)&default_wst_gw);
+   setAddr(&gw,_gw, (const uint8_t*)&default_wst_gw);
 }
 
 void CWifiStation::begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
-   setIp(_ip);
-   setGw(_gw);
-   setNm(_nm);
+   
+   if(!ip_address_manually_set) {
+      setIp(_ip);
+      setGw(_gw);
+      setNm(_nm);
+   }
 
    netif_add(&ni,  getIp(), getNm(), getGw(), NULL, CLwipIf::initWifiStation, ethernet_input);
    netif_set_default(&ni);
@@ -1315,24 +1331,22 @@ void CWifiSoftAp::setGw(const uint8_t *_gw) {
 void CWifiSoftAp::begin(const uint8_t* _ip, 
                       const uint8_t* _gw, 
                       const uint8_t* _nm) {
-   setIp(_ip);
-   setGw(_gw);
-   setNm(_nm);
+   
+   if(!ip_address_manually_set) {
+      setIp(_ip);
+      setGw(_gw);
+      setNm(_nm);
+   }
 
    netif_add(&ni,  getIp(), getNm(), getGw(), NULL, CLwipIf::initWifiSoftAp, ethernet_input);
-
-  /* Registers the default network interface */
-  //if(is_default) {
-    //netif_set_default(&ni);
-  //}
-
-  if (netif_is_link_up(&ni)) {
-    /* When the netif is fully configured this function must be called */
-    netif_set_up(&ni);
-  } else {
-    /* When the netif link is down this function must be called */
-    netif_set_down(&ni);
-  }
+   netif_set_default(&ni);
+   if (netif_is_link_up(&ni)) {
+     /* When the netif is fully configured this function must be called */
+     netif_set_up(&ni);
+   } else {
+     /* When the netif link is down this function must be called */
+     netif_set_down(&ni);
+   }
 
   #if LWIP_NETIF_LINK_CALLBACK
     /* Set the link callback function, this function is called on change of link status */
@@ -1348,12 +1362,9 @@ void CWifiSoftAp::task() {
    uint8_t if_num;
    uint16_t dim;
    uint8_t *buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
-  
+
    if(buf != nullptr) {
-
-   struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-
-
+      struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
       if(p != NULL) {
          /* Copy ethernet frame into pbuf */
          pbuf_take((struct pbuf* )p, (uint8_t *) buf, (uint32_t)dim);
@@ -1382,3 +1393,18 @@ int CWifiSoftAp::getMacAddress(uint8_t *mac) {
    CNetUtilities::macStr2macArray(mac, (const char*)MAC.mac);
    return rv;
 }
+
+#define DHCPS_DEBUG 1
+#if DHCPS_DEBUG==1
+char b_dbg[512];
+extern "C" void printDbg(const char *fmt, ...) {
+    
+    memset(b_dbg,0x00,256);
+    va_list va;
+    va_start (va, fmt);
+    vsprintf (b_dbg, fmt, va);
+    va_end (va);
+
+    Serial.println(b_dbg);
+}
+#endif
