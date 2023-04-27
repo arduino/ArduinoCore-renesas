@@ -3,8 +3,8 @@
 
 
 
-#include "DhcpServer.h"
-#include "DhcpServerPriv.h"
+#include "lwipDhcpServer.h"
+#include "lwipDhcpServerPriv.h"
 
 
 static const u32_t magic_cookie  = 0x63538263;
