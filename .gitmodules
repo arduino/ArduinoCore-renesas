@@ -1,6 +1,7 @@
 [submodule "extras/tinyusb"]
 	path = extras/tinyusb
 	url = git@github.com:bcmi-labs/tinyusb.git
+
 [submodule "extras/santiago-leven-usb-bridge"]
 	path = extras/santiago-leven-usb-bridge
 	url = git@github.com:bcmi-labs/santiago-leven-usb-bridge
