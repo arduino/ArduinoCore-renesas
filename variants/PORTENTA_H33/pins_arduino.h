@@ -26,8 +26,14 @@ extern "C" unsigned int SCI_COUNT_fn();
 #define PIN_A6   (21u)
 #define PIN_A7   (22u)
 
-#define DAC      (21u)
-#define DAC1     (22u)
+#define DAC8_HOWMANY (0)
+#define DAC12_HOWMANY (2)
+#define DAC         21
+#define DAC1        20
+#define IS_DAC(x)   (x == DAC || x == DAC1)
+#define DAC_ADDRESS_12_CH0          R_DAC_BASE
+// TODO: check if true
+#define DAC_ADDRESS_12_CH1          (R_DAC_BASE+2)
 
 static const uint8_t A0 = PIN_A0;
 static const uint8_t A1 = PIN_A1;

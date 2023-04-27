@@ -179,9 +179,9 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
         if(IRQManager::getInstance().addPeripheral(IRQ_EXTERNAL_PIN,&(irq_context->cfg))) {
             /*
             Configure PIN
-            TODO: decide if a default pull should be provided or if it's up to the user to call pinMode before activating the IRQ
             */
-            R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
+            bool has_pullup = R_PFS->PORT[g_pin_cfg[pinNumber].pin >> IOPORT_PRV_PORT_OFFSET].PIN[g_pin_cfg[pinNumber].pin & BSP_IO_PRV_8BIT_MASK].PmnPFS & IOPORT_CFG_PULLUP_ENABLE;
+            R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[pinNumber].pin, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT | (has_pullup ? IOPORT_CFG_PULLUP_ENABLE : 0)));
             /* Enable Interrupt */ 
             R_ICU_ExternalIrqOpen(&(irq_context->ctrl), &(irq_context->cfg));
             R_ICU_ExternalIrqEnable(&(irq_context->ctrl));

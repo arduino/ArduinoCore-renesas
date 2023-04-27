@@ -4,12 +4,12 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_dtc.h"
+#include "r_transfer_api.h"
 #include "r_dac8.h"
 #include "r_dac_api.h"
 #include "r_dac.h"
 #include "r_dac_api.h"
-#include "r_dtc.h"
-#include "r_transfer_api.h"
 #include "r_sci_i2c.h"
 #include "r_i2c_master_api.h"
 #include "r_iic_slave.h"
@@ -28,6 +28,12 @@
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 FSP_HEADER
+/* Transfer on DTC Instance. */
+extern const transfer_instance_t g_transfer1;
+
+/** Access the DTC instance using these structures when calling API functions directly (::p_api is not used). */
+extern dtc_instance_ctrl_t g_transfer1_ctrl;
+extern const transfer_cfg_t g_transfer1_cfg;
 /** DAC on DAC8 Instance. */
 extern const dac_instance_t g_dac8_0;
 

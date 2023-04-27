@@ -22,6 +22,7 @@ typedef enum {
     PIN_CFG_REQ_ADC,
     PIN_CFG_REQ_CAN_RX,
     PIN_CFG_REQ_CAN_TX,
+    PIN_CFG_REQ_DAC,
     /* to be completed */
 } PinCfgReq_t;
 
@@ -55,6 +56,8 @@ std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req);
 #define PIN_CAN_TX                  (13 << PIN_USE_POS)
 #define PIN_CAN_RX                  (14 << PIN_USE_POS)
 #define PIN_CTSRTS                  PIN_CTS_RTS_SS
+#define PIN_DAC                     (15 << PIN_USE_POS)
+
 /* ..... MAX TO 63 */
 
 #define IS_PIN_UNAVAILABLE(x)       ((x & PIN_USE_MASK) ==  PIN_UNAVAILABLE)
@@ -78,6 +81,8 @@ std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req);
 
 #define IS_PIN_CAN_RX(x)            ((x & PIN_USE_MASK) ==  PIN_CAN_RX)
 #define IS_PIN_CAN_TX(x)            ((x & PIN_USE_MASK) ==  PIN_CAN_TX)
+
+#define IS_PIN_DAC(x)               ((x & PIN_USE_MASK) ==  PIN_DAC)
 
 
 #define CHANNEL_POS                 (6)
@@ -135,6 +140,9 @@ std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req);
 
 #define ADD_CFG_DONT_CARE           (15 << ADD_CONFIG_POS)
 #define IS_ADD_CFG_DONT_CARE(x)     ((x & ADD_CONFIG_MASK) == ADD_CFG_DONT_CARE)
+
+#define DAC_8BIT                    (1 << ADD_CONFIG_POS)
+#define IS_DAC_8BIT(x)              ((x & ADD_CONFIG_MASK) == DAC_8BIT)
 
 #define LAST_ITEM_MASK              (0x8000)
 #define NOT_LAST_ITEM               (0 << 15)

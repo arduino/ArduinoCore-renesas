@@ -2,12 +2,13 @@
 #define ARDUINO_ANALOG_H
 
 #include "Arduino.h"
-
 #include "r_adc_api.h"
 #include "r_adc.h"
 #include "bsp_api.h"
-
-
+#include "r_dac.h"
+#if (DAC8_HOWMANY > 0)
+#include "r_dac8.h"
+#endif
 
 using ADCCbk_f = void (*)(adc_callback_args_t * p_args);
 
@@ -58,7 +59,5 @@ bool analogAddPinToCompare(bsp_io_port_pin_t pin, bool lower_or_outside_wnd) ;
 bool analogAddPinToCompare(pin_size_t pinNumber, bool lower_or_outside_wnd);
 
 int analogRead(bsp_io_port_pin_t pinNumber);
-
-void analogWriteDAC(pin_size_t pinNumber, int value);
 
 #endif

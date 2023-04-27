@@ -29,7 +29,7 @@
  */
 
 [PRINT_MAIN_STACK_CFG_ERROR]  = "ERROR: Unable to get the main stack information, please check the configuration of the main stack",
-[PRINT_FIRMWARE_INFO]         = "Firmware name: %s, hardware version: %s, software version: %s",
+[PRINT_FIRMWARE_INFO]         = "Firmware name: %s, compiled on: %s",
 [PRINT_ASSERT_ON_THREAD]      = "Assert on thread %s",
 [PRINT_ASSERT_ON_HANDLER]     = "Assert on interrupt or bare metal(no OS) environment",
 [PRINT_THREAD_STACK_INFO]     = "===== Thread stack information =====",

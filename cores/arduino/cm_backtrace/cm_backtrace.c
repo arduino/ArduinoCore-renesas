@@ -176,7 +176,7 @@ void cm_backtrace_init(const char *firmware_name, const char *hardware_ver, cons
  * print firmware information, such as: firmware name, hardware version, software version
  */
 void cm_backtrace_firmware_info(void) {
-    cmb_println(print_info[PRINT_FIRMWARE_INFO], fw_name, hw_ver, sw_ver);
+    cmb_println(print_info[PRINT_FIRMWARE_INFO], fw_name, sw_ver);
 }
 
 #ifdef CMB_USING_OS_PLATFORM

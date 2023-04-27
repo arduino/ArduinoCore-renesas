@@ -16,8 +16,11 @@
 #define PIN_A4   (20u)
 #define PIN_A5   (21u)
 
-// #if BSP_FEATURE_DAC_MAX_CHANNELS > 0
-#define DAC      (A0)
+#define DAC8_HOWMANY (0)
+#define DAC12_HOWMANY (1)
+#define DAC         A0
+#define IS_DAC(x)   (x == DAC ? true : false)
+#define DAC_ADDRESS_12_CH0          R_DAC_BASE
 
 #undef A0
 #undef A1

@@ -19,6 +19,7 @@ using namespace arduino;
 #endif
 
 #include <api/itoa.h>
+#include <strings.h>
 
 #if defined(__cplusplus)
 
@@ -115,6 +116,10 @@ float analogReference();
 #define Serial3 _UART4_
 #define Serial4 _UART5_
 #endif
+
+#define IOPORT_PRV_PERIPHERAL_FUNCTION    (1U << 16)
+#define IOPORT_PRV_PORT_OFFSET            (8U)
+#define BSP_IO_PRV_8BIT_MASK              (0xFF)
 
 #include "pins_arduino.h"
 #include "usb/USB.h"
