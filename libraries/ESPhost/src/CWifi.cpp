@@ -245,25 +245,37 @@ uint8_t CWifi::channel(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */ 
 const char* CWifi::SSID() {
 /* -------------------------------------------------------------------------- */    
-   return CLwipIf::getInstance().getSSID(); 
+   if(ni != nullptr) {
+      return ni->getSSID();
+   }
+   return ""; 
 }
 
 /* -------------------------------------------------------------------------- */ 
 uint8_t* CWifi::BSSID(uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */    
-   return CLwipIf::getInstance().getBSSID(bssid);
+   if(ni != nullptr) {
+      return ni->getBSSID(bssid);
+   }
+   return nullptr;
 }
 
 /* -------------------------------------------------------------------------- */ 
 int32_t CWifi::RSSI() {
 /* -------------------------------------------------------------------------- */    
-   return CLwipIf::getInstance().getRSSI();
+   if(ni != nullptr) {
+      return ni->getRSSI();
+   }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */ 
 uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */    
-   return CLwipIf::getInstance().getEncrType();
+   if(ni != nullptr) {
+      return ni->getEncryptionType();
+   }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */

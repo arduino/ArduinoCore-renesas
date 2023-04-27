@@ -254,6 +254,12 @@ public:
    virtual void setGw(const uint8_t *_gw) = 0;
 
    virtual int getMacAddress(uint8_t *mac) = 0;
+
+   /* default dummy implementation because ethernet does not have that */
+   virtual const char* getSSID() { return nullptr; } 
+   virtual uint8_t* getBSSID(uint8_t* bssid) { return nullptr; }
+   virtual int32_t getRSSI() { return 0; }
+   virtual uint8_t getEncryptionType() { return 0; }
 };
 
 
@@ -307,6 +313,11 @@ class CWifiStation : public CNetIf {
 
    virtual int getMacAddress(uint8_t *mac) override;
 
+   virtual const char* getSSID() override; 
+   virtual uint8_t* getBSSID(uint8_t* bssid) override;
+   virtual int32_t getRSSI() override;
+   virtual uint8_t getEncryptionType() override;
+
 };
 
 /* -------------------------------------------------------------------------- */
@@ -325,6 +336,11 @@ class CWifiSoftAp : public CNetIf {
    void setGw(const uint8_t *_gw) override;
 
    virtual int getMacAddress(uint8_t *mac) override;
+
+   virtual const char* getSSID() override; 
+   virtual uint8_t* getBSSID(uint8_t* bssid) override;
+   virtual int32_t getRSSI() override;
+   virtual uint8_t getEncryptionType() override;
 };
 
 
@@ -353,6 +369,8 @@ private:
    
    vector<AccessPoint_t> access_points;
    WifiApCfg_t access_point_cfg;
+
+   SoftApCfg_t soft_ap_cfg;
 
    
 
@@ -460,6 +478,10 @@ public:
    int setLowPowerMode();
    int resetLowPowerMode();
 
+   const char* getSSID(NetIfType_t type); 
+   uint8_t* getBSSID(NetIfType_t type, uint8_t *bssid);
+   int32_t getRSSI(NetIfType_t type);
+   uint8_t getEncryptionType(NetIfType_t type);
 
    int setWifiMode(WifiMode_t mode);
 

@@ -37,6 +37,9 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  
+
+
   Serial.println("Access Point Web Server");
 
   pinMode(led, OUTPUT);      // set the LED pin mode
@@ -55,7 +58,7 @@ void setup() {
 
   // by default the local IP address will be 192.168.4.1
   // you can override it with the following:
-  WiFi.config(IPAddress(10, 10, 5, 1));
+  //WiFi.config(IPAddress(10, 10, 5, 1));
 
   // print the network name (SSID);
   Serial.print("Creating access point named: ");

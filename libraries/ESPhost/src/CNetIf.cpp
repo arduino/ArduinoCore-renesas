@@ -586,6 +586,7 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
          CLwipIf::connected_to_access_point = true;
          wifi_status = WL_CONNECTED;
          CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
+         
          rv = ESP_CONTROL_OK;
          /* when we get the connection to access point we are sure we are STATION 
             and we are connected */
@@ -674,6 +675,7 @@ int CLwipIf::startSoftAp(const char *ssid, const char* passphrase, uint8_t chann
 
    int rv = CEspControl::getInstance().startSoftAccessPoint(cfg);
    if(rv == ESP_CONTROL_OK) {
+      CEspControl::getInstance().getSoftAccessPointConfig(soft_ap_cfg);
       wifi_status = WL_AP_LISTENING;
       if(net_ifs[NI_WIFI_SOFTAP] != nullptr) {
          net_ifs[NI_WIFI_SOFTAP]->setLinkUp();
@@ -900,11 +902,6 @@ void CLwipIf::addDns(IPAddress aDNSServer) {
    #endif
 }
 
-//bool CLwipIf::isDnsAvailable() {
-
-//}
-
-
 /* -------------------------------------------------------------------------- */
 IPAddress CLwipIf::getDns(int _num) {
 /* -------------------------------------------------------------------------- */
@@ -916,6 +913,66 @@ IPAddress CLwipIf::getDns(int _num) {
    #endif   
 
 }
+
+
+/* -------------------------------------------------------------------------- */
+const char* CLwipIf::getSSID(NetIfType_t type) {
+/* -------------------------------------------------------------------------- */   
+   if(type == NI_WIFI_STATION) {
+      return (char *)access_point_cfg.ssid;
+   }
+   else if(type == NI_WIFI_SOFTAP) {
+      return (char *)soft_ap_cfg.ssid;
+   }
+   else {
+     return nullptr;
+   }
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t* CLwipIf::getBSSID(NetIfType_t type, uint8_t *bssid) {
+/* -------------------------------------------------------------------------- */   
+   if(type == NI_WIFI_STATION) {
+      CNetUtilities::macStr2macArray(bssid, (const char *)access_point_cfg.out_mac);
+      return bssid;
+   }
+   else if(type == NI_WIFI_SOFTAP) {
+      CNetUtilities::macStr2macArray(bssid, (const char *)soft_ap_cfg.out_mac);
+      return bssid;
+   }
+   else {
+     return nullptr;
+   }
+
+}
+
+/* -------------------------------------------------------------------------- */
+int32_t CLwipIf::getRSSI(NetIfType_t type) {
+/* -------------------------------------------------------------------------- */   
+   if(type == NI_WIFI_STATION) {
+      return access_point_cfg.rssi;
+   }
+   else {
+     return 0;
+   }
+
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CLwipIf::getEncryptionType(NetIfType_t type) {
+/* -------------------------------------------------------------------------- */   
+   if(type == NI_WIFI_STATION) {
+      return access_point_cfg.encryption_mode;
+   }
+   else if(type == NI_WIFI_SOFTAP) {
+      return (uint8_t)soft_ap_cfg.encryption_mode;
+   }
+   else {
+     return 0;
+   }
+}
+
+
 
 /* ########################################################################## */
 /*                      BASE NETWORK INTERFACE CLASS                          */
@@ -1170,6 +1227,10 @@ void CNetIf::setLinkDown() {
 
 }
 
+ 
+
+
+
 
 /* ########################################################################## */
 /*                      ETHERNET NETWORK INTERFACE CLASS                      */
@@ -1322,11 +1383,32 @@ void CWifiStation::task() {
 /* -------------------------------------------------------------------------- */
 int CWifiStation::getMacAddress(uint8_t *mac) {
 /* -------------------------------------------------------------------------- */   
-   WifiMac_t MAC;
-   MAC.mode = WIFI_MODE_STA;
-   int rv = CEspControl::getInstance().getWifiMacAddress(MAC);
-   CNetUtilities::macStr2macArray(mac, (const char*)MAC.mac);
-   return rv;
+   return CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, mac);
+
+}
+
+/* -------------------------------------------------------------------------- */
+const char* CWifiStation::getSSID() {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getSSID(NI_WIFI_STATION);
+} 
+
+/* -------------------------------------------------------------------------- */
+uint8_t* CWifiStation::getBSSID(uint8_t* bssid) {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getBSSID(NI_WIFI_STATION,bssid);
+}
+
+/* -------------------------------------------------------------------------- */
+int32_t CWifiStation::getRSSI() {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getRSSI(NI_WIFI_STATION);
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CWifiStation::getEncryptionType() {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getEncryptionType(NI_WIFI_STATION);
 }
 
 
@@ -1414,12 +1496,34 @@ void CWifiSoftAp::task() {
 /* -------------------------------------------------------------------------- */
 int CWifiSoftAp::getMacAddress(uint8_t *mac) {
 /* -------------------------------------------------------------------------- */   
-   WifiMac_t MAC;
-   MAC.mode = WIFI_MODE_AP;
-   int rv = CEspControl::getInstance().getWifiMacAddress(MAC);
-   CNetUtilities::macStr2macArray(mac, (const char*)MAC.mac);
-   return rv;
+    return CLwipIf::getInstance().getMacAddress(NI_WIFI_SOFTAP, mac);
 }
+
+/* -------------------------------------------------------------------------- */
+const char* CWifiSoftAp::getSSID() {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getSSID(NI_WIFI_SOFTAP);
+} 
+
+/* -------------------------------------------------------------------------- */
+uint8_t* CWifiSoftAp::getBSSID(uint8_t* bssid) {
+/* -------------------------------------------------------------------------- */   
+  return CLwipIf::getInstance().getBSSID(NI_WIFI_SOFTAP,bssid);
+}
+
+/* -------------------------------------------------------------------------- */
+int32_t CWifiSoftAp::getRSSI() {
+/* -------------------------------------------------------------------------- */   
+  return CLwipIf::getInstance().getRSSI(NI_WIFI_SOFTAP);
+}
+
+/* -------------------------------------------------------------------------- */
+uint8_t CWifiSoftAp::getEncryptionType() {
+/* -------------------------------------------------------------------------- */   
+   return CLwipIf::getInstance().getEncryptionType(NI_WIFI_SOFTAP);
+}
+
+
 
 
 #if DHCPS_DEBUG==1
