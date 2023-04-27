@@ -55,13 +55,12 @@ class GPTimer {
       ext_cfg.gtior_setting.gtior          = 0U;
 
       cfg.p_extend                         = &ext_cfg;
-       
+
+      memset(&ctrl, 0, sizeof(gpt_instance_ctrl_t));
     }
-    
+
     gpt_instance_ctrl_t ctrl;
     gpt_extended_cfg_t ext_cfg;
-    
-
 };
 
 class AGTimer {

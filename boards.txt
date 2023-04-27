@@ -96,7 +96,7 @@ santiago.upload.maximum_data_size=32768
 
 ##############################################################
 
-composta.name=Santiago Composta (RA4M1)
+composta.name=Santiago Leven (RA4M1)
 composta.build.core=arduino
 composta.build.crossprefix=arm-none-eabi-
 composta.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -108,7 +108,7 @@ composta.build.fpu=-mfpu=fpv5-sp-d16
 composta.build.float-abi=-mfloat-abi=hard
 
 composta.build.board=SANTIAGO_COMPOSTA
-composta.build.defines=-DF_CPU=48000000 -DNO_USB
+composta.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
 composta.vid.0=0x2341
 composta.pid.0=0x0069
 composta.vid.1=0x2341
@@ -128,15 +128,13 @@ composta.compiler.fsp.includes={build.variant.path}/includes.txt
 composta.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 composta.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
-composta.upload.tool=dfu-util
-composta.upload.tool.default=dfu-util
-composta.upload.protocol=
+composta.upload.tool=bossac
+composta.upload.tool.default=bossac
+composta.upload.protocol=sam-ba
 composta.upload.transport=
 composta.upload.vid=0x2341
 composta.upload.pid=0x0369
-composta.upload.address=0x00010000
-composta.upload.interface=0
-composta.upload.use_1200bps_touch=false
+composta.upload.use_1200bps_touch=true
 composta.upload.wait_for_upload_port=false
 composta.upload.native_usb=true
 composta.upload.maximum_size=262144

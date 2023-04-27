@@ -44,6 +44,17 @@
               "packager": "arduino",
               "version": "0.11.0-arduino5",
               "name": "dfu-util"
+            },
+            {
+              "packager": "arduino",
+              "version": "1.9.1-arduino5",
+              "name": "bossac"
+            }
+          ],
+          "discoveryDependencies": [
+            {
+              "packager": "builtin",
+              "name": "dfu-discovery"
             }
           ]
         }
@@ -94,6 +105,128 @@
               "archiveFileName": "dfu-util-0.11-arduino5-windows_386.tar.gz",
               "size": "571340",
               "checksum": "SHA-256:6451e16bf77600fe2436c8708ab4b75077c49997cf8bedf03221d9d6726bb641"
+            }
+          ]
+        },
+        {
+          "name": "bossac",
+          "version": "1.9.1-arduino5",
+          "systems": [
+            {
+              "host": "i386-apple-darwin11",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-osx.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-osx.tar.gz",
+              "size": "47862",
+              "checksum": "SHA-256:c76eae00874a44265029b452303fb355e9ffa006e7ba214ca7ae01b1416867da"
+            },
+            {
+              "host": "arm-linux-gnueabihf",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
+              "size": "362365",
+              "checksum": "SHA-256:a0680ac5067ca8134f28fd7f86320d4c3099c782cefecd2e9b1edfde57f5947b"
+            },
+            {
+              "host": "aarch64-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxarm.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-linuxarm.tar.gz",
+              "size": "442901",
+              "checksum": "SHA-256:f91dbbe90d57dd8074cd9b0ca7a2f5d41ee71bdf15e9bfd68bf2048a08e4a286"
+            },
+            {
+              "host": "x86_64-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linux64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-linux64.tar.gz",
+              "size": "399674",
+              "checksum": "SHA-256:ef80d247c431db2686a3e6728cb4897b708b92cd67687100c125684f3c12fc80"
+            },
+            {
+              "host": "i686-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linux32.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-linux32.tar.gz",
+              "size": "385086",
+              "checksum": "SHA-256:d9c7ddab312bfc330ed7a98916ffa2c7a9c44798863ce1f4467fb240abc1830a"
+            },
+            {
+              "host": "i686-mingw32",
+              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-windows.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino5-windows.tar.gz",
+              "size": "1260650",
+              "checksum": "SHA-256:99e1982cf29600152e1c89b3389c1b4ce853201491ed52a12b4a327200cc6af0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "builtin",
+      "maintainer": "Arduino",
+      "websiteURL": "http://www.arduino.cc/",
+      "email": "packages@arduino.cc",
+      "help": {
+        "online": "http://www.arduino.cc/en/Reference/HomePage"
+      },
+      "platforms": [],
+      "tools": [
+        {
+          "name": "dfu-discovery",
+          "version": "0.1.2",
+          "systems": [
+            {
+              "host": "i686-pc-linux-gnu",
+              "archiveFileName": "dfu-discovery_v0.1.2_Linux_32bit.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Linux_32bit.tar.gz",
+              "size": 1573941,
+              "checksum": "SHA-256:64284465450f437fb3124c1950bd66ead0ab0023dcd5799ea925616a1667bd83"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "archiveFileName": "dfu-discovery_v0.1.2_Linux_64bit.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Linux_64bit.tar.gz",
+              "size": 1731768,
+              "checksum": "SHA-256:d82649741fd6cbe369d7fe22d290efd7e28e4d6fd0b81b7b1eabff43b495b5f8"
+            },
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "dfu-discovery_v0.1.2_Windows_32bit.zip",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Windows_32bit.zip",
+              "size": 2235781,
+              "checksum": "SHA-256:eac23fa581431161ddfbbd66a911d1e30b6f582eeb70f5165f2b92ad92a18a93"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "archiveFileName": "dfu-discovery_v0.1.2_Windows_64bit.zip",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Windows_64bit.zip",
+              "size": 2282491,
+              "checksum": "SHA-256:5ef334c4d566b0033c229c28b2b401bc98bad70d5c25e3027c038aa3cde0d10f"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "archiveFileName": "dfu-discovery_v0.1.2_macOS_64bit.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_macOS_64bit.tar.gz",
+              "size": 1895874,
+              "checksum": "SHA-256:7f22774d925a014d51b6e997e25dc78a721db91b67225263fbcb3de265209f25"
+            },
+            {
+              "host": "arm64-apple-darwin",
+              "archiveFileName": "dfu-discovery_v0.1.2_macOS_ARM64.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_macOS_ARM64.tar.gz",
+              "size": 1816821,
+              "checksum": "SHA-256:50e04bf5d5aa2257a8029f9f4b52893e90272cd747c1059277708cb5eb0e5524"
+            },
+            {
+              "host": "arm-linux-gnueabihf",
+              "archiveFileName": "dfu-discovery_v0.1.2_Linux_ARMv6.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Linux_ARMv6.tar.gz",
+              "size": 1620739,
+              "checksum": "SHA-256:91eb2e0e7c09c2080999d308b732b30486d34b6459ce30569c73d7ef0e59d640"
+            },
+            {
+              "host": "arm64-linux-gnueabihf",
+              "archiveFileName": "dfu-discovery_v0.1.2_Linux_ARM64.tar.gz",
+              "url": "https://downloads.arduino.cc/discovery/dfu-discovery/dfu-discovery_v0.1.2_Linux_ARM64.tar.gz",
+              "size": 1617881,
+              "checksum": "SHA-256:4bda54b9031d5b1fb1af70d1c38bf1b1f8cfd0eb0cd81f6c3a43253c31dea92d"
             }
           ]
         }

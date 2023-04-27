@@ -175,6 +175,30 @@
       <description>USB Peripheral Communications Device Class</description>
       <originalPack>Renesas.RA.4.0.0.pack</originalPack>
     </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac" variant="" vendor="Renesas" version="4.0.0">
+      <description>12-bit D/A Converter</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dac8" variant="" vendor="Renesas" version="4.0.0">
+      <description>8-bit D/A Converter</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_dtc" variant="" vendor="Renesas" version="4.0.0">
+      <description>Data Transfer Controller</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_master" variant="" vendor="Renesas" version="4.0.0">
+      <description>I2C Master Interface</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_iic_slave" variant="" vendor="Renesas" version="4.0.0">
+      <description>I2C Slave Interface</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sci_i2c" variant="" vendor="Renesas" version="4.0.0">
+      <description>SCI I2C Master Interface</description>
+      <originalPack>Renesas.RA.4.0.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
@@ -362,6 +386,79 @@
       <property id="module.driver.adc.window_b_ipl" value="_disabled"/>
       <property id="module.driver.adc.adbuf" value="module.driver.adc.adbuf.disabled"/>
     </module>
+    <module id="module.driver.i2c_on_iic_master.1477785219">
+      <property id="module.driver.i2c_master.name" value="g_i2c_master0"/>
+      <property id="module.driver.i2c_master.channel" value="0"/>
+      <property id="module.driver.i2c_master.rate" value="module.driver.i2c_master.rate.rate_standard"/>
+      <property id="module.driver.i2c_master.rise_time_ns" value="120"/>
+      <property id="module.driver.i2c_master.fall_time_ns" value="120"/>
+      <property id="module.driver.i2c_master.duty" value="50"/>
+      <property id="module.driver.i2c_master.slave" value="0x00"/>
+      <property id="module.driver.i2c_master.addr_mode" value="module.driver.i2c_master.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c_master.timeout_mode" value="module.driver.i2c_master.timeout_mode.short_mode"/>
+      <property id="module.driver.i2c_master.timeout_scl_low" value="module.driver.i2c_master.timeout_scl_low.enabled"/>
+      <property id="module.driver.i2c_master.p_callback" value="NULL"/>
+      <property id="module.driver.i2c_master.ipl" value="board.icu.common.irq.priority2"/>
+    </module>
+    <module id="module.driver.i2c_on_iic_slave.349639397">
+      <property id="module.driver.i2c_slave.name" value="g_i2c_slave0"/>
+      <property id="module.driver.i2c_slave.channel" value="0"/>
+      <property id="module.driver.i2c_slave.rate" value="module.driver.i2c_slave.rate.rate_standard"/>
+      <property id="module.driver.i2c_slave.cks" value="module.driver.i2c_slave.cks.cks_1"/>
+      <property id="module.driver.i2c_slave.dfs" value="module.driver.i2c_slave.dfs.3"/>
+      <property id="module.driver.i2c_slave.slave" value="0x08"/>
+      <property id="module.driver.i2c_slave.general_call_enable" value="module.driver.i2c_slave.general_call_enable.disabled"/>
+      <property id="module.driver.i2c_slave.addr_mode" value="module.driver.i2c_slave.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c_slave.scl_low_hold_wait_enable" value="module.driver.i2c_slave.scl_low_hold_wait_enable.disabled"/>
+      <property id="module.driver.i2c_slave.p_callback" value="NULL"/>
+      <property id="module.driver.i2c_slave.ipl" value="board.icu.common.irq.priority2"/>
+      <property id="module.driver.i2c_slave.eri_ipl" value="board.icu.common.irq.priority2"/>
+    </module>
+    <module id="module.driver.i2c_on_sci_i2c.1053428145">
+      <property id="module.driver.i2c.name" value="g_i2c0"/>
+      <property id="module.driver.i2c.channel" value="0"/>
+      <property id="module.driver.i2c.slave" value="0x00"/>
+      <property id="module.driver.i2c.addr_mode" value="module.driver.i2c.addr_mode.addr_mode_7bit"/>
+      <property id="module.driver.i2c.rate" value="module.driver.i2c.rate.rate_standard"/>
+      <property id="module.driver.i2c.sda_delay" value="300"/>
+      <property id="module.driver.i2c.snfr" value="module.driver.i2c.snfr.div_one"/>
+      <property id="module.driver.i2c.bitrate_modulation" value="module.driver.i2c.bitrate_modulation.true"/>
+      <property id="module.driver.i2c.p_callback" value="sci_i2c_master_callback"/>
+      <property id="module.driver.i2c.ipl" value="board.icu.common.irq.priority2"/>
+      <property id="module.driver.i2c.rx_ipl" value="_disabled"/>
+    </module>
+    <module id="module.driver.transfer_on_dtc.730078823">
+      <property id="module.driver.transfer.name" value="g_transfer0"/>
+      <property id="module.driver.transfer.mode" value="module.driver.transfer.mode.mode_normal"/>
+      <property id="module.driver.transfer.size" value="module.driver.transfer.size.size_2_byte"/>
+      <property id="module.driver.transfer.dest_addr_mode" value="module.driver.transfer.dest_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.src_addr_mode" value="module.driver.transfer.src_addr_mode.addr_mode_fixed"/>
+      <property id="module.driver.transfer.repeat_area" value="module.driver.transfer.repeat_area.repeat_area_source"/>
+      <property id="module.driver.transfer.p_dest" value="NULL"/>
+      <property id="module.driver.transfer.p_src" value="NULL"/>
+      <property id="module.driver.transfer.interrupt" value="module.driver.transfer.interrupt.interrupt_end"/>
+      <property id="module.driver.transfer.length" value="0"/>
+      <property id="module.driver.transfer.num_blocks" value="0"/>
+      <property id="module.driver.transfer.activation_source" value="_disabled"/>
+    </module>
+    <module id="module.driver.dac_on_dac.1286116983">
+      <property id="module.driver.dac.name" value="g_dac0"/>
+      <property id="module.driver.dac.channel_id" value="0"/>
+      <property id="module.driver.dac.ad_da_synchronized" value="module.driver.dac.ad_da_synchronized.disabled"/>
+      <property id="module.driver.dac.data_format" value="module.driver.dac.data_format.data_format_flush_right"/>
+      <property id="module.driver.dac.output_amplifier_enabled" value="module.driver.dac.output_amplifier.disabled"/>
+      <property id="module.driver.dac.charge_pump_enabled" value="enum.mcu.dac.charge_pump.disabled"/>
+      <property id="module.driver.dac.internal_output" value="enum.mcu.dac.internal_output.disabled"/>
+      <property id="module.driver.dac.elc_trigger" value="_disabled"/>
+    </module>
+    <module id="module.driver.dac_on_dac8.166479115">
+      <property id="module.driver.dac8.name" value="g_dac8_0"/>
+      <property id="module.driver.dac8.channel_id" value="0"/>
+      <property id="module.driver.dac8.ad_da_synchronized" value="module.driver.dac8.ad_da_synchronized.false"/>
+      <property id="module.driver.dac8.dac_mode" value="module.driver.dac8.dac_mode.normal"/>
+      <property id="module.driver.dac8.realtime_trigger" value="_disabled"/>
+      <property id="module.driver.dac8.charge_pump" value="module.driver.dac8.charge_pump.true"/>
+    </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.driver.uart_on_sci_uart.960228264"/>
@@ -372,7 +469,16 @@
       <stack module="module.driver.timer_on_agt.2138804694"/>
       <stack module="module.driver.timer_on_gpt.1546900609"/>
       <stack module="module.driver.adc_on_adc.407688414"/>
+      <stack module="module.driver.i2c_on_iic_master.1477785219"/>
+      <stack module="module.driver.i2c_on_iic_slave.349639397"/>
+      <stack module="module.driver.i2c_on_sci_i2c.1053428145"/>
+      <stack module="module.driver.transfer_on_dtc.730078823"/>
+      <stack module="module.driver.dac_on_dac.1286116983"/>
+      <stack module="module.driver.dac_on_dac8.166479115"/>
     </context>
+    <config id="config.driver.dac8">
+      <property id="config.driver.dac8.param_checking_enable" value="config.driver.dac8.param_checking_enable.bsp"/>
+    </config>
     <config id="config.driver.usb_pcdc">
       <property id="config.driver.usb_pcdc.bulk_in" value="config.driver.usb_pcdc.bulk_in.pipe4"/>
       <property id="config.driver.usb_pcdc.bulk_out" value="config.driver.usb_pcdc.bulk_out.pipe5"/>
@@ -384,6 +490,11 @@
     </config>
     <config id="config.driver.adc">
       <property id="config.driver.adc.param_checking_enable" value="config.driver.adc.param_checking_enable.bsp"/>
+    </config>
+    <config id="config.driver.sci_i2c">
+      <property id="config.driver.sci_i2c.param_checking_enable" value="config.driver.sci_i2c.param_checking_enable.bsp"/>
+      <property id="config.driver.sci_i2c.dtc_enable" value="config.driver.sci_i2c.dtc_enable.enabled"/>
+      <property id="config.driver.sci_i2c.addr_mode_10_bit_enable" value="config.driver.sci_i2c.addr_mode_10_bit_enable.enabled"/>
     </config>
     <config id="config.driver.usb_basic">
       <property id="config.driver.usb_basic.param_checking_enable" value="config.driver.usb_basic.param_checking_enable.bsp"/>
@@ -407,6 +518,18 @@
       <property id="config.driver.agt.output_support_enable" value="config.driver.agt.output_support_enable.disabled"/>
       <property id="config.driver.agt.input_support_enable" value="config.driver.agt.input_support_enable.disabled"/>
     </config>
+    <config id="config.driver.dtc">
+      <property id="config.driver.dtc.param_checking_enable" value="config.driver.dtc.param_checking_enable.bsp"/>
+      <property id="config.driver.dtc.vector_table" value=".fsp_dtc_vector_table"/>
+    </config>
+    <config id="config.driver.dac">
+      <property id="config.driver.dac.param_checking_enable" value="config.driver.dac.param_checking_enable.bsp"/>
+    </config>
+    <config id="config.driver.iic_master">
+      <property id="config.driver.iic_master.param_checking_enable" value="config.driver.iic_master.param_checking_enable.bsp"/>
+      <property id="config.driver.iic_master.dtc_enable" value="config.driver.iic_master.dtc_enable.enabled"/>
+      <property id="config.driver.iic_master.addr_mode_10_bit_enable" value="config.driver.iic_master.addr_mode_10_bit_enable.enabled"/>
+    </config>
     <config id="config.driver.sci_uart">
       <property id="config.driver.sci_uart.param_checking_enable" value="config.driver.sci_uart.param_checking_enable.bsp"/>
       <property id="config.driver.sci_uart.fifo_support" value="config.driver.sci_uart.fifo_support.disabled"/>
@@ -419,6 +542,9 @@
       <property id="config.driver.gpt.output_support_enable" value="config.driver.gpt.output_support_enable.disabled"/>
       <property id="config.driver.gpt.write_protect_enable" value="config.driver.gpt.write_protect_enable.disabled"/>
       <property id="config.driver.gpt.gpt_core_clock" value="module.driver.timer.gpt_core_clock.pclk"/>
+    </config>
+    <config id="config.driver.iic_slave">
+      <property id="config.driver.iic_slave.param_checking_enable" value="config.driver.iic_slave.param_checking_enable.bsp"/>
     </config>
   </raModuleConfiguration>
   <raPinConfiguration>

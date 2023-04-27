@@ -111,14 +111,20 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_04_PIN_00,    P400   }, /* (26) D26  QWIC SCL */
   { BSP_IO_PORT_04_PIN_01,    P401   }, /* (27) D27  QWIC SDA */
 
-  { BSP_IO_PORT_00_PIN_11,    P011   }, /* (28) D28  */
-  { BSP_IO_PORT_00_PIN_12,    P012   }, /* (29) D29  */
-  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (30) D30  */
-  { BSP_IO_PORT_02_PIN_04,    P204   }, /* (31) D31  */
-  { BSP_IO_PORT_02_PIN_05,    P205   }, /* (32) D32  */
-  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (33) D33  */
-  { BSP_IO_PORT_02_PIN_13,    P213   }, /* (34) D34  */
-  { BSP_IO_PORT_02_PIN_12,    P212   }, /* (35) D35  */
+  { BSP_IO_PORT_00_PIN_03,    P003   }, /* (28) D28  */
+  { BSP_IO_PORT_00_PIN_04,    P004   }, /* (29) D29  */
+  { BSP_IO_PORT_00_PIN_11,    P011   }, /* (30) D30  */
+  { BSP_IO_PORT_00_PIN_12,    P012   }, /* (31) D31  */
+  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (32) D32  */
+  { BSP_IO_PORT_00_PIN_15,    P015   }, /* (33) D33  */
+  { BSP_IO_PORT_02_PIN_04,    P204   }, /* (34) D34  */
+  { BSP_IO_PORT_02_PIN_05,    P205   }, /* (35) D35  */
+  { BSP_IO_PORT_02_PIN_06,    P206   }, /* (36) D36  */
+  { BSP_IO_PORT_02_PIN_12,    P212   }, /* (37) D37  */
+  { BSP_IO_PORT_02_PIN_13,    P213   }, /* (38) D38  */
+
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (39) Analog voltage measure pin  */
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (40) USB switch, drive high for RA4  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
@@ -133,6 +139,19 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
     }
   }
   return rv;
+}
+
+#define BSP_PRV_PRCR_KEY                (0xA500U)
+#define BSP_PRV_PRCR_PRC1_UNLOCK        ((BSP_PRV_PRCR_KEY) | 0x2U)
+#define BSP_PRV_PRCR_LOCK               ((BSP_PRV_PRCR_KEY) | 0x0U)
+// if _USBStart is called, this will swap the USB port over the ESP one
+void configure_usb_mux() {
+  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
+  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 40;
+  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
+
+  pinMode(40, OUTPUT);
+  digitalWrite(40, HIGH);
 }
 
 #include "FspTimer.h"

@@ -15,8 +15,6 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#if !defined(USE_TINYUSB) && !defined(NO_USB)
-
 #include <Arduino.h>
 #include "IRQManager.h"
 #include "USB.h"
@@ -149,12 +147,15 @@ void __SetupUSBDescriptor() {
          * -----    MASS STORAGE DEVICE
          */ 
 
+#if CFG_TUD_MSC
         uint8_t msd_itf = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
         uint8_t msd_desc[TUD_MSC_DESC_LEN] = {
             // Interface number, string index, EP Out & EP In address, EP size
             TUD_MSC_DESCRIPTOR(msd_itf, 0, USBD_MSD_EP_OUT, USBD_MSD_EP_IN, USBD_MSD_IN_OUT_SIZE)   
         };
-
+#else
+        uint8_t msd_desc[0] = {};
+#endif
         
 
         int usbd_desc_len = TUD_CONFIG_DESC_LEN + (__USBInstallSerial ? sizeof(cdc_desc) : 0) + (__USBGetHIDReport ? sizeof(hid_desc) : 0) + (__USBInstallMSD ? sizeof(msd_desc) : 0);
@@ -293,6 +294,8 @@ extern "C" {
     void tud_set_irq_usbhs(IRQn_Type q);
 }
 
+__attribute__((weak)) void configure_usb_mux() {}
+
 void __USBStart() {
     USBIrqCfg_t usb_irq_cfg;
 
@@ -300,6 +303,8 @@ void __USBStart() {
         // Already called
         return;
     }
+
+    configure_usb_mux();
 
     /* 
      * ENABLE USB
@@ -417,7 +422,3 @@ extern "C"  __attribute((weak))  int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t c
     
     return -1;
 }
-
-
-
-#endif

@@ -526,24 +526,63 @@ int analogRead(pin_size_t pinNumber) {
   return adcConvert(_adc,cfg_adc);
 }
 
-
-
 void analogReference(uint8_t mode) {
-  // TODO: in case VREFH is selected, please configure the pin accordingly
-  // something like
-  // pinPeripheral(digitalPinToBspPin(VREFH), (uint32_t) IOPORT_CFG_PERIPHERAL_PIN | VREFH)
+
+ adc_vref_control_t ctrl;
+
+  switch (mode) {
+      case AR_INTERNAL:
+        ctrl = ADC_VREF_CONTROL_IVREF_AVSS0; break;
+      case AR_INTERNAL_1_5V:
+        ctrl = ADC_VREF_CONTROL_1_5V_OUTPUT; break;
+      case AR_INTERNAL_2_0V:
+        ctrl = ADC_VREF_CONTROL_2_0V_OUTPUT; break;
+      case AR_INTERNAL_2_5V:
+        ctrl = ADC_VREF_CONTROL_2_5V_OUTPUT; break;
+      case AR_EXTERNAL:
+        ctrl = ADC_VREF_CONTROL_VREFH0_AVSS0; break;
+      default:
+        ctrl = ADC_VREF_CONTROL_AVCC0_AVSS0; break;
+  }
+
   R_ADC_Close(&adc.ctrl);
-  adc.cfg_extend.adc_vref_control = (adc_vref_control_t)mode;
+  adc.cfg_extend.adc_vref_control = ctrl;
   R_ADC_Open(&adc.ctrl, &adc.cfg);
 
   R_ADC_Close(&adc1.ctrl);
-  adc1.cfg_extend.adc_vref_control = (adc_vref_control_t)mode;
+  adc1.cfg_extend.adc_vref_control = ctrl;
   R_ADC_Open(&adc1.ctrl, &adc1.cfg);
 }
 
-
-
-
+static float aref = 0;
+float analogReference() {
+    switch (adc.cfg_extend.adc_vref_control) {
+      case ADC_VREF_CONTROL_1_5V_OUTPUT:
+        return 1.5;
+      case ADC_VREF_CONTROL_2_0V_OUTPUT:
+        return 2.0;
+      case ADC_VREF_CONTROL_2_5V_OUTPUT:
+        return 2.5;
+      case ADC_VREF_CONTROL_VREFH0_AVSS0:
+        // the user must know the voltage he applies from outside
+        return NAN;
+      default:
+        #if defined(AVCC_MEASURE_PIN)
+        if (aref == 0) {
+          analogReference(AR_INTERNAL);
+          delayMicroseconds(5);
+          for (int i = 0; i < 10; i++) {
+            aref += analogRead(AVCC_MEASURE_PIN) * 1.43f  * AVCC_MULTIPLY_FACTOR / (1 << _analogRequestedReadResolution);
+          }
+          aref = aref / 10;
+          analogReference(AR_DEFAULT);
+        }
+        return aref;
+        #else
+        return NAN;
+        #endif
+    }
+}
 
 void analogReadResolution(int bits) {
   /* 20221109 [maidnl] FIX Requested resolution: 

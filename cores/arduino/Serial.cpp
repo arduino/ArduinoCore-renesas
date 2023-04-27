@@ -315,3 +315,16 @@ void UART::flush() {
 /* -------------------------------------------------------------------------- */  
   while(txBuffer.available());
 }
+
+/* -------------------------------------------------------------------------- */
+size_t UART::write_raw(uint8_t* c, size_t len) {
+/* -------------------------------------------------------------------------- */
+  size_t i = 0;
+  while (i < len) {
+    uart_ctrl.p_reg->TDR = *(c+i);
+    // TODO: replace me with a check that the register is empty
+    R_BSP_SoftwareDelay(1, BSP_DELAY_UNITS_MILLISECONDS);
+    i++;
+  }
+  return len;
+}
