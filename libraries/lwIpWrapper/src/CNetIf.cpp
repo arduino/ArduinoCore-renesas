@@ -602,7 +602,7 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
    int rv =  ESP_CONTROL_CTRL_ERROR;
    bool found = false;
    uint8_t index = 0;
-   for(uint8_t i = 0; i < access_points.size(); i++) {
+   for(uint8_t i = 0; i < access_points.size() && !found; i++) {
       if(strcmp(ssid, (const char *)access_points[i].ssid) == 0) {
          found = true;
          index = i;
@@ -1139,7 +1139,6 @@ bool CNetIf::dhcp_request() {
    bool acquired = false;
 
    do{
-      //task();
       acquired = isDhcpAcquired();
       if(!acquired && ((millis() - startTime) > dhcp_timeout)) {
          break;
