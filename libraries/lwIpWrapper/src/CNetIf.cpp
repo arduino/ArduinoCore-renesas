@@ -27,6 +27,7 @@ CNetIf * CLwipIf::net_ifs[] = {nullptr};
 bool CLwipIf::wifi_hw_initialized = false; 
 bool CLwipIf::connected_to_access_point = false; 
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
+queue<volatile struct pbuf*> CLwipIf::eth_queue;
 
 FspTimer CLwipIf::timer;
 
@@ -41,7 +42,7 @@ uint32_t ip_addr_to_u32(ip_addr_t *ipaddr) {
 }
 
 /* -------------------------------------------------------------------------- */
-CLwipIf::CLwipIf() : dns_num(-1) , willing_to_start_sync_req(false) , async_requests_ongoing(true) {
+CLwipIf::CLwipIf() : eth_initialized(false), dns_num(-1) , willing_to_start_sync_req(false) , async_requests_ongoing(true) {
 /* -------------------------------------------------------------------------- */   
    /* Initialize lwIP stack, singletone implementation guarantees that lwip is
       initialized just once  */
@@ -114,23 +115,6 @@ CLwipIf::~CLwipIf() {
 
 
 
-/* -------------------------------------------------------------------------- */
-CNetIf *CLwipIf::setUpEthernet(const uint8_t* _ip, 
-                               const uint8_t* _gw, 
-                               const uint8_t* _nm) {
-/* -------------------------------------------------------------------------- */   
-  /* get return nullptr if ni was already allocated */
-  
-  CNetIf *rv = nullptr;
-  if(rv != nullptr) {
-      
-
-      
-      
-  }
-
-  return rv;
-}
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
@@ -200,6 +184,9 @@ bool CLwipIf::initWifiHw(bool asStation) {
    return rv;
 }
 
+
+
+
 /* -------------------------------------------------------------------------- */
 /* Sort of factory method, dependig on the requested type it setUp a different 
    Network interface and returns it to the caller */
@@ -242,7 +229,9 @@ CNetIf *CLwipIf::get(NetIfType_t type,
                net_ifs[type]->setId(0);
             }
             else {
-
+               eth_init();
+               net_ifs[type]->begin(_ip,_gw,_nm);
+               eth_initialized = true;
             }
 
          }
@@ -252,6 +241,47 @@ CNetIf *CLwipIf::get(NetIfType_t type,
    return rv;
    
 }
+
+/* -------------------------------------------------------------------------- */
+void CLwipIf::ethLinkUp() {
+/* -------------------------------------------------------------------------- */   
+   if(net_ifs[NI_ETHERNET] != nullptr) {
+      net_ifs[NI_ETHERNET]->setLinkUp();
+   }
+}
+
+
+/* -------------------------------------------------------------------------- */
+void CLwipIf::ethLinkDown() {
+/* -------------------------------------------------------------------------- */   
+   if(net_ifs[NI_ETHERNET] != nullptr) {
+      net_ifs[NI_ETHERNET]->setLinkDown();
+   }
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+void CLwipIf::ethFrameRx() {
+/* -------------------------------------------------------------------------- */   
+   
+   volatile uint32_t rx_frame_dim = 0;
+   volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
+   if(rx_frame_dim > 0 && rx_frame_buf != nullptr) {
+     while(rx_frame_dim % 4 != 0) {
+       rx_frame_dim++;
+     }
+     volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
+     if(p != NULL) {
+       /* Copy ethernet frame into pbuf */
+       pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
+       eth_release_rx_buffer();
+       eth_queue.push((struct pbuf*)p); 
+     }
+   }
+}
+
+
 
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::initEth(struct netif* _ni) {
@@ -268,10 +298,10 @@ err_t CLwipIf::initEth(struct netif* _ni) {
    * from it if you have to do some checks before sending (e.g. if link
    * is available...) */
    _ni->output = etharp_output;
-   //_ni->linkoutput = eth0if_output;
+   _ni->linkoutput = ouputEth;
 
    /* set MAC hardware address */
-   //_ni->hwaddr_len = eth_get_mac_address(netif->hwaddr);
+   _ni->hwaddr_len = eth_get_mac_address(_ni->hwaddr);
 
    /* maximum transfer unit */
    _ni->mtu = 1500;
@@ -282,17 +312,11 @@ err_t CLwipIf::initEth(struct netif* _ni) {
 
    /* set the callback function that is called when an ethernet frame is physically
       received, it is important that the callbacks are set before the initializiation */
-   //eth_set_rx_frame_cbk(eth0if_frame_received);
-   //eth_set_link_on_cbk(eth0if_link_up);
-   //eth_set_link_off_cbk(eth0if_link_down);
-
-
-   /* initialize the hardware */
-   //eth_init();
-  
+   eth_set_rx_frame_cbk(ethFrameRx);
+   eth_set_link_on_cbk(ethLinkUp);
+   eth_set_link_off_cbk(ethLinkDown);
 
    return ERR_OK;
-
 }
 
 
@@ -301,13 +325,16 @@ err_t CLwipIf::initEth(struct netif* _ni) {
 err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
   err_t errval = ERR_OK;
-  //assert (p->tot_len <= ETH_BUFF_DIM);
-  //uint16_t bytes_actually_copied = pbuf_copy_partial(p, eth0_tx_buffer, p->tot_len, 0);
-  //if(bytes_actually_copied > 0) {
-    //if(!eth_output(eth0_tx_buffer, bytes_actually_copied)) {
-      //errval = ERR_IF;
-    //}
-  //}
+  uint16_t tx_buf_dim = 0;
+  uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
+  assert (p->tot_len <= tx_buf_dim);
+
+  uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
+  if(bytes_actually_copied > 0) {
+    if(!eth_output(tx_buf, bytes_actually_copied)) {
+      errval = ERR_IF;
+    }
+  }
   return errval;
    
 }
@@ -447,18 +474,29 @@ err_t CLwipIf::initWifiSoftAp(struct netif* _ni) {
 /* -------------------------------------------------------------------------- */
 bool CLwipIf::setMacAddress(NetIfType_t type, uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
-
+   
+   CLwipIf::getInstance().startSyncRequest();
+   WifiMac_t MAC;
+   CNetUtilities::macArray2macStr(MAC.mac, mac);
 
    if(type == NI_WIFI_STATION) {
+      MAC.mode = WIFI_MODE_STA;
+      if(CEspControl::getInstance().setWifiMacAddress(MAC) != ESP_CONTROL_OK) {
+         return false;
+      }
 
    }
    else if(type == NI_WIFI_SOFTAP) {
-
+      MAC.mode = WIFI_MODE_AP;
+      if(CEspControl::getInstance().setWifiMacAddress(MAC) != ESP_CONTROL_OK) {
+         return false;
+      }
    }
    else {
-      /* ETHERNET */
-
+      eth_set_mac_address(mac);
    }
+
+   CLwipIf::getInstance().startSyncRequest();
    return true;
 }
 
@@ -485,7 +523,7 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac) {
       }
    }
    else {
-      // TODO
+      eth_get_mac_address(mac);
       rv = MAC_ADDRESS_DIM;
    }
 
@@ -708,7 +746,16 @@ int CLwipIf::resetLowPowerMode() {
    return rv; 
 }
 
-
+/* -------------------------------------------------------------------------- */
+volatile struct pbuf* CLwipIf::getEthFrame() {
+/* -------------------------------------------------------------------------- */   
+   volatile struct pbuf* rv = nullptr;
+   if(!CLwipIf::eth_queue.empty()) {  
+      rv = CLwipIf::eth_queue.front();
+      CLwipIf::eth_queue.pop();
+   }
+   return rv;
+}
 
 #ifdef DEBUG_USING LED
 void toggle_led_debug() {
@@ -979,7 +1026,7 @@ uint8_t CLwipIf::getEncryptionType(NetIfType_t type) {
 /* ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
-CNetIf::CNetIf() :   dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
+CNetIf::CNetIf() :  dhcp_timeout(30000) , dhcp_started(false), dhcp_acquired(false), id(0), dhcp_st(DHCP_IDLE_STATUS), _dhcp_lease_state(DHCP_CHECK_NONE) {
 /* -------------------------------------------------------------------------- */   
    memset(hostname,0x00,MAX_HOSTNAME_DIM);
    hostname[0] = 'C';
@@ -1075,9 +1122,9 @@ uint8_t CNetIf::dhcp_get_lease_state() {
    uint8_t res = 0;
    struct dhcp *dhcp = (struct dhcp *)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
 
-   if (dhcp->state == DHCP_STATE_RENEWING) {
+   if (dhcp->state == 5 /*DHCP_STATE_RENEWING*/) {
       res = 2;
-   } else if (dhcp->state == DHCP_STATE_REBINDING) {
+   } else if (dhcp->state == 4 /* DHCP_STATE_REBINDING */) {
       res = 4;
    }
    return res;
@@ -1092,7 +1139,7 @@ bool CNetIf::dhcp_request() {
    bool acquired = false;
 
    do{
-      task();
+      //task();
       acquired = isDhcpAcquired();
       if(!acquired && ((millis() - startTime) > dhcp_timeout)) {
          break;
@@ -1153,6 +1200,7 @@ void CNetIf::dhcp_task() {
 /* -------------------------------------------------------------------------- */
    
    struct dhcp *lwip_dhcp;
+   static unsigned long DHCPStartTime;
    
    switch(dhcp_st){
       case DHCP_IDLE_STATUS:
@@ -1165,15 +1213,18 @@ void CNetIf::dhcp_task() {
             ip_addr_set_zero_ip4(&(getNi()->gw));
             /* start lwIP dhcp */
             dhcp_start(getNi());
+            
+            DHCPStartTime = millis();
             dhcp_st = DHCP_WAIT_STATUS;
          }
       break;
       case DHCP_WAIT_STATUS:
          if(netif_is_link_up(getNi())) {
             if (dhcp_supplied_address(getNi())) {
+               dhcp_acquired = true;
                dhcp_st = DHCP_GOT_STATUS;
             } 
-            else {
+            else if(millis() - DHCPStartTime > 1000) {
                /* TIMEOUT */
                lwip_dhcp = (struct dhcp *)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
                if (lwip_dhcp->tries > MAX_DHCP_TRIES) {
@@ -1187,17 +1238,17 @@ void CNetIf::dhcp_task() {
       break;
       case DHCP_GOT_STATUS:
          if (!netif_is_link_up(getNi())) {
-            
             dhcp_st = DHCP_STOP_STATUS;
          } 
 
       break;
       case DHCP_RELEASE_STATUS:
          dhcp_release(getNi());
+         dhcp_acquired = false;
          dhcp_st = DHCP_STOP_STATUS;
       break;
       case DHCP_STOP_STATUS:
-
+         dhcp_acquired = false;
          dhcp_stop(getNi());
          if(dhcp_started) {
             dhcp_st = DHCP_START_STATUS;
@@ -1213,6 +1264,8 @@ void CNetIf::dhcp_task() {
 /* -------------------------------------------------------------------------- */
 void CNetIf::setLinkUp() {
 /* -------------------------------------------------------------------------- */   
+   Serial.println("LINK IS UP");
+
    netif_set_link_up(&ni);
    /* When the netif is fully configured this function must be called.*/
    netif_set_up(&ni);
@@ -1261,20 +1314,17 @@ void CEth::begin(const uint8_t* _ip,
    setGw(_gw);
    setNm(_nm);
 
-   netif_add(&ni, getIp(), getNm(), getGw(), NULL, CLwipIf::initEth, ethernet_input);
+   netif_add(&ni, getIp(), getNm(), getGw(), NULL, CLwipIf::initEth, ethernet_input);  
+   netif_set_default(&ni);
 
-  /* Registers the default network interface */
-  //if(is_default) {
-    //netif_set_default(&ni);
-  //}
 
-  if (netif_is_link_up(&ni)) {
-    /* When the netif is fully configured this function must be called */
-    netif_set_up(&ni);
-  } else {
-    /* When the netif link is down this function must be called */
-    netif_set_down(&ni);
-  }
+   if (netif_is_link_up(&ni)) {
+      /* When the netif is fully configured this function must be called */
+      netif_set_up(&ni);
+   } else {
+      /* When the netif link is down this function must be called */
+     netif_set_down(&ni);
+   }
 
   #if LWIP_NETIF_LINK_CALLBACK
     /* Set the link callback function, this function is called on change of link status */
@@ -1282,11 +1332,33 @@ void CEth::begin(const uint8_t* _ip,
   #endif /* LWIP_NETIF_LINK_CALLBACK */
 }
 
+
+
+
 /* -------------------------------------------------------------------------- */
 void CEth::task() {
 /* -------------------------------------------------------------------------- */   
+   struct pbuf* p = nullptr;
+   
+   eth_execute_link_process();
+   
+   __disable_irq();
+   p = (struct pbuf* )CLwipIf::getInstance().getEthFrame();
+   __enable_irq();
 
+   if(p != nullptr) {
+      
+      if(ni.input((struct pbuf*)p, &ni) != ERR_OK) {
+         pbuf_free((struct pbuf*)p);
+      }
+   }
 
+   #if LWIP_DHCP
+   static unsigned long dhcp_last_time_call = 0;
+   if(dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
+     dhcp_task();
+   }
+   #endif
 }
 
 /* ########################################################################## */

@@ -9,6 +9,7 @@
 
 #include <string>
 #include <queue>
+#include "ethernetDriver.h"
 #include "CCtrlWrapper.h"
 #include "CEspControl.h"
 #include "IPAddress.h"
@@ -224,6 +225,7 @@ public:
 
    virtual void setLinkUp();
    virtual void setLinkDown();
+   bool isLinkUp() { return (bool)netif_is_link_up(&ni); }
    
    /* getters / setters */
    void setId(int _id) { id = _id; }
@@ -350,6 +352,10 @@ class CWifiSoftAp : public CNetIf {
 class CLwipIf {
 /* -------------------------------------------------------------------------- */   
 private:
+   static queue<volatile struct pbuf*> eth_queue;
+
+   bool eth_initialized;
+
    int dns_num;
    bool willing_to_start_sync_req;
    bool async_requests_ongoing;
@@ -372,16 +378,11 @@ private:
 
    SoftApCfg_t soft_ap_cfg;
 
-   
-
-   CNetIf *setUpEthernet(const uint8_t* _ip, 
-                         const uint8_t* _gw, 
-                         const uint8_t* _nm);
-
    static bool wifi_hw_initialized;
    static bool connected_to_access_point;
    static int initEventCb(CCtrlMsgWrapper *resp);
    static bool initWifiHw(bool asStation);
+
    static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
    
@@ -394,6 +395,8 @@ public:
    CLwipIf(CLwipIf const&)            = delete;
    void operator=(CLwipIf const&)     = delete;
    ~CLwipIf();
+
+   bool isEthInitialized() { return eth_initialized; }
 
    void startSyncRequest() {
       if(async_requests_ongoing) {
@@ -451,6 +454,12 @@ public:
                const uint8_t* _gw = nullptr, 
                const uint8_t* _nm = nullptr);
    
+   
+   static void ethLinkUp();
+   static void ethLinkDown();
+   static void ethFrameRx();
+
+
    /* this function set the mac address of the corresponding interface to mac 
       and set this value for lwip */
    bool setMacAddress(NetIfType_t type, uint8_t* mac = nullptr);
@@ -485,7 +494,7 @@ public:
 
    int setWifiMode(WifiMode_t mode);
 
-   
+   volatile struct pbuf* getEthFrame();
 
    void lwip_task();
 };
