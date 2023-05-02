@@ -13,10 +13,10 @@
  *****************************************************************************/
 
 #include "common.h"
-#include <kernel.h>
-#include <logging/log.h>
-#include <stdio.h>
-#include <sm_port.h>
+//#include <kernel.h>
+//#include <logging/log.h>
+//#include <stdio.h>
+//#include <sm_port.h>
 
 #if defined(MBEDTLS_ECP_C)
 
@@ -32,9 +32,10 @@
 #if defined(MBEDTLS_ECDSA_SIGN_ALT)
 
 #include "se05x_mbedtls.h"
-#include "se05x_APDU_apis.h"
+//#include "se05x_APDU_apis.h"
+#include <SE05X.h>
 
-extern int mbedtls_ecdsa_sign_o(mbedtls_ecp_group *grp,
+extern "C" int mbedtls_ecdsa_sign_o(mbedtls_ecp_group *grp,
     mbedtls_mpi *r,
     mbedtls_mpi *s,
     const mbedtls_mpi *d,

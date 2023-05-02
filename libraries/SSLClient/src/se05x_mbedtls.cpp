@@ -6,8 +6,9 @@
 #include "common.h"
 
 #include "se05x_mbedtls.h"
-#include <sm_port.h>
-#include "se05x_APDU_apis.h"
+//#include <sm_port.h>
+//#include "se05x_APDU_apis.h"
+#include <SE05X.h>
 
 Se05xSession_t pSession;
 
