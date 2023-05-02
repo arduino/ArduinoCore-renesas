@@ -32,41 +32,41 @@
 #define DEBUG_LEVEL 1
 
 #if DEBUG_LEVEL > 0
-    #define log_e smlog_println
+    #define log_e ssl_debug_println
 #else
-    #define log_e smlog_none
+    #define log_e ssl_debug_none
 #endif
 
 #if DEBUG_LEVEL > 1
-    #define log_w smlog_println
+    #define log_w ssl_debug_println
 #else
-    #define log_w smlog_none
+    #define log_w ssl_debug_none
 #endif
 
 #if DEBUG_LEVEL > 2
-    #define log_i smlog_println
+    #define log_i ssl_debug_println
 #else
-    #define log_i smlog_none
+    #define log_i ssl_debug_none
 #endif
 
 #if DEBUG_LEVEL > 3
-    #define log_d smlog_println
+    #define log_d ssl_debug_println
 #else
-    #define log_d smlog_none
+    #define log_d ssl_debug_none
 #endif
     
 #if DEBUG_LEVEL > 4
-    #define log_v smlog_println
+    #define log_v ssl_debug_println
 #else
-    #define log_v smlog_none
+    #define log_v ssl_debug_none
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-void smlog_print(const char *format, ...);
-void smlog_println(const char *format, ...);
-void smlog_none(const char *format, ...);
+void ssl_debug_print(const char *format, ...);
+void ssl_debug_println(const char *format, ...);
+void ssl_debug_none(const char *format, ...);
 void mbedtls_debug_print(void *ctx, int level, const char *file, int line, const char *str);
 #ifdef __cplusplus
 }

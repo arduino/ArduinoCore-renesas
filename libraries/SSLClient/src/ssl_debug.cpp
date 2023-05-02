@@ -19,7 +19,7 @@
 
 #include "ssl_debug.h"
 
-void smlog_print(const char *format, ...) {
+void ssl_debug_print(const char *format, ...) {
     char debug_buf[1024];   
     va_list argptr;
     va_start(argptr, format);
@@ -28,7 +28,7 @@ void smlog_print(const char *format, ...) {
     Serial.print(debug_buf);
 }
 
-void smlog_println(const char *format, ...) {
+void ssl_debug_println(const char *format, ...) {
     char debug_buf[1024];   
     va_list argptr;
     va_start(argptr, format);
@@ -37,12 +37,12 @@ void smlog_println(const char *format, ...) {
     Serial.println(debug_buf);
 }
 
-void smlog_none(const char *format, ...) {
+void ssl_debug_none(const char *format, ...) {
     (void)format;
 }
 
 void mbedtls_debug_print(void *ctx, int level, const char *file, int line, const char *str)
 {
     ((void) level);
-    smlog_print("%s:%04d: %s", file, line, str);
+    ssl_debug_print("%s:%04d: %s", file, line, str);
 }
