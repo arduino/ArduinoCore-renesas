@@ -271,8 +271,9 @@ bool esp_host_there_are_data_to_be_rx() {
 
 bool esp_host_there_are_data_to_be_tx() {
    /* the function esp32_receive_msg_to_be_sent_on_SPI memset the tx buffer to 0 if there are no data to be tx*/
+   __disable_irq();
    bool rv = CEspCom::get_msg_from_app((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
-
+   __enable_irq();
    #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
    Serial.print("**** TX data? ");
    if(rv) {
@@ -360,7 +361,10 @@ int esp_host_spi_transaction(void) {
          Serial.print("  [SPI]: MESSAGE RECEIVED");
          #endif
          /* SPI transaction went OK */
-         if(CEspCom::send_msg_to_app((const uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE)) {
+         __disable_irq();
+         bool res = CEspCom::send_msg_to_app((const uint8_t*)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE);
+         __enable_irq();
+         if(res) {
             
             rv = ESP_HOSTED_SPI_MESSAGE_RECEIVED;
             #ifdef ESP_HOST_DEBUG_ENABLED_AVOID

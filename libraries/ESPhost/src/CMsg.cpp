@@ -1,5 +1,7 @@
 #include "CMsg.h"
 
+//#define DEBUG_ESP_HOST_PROTOCOL
+
 #define htole16(x)                        ((uint16_t)(x))
 #define le16toh(x)                        ((uint16_t)(x))
 
@@ -42,6 +44,9 @@ uint32_t CMsg::allocate(uint32_t d) {
          memset(buf, 0x00, dim);
          payload_header = (struct esp_payload_header *)buf;
          return dim;
+      }
+      else {
+         Serial.println("MSG ALLOCATION FAILED ALLOCATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       }
    }
    else {
@@ -233,7 +238,7 @@ void CMsg::clear() {
 /* -------------------------------------------------------------------------- */ 
 bool CMsg::is_valid() {
 /* -------------------------------------------------------------------------- */    
-      return (proto_dim > 0 && dim > 0);
+      return (buf != nullptr && dim > 0 && payload_header != nullptr) ;
 }
 
 /* get_protobuf_ptr() can be used to get the position the protobuffer is.

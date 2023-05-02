@@ -88,8 +88,7 @@ void arduino_main(void)
       *(irq_vector_table + _i +BSP_CORTEX_VECTOR_TABLE_ENTRIES) = (uint32_t)g_vector_table[_i];
    }
 
-   // "install" stacktrace print over Hardfault handler
-   *(irq_vector_table + 3) = (uint32_t)Stacktrace_Handler;
+   
 
    SCB->VTOR = (uint32_t)irq_vector_table;
 
@@ -97,6 +96,8 @@ void arduino_main(void)
    __enable_irq();
 
 #ifdef BACKTRACE_SUPPORT
+   // "install" stacktrace print over Hardfault handler
+   *(irq_vector_table + 3) = (uint32_t)Stacktrace_Handler;
    cm_backtrace_init(stringify(PROJECT_NAME), "RA", __DATE__);
 #endif
 

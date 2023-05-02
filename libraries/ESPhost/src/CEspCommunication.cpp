@@ -51,8 +51,13 @@ bool CEspCom::send_msg_to_app(const uint8_t *buffer, uint16_t dim) {
    CMsg msg;
    bool rv = false;
    if(msg.store_rx_buffer(buffer, dim)) {
-      CEspCom::from_ESP32_queue.push(std::move(msg));
-      rv = true;
+      if(msg.is_valid()) {
+         CEspCom::from_ESP32_queue.push(std::move(msg));
+         rv = true;
+      }
+      else {
+         Serial.println("MSG NOT VALID!");
+      }
    }
    return rv;
 }
