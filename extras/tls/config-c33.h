@@ -104,11 +104,14 @@
 
 /* Debug config */
 #define MBEDTLS_DEBUG_C
-#define MBEDTLS_PLATFORM_PRINTF_MACRO smlog_println
+#define MBEDTLS_PLATFORM_PRINTF_MACRO ssl_debug_println
 
 /* Load certificates from silesystem */
 #define MBEDTLS_FS_IO
 #define MBEDTLS_FS_IO_ALT
+
+/* Enable SE050 integration */
+#define MBEDTLS_ECDSA_SIGN_ALT
 
 /* TODO we will need this for server certificate check */
 //#define MBEDTLS_HAVE_TIME
