@@ -150,7 +150,9 @@ int lwipClient::read() {
 /* -------------------------------------------------------------------------- */  
   uint8_t b;
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
+    __disable_irq();
     pbuffer_get_data(&(_tcp_client->data), &b, 1);
+    __enable_irq();
     return b;
   }
   // No data available
@@ -161,7 +163,10 @@ int lwipClient::read() {
 int lwipClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */  
   if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
-    return pbuffer_get_data(&(_tcp_client->data), buf, size);
+    __disable_irq();
+    int rv = pbuffer_get_data(&(_tcp_client->data), buf, size);
+    __enable_irq();
+    return rv;
   }
   return -1;
 }
@@ -174,7 +179,9 @@ int lwipClient::peek() {
   if (!available()) {
     return -1;
   }
+  __disable_irq();
   b = pbuf_get_at(_tcp_client->data.p, 0);
+  __enable_irq();
   return b;
 }
 
