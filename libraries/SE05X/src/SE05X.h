@@ -323,6 +323,7 @@ public:
 
     inline int locked() { return 1; }
     inline int lock() { return 1; }
+    inline int writeConfiguration(const byte data[]) { return 1; }
 
 private:
     static int getECKeyXyValuesFromDER(byte* derKey, size_t derLen, byte* rawKey, size_t* rawLen);
