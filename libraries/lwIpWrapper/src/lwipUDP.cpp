@@ -48,16 +48,8 @@ void udp_receive_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p,
 
 #endif /* LWIP_UDP */
 
-
-
 /* Constructor */
 lwipUDP::lwipUDP() {}
-
-/* Start lwipUDP socket, listening at local port PORT */
-uint8_t lwipUDP::begin(uint16_t port)
-{
-  //return begin(Ethernet.localIP(), port);
-}
 
 /* Start lwipUDP socket, listening at local IP ip and port PORT */
 uint8_t lwipUDP::begin(IPAddress ip, uint16_t port, bool multicast)
@@ -159,11 +151,14 @@ int lwipUDP::endPacket()
 
   ip_addr_t ipaddr;
   if (ERR_OK != udp_sendto(_udp.pcb, _data, u8_to_ip_addr(rawIPAddress(_sendtoIP), &ipaddr), _sendtoPort)) {
+    __disable_irq();
     _data = pbuffer_free_data(_data);
+    __enable_irq();
     return 0;
   }
-
+  __disable_irq(); 
   _data = pbuffer_free_data(_data);
+  __enable_irq();
   CLwipIf::getInstance().lwip_task();
 
   return 1;
@@ -176,7 +171,9 @@ size_t lwipUDP::write(uint8_t byte)
 
 size_t lwipUDP::write(const uint8_t *buffer, size_t size)
 {
+  __disable_irq();
   _data = pbuffer_put_data(_data, buffer, size);
+  __enable_irq();
   if (_data == NULL) {
     return 0;
   }
@@ -236,11 +233,15 @@ int lwipUDP::read(unsigned char *buffer, size_t len)
 
     if (_remaining <= len) {
       // data should fit in the buffer
+      __disable_irq();
       got = (int)pbuffer_get_data(&(_udp.data), (uint8_t *)buffer, _remaining);
+      __enable_irq();
     } else {
       // too much data for the buffer,
       // grab as much as will fit
+      __disable_irq();
       got = (int)pbuffer_get_data(&(_udp.data), (uint8_t *)buffer, len);
+      __enable_irq();
     }
 
     if (got > 0) {
