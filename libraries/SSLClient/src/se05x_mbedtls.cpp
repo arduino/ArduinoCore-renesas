@@ -10,17 +10,18 @@
 //#include "se05x_APDU_apis.h"
 #include <SE05X.h>
 
-Se05xSession_t pSession;
+Se05xSession_t *pSession;
 
 smStatus_t se05x_open_session(void)
 {
-    if (pSession.conn_context != NULL) {
+    pSession = SE05X.getSession();
+
+    if (pSession->conn_context != NULL) {
         return SM_OK;
     }
 
-    smStatus_t status = Se05x_API_SessionOpen(&pSession);
-    if (status != SM_OK) {
-        SMLOG_E("Error in Se05x_API_SessionOpen \n");
-    }
-    return status;
+    SE05X.begin();
+    pSession = SE05X.getSession();
+
+    return SM_OK;
 }

@@ -9,7 +9,7 @@
 //#include "se05x_APDU_apis.h"
 #include <SE05X.h>
 
-extern Se05xSession_t pSession;
+extern Se05xSession_t *pSession;
 
 #include "mbedtls/pk.h"
 #include "mbedtls/ssl.h"
