@@ -62,7 +62,7 @@ int EthernetClass::begin(uint8_t *mac_address, unsigned long timeout, unsigned l
   return ret;
 }
 
-void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip)
+int EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip)
 {
   // Assume the DNS server will be the machine on the same network as the local IP
   // but with last octet being '1'
@@ -71,7 +71,7 @@ void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip)
   begin(mac_address, local_ip, dns_server);
 }
 
-void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server)
+int EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server)
 {
   // Assume the gateway will be the machine on the same network as the local IP
   // but with last octet being '1'
@@ -80,25 +80,41 @@ void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dn
   begin(mac_address, local_ip, dns_server, gateway);
 }
 
-void EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
+int EthernetClass::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
 {
   IPAddress subnet(255, 255, 255, 0);
   begin(mac_address, local_ip, dns_server, gateway, subnet);
 }
 
-void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
+int EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout, unsigned long responseTimeout)
 {
+  unsigned long start = millis();
+
   add_eth0_interface(mac, local_ip.raw_address(), gateway.raw_address(), subnet.raw_address());
   /* If there is a local DHCP informs it of our manual IP configuration to
   prevent IP conflict */
   set_dhcp_not_used();
   _dnsServerAddress = dns_server;
   MACAddress(mac);
+
+  while ((millis() - start < timeout) && (linkStatus() != LinkON)) {
+    delay(10);
+  }
+
+  return (linkStatus() == LinkON ? 1 : 0);
 }
 
 EthernetLinkStatus EthernetClass::linkStatus()
 {
   return (!is_eth0_initialized()) ? Unknown : (is_eth0_link_up() ? LinkON : LinkOFF);
+}
+
+EthernetHardwareStatus EthernetClass::hardwareStatus() {
+  return EthernetMbed;
+}
+
+int EthernetClass::disconnect() {
+  return 1;
 }
 
 int EthernetClass::maintain()
