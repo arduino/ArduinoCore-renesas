@@ -13,7 +13,7 @@
  by sstaub
  */
 
-#include <EthernetRA.h>
+#include <CEthernet.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
@@ -21,7 +21,7 @@
 char server[] = "www.google.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
-IPAddress ip(192, 168, 0, 177);
+IPAddress ip(10, 130, 22, 84);
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
@@ -30,21 +30,38 @@ EthernetClient client;
 
 void setup() {
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  bool use_dns = true; 
+  
   // start the Ethernet connection:
-  if (Ethernet.begin() == 0) {
+  if (1) { //Ethernet.begin() == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // try to configure using IP address instead of DHCP:
+    // IN THAT CASE YOU SHOULD CONFIGURE manually THE DNS or USE the IPAddress Server variable above
+    // that is what is automatically done here...
     Ethernet.begin(ip);
+    use_dns = false;
   }
   // give the Ethernet shield a second to initialize:
-  delay(1000);
+  delay(2000);
   Serial.println("connecting...");
+
+  Serial.print("Your DNS server is: ");
+  Serial.println(Ethernet.dnsServerIP());
+
+  bool connect_result = false;
+
+  if(use_dns) {
+    connect_result = client.connect(server, 80);
+  } 
+  else {
+    connect_result = client.connect(IPAddress(74,125,232,128), 80);
+  }
 
   // if you get a connection, report back via serial:
   if (client.connect(server, 80)) {

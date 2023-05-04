@@ -43,6 +43,8 @@ class CEthernet {
     void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
     void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
 
+    void setDNS(IPAddress dns_server); 
+
 
     int maintain();
     void schedule(void);

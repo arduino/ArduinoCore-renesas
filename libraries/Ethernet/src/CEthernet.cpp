@@ -59,6 +59,12 @@ void CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, I
 }
 
 /* -------------------------------------------------------------------------- */
+void setDNS(IPAddress dns_server) {
+/* -------------------------------------------------------------------------- */  
+  CLwipIf::getInstance().addDns(dns_server);
+} 
+
+/* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac_address, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
   int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
