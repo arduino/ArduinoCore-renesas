@@ -140,7 +140,7 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
     }
 
     if (0 != memcmp(&buffer[rawPrivatekeylen - sizeof(magic_bytes) - 2], magic_bytes, sizeof(magic_bytes))) {
-        SMLOG_I("Other key found !! Fallback on mbedtls");
+        SMLOG_I("Other key found !! Fallback on mbedtls\r\n");
         return mbedtls_ecdsa_sign_o(grp, r, s, d, buf, blen, f_rng, p_rng);
     }
 
@@ -166,11 +166,11 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
         return -1;
     }
 
-    SMLOG_I("Using SE05x for ecdsa sign");
+    SMLOG_I("Using SE05x for ecdsa sign. blen: %d\r\n", blen);
     status = Se05x_API_ECDSASign(
         pSession, keyID, kSE05x_ECSignatureAlgo_SHA_384, (uint8_t *)buf, blen, signature, &signature_len);
     if (status != SM_OK) {
-        SMLOG_E("Error in Se05x_API_ECDSASign \n");
+        SMLOG_E("Error in Se05x_API_ECDSASign\r\n");
         return -1;
     }
 
