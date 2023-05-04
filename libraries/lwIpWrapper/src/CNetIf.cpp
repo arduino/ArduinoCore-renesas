@@ -1005,17 +1005,49 @@ int32_t CLwipIf::getRSSI(NetIfType_t type) {
 
 }
 
+
+uint8_t Encr2wl_enc(int enc) {
+   if(enc == WIFI_AUTH_OPEN) {
+      return ENC_TYPE_NONE;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WEP) {
+      return ENC_TYPE_WEP;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA_PSK) {
+      return ENC_TYPE_TKIP;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA2_PSK) {
+      return ENC_TYPE_CCMP;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA_WPA2_PSK) {
+      return ENC_TYPE_CCMP;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA2_ENTERPRISE) {
+      return ENC_TYPE_UNKNOWN;
+   } 
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA3_PSK) {
+      return ENC_TYPE_WP3;
+   }
+   else if(enc == CTRL__WIFI_SEC_PROT__WPA2_WPA3_PSK) {
+      return ENC_TYPE_WP3;
+   }
+   else {
+      return ENC_TYPE_UNKNOWN;
+   }
+}
+
+
 /* -------------------------------------------------------------------------- */
 uint8_t CLwipIf::getEncryptionType(NetIfType_t type) {
 /* -------------------------------------------------------------------------- */   
    if(type == NI_WIFI_STATION) {
-      return access_point_cfg.encryption_mode;
+      return Encr2wl_enc(access_point_cfg.encryption_mode);
    }
    else if(type == NI_WIFI_SOFTAP) {
-      return (uint8_t)soft_ap_cfg.encryption_mode;
+      return Encr2wl_enc((uint8_t)soft_ap_cfg.encryption_mode);
    }
    else {
-     return 0;
+     return ENC_TYPE_UNKNOWN;
    }
 }
 

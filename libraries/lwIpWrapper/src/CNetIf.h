@@ -128,6 +128,21 @@ typedef enum {
 } WifiStatus_t;
 
 
+/* Encryption modes */
+enum wl_enc_type {  /* Values map to 802.11 encryption suites... */
+  ENC_TYPE_WEP  = 5,
+  ENC_TYPE_TKIP = 2,
+  ENC_TYPE_CCMP = 4,
+  ENC_TYPE_WP3 = 6,
+  /* ... except these two, 7 and 8 are reserved in 802.11-2007 */
+  ENC_TYPE_NONE = 7,
+  ENC_TYPE_AUTO = 8,
+
+  ENC_TYPE_UNKNOWN = 255
+};
+
+
+
 
 typedef enum {
   NI_WIFI_STATION,
