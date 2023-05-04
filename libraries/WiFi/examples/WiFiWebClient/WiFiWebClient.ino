@@ -10,8 +10,6 @@
  This example is written for a network using WPA encryption. For
  WEP or WPA, change the WiFi.begin() call accordingly.
 
- Circuit:
- * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
 
  created 13 July 2010
  by dlf (Metodo2 srl)
@@ -42,13 +40,15 @@ char server[] = "www.google.com";    // name address for Google (using DNS)
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
 
+/* -------------------------------------------------------------------------- */
 void setup() {
+/* -------------------------------------------------------------------------- */  
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
- 
+  
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
@@ -86,13 +86,28 @@ void setup() {
   }
 }
 
-void loop() {
-  // if there are incoming bytes available
-  // from the server, read them and print them:
+/* just wrap the received data up to 80 columns in the serial print*/
+/* -------------------------------------------------------------------------- */
+void read_response() {
+/* -------------------------------------------------------------------------- */  
+  uint32_t received_data_num = 0;
   while (client.available()) {
+    /* actual data reception */
     char c = client.read();
-    Serial.write(c);
-  }
+    /* print data to serial port */
+    Serial.print(c);
+    /* wrap data to 80 columns*/
+    received_data_num++;
+    if(received_data_num % 80 == 0) { 
+      Serial.println();
+    }
+  }  
+}
+
+/* -------------------------------------------------------------------------- */
+void loop() {
+/* -------------------------------------------------------------------------- */  
+  read_response();
 
   // if the server's disconnected, stop the client:
   if (!client.connected()) {
@@ -105,8 +120,9 @@ void loop() {
   }
 }
 
-
+/* -------------------------------------------------------------------------- */
 void printWifiStatus() {
+/* -------------------------------------------------------------------------- */  
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
