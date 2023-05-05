@@ -17,7 +17,7 @@
 
 #include <Arduino.h>
 
-#ifdef ARDUINO_SANTIAGO
+#if defined(ARDUINO_SANTIAGO) || defined(ARDUINO_SANTIAGO_COMPOSTA)
 
 #include "api/HardwareCAN.h"
 
@@ -96,7 +96,7 @@ private:
 
 } /* arduino */
 
-#endif /* ARDUINO_SANTIAGO */
+#endif /* defined(ARDUINO_SANTIAGO) || defined(ARDUINO_SANTIAGO_COMPOSTA) */
 
 /**************************************************************************************
  * EXTERN DECLARATION
