@@ -39,10 +39,10 @@
 #ifndef LWIPOPTS_H_
 #define LWIPOPTS_H_
 
- /*
-   ------------------------------------
-   -------------- NO SYS --------------
-   ------------------------------------
+/*
+  ------------------------------------
+  -------------- NO SYS --------------
+  ------------------------------------
 */
 /**
  * NO_SYS==1: Use lwIP without OS-awareness (no thread, semaphores, mutexes or
@@ -52,16 +52,15 @@
  * lwIP functions/structures from more than one context at a time!)
  */
 #ifndef NO_SYS
-#define NO_SYS                          1
+#define NO_SYS 1
 #endif
-
 
 /**
  * NO_SYS_NO_TIMERS==1: Drop support for sys_timeout when NO_SYS==1
  * Mainly for compatibility to old versions.
  */
 #ifndef NO_SYS_NO_TIMERS
-#define NO_SYS_NO_TIMERS                0
+#define NO_SYS_NO_TIMERS 0
 #endif
 
 /**
@@ -79,7 +78,7 @@
  *                   sys_timeouts_mbox_fetch()
  */
 #if !defined LWIP_TIMERS_CUSTOM
-#define LWIP_TIMERS_CUSTOM              0
+#define LWIP_TIMERS_CUSTOM 0
 #endif
 
 /*
@@ -96,9 +95,8 @@
  * you disable this, you must be sure what you are doing!
  */
 #if !defined SYS_LIGHTWEIGHT_PROT
-#define SYS_LIGHTWEIGHT_PROT            0
+#define SYS_LIGHTWEIGHT_PROT 0
 #endif
-
 
 /*
  ------------------------------------
@@ -111,7 +109,7 @@
  * already use it.
  */
 #ifndef MEM_LIBC_MALLOC
-#define MEM_LIBC_MALLOC                 1
+#define MEM_LIBC_MALLOC 1
 #endif
 
 /**
@@ -120,7 +118,7 @@
  * speed and usage from interrupts!
  */
 #ifndef MEMP_MEM_MALLOC
-#define MEMP_MEM_MALLOC                 1
+#define MEMP_MEM_MALLOC 1
 #endif
 
 /**
@@ -129,7 +127,7 @@
  *    2 byte alignment -> #define MEM_ALIGNMENT 2
  */
 #ifndef MEM_ALIGNMENT
-#define MEM_ALIGNMENT                   4
+#define MEM_ALIGNMENT 4
 #endif
 
 /**
@@ -137,9 +135,8 @@
  * a lot of data that needs to be copied, this should be set high.
  */
 #ifndef MEM_SIZE
-#define MEM_SIZE                        (1522*4)
+#define MEM_SIZE (1522 * 4)
 #endif
-
 
 /**
  * MEMP_OVERFLOW_CHECK: memp overflow protection reserves a configurable
@@ -151,7 +148,7 @@
  *      memp_malloc() or memp_free() is called (useful but slow!)
  */
 #ifndef MEMP_OVERFLOW_CHECK
-#define MEMP_OVERFLOW_CHECK             0
+#define MEMP_OVERFLOW_CHECK 0
 #endif
 
 /**
@@ -159,7 +156,7 @@
  * sure that there are no cycles in the linked lists.
  */
 #ifndef MEMP_SANITY_CHECK
-#define MEMP_SANITY_CHECK               1
+#define MEMP_SANITY_CHECK 1
 #endif
 
 /**
@@ -169,7 +166,7 @@
  * To use this, MEMP_USE_CUSTOM_POOLS also has to be enabled.
  */
 #ifndef MEM_USE_POOLS
-#define MEM_USE_POOLS                   0
+#define MEM_USE_POOLS 0
 #endif
 
 /**
@@ -177,7 +174,7 @@
  * bigger pool - WARNING: THIS MIGHT WASTE MEMORY but it can make a system more
  * reliable. */
 #ifndef MEM_USE_POOLS_TRY_BIGGER_POOL
-#define MEM_USE_POOLS_TRY_BIGGER_POOL   0
+#define MEM_USE_POOLS_TRY_BIGGER_POOL 0
 #endif
 
 /**
@@ -187,7 +184,7 @@
  * inlude path somewhere.
  */
 #ifndef MEMP_USE_CUSTOM_POOLS
-#define MEMP_USE_CUSTOM_POOLS           0
+#define MEMP_USE_CUSTOM_POOLS 0
 #endif
 
 /**
@@ -239,12 +236,11 @@
  */
 #define LWIP_NETCONN 0
 
-
- /** LWIP_TCPIP_TIMEOUT==1: Enable tcpip_timeout/tcpip_untimeout tod create
+/** LWIP_TCPIP_TIMEOUT==1: Enable tcpip_timeout/tcpip_untimeout tod create
  * timers running in tcpip_thread from another thread.
  */
 #ifndef LWIP_TCPIP_TIMEOUT
-#define LWIP_TCPIP_TIMEOUT              1
+#define LWIP_TCPIP_TIMEOUT 1
 #endif
 
 /**
@@ -266,9 +262,9 @@
  */
 #ifndef MEMP_NUM_PBUF
 #ifdef DEBUG
-#define MEMP_NUM_PBUF                   4
+#define MEMP_NUM_PBUF 4
 #else
-#define MEMP_NUM_PBUF                   8
+#define MEMP_NUM_PBUF 8
 #endif
 #endif
 
@@ -277,7 +273,7 @@
  * (requires the LWIP_RAW option)
  */
 #ifndef MEMP_NUM_RAW_PCB
-#define MEMP_NUM_RAW_PCB                0
+#define MEMP_NUM_RAW_PCB 0
 #endif
 
 /**
@@ -286,7 +282,7 @@
  * (requires the LWIP_UDP option)
  */
 #ifndef MEMP_NUM_UDP_PCB
-#define MEMP_NUM_UDP_PCB                3
+#define MEMP_NUM_UDP_PCB 3
 #endif
 
 /**
@@ -294,7 +290,7 @@
  * (requires the LWIP_TCP option)
  */
 #ifndef MEMP_NUM_TCP_PCB
-#define MEMP_NUM_TCP_PCB                5
+#define MEMP_NUM_TCP_PCB 5
 #endif
 
 /**
@@ -302,7 +298,7 @@
  * (requires the LWIP_TCP option)
  */
 #ifndef MEMP_NUM_TCP_PCB_LISTEN
-#define MEMP_NUM_TCP_PCB_LISTEN         3
+#define MEMP_NUM_TCP_PCB_LISTEN 3
 #endif
 
 /**
@@ -310,7 +306,7 @@
  * (requires the LWIP_TCP option)
  */
 #ifndef MEMP_NUM_TCP_SEG
-#define MEMP_NUM_TCP_SEG                16
+#define MEMP_NUM_TCP_SEG 16
 #endif
 
 /**
@@ -318,7 +314,7 @@
  * reassembly (whole packets, not fragments!)
  */
 #ifndef MEMP_NUM_REASSDATA
-#define MEMP_NUM_REASSDATA              0
+#define MEMP_NUM_REASSDATA 0
 #endif
 
 /**
@@ -329,7 +325,7 @@
  * where the packet is not yet sent when netif->output returns.
  */
 #ifndef MEMP_NUM_FRAG_PBUF
-#define MEMP_NUM_FRAG_PBUF              0
+#define MEMP_NUM_FRAG_PBUF 0
 #endif
 
 /**
@@ -339,7 +335,7 @@
  * (requires the ARP_QUEUEING option)
  */
 #ifndef MEMP_NUM_ARP_QUEUE
-#define MEMP_NUM_ARP_QUEUE              0
+#define MEMP_NUM_ARP_QUEUE 0
 #endif
 
 /**
@@ -349,7 +345,7 @@
  * (requires the LWIP_IGMP option)
  */
 #ifndef MEMP_NUM_IGMP_GROUP
-#define MEMP_NUM_IGMP_GROUP             0
+#define MEMP_NUM_IGMP_GROUP 0
 #endif
 
 /**
@@ -357,7 +353,7 @@
  * (requires NO_SYS==0)
  */
 #ifndef MEMP_NUM_SYS_TIMEOUT
-#define MEMP_NUM_SYS_TIMEOUT            6
+#define MEMP_NUM_SYS_TIMEOUT 6
 #endif
 
 /**
@@ -365,7 +361,7 @@
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF                 0
+#define MEMP_NUM_NETBUF 0
 #endif
 
 /**
@@ -373,7 +369,7 @@
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETCONN
-#define MEMP_NUM_NETCONN                0
+#define MEMP_NUM_NETCONN 0
 #endif
 
 /**
@@ -382,7 +378,7 @@
  * (only needed if you use tcpip.c)
  */
 #ifndef MEMP_NUM_TCPIP_MSG_API
-#define MEMP_NUM_TCPIP_MSG_API          0
+#define MEMP_NUM_TCPIP_MSG_API 0
 #endif
 
 /**
@@ -391,16 +387,15 @@
  * (only needed if you use tcpip.c)
  */
 #ifndef MEMP_NUM_TCPIP_MSG_INPKT
-#define MEMP_NUM_TCPIP_MSG_INPKT        0
+#define MEMP_NUM_TCPIP_MSG_INPKT 0
 #endif
-
 
 /**
  * MEMP_NUM_NETDB: the number of concurrently running lwip_addrinfo() calls
  * (before freeing the corresponding memory using lwip_freeaddrinfo()).
  */
 #ifndef MEMP_NUM_NETDB
-#define MEMP_NUM_NETDB                  0
+#define MEMP_NUM_NETDB 0
 #endif
 
 /**
@@ -408,15 +403,14 @@
  * if DNS_LOCAL_HOSTLIST_IS_DYNAMIC==1.
  */
 #ifndef MEMP_NUM_LOCALHOSTLIST
-#define MEMP_NUM_LOCALHOSTLIST          0
+#define MEMP_NUM_LOCALHOSTLIST 0
 #endif
-
 
 /**
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
 #ifndef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE                  4
+#define PBUF_POOL_SIZE 4
 #endif
 
 /**
@@ -473,9 +467,8 @@
  *      IP_OPTIONS_ALLOWED==1: IP options are allowed (but not parsed).
  */
 #if !defined IP_OPTIONS_ALLOWED
-#define IP_OPTIONS_ALLOWED              0
+#define IP_OPTIONS_ALLOWED 0
 #endif
-
 
 /**
  * IP_FORWARD==1: Enables the ability to forward IP packets across network
@@ -513,7 +506,6 @@
  */
 #define IP_DEFAULT_TTL 255
 
-
 /*
    ---------------------------------
    ---------- UDP options ----------
@@ -549,16 +541,15 @@
  * an upper limit on the MSS advertised by the remote host.
  */
 #ifndef TCP_MSS
-#define TCP_MSS                        536
+#define TCP_MSS 536
 #endif
-
 
 /**
  * TCP_SND_BUF: TCP sender buffer space (bytes).
  * To achieve good performance, this should be at least 2 * TCP_MSS.
  */
 #ifndef TCP_SND_BUF
-#define TCP_SND_BUF                     1500
+#define TCP_SND_BUF 1500
 #endif
 
 /**
@@ -569,7 +560,7 @@
  * will be TCP_WND >> TCP_RCV_SCALE
  */
 #ifndef TCP_WND
-#define TCP_WND                         (4 * TCP_MSS)
+#define TCP_WND (4 * TCP_MSS)
 #endif
 
 /**
@@ -581,14 +572,14 @@
  * TCP_MAXRTX: Maximum number of retransmissions of data segments.
  */
 #ifndef TCP_MAXRTX
-#define TCP_MAXRTX                      12
+#define TCP_MAXRTX 12
 #endif
 
 /**
  * TCP_SYNMAXRTX: Maximum number of retransmissions of SYN segments.
  */
 #ifndef TCP_SYNMAXRTX
-#define TCP_SYNMAXRTX                   6
+#define TCP_SYNMAXRTX 6
 #endif
 
 /**
@@ -596,7 +587,7 @@
  * Define to 0 if your device is low on memory.
  */
 #ifndef TCP_QUEUE_OOSEQ
-#define TCP_QUEUE_OOSEQ                 (LWIP_TCP)
+#define TCP_QUEUE_OOSEQ (LWIP_TCP)
 #endif
 
 /**
@@ -604,7 +595,7 @@
  * as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work.
  */
 #ifndef TCP_SND_QUEUELEN
-#define TCP_SND_QUEUELEN                ((4 * (TCP_SND_BUF) + (TCP_MSS - 1))/(TCP_MSS))
+#define TCP_SND_QUEUELEN ((4 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
 #endif
 
 /**
@@ -630,7 +621,7 @@
  * TCP_MSS/4: Try to create 4 fragments or less per TCP packet.
  */
 #ifndef TCP_OVERSIZE
-#define TCP_OVERSIZE                    TCP_MSS
+#define TCP_OVERSIZE TCP_MSS
 #endif
 
 /*
@@ -642,7 +633,7 @@
  * LWIP_RAW==1: Enable application layer to hook into the IP layer itself.
  */
 #ifndef LWIP_RAW
-#define LWIP_RAW                0
+#define LWIP_RAW 0
 #endif
 
 /*
@@ -653,32 +644,32 @@
 /**
  * CHECKSUM_GEN_TCP==1: Generate checksums in software for outgoing TCP packets.
  */
-#define CHECKSUM_GEN_TCP 	1
+#define CHECKSUM_GEN_TCP 1
 
 /**
  * CHECKSUM_GEN_UDP==1: Generate checksums in software for outgoing UDP packets.
  */
-#define CHECKSUM_GEN_UDP 	1
+#define CHECKSUM_GEN_UDP 1
 
 /**
  * CHECKSUM_GEN_IP==1: Generate checksums in software for outgoing IP packets.
  */
-#define CHECKSUM_GEN_IP  	1
+#define CHECKSUM_GEN_IP 1
 
 /**
  * CHECKSUM_CHECK_TCP==1: Check checksums in software for incoming TCP packets.
  */
-#define CHECKSUM_CHECK_TCP      1
+#define CHECKSUM_CHECK_TCP 1
 
 /**
  * CHECKSUM_CHECK_UDP==1: Check checksums in software for incoming UDP packets.
  */
-#define CHECKSUM_CHECK_UDP      1
+#define CHECKSUM_CHECK_UDP 1
 
 /**
  * CHECKSUM_CHECK_IP==1: Check checksums in software for incoming IP packets.
  */
-#define CHECKSUM_CHECK_IP 	1
+#define CHECKSUM_CHECK_IP 1
 
 /*
    ----------------------------------------
@@ -690,7 +681,7 @@
  * MIB2_STATS==1: Stats for SNMP MIB2.
  */
 #if !defined MIB2_STATS
-#define MIB2_STATS                      1
+#define MIB2_STATS 1
 #endif
 
 /*
@@ -706,9 +697,8 @@
  * returns.
  */
 #ifndef MEMP_NUM_FRAG_PBUF
-#define MEMP_NUM_FRAG_PBUF              0
+#define MEMP_NUM_FRAG_PBUF 0
 #endif
-
 
 /*
    ----------------------------------
@@ -718,7 +708,7 @@
 /**
  * LWIP_DHCP==1: Enable DHCP module.
  */
-#define LWIP_DHCP                       1
+#define LWIP_DHCP 1
 
 #define LWIP_IP_ACCEPT_UDP_PORT(dst_port) ((dst_port) == PP_NTOHS(67))
 

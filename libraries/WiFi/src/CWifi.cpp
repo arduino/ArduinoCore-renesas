@@ -97,14 +97,15 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
-      ni->setIp(local_ip.raw_address());
-      ni->setNm(subnet.raw_address());
-      ni->setGw(gateway.raw_address());
+      IP_ADDR4(&ni->ip, local_ip[0], local_ip[1], local_ip[2], local_ip[3]);
+      IP_ADDR4(&ni->gw, gateway[0], gateway[1], gateway[2], gateway[3]);
+      IP_ADDR4(&ni->nm, subnet[0], subnet[1], subnet[2], subnet[3]);
    }
    else {
-      setDefaultWifiIp(local_ip);
-      setDefaultWifiNm(subnet); 
-      setDefaultWifiGw(gateway);
+      CNetIf::default_ip = local_ip;
+      CNetIf::default_nm = subnet; 
+      CNetIf::default_gw = gateway;
+      CNetIf::default_dhcp_server_ip = local_ip;
    }
 }
 

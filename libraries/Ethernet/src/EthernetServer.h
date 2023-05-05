@@ -4,7 +4,7 @@
 
 
 #include "lwipServer.h"
-#include "CEthernetClient.h"
+#include "EthernetClient.h"
 
 class EthernetServer : public lwipServer {
    public:

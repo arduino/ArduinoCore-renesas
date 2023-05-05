@@ -2,10 +2,7 @@
     This macros are not part of the public dhcpserver.h interface.
  **/
 
-
-
-typedef enum
-{
+typedef enum {
     /* RFC 1497 Vendor Extensions */
 
     PAD = 0,
