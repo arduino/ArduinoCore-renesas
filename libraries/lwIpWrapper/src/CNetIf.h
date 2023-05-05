@@ -398,6 +398,9 @@ private:
    static int initEventCb(CCtrlMsgWrapper *resp);
    static bool initWifiHw(bool asStation);
 
+   static bool pending_eth_rx;
+
+
    static int disconnectEventcb(CCtrlMsgWrapper *resp);
 
    
@@ -474,7 +477,7 @@ public:
    static void ethLinkDown();
    static void ethFrameRx();
 
-
+   static void setPendingEthRx();
    /* this function set the mac address of the corresponding interface to mac 
       and set this value for lwip */
    bool setMacAddress(NetIfType_t type, uint8_t* mac = nullptr);

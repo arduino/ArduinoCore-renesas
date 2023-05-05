@@ -28,6 +28,7 @@ bool CLwipIf::wifi_hw_initialized = false;
 bool CLwipIf::connected_to_access_point = false; 
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
 queue<volatile struct pbuf*> CLwipIf::eth_queue;
+bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
 
@@ -265,23 +266,30 @@ void CLwipIf::ethLinkDown() {
 void CLwipIf::ethFrameRx() {
 /* -------------------------------------------------------------------------- */   
    
-   volatile uint32_t rx_frame_dim = 0;
-   volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
-   if(rx_frame_dim > 0 && rx_frame_buf != nullptr) {
-     while(rx_frame_dim % 4 != 0) {
-       rx_frame_dim++;
-     }
-     volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
-     if(p != NULL) {
-       /* Copy ethernet frame into pbuf */
-       pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
-       eth_release_rx_buffer();
-       eth_queue.push((struct pbuf*)p); 
-     }
+   if(pending_eth_rx) {
+      pending_eth_rx = false;
+      volatile uint32_t rx_frame_dim = 0;
+      volatile uint8_t *rx_frame_buf = eth_input(&rx_frame_dim);
+      if(rx_frame_dim > 0 && rx_frame_buf != nullptr) {
+        while(rx_frame_dim % 4 != 0) {
+          rx_frame_dim++;
+        }
+        volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
+        if(p != NULL) {
+          /* Copy ethernet frame into pbuf */
+          pbuf_take((struct pbuf* )p, (uint8_t *) rx_frame_buf, (uint32_t)rx_frame_dim);
+          eth_release_rx_buffer();
+          eth_queue.push((struct pbuf*)p); 
+        }
+      }
    }
 }
 
-
+/* -------------------------------------------------------------------------- */
+void CLwipIf::setPendingEthRx() {
+/* -------------------------------------------------------------------------- */   
+   pending_eth_rx = true;
+}
 
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::initEth(struct netif* _ni) {
@@ -312,7 +320,7 @@ err_t CLwipIf::initEth(struct netif* _ni) {
 
    /* set the callback function that is called when an ethernet frame is physically
       received, it is important that the callbacks are set before the initializiation */
-   eth_set_rx_frame_cbk(ethFrameRx);
+   eth_set_rx_frame_cbk(setPendingEthRx);
    eth_set_link_on_cbk(ethLinkUp);
    eth_set_link_off_cbk(ethLinkDown);
 
@@ -1372,6 +1380,8 @@ void CEth::task() {
    struct pbuf* p = nullptr;
    
    eth_execute_link_process();
+
+   CLwipIf::ethFrameRx();
    
    __disable_irq();
    p = (struct pbuf* )CLwipIf::getInstance().getEthFrame();
