@@ -14,7 +14,7 @@
 
 #include "R7FA4M1_CAN.h"
 
-#ifdef ARDUINO_SANTIAGO
+#if defined(ARDUINO_SANTIAGO) || defined(ARDUINO_SANTIAGO_COMPOSTA)
 
 #include <IRQManager.h>
 
@@ -318,7 +318,7 @@ extern "C" void can_callback(can_callback_args_t * p_args)
   this_ptr->onCanCallback(p_args);
 }
 
-#endif /* ARDUINO_SANTIAGO */
+#endif /* defined(ARDUINO_SANTIAGO) || defined(ARDUINO_SANTIAGO_COMPOSTA) */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION
