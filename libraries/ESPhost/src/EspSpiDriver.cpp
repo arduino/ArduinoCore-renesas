@@ -37,7 +37,11 @@
 
 
 /* FSP SPI Channel */
+#ifdef USE_SCI_SPI_FSP_API
 #define SPI_CHANNEL  (0) 
+#else
+#define SPI_CHANNEL  (1) 
+#endif
 
 #define EXT_IRQ_CHANNEL (0)
 
@@ -77,7 +81,11 @@ static volatile uint8_t esp32_spi_tx_buffer[MAX_SPI_BUFFER_SIZE];
 
 static spi_instance_ctrl_t  _esp_host_spi_ctrl;
 static spi_cfg_t            _esp_host_spi_cfg;
+#ifdef USE_SCI_SPI_FSP_API
+static sci_spi_extended_cfg_t _sci_spi_ext_cfg;
+#else
 static spi_extended_cfg_t   _esp_host_spi_ext_cfg;
+#endif
 
 static int spi_rx_waiting = 0;
 
@@ -104,7 +112,7 @@ void setSpiTransactionInPRogress() { spi_transaction_in_progress  = true; }
 //static icu_instance_ctrl_t  _esp_host_icu_ctrl;
 //static external_irq_cfg_t   _esp_host_icu_cfg;
 
-static sci_spi_extended_cfg_t _sci_spi_ext_cfg;
+
 
 static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
 
@@ -166,14 +174,24 @@ int esp_host_spi_init(void) {
     * +++++ */
 
    /*  INIT SPI peripheral PINs */
+   #ifdef USE_SCI_SPI_FSP_API
    R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MISO, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
    R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MOSI, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
    R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CK,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
+   #else
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MISO, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_MOSI, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
+   R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CK,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SPI));
+   #endif
    //R_IOPORT_PinCfg(&g_ioport_ctrl, ESP_CS,   (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_SCI0_2_4_6_8));
 
    /* SPI configuration */
-
+   #ifdef USE_SCI_SPI_FSP_API
    _esp_host_spi_cfg.p_extend       = &_sci_spi_ext_cfg;//_esp_host_spi_ext_cfg;
+   #else
+   _esp_host_spi_cfg.p_extend       = &_esp_host_spi_ext_cfg;
+   #endif
+
    _esp_host_spi_cfg.p_callback     = spi_callback; 
    _esp_host_spi_cfg.channel        = SPI_CHANNEL;
    _esp_host_spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
@@ -211,11 +229,15 @@ int esp_host_spi_init(void) {
    _esp_host_spi_ext_cfg.ssl_negation_delay = SPI_DELAY_COUNT_1;
    _esp_host_spi_ext_cfg.next_access_delay  = SPI_DELAY_COUNT_1;
 
+   #ifdef USE_SCI_SPI_FSP_API
    _sci_spi_ext_cfg.clk_div.cks  = 0;
    _sci_spi_ext_cfg.clk_div.brr  = 11;
    _sci_spi_ext_cfg.clk_div.mddr = 0;
 
    R_SCI_SPI_CalculateBitrate (24000000, &(_sci_spi_ext_cfg.clk_div), false);
+   #else
+   R_SPI_CalculateBitrate (24000000, &(_esp_host_spi_ext_cfg.spck_div));
+   #endif
 
   /* +++++++++++
    * INTERRUPTS
@@ -227,7 +249,11 @@ int esp_host_spi_init(void) {
      .hw_channel = (uint8_t)SPI_CHANNEL,
    };
     
+   #ifdef USE_SCI_SPI_FSP_API 
    if(!IRQManager::getInstance().addPeripheral(IRQ_SCI_SPI_MASTER, &irq_req)) {
+   #else 
+   if(!IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req)) {
+   #endif   
      return ESP_HOSTED_SPI_DRIVER_INIT_IRQ_FAILED;
    }
 
@@ -236,9 +262,12 @@ int esp_host_spi_init(void) {
    /* +++++++++
     * OPEN SPI
     * +++++++++ */
-
+   #ifdef USE_SCI_SPI_FSP_API 
    /* Configure the SPI using the FSP HAL functionlity. */
    if (FSP_SUCCESS != R_SCI_SPI_Open(&_esp_host_spi_ctrl, &_esp_host_spi_cfg)) {
+   #else 
+   if (FSP_SUCCESS != R_SPI_Open(&_esp_host_spi_ctrl, &_esp_host_spi_cfg)) {
+   #endif
       return ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN;
    }
    
@@ -431,8 +460,11 @@ int esp_host_send_and_receive(void) {
       #endif
 
 
-      
+      #ifdef USE_SCI_SPI_FSP_API
       fsp_err_t err = R_SCI_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
+      #else
+      fsp_err_t err = R_SPI_WriteRead (&_esp_host_spi_ctrl, (void *)esp32_spi_tx_buffer, (void *)esp32_spi_rx_buffer, MAX_SPI_BUFFER_SIZE, SPI_BIT_WIDTH_8_BITS);
+      #endif
       
       if(err == FSP_SUCCESS) {
          bool exited = false;
