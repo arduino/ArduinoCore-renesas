@@ -91,15 +91,17 @@ void CWifi::config(IPAddress local_ip) {
    _config(local_ip, _gw, _nm);
 }
 
+extern uint8_t *IpAddress2uint8(IPAddress a);
+
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
-      ni->setIp(local_ip.raw_address());
-      ni->setNm(subnet.raw_address());
-      ni->setGw(gateway.raw_address());
+      ni->setIp(IpAddress2uint8(local_ip));
+      ni->setNm(IpAddress2uint8(subnet));
+      ni->setGw(IpAddress2uint8(gateway));
    }
    else {
       setDefaultWifiIp(local_ip);

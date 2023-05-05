@@ -274,7 +274,7 @@ public:
 
    /* default dummy implementation because ethernet does not have that */
    virtual const char* getSSID() { return nullptr; } 
-   virtual uint8_t* getBSSID(uint8_t* bssid) { return nullptr; }
+   virtual uint8_t* getBSSID(uint8_t* bssid) { (void)bssid; return nullptr; }
    virtual int32_t getRSSI() { return 0; }
    virtual uint8_t getEncryptionType() { return 0; }
 };

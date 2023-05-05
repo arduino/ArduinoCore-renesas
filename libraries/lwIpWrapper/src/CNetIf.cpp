@@ -11,6 +11,16 @@ const uint8_t default_wsa_nm[4] = {NM_WSA_0, NM_WSA_1, NM_WSA_2, NM_WSA_3};
 const uint8_t default_wsa_gw[4] = {GW_WSA_0, GW_WSA_1, GW_WSA_2, GW_WSA_3};
 
 
+static uint8_t _address[4];
+
+uint8_t *IpAddress2uint8(IPAddress a) {
+   _address[0] = a[0];
+   _address[0] = a[1];
+   _address[1] = a[2];
+   _address[2] = a[3];
+   return _address;
+}
+
 /* The following addresses are set by the config functions */
 
 IPAddress default_wifi_ip_add(0,0,0,0);
@@ -52,7 +62,7 @@ CLwipIf::CLwipIf() : eth_initialized(false), dns_num(-1) , willing_to_start_sync
    /* START THE TIMER FOR LWIP tasks - #CORE_DEPENDENT_STUFF */
    #ifdef LWIP_USE_TIMER
    uint8_t type = 8;
-   uint8_t ch = FspTimer::get_available_timer(type);
+   int8_t ch = FspTimer::get_available_timer(type);
    
    if(ch < 0) {
      ch = FspTimer::get_available_timer(type,true);
@@ -119,18 +129,22 @@ CLwipIf::~CLwipIf() {
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
+   (void)resp;
    if(CLwipIf::connected_to_access_point) {
       wifi_status = WL_DISCONNECTED;
       if(net_ifs[NI_WIFI_STATION] != nullptr) {
          net_ifs[NI_WIFI_STATION]->setLinkDown();
       }
    }
+   return ESP_CONTROL_OK;
 }
 
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
+   (void)resp;
    CLwipIf::wifi_hw_initialized = true;
+   return ESP_CONTROL_OK;
 }
 
 
@@ -138,7 +152,7 @@ int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
 int CLwipIf::setWifiMode(WifiMode_t mode) {
 /* -------------------------------------------------------------------------- */   
       CLwipIf::getInstance().startSyncRequest();
-      int rv = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+      int rv = CEspControl::getInstance().setWifiMode(mode);
       CLwipIf::getInstance().restartAsyncRequest();
       return rv;
 }
@@ -197,12 +211,12 @@ CNetIf *CLwipIf::get(NetIfType_t type,
                      const uint8_t* _gw, 
                      const uint8_t* _nm) {
 /* -------------------------------------------------------------------------- */
-   static int id = 0;
+   
    CNetIf *rv = nullptr;
    bool isStation = true;
    bool isEth = false;
 
-   if(type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
+   if(type < NETWORK_INTERFACES_MAX_NUM) {
       if(net_ifs[type] == nullptr) {
          switch(type) {
             case NI_WIFI_STATION:
@@ -332,6 +346,8 @@ err_t CLwipIf::initEth(struct netif* _ni) {
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
+  (void)_ni;
+
   err_t errval = ERR_OK;
   uint16_t tx_buf_dim = 0;
   uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
@@ -350,8 +366,8 @@ err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
+   (void)_ni;
    err_t errval = ERR_IF;
-  
    uint8_t *buf = new uint8_t[p->tot_len];
 
    if(buf != nullptr) {
@@ -419,6 +435,7 @@ err_t CLwipIf::initWifiStation(struct netif* _ni) {
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
+   (void)_ni;
    err_t errval = ERR_IF;
   
    uint8_t *buf = new uint8_t[p->tot_len];
@@ -769,32 +786,11 @@ volatile struct pbuf* CLwipIf::getEthFrame() {
    return rv;
 }
 
-#ifdef DEBUG_USING LED
-void toggle_led_debug() {
-   static int i = 0;
-   static bool st = false;
-   i++;
-   if(i > 5) {
-      if(st) {
-         digitalWrite(LED_BUILTIN, HIGH);
-      }
-      else {
-         digitalWrite(LED_BUILTIN, LOW);
-      }
-      st = !st;
-      i = 0;
-   }
-}
-#endif
-
-
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
 void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /*  -------------------------------------------------------------------------- */   
-  #ifdef DEBUG_USING LED
-  toggle_led_debug();
-  #endif
+  (void)arg;
   CLwipIf::getInstance().lwip_task();
 } 
 #endif
@@ -806,6 +802,7 @@ void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /* -------------------------------------------------------------------------- */
 void CLwipIf::dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
 /* -------------------------------------------------------------------------- */   
+  (void)name;
   if (ipaddr != NULL) {
     *((uint32_t *)callback_arg) = ip4_addr_get_u32(ipaddr);
   } else {
@@ -933,13 +930,15 @@ void CLwipIf::beginDns(IPAddress aDNSServer) {
    addDns(aDNSServer);
 }
 
+
+
 /* -------------------------------------------------------------------------- */
 void CLwipIf::addDns(IPAddress aDNSServer) {
 /* -------------------------------------------------------------------------- */   
    #if LWIP_DNS
    ip_addr_t ip;
    dns_num++;
-   uint8_t *dnsaddr = aDNSServer.raw_address();
+   
    /* DNS initialized by DHCP when call dhcp_start() */
    bool dhcp_started = false;
 
@@ -954,6 +953,7 @@ void CLwipIf::addDns(IPAddress aDNSServer) {
 
    if (!dhcp_started) {
      dns_init();
+     uint8_t *dnsaddr = IpAddress2uint8(aDNSServer);
      IP_ADDR4(&ip, dnsaddr[0], dnsaddr[1], dnsaddr[2], dnsaddr[3]);
      dns_setserver(dns_num, &ip);
      
@@ -987,6 +987,9 @@ const char* CLwipIf::getSSID(NetIfType_t type) {
      return nullptr;
    }
 }
+
+
+
 
 /* -------------------------------------------------------------------------- */
 uint8_t* CLwipIf::getBSSID(NetIfType_t type, uint8_t *bssid) {
@@ -1436,9 +1439,9 @@ void CWifiStation::begin(const uint8_t* _ip,
       setNm(_nm);
    }
    else {
-      setIp(default_wifi_ip_add.raw_address());
-      setGw(default_wifi_gw_add.raw_address());
-      setNm(default_wifi_nm_add.raw_address());
+      setIp(IpAddress2uint8(default_wifi_ip_add));
+      setGw(IpAddress2uint8(default_wifi_gw_add));
+      setNm(IpAddress2uint8(default_wifi_nm_add));
    }
    
    
@@ -1558,9 +1561,9 @@ void CWifiSoftAp::begin(const uint8_t* _ip,
       setNm(_nm);
    }
    else {
-      setIp(default_wifi_ip_add.raw_address());
-      setGw(default_wifi_gw_add.raw_address());
-      setNm(default_wifi_nm_add.raw_address());
+      setIp(IpAddress2uint8(default_wifi_ip_add));
+      setGw(IpAddress2uint8(default_wifi_gw_add));
+      setNm(IpAddress2uint8(default_wifi_nm_add));
    }
    
 

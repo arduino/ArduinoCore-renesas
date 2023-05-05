@@ -12,6 +12,9 @@
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
+  (void)timeout;
+  (void)responseTimeout;
+
   int rv = 0;
 
   ni = CLwipIf::getInstance().get(NI_ETHERNET);
@@ -46,11 +49,30 @@ void CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
   begin(local_ip, subnet, gateway, gateway);
 }
 
+static uint8_t _ip[4];
+static uint8_t _gw[4];
+static uint8_t _sn[4];
+
 /* -------------------------------------------------------------------------- */
 void CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   
-  ni = CLwipIf::getInstance().get(NI_ETHERNET,  local_ip.raw_address(), gateway.raw_address(), subnet.raw_address());
+  _ip[0] =  local_ip[0];
+  _ip[1] =  local_ip[1];
+  _ip[2] =  local_ip[2];
+  _ip[3] =  local_ip[3];
+
+  _gw[0] =  gateway[0];
+  _gw[1] =  gateway[1];
+  _gw[2] =  gateway[2];
+  _gw[3] =  gateway[3];
+
+  _sn[0] =  subnet[0];
+  _sn[1] =  subnet[1];
+  _sn[2] =  subnet[2];
+  _sn[3] =  subnet[3];
+
+  ni = CLwipIf::getInstance().get(NI_ETHERNET,  _ip, _gw, _sn);
   if(ni != nullptr) {
     /* If there is a local DHCP informs it of our manual IP configuration to prevent IP conflict */
     ni->DhcpNotUsed();
@@ -65,44 +87,44 @@ void setDNS(IPAddress dns_server) {
 } 
 
 /* -------------------------------------------------------------------------- */
-int CEthernet::begin(uint8_t *mac_address, unsigned long timeout, unsigned long responseTimeout) {
+int CEthernet::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
+  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
   begin(timeout, responseTimeout);
   return ret;
 }
 
 /* -------------------------------------------------------------------------- */
-void CEthernet::begin(uint8_t *mac_address, IPAddress local_ip) {
+void CEthernet::begin(uint8_t *mac, IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
   // Assume the DNS server will be the machine on the same network as the local IP
   // but with last octet being '1'
   IPAddress dns_server = local_ip;
   dns_server[3] = 1;
-  begin(mac_address, local_ip, dns_server);
+  begin(mac, local_ip, dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
-void CEthernet::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server) {
+void CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   // Assume the gateway will be the machine on the same network as the local IP
   // but with last octet being '1'
   IPAddress gateway = local_ip;
   gateway[3] = 1;
-  begin(mac_address, local_ip, dns_server, gateway);
+  begin(mac, local_ip, dns_server, gateway);
 }
 
 /* -------------------------------------------------------------------------- */
-void CEthernet::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
+void CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */  
   IPAddress subnet(255, 255, 255, 0);
-  begin(mac_address, local_ip, dns_server, gateway, subnet);
+  begin(mac, local_ip, dns_server, gateway, subnet);
 }
 
 /* -------------------------------------------------------------------------- */
 void CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */  
-  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
+  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
   begin(local_ip, subnet, gateway, dns_server);
 }
 
