@@ -630,7 +630,7 @@ int CEspControl::getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb) {
    Serial.println("[REQUEST] CEspControl::getAccessPointConfig");
    #endif
 
-   int rv = ESP_CONTROL_CTRL_ERROR;
+   int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req; 
    prepare_and_send_request(CTRL_REQ_GET_AP_CONFIG, rv, nullptr, cb, req);
    if(rv == ESP_CONTROL_OK) {
