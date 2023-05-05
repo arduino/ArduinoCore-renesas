@@ -9,11 +9,13 @@
 class EthernetUDP : public lwipUDP {
    public:
    EthernetUDP() {}
-   CNetIf *ni = CLwipIf::getInstance().get(NI_ETHERNET);
+   virtual uint8_t begin(uint16_t port) override {
+      CNetIf *ni = CLwipIf::getInstance().get(NI_ETHERNET);
       if(ni != nullptr) {
          return lwipUDP::begin(IPAddress(ni->getIpAdd()), port);
       }
       return 0;
+   }
 };
 
 

@@ -21,12 +21,13 @@
 
  */
 
-#include <EthernetRA.h>
-#include <EthernetUdp.h>
+#include <CEthernet.h>
+#include <CEthernetUdp.h>
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets
 
-char timeServer[] = "time.nist.gov"; // time.nist.gov NTP server
+// Alternative use ->   time.nist.gov NTP server
+char timeServer[] = "it.pool.ntp.org"; 
 
 const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
 
@@ -41,8 +42,7 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
-
+ 
   // start Ethernet and UDP
   if (Ethernet.begin() == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -50,12 +50,22 @@ void setup() {
     for (;;)
       ;
   }
+  else {
+    Serial.println("DHCP configuration OK!");
+    Serial.print("Ip address: ");
+    Serial.println(Ethernet.localIP());
+    Serial.print("Subnet mask: ");
+    Serial.println(Ethernet.subnetMask());
+    Serial.print("gateway: ");
+    Serial.println(Ethernet.gatewayIP());
+    Serial.print("DNS server: ");
+    Serial.println(Ethernet.dnsServerIP());
+  }
   Udp.begin(localPort);
 }
 
 void loop() {
   sendNTPpacket(timeServer); // send an NTP packet to a time server
-
   // wait to see if a reply is available
   delay(1000);
   if (Udp.parsePacket()) {
