@@ -15,9 +15,8 @@
  This code is in the public domain.
  */
 
-#include <EthernetRA.h>
-#include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
-
+#include <CEthernet.h>
+#include <CEthernetUdp.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network:
@@ -32,16 +31,38 @@ char  ReplyBuffer[] = "acknowledged";       // a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
+extern "C" {
+
+void print_log(uint32_t address, void *buffer, uint32_t len) {
+  Serial.print("Pbuf address: ");
+  Serial.println(address,HEX);
+  
+  for(int i = 0; i < len; i++) {
+    uint8_t p = *((uint8_t *)buffer + i);
+    Serial.print((uint8_t)p,HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+}
+
+}
+
+
 void setup() {
+  Serial.begin(9600);
+  while(!Serial) {}
   // start the Ethernet and UDP:
-  Eif (Ethernet.begin() == 0) {
+  if (Ethernet.begin() == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // try to configure using IP address instead of DHCP:
     Ethernet.begin(ip);
   }
+  else {
+    Serial.println("DHCP configuration OK!");
+    Serial.print("Ip address: ");
+    Serial.println(Ethernet.localIP());
+  }
   Udp.begin(localPort);
-
-  Serial.begin(9600);
 }
 
 void loop() {
@@ -61,8 +82,10 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
+    memset(packetBuffer,0x00,UDP_TX_PACKET_MAX_SIZE);
     // read the packet into packetBufffer
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    // the packet is printed as a string, so there must be room for the \0
+    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE-1);
     Serial.println("Contents:");
     Serial.println(packetBuffer);
 

@@ -156,9 +156,9 @@ int lwipUDP::endPacket()
     __enable_irq();
     return 0;
   }
-  __disable_irq(); 
-  _data = pbuffer_free_data(_data);
-  __enable_irq();
+ 
+  _data = NULL;
+  
   CLwipIf::getInstance().lwip_task();
 
   return 1;
