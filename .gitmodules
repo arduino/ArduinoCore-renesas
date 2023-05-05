@@ -4,3 +4,6 @@
 [submodule "extras/santiago-leven-usb-bridge"]
 	path = extras/santiago-leven-usb-bridge
 	url = git@github.com:bcmi-labs/santiago-leven-usb-bridge
+[submodule "extras/fsp"]
+	path = extras/fsp
+	url = git@github.com:bcmi-labs/fsp.git
