@@ -642,6 +642,7 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
 
       }
       else {
+
          wifi_status = WL_CONNECT_FAILED;
          CLwipIf::connected_to_access_point = false;
       }
@@ -649,7 +650,10 @@ int CLwipIf::connectToAp(const char *ssid, const char *pwd) {
       CLwipIf::getInstance().restartAsyncRequest();
    }
    else {
-      Serial.println("SSID not found in the list of available AP");
+      /* in case SSID was available scan again for access point 
+         (perhaps a wifi hostpoint has been added) */
+      CLwipIf::getInstance().scanForAp();
+      //Serial.println("SSID not found in the list of available AP");
    }
    return rv;
 }
