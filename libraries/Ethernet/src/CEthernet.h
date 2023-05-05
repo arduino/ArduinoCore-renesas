@@ -19,7 +19,13 @@ enum EthernetLinkStatus {
   LinkOFF
 };
 
+enum EthernetHardwareStatus {
+  EthernetNoHardware,
+  EthernetMbed = 6
+};
+
 class CEthernet {
+
   private:
     CNetIf *ni;
     
@@ -38,14 +44,15 @@ class CEthernet {
     // configuration through DHCP.
     // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
     int begin(uint8_t *mac_address, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-    void begin(uint8_t *mac_address, IPAddress local_ip);
-    void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server);
-    void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
-    void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
+    int begin(uint8_t *mac_address, IPAddress local_ip);
+    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server);
+    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
+    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
+    EthernetHardwareStatus hardwareStatus();
 
     void setDNS(IPAddress dns_server); 
 
-
+    int disconnect(void);
     int maintain();
     void schedule(void);
 

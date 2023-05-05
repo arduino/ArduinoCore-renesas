@@ -115,6 +115,10 @@ EthernetLinkStatus CEthernet::linkStatus() {
   return Unknown;
 }
 
+int CEthernetClass::disconnect() {
+  return 1;
+}
+
 /* -------------------------------------------------------------------------- */
 int CEthernet::maintain() {
 /* -------------------------------------------------------------------------- */  
@@ -129,6 +133,7 @@ int CEthernet::maintain() {
         break;
       case DHCP_CHECK_RENEW_OK:
       case DHCP_CHECK_REBIND_OK:
+	//_dnsServerAddress = _dhcp->getDnsServerIp();
         break;
       default:
         //this is actually a error, it will retry though

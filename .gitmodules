@@ -10,3 +10,9 @@
 [submodule "extras/protobuf-c"]
 	path = extras/protobuf-c
 	url = git@github.com:protobuf-c/protobuf-c.git
+[submodule "extras/tls/mbedtls"]
+	path = extras/tls/mbedtls
+	url = git@github.com:bcmi-labs/mbedtls.git
+[submodule "extras/net/lwip"]
+	path = extras/net/lwip
+	url = https://git.savannah.nongnu.org/git/lwip.git
