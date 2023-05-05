@@ -15,7 +15,7 @@
   by sstaub
 */
 
-#include <EthernetRA.h>
+#include <CEthernet.h>
 
 
 // Initialize the Ethernet client library
@@ -43,7 +43,7 @@ void setup() {
 }
 
 void loop() {
-
+  
   switch (Ethernet.maintain())
   {
     case 1:
