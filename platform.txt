@@ -16,13 +16,13 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={build.compiler_path}
 compiler.c.cmd={build.crossprefix}gcc
-compiler.c.flags=-c {compiler.warning_flags} -Os -g3 --specs=nano.specs -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+compiler.c.flags=-c {compiler.warning_flags} -O0 -g3 --specs=nano.specs -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
 compiler.c.elf.cmd={build.crossprefix}g++
 compiler.c.elf.flags=-Wl,--gc-sections --specs=nano.specs --specs=nosys.specs {compiler.warning_flags} -mcpu={build.mcu} {build.float-abi} {build.fpu}
 compiler.S.cmd={build.crossprefix}g++
-compiler.S.flags=-c -g -x assembler-with-cpp -Os -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
+compiler.S.flags=-c -g -x assembler-with-cpp -O0 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.cpp.cmd={build.crossprefix}g++
-compiler.cpp.flags=-c {compiler.warning_flags}  -Os --specs=nano.specs -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+compiler.cpp.flags=-c {compiler.warning_flags}  -O0 --specs=nano.specs -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
 compiler.ar.cmd={build.crossprefix}ar
 compiler.ar.flags=rcs
 compiler.ar.extra_flags=

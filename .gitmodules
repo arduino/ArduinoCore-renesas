@@ -7,3 +7,6 @@
 [submodule "extras/fsp"]
 	path = extras/fsp
 	url = git@github.com:bcmi-labs/fsp.git
+[submodule "extras/protobuf-c"]
+	path = extras/protobuf-c
+	url = git@github.com:protobuf-c/protobuf-c.git

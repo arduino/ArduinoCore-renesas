@@ -19,7 +19,7 @@
  by sstaub
  */
 
-#include <EthernetRA.h>
+#include <CEthernet.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network:
