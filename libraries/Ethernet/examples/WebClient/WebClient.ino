@@ -39,7 +39,7 @@ void setup() {
   bool use_dns = true; 
   
   // start the Ethernet connection:
-  if (1) { //Ethernet.begin() == 0) {
+  if (Ethernet.begin() == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // try to configure using IP address instead of DHCP:
     // IN THAT CASE YOU SHOULD CONFIGURE manually THE DNS or USE the IPAddress Server variable above

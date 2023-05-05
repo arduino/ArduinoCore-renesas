@@ -23,11 +23,11 @@
 
 // fill in an available IP address on your network here,
 // for manual configuration:
-IPAddress ip(10, 130, 22, 84);
-IPAddress gateway(10, 130, 22, 1);
+IPAddress ip(192, 168, 1, 16);
+IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 // fill in your Domain Name Server address here:
-IPAddress myDns(10, 130, 22, 1);
+IPAddress myDns(192, 168, 1, 1);
 
 // initialize the library instance:
 EthernetClient client;
