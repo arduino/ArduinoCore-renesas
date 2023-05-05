@@ -42,7 +42,9 @@ public:
     int begin();
     void end();
 
+#if defined (ARDUINO)
     String serialNumber();
+#endif
 
     long random(long max);
     long random(long min, long max);
