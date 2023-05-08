@@ -168,6 +168,13 @@ static void CheckSerialReset() {
 #include "r_wdt.h"
 #endif
 
+/* This variable is used within the Arduino_FreeRTOS library
+ * within the microcontroller specific code (port.c) to determine
+ * whether to go to low power sleep when a reset request
+ * has been triggered.
+ */
+bool is_watchdog_reset_in_progress_for_upload = false;
+
 extern "C" void tud_dfu_runtime_reboot_to_dfu_cb(void)
 {
     R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
@@ -183,6 +190,7 @@ extern "C" void tud_dfu_runtime_reboot_to_dfu_cb(void)
     p_cfg.stop_control = WDT_STOP_CONTROL_ENABLE;
     int err = R_WDT_Open(&p_ctrl, &p_cfg);
     R_WDT_Refresh(&p_ctrl);
+    is_watchdog_reset_in_progress_for_upload = true;
     if (err == FSP_ERR_ALREADY_OPEN) {
         // loop here since the watchdog is already being used by the application
         // (which will very likely kick it as soon as we return)

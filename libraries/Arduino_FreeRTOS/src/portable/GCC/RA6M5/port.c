@@ -1436,7 +1436,9 @@ __attribute__((weak)) void vApplicationIdleHook (void)
     vTaskSuspendAll();
 
     /* Save current LPM state, then sleep. */
-    rm_freertos_port_sleep_preserving_lpm(1);
+    extern bool is_watchdog_reset_in_progress_for_upload;
+    if (!is_watchdog_reset_in_progress_for_upload)
+      rm_freertos_port_sleep_preserving_lpm(1);
 
     /* Exit with interrupts enabled. */
     __enable_irq();
