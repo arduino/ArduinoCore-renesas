@@ -78,6 +78,9 @@ uint8_t *CEspControl::getStationRx(uint8_t &if_num, uint16_t &dim) {
    CMsg msg; 
    __disable_irq();
    bool res = CEspCom::getMsgForStation(msg);
+   if(!res) {
+      CEspCom::clearStationRx();
+   }
    __enable_irq();
    if(res) {
       if_num = msg.get_if_num();
@@ -97,6 +100,9 @@ uint8_t *CEspControl::getSoftApRx(uint8_t &if_num, uint16_t &dim) {
    CMsg msg; 
    __disable_irq();
    bool res = CEspCom::getMsgForSoftAp(msg);
+   if(!res) {
+      CEspCom::clearSoftApRx();
+   }
    __enable_irq();
    if(res) {
       if_num = msg.get_if_num();

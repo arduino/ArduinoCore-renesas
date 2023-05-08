@@ -64,6 +64,9 @@ public:
    static bool getMsgForStation(CMsg &msg);
    static bool getMsgForSoftAp(CMsg &msg);
 
+   static void clearStationRx();
+   static void clearSoftApRx();
+
 };
 
 

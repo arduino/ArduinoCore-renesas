@@ -748,6 +748,9 @@ volatile struct pbuf* CLwipIf::getEthFrame()
         rv = CLwipIf::eth_queue.front();
         CLwipIf::eth_queue.pop();
     }
+    else {
+        CLwipIf::eth_queue = {};
+    }
     return rv;
 }
 
@@ -1375,25 +1378,27 @@ void CWifiStation::task()
     /* get messages and process it  */
     uint8_t if_num;
     uint16_t dim;
-
+    uint8_t* buf = nullptr;
     /* shall we verify something about if_num??? */
+    do {
+        buf = CEspControl::getInstance().getStationRx(if_num, dim);
 
-    uint8_t* buf = CEspControl::getInstance().getStationRx(if_num, dim);
+        if (buf != nullptr) {
+            // Serial.println("Wifi Station - msg rx");
 
-    if (buf != nullptr) {
-        // Serial.println("Wifi Station - msg rx");
+            struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+            if (p != NULL) {
+                /* Copy ethernet frame into pbuf */
+                pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
+                delete[] buf;
 
-        struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-        if (p != NULL) {
-            /* Copy ethernet frame into pbuf */
-            pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
-            delete[] buf;
-
-            if (ni.input(p, &ni) != ERR_OK) {
-                pbuf_free(p);
+                if (ni.input(p, &ni) != ERR_OK) {
+                    pbuf_free(p);
+                }
             }
         }
-    }
+    } while(buf != nullptr);
+
 
 #if LWIP_DHCP
     static unsigned long dhcp_last_time_call = 0;
@@ -1478,20 +1483,25 @@ void CWifiSoftAp::task()
     /* get messages and process it  */
     uint8_t if_num;
     uint16_t dim;
-    uint8_t* buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
+    uint8_t* buf = nullptr;
+    /* shall we verify something about if_num??? */
+    do {
 
-    if (buf != nullptr) {
-        struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-        if (p != NULL) {
-            /* Copy ethernet frame into pbuf */
-            pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
-            delete[] buf;
+        buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
 
-            if (ni.input(p, &ni) != ERR_OK) {
-                pbuf_free(p);
+        if (buf != nullptr) {
+            struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+            if (p != NULL) {
+                /* Copy ethernet frame into pbuf */
+                pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
+                delete[] buf;
+
+                if (ni.input(p, &ni) != ERR_OK) {
+                    pbuf_free(p);
+                }
             }
         }
-    }
+    } while(buf != nullptr);
 
 #if LWIP_DHCP
     static unsigned long dhcp_last_time_call = 0;
@@ -1536,6 +1546,9 @@ uint8_t CWifiSoftAp::getEncryptionType()
     return CLwipIf::getInstance().getEncryptionType(NI_WIFI_SOFTAP);
 }
 
+
+#define DHCPS_DEBUG 1
+
 #if DHCPS_DEBUG == 1
 char b_dbg[512];
 extern "C" void printDbg(const char* fmt, ...)
@@ -1550,3 +1563,12 @@ extern "C" void printDbg(const char* fmt, ...)
     Serial.println(b_dbg);
 }
 #endif
+
+
+extern "C" void disable_interrupts() {
+    __disable_irq();
+}
+
+extern "C" void enable_interrupts() {
+    __enable_irq();
+}

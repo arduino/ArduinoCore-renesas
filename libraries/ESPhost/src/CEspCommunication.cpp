@@ -56,7 +56,7 @@ bool CEspCom::send_msg_to_app(const uint8_t *buffer, uint16_t dim) {
          rv = true;
       }
       else {
-         Serial.println("MSG NOT VALID!");
+         
       }
    }
    return rv;
@@ -100,6 +100,18 @@ bool CEspCom::storeSoftApMsg(CMsg &msg) {
    return false;
 
 }    
+
+/* -------------------------------------------------------------------------- */
+void CEspCom::clearStationRx()  {
+/* -------------------------------------------------------------------------- */   
+   CEspCom::rxStationQueue = {};
+}
+
+/* -------------------------------------------------------------------------- */
+void CEspCom::clearSoftApRx() {
+/* -------------------------------------------------------------------------- */   
+   CEspCom::rxSoftApQueue = {};
+}
 
 /* -------------------------------------------------------------------------- */
 bool CEspCom::getMsgForStation(CMsg &msg) {
