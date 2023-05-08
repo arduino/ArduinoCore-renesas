@@ -5,22 +5,15 @@
 volatile unsigned long agt_time_ms = 0;
 uint32_t _freq_hz = 0;
 
-void delay(uint32_t ms) {
-#ifdef AZURE_RTOS_THREADX
-	tx_thread_sleep(ms);
-#else
+__attribute__((weak)) void delay(uint32_t ms) {
 	R_BSP_SoftwareDelay(ms, BSP_DELAY_UNITS_MILLISECONDS);
-#endif
 }
 
 void delayMicroseconds(unsigned int us) {
 	R_BSP_SoftwareDelay(us, BSP_DELAY_UNITS_MICROSECONDS);
 }
 
-void yield() {
-#ifdef AZURE_RTOS_THREADX
-	tx_thread_relinquish();
-#endif
+__attribute__((weak)) void yield() {
 }
 
 static FspTimer main_timer;

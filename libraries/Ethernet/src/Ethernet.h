@@ -25,7 +25,7 @@ enum EthernetLinkStatus {
 
 enum EthernetHardwareStatus {
   EthernetNoHardware,
-  EthernetMbed = 6
+  EthernetLwip = 7
 };
 
 class CEthernet {

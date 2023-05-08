@@ -30,7 +30,6 @@ void setup()
    * are leaving the default execution
    * flow.
    */
-#if 1
   auto const rc_loop = xTaskCreate
     (
       loop_thread_func,
@@ -45,8 +44,7 @@ void setup()
     Serial.println("Failed to create 'loop' thread");
     return;
   }
-#endif
-#if 1
+
   auto const rc_blinky = xTaskCreate
     (
       blinky_thread_func,
@@ -61,7 +59,7 @@ void setup()
     Serial.println("Failed to create 'loop' thread");
     return;
   }
-#endif
+
   Serial.println("Starting scheduler ...");
   /* Start the scheduler. */
   vTaskStartScheduler();

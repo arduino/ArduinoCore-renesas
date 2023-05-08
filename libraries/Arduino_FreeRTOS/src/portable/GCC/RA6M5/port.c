@@ -225,6 +225,19 @@ static void prvTaskExitError(void);
 
 #endif
 
+/* Arduino specific overrides */
+void delay(uint32_t ms) {
+    if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING) {
+        vTaskDelay(pdMS_TO_TICKS(ms));
+    } else {
+        R_BSP_SoftwareDelay(ms, BSP_DELAY_UNITS_MILLISECONDS);
+    }
+}
+
+void yield() {
+    taskYIELD();
+}
+
 /*
  * Subroutines used by the RA port. See comment header above implementation
  * for details. These functions cannot be static because they are called
@@ -1436,7 +1449,9 @@ __attribute__((weak)) void vApplicationIdleHook (void)
     vTaskSuspendAll();
 
     /* Save current LPM state, then sleep. */
-    rm_freertos_port_sleep_preserving_lpm(1);
+    extern bool is_watchdog_reset_in_progress_for_upload;
+    if (!is_watchdog_reset_in_progress_for_upload)
+      rm_freertos_port_sleep_preserving_lpm(1);
 
     /* Exit with interrupts enabled. */
     __enable_irq();
