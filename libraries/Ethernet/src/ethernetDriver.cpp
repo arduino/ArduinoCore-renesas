@@ -186,7 +186,7 @@ void eth_reset_due_to_ADE_bit() {
     if( (*EDMAC_EESR_REG & ADE_BIT_MASK) == ADE_BIT_MASK) {
         R_ETHER_Close(eth_driver.get_ctrl());
         *EDMAC_CONTROL_REG |= 0x1;
-        fsp_err_t err = R_ETHER_Open(eth_driver.get_ctrl(), eth_driver.get_cfg());
+        R_ETHER_Open(eth_driver.get_ctrl(), eth_driver.get_cfg());
     }               
 }
 

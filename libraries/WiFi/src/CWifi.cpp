@@ -91,6 +91,8 @@ void CWifi::config(IPAddress local_ip) {
    _config(local_ip, _gw, _nm);
 }
 
+extern uint8_t *IpAddress2uint8(IPAddress a);
+
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    

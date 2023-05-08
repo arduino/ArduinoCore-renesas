@@ -12,6 +12,9 @@
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
+  (void)timeout;
+  (void)responseTimeout;
+
   int rv = 0;
 
   ni = CLwipIf::getInstance().get(NI_ETHERNET);
@@ -46,6 +49,10 @@ int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
   return begin(local_ip, subnet, gateway, gateway);
 }
 
+static uint8_t _ip[4];
+static uint8_t _gw[4];
+static uint8_t _sn[4];
+
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
@@ -68,9 +75,9 @@ void setDNS(IPAddress dns_server) {
 } 
 
 /* -------------------------------------------------------------------------- */
-int CEthernet::begin(uint8_t *mac_address, unsigned long timeout, unsigned long responseTimeout) {
+int CEthernet::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
+  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
   begin(timeout, responseTimeout);
   return ret;
 }
