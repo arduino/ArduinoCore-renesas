@@ -2,7 +2,7 @@
 #include <string.h>
 
 
-#define DHCPS_DEBUG 1
+
 #include "lwipDhcpServer.h"
 #include "lwipDhcpServerPriv.h"
 

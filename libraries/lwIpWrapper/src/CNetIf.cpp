@@ -1547,8 +1547,6 @@ uint8_t CWifiSoftAp::getEncryptionType()
 }
 
 
-#define DHCPS_DEBUG 1
-
 #if DHCPS_DEBUG == 1
 char b_dbg[512];
 extern "C" void printDbg(const char* fmt, ...)
@@ -1564,11 +1562,3 @@ extern "C" void printDbg(const char* fmt, ...)
 }
 #endif
 
-
-extern "C" void disable_interrupts() {
-    __disable_irq();
-}
-
-extern "C" void enable_interrupts() {
-    __enable_irq();
-}
