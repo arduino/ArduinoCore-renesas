@@ -20,8 +20,6 @@
 
 #include "CEspControl.h"
 
-#define ESP_HOST_DEBUG_ENABLED
-
 extern int esp_host_perform_spi_communication();
 extern int esp_host_spi_init(void);
 

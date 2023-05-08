@@ -1256,8 +1256,6 @@ void CNetIf::dhcp_task()
 void CNetIf::setLinkUp()
 {
     /* -------------------------------------------------------------------------- */
-    Serial.println("LINK IS UP");
-
     netif_set_link_up(&ni);
     /* When the netif is fully configured this function must be called.*/
     netif_set_up(&ni);

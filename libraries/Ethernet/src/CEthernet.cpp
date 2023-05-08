@@ -49,10 +49,6 @@ int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
   return begin(local_ip, subnet, gateway, gateway);
 }
 
-static uint8_t _ip[4];
-static uint8_t _gw[4];
-static uint8_t _sn[4];
-
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  

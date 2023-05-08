@@ -36,7 +36,6 @@ int lwipClient::connect(const char* host, uint16_t port)
     IPAddress remote_addr;
 
     int ret = CLwipIf::getInstance().getHostByName(host, remote_addr);
-    Serial.println(remote_addr);
     if (ret == 1) {
         return connect(remote_addr, port);
     } else {
