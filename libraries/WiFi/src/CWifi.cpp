@@ -91,6 +91,8 @@ void CWifi::config(IPAddress local_ip) {
    _config(local_ip, _gw, _nm);
 }
 
+extern uint8_t *IpAddress2uint8(IPAddress a);
+
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
@@ -169,11 +171,12 @@ void CWifi::end(void) {
 uint8_t* CWifi::macAddress(uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
    if(ni != nullptr) {
-      if(ni->getMacAddress(mac) == ESP_CONTROL_OK) {
+      if(ni->getMacAddress(mac) == WL_MAC_ADDR_LENGTH) {
          return mac;
       }
    }
-   return nullptr;
+   memset(mac,0x00,6);
+   return mac;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PORT=$1
 ESPTOOL_PATH=$2

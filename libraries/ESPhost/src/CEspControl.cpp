@@ -410,7 +410,7 @@ void CEspControl::prepare_and_send_request(AppMsgId_e id,
          msg = rv.getMsg();
       break;
       case CTRL_REQ_SET_SOFTAP_VND_IE:
-         msg = rv.getMsg();
+         msg = rv.setSoftAccessPointVndIeMsg(*((WifiVendorSoftApIe_t *)arg));
       break;
       case CTRL_REQ_START_SOFTAP:
          msg = rv.startSoftAccessPointMsg(*((SoftApCfg_t *)arg));
@@ -840,7 +840,7 @@ int CEspControl::setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCal
 
    int rv = ESP_CONTROL_OK;
    CCtrlMsgWrapper req;
-   prepare_and_send_request(CTRL_REQ_SET_SOFTAP_VND_IE, rv, nullptr, cb, req);
+   prepare_and_send_request(CTRL_REQ_SET_SOFTAP_VND_IE, rv, &vendor_ie, cb, req);
    if(rv == ESP_CONTROL_OK) {
       rv = req.isSoftAccessPointVndIeSet();
    }

@@ -35,18 +35,17 @@ void setup() {
   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
-
-  // print your MAC address:
-  byte mac[6];
-  WiFi.macAddress(mac);
-  Serial.print("MAC: ");
-  printMacAddress(mac);
 }
 
 void loop() {
+  byte mac[6];
   // scan for existing networks:
   Serial.println("Scanning available networks...");
   listNetworks();
+
+  WiFi.macAddress(mac);
+  Serial.print("MAC: ");
+  printMacAddress(mac);
   delay(10000);
 }
 

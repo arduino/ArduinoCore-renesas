@@ -118,6 +118,10 @@ public:
      * Get the interface MAC address.
      *
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
+     * 
+     * the value returned by this function is meaningfull only if called 
+     * afert a begin (both begin or beginAP) or a ScanNetwork function
+     * otherwise an empty mac address is returned
      */
     uint8_t* macAddress(uint8_t* mac);
 

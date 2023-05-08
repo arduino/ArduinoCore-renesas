@@ -40,7 +40,7 @@ CLwipIf::CLwipIf()
 /* START THE TIMER FOR LWIP tasks - #CORE_DEPENDENT_STUFF */
 #ifdef LWIP_USE_TIMER
     uint8_t type = 8;
-    uint8_t ch = FspTimer::get_available_timer(type);
+    int8_t ch = FspTimer::get_available_timer(type);
 
     if (ch < 0) {
         ch = FspTimer::get_available_timer(type, true);
@@ -105,30 +105,33 @@ CLwipIf::~CLwipIf()
 }
 
 /* -------------------------------------------------------------------------- */
-int CLwipIf::disconnectEventcb(CCtrlMsgWrapper* resp)
-{
-    if (CLwipIf::connected_to_access_point) {
-        wifi_status = WL_DISCONNECTED;
-        if (net_ifs[NI_WIFI_STATION] != nullptr) {
-            net_ifs[NI_WIFI_STATION]->setLinkDown();
-        }
-    }
+int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
+   (void)resp;
+   if(CLwipIf::connected_to_access_point) {
+      wifi_status = WL_DISCONNECTED;
+      if(net_ifs[NI_WIFI_STATION] != nullptr) {
+         net_ifs[NI_WIFI_STATION]->setLinkDown();
+      }
+   }
+   return ESP_CONTROL_OK;
 }
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::initEventCb(CCtrlMsgWrapper* resp)
-{
-    CLwipIf::wifi_hw_initialized = true;
-}
 
 /* -------------------------------------------------------------------------- */
-int CLwipIf::setWifiMode(WifiMode_t mode)
-{
-    /* -------------------------------------------------------------------------- */
-    CLwipIf::getInstance().startSyncRequest();
-    int rv = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
-    CLwipIf::getInstance().restartAsyncRequest();
-    return rv;
+int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
+   (void)resp;
+   CLwipIf::wifi_hw_initialized = true;
+   return ESP_CONTROL_OK;
+}
+
+
+/* -------------------------------------------------------------------------- */
+int CLwipIf::setWifiMode(WifiMode_t mode) {
+/* -------------------------------------------------------------------------- */   
+      CLwipIf::getInstance().startSyncRequest();
+      int rv = CEspControl::getInstance().setWifiMode(mode);
+      CLwipIf::getInstance().restartAsyncRequest();
+      return rv;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -312,13 +315,14 @@ err_t CLwipIf::initEth(struct netif* _ni)
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf* p)
-{
-    /* -------------------------------------------------------------------------- */
-    err_t errval = ERR_OK;
-    uint16_t tx_buf_dim = 0;
-    uint8_t* tx_buf = eth_get_tx_buffer(&tx_buf_dim);
-    assert(p->tot_len <= tx_buf_dim);
+err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
+/* -------------------------------------------------------------------------- */   
+  (void)_ni;
+
+  err_t errval = ERR_OK;
+  uint16_t tx_buf_dim = 0;
+  uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
+  assert (p->tot_len <= tx_buf_dim);
 
     uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
     if (bytes_actually_copied > 0) {
@@ -330,13 +334,11 @@ err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf* p)
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf* p)
-{
-    /* -------------------------------------------------------------------------- */
+err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
+/* -------------------------------------------------------------------------- */   
+    (void)_ni;
     err_t errval = ERR_IF;
-
-    uint8_t* buf = new uint8_t[p->tot_len];
-
+    uint8_t *buf = new uint8_t[p->tot_len];
     if (buf != nullptr) {
         uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
         if (bytes_actually_copied > 0) {
@@ -400,6 +402,7 @@ err_t CLwipIf::initWifiStation(struct netif* _ni)
 err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf* p)
 {
     /* -------------------------------------------------------------------------- */
+    (void)_ni;
     err_t errval = ERR_IF;
 
     uint8_t* buf = new uint8_t[p->tot_len];
@@ -618,16 +621,22 @@ int CLwipIf::connectToAp(const char* ssid, const char* pwd)
                 net_ifs[NI_WIFI_STATION]->setLinkUp();
             }
 
-        } else {
-            wifi_status = WL_CONNECT_FAILED;
-            CLwipIf::connected_to_access_point = false;
-        }
+      }
+      else {
 
-        CLwipIf::getInstance().restartAsyncRequest();
-    } else {
-        Serial.println("SSID not found in the list of available AP");
-    }
-    return rv;
+         wifi_status = WL_CONNECT_FAILED;
+         CLwipIf::connected_to_access_point = false;
+      }
+
+      CLwipIf::getInstance().restartAsyncRequest();
+   }
+   else {
+      /* in case SSID was available scan again for access point 
+         (perhaps a wifi hostpoint has been added) */
+      CLwipIf::getInstance().scanForAp();
+      //Serial.println("SSID not found in the list of available AP");
+   }
+   return rv;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -742,34 +751,13 @@ volatile struct pbuf* CLwipIf::getEthFrame()
     return rv;
 }
 
-#ifdef DEBUG_USING LED
-void toggle_led_debug()
-{
-    static int i = 0;
-    static bool st = false;
-    i++;
-    if (i > 5) {
-        if (st) {
-            digitalWrite(LED_BUILTIN, HIGH);
-        } else {
-            digitalWrite(LED_BUILTIN, LOW);
-        }
-        st = !st;
-        i = 0;
-    }
-}
-#endif
-
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
-void CLwipIf::timer_cb(timer_callback_args_t* arg)
-{
-    /*  -------------------------------------------------------------------------- */
-#ifdef DEBUG_USING LED
-    toggle_led_debug();
-#endif
-    CLwipIf::getInstance().lwip_task();
-}
+void CLwipIf::timer_cb(timer_callback_args_t *arg) {
+/*  -------------------------------------------------------------------------- */   
+  (void)arg;
+  CLwipIf::getInstance().lwip_task();
+} 
 #endif
 
 /* ***************************************************************************
@@ -777,14 +765,14 @@ void CLwipIf::timer_cb(timer_callback_args_t* arg)
  * ****************************************************************************/
 
 /* -------------------------------------------------------------------------- */
-void CLwipIf::dns_callback(const char* name, const ip_addr_t* ipaddr, void* callback_arg)
-{
-    /* -------------------------------------------------------------------------- */
-    if (ipaddr != NULL) {
-        *((uint32_t*)callback_arg) = ip4_addr_get_u32(ipaddr);
-    } else {
-        *((uint32_t*)callback_arg) = 0;
-    }
+void CLwipIf::dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+/* -------------------------------------------------------------------------- */   
+  (void)name;
+  if (ipaddr != NULL) {
+    *((uint32_t *)callback_arg) = ip4_addr_get_u32(ipaddr);
+  } else {
+    *((uint32_t *)callback_arg) = 0;
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -907,6 +895,8 @@ void CLwipIf::beginDns(IPAddress aDNSServer)
     addDns(aDNSServer);
 }
 
+
+
 /* -------------------------------------------------------------------------- */
 void CLwipIf::addDns(IPAddress aDNSServer)
 {
@@ -945,6 +935,9 @@ IPAddress CLwipIf::getDns(int _num)
     IPAddress(0, 0, 0, 0);
 #endif
 }
+
+
+
 
 /* -------------------------------------------------------------------------- */
 const char* CLwipIf::getSSID(NetIfType_t type)
@@ -1411,9 +1404,8 @@ void CWifiStation::task()
 }
 
 /* -------------------------------------------------------------------------- */
-int CWifiStation::getMacAddress(uint8_t* mac)
-{
-    /* -------------------------------------------------------------------------- */
+int CWifiStation::getMacAddress(uint8_t* mac) {
+/* -------------------------------------------------------------------------- */
     return CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, mac);
 }
 
