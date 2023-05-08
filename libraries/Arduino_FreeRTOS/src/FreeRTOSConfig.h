@@ -27,7 +27,7 @@ FSP_HEADER
 #define configUSE_TICKLESS_IDLE (0)
 #endif
 #ifndef configUSE_IDLE_HOOK
-#define configUSE_IDLE_HOOK (0)
+#define configUSE_IDLE_HOOK (1)
 #endif
 #ifndef configUSE_MALLOC_FAILED_HOOK
 #define configUSE_MALLOC_FAILED_HOOK (0)
