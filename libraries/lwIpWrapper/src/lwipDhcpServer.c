@@ -2,7 +2,7 @@
 #include <string.h>
 
 
-
+#define DHCPS_DEBUG 1
 #include "lwipDhcpServer.h"
 #include "lwipDhcpServerPriv.h"
 
@@ -657,6 +657,7 @@ static int16_t parse_msg(struct dhcps_msg *msg, uint16_t len)
  * 				  port -- the remote port from which the packet was received
  * Returns      : none
 *******************************************************************************/
+
 static void handle_dhcp(void *arg,
                         struct udp_pcb *pcb,
                         struct pbuf *p,
@@ -668,17 +669,16 @@ static void handle_dhcp(void *arg,
     uint16_t i;
     uint16_t dhcps_msg_cnt = 0;
     uint8_t *p_dhcps_msg = NULL;
-    uint8_t *data;
-		uint32_t PayloadLen = 0;
-		struct pbuf  *q;
+	struct pbuf  *q;
 
-		#if DHCPS_DEBUG
+	#if DHCPS_DEBUG
     DHCPS_LOG("dhcps: handle_dhcp-> receive a packet\n");
-		#endif
+	#endif
+
     if (p == NULL) {
-				#if DHCPS_DEBUG
-				DHCPS_LOG("dhcps: handle_dhcp-> p = NULL\n");
-				#endif			
+		#if DHCPS_DEBUG
+		DHCPS_LOG("dhcps: handle_dhcp-> p = NULL\n");
+		#endif			
         return;
     }
 		/* Allocate Buffer For DHCP Message   */
@@ -686,11 +686,12 @@ static void handle_dhcp(void *arg,
     if (malloc_len < p->tot_len) {
         malloc_len = p->tot_len;
     }
+    
     pmsg_dhcps = (struct dhcps_msg *)mem_malloc(malloc_len);
     if (NULL == pmsg_dhcps) {
-				#if DHCPS_DEBUG
-				DHCPS_LOG("dhcps: handle_dhcp-> pmsg_dhcps = NULL\n");
-				#endif	
+		#if DHCPS_DEBUG
+		DHCPS_LOG("dhcps: handle_dhcp-> pmsg_dhcps = NULL\n");
+		#endif	
         pbuf_free(p);
         return;
     }
@@ -698,69 +699,60 @@ static void handle_dhcp(void *arg,
 		
 		/* Copying Buffer to message structure*/
     p_dhcps_msg = (uint8_t *)pmsg_dhcps;
+    
+    uint16_t bytes_copied = 0;
     tlen = p->tot_len;
-    data = p->payload;
-		PayloadLen = p->len;
-		
-		#if DHCPS_DEBUG
-		DHCPS_LOG("dhcps: handle_dhcp-> p->tot_len = %d\n", tlen);
-		DHCPS_LOG("dhcps: handle_dhcp-> p->len = %d\n", p->len);
-		#endif
-		q = p;
-		while(1)
-			{
-				for (i = 0; i < PayloadLen; i++) 
-				{
-					p_dhcps_msg[dhcps_msg_cnt++] = data[i];
-				}
-				PayloadLen = q->next->len;
-				data = q->next->payload;
-				if(q->next != NULL){
-					q = q->next;
-				}
-				else{
-					break;
-				}
-			}
+    q = p;
 
-		#if DHCPS_DEBUG
+    do {
+        memcpy(p_dhcps_msg + bytes_copied, q->payload, q->len);
+        bytes_copied += q->len;
+        q = q->next;
+    } while(q != NULL && bytes_copied < malloc_len);
+
+	#if DHCPS_DEBUG
     DHCPS_LOG("dhcps: handle_dhcp-> pbuf_free(p)\n");
-		#endif
+	#endif
+    
     pbuf_free(p);
 			
-		#if DHCPS_DEBUG
-		DHCPS_LOG("dhcps: handle_dhcp-> parse_msg(p)\n");
-		#endif
+	#if DHCPS_DEBUG
+	DHCPS_LOG("dhcps: handle_dhcp-> parse_msg(p)\n");
+	#endif
+    
     switch (parse_msg(pmsg_dhcps, tlen )) { 
         case DHCPS_STATE_OFFER://1
-						#if DHCPS_DEBUG
+			#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: handle_dhcp-> DHCPD_STATE_OFFER\n");
-						#endif
+			#endif
             send_offer(pmsg_dhcps, malloc_len);
         break;
 
         case DHCPS_STATE_ACK://3
-						#if DHCPS_DEBUG
+			#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: handle_dhcp-> DHCPD_STATE_ACK\n");
-						#endif
+			#endif
             send_ack(pmsg_dhcps, malloc_len);
         break;
 
         case DHCPS_STATE_NAK://4
-						#if DHCPS_DEBUG
+			#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: handle_dhcp-> DHCPD_STATE_NAK\n");
-						#endif
+			#endif
             send_nak(pmsg_dhcps, malloc_len);
         break;
 
         default :
             break;
     }
-		#if DHCPS_DEBUG
+	#if DHCPS_DEBUG
     DHCPS_LOG("dhcps: handle_dhcp-> mem_free(pmsg_dhcps)\n");
-		#endif
-		mem_free(pmsg_dhcps);
+	#endif
+	mem_free(pmsg_dhcps);
     pmsg_dhcps = NULL;
+
+   
+    
 }
 
 /******************************************************************************
