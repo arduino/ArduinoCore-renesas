@@ -80,6 +80,9 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
     }
     unsigned long start = millis();
     unsigned long tms = start + timeout;
+    int pending = client->available();
+    // If there is data in the client, wait for message completion
+    if((pending > 0) && (pending < len))
     do {
         int pending = client->available();
         if (pending < len && timeout > 0) {
@@ -89,7 +92,9 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
     
     int result = client->read(buf, len);
     
-    if (!result) return MBEDTLS_ERR_SSL_WANT_READ;
+    // lwIP interface return -1 if there is no data to read
+    // report without throwing errors or block
+    if (result <= 0) return MBEDTLS_ERR_SSL_WANT_READ;
 
     log_d("SSL client RX (received=%d expected=%d in %dms)", result, len, millis()-start);
 
