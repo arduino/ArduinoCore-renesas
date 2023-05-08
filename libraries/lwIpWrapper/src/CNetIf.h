@@ -42,6 +42,8 @@
 
 #define WIFI_INIT_TIMEOUT_MS 10000
 
+#define WL_MAC_ADDR_LENGTH 6
+
 /* DEFAULT ADDRESS FOR ETHERNET CONFIGURATION */
 
 #define ETH_IFNAME0 'e'
@@ -185,8 +187,8 @@ public:
     struct netif* getNi() { return &ni; }
 
     uint32_t getIpAdd() { return ip4_addr_get_u32(&(ni.ip_addr)); }
-    uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.gw)); }
-    uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
+    uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
+    uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.gw)); }
 
     void setHostname(const char* name)
     {

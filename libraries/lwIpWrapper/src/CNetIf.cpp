@@ -336,12 +336,9 @@ err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */
 err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
-   (void)_ni;
-   err_t errval = ERR_IF;
-   uint8_t *buf = new uint8_t[p->tot_len];
-
-    uint8_t* buf = new uint8_t[p->tot_len];
-
+    (void)_ni;
+    err_t errval = ERR_IF;
+    uint8_t *buf = new uint8_t[p->tot_len];
     if (buf != nullptr) {
         uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
         if (bytes_actually_copied > 0) {
@@ -1407,9 +1404,8 @@ void CWifiStation::task()
 }
 
 /* -------------------------------------------------------------------------- */
-int CWifiStation::getMacAddress(uint8_t* mac)
-{
-    /* -------------------------------------------------------------------------- */
+int CWifiStation::getMacAddress(uint8_t* mac) {
+/* -------------------------------------------------------------------------- */
     return CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, mac);
 }
 

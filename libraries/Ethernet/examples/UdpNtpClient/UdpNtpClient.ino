@@ -21,7 +21,7 @@
 
  */
 
-#include <CEthernet.h>
+#include <Ethernet.h>
 #include <CEthernetUdp.h>
 
 unsigned int localPort = 8888;       // local port to listen for UDP packets

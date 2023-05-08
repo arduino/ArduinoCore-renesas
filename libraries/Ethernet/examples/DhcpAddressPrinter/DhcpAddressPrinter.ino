@@ -15,7 +15,7 @@
   by sstaub
 */
 
-#include <CEthernet.h>
+#include <Ethernet.h>
 
 
 // Initialize the Ethernet client library

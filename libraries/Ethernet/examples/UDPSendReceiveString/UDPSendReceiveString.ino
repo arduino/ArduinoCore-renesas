@@ -15,7 +15,7 @@
  This code is in the public domain.
  */
 
-#include <CEthernet.h>
+#include <Ethernet.h>
 #include <CEthernetUdp.h>
 
 // Enter an IP address for your controller below.
