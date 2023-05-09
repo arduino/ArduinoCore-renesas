@@ -37,16 +37,16 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
+  // scan for existing networks:
+  Serial.println();
+  Serial.println("Scanning available networks...");
+  listNetworks();
+
   // print your MAC address:
   byte mac[6];
   WiFi.macAddress(mac);
   Serial.print("MAC: ");
   printMacAddress(mac);
-
-  // scan for existing networks:
-  Serial.println();
-  Serial.println("Scanning available networks...");
-  listNetworks();
 }
 
 void loop() {

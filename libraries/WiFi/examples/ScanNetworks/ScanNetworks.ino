@@ -44,7 +44,8 @@ void loop() {
   listNetworks();
 
   WiFi.macAddress(mac);
-  Serial.print("MAC: ");
+  Serial.println();
+  Serial.print("Your MAC Address is: ");
   printMacAddress(mac);
   delay(10000);
 }
