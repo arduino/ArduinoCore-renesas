@@ -200,12 +200,13 @@ public:
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
 
      enum wl_enc_type : 
-      ENC_TYPE_WEP  = 5,
-      ENC_TYPE_TKIP = 2,
-      ENC_TYPE_CCMP = 4,
-      ENC_TYPE_WP3 = 6,
-      ENC_TYPE_NONE = 7,
-      ENC_TYPE_AUTO = 8,
+      ENC_TYPE_WEP,
+      ENC_TYPE_WPA,
+      ENC_TYPE_WPA2,
+      ENC_TYPE_WPA2_ENTERPRISE,
+      ENC_TYPE_WPA3,
+      ENC_TYPE_NONE,
+      ENC_TYPE_AUTO,
 
       ENC_TYPE_UNKNOWN = 255
       

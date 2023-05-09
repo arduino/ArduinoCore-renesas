@@ -25,6 +25,29 @@ uint32_t ip_addr_to_u32(ip_addr_t* ipaddr)
     return ip4_addr_get_u32(ipaddr);
 }
 
+static uint8_t Encr2wl_enc(int enc)
+{
+    if (enc == WIFI_AUTH_OPEN) {
+        return ENC_TYPE_NONE;
+    } else if (enc == WIFI_AUTH_WEP) {
+        return ENC_TYPE_WEP;
+    } else if (enc == WIFI_AUTH_WPA_PSK) {
+        return ENC_TYPE_WPA;
+    } else if (enc == WIFI_AUTH_WPA2_PSK) {
+        return ENC_TYPE_WPA2;
+    } else if (enc == WIFI_AUTH_WPA_WPA2_PSK) {
+        return ENC_TYPE_WPA2;
+    } else if (enc == WIFI_AUTH_WPA2_ENTERPRISE) {
+        return ENC_TYPE_WPA2_ENTERPRISE;
+    } else if (enc == WIFI_AUTH_WPA3_PSK) {
+        return ENC_TYPE_WPA3;
+    } else if (enc == WIFI_AUTH_WPA2_WPA3_PSK) {
+        return ENC_TYPE_WPA3;
+    } else {
+        return ENC_TYPE_UNKNOWN;
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 CLwipIf::CLwipIf()
     : eth_initialized(false)
@@ -558,7 +581,7 @@ uint8_t CLwipIf::getEncrType(uint8_t i)
 {
     /* -------------------------------------------------------------------------- */
     if (access_points.size() > 0 && i < access_points.size()) {
-        return (uint8_t)access_points[i].encryption_mode;
+        return Encr2wl_enc(access_points[i].encryption_mode);
     }
     return 0;
 }
@@ -665,7 +688,7 @@ uint32_t CLwipIf::getRSSI()
 uint8_t CLwipIf::getEncrType()
 {
     /* -------------------------------------------------------------------------- */
-    return (uint8_t)access_point_cfg.encryption_mode;
+    return Encr2wl_enc(access_point_cfg.encryption_mode);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -978,29 +1001,6 @@ int32_t CLwipIf::getRSSI(NetIfType_t type)
         return access_point_cfg.rssi;
     } else {
         return 0;
-    }
-}
-
-uint8_t Encr2wl_enc(int enc)
-{
-    if (enc == WIFI_AUTH_OPEN) {
-        return ENC_TYPE_NONE;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WEP) {
-        return ENC_TYPE_WEP;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA_PSK) {
-        return ENC_TYPE_TKIP;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA2_PSK) {
-        return ENC_TYPE_CCMP;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA_WPA2_PSK) {
-        return ENC_TYPE_CCMP;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA2_ENTERPRISE) {
-        return ENC_TYPE_UNKNOWN;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA3_PSK) {
-        return ENC_TYPE_WP3;
-    } else if (enc == CTRL__WIFI_SEC_PROT__WPA2_WPA3_PSK) {
-        return ENC_TYPE_WP3;
-    } else {
-        return ENC_TYPE_UNKNOWN;
     }
 }
 

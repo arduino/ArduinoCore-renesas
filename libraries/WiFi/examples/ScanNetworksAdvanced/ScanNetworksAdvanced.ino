@@ -97,10 +97,10 @@ void printEncryptionType(int thisType) {
     case ENC_TYPE_WEP:
       Serial.print("WEP");
       break;
-    case ENC_TYPE_TKIP:
+    case ENC_TYPE_WPA:
       Serial.print("WPA");
       break;
-    case ENC_TYPE_CCMP:
+    case ENC_TYPE_WPA2:
       Serial.print("WPA2");
       break;
     case ENC_TYPE_NONE:
@@ -108,6 +108,12 @@ void printEncryptionType(int thisType) {
       break;
     case ENC_TYPE_AUTO:
       Serial.print("Auto");
+      break;
+    case ENC_TYPE_WPA2_ENTERPRISE:
+      Serial.print("WPA2 Enterprise");
+      break;
+    case ENC_TYPE_WPA3:
+      Serial.print("WPA3");
       break;
     case ENC_TYPE_UNKNOWN:
     default:

@@ -82,10 +82,10 @@ void printEncryptionType(int thisType) {
     case ENC_TYPE_WEP:
       Serial.println("WEP");
       break;
-    case ENC_TYPE_TKIP:
+    case ENC_TYPE_WPA:
       Serial.println("WPA");
       break;
-    case ENC_TYPE_CCMP:
+    case ENC_TYPE_WPA2:
       Serial.println("WPA2");
       break;
     case ENC_TYPE_NONE:
@@ -94,13 +94,18 @@ void printEncryptionType(int thisType) {
     case ENC_TYPE_AUTO:
       Serial.println("Auto");
       break;
+    case ENC_TYPE_WPA2_ENTERPRISE:
+      Serial.println("WPA2 Enterprise");
+      break;
+    case ENC_TYPE_WPA3:
+      Serial.println("WPA3");
+      break;
     case ENC_TYPE_UNKNOWN:
     default:
       Serial.println("Unknown");
       break;
   }
 }
-
 
 void printMacAddress(byte mac[]) {
   for (int i = 5; i >= 0; i--) {
