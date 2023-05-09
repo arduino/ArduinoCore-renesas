@@ -31,23 +31,6 @@ char  ReplyBuffer[] = "acknowledged";       // a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
-extern "C" {
-
-void print_log(uint32_t address, void *buffer, uint32_t len) {
-  Serial.print("Pbuf address: ");
-  Serial.println(address,HEX);
-  
-  for(int i = 0; i < len; i++) {
-    uint8_t p = *((uint8_t *)buffer + i);
-    Serial.print((uint8_t)p,HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
-}
-
-}
-
-
 void setup() {
   Serial.begin(9600);
   while(!Serial) {}
