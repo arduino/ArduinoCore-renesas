@@ -302,6 +302,9 @@ bool esp_host_there_are_data_to_be_tx() {
    /* the function esp32_receive_msg_to_be_sent_on_SPI memset the tx buffer to 0 if there are no data to be tx*/
    __disable_irq();
    bool rv = CEspCom::get_msg_from_app((uint8_t*)esp32_spi_tx_buffer, MAX_SPI_BUFFER_SIZE);
+   if(!rv) {
+      CEspCom::clearToEspQueue();
+   }
    __enable_irq();
    #ifdef ESP_HOST_DEBUG_ENABLED_AVOID
    Serial.print("**** TX data? ");

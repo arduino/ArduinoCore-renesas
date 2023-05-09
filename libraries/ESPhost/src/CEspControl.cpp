@@ -184,9 +184,14 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
 /* -------------------------------------------------------------------------- */   
    int rv = ESP_CONTROL_EMPTY_RX_QUEUE;  
    CMsg msg;
+   bool res = false;
+   do {
    /* get the message */
    __disable_irq();
-   bool res = CEspCom::get_msg_from_esp(msg);
+   res = CEspCom::get_msg_from_esp(msg);
+   if(!res) {
+      CEspCom::clearFromEspQueue();
+   }
    __enable_irq();
    if(res) {
       
@@ -218,7 +223,10 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
          }
          else {
             rv = process_ctrl_messages(msg, response); 
-         } 
+         }
+         if(rv == ESP_CONTROL_MSG_RX) {
+            break;
+         }
       }
       /* NETWORK_MESSAGES____________________________________________________ */
       else if(msg.get_if_type() == ESP_STA_IF) {
@@ -256,7 +264,7 @@ int CEspControl::process_msgs_received(CCtrlMsgWrapper* response) {
          
       }
    }
-   
+   } while(res);
    return rv;
 }
 

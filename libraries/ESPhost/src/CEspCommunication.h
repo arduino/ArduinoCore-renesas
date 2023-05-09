@@ -66,6 +66,8 @@ public:
 
    static void clearStationRx();
    static void clearSoftApRx();
+   static void clearFromEspQueue();
+   static void clearToEspQueue();
 
 };
 
