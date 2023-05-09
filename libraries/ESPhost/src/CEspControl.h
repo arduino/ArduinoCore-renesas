@@ -55,9 +55,9 @@ public:
          return false;
       }
 
-      for(int i = 0; i < 6; i++) {
+      for(int i = 5; i >= 0; i--) {
          std::string str_num(mac_in+(i*3),2);
-         *(mac_out+i) = std::stoul(str_num,nullptr,16);
+         *(mac_out+(5-i)) = std::stoul(str_num,nullptr,16);
       }
 
       return true;
