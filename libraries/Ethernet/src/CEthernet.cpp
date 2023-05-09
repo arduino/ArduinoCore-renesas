@@ -12,13 +12,13 @@
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  (void)timeout;
   (void)responseTimeout;
 
   int rv = 0;
 
   ni = CLwipIf::getInstance().get(NI_ETHERNET);
   if(ni != nullptr) {
+    ni->DhcpSetTimeout(timeout);
     rv = (int)ni->DhcpStart();
   }
   
