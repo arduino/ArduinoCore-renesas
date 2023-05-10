@@ -190,30 +190,8 @@ SoftwareSerial::SoftwareSerial(uint8_t rx_pin, uint8_t tx_pin, size_t bufsize):
 {
     assert(tx_pin < NUM_DIGITAL_PINS);
     assert(rx_pin < NUM_DIGITAL_PINS);
-
-    // NOTE: The IO port must be opened before calling any R_IOPORT_xxx functions.
-    // This sets the following: p_instance_ctrl->open = IOPORT_OPEN; (0x504F5254U)
-    // which is "PORT" in ASCII. Uncomment the following line if R_IOPORT_Open is
-    // Not called from anywhere else.
-    //R_IOPORT_Open(&g_ioport_ctrl, &g_bsp_pin_cfg);
-
-    #if (SS_DEBUG > 1)
-    R_IOPORT_PinCfg(&g_ioport_ctrl, SS_DEBUG_PIN,
-            IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PORT_OUTPUT_HIGH);
-    #endif
-
-    tx_descr.pin = g_pin_cfg[tx_pin].pin;
-    R_IOPORT_PinCfg(&g_ioport_ctrl, tx_descr.pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT
-            | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PORT_OUTPUT_HIGH);
-
-    // Enable RX pin IRQ.
-    rx_descr.pin = g_pin_cfg[rx_pin].pin;
-    rx_descr.irq_chan = attachIrq2Link(rx_pin, CHANGE);
-    if (rx_descr.irq_chan != -1) {
-        // TODO: workaround for the core not setting pull-ups.
-        R_IOPORT_PinCfg(&g_ioport_ctrl, rx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT
-                | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_IRQ_ENABLE);
-    }
+    _tx_pin = tx_pin;
+    _rx_pin = rx_pin;
 }
 
 SoftwareSerial::~SoftwareSerial()
@@ -236,6 +214,31 @@ size_t SoftwareSerial::printTo(Print& p) const
 
 int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
 {
+
+    // NOTE: The IO port must be opened before calling any R_IOPORT_xxx functions.
+    // This sets the following: p_instance_ctrl->open = IOPORT_OPEN; (0x504F5254U)
+    // which is "PORT" in ASCII. Uncomment the following line if R_IOPORT_Open is
+    // Not called from anywhere else.
+    //R_IOPORT_Open(&g_ioport_ctrl, &g_bsp_pin_cfg);
+    tx_descr.pin = g_pin_cfg[_tx_pin].pin;
+    rx_descr.pin = g_pin_cfg[_rx_pin].pin;
+
+    #if (SS_DEBUG > 1)
+    R_IOPORT_PinCfg(&g_ioport_ctrl, SS_DEBUG_PIN,
+            IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PORT_OUTPUT_HIGH);
+    #endif
+
+    R_IOPORT_PinCfg(&g_ioport_ctrl, tx_descr.pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT
+            | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PORT_OUTPUT_HIGH);
+
+    // Enable RX pin IRQ.
+    rx_descr.irq_chan = attachIrq2Link(_rx_pin, CHANGE);
+    if (rx_descr.irq_chan != -1) {
+        // TODO: workaround for the core not setting pull-ups.
+        R_IOPORT_PinCfg(&g_ioport_ctrl, rx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT
+                | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_IRQ_ENABLE);
+    }
+
     // Set serial configuration.
     config.bitshift = (rx_descr.pin & 0xFF);
     config.polarity = (inverted) ? 1 : 0;
