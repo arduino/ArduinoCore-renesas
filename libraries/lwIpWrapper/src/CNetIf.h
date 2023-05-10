@@ -276,7 +276,7 @@ public:
 class CLwipIf {
     /* -------------------------------------------------------------------------- */
 private:
-    static queue<volatile struct pbuf*> eth_queue;
+    static queue<struct pbuf*> eth_queue;
 
     bool eth_initialized;
 
@@ -417,7 +417,7 @@ public:
 
     int setWifiMode(WifiMode_t mode);
 
-    volatile struct pbuf* getEthFrame();
+    struct pbuf* getEthFrame();
 
     void lwip_task();
 };

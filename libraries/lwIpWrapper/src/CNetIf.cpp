@@ -9,7 +9,7 @@ CNetIf* CLwipIf::net_ifs[] = { nullptr };
 bool CLwipIf::wifi_hw_initialized = false;
 bool CLwipIf::connected_to_access_point = false;
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
-queue<volatile struct pbuf*> CLwipIf::eth_queue;
+queue<struct pbuf*> CLwipIf::eth_queue;
 bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
@@ -282,7 +282,7 @@ void CLwipIf::ethFrameRx()
             while (rx_frame_dim % 4 != 0) {
                 rx_frame_dim++;
             }
-            volatile struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
+            struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
             if (p != NULL) {
                 /* Copy ethernet frame into pbuf */
                 pbuf_take((struct pbuf*)p, (uint8_t*)rx_frame_buf, (uint32_t)rx_frame_dim);
@@ -763,10 +763,10 @@ int CLwipIf::resetLowPowerMode()
 }
 
 /* -------------------------------------------------------------------------- */
-volatile struct pbuf* CLwipIf::getEthFrame()
+struct pbuf* CLwipIf::getEthFrame()
 {
     /* -------------------------------------------------------------------------- */
-    volatile struct pbuf* rv = nullptr;
+    struct pbuf* rv = nullptr;
     if (!CLwipIf::eth_queue.empty()) {
         rv = CLwipIf::eth_queue.front();
         CLwipIf::eth_queue.pop();
@@ -1313,18 +1313,17 @@ void CEth::task()
 
     eth_execute_link_process();
 
-    CLwipIf::ethFrameRx();
-
     __disable_irq();
+    CLwipIf::ethFrameRx();
     p = (struct pbuf*)CLwipIf::getInstance().getEthFrame();
     __enable_irq();
-
     if (p != nullptr) {
 
         if (ni.input((struct pbuf*)p, &ni) != ERR_OK) {
             pbuf_free((struct pbuf*)p);
         }
     }
+    
 
 #if LWIP_DHCP
     static unsigned long dhcp_last_time_call = 0;
