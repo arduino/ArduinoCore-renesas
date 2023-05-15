@@ -139,6 +139,6 @@ void PwmOut::resume() {
 }
 
 void PwmOut::end() {
-  timer.close();
+  timer.end();
   _enabled = false;
 }
