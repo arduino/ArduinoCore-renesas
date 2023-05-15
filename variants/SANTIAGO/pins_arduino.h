@@ -81,7 +81,7 @@ static const uint8_t A5 = PIN_A5;
 
 /****** UART CORE DEFINES ******/
 
-#define SERIAL_HOWMANY		2
+#define SERIAL_HOWMANY		1
 #define UART1_TX_PIN        1
 #define UART1_RX_PIN        0
 

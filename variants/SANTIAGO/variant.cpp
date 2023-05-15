@@ -69,11 +69,7 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LEDB, OUTPUT);
-  pinMode(LEDR, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
-  digitalWrite(LEDB, LOW);
-  digitalWrite(LEDR, LOW);
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(3, PIN_CFG_REQ_PWM)[0]));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(5, PIN_CFG_REQ_PWM)[0]));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(6, PIN_CFG_REQ_PWM)[0]));
