@@ -790,6 +790,15 @@ void analogWrite(pin_size_t pinNumber, int value)
   }
 
   if(ptr != nullptr) {
+    //check the pinmux in case it's been modified by a call to pinMode()
+    bool has_peripheral_mux = R_PFS->PORT[g_pin_cfg[pinNumber].pin >> IOPORT_PRV_PORT_OFFSET].PIN[g_pin_cfg[pinNumber].pin & BSP_IO_PRV_8BIT_MASK].PmnPFS & IOPORT_CFG_PERIPHERAL_PIN;
+    if (!has_peripheral_mux) {
+      ptr->end();
+      ptr->begin();
+    }
+  }
+
+  if(ptr != nullptr) {
     ptr->pulse_perc((float)value * 100.0 / (1 << _writeResolution));
   }
 }
