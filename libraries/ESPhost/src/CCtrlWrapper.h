@@ -776,7 +776,7 @@ public:
          payload.max_conn = cfg.max_connections;
          payload.ssid_hidden = cfg.ssid_hidden;
          payload.bw = cfg.bandwidth;  
-         Serial.println("start sofT Access point OK");
+
          payload_set = true; 
       }
 
