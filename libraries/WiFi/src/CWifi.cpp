@@ -172,6 +172,12 @@ uint8_t* CWifi::macAddress(uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
    if(ni != nullptr) {
       if(ni->getMacAddress(mac) == WL_MAC_ADDR_LENGTH) {
+         // internal mac address representation is inverted
+         for (int i = 0; i<3; i++) {
+            auto tmp = mac[i];
+            mac[i] = mac[5-i];
+            mac[5-i] = tmp;
+         }
          return mac;
       }
    }
