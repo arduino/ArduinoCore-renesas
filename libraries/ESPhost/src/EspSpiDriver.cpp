@@ -257,7 +257,7 @@ int esp_host_spi_init(void) {
      return ESP_HOSTED_SPI_DRIVER_INIT_IRQ_FAILED;
    }
 
-   attachInterrupt(DATA_READY_PIN, ext_irq_callback, RISING);
+   
 
    /* +++++++++
     * OPEN SPI
@@ -538,5 +538,5 @@ static void spi_callback(spi_callback_args_t *p_args) {
 /* -------------------------------------------------------------------------- */
 static void ext_irq_callback(void) {
 /* -------------------------------------------------------------------------- */   
-   spi_rx_waiting++;
+  
 }
