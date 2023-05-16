@@ -74,8 +74,8 @@ using namespace std;
 #define STATUS_LENGTH                        14
 #define VENDOR_OUI_BUF                       3
 
-#define SUCCESS                              0
-#define FAILURE                              -1
+#define SUCCESS_CRTLWRAPPER                              0
+#define FAILURE_CRTLWRAPPER                              -1
 
 enum {
    CTRL_ERR_NOT_CONNECTED = 1,
@@ -962,7 +962,7 @@ public:
       if(checkResponsePayload<CtrlMsgRespSetWifiMaxTxPower>(answer, 
                                                            (int)CTRL_RESP_SET_WIFI_MAX_TX_POWER, 
                                                             answer->resp_set_wifi_max_tx_power) == ESP_CONTROL_OK ) {
-         if(answer->resp_set_wifi_max_tx_power->resp == FAILURE) {
+         if(answer->resp_set_wifi_max_tx_power->resp == FAILURE_CRTLWRAPPER) {
             rv = ESP_CONTROL_ERROR_UNABLE_TO_PARSE_RESPONSE;
          }
          else if(answer->resp_set_wifi_max_tx_power->resp == CTRL_ERR_OUT_OF_RANGE) {
@@ -1185,7 +1185,7 @@ public:
                                     answer->event_station_disconnect_from_esp_softap);
 
       if(rv == ESP_CONTROL_OK) {
-         if(answer->event_station_disconnect_from_esp_softap->resp == SUCCESS) {     
+         if(answer->event_station_disconnect_from_esp_softap->resp == SUCCESS_CRTLWRAPPER) {     
             copyData((uint8_t *)mac_out, 
                      mac_out_dim, 
                      answer->event_station_disconnect_from_esp_softap->mac.data, 
