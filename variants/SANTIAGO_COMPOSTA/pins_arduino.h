@@ -139,7 +139,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define AVCC_MULTIPLY_FACTOR    8.33
 
 #define USB_VID           (0x2341)
-#define USB_PID           (0x0069)
+#define USB_PID           (0x006D)
 #define USB_NAME          "UNO R4 WiFi"
 
 /* EEPROM DEFINES */

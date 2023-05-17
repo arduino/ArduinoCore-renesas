@@ -111,8 +111,12 @@ unor4wifi.build.board=SANTIAGO_COMPOSTA
 unor4wifi.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
 unor4wifi.vid.0=0x2341
 unor4wifi.pid.0=0x1002
+unor4wifi.vid.1=0x2341
+unor4wifi.pid.1=0x006D
 unor4wifi.upload_port.0.vid=0x2341
 unor4wifi.upload_port.0.pid=0x1002
+unor4wifi.upload_port.1.vid=0x2341
+unor4wifi.upload_port.1.pid=0x006D
 
 unor4wifi.compiler.fsp.defines={build.variant.path}/defines.txt
 unor4wifi.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
