@@ -3,7 +3,7 @@
 
 
 #include "lwipServer.h"
-#include "CWifiClient.h"
+#include "WiFiClient.h"
 
 class WiFiServer : public lwipServer {
    public:

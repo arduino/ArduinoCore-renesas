@@ -6,7 +6,7 @@
 
 */
 
-#include "CWifi.h"
+#include "WiFi.h"
 #include "WiFiSSLClient.h"
 #include "IPAddress.h"
 

@@ -16,8 +16,8 @@
 
  */
 
-#include "CWifi.h"
-#include "CWifiServer.h"
+#include "WiFi.h"
+#include "WiFiServer.h"
 
 
 #include "arduino_secrets.h" 

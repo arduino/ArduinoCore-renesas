@@ -20,8 +20,8 @@
  */
 
 
-#include <CWifi.h>
-#include <CWifiServer.h>
+#include <WiFi.h>
+#include <WiFiServer.h>
 
 #include "arduino_secrets.h" 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
