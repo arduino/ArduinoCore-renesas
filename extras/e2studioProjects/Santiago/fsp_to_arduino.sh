@@ -15,7 +15,7 @@ fi
 
 mkdir -p fsp_patched
 cd fsp_patched
-ln -s ../../../tinyusb/hw/mcu/renesas/fsp/ra/ .
+ln -s ../../../fsp/ra/ .
 cd ..
 
 set +e

@@ -47,24 +47,7 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
   { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
 
-  { BSP_IO_PORT_02_PIN_05,    P205   }, /* (22) D22 ------------------------  RGB LED RED */
-  { BSP_IO_PORT_02_PIN_04,    P204   }, /* (23) D23 ------------------------  RGB LED BLUE */
-  { BSP_IO_PORT_00_PIN_12,    P012   }, /* (24) D24 ------------------------- TX LED */
-  { BSP_IO_PORT_00_PIN_13,    P013   }, /* (25) D25 ------------------------- RX LED */
-
-  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (26) D26  ESP_RX */
-  { BSP_IO_PORT_05_PIN_02,    P502   }, /* (27) D27  ESP_TX */
-  { BSP_IO_PORT_00_PIN_04,    P004   }, /* (28) D28  ESP_IO9 */
-  { BSP_IO_PORT_04_PIN_02,    P402   }, /* (29) D29  ESP_EN */
-  { BSP_IO_PORT_04_PIN_00,    P400   }, /* (30) D30  ESP_SPI_CK */
-  { BSP_IO_PORT_04_PIN_01,    P401   }, /* (31) D31  ESP_SPI_CS */
-  { BSP_IO_PORT_04_PIN_10,    P410   }, /* (32) D32  ESP_SPI_MISO */
-  { BSP_IO_PORT_04_PIN_11,    P411   }, /* (33) D33  ESP_SPI_MOSI */
-
-  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (34) D34  EXT_SCL */
-  { BSP_IO_PORT_04_PIN_09,    P409   }, /* (35) D35  EXT_SDA */
-
-  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (36) Analog voltage measure pin  */
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (22) Analog voltage measure pin  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
@@ -86,11 +69,7 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LEDB, OUTPUT);
-  pinMode(LEDR, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
-  digitalWrite(LEDB, LOW);
-  digitalWrite(LEDR, LOW);
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(3, PIN_CFG_REQ_PWM)[0]));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(5, PIN_CFG_REQ_PWM)[0]));
   FspTimer::set_initial_timer_channel_as_pwm(GPT_TIMER, GET_CHANNEL(getPinCfgs(6, PIN_CFG_REQ_PWM)[0]));

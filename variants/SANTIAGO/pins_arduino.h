@@ -74,9 +74,6 @@ static const uint8_t A5 = PIN_A5;
 // ----
 #define PIN_LED     (13u)
 #define LED_BUILTIN PIN_LED
-#define LEDR        (22u)
-#define LEDG        (13u)
-#define LEDB        (23u)
 
 /****** RTC CORE DEFINES *******/
 #define RTC_HOWMANY     1
@@ -84,19 +81,18 @@ static const uint8_t A5 = PIN_A5;
 
 /****** UART CORE DEFINES ******/
 
-#define SERIAL_HOWMANY		2
+#define SERIAL_HOWMANY		1
 #define UART1_TX_PIN        1
 #define UART1_RX_PIN        0
-#define UART2_TX_PIN        26
-#define UART2_RX_PIN        27
 
 /****** WIRE CORE DEFINES ******/
 
 #define WIRE_HOWMANY      2
 #define WIRE_SDA_PIN      14 /* A4 */
 #define WIRE_SCL_PIN      15 /* A5 */
-#define WIRE1_SDA_PIN     35
-#define WIRE1_SCL_PIN     34
+
+static const uint8_t SDA = WIRE_SDA_PIN;
+static const uint8_t SCL = WIRE_SDA_PIN;
 
 /****** SPI CORE DEFINES ******/
 
@@ -107,12 +103,6 @@ static const uint8_t A5 = PIN_A5;
 #define PIN_SPI_SCK   (13)
 #define PIN_SPI_CS    (10)
 #define FORCE_SPI_MODE  (MODE_SPI)
-
-#define PIN_SPI1_MOSI  (33)
-#define PIN_SPI1_MISO  (32)
-#define PIN_SPI1_SCK   (30)
-#define PIN_SPI1_CS    (31)
-#define FORCE_SPI1_MODE (MODE_SCI)
 
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -141,12 +131,12 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
-#define AVCC_MEASURE_PIN        36
+#define AVCC_MEASURE_PIN        22
 #define AVCC_MULTIPLY_FACTOR    8.33
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
-#define USB_NAME          "Santiago"
+#define USB_NAME          "UNO R4 Minima"
 
 /* EEPROM DEFINES */
 

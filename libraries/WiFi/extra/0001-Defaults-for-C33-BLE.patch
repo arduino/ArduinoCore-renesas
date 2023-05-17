@@ -1,0 +1,67 @@
+From d27fcd660dcaee000300e883c929d34c7e728fd4 Mon Sep 17 00:00:00 2001
+From: Martino Facchin <m.facchin@arduino.cc>
+Date: Tue, 4 Apr 2023 18:57:39 +0200
+Subject: [PATCH] Defaults for C33 BLE
+
+---
+ .../esp/esp_driver/network_adapter/main/slave_bt.c        | 4 ++--
+ .../esp/esp_driver/network_adapter/main/slave_bt.h        | 8 ++++----
+ .../esp/esp_driver/network_adapter/sdkconfig.defaults     | 8 +++-----
+ 3 files changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
+index b2e8a73..3a7eae6 100644
+--- a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
++++ b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
+@@ -321,8 +321,8 @@ static void init_uart_c3_s3(void)
+     };
+     ESP_ERROR_CHECK(gdma_new_channel(&rx_channel_config, &s_rx_channel));
+ 
+-    gdma_connect(s_tx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UART, 0));
+-    gdma_connect(s_rx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UART, 0));
++    gdma_connect(s_tx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UHCI, 0));
++    gdma_connect(s_rx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UHCI, 0));
+ 
+     gdma_strategy_config_t strategy_config = {
+         .auto_update_desc = false,
+diff --git a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h
+index 87e29f7..30acaf1 100644
+--- a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h
++++ b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h
+@@ -95,10 +95,10 @@
+ 
+     #if defined(CONFIG_IDF_TARGET_ESP32C3)
+ 
+-      #define BT_TX_PIN         5
+-      #define BT_RX_PIN         18
+-      #define BT_RTS_PIN        19
+-      #define BT_CTS_PIN        8
++      #define BT_TX_PIN         21
++      #define BT_RX_PIN         20
++      #define BT_RTS_PIN        4
++      #define BT_CTS_PIN        3
+ 
+     #elif defined(CONFIG_IDF_TARGET_ESP32S3)
+ 
+diff --git a/esp_hosted_fg/esp/esp_driver/network_adapter/sdkconfig.defaults b/esp_hosted_fg/esp/esp_driver/network_adapter/sdkconfig.defaults
+index bc3ec56..351dc63 100644
+--- a/esp_hosted_fg/esp/esp_driver/network_adapter/sdkconfig.defaults
++++ b/esp_hosted_fg/esp/esp_driver/network_adapter/sdkconfig.defaults
+@@ -7,11 +7,9 @@ CONFIG_SDIO_DAT2_DISABLED=
+ CONFIG_BT_ENABLED=y
+ CONFIG_BT_CONTROLLER_ONLY=y
+ CONFIG_BT_BLUEDROID_ENABLED=
+-CONFIG_BTDM_CTRL_MODE_BTDM=y
++CONFIG_BTDM_CTRL_MODE_BLE_ONLY=y
++CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY=n
++CONFIG_BTDM_CTRL_MODE_BTDM=n
+ CONFIG_BTDM_CTRL_HCI_MODE_VHCI=y
+ 
+ CONFIG_ESP32_WIFI_NVS_ENABLED=
+-
+-# OTA
+-CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+-CONFIG_PARTITION_TABLE_TWO_OTA=y
+-- 
+2.40.0
+

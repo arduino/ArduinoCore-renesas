@@ -23,10 +23,16 @@
           },
           "boards": [
             {
-              "name": "Arduino Santiago"
+              "name": "Arduino UNO R4 Minima"
             },
             {
-              "name": "Arduino Portenta H33"
+              "name": "Arduino UNO R4 WiFi"
+            },
+            {
+              "name": "Arduino Portenta C33"
+            },
+            {
+              "name": "Arduino Science Kit R3 Audio Module"
             }
           ],
           "toolsDependencies": [

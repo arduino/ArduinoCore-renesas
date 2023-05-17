@@ -1,140 +1,144 @@
 ##############################################################
 
-portenta_h33.name=Arduino Portenta C33
-portenta_h33.build.core=arduino
-portenta_h33.build.crossprefix=arm-none-eabi-
-portenta_h33.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+portenta_c33.name=Arduino Portenta C33
+portenta_c33.build.core=arduino
+portenta_c33.build.crossprefix=arm-none-eabi-
+portenta_c33.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 
-portenta_h33.build.variant=PORTENTA_H33
-portenta_h33.build.mcu=cortex-m33
-portenta_h33.build.architecture=cortex-m33
-portenta_h33.build.fpu=-mfpu=fpv5-sp-d16
-portenta_h33.build.float-abi=-mfloat-abi=hard
+portenta_c33.build.variant=PORTENTA_H33
+portenta_c33.build.mcu=cortex-m33
+portenta_c33.build.architecture=cortex-m33
+portenta_c33.build.fpu=-mfpu=fpv5-sp-d16
+portenta_c33.build.float-abi=-mfloat-abi=hard
 
-portenta_h33.build.board=PORTENTA_H33
-portenta_h33.build.defines=-DF_CPU=200000000
-portenta_h33.vid.0=0x2341
-portenta_h33.pid.0=0x0068
-portenta_h33.vid.1=0x2341
-portenta_h33.pid.1=0x0368
-portenta_h33.upload_port.0.vid=0x2341
-portenta_h33.upload_port.0.pid=0x0068
-portenta_h33.upload_port.1.vid=0x2341
-portenta_h33.upload_port.1.pid=0x0368
+portenta_c33.build.board=PORTENTA_H33
+portenta_c33.build.defines=-DF_CPU=200000000
+portenta_c33.vid.0=0x2341
+portenta_c33.pid.0=0x0068
+portenta_c33.vid.1=0x2341
+portenta_c33.pid.1=0x0368
+portenta_c33.upload_port.0.vid=0x2341
+portenta_c33.upload_port.0.pid=0x0068
+portenta_c33.upload_port.1.vid=0x2341
+portenta_c33.upload_port.1.pid=0x0368
 
-portenta_h33.compiler.fsp.defines={build.variant.path}/defines.txt
-portenta_h33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-portenta_h33.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
-portenta_h33.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
-portenta_h33.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-portenta_h33.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-portenta_h33.compiler.fsp.includes={build.variant.path}/includes.txt
-portenta_h33.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-portenta_h33.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+portenta_c33.compiler.fsp.defines={build.variant.path}/defines.txt
+portenta_c33.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+portenta_c33.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
+portenta_c33.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}" -DLWIP_DNS=1
+portenta_c33.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+portenta_c33.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+portenta_c33.compiler.fsp.includes={build.variant.path}/includes.txt
+portenta_c33.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+portenta_c33.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
-portenta_h33.upload.tool=dfu-util
-portenta_h33.upload.tool.default=dfu-util
-portenta_h33.upload.protocol=
-portenta_h33.upload.transport=
-portenta_h33.upload.vid=0x2341
-portenta_h33.upload.pid=0x0368
-portenta_h33.upload.address=0x00010000
-portenta_h33.upload.interface=0
-portenta_h33.upload.use_1200bps_touch=false
-portenta_h33.upload.wait_for_upload_port=false
-portenta_h33.upload.native_usb=true
-portenta_h33.upload.maximum_size=2097152
-portenta_h33.upload.maximum_data_size=523624
-
-##############################################################
-
-santiago.name=Arduino Uno R4 Minima
-santiago.build.core=arduino
-santiago.build.crossprefix=arm-none-eabi-
-santiago.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
-
-santiago.build.variant=SANTIAGO
-santiago.build.mcu=cortex-m4
-santiago.build.architecture=cortex-m4
-santiago.build.fpu=-mfpu=fpv5-sp-d16
-santiago.build.float-abi=-mfloat-abi=hard
-
-santiago.build.board=SANTIAGO
-santiago.build.defines=-DF_CPU=48000000
-santiago.vid.0=0x2341
-santiago.pid.0=0x0069
-santiago.vid.1=0x2341
-santiago.pid.1=0x0369
-santiago.upload_port.0.vid=0x2341
-santiago.upload_port.0.pid=0x0069
-santiago.upload_port.1.vid=0x2341
-santiago.upload_port.1.pid=0x0369
-
-santiago.compiler.fsp.defines={build.variant.path}/defines.txt
-santiago.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-santiago.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
-santiago.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
-santiago.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-santiago.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-santiago.compiler.fsp.includes={build.variant.path}/includes.txt
-santiago.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-santiago.compiler.fsp="{build.variant.path}/libs/libfsp.a"
-
-santiago.upload.tool=dfu-util
-santiago.upload.tool.default=dfu-util
-santiago.upload.protocol=
-santiago.upload.transport=
-santiago.upload.vid=0x2341
-santiago.upload.pid=0x0369
-santiago.upload.address=0x00010000
-santiago.upload.interface=0
-santiago.upload.use_1200bps_touch=false
-santiago.upload.wait_for_upload_port=false
-santiago.upload.native_usb=true
-santiago.upload.maximum_size=262144
-santiago.upload.maximum_data_size=32768
+portenta_c33.upload.tool=dfu-util
+portenta_c33.upload.tool.default=dfu-util
+portenta_c33.upload.protocol=
+portenta_c33.upload.transport=
+portenta_c33.upload.vid=0x2341
+portenta_c33.upload.pid=0x0368
+portenta_c33.upload.address=0x00010000
+portenta_c33.upload.interface=0
+portenta_c33.upload.use_1200bps_touch=false
+portenta_c33.upload.wait_for_upload_port=false
+portenta_c33.upload.native_usb=true
+portenta_c33.upload.maximum_size=2097152
+portenta_c33.upload.maximum_data_size=523624
 
 ##############################################################
 
-composta.name=Arduino Uno R4 WiFi
-composta.build.core=arduino
-composta.build.crossprefix=arm-none-eabi-
-composta.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+minima.name=Arduino Uno R4 Minima
+minima.build.core=arduino
+minima.build.crossprefix=arm-none-eabi-
+minima.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 
-composta.build.variant=SANTIAGO_COMPOSTA
-composta.build.mcu=cortex-m4
-composta.build.architecture=cortex-m4
-composta.build.fpu=-mfpu=fpv5-sp-d16
-composta.build.float-abi=-mfloat-abi=hard
+minima.build.variant=SANTIAGO
+minima.build.mcu=cortex-m4
+minima.build.architecture=cortex-m4
+minima.build.fpu=-mfpu=fpv4-sp-d16
+minima.build.float-abi=-mfloat-abi=hard
 
-composta.build.board=SANTIAGO_COMPOSTA
-composta.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
-composta.vid.0=0x2341
-composta.pid.0=0x1002
-composta.upload_port.0.vid=0x2341
-composta.upload_port.0.pid=0x1002
+minima.build.board=SANTIAGO
+minima.build.defines=-DF_CPU=48000000
+minima.vid.0=0x2341
+minima.pid.0=0x0069
+minima.vid.1=0x2341
+minima.pid.1=0x0369
+minima.upload_port.0.vid=0x2341
+minima.upload_port.0.pid=0x0069
+minima.upload_port.1.vid=0x2341
+minima.upload_port.1.pid=0x0369
 
-composta.compiler.fsp.defines={build.variant.path}/defines.txt
-composta.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
-composta.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
-composta.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
-composta.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-composta.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
-composta.compiler.fsp.includes={build.variant.path}/includes.txt
-composta.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
-composta.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+minima.compiler.fsp.defines={build.variant.path}/defines.txt
+minima.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+minima.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
+minima.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
+minima.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+minima.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+minima.compiler.fsp.includes={build.variant.path}/includes.txt
+minima.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+minima.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
-composta.upload.tool=bossac
-composta.upload.tool.default=bossac
-composta.upload.protocol=sam-ba
-composta.upload.transport=
-composta.upload.vid=0x2341
-composta.upload.pid=0x1002
-composta.upload.use_1200bps_touch=true
-composta.upload.wait_for_upload_port=false
-composta.upload.native_usb=true
-composta.upload.maximum_size=262144
-composta.upload.maximum_data_size=32768
+minima.upload.tool=dfu-util
+minima.upload.tool.default=dfu-util
+minima.upload.protocol=
+minima.upload.transport=
+minima.upload.vid=0x2341
+minima.upload.pid=0x0369
+minima.upload.address=0x00010000
+minima.upload.interface=0
+minima.upload.use_1200bps_touch=false
+minima.upload.wait_for_upload_port=false
+minima.upload.native_usb=true
+minima.upload.maximum_size=262144
+minima.upload.maximum_data_size=32768
+
+##############################################################
+
+unor4wifi.name=Arduino Uno R4 WiFi
+unor4wifi.build.core=arduino
+unor4wifi.build.crossprefix=arm-none-eabi-
+unor4wifi.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+
+unor4wifi.build.variant=SANTIAGO_COMPOSTA
+unor4wifi.build.mcu=cortex-m4
+unor4wifi.build.architecture=cortex-m4
+unor4wifi.build.fpu=-mfpu=fpv4-sp-d16
+unor4wifi.build.float-abi=-mfloat-abi=hard
+
+unor4wifi.build.board=SANTIAGO_COMPOSTA
+unor4wifi.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
+unor4wifi.vid.0=0x2341
+unor4wifi.pid.0=0x1002
+unor4wifi.vid.1=0x2341
+unor4wifi.pid.1=0x006D
+unor4wifi.upload_port.0.vid=0x2341
+unor4wifi.upload_port.0.pid=0x1002
+unor4wifi.upload_port.1.vid=0x2341
+unor4wifi.upload_port.1.pid=0x006D
+
+unor4wifi.compiler.fsp.defines={build.variant.path}/defines.txt
+unor4wifi.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+unor4wifi.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
+unor4wifi.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
+unor4wifi.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+unor4wifi.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+unor4wifi.compiler.fsp.includes={build.variant.path}/includes.txt
+unor4wifi.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+unor4wifi.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+
+unor4wifi.upload.tool=bossac
+unor4wifi.upload.tool.default=bossac
+unor4wifi.upload.protocol=sam-ba
+unor4wifi.upload.transport=
+unor4wifi.upload.vid=0x2341
+unor4wifi.upload.pid=0x1002
+unor4wifi.upload.use_1200bps_touch=true
+unor4wifi.upload.wait_for_upload_port=false
+unor4wifi.upload.native_usb=true
+unor4wifi.upload.maximum_size=262144
+unor4wifi.upload.maximum_data_size=32768
 
 ##############################################################
 

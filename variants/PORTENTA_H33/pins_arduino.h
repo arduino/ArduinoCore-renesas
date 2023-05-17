@@ -154,7 +154,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0068)
-#define USB_NAME          "Portenta H33"
+#define USB_NAME          "Portenta C33"
 
 #define ARDUINO_FLASH_TYPE  HP_FLASH
 #define FLASH_BASE_ADDRESS  0x08000000

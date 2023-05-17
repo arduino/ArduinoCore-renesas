@@ -19,20 +19,20 @@
 
  */
 
-#include <EthernetRA.h>
+#include <Ethernet.h>
 
 // fill in an available IP address on your network here,
 // for manual configuration:
-IPAddress ip(192, 168, 1, 177);
+IPAddress ip(192, 168, 1, 16);
 IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 0, 0);
+IPAddress subnet(255, 255, 255, 0);
 // fill in your Domain Name Server address here:
-IPAddress myDns(1, 1, 1, 1);
+IPAddress myDns(192, 168, 1, 1);
 
 // initialize the library instance:
 EthernetClient client;
 
-char server[] = "www.arduino.cc";
+char server[] = "example.org";
 //IPAddress server(64,131,82,241);
 
 unsigned long lastConnectionTime = 0;             // last time you connected to the server, in milliseconds
@@ -82,9 +82,9 @@ void httpRequest() {
   if (client.connect(server, 80)) {
     Serial.println("connecting...");
     // send the HTTP GET request:
-    client.println("GET /latest.txt HTTP/1.1");
-    client.println("Host: www.arduino.cc");
-    client.println("User-Agent: arduino-ethernet");
+    client.println("GET / HTTP/1.1");
+    client.println("Host: example.org");
+    client.println("User-Agent: ArduinoWiFi/1.1");
     client.println("Connection: close");
     client.println();
 

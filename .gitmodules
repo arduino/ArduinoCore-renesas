@@ -1,6 +1,21 @@
 [submodule "extras/tinyusb"]
 	path = extras/tinyusb
-	url = git@github.com:bcmi-labs/tinyusb.git
+	url = git@github.com:arduino/tinyusb.git
 [submodule "extras/santiago-leven-usb-bridge"]
 	path = extras/santiago-leven-usb-bridge
 	url = git@github.com:bcmi-labs/santiago-leven-usb-bridge
+[submodule "extras/fsp"]
+	path = extras/fsp
+	url = git@github.com:bcmi-labs/fsp.git
+[submodule "extras/protobuf-c"]
+	path = extras/protobuf-c
+	url = git@github.com:protobuf-c/protobuf-c.git
+[submodule "extras/tls/mbedtls"]
+	path = extras/tls/mbedtls
+	url = git@github.com:bcmi-labs/mbedtls.git
+[submodule "extras/net/lwip"]
+	path = extras/net/lwip
+	url = https://git.savannah.nongnu.org/git/lwip.git
+[submodule "libraries/WiFi/extra/esptool"]
+	path = libraries/WiFi/extra/esptool
+	url = https://github.com/espressif/esptool.git

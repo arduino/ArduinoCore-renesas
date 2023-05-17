@@ -30,9 +30,9 @@
 #define RTC_PRIORITY               12
 #define I2C_MASTER_PRIORITY        12
 #define I2C_SLAVE_PRIORITY         12
-#define SPI_MASTER_PRIORITY        12
+#define SPI_MASTER_PRIORITY        6
 #define DMA_PRIORITY               12
-#define TIMER_PRIORITY             12
+#define TIMER_PRIORITY             8
 #define ADC_PRIORITY               12
 #define CAN_PRIORITY               12
 #define CANFD_PRIORITY             12

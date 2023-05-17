@@ -3,7 +3,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino Renesas fsp Boards
-version=0.7.0
+version=0.8.0
 
 # Compile variables
 # ------------------------
@@ -22,7 +22,7 @@ compiler.c.elf.flags=-Wl,--gc-sections --specs=nano.specs --specs=nosys.specs {c
 compiler.S.cmd={build.crossprefix}g++
 compiler.S.flags=-c -g -x assembler-with-cpp -Os -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.cpp.cmd={build.crossprefix}g++
-compiler.cpp.flags=-c {compiler.warning_flags}  -Os --specs=nano.specs -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+compiler.cpp.flags=-c {compiler.warning_flags} -Os --specs=nano.specs -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
 compiler.ar.cmd={build.crossprefix}ar
 compiler.ar.flags=rcs
 compiler.ar.extra_flags=

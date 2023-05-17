@@ -19,7 +19,7 @@
  by sstaub
  */
 
-#include <EthernetRA.h>
+#include <Ethernet.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network.
@@ -27,7 +27,7 @@
 IPAddress ip(192, 168, 1, 177);
 IPAddress myDns(192,168,1, 1);
 IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 0, 0);
+IPAddress subnet(255, 255, 1, 0);
 
 // telnet defaults to port 23
 EthernetServer server(23);

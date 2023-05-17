@@ -9,14 +9,18 @@ ClassName="Universal Serial Bus devices"
 REG_MULTI_SZ = 0x00010000
 DeviceNameSantiago = "Santiago Firmware Upgrade"
 DeviceNamePortenta = "Portenta H33 Firmware Upgrade"
+DeviceNameScience = "Science Kit r3 Firmware Upgrade"
 DeviceNameSantiagoDFU = "Santiago (Upgrade)"
 DeviceNamePortentaDFU = "Portenta H33 (Upgrade)"
+DeviceNameScienceDFU = "Science Kit r3 (Upgrade)"
 VendorName = "Arduino"
 SourceName = "Arduino Renesas Firmware Upgrade Install Disk"
 DeviceIDSantiago   = "VID_2341&PID_0069&Rev_0100&MI_02"
 DeviceIDPortenta   = "VID_2341&PID_0068&Rev_0100&MI_02"
+DeviceIDScience    = "VID_2341&PID_006C&Rev_0100&MI_02"
 DeviceIDSantiagoDFU= "VID_2341&PID_0369&Rev_0100"
 DeviceIDPortentaDFU= "VID_2341&PID_0368&Rev_0100"
+DeviceIDScienceDFU = "VID_2341&PID_016C&Rev_0100"
 
 [Version]
 Signature   = "$Windows NT$"
@@ -36,6 +40,8 @@ DriverVer   = 03/03/2020,10.48.00.000
 %DeviceNameSantiagoDFU% =USB_Install, USB\%DeviceIDSantiagoDFU%
 %DeviceNamePortenta% =USB_Install, USB\%DeviceIDPortenta%
 %DeviceNamePortentaDFU% =USB_Install, USB\%DeviceIDPortentaDFU%
+%DeviceNameScience% =USB_Install, USB\%DeviceIDScience%
+%DeviceNameScienceDFU% =USB_Install, USB\%DeviceIDScienceDFU%
 
 ; ========== Class definition ===========
 

@@ -68,6 +68,7 @@ class SoftwareSerial : public Stream, public arduino::Printable {
         ss_config_t config;
         ss_descr_t<1> tx_descr;
         ss_descr_t<2> rx_descr;
+        uint8_t _tx_pin, _rx_pin;
         void rx_process();
 
     public:
