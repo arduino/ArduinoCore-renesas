@@ -56,7 +56,7 @@ minima.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 minima.build.variant=SANTIAGO
 minima.build.mcu=cortex-m4
 minima.build.architecture=cortex-m4
-minima.build.fpu=-mfpu=fpv5-sp-d16
+minima.build.fpu=-mfpu=fpv4-sp-d16
 minima.build.float-abi=-mfloat-abi=hard
 
 minima.build.board=SANTIAGO
@@ -104,7 +104,7 @@ unor4wifi.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bi
 unor4wifi.build.variant=SANTIAGO_COMPOSTA
 unor4wifi.build.mcu=cortex-m4
 unor4wifi.build.architecture=cortex-m4
-unor4wifi.build.fpu=-mfpu=fpv5-sp-d16
+unor4wifi.build.fpu=-mfpu=fpv4-sp-d16
 unor4wifi.build.float-abi=-mfloat-abi=hard
 
 unor4wifi.build.board=SANTIAGO_COMPOSTA
