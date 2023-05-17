@@ -113,7 +113,6 @@ int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, co
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
         stop();
-        _connected = false;
         return 0;
     }
     log_i("SSL connection established");
