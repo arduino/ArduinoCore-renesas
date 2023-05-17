@@ -37,4 +37,9 @@ private:
 // https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
 HID_& HID();
 
+#ifdef ARDUINO_SANTIAGO_COMPOSTA
+#undef Serial
+#define Serial SerialUSB
+#endif
+
 #endif //__HID_H__

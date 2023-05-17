@@ -29,3 +29,9 @@ int HID_::SendReport(uint8_t id, const void* data, int len)
     _done = false;
     return tud_hid_report(id, data, len);
 }
+
+#ifdef ARDUINO_SANTIAGO_COMPOSTA
+void __maybe_start_usb() {
+    __USBStart();
+}
+#endif
