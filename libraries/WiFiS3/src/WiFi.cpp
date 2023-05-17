@@ -2,51 +2,51 @@
 
 
 /* -------------------------------------------------------------------------- */
-WiFi::WiFi() : _timeout(50000){
+CWifi::CWifi() : _timeout(50000){
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-const char* WiFi::firmwareVersion() {
+const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
-   return WiFi_FIRMWARE_LATEST_VERSION;
+   return WIFI_FIRMWARE_LATEST_VERSION;
 }
 
 
 /* -------------------------------------------------------------------------- */
-int WiFi::begin(const char* ssid) {
+int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
   modem.begin();
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-int WiFi::begin(const char* ssid, const char *passphrase) {
+int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* passphrase is needed so a default one will be set */
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::beginAP(const char *ssid) {
+uint8_t CWifi::beginAP(const char *ssid) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::beginAP(const char *ssid, uint8_t channel) {
+uint8_t CWifi::beginAP(const char *ssid, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::beginAP(const char *ssid, const char* passphrase) {
+uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
+uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
@@ -54,182 +54,182 @@ uint8_t WiFi::beginAP(const char *ssid, const char* passphrase, uint8_t channel)
 
 
 /* -------------------------------------------------------------------------- */
-void WiFi::config(IPAddress local_ip) {
+void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
+void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::config(IPAddress local_ip, IPAddress dns_server) {
+void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
+void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
+void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::setDNS(IPAddress dns_server1) {
+void CWifi::setDNS(IPAddress dns_server1) {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
+void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::setHostname(const char* name) {
+void CWifi::setHostname(const char* name) {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-int WiFi::disconnect() {
+int CWifi::disconnect() {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::end(void) {
+void CWifi::end(void) {
 /* -------------------------------------------------------------------------- */   
 
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t* WiFi::macAddress(uint8_t* mac) {
+uint8_t* CWifi::macAddress(uint8_t* mac) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-int8_t WiFi::scanNetworks() {
+int8_t CWifi::scanNetworks() {
 /* -------------------------------------------------------------------------- */
   modem.begin();
   String res;
-  Serial1.print("Scan results: ");
-  modem.write(res,"AT+WIFICWLAP\r\n");
-  Serial1.println(res);
+  Serial.println("-------- Scan results: ");
+  modem.write(res,CMD(_WIFISCAN));
+  Serial.println(res);
   return 0;
 }
  
 /* -------------------------------------------------------------------------- */   
-IPAddress WiFi::localIP() {
+IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */   
   return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress WiFi::subnetMask() {
+IPAddress CWifi::subnetMask() {
 /* -------------------------------------------------------------------------- */   
   return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress WiFi::gatewayIP() {
+IPAddress CWifi::gatewayIP() {
 /* -------------------------------------------------------------------------- */   
   return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
-const char* WiFi::SSID(uint8_t networkItem) {
+const char* CWifi::SSID(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
   return nullptr;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
-int32_t WiFi::RSSI(uint8_t networkItem) {
+int32_t CWifi::RSSI(uint8_t networkItem) {
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::encryptionType(uint8_t networkItem) {
+uint8_t CWifi::encryptionType(uint8_t networkItem) {
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
-uint8_t* WiFi::BSSID(uint8_t networkItem, uint8_t* bssid) {
+uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::channel(uint8_t networkItem) { 
+uint8_t CWifi::channel(uint8_t networkItem) { 
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */ 
-const char* WiFi::SSID() {
+const char* CWifi::SSID() {
 /* -------------------------------------------------------------------------- */    
   return ""; 
 }
 
 /* -------------------------------------------------------------------------- */ 
-uint8_t* WiFi::BSSID(uint8_t* bssid) {
+uint8_t* CWifi::BSSID(uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */    
   return nullptr;
 }
 
 /* -------------------------------------------------------------------------- */ 
-int32_t WiFi::RSSI() {
+int32_t CWifi::RSSI() {
 /* -------------------------------------------------------------------------- */    
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */ 
-uint8_t WiFi::encryptionType() {
+uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */    
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t WiFi::status() {
+uint8_t CWifi::status() {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-int WiFi::hostByName(const char* aHostname, IPAddress& aResult) {
+int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
 /* -------------------------------------------------------------------------- */   
   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::lowPowerMode() {
+void CWifi::lowPowerMode() {
 /* -------------------------------------------------------------------------- */   
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFi::noLowPowerMode() {
+void CWifi::noLowPowerMode() {
 /* -------------------------------------------------------------------------- */   
 }
 
-uint8_t WiFi::reasonCode() {
+uint8_t CWifi::reasonCode() {
   return 0;
 }
 
-unsigned long WiFi::getTime() {
+unsigned long CWifi::getTime() {
   return 0;
 }
 
 
 
-void WiFi::setTimeout(unsigned long timeout) {
+void CWifi::setTimeout(unsigned long timeout) {
    (void)(timeout);  
 }
 
 
-WiFi Wifi;
+CWifi WiFi;
 

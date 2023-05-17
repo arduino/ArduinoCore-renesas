@@ -28,21 +28,21 @@ void ModemClass::end(){
  _serial->end();
 }
 
-bool ModemClass::write(String data_res, char * fmt, ...){
+bool ModemClass::write(String &data_res, char * fmt, ...){
   memset(tx_buff,0x00,MAX_BUFF_SIZE);
   va_list va;
   va_start (va, fmt);
   vsprintf ((char *)tx_buff, fmt, va);
   va_end (va);
   _serial->write(tx_buff,strlen((char *)tx_buff));
-
   return buf_read(data_res);;
 }
 
-bool ModemClass::buf_read(String data_res) {
+bool ModemClass::buf_read(String &data_res) {
   bool res = 0;
   unsigned long start_time = millis();
   while(millis() - start_time < _timeout){
+     //Serial.println("ciclo");
     if(_serial->available()){
       char c = _serial->read();
       data_res += c;
@@ -57,6 +57,7 @@ bool ModemClass::buf_read(String data_res) {
   }
  return res;
 }
+
 #ifdef ARDUINO_SANTIAGO_COMPOSTA
   ModemClass modem = ModemClass(&Serial2);
 #else

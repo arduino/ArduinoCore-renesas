@@ -1,17 +1,20 @@
 #ifndef ARDUINO_WiFi_S3_H
 #define ARDUINO_WiFi_S3_H
 
+#include "WiFiCommands.h"
+#include "WiFiTypes.h"
 #include "Modem.h"
 
-#define WiFi_FIRMWARE_LATEST_VERSION "1.0.0"
 
-class WiFi {
+#define WIFI_FIRMWARE_LATEST_VERSION "1.0.0"
+
+class CWifi {
 private: 
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
    unsigned long _timeout;
     
 public:
-    WiFi();
+    CWifi();
 
     /*
      * Get firmware version
@@ -249,7 +252,7 @@ public:
     
 };
 
-extern WiFi Wifi;
+extern CWifi WiFi;
 
 
 

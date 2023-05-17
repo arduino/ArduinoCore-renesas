@@ -15,13 +15,13 @@ public:
 
   void begin(int badurate = 115200);
   void end();
-  bool write(String str, char * fmt, ...);
+  bool write(String &str, char * fmt, ...);
 
 private:
-  bool buf_read(String data_res);
+  bool buf_read(String &data_res);
   bool delete_serial = false;
   UART * _serial;
-  unsigned long _timeout = 1000;
+  unsigned long _timeout = 10000;
   uint8_t tx_buff[MAX_BUFF_SIZE];
 };
 
