@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 //namespace mbed {
 
 static const bd_size_t min_blank_buf_size = 32;
