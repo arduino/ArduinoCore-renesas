@@ -110,15 +110,52 @@ uint8_t* CWifi::macAddress(uint8_t* mac) {
   return 0;
 }
 
+static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
+   if(mac_in[2] != ':' || 
+      mac_in[5] != ':' ||
+      mac_in[8] != ':' ||
+      mac_in[11] != ':' ||
+      mac_in[14] != ':') {
+      return false;
+   }
+
+   for(int i = 0; i < 6; i++) {
+      std::string str_num(mac_in+(i*3),2);
+      *(mac_out+i) = std::stoul(str_num,nullptr,16);
+   }
+
+   return true;
+}
+
+
 /* -------------------------------------------------------------------------- */
 int8_t CWifi::scanNetworks() {
 /* -------------------------------------------------------------------------- */
-  modem.begin();
-  String res;
-  Serial.println("-------- Scan results: ");
-  modem.write(res,CMD(_WIFISCAN));
-  Serial.println(res);
-  return 0;
+   modem.begin();
+   access_points.clear();
+   string res;
+   
+   vector<string> aps;
+   if(modem.write(string(CMD_RES(_WIFISCAN)),res,CMD(_WIFISCAN))) {
+
+      split(aps, res, string("\r\n"));
+      for(uint16_t i = 0; i < aps.size(); i++) {
+         CAccessPoint ap;
+         vector<string> tokens;
+         split(tokens, aps[i], string("|"));
+         if(tokens.size() >= 5) {
+            ap.ssid            = tokens[0];
+            ap.bssid           = tokens[1];
+            macStr2macArray(ap.uint_bssid, ap.bssid.c_str());
+            ap.rssi            = tokens[2];
+            ap.channel         = tokens[3];
+            ap.encryption_mode = tokens[4];
+            access_points.push_back(ap);
+         }
+      } 
+   }
+
+   return (int8_t)access_points.size();
 }
  
 /* -------------------------------------------------------------------------- */   
@@ -142,31 +179,78 @@ IPAddress CWifi::gatewayIP() {
 /* -------------------------------------------------------------------------- */
 const char* CWifi::SSID(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
+  if(networkItem < access_points.size()) {
+      return access_points[networkItem].ssid.c_str();   
+  }
   return nullptr;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
 int32_t CWifi::RSSI(uint8_t networkItem) {
-  return 0;
+  if(networkItem < access_points.size()) {
+      return atoi(access_points[networkItem].rssi.c_str());   
+  }
+  return -1000;
 }
 /* -------------------------------------------------------------------------- */ 
+
+static uint8_t Encr2wl_enc(string e) {
+   if (e == string("open")) {
+      return ENC_TYPE_NONE;
+   } else if (e == string("WEP")) {
+      return ENC_TYPE_WEP;
+   } else if (e == string("WPA")) {
+      return ENC_TYPE_WPA;
+   } else if (e == string("WPA2")) {
+      return ENC_TYPE_WPA2;
+   } else if (e == string("WPA+WPA2")) {
+      return ENC_TYPE_WPA2;
+   } else if (e == string("WPA2-EAP")) {
+      return ENC_TYPE_WPA2_ENTERPRISE;
+   } else if (e == string("WPA2+WPA3")) {
+      return ENC_TYPE_WPA3;
+   } else if (e == string("WPA3")) {
+      return ENC_TYPE_WPA3;
+   } else {
+      return ENC_TYPE_UNKNOWN;
+   }
+ }
+
+
+
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType(uint8_t networkItem) {
+  if(networkItem < access_points.size()) {
+      return Encr2wl_enc(access_points[networkItem].encryption_mode);   
+  }
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 
+
+
+
+
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
-  return 0;
+  if(networkItem < access_points.size()) {
+      for(int i = 0; i < 6; i++) {
+         *(bssid + i) = access_points[networkItem].uint_bssid[i];
+      }
+      return bssid;   
+   }
+  return nullptr;
 }
 /* -------------------------------------------------------------------------- */ 
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::channel(uint8_t networkItem) { 
-  return 0;
+   if(networkItem < access_points.size()) {
+      return atoi(access_points[networkItem].channel.c_str());   
+   }
+   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
 

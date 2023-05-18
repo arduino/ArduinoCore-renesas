@@ -14,14 +14,14 @@ typedef enum {
 } wl_status_t;
 
 /* Encryption modes */
-enum wl_enc_type {  /* Values map to 802.11 encryption suites... */
-        ENC_TYPE_WEP  = 5,
-        ENC_TYPE_TKIP = 2,
-        ENC_TYPE_CCMP = 4,
-        ENC_TYPE_WP3 = 6,
-        /* ... except these two, 7 and 8 are reserved in 802.11-2007 */
-        ENC_TYPE_NONE = 7,
-        ENC_TYPE_AUTO = 8,
+enum wl_enc_type {
+    ENC_TYPE_WEP,
+    ENC_TYPE_WPA,
+    ENC_TYPE_WPA2,
+    ENC_TYPE_WPA2_ENTERPRISE,
+    ENC_TYPE_WPA3,
+    ENC_TYPE_NONE,
+    ENC_TYPE_AUTO,
 
-        ENC_TYPE_UNKNOWN = 255
+    ENC_TYPE_UNKNOWN = 255
 };

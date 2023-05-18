@@ -24,8 +24,6 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.println(CMD("pippo"));
-
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
@@ -72,10 +70,10 @@ void listNetworks() {
     Serial.print(thisNet);
     Serial.print(") ");
     Serial.print(WiFi.SSID(thisNet));
-    Serial.print("\tSignal: ");
+    Serial.print(" Signal: ");
     Serial.print(WiFi.RSSI(thisNet));
     Serial.print(" dBm");
-    Serial.print("\tEncryption: ");
+    Serial.print(" Encryption: ");
     printEncryptionType(WiFi.encryptionType(thisNet));
   }
 }
@@ -86,12 +84,15 @@ void printEncryptionType(int thisType) {
     case ENC_TYPE_WEP:
       Serial.println("WEP");
       break;
-    case ENC_TYPE_TKIP:
+    case ENC_TYPE_WPA:
       Serial.println("WPA");
       break;
-    case ENC_TYPE_CCMP:
+    case ENC_TYPE_WPA2:
       Serial.println("WPA2");
       break;
+    case ENC_TYPE_WPA3:
+      Serial.print("WPA3");
+      break;   
     case ENC_TYPE_NONE:
       Serial.println("None");
       break;

@@ -1,18 +1,38 @@
 #ifndef ARDUINO_WiFi_S3_H
 #define ARDUINO_WiFi_S3_H
 
+
+#include <vector>
+
 #include "WiFiCommands.h"
 #include "WiFiTypes.h"
 #include "Modem.h"
 
 
+using namespace std;
+
 #define WIFI_FIRMWARE_LATEST_VERSION "1.0.0"
+
+class CAccessPoint {
+   public:
+      string ssid;
+      string bssid;
+      uint8_t uint_bssid[6];
+      string rssi;
+      string channel;
+      string encryption_mode;
+};
+
+
+
 
 class CWifi {
 private: 
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
    unsigned long _timeout;
-    
+
+   vector<CAccessPoint> access_points;
+
 public:
     CWifi();
 

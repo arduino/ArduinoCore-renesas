@@ -1,10 +1,18 @@
 #ifndef _MODEM_WIFIS3_H_
 #define _MODEM_WIFIS3_H_
 
+
+
 #include "Arduino.h"
 
+#include "StringHelpers.h"
 
-#define MAX_BUFF_SIZE 64
+#define MODEM_TIMEOUT  10000
+#define MAX_BUFF_SIZE  64
+
+#define DO_NOT_CHECK_CMD "NO_CMD_CHECK"
+
+using namespace std;
 
 class ModemClass {
 
@@ -15,13 +23,15 @@ public:
 
   void begin(int badurate = 115200);
   void end();
-  bool write(String &str, char * fmt, ...);
+  bool write(const string &cmd, string &str, char * fmt, ...);
+
+  bool beginned;
 
 private:
-  bool buf_read(String &data_res);
-  bool delete_serial = false;
+  bool buf_read(const string &cmd, string &data_res);
+  bool delete_serial;
   UART * _serial;
-  unsigned long _timeout = 10000;
+  unsigned long _timeout;
   uint8_t tx_buff[MAX_BUFF_SIZE];
 };
 

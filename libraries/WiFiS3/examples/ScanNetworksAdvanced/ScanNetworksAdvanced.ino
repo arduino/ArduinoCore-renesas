@@ -16,11 +16,11 @@
 
 
 
-#include <WiFi.h>
+#include <WiFiS3.h>
 
 void setup() {
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -33,7 +33,7 @@ void setup() {
   }
 
   String fv = WiFi.firmwareVersion();
-  if (fv < WiFi_FIRMWARE_LATEST_VERSION) {
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
 
@@ -97,12 +97,15 @@ void printEncryptionType(int thisType) {
     case ENC_TYPE_WEP:
       Serial.print("WEP");
       break;
-    case ENC_TYPE_TKIP:
+    case ENC_TYPE_WPA:
       Serial.print("WPA");
       break;
-    case ENC_TYPE_CCMP:
+    case ENC_TYPE_WPA2:
       Serial.print("WPA2");
       break;
+    case ENC_TYPE_WPA3:
+      Serial.print("WPA3");
+      break;  
     case ENC_TYPE_NONE:
       Serial.print("None");
       break;
