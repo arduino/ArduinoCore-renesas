@@ -22,7 +22,6 @@
 #define ARDUINO_SLICING_BLOCK_DEVICE_H
 
 #include "blockDevice.h"
-#include "../Storage/storage_common.h"
 
 //namespace mbed {
 

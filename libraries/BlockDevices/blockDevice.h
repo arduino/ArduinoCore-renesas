@@ -23,6 +23,7 @@
 #define ARDUINO_BLOCK_DEVICE
 #include "Arduino.h"
 #include <stdint.h>
+#include "../Storage/storage_common.h"
 
 #define  BLOCK_DEVICE_OK (0)
 #define  BD_ERROR_OK      (0)

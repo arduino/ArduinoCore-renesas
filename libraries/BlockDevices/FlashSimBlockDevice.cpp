@@ -16,7 +16,6 @@
  */
 
 #include "FlashSimBlockDevice.h"
-#include "../Storage/storage_common.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>

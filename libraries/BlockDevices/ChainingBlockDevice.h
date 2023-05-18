@@ -22,7 +22,6 @@
 #define ARDUINO_CHAINING_BLOCK_DEVICE_H
 
 #include "blockDevice.h"
-#include "../Storage/storage_common.h"
 #include <stdlib.h>
 
 //namespace mbed {

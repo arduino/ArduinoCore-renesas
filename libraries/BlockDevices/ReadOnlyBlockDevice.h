@@ -22,7 +22,6 @@
 #define ARDUINO_READ_ONLY_BLOCK_DEVICE_H
 
 #include "blockDevice.h"
-#include "../Storage/storage_common.h"
 
 //namespace mbed {
 
