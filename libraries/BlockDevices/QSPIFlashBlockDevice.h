@@ -134,7 +134,7 @@ public:
   }
   
   virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const override{
-     return ( addr % WRITE_INTERNAL_BLOCK_SIZE == 0 && size % WRITE_INTERNAL_BLOCK_SIZE == 0 && addr + size <= this->size());
+     return (addr + size <= this->size());
   }
  
   

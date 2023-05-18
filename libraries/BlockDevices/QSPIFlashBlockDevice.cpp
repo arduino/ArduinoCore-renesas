@@ -267,6 +267,16 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
          rv = get_flash_status();  
       }
    }
+
+   if(_size % WRITE_INTERNAL_BLOCK_SIZE != 0) {
+      uint32_t bank = add / READ_PAGE_SIZE;
+      uint32_t address = base_address + ((add + num_of_blocks * WRITE_INTERNAL_BLOCK_SIZE) % READ_PAGE_SIZE);
+      R_QSPI_BankSet(&ctrl, bank);
+      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer + (num_of_blocks * WRITE_INTERNAL_BLOCK_SIZE)), (uint8_t*)address, WRITE_INTERNAL_BLOCK_SIZE);
+      if(rv == FSP_SUCCESS) {
+         rv = get_flash_status();
+      }
+   }
       
    return (int)rv;
 }
