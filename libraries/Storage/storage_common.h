@@ -51,7 +51,6 @@ static inline void debug(const char *fmt, ...)
  */
 static inline void debug_if(int condition, const char *fmt, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     if (condition) {
         memset(debug_buffer,0x00,256);
         va_list va;
@@ -61,7 +60,6 @@ static inline void debug_if(int condition, const char *fmt, ...)
         if(Serial)
             Serial.println(debug_buffer);
     }
-#endif
 }
 
 #else 
