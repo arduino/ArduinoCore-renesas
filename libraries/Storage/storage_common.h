@@ -21,6 +21,7 @@ extern "C" {
 #ifdef STORAGE_DEBUG
 
 #define STORAGE_BUFF_DIM 512
+#define PRINT_SIZE        32
 
 extern char debug_buffer[STORAGE_BUFF_DIM];
 
@@ -30,7 +31,6 @@ extern char debug_buffer[STORAGE_BUFF_DIM];
  */
 static inline void debug(const char *fmt, ...)
 {
-    
     memset(debug_buffer,0x00,256);
     va_list va;
     va_start (va, fmt);
@@ -62,7 +62,24 @@ static inline void debug_if(int condition, const char *fmt, ...)
     }
 }
 
-#else 
+static inline void debug_mem(uint8_t *b, uint32_t _size)
+{
+    if (b != nullptr) {
+        Serial.println("");
+        for(int i = 0; i < _size; i++) {
+            if(i != 0 && i % PRINT_SIZE == 0) {
+                if(i != 0)
+                    Serial.println();
+            }
+            Serial.print(*(b + i) >> 4,  HEX);
+            Serial.print(*(b + i) & 0x0F,HEX);
+        }
+        Serial.println();
+        Serial.println("");
+    }
+}
+
+#else
 
 static inline void debug_if(int condition, const char *format, ...) {
 
@@ -72,7 +89,11 @@ static inline void debug(const char *format, ...) {
     
 }
 
-#endif //ifdef STORAGE_DEBUG
+static inline void debug_mem(uint8_t *b, uint32_t _size) {
+
+}
+
+#endif // STORAGE_DEBUG
 
 /* -------------------------------------------------------------------------- */
 /*                                 STORAGE ASSERTS                            */
