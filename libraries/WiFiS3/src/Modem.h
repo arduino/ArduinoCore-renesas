@@ -7,6 +7,8 @@
 
 #include "StringHelpers.h"
 
+#define MODEM_DEBUG
+
 #define MODEM_TIMEOUT  10000
 #define MAX_BUFF_SIZE  64
 

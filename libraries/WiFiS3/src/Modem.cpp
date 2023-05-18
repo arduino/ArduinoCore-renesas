@@ -29,28 +29,39 @@ void ModemClass::end(){
  _serial->end();
 }
 
-bool ModemClass::write(const string &cmd, string &data_res, char * fmt, ...){
+bool ModemClass::write(const string &prompt, string &data_res, char * fmt, ...){
   memset(tx_buff,0x00,MAX_BUFF_SIZE);
   va_list va;
   va_start (va, fmt);
   vsprintf ((char *)tx_buff, fmt, va);
   va_end (va);
+  #ifdef MODEM_DEBUG
+    Serial.print("tx_buff: ");
+    for(int i =0; i<MAX_BUFF_SIZE; i++) {
+      Serial.print(tx_buff[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+    Serial.write(tx_buff,strlen((char *)tx_buff));
+    Serial.println("ciao");
+  #endif
   _serial->write(tx_buff,strlen((char *)tx_buff));
-  return buf_read(cmd,data_res);;
+  return buf_read(prompt,data_res);;
 }
 
-bool ModemClass::buf_read(const string &cmd, string &data_res) {
+
+bool ModemClass::buf_read(const string &prompt, string &data_res) {
    bool res = false;
    unsigned long start_time = millis();
    while(millis() - start_time < _timeout){
-    
-      if(_serial->available()){
+      while(_serial->available()){
          char c = _serial->read();
          data_res += c;
+         Serial.print(c);
          if(string::npos != data_res.rfind(PROMPT_OK)){
             data_res.substr(0, data_res.length() - sizeof(PROMPT_OK));
-            if(cmd != DO_NOT_CHECK_CMD) {
-               if(removeAtBegin(data_res, cmd)) {
+            if(prompt != DO_NOT_CHECK_CMD) {
+               if(removeAtBegin(data_res, prompt)) {
                   res = true;
                }
             }
@@ -63,7 +74,11 @@ bool ModemClass::buf_read(const string &cmd, string &data_res) {
             break;
          }
       }
-   }
+    }
+    #ifdef MODEM_DEBUG
+      Serial.print("data_res: ");
+      Serial.println(data_res.c_str());
+    #endif
    return res;
 }
 

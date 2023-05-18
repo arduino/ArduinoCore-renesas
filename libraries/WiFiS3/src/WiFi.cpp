@@ -16,13 +16,18 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
-  modem.begin();
-  return 0;
+
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid, const char *passphrase) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
+   modem.begin();
+   string res = "";
+   if(modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
+      return atoi(res.c_str());
+   }
   return 0;
 }
 
@@ -136,7 +141,7 @@ int8_t CWifi::scanNetworks() {
    string res;
    
    vector<string> aps;
-   if(modem.write(string(CMD_RES(_WIFISCAN)),res,CMD(_WIFISCAN))) {
+   if(modem.write(string(PROMPT(_WIFISCAN)),res,CMD(_WIFISCAN))) {
 
       split(aps, res, string("\r\n"));
       for(uint16_t i = 0; i < aps.size(); i++) {
