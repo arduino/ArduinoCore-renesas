@@ -37,13 +37,7 @@ bool ModemClass::write(const string &prompt, string &data_res, char * fmt, ...){
   va_end (va);
   #ifdef MODEM_DEBUG
     Serial.print("tx_buff: ");
-    for(int i =0; i<MAX_BUFF_SIZE; i++) {
-      Serial.print(tx_buff[i], HEX);
-      Serial.print(" ");
-    }
-    Serial.println();
     Serial.write(tx_buff,strlen((char *)tx_buff));
-    Serial.println("ciao");
   #endif
   _serial->write(tx_buff,strlen((char *)tx_buff));
   return buf_read(prompt,data_res);;
@@ -57,7 +51,6 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       while(_serial->available()){
          char c = _serial->read();
          data_res += c;
-         Serial.print(c);
          if(string::npos != data_res.rfind(PROMPT_OK)){
             data_res.substr(0, data_res.length() - sizeof(PROMPT_OK));
             if(prompt != DO_NOT_CHECK_CMD) {

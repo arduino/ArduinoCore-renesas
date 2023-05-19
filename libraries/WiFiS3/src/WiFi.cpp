@@ -25,7 +25,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
-   if(modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
+   if(modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,\"%s\"\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
       return atoi(res.c_str());
    }
   return 0;
@@ -286,7 +286,11 @@ uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::status() {
 /* -------------------------------------------------------------------------- */   
-  return 0;
+   string res = "";
+   if(modem.write(string(PROMPT(_GETSTATUS)), res, CMD_READ(_GETSTATUS))) {
+      return atoi(res.c_str());
+   }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */
