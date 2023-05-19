@@ -23,7 +23,11 @@ class CAccessPoint {
       string encryption_mode;
 };
 
-
+enum{
+   IP_ADDR = 0,
+   GATEWAY_ADDR,
+   NETMASK_ADDR
+} ip_type;
 
 
 class CWifi {

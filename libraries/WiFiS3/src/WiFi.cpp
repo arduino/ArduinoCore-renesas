@@ -203,21 +203,39 @@ int8_t CWifi::scanNetworks() {
    return (int8_t)access_points.size();
 }
  
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
 IPAddress CWifi::localIP() {
-/* -------------------------------------------------------------------------- */   
-  return IPAddress(0,0,0,0);
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
+      IPAddress local_IP;
+      local_IP.fromString(res.c_str());
+      return local_IP;
+   }
+   return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::subnetMask() {
-/* -------------------------------------------------------------------------- */   
-  return IPAddress(0,0,0,0);
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), NETMASK_ADDR)) {
+      IPAddress subnetMask;
+      subnetMask.fromString(res.c_str());
+      return subnetMask;
+   }
+   return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::gatewayIP() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), GATEWAY_ADDR)) {
+      IPAddress gateway_IP;
+      gateway_IP.fromString(res.c_str());
+      return gateway_IP;
+   }
   return IPAddress(0,0,0,0);
 }
 
