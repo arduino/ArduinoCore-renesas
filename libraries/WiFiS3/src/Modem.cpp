@@ -56,7 +56,6 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       while(_serial->available()){
          char c = _serial->read();
          data_res += c;
-         //Serial.print(c);
          if(string::npos != data_res.rfind(PROMPT_OK)){
             found = true;
             data_res = data_res.substr(0, data_res.length() - sizeof(PROMPT_OK));
