@@ -221,15 +221,7 @@ public:
     *
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
 
-     enum wl_enc_type : 
-      ENC_TYPE_WEP  = 5,
-      ENC_TYPE_TKIP = 2,
-      ENC_TYPE_CCMP = 4,
-      ENC_TYPE_WP3 = 6,
-      ENC_TYPE_NONE = 7,
-      ENC_TYPE_AUTO = 8,
-
-      ENC_TYPE_UNKNOWN = 255
+    
       
      */
     uint8_t encryptionType(uint8_t networkItem);
@@ -270,11 +262,6 @@ public:
     int hostByName(const char* aHostname, IPAddress& aResult);
 
     unsigned long getTime();
-
-    void lowPowerMode();
-    void noLowPowerMode();
-
-    
 
     void setTimeout(unsigned long timeout);
 
