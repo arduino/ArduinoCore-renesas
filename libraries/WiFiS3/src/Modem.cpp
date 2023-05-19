@@ -39,7 +39,7 @@ bool ModemClass::write(const string &prompt, string &data_res, char * fmt, ...){
   vsprintf ((char *)tx_buff, fmt, va);
   va_end (va);
   #ifdef MODEM_DEBUG
-    Serial.print("Write Call, command sent: ");
+    Serial.print("  Write Call, command sent: ");
     Serial.write(tx_buff,strlen((char *)tx_buff));
     Serial.println();
   #endif
@@ -78,14 +78,14 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
     }
     trim(data_res);
     #ifdef MODEM_DEBUG
-      Serial.print("Write Call, response rx |>>");
+      Serial.print("  Write Call, response rx |>>");
       Serial.print(data_res.c_str());
       Serial.println("<<|");
       if(res) {
-         Serial.println("Result: OK");
+         Serial.println("  Result: OK");
       }
       else {
-         Serial.println("Result: FAILED");
+         Serial.println("  Result: FAILED");
       }
     #endif
       

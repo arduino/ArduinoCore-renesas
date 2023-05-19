@@ -74,11 +74,12 @@ void CWifi::config(IPAddress local_ip) {
   IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
   Serial.println(_gw);
   IPAddress _sm(255,255,255,0);
-  return _config(local_ip, _gw, _sm);
+  IPAddress dns(0,0,0,0);
+  return _config(local_ip, _gw, _sm,dns,dns);
 }
 
 /* -------------------------------------------------------------------------- */
-void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
+void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2) {
 /* -------------------------------------------------------------------------- */
    string res = "";
    modem.begin();
@@ -97,32 +98,55 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
           nm += to_string(subnet[2]) + ".";
           nm += to_string(subnet[3]);
 
-   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str());
+   string _dns1  = to_string(dns1[0]) + ".";
+          _dns1 += to_string(dns1[1]) + ".";
+          _dns1 += to_string(dns1[2]) + ".";
+          _dns1 += to_string(dns1[3]);
+   
+   string _dns2  = to_string(dns2[0]) + ".";
+          _dns2 += to_string(dns2[1]) + ".";
+          _dns2 += to_string(dns2[2]) + ".";
+          _dns2 += to_string(dns2[3]);              
+
+   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str(),_dns1.c_str(),_dns2.c_str());
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
+   IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
+   Serial.println(_gw);
+   IPAddress _sm(255,255,255,0);
+   IPAddress dns(0,0,0,0);
+   return _config(local_ip, _gw, _sm,dns_server,dns);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */  
+   IPAddress _sm(255,255,255,0);
+   IPAddress dns(0,0,0,0);
+   return _config(local_ip, gateway, _sm,dns_server,dns); 
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
+   IPAddress dns(0,0,0,0);
+   return _config(local_ip, gateway, subnet,dns_server,dns); 
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */  
+   IPAddress dns(0,0,0,0);
+   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns);  
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 /* -------------------------------------------------------------------------- */   
+   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns_server2); 
 }
 
 /* -------------------------------------------------------------------------- */
@@ -204,8 +228,32 @@ int8_t CWifi::scanNetworks() {
 }
  
 /* -------------------------------------------------------------------------- */
+IPAddress CWifi::dnsIP(int n) {
+/* -------------------------------------------------------------------------- */
+   modem.begin();
+   string res;
+   if(n == 0) {
+      if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), DNS1_ADDR)) {
+         IPAddress dns_IP;
+         dns_IP.fromString(res.c_str());
+         return dns_IP;
+      }
+   }
+   else if(n == 1) {
+      if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), DNS2_ADDR)) {
+         IPAddress dns_IP;
+         dns_IP.fromString(res.c_str());
+         return dns_IP;
+      }
+   }
+   return IPAddress(0,0,0,0);  
+}
+
+
+/* -------------------------------------------------------------------------- */
 IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
+   modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
       IPAddress local_IP;
@@ -218,6 +266,7 @@ IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::subnetMask() {
 /* -------------------------------------------------------------------------- */
+   modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), NETMASK_ADDR)) {
       IPAddress subnetMask;
@@ -230,6 +279,7 @@ IPAddress CWifi::subnetMask() {
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::gatewayIP() {
 /* -------------------------------------------------------------------------- */
+   modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), GATEWAY_ADDR)) {
       IPAddress gateway_IP;

@@ -23,16 +23,12 @@ class CAccessPoint {
       string encryption_mode;
 };
 
-enum{
-   IP_ADDR = 0,
-   GATEWAY_ADDR,
-   NETMASK_ADDR
-} ip_type;
+
 
 
 class CWifi {
 private: 
-   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
+   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
    unsigned long _timeout;
 
    vector<CAccessPoint> access_points;
@@ -162,6 +158,8 @@ public:
      * return: gateway IP address value
      */
    IPAddress gatewayIP();
+
+   IPAddress dnsIP(int n = 0);
 
     /*
      * Return the current SSID associated with the network
