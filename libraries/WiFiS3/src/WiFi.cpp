@@ -23,12 +23,26 @@ int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */
-   modem.begin();
    string res = "";
-   if(modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
-      return atoi(res.c_str());
+   modem.begin();
+   if(!modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 1)) {
+      return WL_CONNECT_FAILED;
    }
-  return 0;
+
+   if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
+      return WL_CONNECT_FAILED;
+   }
+
+   unsigned long start_time = millis();
+   while(millis() - start_time < 10000){
+      if(modem.write(string(PROMPT(_GETSTATUS)),res,CMD(_GETSTATUS))) {
+         if(atoi(res.c_str()) == WL_CONNECTED) {
+            return WL_CONNECTED;
+         }
+      }      
+   }
+
+  return WL_CONNECT_FAILED;
 }
 
 /* passphrase is needed so a default one will be set */
