@@ -36,14 +36,14 @@ extern "C" {
  * is defined correctly and privileged functions are placed in correct sections. */
  #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
- #include "../../../lib/FreeRTOS-Kernel-v10.5.1/mpu_wrappers.h"
+ #include "../../lib/FreeRTOS-Kernel-v10.5.1/mpu_wrappers.h"
 
 /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE is needed to be defined only for the
  * header files. */
  #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* Needed for definitions of pdFALSE and pdTRUE. */
- #include "../../../lib/FreeRTOS-Kernel-v10.5.1/projdefs.h"
+ #include "../../lib/FreeRTOS-Kernel-v10.5.1/projdefs.h"
 
 /*-----------------------------------------------------------
  * Port specific definitions.
