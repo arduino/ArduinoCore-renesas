@@ -162,6 +162,13 @@ public:
    IPAddress dnsIP(int n = 0);
 
     /*
+     * Get the interface the AP IP address.
+     *
+     * return: IP address value
+     */
+    IPAddress softAPIP();
+
+    /*
      * Return the current SSID associated with the network
      *
      * return: ssid string

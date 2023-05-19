@@ -44,27 +44,40 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
 /* passphrase is needed so a default one will be set */
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid) {
-/* -------------------------------------------------------------------------- */   
-  return 0;
+/* -------------------------------------------------------------------------- */
+   return beginAP(ssid,"",1);;
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, uint8_t channel) {
-/* -------------------------------------------------------------------------- */   
-  return 0;
+/* -------------------------------------------------------------------------- */
+   return beginAP(ssid,"",channel);
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
-/* -------------------------------------------------------------------------- */   
-  return 0;
+/* -------------------------------------------------------------------------- */
+   return beginAP(ssid, passphrase,1);
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
 /* -------------------------------------------------------------------------- */   
-  return 0;
+   string res = "";
+   modem.begin();
+   modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 2);
+
+   if(!modem.write(string(PROMPT(_BEGINSOFTAP)),res, "%s%s,%s,%d\r\n" , CMD_WRITE(_BEGINSOFTAP), ssid, passphrase, channel)) {
+      return WL_CONNECT_FAILED;
+   }
+
+   if(atoi(res.c_str()) == 1) {
+      return true;
+   }
+
+   return false;
 }
+
 
 
 
@@ -226,7 +239,19 @@ int8_t CWifi::scanNetworks() {
 
    return (int8_t)access_points.size();
 }
- 
+
+/* -------------------------------------------------------------------------- */
+IPAddress CWifi::softAPIP() {
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_IPSOFTAP)),res,  CMD(_IPSOFTAP))) {
+      IPAddress local_IP;
+      local_IP.fromString(res.c_str());
+      return local_IP;
+   }
+   return IPAddress(0,0,0,0);
+}
+
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::dnsIP(int n) {
 /* -------------------------------------------------------------------------- */
