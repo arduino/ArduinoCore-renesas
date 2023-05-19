@@ -20,7 +20,6 @@
 #ifndef ARDUINO_QSIP_FLASH_BLOCK_DEVICE
 #define ARDUINO_QSPI_FLASH_BLOCK_DEVICE
 
-//#define QSPI_FLASH_DEBUG
 
 /* base class for block devices */
 #include "blockDevice.h"
