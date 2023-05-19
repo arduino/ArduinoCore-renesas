@@ -34,13 +34,10 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
 
    unsigned long start_time = millis();
    while(millis() - start_time < 10000){
-      if(modem.write(string(PROMPT(_GETSTATUS)),res,CMD(_GETSTATUS))) {
-         if(atoi(res.c_str()) == WL_CONNECTED) {
-            return WL_CONNECTED;
-         }
-      }      
+      if(status() == WL_CONNECTED) {
+         return WL_CONNECTED;
+      } 
    }
-
   return WL_CONNECT_FAILED;
 }
 
@@ -74,11 +71,33 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
+  IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
+  Serial.println(_gw);
+  IPAddress _sm(255,255,255,0);
+  return _config(local_ip, _gw, _sm);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
-/* -------------------------------------------------------------------------- */    
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   modem.begin();
+   string ip  = to_string(local_ip[0]) + ".";
+          ip += to_string(local_ip[1]) + ".";
+          ip += to_string(local_ip[2]) + ".";
+          ip += to_string(local_ip[3]);
+
+   string gw  = to_string(gateway[0]) + ".";
+          gw += to_string(gateway[1]) + ".";
+          gw += to_string(gateway[2]) + ".";
+          gw += to_string(gateway[3]);       
+
+   string nm  = to_string(subnet[0]) + ".";
+          nm += to_string(subnet[1]) + ".";
+          nm += to_string(subnet[2]) + ".";
+          nm += to_string(subnet[3]);
+
+   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -114,6 +133,14 @@ void CWifi::setHostname(const char* name) {
 /* -------------------------------------------------------------------------- */
 int CWifi::disconnect() {
 /* -------------------------------------------------------------------------- */   
+   string res = "";
+   modem.begin();
+
+   if(modem.write(string(PROMPT(_DISCONNECT)),res,CMD(_DISCONNECT))) {
+      return 1;
+   }      
+   return 0;
+
 }
 
 /* -------------------------------------------------------------------------- */
