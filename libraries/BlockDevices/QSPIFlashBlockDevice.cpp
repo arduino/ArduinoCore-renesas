@@ -193,7 +193,7 @@ int QSPIFlashBlockDevice::close() {
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
    if(!is_valid_read(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
@@ -239,7 +239,7 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
    if(!is_valid_program(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
@@ -293,7 +293,7 @@ bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
    if(!is_valid_erase(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
