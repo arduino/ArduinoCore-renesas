@@ -23,7 +23,7 @@
 
 #include "lfs_config.h"
 #include "../Storage/FileSystem.h"
-#include "../BlockDevices/blockDevice.h"
+#include "../BlockDevices/BlockDevice.h"
 #include "../Storage/storage_common.h"
 #include "lfs.h"
 

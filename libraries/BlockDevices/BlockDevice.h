@@ -1,5 +1,5 @@
 /* ########################################################################## */
-/* - File: blockDevice.h
+/* - File: BlockDevice.h
    - Copyright (c): 2022 Arduino srl.  All right reserved.
    - Author: Daniele Aimo (d.aimo@arduino.cc)
 
@@ -35,7 +35,7 @@ typedef uint32_t bd_size_t;
 typedef pin_size_t pin_t;
 
 /* -------------------------------------------------------------------------- */
-/* Abstract Base blockDevice class (defines the INTERFACE for all the 
+/* Abstract Base BlockDevice class (defines the INTERFACE for all the 
    subclass)                                                                  */
 /* -------------------------------------------------------------------------- */   
 

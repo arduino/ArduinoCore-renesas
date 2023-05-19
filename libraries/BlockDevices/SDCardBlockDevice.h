@@ -21,7 +21,7 @@
 #define ARDUINO_SDMMC_FLASH_BLOCK_DEVICE
 
 /* base class for block devices */
-#include "blockDevice.h"
+#include "BlockDevice.h"
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"

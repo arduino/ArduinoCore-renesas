@@ -21,7 +21,7 @@
 #ifndef ARDUINO_CHAINING_BLOCK_DEVICE_H
 #define ARDUINO_CHAINING_BLOCK_DEVICE_H
 
-#include "blockDevice.h"
+#include "BlockDevice.h"
 #include <stdlib.h>
 
 //namespace mbed {

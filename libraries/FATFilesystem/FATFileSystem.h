@@ -22,7 +22,7 @@
 #define ARDUINO_FATFILESYSTEM_H
 
 #include "../Storage/FileSystem.h"
-#include "../BlockDevices/blockDevice.h"
+#include "../BlockDevices/BlockDevice.h"
 #include "FileHandle.h"
 #include <stdint.h>
 //#include "PlatformMutex.h"
