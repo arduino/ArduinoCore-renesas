@@ -319,7 +319,7 @@ int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
    fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
 
-   debug_if(QSPIF_DBG, "QSPIF erase addr %d, size %d", add, _size);
+   debug_if(QSPIF_DBG, "QSPIF erase addr 0x%x, size %d", add, _size);
 
    if(!is_valid_erase(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
@@ -338,10 +338,13 @@ int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
       /* set bank */
       uint32_t bank = add / READ_PAGE_SIZE;  
       uint32_t address = base_address + ((add + i * erase_block_size) % READ_PAGE_SIZE);  
+      debug_if(QSPIF_DBG, "QSPIF erase bank %d, address 0x%x", bank, address);
       R_QSPI_BankSet(&ctrl, bank); 
       rv = R_QSPI_Erase(&ctrl, (uint8_t *)address, erase_block_size);     
       if(rv == FSP_SUCCESS) {
          rv = get_flash_status();  
+      } else {
+         debug_if(QSPIF_DBG, "QSPIF R_QSPI_Erase() failed %d", rv);
       }
    }
 
