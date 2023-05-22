@@ -454,7 +454,13 @@ uint8_t CWifi::status() {
 /* -------------------------------------------------------------------------- */
 int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
 /* -------------------------------------------------------------------------- */   
-  return 0;
+   modem.begin();
+   string res = "";
+   if(modem.write(string(PROMPT(_GETHOSTBYNAME)),res, "%s%s\r\n" , CMD_WRITE(_GETHOSTBYNAME), aHostname)) {
+      aResult.fromString(res.c_str());
+      return 1;
+   }
+   return 0;
 }
 
 
