@@ -3,6 +3,12 @@
 
 /* -------------------------------------------------------------------------- */
 CWifi::CWifi() : _timeout(50000){
+   mak[0] = 0;
+   mak[1] = 0;
+   mak[2] = 0;
+   mak[3] = 0;
+   mak[4] = 0;
+   mak[5] = 0;
 }
 /* -------------------------------------------------------------------------- */
 
@@ -186,11 +192,6 @@ void CWifi::end(void) {
 
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t* CWifi::macAddress(uint8_t* mac) {
-/* -------------------------------------------------------------------------- */   
-  return 0;
-}
 
 static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
    if(mac_in[2] != ':' || 
@@ -208,6 +209,37 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
 
    return true;
 }
+
+
+/* -------------------------------------------------------------------------- */
+uint8_t* CWifi::macAddress(uint8_t* mac) {
+/* -------------------------------------------------------------------------- */   
+  string res = "";
+  modem.begin();
+  if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
+      if(atoi(res.c_str()) == 1) {
+         if(modem.write(string(PROMPT(_MACSTA)),res, "%s" , CMD_READ(_MACSTA)))  {
+            macStr2macArray(mac, res.c_str());
+            return mac;
+         }
+      }
+      else if(atoi(res.c_str()) == 2) {
+         if(modem.write(string(PROMPT(_MACSOFTAP)),res, "%s" , CMD_READ(_MACSOFTAP)))  {
+            macStr2macArray(mac, res.c_str());
+            return mac;
+         }
+      }
+   }
+
+   for(int i = 0; i < 6; i++) 
+   {
+      mac[i] = mak[i];
+   }
+
+   return mac;
+}
+
+
 
 
 /* -------------------------------------------------------------------------- */
@@ -355,9 +387,6 @@ static uint8_t Encr2wl_enc(string e) {
    }
  }
 
-
-
-
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType(uint8_t networkItem) {
   if(networkItem < access_points.size()) {
@@ -366,10 +395,6 @@ uint8_t CWifi::encryptionType(uint8_t networkItem) {
   return 0;
 }
 /* -------------------------------------------------------------------------- */ 
-
-
-
-
 
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
