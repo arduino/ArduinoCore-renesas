@@ -273,28 +273,19 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
    debug_mem((uint8_t*)buffer, _size);
 #endif
 
-   uint32_t num_of_blocks = (_size / WRITE_INTERNAL_BLOCK_SIZE);
-   debug_if(QSPIF_DBG, "QSPIF write %d blocks, status %d", num_of_blocks, rv);
-   for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-      /* set bank */
-      uint32_t bank = add / READ_PAGE_SIZE;  
-      uint32_t address = base_address + ((add + i * WRITE_INTERNAL_BLOCK_SIZE) % READ_PAGE_SIZE);  
-      debug_if(QSPIF_DBG, "QSPIF write bank %d, address 0x%x", bank, address);
-      R_QSPI_BankSet(&ctrl, bank);  
-      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer + (i * WRITE_INTERNAL_BLOCK_SIZE)), (uint8_t*)address, WRITE_INTERNAL_BLOCK_SIZE);
-      if(rv == FSP_SUCCESS) {
-         rv = get_flash_status();  
-      } else {
-         debug_if(QSPIF_DBG, "QSPIF R_QSPI_Write() failed %d", rv);
-      }
-   }
-
-   if(_size % WRITE_INTERNAL_BLOCK_SIZE != 0) {
+   uint32_t address = add + base_address;
+   const uint32_t end_address = address + _size;
+   while(address < end_address && rv == FSP_SUCCESS) {
       uint32_t bank = add / READ_PAGE_SIZE;
-      uint32_t address = base_address + ((add + num_of_blocks * WRITE_INTERNAL_BLOCK_SIZE) % READ_PAGE_SIZE);
-      debug_if(QSPIF_DBG, "QSPIF write bank %d, address 0x%x", bank, address);
+      uint32_t block_end = (((address / WRITE_INTERNAL_BLOCK_SIZE) + 1) * WRITE_INTERNAL_BLOCK_SIZE);
+      uint32_t left = block_end - address;
+      uint32_t chunk = address + left > end_address  ? end_address - address : left;
+      debug_if(QSPIF_DBG, "1 QSPIF write bank %d, address 0x%x block_end 0x%x left %d size %d", bank, address, block_end, left, chunk);
       R_QSPI_BankSet(&ctrl, bank);
-      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer + (num_of_blocks * WRITE_INTERNAL_BLOCK_SIZE)), (uint8_t*)address, WRITE_INTERNAL_BLOCK_SIZE);
+      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer), (uint8_t*)address, chunk);
+      address += chunk;
+      buffer += chunk;
+
       if(rv == FSP_SUCCESS) {
          rv = get_flash_status();
       } else {
