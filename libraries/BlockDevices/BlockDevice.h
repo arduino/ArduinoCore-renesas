@@ -53,6 +53,8 @@ public:
    BlockDevice(BlockDevice const&) = delete;
    void operator=(BlockDevice const&) = delete;
 
+   static BlockDevice *get_default_instance();
+
    virtual ~BlockDevice() = default; 
    /* initialize a block device */
    virtual int init() = 0;
