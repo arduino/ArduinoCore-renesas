@@ -10,8 +10,8 @@
 
 #pragma once
 
-#ifndef ARDUINO_PORTENTA_H33
-# error "FreeRTOS is currently only supported for the Portenta C33."
+#if !defined(ARDUINO_PORTENTA_H33) && !defined(ARDUINO_SANTIAGO) && !defined(ARDUINO_SANTIAGO_COMPOSTA)
+# error "FreeRTOS is currently only supported for the Portenta C33, Arduino Uno R4 Minima and Arduino Uno R4 WiFi."
 #endif
 
 #ifdef __cplusplus
