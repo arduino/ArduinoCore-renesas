@@ -347,7 +347,7 @@ int RTCTime::getMinutes()         { return minutes; }
 int RTCTime::getSeconds()         { return seconds; }
 DayOfWeek RTCTime::getDayOfWeek() { return day_of_week; }
 
-time_t RTCTime::getUnixTime()  { Serial.println(stime.tm_year);Serial.println(stime.tm_mon);Serial.println(stime.tm_mday);  return mktime ( (struct tm *)&stime ); }
+time_t RTCTime::getUnixTime()  { return mktime ( (struct tm *)&stime ); }
 struct tm RTCTime::getTmTime() { return (struct tm)stime; }
 
 /* -------------------------------------------------------------------------- */
