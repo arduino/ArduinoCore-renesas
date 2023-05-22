@@ -177,7 +177,6 @@ public:
 
     /*
       * Return the current BSSID associated with the network.
-      * It is the MAC address of the Access Point
       *
       * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
       */
@@ -192,11 +191,12 @@ public:
     int32_t RSSI();
 
     /*
-      * Return the Encryption Type associated with the network
-      *
-      * return: one value of wl_enc_type enum
-      */
-    uint8_t encryptionType();
+     * Return the current SSID associated with to the soft AP
+     *
+     * return: ssid string
+     */
+    const char* softAPSSID();
+
 
     /*
      * Start scan WiFi networks available

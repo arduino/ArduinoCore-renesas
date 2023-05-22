@@ -421,26 +421,45 @@ uint8_t CWifi::channel(uint8_t networkItem) {
 
 /* -------------------------------------------------------------------------- */ 
 const char* CWifi::SSID() {
-/* -------------------------------------------------------------------------- */    
-  return ""; 
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_GETSSID)), res, CMD_READ(_GETSSID))) {
+      return res.c_str();
+   }
+   return "";
 }
 
 /* -------------------------------------------------------------------------- */ 
 uint8_t* CWifi::BSSID(uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */    
-  return nullptr;
+   string res = "";
+   if(modem.write(string(PROMPT(_GETBSSID)), res, CMD_READ(_GETBSSID))) {
+      Serial.print("BSSID: ");
+      Serial.println(res.c_str());
+      macStr2macArray(bssid, res.c_str());
+      return bssid;
+   }
+   return nullptr;
 }
 
 /* -------------------------------------------------------------------------- */ 
 int32_t CWifi::RSSI() {
-/* -------------------------------------------------------------------------- */    
-  return 0;
+/* -------------------------------------------------------------------------- */
+   string res = "";
+   if(modem.write(string(PROMPT(_GETRSSI)), res, CMD_READ(_GETRSSI))) {
+      return atoi(res.c_str());
+   }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */ 
-uint8_t CWifi::encryptionType() {
+const char* CWifi::softAPSSID() {
 /* -------------------------------------------------------------------------- */    
-  return 0;
+   string res = "";
+   if(modem.write(string(PROMPT(_GETSOFTAPSSID)), res, CMD_READ(_GETSOFTAPSSID))) {
+      return res.c_str();
+   }
+   return "";
 }
 
 /* -------------------------------------------------------------------------- */
