@@ -21,5 +21,6 @@
 #define WiFiS3_h
 
 #include "WiFi.h"
+#include "WiFiClient.h"
 
 #endif

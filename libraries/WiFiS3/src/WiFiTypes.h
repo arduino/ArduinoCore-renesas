@@ -1,3 +1,6 @@
+#ifndef WIFI_S3_TYPES_H
+#define WIFI_S3_TYPES_H
+
 typedef enum {
    WL_NO_SHIELD = 255,
         WL_NO_MODULE = WL_NO_SHIELD,
@@ -25,3 +28,5 @@ enum wl_enc_type {
 
     ENC_TYPE_UNKNOWN = 255
 };
+
+#endif

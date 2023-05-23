@@ -26,6 +26,9 @@ public:
   void begin(int badurate = 115200);
   void end();
   bool write(const string &cmd, string &str, char * fmt, ...);
+  void write_nowait(const string &cmd, string &str, char * fmt, ...);
+
+  bool passthrough(const uint8_t *data, size_t size);
 
   bool beginned;
 

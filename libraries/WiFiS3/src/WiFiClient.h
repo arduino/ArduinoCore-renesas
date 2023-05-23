@@ -24,46 +24,43 @@
 #include "Print.h"
 #include "Client.h"
 #include "IPAddress.h"
+#include "WiFiCommands.h"
+#include "WiFiTypes.h"
+#include "Modem.h"
+
+
 
 class WiFiClient : public Client {
 
 public:
   WiFiClient();
-  WiFiClient(uint8_t sock);
-
-  uint8_t status();
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char *host, uint16_t port);
-  virtual int connectSSL(IPAddress ip, uint16_t port);
-  virtual int connectSSL(const char *host, uint16_t port);
-  virtual int connectBearSSL(IPAddress ip, uint16_t port);
-  virtual int connectBearSSL(const char *host, uint16_t port);
   virtual size_t write(uint8_t);
   virtual size_t write(const uint8_t *buf, size_t size);
-  virtual size_t retry(const uint8_t *buf, size_t size, bool write);
   virtual int available();
   virtual int read();
   virtual int read(uint8_t *buf, size_t size);
   virtual int peek();
-  virtual void setRetry(bool retry);
   virtual void flush();
   virtual void stop();
   virtual uint8_t connected();
-  virtual operator bool();
+  virtual operator bool() {
+    return _sock != -1;
+  }
 
   virtual IPAddress remoteIP();
   virtual uint16_t remotePort();
 
   friend class WiFiServer;
-  friend class WiFiDrv;
-
+  
   using Print::write;
 
 private:
-  static uint16_t _srcport;
-  uint8_t _sock;   //not used
-  uint16_t  _socket;
-  bool _retrySend;
+  int8_t _sock;
+  void getSocket();
+
+  
 };
 
 #endif

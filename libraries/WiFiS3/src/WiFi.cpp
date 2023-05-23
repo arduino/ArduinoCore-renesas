@@ -446,6 +446,7 @@ uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::status() {
 /* -------------------------------------------------------------------------- */   
+   modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_GETSTATUS)), res, CMD_READ(_GETSTATUS))) {
       return atoi(res.c_str());
