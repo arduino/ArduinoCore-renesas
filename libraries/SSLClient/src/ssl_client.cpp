@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <string>
 #include "ssl_client.h"
+#include "ssl_fs_io.h"
 
 
 #if !defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED) && !defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
@@ -59,7 +60,7 @@ static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
-   // }
+    //}
 
     int result = client->read(buf, len);
     log_d("SSL client RX res=%d len=%d", result, len);
@@ -139,7 +140,7 @@ static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
 }
 
 
-void ssl_init(sslclient_context *ssl_client, Client *client)
+void ssl_init(sslclient_context *ssl_client, Client *client, const char * ca_path)
 {
     // reset embedded pointers to zero
     memset(ssl_client, 0, sizeof(sslclient_context));
@@ -152,10 +153,12 @@ void ssl_init(sslclient_context *ssl_client, Client *client)
 
     mbedtls_ssl_conf_dbg(&ssl_client->ssl_conf, mbedtls_debug_print, NULL);
     mbedtls_debug_set_threshold(DEBUG_LEVEL);
+
+    mbedtls_fs_init(ca_path);
 }
 
 
-int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t port, int timeout, const char *rootCABuff, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey, bool insecure)
+int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t port, int timeout, const char *rootCABuff, const char *rootCAPath, const char *cli_cert, const char *cli_key, const char *pskIdent, const char *psKey, bool insecure)
 {
     char buf[512];
     int ret, flags;
@@ -243,6 +246,24 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
             log_e("mbedtls_ssl_conf_psk returned %d", ret);
             return handle_error(ret);
         }
+    } else if (rootCAPath != NULL){
+        log_v("Setting up filesystem default ca chain with path %s", rootCAPath);
+        mbedtls_x509_crt_init(&ssl_client->ca_cert);
+        mbedtls_ssl_conf_authmode(&ssl_client->ssl_conf, MBEDTLS_SSL_VERIFY_REQUIRED);
+        ret = mbedtls_x509_crt_parse_path(&ssl_client->ca_cert, rootCAPath);
+        if(ret != 0) {
+            if(ret < 0) {
+                log_e("error parsing ca certs from filesystem");
+                return handle_error(ret);
+            } else {
+                log_w("partly parsed %d certs from filesystem", ret);
+            }
+        }
+        mbedtls_ssl_conf_ca_chain(&ssl_client->ssl_conf, &ssl_client->ca_cert, NULL);
+        if (ret < 0) {
+            mbedtls_x509_crt_free(&ssl_client->ca_cert);
+            return handle_error(ret);
+        }
     } else {
         return -1;
     }
@@ -316,12 +337,14 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
         log_e("Failed to verify peer certificate! verification info: %s", buf);
         stop_ssl_socket(ssl_client, rootCABuff, cli_cert, cli_key);  //It's not safe continue.
+
         return handle_error(ret);
     } else {
         log_v("Certificate verified.");
     }
     
-    if (rootCABuff != NULL) {
+    if ((rootCABuff != NULL) || ((rootCAPath != NULL))) {
+        log_e("free buffer");
         mbedtls_x509_crt_free(&ssl_client->ca_cert);
     }
 

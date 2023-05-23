@@ -1,11 +1,11 @@
-#include "EthernetSSLClient.h"
+#include "WiFiSSLClient.h"
 
-EthernetSSLClient::EthernetSSLClient()
+WiFiSSLClient::WiFiSSLClient()
 {
   _connected = false;
 
   sslclient = new sslclient_context;
-  _client = new EthernetClient;
+  _client = new WiFiClient;
 
   _timeout = 1000;
   _CA_cert = NULL;
@@ -20,7 +20,7 @@ EthernetSSLClient::EthernetSSLClient()
   sslclient->handshake_timeout = 5000;
 }
 
-EthernetSSLClient::~EthernetSSLClient()
+WiFiSSLClient::~WiFiSSLClient()
 {
   stop();
   delete _client;

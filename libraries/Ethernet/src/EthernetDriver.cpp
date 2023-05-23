@@ -1,4 +1,4 @@
-#include "ethernetDriver.h"
+#include "EthernetDriver.h"
 #include "IRQManager.h"
 
 /* IMPORTANT NOTE: this driver is configured to use ZERO COPY 

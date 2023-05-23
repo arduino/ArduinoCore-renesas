@@ -1,5 +1,5 @@
-#ifndef ethernetsslclient_h
-#define ethernetsslclient_h
+#ifndef ARDUINO_LWIP_ETHERNET_SSL_CLIENT_H
+#define ARDUINO_LWIP_ETHERNET_SSL_CLIENT_H
 
 #include "EthernetClient.h"
 #include "SSLClient.h"
