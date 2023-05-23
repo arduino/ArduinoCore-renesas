@@ -20,7 +20,6 @@
 
 //namespace mbed {
 
-
 SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr_t stop)
     : _bd(bd)
     , _start_from_end(false), _start(start)

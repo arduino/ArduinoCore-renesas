@@ -314,6 +314,7 @@ int FATFileSystem::mount(BlockDevice *bd, bool mount)
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, mount);
             unlock();
+            debug_if(FFS_DBG, "Mount result %d\n", res);
             return fat_error_remap(res);
         }
     }
@@ -352,6 +353,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     int err = bd->init();
     if (err) {
         fs.unlock();
+        debug_if(FFS_DBG, "format: bd->init() failed %d\n", err);
         return err;
     }
 
@@ -361,6 +363,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     if (err) {
         bd->deinit();
         fs.unlock();
+        debug_if(FFS_DBG, "format: bd->erase() failed %d\n", err);
         return err;
     }
 
@@ -371,6 +374,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
         if (!buf) {
             bd->deinit();
             fs.unlock();
+            debug_if(FFS_DBG, "format: malloc() failed\n");
             return -ENOMEM;
         }
 
@@ -382,6 +386,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
                 free(buf);
                 bd->deinit();
                 fs.unlock();
+                debug_if(FFS_DBG, "format: bd->program() failed %d\n", err);
                 return err;
             }
         }
@@ -394,18 +399,21 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     if (err) {
         bd->deinit();
         fs.unlock();
+        debug_if(FFS_DBG, "format: bd->trim() failed %d\n", err);
         return err;
     }
 
     err = bd->deinit();
     if (err) {
         fs.unlock();
+        debug_if(FFS_DBG, "format: bd->deinit() failed %d\n", err);
         return err;
     }
 
     err = fs.mount(bd, false);
     if (err) {
         fs.unlock();
+        debug_if(FFS_DBG, "format: fs.mount() failed %d\n", err);
         return err;
     }
 
@@ -421,12 +429,14 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     if (res != FR_OK) {
         fs.unmount();
         fs.unlock();
+        debug_if(FFS_DBG, "format: f_mkfs() failed %d\n", res);
         return fat_error_remap(res);
     }
 
     err = fs.unmount();
     if (err) {
         fs.unlock();
+        debug_if(FFS_DBG, "format: fs.unmount() failed %d\n", err);
         return err;
     }
 
@@ -445,23 +455,29 @@ int FATFileSystem::reformat(BlockDevice *bd, int allocation_unit)
         int err = unmount();
         if (err) {
             unlock();
+            debug_if(FFS_DBG, "reformat: unmount() failed %d\n", err);
             return err;
         }
     }
 
     if (!bd) {
         unlock();
+        debug_if(FFS_DBG, "reformat: null bd\n");
         return -ENODEV;
     }
 
     int err = FATFileSystem::format(bd, allocation_unit);
     if (err) {
         unlock();
+        debug_if(FFS_DBG, "reformat: format() failed %d\n", err);
         return err;
     }
 
     err = mount(bd);
     unlock();
+    if (err) {
+       debug_if(FFS_DBG, "reformat: mount() failed %d\n", err);
+    }
     return err;
 }
 
@@ -661,7 +677,7 @@ ssize_t FATFileSystem::file_write(fs_file_t file, const void *buffer, size_t len
     unlock();
 
     if (res != FR_OK) {
-        debug_if(FFS_DBG, "f_write() failed: %d", res);
+        debug_if(FFS_DBG, "f_write() failed: %d\n", res);
         return fat_error_remap(res);
     } else {
         return n;

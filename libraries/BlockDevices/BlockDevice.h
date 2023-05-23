@@ -1,5 +1,5 @@
 /* ########################################################################## */
-/* - File: blockDevice.h
+/* - File: BlockDevice.h
    - Copyright (c): 2022 Arduino srl.  All right reserved.
    - Author: Daniele Aimo (d.aimo@arduino.cc)
 
@@ -23,6 +23,7 @@
 #define ARDUINO_BLOCK_DEVICE
 #include "Arduino.h"
 #include <stdint.h>
+#include "../Storage/storage_common.h"
 
 #define  BLOCK_DEVICE_OK (0)
 #define  BD_ERROR_OK      (0)
@@ -34,7 +35,7 @@ typedef uint32_t bd_size_t;
 typedef pin_size_t pin_t;
 
 /* -------------------------------------------------------------------------- */
-/* Abstract Base blockDevice class (defines the INTERFACE for all the 
+/* Abstract Base BlockDevice class (defines the INTERFACE for all the 
    subclass)                                                                  */
 /* -------------------------------------------------------------------------- */   
 
@@ -51,6 +52,8 @@ public:
    BlockDevice() = default;
    BlockDevice(BlockDevice const&) = delete;
    void operator=(BlockDevice const&) = delete;
+
+   static BlockDevice *get_default_instance();
 
    virtual ~BlockDevice() = default; 
    /* initialize a block device */

@@ -33,38 +33,10 @@ volatile CmdStatus SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;
             
 extern "C" void r_sdhi_transfer_callback(sdhi_instance_ctrl_t *p_ctrl);
 
-extern "C" int mylogadd(const char *fmt, ...) ;
-
 void g_sdmmc_dmac_callback(dmac_callback_args_t *p_args)
 {
     r_sdhi_transfer_callback ((sdhi_instance_ctrl_t*) p_args->p_context);
 }
-
-#ifdef SDHI_DEBUG
-#define PRINT_SIZE 32
-extern void print_uint8(uint8_t n);
-
-void print_buffer(uint8_t *b, uint32_t _size) {
- 
-  if(b != nullptr){   
-      Serial.println("");
-      for(int i = 0; i < _size; i++) {
-        if(i != 0 && i % PRINT_SIZE == 0) {
-          
-         if(i != 0)
-            Serial.println();
-        }
-        print_uint8(*(b + i)); 
-        
-      }
-      Serial.println();
-      Serial.println("");
-  }
-  
-}
-#endif
-
-
 
 
 /* -------------------------------------------------------------------------- */

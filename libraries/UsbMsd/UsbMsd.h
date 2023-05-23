@@ -2,7 +2,7 @@
 #define _ARDUINO_USB_MASS_STORAGE_DEVICE_H
 
 #include "Arduino.h"
-#include "blockDevice.h"
+#include "BlockDevice.h"
 
 #define MSD_ERROR -1
 

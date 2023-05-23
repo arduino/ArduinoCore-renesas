@@ -20,10 +20,9 @@
 #ifndef ARDUINO_QSIP_FLASH_BLOCK_DEVICE
 #define ARDUINO_QSPI_FLASH_BLOCK_DEVICE
 
-//#define QSPI_FLASH_DEBUG
 
 /* base class for block devices */
-#include "blockDevice.h"
+#include "BlockDevice.h"
 
 /* Arduino.h to include the defines of the flash type LP or HP*/
 #include "Arduino.h"
@@ -134,7 +133,7 @@ public:
   }
   
   virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const override{
-     return ( addr % WRITE_INTERNAL_BLOCK_SIZE == 0 && size % WRITE_INTERNAL_BLOCK_SIZE == 0 && addr + size <= this->size());
+     return (addr + size <= this->size());
   }
  
   

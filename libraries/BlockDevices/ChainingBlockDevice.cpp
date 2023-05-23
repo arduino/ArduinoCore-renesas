@@ -17,7 +17,6 @@
 
 #include "ChainingBlockDevice.h"
 
-
 //namespace mbed {
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)

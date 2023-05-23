@@ -21,8 +21,12 @@
 
 #ifdef HAS_QSPI
 
+// To enable debug set QSPIF_DBG to 1 and make sure STORAGE_DEBUG is defined
+// in Storage/storage_common.h
+#define QSPIF_DBG     0
+#define QSPIF_MEM_DBG 0
 
-extern "C" int mylogadd(const char *fmt, ...) ;
+
 /* -------------------------------------------------------------------------- */
 /*                               CONSTRUCTOR                                  */
 /* -------------------------------------------------------------------------- */
@@ -92,10 +96,6 @@ int QSPIFlashBlockDevice::deinit() {
 int QSPIFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _size) {
    return write(buffer, addr, _size);
 }
-
-#ifdef DEBUG_MSD
-extern "C" int mylogadd(const char *fmt, ...) ;
-#endif
 
 /* -------------------------------------------------------------------------- */
 /*                                  OPEN                                      */
@@ -193,7 +193,9 @@ int QSPIFlashBlockDevice::close() {
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
+
+   debug_if(QSPIF_DBG, "QSPIF read addr 0x%x, size %d", add, _size);
 
    if(!is_valid_read(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
@@ -217,6 +219,7 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
 
       uint32_t bank = add / READ_PAGE_SIZE;  
       uint32_t address = base_address + (add % READ_PAGE_SIZE);  
+      debug_if(QSPIF_DBG, "QSPIF read bank, %d address 0x%x", bank, address);
       rv = R_QSPI_BankSet(&ctrl, bank);  
       memcpy((uint8_t *)(buffer),(uint8_t *)address, bytes_left_in_page);
       add += bytes_left_in_page;
@@ -226,8 +229,13 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    /* set bank */
    uint32_t bank = add / READ_PAGE_SIZE;  
    uint32_t address = base_address + (add % READ_PAGE_SIZE);  
+   debug_if(QSPIF_DBG, "QSPIF read bank %d, address 0x%x", bank, address);
    rv = R_QSPI_BankSet(&ctrl, bank);  
    memcpy((uint8_t *)(buffer),(uint8_t *)address, _size);      
+
+#if QSPIF_MEM_DBG
+   debug_mem((uint8_t*)buffer, _size);
+#endif
    
    return (int)rv; 
 }
@@ -239,32 +247,49 @@ int QSPIFlashBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
    NOTE: buffer MUST be equal or greater than 'size'                          */
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size) {
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
+
+   debug_if(QSPIF_DBG, "QSPIF write addr 0x%x, size %d", add, _size);
 
    if(!is_valid_program(add,_size)) {
+      debug_if(QSPIF_DBG, "QSPIF write: invalid program");
       return (int)FSP_ERR_INVALID_ADDRESS;
    }
 
    if(!opened) {
       rv = (fsp_err_t)open();
       if(rv != BLOCK_DEVICE_OK) {
+         debug_if(QSPIF_DBG, "QSPIF write: open() failed %d", rv);
          return (int)FSP_ERR_NOT_OPEN;
       }
    }
 
    if(buffer == nullptr) {
+      debug_if(QSPIF_DBG, "QSPIF write: null input buffer");
       return (int)FSP_ERR_INVALID_ARGUMENT;
    }
 
-   uint32_t num_of_blocks = (_size / WRITE_INTERNAL_BLOCK_SIZE);
-   for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-      /* set bank */
-      uint32_t bank = add / READ_PAGE_SIZE;  
-      uint32_t address = base_address + ((add + i * WRITE_INTERNAL_BLOCK_SIZE) % READ_PAGE_SIZE);  
-      R_QSPI_BankSet(&ctrl, bank);  
-      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer + (i * WRITE_INTERNAL_BLOCK_SIZE)), (uint8_t*)address, WRITE_INTERNAL_BLOCK_SIZE);
+#if QSPIF_MEM_DBG
+   debug_mem((uint8_t*)buffer, _size);
+#endif
+
+   uint32_t address = add + base_address;
+   const uint32_t end_address = address + _size;
+   while(address < end_address && rv == FSP_SUCCESS) {
+      uint32_t bank = add / READ_PAGE_SIZE;
+      uint32_t block_end = (((address / WRITE_INTERNAL_BLOCK_SIZE) + 1) * WRITE_INTERNAL_BLOCK_SIZE);
+      uint32_t left = block_end - address;
+      uint32_t chunk = address + left > end_address  ? end_address - address : left;
+      debug_if(QSPIF_DBG, "1 QSPIF write bank %d, address 0x%x block_end 0x%x left %d size %d", bank, address, block_end, left, chunk);
+      R_QSPI_BankSet(&ctrl, bank);
+      rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer), (uint8_t*)address, chunk);
+      address += chunk;
+      buffer += chunk;
+
       if(rv == FSP_SUCCESS) {
-         rv = get_flash_status();  
+         rv = get_flash_status();
+      } else {
+         debug_if(QSPIF_DBG, "QSPIF R_QSPI_Write() failed %d", rv);
       }
    }
       
@@ -283,7 +308,9 @@ bool QSPIFlashBlockDevice::is_address_correct(bd_addr_t add) {
 /* -------------------------------------------------------------------------- */
 int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
    
-   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;;
+   fsp_err_t rv = (fsp_err_t)BLOCK_DEVICE_OK;
+
+   debug_if(QSPIF_DBG, "QSPIF erase addr 0x%x, size %d", add, _size);
 
    if(!is_valid_erase(add,_size)) {
       return (int)FSP_ERR_INVALID_ADDRESS;
@@ -302,10 +329,13 @@ int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
       /* set bank */
       uint32_t bank = add / READ_PAGE_SIZE;  
       uint32_t address = base_address + ((add + i * erase_block_size) % READ_PAGE_SIZE);  
+      debug_if(QSPIF_DBG, "QSPIF erase bank %d, address 0x%x", bank, address);
       R_QSPI_BankSet(&ctrl, bank); 
       rv = R_QSPI_Erase(&ctrl, (uint8_t *)address, erase_block_size);     
       if(rv == FSP_SUCCESS) {
          rv = get_flash_status();  
+      } else {
+         debug_if(QSPIF_DBG, "QSPIF R_QSPI_Erase() failed %d", rv);
       }
    }
 

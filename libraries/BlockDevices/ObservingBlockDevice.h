@@ -21,9 +21,7 @@
 #ifndef ARDUINO_OBSERVING_BLOCK_DEVICE_H
 #define ARDUINO_OBSERVING_BLOCK_DEVICE_H
 
-#include "blockDevice.h"
-#include "../Storage/storage_common.h"
-
+#include "BlockDevice.h"
 
 //namespace mbed {
 

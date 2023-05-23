@@ -16,12 +16,14 @@
  */
 
 #include "MBRBlockDevice.h"
-#include "../Storage/storage_common.h"
 #include <algorithm>
 #include <string.h>
 
-//#define DEBUG_MSD
-extern "C" int mylogadd(const char *fmt, ...) ;
+// To enable debug set MBR_DBG to 1 and make sure STORAGE_DEBUG is defined
+// in Storage/storage_common.h
+#define MBR_DBG     0
+#define MBR_MEM_DBG 0
+
 //namespace mbed {
 
 // On disk structures, all entries are little endian
@@ -90,6 +92,7 @@ static int partition_absolute(
     int err = bd->read(buffer, 512 - buffer_size, buffer_size);
     if (err) {
         delete[] buffer;
+        debug_if(MBR_DBG, "MBR partition_absolute: read error %d", err);
         return err;
     }
 
@@ -159,11 +162,15 @@ static int partition_absolute(
     err = bd->erase(0, bd->get_erase_size());
     if (err) {
         delete[] buffer;
+        debug_if(MBR_DBG, "MBR partition_absolute: erase error %d", err);
         return err;
     }
 
     err = bd->program(buffer, 512 - buffer_size, buffer_size);
     delete[] buffer;
+    if(err) {
+        debug_if(MBR_DBG, "MBR partition_absolute: program error %d", err);
+    }
     return err;
 }
 
@@ -202,6 +209,7 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
 {
     int err = bd->init();
     if (err) {
+        debug_if(MBR_DBG, "MBR partition: init error %d", err);
         return err;
     }
 
@@ -217,11 +225,13 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
 
     err = partition_absolute(bd, part, type, offset, size);
     if (err) {
+        debug_if(MBR_DBG, "MBR partition: partition_absolute error %d", err);
         return err;
     }
 
     err = bd->deinit();
     if (err) {
+        debug_if(MBR_DBG, "MBR partition: bd deinit error %d", err);
         return err;
     }
 
@@ -245,11 +255,13 @@ int MBRBlockDevice::init()
     uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
 
     if (val != 1) {
+        debug_if(MBR_DBG, "MBR init: atomic increment error %d", val);
         return BD_ERROR_OK;
     }
 
     err = _bd->init();
     if (err) {
+        debug_if(MBR_DBG, "MBR init: bd init error %d", err);
         goto fail;
     }
 
@@ -259,13 +271,19 @@ int MBRBlockDevice::init()
 
     err = _bd->read(buffer, 512 - buffer_size, buffer_size);
     if (err) {
+        debug_if(MBR_DBG, "MBR init: read error %d", err);
         goto fail;
     }
+
+#if MBR_MEM_DBG
+    debug_mem(buffer, buffer_size);
+#endif
 
     // Check for valid table
     table = reinterpret_cast<struct mbr_table *>(&buffer[buffer_size - sizeof(struct mbr_table)]);
     if (table->signature[0] != 0x55 || table->signature[1] != 0xaa) {
         err = BD_ERROR_INVALID_MBR; 
+        debug_if(MBR_DBG, "MBR init: table error 0x%02x 0x%02x", table->signature[0], table->signature[1]);
         goto fail;
     }
 
@@ -274,6 +292,7 @@ int MBRBlockDevice::init()
     if (table->entries[_part - 1].status != 0x00 &&
             table->entries[_part - 1].status != 0x80) {
         err = BD_ERROR_INVALID_PARTITION;
+        debug_if(MBR_DBG, "MBR init: part status error");
         goto fail;
     }
 
@@ -284,31 +303,27 @@ int MBRBlockDevice::init()
             table->entries[_part - 1].type == 0x05 ||
             table->entries[_part - 1].type == 0x0f)) {
         err = BD_ERROR_INVALID_PARTITION;
+        debug_if(MBR_DBG, "MBR init: part entry error");
         goto fail;
     }
 
     // Get partition attributes
     sector = std::max<uint32_t>(_bd->get_erase_size(), 512);
-    #ifdef DEBUG_MSD
-    mylogadd("MBR sectort %i", sector);
-    #endif
+    debug_if(MBR_DBG, "MBR sector %i", sector);
 
     _type = table->entries[_part - 1].type;
     _offset = fromle32(table->entries[_part - 1].lba_offset) * sector;
-    #ifdef DEBUG_MSD
-    mylogadd("MBR _offset %i", _offset);
-    #endif
+    debug_if(MBR_DBG, "MBR _offset %i", _offset);
 
     _size   = fromle32(table->entries[_part - 1].lba_size)   * sector;
 
-    #ifdef DEBUG_MSD
-    mylogadd("MBR _size %i", _size);
-    #endif
+    debug_if(MBR_DBG, "MBR _size %i", _size);
     
 
     // Check that block addresses are valid
     if (!_bd->is_valid_erase(_offset, _size)) {
         err = BD_ERROR_INVALID_PARTITION;
+        debug_if(MBR_DBG, "MBR init valid erase error");
         goto fail;
     }
 
@@ -357,9 +372,7 @@ int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     if (!is_valid_read(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
-    #ifdef DEBUG_MSD
-    mylogadd("MBR READ %i, %i", addr + _offset, size);
-    #endif
+    debug_if(MBR_DBG, "MBR READ %i, %i", addr + _offset, size);
     return _bd->read(b, addr + _offset, size);
 }
 
@@ -372,9 +385,7 @@ int MBRBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     if (!is_valid_program(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
-    #ifdef DEBUG_MSD
-    mylogadd("MBR WRITE %i, %i", addr + _offset, size);
-    #endif
+    debug_if(MBR_DBG, "MBR WRITE %i, %i", addr + _offset, size);
     return _bd->program(b, addr + _offset, size);
 }
 

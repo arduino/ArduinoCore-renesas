@@ -21,7 +21,7 @@
 #ifndef ARDUINO_EXHAUSTIBLE_BLOCK_DEVICE_H
 #define ARDUINO_EXHAUSTIBLE_BLOCK_DEVICE_H
 
-#include "blockDevice.h"
+#include "BlockDevice.h"
 
 //namespace mbed {
 

@@ -16,7 +16,6 @@
  */
 
 #include "BufferedBlockDevice.h"
-#include "../Storage/storage_common.h"
 #include <algorithm>
 #include <string.h>
 

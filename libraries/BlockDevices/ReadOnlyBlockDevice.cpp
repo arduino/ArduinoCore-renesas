@@ -20,9 +20,7 @@
 
 #include "ReadOnlyBlockDevice.h"
 
-
 //namespace mbed {
-
 
 int ReadOnlyBlockDevice::open() { return BLOCK_DEVICE_OK; }
 int ReadOnlyBlockDevice::close() { return BLOCK_DEVICE_OK; }

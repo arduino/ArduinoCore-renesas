@@ -24,7 +24,7 @@
 #include "FileHandle.h"
 #include "DirHandle.h"
 #include "FileSystemLike.h"
-#include "../BlockDevices/blockDevice.h"
+#include "../BlockDevices/BlockDevice.h"
 
 //namespace mbed {
 /** \addtogroup file system */
