@@ -10,11 +10,8 @@ void WiFiClient::getSocket() {
    if(_sock == -1) {
       string res = "";
       modem.begin();
-
       if(modem.write(string(PROMPT(_BEGINCLIENT)),res, "%s" , CMD(_BEGINCLIENT))) {
          _sock = atoi(res.c_str());
-         Serial.print("GET SOCKET: ");
-         Serial.println(_sock);
       }
    }   
 }
@@ -71,20 +68,53 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size){
 
 }
 
-
-
 /* -------------------------------------------------------------------------- */
 int WiFiClient::available(){
 /* -------------------------------------------------------------------------- */   
    int rv = 0;
    if(_sock >= 0) {
-      string res = "";
-      modem.begin();
-      if(modem.write(string(PROMPT(_AVAILABLE)),res, "%s%d\r\n" , CMD_WRITE(_AVAILABLE), _sock)) {
-         rv = atoi(res.c_str());
-      }  
+      if(rx_buffer.available() > 0) {
+         return rx_buffer.available();
+      }
+      else {
+         string res = "";
+         modem.begin();
+         if(modem.write(string(PROMPT(_AVAILABLE)),res, "%s%d\r\n" , CMD_WRITE(_AVAILABLE), _sock)) {
+            rv = atoi(res.c_str());
+         }  
+      }
    }
    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+int WiFiClient::_read() {
+/* -------------------------------------------------------------------------- */   
+   int rv = -1;
+   if(_sock >= 0) {
+      string res = "";
+      uint32_t size = rx_buffer.freePositions() - 1;
+      modem.begin();
+      
+      /* important - it works one shot */
+      modem.avoid_trim_results();
+      modem.read_using_size();
+      if(modem.write(string(PROMPT(_CLIENTRECEIVE)),res, "%s%d,%d\r\n" , CMD_WRITE(_CLIENTRECEIVE), _sock, size)) {
+         for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
+            rx_buffer.store((uint8_t)res[i]);
+            rv++;
+         }
+      }
+   }
+   return rv;
+}  
+
+/* -------------------------------------------------------------------------- */
+bool WiFiClient::read_needed(size_t s) {
+/* -------------------------------------------------------------------------- */   
+   if((size_t)rx_buffer.available() < s) {
+      _read();
+   }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,20 +130,20 @@ int WiFiClient::read() {
 /* -------------------------------------------------------------------------- */
 int WiFiClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */
-   int rv = -1;
-   if(_sock >= 0) {
-      string res = "";
-      modem.begin();
-      vector<string> tokens;
-      if(modem.write(string(PROMPT(_CLIENTRECEIVE)),res, "%s%d,%d\r\n" , CMD_WRITE(_CLIENTRECEIVE), _sock, size)) {
-         split(tokens, res, string("|"));
-         if(tokens.size() >= 2) {
-            rv = atoi(tokens[0].c_str());
-            memcpy(buf,tokens[1].data(), (rv < size) ? rv : size);
-         }
-      }  
+   read_needed(size);
+   int rv = 0;
+   bool go_on = true;
+   for(int i = 0; i < size && go_on; i++) {
+      bool is_read = false;
+      *(buf+i) = rx_buffer.read(&is_read);
+      if(is_read) {
+         rv++;
+      }
+      else {
+         go_on = false;
+      }
    }
-   return rv;
+   return rv; 
 }
 
 /* -------------------------------------------------------------------------- */
@@ -165,8 +195,6 @@ uint8_t WiFiClient::connected() {
    }
    return rv;
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 IPAddress WiFiClient::remoteIP() {

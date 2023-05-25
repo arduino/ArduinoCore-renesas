@@ -27,8 +27,9 @@
 #include "WiFiCommands.h"
 #include "WiFiTypes.h"
 #include "Modem.h"
+#include "FifoBuffer.h"
 
-
+#define RX_BUFFER_DIM 1024
 
 class WiFiClient : public Client {
 
@@ -56,9 +57,13 @@ public:
   
   using Print::write;
 
-private:
+protected:
   int8_t _sock;
   void getSocket();
+  FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
+  int _read();
+  bool read_needed(size_t s);
+
 
   
 };
