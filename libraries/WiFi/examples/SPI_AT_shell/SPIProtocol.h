@@ -6,7 +6,7 @@
 SPIClass& spi = SPI1;
 SPISettings spiSettings = SPISettings(4000000, MSBFIRST, SPI_MODE0);
 
-#ifdef ARDUINO_PORTENTA_H33
+#ifdef ARDUINO_PORTENTA_C33
 int cs = 103;
 byte hs = 100;
 #else

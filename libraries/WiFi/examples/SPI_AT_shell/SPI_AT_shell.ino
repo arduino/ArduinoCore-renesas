@@ -9,7 +9,7 @@ uint8_t rxBuffer[4096];
 //  readflag = true;
 //}
 
-#ifdef ARDUINO_PORTENTA_H33
+#ifdef ARDUINO_PORTENTA_C33
 
 #ifndef NINA_GPIO0
 #define NINA_GPIO0      (100)

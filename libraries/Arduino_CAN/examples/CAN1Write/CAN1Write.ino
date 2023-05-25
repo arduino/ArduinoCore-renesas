@@ -2,9 +2,9 @@
  * COMPILE TIME CHECKS
  **************************************************************************************/
 
-#ifndef ARDUINO_PORTENTA_H33
+#ifndef ARDUINO_PORTENTA_C33
 # error "CAN1 is only available on Portenta C33."
-#endif /* ARDUINO_PORTENTA_H33 */
+#endif /* ARDUINO_PORTENTA_C33 */
 
 /**************************************************************************************
  * INCLUDE

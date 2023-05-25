@@ -14,7 +14,7 @@
 
 #include "R7FA6M5_CAN.h"
 
-#ifdef ARDUINO_PORTENTA_H33
+#ifdef ARDUINO_PORTENTA_C33
 
 #include <IRQManager.h>
 
@@ -326,7 +326,7 @@ extern "C" void canfd_callback(can_callback_args_t * p_args)
   this_ptr->onCanFDCallback(p_args);
 }
 
-#endif /* ARDUINO_PORTENTA_H33 */
+#endif /* ARDUINO_PORTENTA_C33 */
 
 /**************************************************************************************
  * OBJECT INSTANTIATION

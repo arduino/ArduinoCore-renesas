@@ -1,0 +1,13 @@
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/inc
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra_gen
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/private/inc
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/public/inc
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/primitive
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_sce/common
+-iwithprefixbefore/variants/UNOWIFIR4/includes/ra/fsp/src/r_sce

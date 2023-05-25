@@ -1,0 +1,12 @@
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/inc
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra_gen
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/inc/api
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/inc/instances
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/private/inc
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/PORTENTA_C33/includes/ra_cfg/driver

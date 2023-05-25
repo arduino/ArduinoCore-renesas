@@ -17,7 +17,7 @@
 
 #include <Arduino.h>
 
-#ifdef ARDUINO_PORTENTA_H33
+#ifdef ARDUINO_PORTENTA_C33
 
 #include "api/HardwareCAN.h"
 
@@ -96,7 +96,7 @@ private:
 
 } /* arduino */
 
-#endif /* ARDUINO_PORTENTA_H33 */
+#endif /* ARDUINO_PORTENTA_C33 */
 
 /**************************************************************************************
  * EXTERN DECLARATION

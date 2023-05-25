@@ -24,7 +24,7 @@ int rts = -1;
 int dtr = -1;
 
 
-#ifdef ARDUINO_PORTENTA_H33
+#ifdef ARDUINO_PORTENTA_C33
 
 #warning Compiling for Portenta H33
 #ifndef SerialNina

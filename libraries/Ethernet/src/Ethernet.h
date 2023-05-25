@@ -1,7 +1,7 @@
 #ifndef ARDUINO_C_ETHERNET_H
 #define ARDUINO_C_ETHERNET_H
 
-#ifndef ARDUINO_PORTENTA_H33
+#ifndef ARDUINO_PORTENTA_C33
 // force discovering wth shield library
 // this doesn't work ATM
 // a check and a bailout should be added to all the other files too
