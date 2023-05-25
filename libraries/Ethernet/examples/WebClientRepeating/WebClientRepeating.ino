@@ -19,7 +19,7 @@
 
  */
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 
 // fill in an available IP address on your network here,
 // for manual configuration:

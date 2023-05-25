@@ -6,7 +6,7 @@
 
 */
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 #include <EthernetSSLClient.h>
 
 // if you don't want to use DNS (and reduce your sketch size)

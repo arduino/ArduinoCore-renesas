@@ -13,7 +13,7 @@
  by sstaub
  */
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:

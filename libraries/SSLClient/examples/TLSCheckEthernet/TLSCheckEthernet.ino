@@ -6,7 +6,7 @@
  *
  **************************************************************/
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 #include "SSLClient.h"
 //To make http request esay: https://github.com/arduino-libraries/ArduinoHttpClient
 #include <ArduinoHttpClient.h>

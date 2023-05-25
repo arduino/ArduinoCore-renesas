@@ -15,8 +15,8 @@
  This code is in the public domain.
  */
 
-#include <Ethernet.h>
-#include <CEthernetUdp.h>
+#include <EthernetC33.h>
+#include <EthernetUdp.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network:

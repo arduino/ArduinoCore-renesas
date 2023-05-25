@@ -1,4 +1,4 @@
-#include "Ethernet.h"
+#include <EthernetC33.h>
 
 /*
  * The old implementation of the begin set a default mac address:
