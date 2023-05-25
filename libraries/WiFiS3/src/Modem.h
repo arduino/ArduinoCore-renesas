@@ -2,6 +2,7 @@
 #define _MODEM_WIFIS3_H_
 
 #include "Arduino.h"
+#include "WiFiCommands.h"
 #include "StringHelpers.h"
 
 

@@ -28,8 +28,10 @@ ModemClass::~ModemClass() {
 void ModemClass::begin(int badurate){
 /* -------------------------------------------------------------------------- */   
   if(_serial != nullptr && !beginned) {
-    _serial->begin(badurate);
-    beginned = true;
+      _serial->begin(badurate);
+      beginned = true;
+      string res = "";
+      modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
   }
 }
 

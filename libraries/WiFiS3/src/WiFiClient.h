@@ -24,7 +24,7 @@
 #include "Print.h"
 #include "Client.h"
 #include "IPAddress.h"
-#include "WiFiCommands.h"
+
 #include "WiFiTypes.h"
 #include "Modem.h"
 #include "FifoBuffer.h"
