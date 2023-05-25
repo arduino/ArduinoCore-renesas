@@ -80,15 +80,15 @@ uint8_t *eth_get_tx_buffer(uint16_t *size) {
 /* -------------------------------------------------------------------------- */
 EthernetDriver::EthernetDriver() {
 /* -------------------------------------------------------------------------- */    
-    
 
     /* default MAC ADDRESS */
-    mac_address[0] = 0xAA;
-    mac_address[1] = 0xBB;
-    mac_address[2] = 0xCC;
-    mac_address[3] = 0xDD;
-    mac_address[4] = 0xEE;
-    mac_address[5] = 0xFF; 
+    const bsp_unique_id_t* t = R_BSP_UniqueIdGet();
+    mac_address[0] = 0xA8;
+    mac_address[1] = 0x61;
+    mac_address[2] = 0x0A;
+    mac_address[3] = t->unique_id_words[0] ^ t->unique_id_words[1];
+    mac_address[4] = t->unique_id_words[2];
+    mac_address[5] = t->unique_id_words[3];
 
     /* ethernet PHY _________________________________________________________ */
     phy_cfg.channel                     = ETHERNET_CHANNEL;
