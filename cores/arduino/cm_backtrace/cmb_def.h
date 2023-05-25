@@ -395,18 +395,25 @@ if (!(EXPR))                                                                   \
     }
 #pragma diag_default=Pe940  
 #elif defined(__GNUC__)
+
+#ifdef __cplusplus
+#   define CMSREGISTER
+#else
+#   define CMSREGISTER register
+#endif
+
     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_msp(void) {
-        register uint32_t result;
+        CMSREGISTER uint32_t result;
         __asm volatile ("MRS %0, msp\n" : "=r" (result) );
         return(result);
     }
     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_psp(void) {
-        register uint32_t result;
+        CMSREGISTER uint32_t result;
         __asm volatile ("MRS %0, psp\n" : "=r" (result) );
         return(result);
     }
     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_sp(void) {
-        register uint32_t result;
+        CMSREGISTER uint32_t result;
         __asm volatile ("MOV %0, sp\n" : "=r" (result) );
         return(result);
     }

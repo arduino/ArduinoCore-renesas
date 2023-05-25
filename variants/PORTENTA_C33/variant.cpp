@@ -222,7 +222,7 @@ agt_extended_cfg_t TIMER_ETHERNET_extend;
 timer_cfg_t TIMER_ETHERNET_cfg;
 
 
-void startETHClock() {
+fsp_err_t startETHClock() {
   pinPeripheral(ETHERNET_CLK_PIN, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
   
   TIMER_ETHERNET_extend.count_source = AGT_CLOCK_PCLKB;
@@ -246,10 +246,20 @@ void startETHClock() {
   TIMER_ETHERNET_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
   
   fsp_err_t err = R_AGT_Open(&TIMER_ETHERNET_ctrl,&TIMER_ETHERNET_cfg);
+  if (err != FSP_SUCCESS) {
+    return err;
+  }
   err = R_AGT_Enable(&TIMER_ETHERNET_ctrl);
+  if (err != FSP_SUCCESS) {
+    return err;
+  }
   err = R_AGT_Start(&TIMER_ETHERNET_ctrl);
+  if (err != FSP_SUCCESS) {
+    return err;
+  }
 
   FspTimer::set_timer_is_used(AGT_TIMER, AGT_TIMER_CHANNEL);
+  return err;
 }
 
 void initVariant() {
