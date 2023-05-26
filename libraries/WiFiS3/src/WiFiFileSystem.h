@@ -17,25 +17,21 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef WIFISSLCLIENT_H
-#define WIFISSLCLIENT_H
+#ifndef WIFI_FILE_SYSTEM_H
+#define WIFI_FILE_SYSTEM_H
 
+#include "Arduino.h"	
 #include "WiFiCommands.h"
-#include "WiFiClient.h"
 #include "Modem.h"
-#include "WiFiFileSystem.h"
 
-
-class WiFiSSLClient : public WiFiClient {
+class WiFiFileSystem {
 
 public:
-   WiFiSSLClient();
-
-   virtual int connect(IPAddress ip, uint16_t port);
-   virtual int connect(const char* host, uint16_t port);
-   void setCACert(const char* root_ca);
-   void setInsecure();
+   WiFiFileSystem();
+   void mount(bool format_on_fault = false);
+   void writefile(const char* name, const char* data);
+   void readfile(const char* name);
 
 };
 
-#endif /* WIFISSLCLIENT_H */
+#endif /* WIFI_FILE_SYSTEM_H */
