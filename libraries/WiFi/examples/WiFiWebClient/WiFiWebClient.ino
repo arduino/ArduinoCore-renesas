@@ -18,7 +18,7 @@
  */
 
 
-#include "WiFi.h"
+#include "WiFiC3.h"
 #include "WiFiClient.h"
 #include "IPAddress.h"
 

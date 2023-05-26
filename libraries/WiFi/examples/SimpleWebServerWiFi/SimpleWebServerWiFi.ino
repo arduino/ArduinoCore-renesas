@@ -21,7 +21,7 @@
  by Tom Igoe
  */
 
-#include <WiFi.h>
+#include <WiFiC3.h>
 #include <WiFiServer.h>
 
 #include "arduino_secrets.h" 

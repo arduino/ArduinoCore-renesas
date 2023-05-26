@@ -18,7 +18,7 @@
  */
 
 
-#include <WiFi.h>
+#include <WiFiC3.h>
 #include <WiFiUdp.h>
 
 int status = WL_IDLE_STATUS;
