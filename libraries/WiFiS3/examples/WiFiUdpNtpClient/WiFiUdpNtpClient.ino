@@ -18,8 +18,7 @@
  */
 
 
-#include <WiFi.h>
-#include <WiFiUdp.h>
+#include <WiFiS3.h>
 
 int status = WL_IDLE_STATUS;
 #include "arduino_secrets.h" 
@@ -41,7 +40,7 @@ WiFiUDP Udp;
 
 void setup() {
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -54,7 +53,7 @@ void setup() {
   }
 
   String fv = WiFi.firmwareVersion();
-  if (fv < WiFi_FIRMWARE_LATEST_VERSION) {
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
 

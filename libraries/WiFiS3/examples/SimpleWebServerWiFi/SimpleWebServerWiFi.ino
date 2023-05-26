@@ -87,8 +87,8 @@ void loop() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED on<br></p>");
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED off<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED off<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED on<br></p>");
             
             // The HTTP response ends with another blank line:
             client.println();

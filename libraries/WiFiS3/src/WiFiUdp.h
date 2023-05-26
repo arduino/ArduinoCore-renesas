@@ -22,23 +22,34 @@
 #define wifiudp_h
 
 #include <Udp.h>
+#include "Arduino.h"  
+#include "Arduino.h"  
+#include "IPAddress.h"
 
-#define UDP_TX_PACKET_MAX_SIZE 24
+#include "WiFiTypes.h"
+#include "Modem.h"
+#include "FifoBuffer.h"
+
+#define RX_BUFFER_DIM 1024
 
 class WiFiUDP : public UDP {
 private:
-  uint8_t _sock;  // socket ID for Wiz5100
-  uint16_t _port; // local port to listen on
-  int _parsed;
+  int _sock; 
+  FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
 
+protected:
+  virtual int _read();
+  virtual bool read_needed(size_t s);
+  
 public:
   WiFiUDP();  // Constructor
   virtual uint8_t begin(uint16_t);	// initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
+  virtual uint8_t begin(IPAddress a, uint16_t p);
   virtual uint8_t beginMulticast(IPAddress, uint16_t);  // initialize, start listening on specified multicast IP address and port. Returns 1 if successful, 0 if there are no sockets available to use
   virtual void stop();  // Finish with the UDP socket
 
   // Sending UDP packets
-  
+  virtual int beginMulticastPacket();
   // Start building up a packet to send to the remote host specific in ip and port
   // Returns 1 if successful, 0 if there was a problem with the supplied IP address or port
   virtual int beginPacket(IPAddress ip, uint16_t port);
@@ -77,7 +88,7 @@ public:
   // Return the port of the host who sent the current incoming packet
   virtual uint16_t remotePort();
 
-  friend class WiFiDrv;
+  
 };
 
 #endif
