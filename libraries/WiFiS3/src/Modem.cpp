@@ -48,17 +48,20 @@ bool ModemClass::passthrough(const uint8_t *data, size_t size) {
    bool res = false;
    bool found = false;
    string data_res = "";
+   
    unsigned long start_time = millis();
    while(millis() - start_time < _timeout && !found){
       while(_serial->available()){
          char c = _serial->read();
          data_res += c;
+         
          if(string::npos != data_res.rfind(RESULT_OK)){
             found = true;
             res = true;
             break;
          } 
          else if (string::npos != data_res.rfind(RESULT_ERROR)) {
+            found = true;
             res = false;
             break;
          }
@@ -190,8 +193,19 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                found = true;
                read_by_size = false;
                res = true;
-               while(_serial->available()){
-                  _serial->read();
+               
+               unsigned long start = millis();
+               bool ok_found = false;
+               while(millis() - start < _timeout && !ok_found) {
+                  string ok = "";
+                  while(_serial->available()){
+                     char c = _serial->read();
+                     ok += c;
+                     if(ok.size() - ok.rfind("OK\r\n") == 4) {
+                        ok_found = true;
+                        break;
+                     }
+                  }
                }
             }
          }

@@ -22,5 +22,6 @@
 
 #include "WiFi.h"
 #include "WiFiClient.h"
+#include "WiFiServer.h"
 
 #endif

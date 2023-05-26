@@ -21,8 +21,7 @@
  by Tom Igoe
  */
 
-#include <WiFi.h>
-#include <WiFiServer.h>
+#include "WiFiS3.h"
 
 #include "arduino_secrets.h" 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
@@ -35,7 +34,7 @@ int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 void setup() {
-  Serial.begin(9600);      // initialize serial communication
+  Serial.begin(115200);      // initialize serial communication
   pinMode(led, OUTPUT);      // set the LED pin mode
 
   // check for the WiFi module:
@@ -46,7 +45,7 @@ void setup() {
   }
 
   String fv = WiFi.firmwareVersion();
-  if (fv < WiFi_FIRMWARE_LATEST_VERSION) {
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
 
@@ -66,6 +65,7 @@ void setup() {
 
 
 void loop() {
+  delay(2000);
   WiFiClient client = server.available();   // listen for incoming clients
 
   if (client) {                             // if you get a client,
@@ -87,8 +87,8 @@ void loop() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED off<br></p>");
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED on<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED on<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED off<br></p>");
             
             // The HTTP response ends with another blank line:
             client.println();
@@ -109,6 +109,7 @@ void loop() {
           digitalWrite(LED_BUILTIN, LOW);                // GET /L turns the LED off
         }
       }
+      
     }
     // close the connection:
     client.stop();

@@ -35,6 +35,7 @@ class WiFiClient : public Client {
 
 public:
   WiFiClient();
+  WiFiClient(int s);
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char *host, uint16_t port);
   virtual size_t write(uint8_t);
@@ -58,7 +59,7 @@ public:
   using Print::write;
 
 protected:
-  int8_t _sock;
+  int _sock;
   void getSocket();
   FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
   int _read();
