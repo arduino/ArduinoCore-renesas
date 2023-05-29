@@ -29,7 +29,7 @@ class WiFiFileSystem {
 public:
    WiFiFileSystem();
    void mount(bool format_on_fault = false);
-   void writefile(const char* name, const char* data);
+   size_t writefile(const char* name, const char* data, size_t size, int operation = WIFI_FILE_WRITE);
    void readfile(const char* name);
 
 };

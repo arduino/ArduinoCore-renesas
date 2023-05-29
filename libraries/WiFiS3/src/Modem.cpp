@@ -184,7 +184,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    bool res = false;
    bool found = false;
    unsigned long start_time = millis();
-   while(millis() - start_time < _timeout && !found){
+   while((millis() - start_time < _timeout) && !found){
       while(_serial->available()){
          char c = _serial->read();
          data_res += c;
