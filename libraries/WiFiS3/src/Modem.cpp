@@ -201,7 +201,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                   while(_serial->available()){
                      char c = _serial->read();
                      ok += c;
-                     if(ok.size() - ok.rfind("OK\r\n") == 4) {
+                     if(ok.size() - ok.rfind("OK\r\n") == 4 && ok.rfind("OK\r\n") != string::npos) {
                         ok_found = true;
                         break;
                      }
