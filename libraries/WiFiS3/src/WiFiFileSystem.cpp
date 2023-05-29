@@ -12,9 +12,11 @@ void WiFiFileSystem::mount(bool format_on_fault) {
       modem.write(string(PROMPT(_MOUNTFS)), res, "%s%d\r\n" , CMD_WRITE(_MOUNTFS), format_on_fault);
    }
 }
-void WiFiFileSystem::writefile(const char* name, const char* data) {
+size_t WiFiFileSystem::writefile(const char* name, const char* data, size_t size, int operation) {
    string res = "";
-   if(modem.write(string(PROMPT(_FILESYSTEM)), res, "%s%d,%d,%s,%s\r\n" , CMD_WRITE(_FILESYSTEM), 0, WIFI_FILE_WRITE, name, data)) {
+   modem.write_nowait(string(PROMPT(_FILESYSTEM)), res, "%s%d,%d,%s,%d\r\n" , CMD_WRITE(_FILESYSTEM), 0, operation, name, size);
+   if(modem.passthrough((uint8_t *)data, size)) {
+      return size;
    }
 }
 
@@ -26,7 +28,7 @@ void WiFiFileSystem::readfile(const char* name) {
    while(1) {
       modem.avoid_trim_results();
       modem.read_using_size();
-      if(modem.write(string(PROMPT(_FILESYSTEM)), res, "%s%d,%d,%s,%d,%d\r\n" , CMD_WRITE(_FILESYSTEM), 0, WIFI_FILE_READ, name, i, 1023)) {
+      if(modem.write(DO_NOT_CHECK_CMD, res, "%s%d,%d,%s,%d,%d\r\n" , CMD_WRITE(_FILESYSTEM), 0, WIFI_FILE_READ, name, i, 1023)) {
          Serial.print(res.c_str()); //WIP i'll fix this in next commit for now just print the filecontent
          i += res.size();
       } else {

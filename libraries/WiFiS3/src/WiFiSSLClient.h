@@ -33,9 +33,37 @@ public:
 
    virtual int connect(IPAddress ip, uint16_t port);
    virtual int connect(const char* host, uint16_t port);
-   void setCACert(const char* root_ca);
+   void setCACert(const char* root_ca = NULL, size_t size = 0); 
    void setInsecure();
+  virtual size_t write(uint8_t);
+  virtual size_t write(const uint8_t *buf, size_t size);
+  virtual int available();
+  virtual int read();
+  virtual int read(uint8_t *buf, size_t size);
+  virtual int peek();
+  virtual void flush();
+  virtual void stop();
+  virtual uint8_t connected();
+  virtual operator bool() {
+    return _sock != -1;
+  }
 
+  virtual IPAddress remoteIP();
+  virtual uint16_t remotePort();
+
+  friend class WiFiServer;
+  
+  using Print::write;
+
+protected:
+  int _sock;
+  void getSocket();
+  FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
+  int _read();
+  bool read_needed(size_t s);
+
+private:
+   void upload_default_Cert();
 };
 
 #endif /* WIFISSLCLIENT_H */
