@@ -104,7 +104,7 @@ int WiFiUDP::endPacket() {
    if(_sock >= 0) {
       string res = "";
       modem.begin();
-      if(modem.write(string(PROMPT(_UDPBEGINPACKET)),res, "%s%d\r\n" , CMD_WRITE(_UDPBEGINPACKET), _sock)) {
+      if(modem.write(string(PROMPT(_UDPENDPACKET)),res, "%s%d\r\n" , CMD_WRITE(_UDPENDPACKET), _sock)) {
          return 1;
       }
    }
