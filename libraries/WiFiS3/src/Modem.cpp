@@ -266,7 +266,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    return res;
 }
 
-#ifdef ARDUINO_SANTIAGO_COMPOSTA
+#ifdef ARDUINO_UNOWIFIR4
   ModemClass modem = ModemClass(&Serial2);
 #else
   ModemClass modem = ModemClass(D24,D25);

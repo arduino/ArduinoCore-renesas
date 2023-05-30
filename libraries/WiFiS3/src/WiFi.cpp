@@ -12,10 +12,19 @@ CWifi::CWifi() : _timeout(50000){
 }
 /* -------------------------------------------------------------------------- */
 
+static char fw_version[12];
+
 /* -------------------------------------------------------------------------- */
 const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
-   return WIFI_FIRMWARE_LATEST_VERSION;
+   string res = "";
+   if(modem.write(string(PROMPT(_FWVERSION)), res, CMD_READ(_FWVERSION))) {
+      memset(fw_version,0x00,12);
+      memcpy(fw_version, res.c_str(), res.size() < 12 ? res.size() : 11);
+      return fw_version;
+   }
+   return "99.99.99";
+   
 }
 
 
