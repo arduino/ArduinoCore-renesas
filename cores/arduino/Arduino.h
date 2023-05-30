@@ -19,6 +19,7 @@ using namespace arduino;
 #endif
 
 #include <api/itoa.h>
+#include <api/deprecated-avr-comp/avr/dtostrf.h>
 #include <strings.h>
 
 #if defined(__cplusplus)

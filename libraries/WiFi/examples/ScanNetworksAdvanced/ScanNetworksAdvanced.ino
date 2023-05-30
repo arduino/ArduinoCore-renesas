@@ -16,7 +16,7 @@
 
 
 
-#include <CWifi.h>
+#include <WiFiC3.h>
 
 void setup() {
   //Initialize serial and wait for port to open:

@@ -1,5 +1,7 @@
 #include "Arduino.h"
-#include "cm_backtrace/cm_backtrace.h"
+extern "C" {
+   #include "cm_backtrace/cm_backtrace.h"
+}
 
 /* TODO: make me configurable by the variant */
 extern const uint32_t __StackTop;
@@ -120,7 +122,7 @@ void arduino_main(void)
 /* for printf compatibility */
 extern "C" __attribute__((weak)) int _write (int fhdl, const void *buf, size_t count) {
   (void)fhdl;
-  Serial.write_raw((uint8_t*)buf, count);
+  return Serial.write_raw((uint8_t*)buf, count);
 }
 #endif
 

@@ -19,7 +19,7 @@
  by sstaub
  */
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 
 // Enter an IP address for your controller below.
 // The IP address will be dependent on your local network:

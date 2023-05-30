@@ -24,7 +24,7 @@
  by sstaub
  */
 
-#include <Ethernet.h>
+#include <EthernetC33.h>
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 

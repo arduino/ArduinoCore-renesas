@@ -10,7 +10,7 @@
 #include "CCtrlWrapper.h"
 #include "CEspControl.h"
 #include "IPAddress.h"
-#include "ethernetDriver.h"
+#include "EthernetDriver.h"
 #include <queue>
 #include <string>
 #ifdef USE_LWIP_AS_LIBRARY

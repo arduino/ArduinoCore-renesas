@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#include "blockDevice.h"
+#include "BlockDevice.h"
 #include "tusb.h"
 
 /**

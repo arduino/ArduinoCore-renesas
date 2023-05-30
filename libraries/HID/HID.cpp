@@ -29,3 +29,9 @@ int HID_::SendReport(uint8_t id, const void* data, int len)
     _done = false;
     return tud_hid_report(id, data, len);
 }
+
+#ifdef ARDUINO_UNOWIFIR4
+void __maybe_start_usb() {
+    __USBStart();
+}
+#endif

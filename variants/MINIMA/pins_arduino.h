@@ -87,7 +87,7 @@ static const uint8_t A5 = PIN_A5;
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      2
+#define WIRE_HOWMANY      1
 #define WIRE_SDA_PIN      14 /* A4 */
 #define WIRE_SCL_PIN      15 /* A5 */
 
@@ -96,7 +96,7 @@ static const uint8_t SCL = WIRE_SDA_PIN;
 
 /****** SPI CORE DEFINES ******/
 
-#define SPI_HOWMANY       2
+#define SPI_HOWMANY       1
 
 #define PIN_SPI_MOSI  (11)
 #define PIN_SPI_MISO  (12)

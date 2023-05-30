@@ -16,7 +16,6 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
-#include "../Storage/storage_common.h"
 
 //namespace mbed {
 

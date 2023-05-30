@@ -19,8 +19,11 @@ void setup()
   Serial.begin(115200);
   while (!Serial) { }
 
+#if defined(ARDUINO_PORTENTA_C33)
+  /* Only the Portenta C33 has an RGB LED. */
   pinMode(LEDR, OUTPUT);
   digitalWrite(LEDR, LOW);
+#endif
 
   /* Init a task that calls 'loop'
    * since after the call to
@@ -69,7 +72,12 @@ void setup()
 
 void loop()
 {
+#if defined(ARDUINO_PORTENTA_C33)
+  /* Only the Portenta C33 has an RGB LED. */
   digitalWrite(LEDR, !digitalRead(LEDR));
+#else
+  Serial.println(millis());
+#endif
   vTaskDelay(configTICK_RATE_HZ/4);
 }
 

@@ -391,34 +391,50 @@ extern "C" __attribute((weak)) void tud_hid_set_report_cb(uint8_t instance, uint
 
 
 extern "C" __attribute((weak))  int32_t tud_msc_read10_cb (uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize) {
-   
+    (void) lun;
+    (void) lba;
+    (void) offset;
+    (void) buffer;
+    (void) bufsize;
     return 0;
 }
 
 
 extern "C" __attribute((weak)) int32_t tud_msc_write10_cb (uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize) {
-    
+    (void) lun;
+    (void) lba;
+    (void) offset;
+    (void) buffer;
+    (void) bufsize;
     return 0;
 }
 
 
 extern "C"  __attribute((weak)) void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
-    
+    (void) lun;
+    (void) vendor_id;
+    (void) product_id;
+    (void) product_rev;
 }
 
 
 extern "C"  __attribute((weak)) bool tud_msc_test_unit_ready_cb(uint8_t lun) {
-    
+    (void) lun;
     return false;
 }
 
 
 extern "C"  __attribute((weak))  void tud_msc_capacity_cb(uint8_t lun, uint32_t* block_count, uint16_t* block_size) {
-   
+    (void) lun;
+    (void) block_count;
+    (void) block_size;
 }
 
 
 extern "C"  __attribute((weak))  int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, uint16_t bufsize) {
-    
+    (void) lun;
+    (void) scsi_cmd;
+    (void) buffer;
+    (void) bufsize;
     return -1;
 }

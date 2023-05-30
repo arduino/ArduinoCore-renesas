@@ -16,8 +16,8 @@
   adapted to WiFi AP by Adafruit
  */
 
-#include "CWifi.h"
-#include "CWifiServer.h"
+#include "WiFiC3.h"
+#include "WiFiServer.h"
 
 
 

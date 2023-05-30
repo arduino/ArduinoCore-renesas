@@ -18,8 +18,8 @@
  */
 
 
-#include "CWifi.h"
-#include "CWifiClient.h"
+#include "WiFiC3.h"
+#include "WiFiClient.h"
 #include "IPAddress.h"
 
 #include "arduino_secrets.h" 

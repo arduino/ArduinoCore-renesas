@@ -1,4 +1,4 @@
-#include "CWifi.h"
+#include "WiFiC3.h"
 
 
 extern "C" void dhcps_start(struct netif *netif);

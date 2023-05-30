@@ -32,6 +32,7 @@ protected:
     int _timeout = 0;
     bool _use_insecure;
     const char *_CA_cert;
+    const char *_CA_path;
     const char *_cert;
     const char *_private_key;
     const char *_pskIdent; // identity for PSK cipher suites
@@ -44,14 +45,15 @@ protected:
 public:
     SSLClient();
     SSLClient(Client* client);
+    SSLClient(Client* client, String ca_path);
     ~SSLClient();
 
     int connect(IPAddress ip, uint16_t port);
     int connect(IPAddress ip, uint16_t port, int32_t timeout);
     int connect(const char *host, uint16_t port);
     int connect(const char *host, uint16_t port, int32_t timeout);
-    int connect(IPAddress ip, uint16_t port, const char *rootCABuff, const char *cli_cert, const char *cli_key);
-    int connect(const char *host, uint16_t port, const char *rootCABuff, const char *cli_cert, const char *cli_key);
+    int connect(IPAddress ip, uint16_t port, const char *rootCABuff, const char *rootCAPath, const char *cli_cert, const char *cli_key);
+    int connect(const char *host, uint16_t port, const char *rootCABuff, const char *rootCAPath, const char *cli_cert, const char *cli_key);
     int connect(IPAddress ip, uint16_t port, const char *pskIdent, const char *psKey);
     int connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey);
 
@@ -69,6 +71,7 @@ public:
 
     void setPreSharedKey(const char *pskIdent, const char *psKey); // psKey in Hex
     void setCACert(const char *rootCA);
+    void setCAPath(const char *rootCAPath);
     void setCertificate(const char *client_ca);
     void setPrivateKey (const char *private_key);
     bool loadCACert(Stream& stream, size_t size);

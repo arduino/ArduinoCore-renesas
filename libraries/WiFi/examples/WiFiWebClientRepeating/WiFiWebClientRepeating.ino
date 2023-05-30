@@ -14,8 +14,8 @@
  This code is in the public domain.
  */
 
-#include "CWifi.h"
-#include "CWifiClient.h"
+#include "WiFiC3.h"
+#include "WiFiClient.h"
 #include "IPAddress.h"
 #include "MemoryFree.h"
 

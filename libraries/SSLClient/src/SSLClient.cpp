@@ -31,14 +31,17 @@ SSLClient::SSLClient()
     _connected = false;
 
     sslclient = new sslclient_context;
-    ssl_init(sslclient, nullptr);
+
     _timeout = 1000;
     _use_insecure = false;
     _CA_cert = NULL;
+    _CA_path = NULL;
     _cert = NULL;
     _private_key = NULL;
     _pskIdent = NULL;
     _psKey = NULL;
+
+    ssl_init(sslclient, nullptr, _CA_path);
 
     sslclient->handshake_timeout = 5000;
 }
@@ -48,14 +51,37 @@ SSLClient::SSLClient(Client* client)
     _connected = false;
 
     sslclient = new sslclient_context;
-    ssl_init(sslclient, client);
+
     _timeout = 1000;
     _use_insecure = false;
     _CA_cert = NULL;
+    _CA_path = "/mbedtls";
     _cert = NULL;
     _private_key = NULL;
     _pskIdent = NULL;
     _psKey = NULL;
+
+    ssl_init(sslclient, client, _CA_path);
+
+    sslclient->handshake_timeout = 5000;
+}
+
+SSLClient::SSLClient(Client* client, String ca_path)
+{
+    _connected = false;
+
+    sslclient = new sslclient_context;
+
+    _timeout = 1000;
+    _use_insecure = false;
+    _CA_cert = NULL;
+    _CA_path = ca_path.c_str();
+    _cert = NULL;
+    _private_key = NULL;
+    _pskIdent = NULL;
+    _psKey = NULL;
+
+    ssl_init(sslclient, client, _CA_path);
 
     sslclient->handshake_timeout = 5000;
 }
@@ -80,7 +106,7 @@ int SSLClient::connect(IPAddress ip, uint16_t port)
 {
     if (_pskIdent && _psKey)
         return connect(ip, port, _pskIdent, _psKey);
-    return connect(ip, port, _CA_cert, _cert, _private_key);
+    return connect(ip, port, _CA_cert, _CA_path, _cert, _private_key);
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port, int32_t timeout){
@@ -92,7 +118,7 @@ int SSLClient::connect(const char *host, uint16_t port)
 {
     if (_pskIdent && _psKey)
         return connect(host, port, _pskIdent, _psKey);
-    return connect(host, port, _CA_cert, _cert, _private_key);
+    return connect(host, port, _CA_cert, _CA_path, _cert, _private_key);
 }
 
 int SSLClient::connect(const char *host, uint16_t port, int32_t timeout){
@@ -100,20 +126,19 @@ int SSLClient::connect(const char *host, uint16_t port, int32_t timeout){
     return connect(host, port);
 }
 
-int SSLClient::connect(IPAddress ip, uint16_t port, const char *_CA_cert, const char *_cert, const char *_private_key)
+int SSLClient::connect(IPAddress ip, uint16_t port, const char *_CA_cert, const char *_CA_path, const char *_cert, const char *_private_key)
 {
-    return connect(ip.toString().c_str(), port, _CA_cert, _cert, _private_key);
+    return connect(ip.toString().c_str(), port, _CA_cert, _CA_path, _cert, _private_key);
 }
 
-int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, const char *_cert, const char *_private_key)
+int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, const char *_CA_path, const char *_cert, const char *_private_key)
 {
     log_d("Connecting to %s:%d", host, port);
-    int ret = start_ssl_client(sslclient, host, port, _timeout, _CA_cert, _cert, _private_key, NULL, NULL, _use_insecure);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, _CA_cert, _CA_path, _cert, _private_key, NULL, NULL, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
         stop();
-        _connected = false;
         return 0;
     }
     log_i("SSL connection established");
@@ -127,7 +152,7 @@ int SSLClient::connect(IPAddress ip, uint16_t port, const char *pskIdent, const 
 
 int SSLClient::connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey) {
     log_v("start_ssl_client with PSK");
-    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, _pskIdent, _psKey, _use_insecure);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, NULL, _pskIdent, _psKey, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
@@ -240,6 +265,12 @@ void SSLClient::setCACert (const char *rootCA)
 {
     log_d("Set root CA");
     _CA_cert = rootCA;
+}
+
+void SSLClient::setCAPath (const char *rootCAPath)
+{
+    log_d("Set root CA Path");
+    _CA_path = rootCAPath;
 }
 
 void SSLClient::setCertificate (const char *client_ca)

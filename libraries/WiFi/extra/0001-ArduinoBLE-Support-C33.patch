@@ -16,7 +16,7 @@ index 20de822..3d59d33 100644
    // BT_REG_ON -> HIGH
    pinMode(BT_REG_ON, OUTPUT);
    digitalWrite(BT_REG_ON, HIGH);
-+#elif defined(ARDUINO_PORTENTA_H33)
++#elif defined(ARDUINO_PORTENTA_C33)
 +#define NINA_GPIO0      (100)
 +#define NINA_RESETN     (101)
 +  pinMode(NINA_GPIO0, OUTPUT);
@@ -47,7 +47,7 @@ index 1b1a513..d0b2223 100644
  // SerialHCI is already defined in the variant
  #elif defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
  #define SerialHCI Serial2
-+#elif defined(ARDUINO_PORTENTA_H33)
++#elif defined(ARDUINO_PORTENTA_C33)
 +#define SerialHCI Serial5
  #else
  #error "Unsupported board selected!"

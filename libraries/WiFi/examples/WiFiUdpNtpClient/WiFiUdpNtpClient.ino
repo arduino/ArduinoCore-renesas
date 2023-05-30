@@ -18,8 +18,8 @@
  */
 
 
-#include <CWifi.h>
-#include <CWifiUdp.h>
+#include <WiFiC3.h>
+#include <WiFiUdp.h>
 
 int status = WL_IDLE_STATUS;
 #include "arduino_secrets.h" 

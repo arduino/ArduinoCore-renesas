@@ -1,4 +1,4 @@
-#include "Ethernet.h"
+#include <EthernetC33.h>
 
 /*
  * The old implementation of the begin set a default mac address:
@@ -65,7 +65,7 @@ int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IP
 }
 
 /* -------------------------------------------------------------------------- */
-void setDNS(IPAddress dns_server) {
+void CEthernet::setDNS(IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   CLwipIf::getInstance().addDns(dns_server);
 } 
