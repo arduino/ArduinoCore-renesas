@@ -183,11 +183,13 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
 /* -------------------------------------------------------------------------- */   
    bool res = false;
    bool found = false;
+   
    unsigned long start_time = millis();
    while((millis() - start_time < _timeout) && !found){
       while(_serial->available()){
          char c = _serial->read();
          data_res += c;
+         
          if(read_by_size) {
             if(read_by_size_finished(data_res)) {
                found = true;
@@ -248,7 +250,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       trim(data_res);
    }
    trim_results = true;
-   
+   read_by_size = false;
    #ifdef MODEM_DEBUG
       Serial.print("  Write Call, response rx |>>");
       Serial.print(data_res.c_str());

@@ -137,9 +137,10 @@ int WiFiUDP::parsePacket() {
 /* -------------------------------------------------------------------------- */    
    if(_sock >= 0) {
       string res = "";
+      rx_buffer.clear();
       modem.begin();
       if(modem.write(string(PROMPT(_UDPPARSE)),res, "%s%d\r\n" , CMD_WRITE(_UDPPARSE), _sock)) {
-         return 1;
+         return atoi(res.c_str());
       }
    }
    return 0;
