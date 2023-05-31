@@ -295,12 +295,12 @@ int CodeFlashBlockDevice::erase(bd_addr_t virtual_address, bd_size_t size)
     debug_if(CF_DBG, "Code flash: erase, address: 0x%x size: %d", virtual_address, size);
     uint32_t delete_size = 0;
     do {
-        rv = (fsp_err_t)erase_block(virtual_address);
+        rv = (fsp_err_t)erase_block(virtual_address + delete_size);
         if (rv != FSP_SUCCESS) {
             debug_if(CF_DBG, "Code flash: erase block, error %d", rv);
         }
-        delete_size += get_erase_size(virtual_address);
-        rv = (fsp_err_t)check_blank(virtual_address);
+        delete_size += get_erase_size(virtual_address + delete_size);
+        rv = (fsp_err_t)check_blank(virtual_address + delete_size);
         if (rv != FSP_SUCCESS) {
             debug_if(CF_DBG, "Code flash: check blank, error %d", rv);
         }
