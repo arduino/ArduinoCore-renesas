@@ -2,6 +2,8 @@
   Portenta H33 - USB MASS STORAGE DEVICE
 
   The sketch shows how mount an H33 as Mass Storage Device on QSPI Flash
+  Before running this sketch, to properly format the QSPI flash run the
+  Storage/QSPIFormat.ino sketch
 
   The circuit:
    - Portenta H33
@@ -23,8 +25,8 @@
 #include "UsbMsd.h"
 #include "FATFileSystem.h"
 
-QSPIFlashBlockDevice block_device(PIN_QSPI_CLK, PIN_QSPI_SS, PIN_QSPI_D0, PIN_QSPI_D1, PIN_QSPI_D2, PIN_QSPI_D3); 
-USBMSD msd(&block_device);
+BlockDevice* root = BlockDevice::get_default_instance();
+USBMSD msd(root);
 FATFileSystem fs(TEST_FS_NAME);
 
 std::string root_folder = std::string("/") + std::string(TEST_FS_NAME);
@@ -73,7 +75,7 @@ void setup() {
   
   
   /* Mount the partition */
-  int err =  fs.mount(&block_device);
+  int err =  fs.mount(root);
   if (err) {
     Serial.println("Unable to mount filesystem");
     while(1) {
