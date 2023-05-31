@@ -16,16 +16,14 @@
   adapted to WiFi AP by Adafruit
  */
 
-#include "WiFi.h"
-#include "WiFiServer.h"
-
-
+#include "WiFiS3.h"
 
 #include "arduino_secrets.h" 
+
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
-char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
-int keyIndex = 0;                // your network key index number (needed only for WEP)
+char pass[] = SECRET_PASS;        // your network password (use for WPA, or use as key for WEP)
+int keyIndex = 0;                 // your network key index number (needed only for WEP)
 
 int led =  LED_BUILTIN;
 int status = WL_IDLE_STATUS;
@@ -49,13 +47,13 @@ void setup() {
   }
 
   String fv = WiFi.firmwareVersion();
-  if (fv < WiFi_FIRMWARE_LATEST_VERSION) {
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
 
   // by default the local IP address will be 192.168.4.1
   // you can override it with the following:
-  //WiFi.config(IPAddress(10, 10, 5, 1));
+  WiFi.config(IPAddress(192,48,56,2));
 
   // print the network name (SSID);
   Serial.print("Creating access point named: ");
@@ -81,17 +79,18 @@ void setup() {
 
 
 void loop() {
+  
   // compare the previous status to the current status
-  if (status != WiFi.status()) {
+  if (1/*status != WiFi.status()*/) {
     // it has changed update the variable
-    status = WiFi.status();
+    /*status = WiFi.status()*/
 
     if (status == WL_AP_CONNECTED) {
       // a device has connected to the AP
-      Serial.println("Device connected to AP");
+      //Serial.println("Device connected to AP");
     } else {
       // a device has disconnected from the AP, and we are back in listening mode
-      Serial.println("Device disconnected from AP");
+      //Serial.println("Device disconnected from AP");
     }
   }
   
@@ -117,8 +116,8 @@ void loop() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED off<br></p>");
-            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED on<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/H\">here</a> turn the LED on<br></p>");
+            client.print("<p style=\"font-size:7vw;\">Click <a href=\"/L\">here</a> turn the LED off<br></p>");
 
             // The HTTP response ends with another blank line:
             client.println();

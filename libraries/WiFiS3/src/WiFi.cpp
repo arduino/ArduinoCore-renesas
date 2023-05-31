@@ -31,8 +31,7 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
-
-   return 0;
+   return begin(ssid,nullptr);;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -42,9 +41,15 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    modem.begin();
    modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 1);
    
-
-   if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
-      return WL_CONNECT_FAILED;
+   if(passphrase == nullptr) {
+      if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s\r\n" , CMD_WRITE(_BEGINSTA), ssid)) {
+         return WL_CONNECT_FAILED;
+      }
+   }
+   else {
+      if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s,%s\r\n" , CMD_WRITE(_BEGINSTA), ssid, passphrase)) {
+         return WL_CONNECT_FAILED;
+      }
    }
 
    unsigned long start_time = millis();
@@ -83,24 +88,21 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel
    modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 2);
 
    if(!modem.write(string(PROMPT(_BEGINSOFTAP)),res, "%s%s,%s,%d\r\n" , CMD_WRITE(_BEGINSOFTAP), ssid, passphrase, channel)) {
-      return WL_CONNECT_FAILED;
+      return WL_AP_FAILED;
    }
 
    if(atoi(res.c_str()) == 1) {
-      return true;
+      return WL_AP_LISTENING;
    }
 
-   return false;
+   return WL_AP_FAILED;
 }
-
-
-
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
+  
   IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
-  Serial.println(_gw);
   IPAddress _sm(255,255,255,0);
   IPAddress dns(0,0,0,0);
   return _config(local_ip, _gw, _sm,dns,dns);
@@ -136,7 +138,12 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPA
           _dns2 += to_string(dns2[2]) + ".";
           _dns2 += to_string(dns2[3]);              
 
-   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str(),_dns1.c_str(),_dns2.c_str());
+   ip_ap = local_ip;
+   gw_ap = gateway;
+   nm_ap = subnet;
+
+   modem.write(PROMPT(_SOFTAPCONFIG),res, "%s%s,%s,%s\r\n" , CMD_WRITE(_SOFTAPCONFIG), ip.c_str(), ip.c_str(), nm.c_str());
+   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str(),_dns1.c_str(),_dns2.c_str());   
 }
 
 /* -------------------------------------------------------------------------- */
@@ -152,6 +159,7 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */  
+   
    IPAddress _sm(255,255,255,0);
    IPAddress dns(0,0,0,0);
    return _config(local_ip, gateway, _sm,dns_server,dns); 
@@ -160,6 +168,7 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
+   
    IPAddress dns(0,0,0,0);
    return _config(local_ip, gateway, subnet,dns_server,dns); 
 }
@@ -181,7 +190,7 @@ void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 void CWifi::setHostname(const char* name) {
 /* -------------------------------------------------------------------------- */
    string res = "";
-   modem.write(string(DO_NOT_CHECK_CMD),res, "%s%s\r\n" , CMD_WRITE(_BEGINSOFTAP), name);
+   modem.write(string(_HOSTNAME),res, "%s%s\r\n" , CMD_WRITE(_HOSTNAME), name);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -323,11 +332,23 @@ IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
-   if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
-      IPAddress local_IP;
-      local_IP.fromString(res.c_str());
-      return local_IP;
+   if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
+      if(atoi(res.c_str()) == 1) {
+         if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
+            IPAddress local_IP;
+            local_IP.fromString(res.c_str());
+            return local_IP;
+         }
+      }
+      else if(atoi(res.c_str()) == 2) {
+         if(modem.write(string(PROMPT(_IPSOFTAP)),res,  CMD(_IPSOFTAP))) {
+            IPAddress local_IP;
+            local_IP.fromString(res.c_str());
+            return local_IP;
+         }
+      }
    }
+
    return IPAddress(0,0,0,0);
 }
 
@@ -432,8 +453,17 @@ uint8_t CWifi::channel(uint8_t networkItem) {
 const char* CWifi::SSID() {
 /* -------------------------------------------------------------------------- */
    string res = "";
-   if(modem.write(string(PROMPT(_GETSSID)), res, CMD_READ(_GETSSID))) {
-      return res.c_str();
+   if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
+      if(atoi(res.c_str()) == 1) {
+         if(modem.write(string(PROMPT(_GETSSID)), res, CMD_READ(_GETSSID))) {
+            return res.c_str();
+         }
+      }
+      else if(atoi(res.c_str()) == 2) {
+         if(modem.write(string(PROMPT(_GETSOFTAPSSID)), res, CMD_READ(_GETSOFTAPSSID))) {
+            return res.c_str();
+         }
+      }
    }
    return "";
 }
@@ -443,8 +473,6 @@ uint8_t* CWifi::BSSID(uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */    
    string res = "";
    if(modem.write(string(PROMPT(_GETBSSID)), res, CMD_READ(_GETBSSID))) {
-      Serial.print("BSSID: ");
-      Serial.println(res.c_str());
       macStr2macArray(bssid, res.c_str());
       return bssid;
    }

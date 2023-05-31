@@ -153,7 +153,8 @@ bool ModemClass::read_by_size_finished(string &rx) {
          int pos_space = rx.find(" ");
          if(pos != string::npos && pos_space != string::npos) {
             string n = rx.substr(pos_space,pos);
-            data_to_be_received = atoi(n.c_str());
+            /* add 4 because OK\r\n is always added at the end of data */
+            data_to_be_received = atoi(n.c_str()) + 4;
             rx.clear();
             data_received = 0;
             st = WAIT_FOR_DATA; 
@@ -178,6 +179,8 @@ bool ModemClass::read_by_size_finished(string &rx) {
    return rv;
 }
 
+
+
 /* -------------------------------------------------------------------------- */
 bool ModemClass::buf_read(const string &prompt, string &data_res) {
 /* -------------------------------------------------------------------------- */   
@@ -186,29 +189,15 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    
    unsigned long start_time = millis();
    while((millis() - start_time < _timeout) && !found){
-      while(_serial->available()){
+      while( _serial->available() ){
          char c = _serial->read();
          data_res += c;
-         
+            
          if(read_by_size) {
             if(read_by_size_finished(data_res)) {
                found = true;
                read_by_size = false;
                res = true;
-               
-               unsigned long start = millis();
-               bool ok_found = false;
-               while(millis() - start < _timeout && !ok_found) {
-                  string ok = "";
-                  while(_serial->available()){
-                     char c = _serial->read();
-                     ok += c;
-                     if(ok.size() - ok.rfind("OK\r\n") == 4 && ok.rfind("OK\r\n") != string::npos) {
-                        ok_found = true;
-                        break;
-                     }
-                  }
-               }
             }
          }
          else {

@@ -11,6 +11,11 @@
 
 using namespace std;
 
+#define DEFAULT_IP_AP_ADDRESS           IPAddress(192,168,4,1)
+#define DEFAULT_GW_AP_ADDRESS           IPAddress(192,168,1,1)
+#define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
+
+
 #define WIFI_FIRMWARE_LATEST_VERSION "0.1.0"
 
 class CAccessPoint {
@@ -32,6 +37,14 @@ private:
    unsigned long _timeout;
    uint8_t mak[6];
    vector<CAccessPoint> access_points;
+   
+
+   IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
+   IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
+   IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
+
+
+
 
 public:
     CWifi();
