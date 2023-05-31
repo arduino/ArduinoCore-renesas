@@ -1,9 +1,20 @@
-#include "QSPIFlashBlockDevice.h"
+/*
+  Portenta C33 - Certificate uploader
+
+  The sketch uploads and saves network certificates on the system
+  partition of the QSPI flash
+
+  This example code is in the public domain.
+*/
+
+#include "BlockDevice.h"
+#include "MBRBlockDevice.h"
 #include "FATFileSystem.h"
 #include "certificates.h"
 
-QSPIFlashBlockDevice root(PIN_QSPI_CLK, PIN_QSPI_SS, PIN_QSPI_D0, PIN_QSPI_D1, PIN_QSPI_D2, PIN_QSPI_D3);
-FATFileSystem root_fs("wlan");
+BlockDevice* root = BlockDevice::get_default_instance();
+MBRBlockDevice sys_bd(root, 1);
+FATFileSystem sys_fs("sys");
 
 long getFileSize(FILE *fp) {
     fseek(fp, 0, SEEK_END);
@@ -32,7 +43,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  int err =  root_fs.mount(&root);
+  int err =  sys_fs.mount(&sys_bd);
   if (err) {
     // Reformat if we can't mount the filesystem
     // this should only happen on the first boot
@@ -40,25 +51,25 @@ void setup() {
     Serial.println("Usually that means that the WiFi firmware has not been installed yet"
                   " or was overwritten with another firmware.\n");
     Serial.println("Formatting the filsystem to install the firmware and certificates...\n");
-    err = root_fs.reformat(&root);
+    err = sys_fs.reformat(&sys_bd);
   }
 
   DIR *dir;
   struct dirent *ent;
 
-  if ((dir = opendir("/wlan")) != NULL) {
+  if ((dir = opendir("/sys")) != NULL) {
     /* print all the files and directories within directory */
     while ((ent = readdir (dir)) != NULL) {
       Serial.println("Searching for WiFi firmware file " + String(ent->d_name) + " ...");
-      String fullname = "/wlan/" + String(ent->d_name);
-      if (fullname == "/wlan/cacert.pem") {
+      String fullname = "/sys/" + String(ent->d_name);
+      if (fullname == "/sys/cacert.pem") {
         Serial.println("A WiFi firmware is already installed. "
                        "Do you want to install the firmware anyway? Y/[n]");
         while (1) {
           if (Serial.available()) {
             int c = Serial.read();
             if (c == 'Y' || c == 'y') {
-              root_fs.reformat(&root);
+              sys_fs.reformat(&sys_bd);
               break;
             }
             if (c == 'N' || c == 'n') {
@@ -76,7 +87,7 @@ void setup() {
 
   int chunck_size = 128;
   int byte_count = 0;
-  FILE* fp = fopen("/wlan/cacert.pem", "wb");
+  FILE* fp = fopen("/sys/cacert.pem", "wb");
 
   Serial.println("Flashing certificates");
   printProgress(byte_count, cacert_pem_len, 10, true);
@@ -93,7 +104,7 @@ void setup() {
   }
   fclose(fp);
 
-  fp = fopen("/wlan/cacert.pem", "rb");
+  fp = fopen("/sys/cacert.pem", "rb");
   char buffer[128];
   int ret = fread(buffer, 1, 128, fp);
   Serial.write(buffer, ret);
