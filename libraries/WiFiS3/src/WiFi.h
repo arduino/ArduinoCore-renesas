@@ -238,6 +238,7 @@ public:
       
      */
     uint8_t encryptionType(uint8_t networkItem);
+    uint8_t encryptionType();
 
     uint8_t* BSSID(uint8_t networkItem, uint8_t* bssid);
     uint8_t channel(uint8_t networkItem);

@@ -421,6 +421,21 @@ static uint8_t Encr2wl_enc(string e) {
    }
  }
 
+
+/* -------------------------------------------------------------------------- */
+uint8_t CWifi::encryptionType() {
+/* -------------------------------------------------------------------------- */   
+   scanNetworks();
+   string myssid(SSID());
+   for(unsigned int i = 0; i < access_points.size(); i++) {
+      if(myssid ==  access_points[i].ssid) {
+         return Encr2wl_enc(access_points[i].encryption_mode); 
+      }
+   }
+   return ENC_TYPE_UNKNOWN;
+}
+
+
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType(uint8_t networkItem) {
   if(networkItem < access_points.size()) {
@@ -432,7 +447,7 @@ uint8_t CWifi::encryptionType(uint8_t networkItem) {
 
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
-  if(networkItem < access_points.size()) {
+   if(networkItem < access_points.size()) {
       for(int i = 0; i < 6; i++) {
          *(bssid + i) = access_points[networkItem].uint_bssid[i];
       }
