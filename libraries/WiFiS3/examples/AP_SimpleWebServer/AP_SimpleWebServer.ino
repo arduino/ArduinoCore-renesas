@@ -81,16 +81,16 @@ void setup() {
 void loop() {
   
   // compare the previous status to the current status
-  if (1/*status != WiFi.status()*/) {
+  if (status != WiFi.status()) {
     // it has changed update the variable
-    /*status = WiFi.status()*/
+    status = WiFi.status();
 
     if (status == WL_AP_CONNECTED) {
       // a device has connected to the AP
-      //Serial.println("Device connected to AP");
+      Serial.println("Device connected to AP");
     } else {
       // a device has disconnected from the AP, and we are back in listening mode
-      //Serial.println("Device disconnected from AP");
+      Serial.println("Device disconnected from AP");
     }
   }
   
