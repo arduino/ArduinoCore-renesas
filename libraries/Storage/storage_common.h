@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-#define STORAGE_DEBUG
-#define STORAGE_ASSERT
+//#define STORAGE_DEBUG
+//#define STORAGE_ASSERT
 
 
 

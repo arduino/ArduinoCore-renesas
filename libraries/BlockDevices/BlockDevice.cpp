@@ -17,6 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifdef ARDUINO_PORTENTA_C33
+
 #include <QSPIFlashBlockDevice.h>
 
 BlockDevice *BlockDevice::get_default_instance()
@@ -24,3 +26,5 @@ BlockDevice *BlockDevice::get_default_instance()
     static QSPIFlashBlockDevice default_bd(PIN_QSPI_CLK, PIN_QSPI_SS, PIN_QSPI_D0, PIN_QSPI_D1, PIN_QSPI_D2, PIN_QSPI_D3); 
     return &default_bd;
 }
+
+#endif
