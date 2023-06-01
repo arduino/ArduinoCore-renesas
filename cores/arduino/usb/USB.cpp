@@ -322,6 +322,7 @@ void __USBStart() {
 #if (CFG_TUSB_RHPORT0_MODE != 0)
     usb_irq_cfg.num_of_irqs_required = 4;
     usb_irq_cfg.address_of_handler = (uint32_t)_usbfs_interrupt_handler;
+    usb_irq_cfg.first_irq_number = FSP_INVALID_VECTOR;
     IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
     tud_set_irq_usbfs((IRQn_Type)(usb_irq_cfg.first_irq_number));
 #endif
@@ -331,6 +332,7 @@ void __USBStart() {
 #if (CFG_TUSB_RHPORT1_MODE != 0)
     usb_irq_cfg.num_of_irqs_required = 3;
     usb_irq_cfg.address_of_handler = (uint32_t)_usbhs_interrupt_handler;
+    usb_irq_cfg.first_irq_number = FSP_INVALID_VECTOR;
     IRQManager::getInstance().addPeripheral(IRQ_USB_HS,(void*)&usb_irq_cfg);
     tud_set_irq_usbhs((IRQn_Type)(usb_irq_cfg.first_irq_number));
 #endif

@@ -55,6 +55,10 @@ ArduinoSPI::ArduinoSPI(int const miso_pin, int const mosi_pin, int const sck_pin
 , _close{nullptr}
 , _write_then_read{nullptr}
 {
+  _spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.txi_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.tei_irq        = FSP_INVALID_VECTOR;
+  _spi_cfg.eri_irq        = FSP_INVALID_VECTOR;
 
 }
 
@@ -103,11 +107,6 @@ void ArduinoSPI::begin()
 
   /* SPI configuration for SPI HAL driver. */
   _spi_cfg.channel        = _channel;
-  
-  _spi_cfg.rxi_irq        = FSP_INVALID_VECTOR;
-  _spi_cfg.txi_irq        = FSP_INVALID_VECTOR;
-  _spi_cfg.tei_irq        = FSP_INVALID_VECTOR;
-  _spi_cfg.eri_irq        = FSP_INVALID_VECTOR;
 
   _spi_cfg.rxi_ipl        = (12);
   _spi_cfg.txi_ipl        = (12);

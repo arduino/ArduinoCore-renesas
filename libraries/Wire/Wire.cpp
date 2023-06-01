@@ -199,7 +199,15 @@ TwoWire::TwoWire(int scl, int sda, WireSpeed_t wp /*= SPEED_STANDARD*/, WireAddr
   tx_index(0),
   require_sci(prefer_sci) {
 /* -------------------------------------------------------------------------- */    
+      m_i2c_cfg.rxi_irq = FSP_INVALID_VECTOR;
+      m_i2c_cfg.txi_irq = FSP_INVALID_VECTOR;
+      m_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
+      m_i2c_cfg.eri_irq = FSP_INVALID_VECTOR;
 
+      s_i2c_cfg.rxi_irq = FSP_INVALID_VECTOR;
+      s_i2c_cfg.txi_irq = FSP_INVALID_VECTOR;
+      s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
+      s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
 }
 
 /* -------------------------------------------------------------------------- */ 
@@ -338,10 +346,6 @@ void TwoWire::begin(void) {
       m_i2c_cfg.p_transfer_rx               = NULL;
       
       m_i2c_cfg.p_context                   = &m_i2c_cfg;
-      m_i2c_cfg.rxi_irq                     = FSP_INVALID_VECTOR;
-      m_i2c_cfg.txi_irq                     = FSP_INVALID_VECTOR;
-      m_i2c_cfg.tei_irq                     = FSP_INVALID_VECTOR;
-      m_i2c_cfg.eri_irq                     = FSP_INVALID_VECTOR;
       m_i2c_cfg.ipl                         = (12);
       
     
@@ -374,10 +378,6 @@ void TwoWire::begin(void) {
       s_i2c_cfg.slave                   = slave_address;
       s_i2c_cfg.addr_mode               = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_SLAVE_ADDR_MODE_7BIT : I2C_SLAVE_ADDR_MODE_10BIT;
       s_i2c_cfg.general_call_enable     = false;
-      s_i2c_cfg.rxi_irq                 = FSP_INVALID_VECTOR;
-      s_i2c_cfg.txi_irq                 = FSP_INVALID_VECTOR;
-      s_i2c_cfg.tei_irq                 = FSP_INVALID_VECTOR;
-      s_i2c_cfg.tei_irq                 = FSP_INVALID_VECTOR;
       s_i2c_cfg.ipl                     = (12);
       s_i2c_cfg.eri_ipl                 = (12);
       s_i2c_cfg.clock_stretching_enable = false;

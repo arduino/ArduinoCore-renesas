@@ -6,19 +6,6 @@
 
 #define PROG_IRQ_NUM    BSP_ICU_VECTOR_MAX_ENTRIES //32
 
-#define ADC_REQ_NUM                 1
-#define TIMER_REQ_NUM               1
-#define DMA_REQ_NUM                 1
-#define UART_SCI_REQ_NUM            4
-#define I2C_MASTER_REQ_NUM          4
-#define I2C_SLAVE_REQ_NUM           2
-#define USB_REQ_NUM                 4
-#define AGT_REQ_NUM                 1
-#define EXTERNAL_PIN_NUM            1
-#define SPI_MASTER_REQ_NUM          4
-#define CAN_REQ_NUM                 3
-#define ETHERNET_REQ_NUM            1
-#define SDCARD_REQ_NUM              3
 #define ETHERNET_PRIORITY          12
 #define SDCARD_ACCESS_PRIORITY     10
 #define SDCARD_DMA_REQ_PRIORITY    10
@@ -59,7 +46,7 @@ bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+    if (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) {
         if(set_adc_end_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_irq = (IRQn_Type)last_interrupt_index;
@@ -92,8 +79,8 @@ bool IRQManager::addADCScanEndB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if( (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+
+    if (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) {
         if(set_adc_end_b_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_b_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_b_irq = (IRQn_Type)last_interrupt_index;
@@ -107,16 +94,7 @@ bool IRQManager::addADCScanEndB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
             last_interrupt_index++;
         }
     }
-    else {
-        if(adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) {
-            rv = false;
-        }
-        else {
-            rv = true;
-        }
-    }
     return rv;
-
 }
 
 bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
@@ -126,7 +104,7 @@ bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+    if( ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) {
         if(set_adc_win_a_link_event(last_interrupt_index, adc->cfg.unit)) {
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_ipl = TIMER_PRIORITY;
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq = (IRQn_Type)last_interrupt_index;
@@ -140,14 +118,6 @@ bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
             last_interrupt_index++;
         }
     }
-    else {
-        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq== FSP_INVALID_VECTOR) {
-            rv = false;
-        }
-        else {
-            rv = true;
-        }
-    }
     return rv;
 
 }
@@ -159,7 +129,7 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + ADC_REQ_NUM) < PROG_IRQ_NUM ) {
+    if (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) {
         if(set_adc_win_b_link_event(last_interrupt_index, adc->cfg.unit)) {
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_ipl = TIMER_PRIORITY;
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq = (IRQn_Type)last_interrupt_index;
@@ -171,14 +141,6 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
                 *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
             }
             last_interrupt_index++;
-        }
-    }
-    else {
-        if(((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq== FSP_INVALID_VECTOR) {
-            rv = false;
-        }
-        else {
-            rv = true;
         }
     }
     return rv;
@@ -193,8 +155,8 @@ bool IRQManager::addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc /* = nullptr */)
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if( (cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+
+    if (cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
         if(cfg.gpt_ext_cfg != nullptr) {
             if(set_gpt_over_link_event(last_interrupt_index, cfg.base_cfg->channel)) {
                 cfg.base_cfg->cycle_end_ipl = TIMER_PRIORITY;
@@ -228,14 +190,6 @@ bool IRQManager::addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc /* = nullptr */)
             rv = false;
         }
     }
-    else {
-        if(cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
-            rv = false;
-        }
-        else {
-            rv = true;
-        }
-    }
     return rv;
 }
 
@@ -253,7 +207,7 @@ bool IRQManager::addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) 
         rv = false;
     }
     else if(cfg.gpt_ext_cfg != nullptr && cfg.gpt_ext_cfg->p_pwm_cfg != nullptr) {
-        if( (cfg.gpt_ext_cfg->p_pwm_cfg->trough_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (cfg.gpt_ext_cfg->p_pwm_cfg->trough_irq == FSP_INVALID_VECTOR) {
             if(set_gpt_under_link_event(last_interrupt_index, cfg.base_cfg->channel)){
                 ((gpt_extended_pwm_cfg_t *)(cfg.gpt_ext_cfg->p_pwm_cfg))->trough_ipl = TIMER_PRIORITY;
                 ((gpt_extended_pwm_cfg_t *)(cfg.gpt_ext_cfg->p_pwm_cfg))->trough_irq = (IRQn_Type)last_interrupt_index;
@@ -264,14 +218,6 @@ bool IRQManager::addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) 
                     *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
                 }
                 last_interrupt_index++;
-            }
-        }
-        else {
-            if(cfg.gpt_ext_cfg->p_pwm_cfg->trough_irq == FSP_INVALID_VECTOR) {
-                rv = false;
-            }
-            else {
-                rv = true;
             }
         }
     }
@@ -295,7 +241,7 @@ bool IRQManager::addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
         rv = false;
     }
     else if(cfg.gpt_ext_cfg != nullptr ) {
-        if( (cfg.gpt_ext_cfg->capture_a_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (cfg.gpt_ext_cfg->capture_a_irq == FSP_INVALID_VECTOR) {
             if(set_gpt_compare_capture_A_link_event(last_interrupt_index, cfg.base_cfg->channel)){
                 cfg.gpt_ext_cfg->capture_a_ipl = TIMER_PRIORITY;
                 cfg.gpt_ext_cfg->capture_a_irq = (IRQn_Type)last_interrupt_index;
@@ -306,14 +252,6 @@ bool IRQManager::addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
                     *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
                 }
                 last_interrupt_index++;
-            }
-        }
-        else {
-            if(cfg.gpt_ext_cfg->capture_a_irq == FSP_INVALID_VECTOR) {
-                rv = false;
-            }
-            else {
-                rv = true;
             }
         }
     }
@@ -337,7 +275,7 @@ bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
         rv = false;
     }
     else if(cfg.gpt_ext_cfg != nullptr ) {
-        if( (cfg.gpt_ext_cfg->capture_b_irq == FSP_INVALID_VECTOR) && (last_interrupt_index + TIMER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (cfg.gpt_ext_cfg->capture_b_irq == FSP_INVALID_VECTOR) {
             if(set_gpt_compare_capture_B_link_event(last_interrupt_index, cfg.base_cfg->channel)){
                 cfg.gpt_ext_cfg->capture_b_ipl = TIMER_PRIORITY;
                 cfg.gpt_ext_cfg->capture_b_irq = (IRQn_Type)last_interrupt_index;
@@ -348,14 +286,6 @@ bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
                     *(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
                 }
                 last_interrupt_index++;
-            }
-        }
-        else {
-            if(cfg.gpt_ext_cfg->capture_b_irq == FSP_INVALID_VECTOR) {
-                rv = false;
-            }
-            else {
-                rv = true;
             }
         }
     }
@@ -375,7 +305,7 @@ bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if( (cfg.irq == FSP_INVALID_VECTOR) && (last_interrupt_index + DMA_REQ_NUM) < PROG_IRQ_NUM ) {
+    if (cfg.irq == FSP_INVALID_VECTOR) {
         /* to check correctness of the channel */
         if(set_dma_link_event(last_interrupt_index, cfg.channel)) {
             cfg.ipl = DMA_PRIORITY;
@@ -390,14 +320,6 @@ bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
         }
         else {
             rv = false;
-        } 
-    }
-    else {
-        if(cfg.irq == FSP_INVALID_VECTOR) {
-            rv = false;
-        }
-        else {
-            rv = true;
         }
     }
     return rv;
@@ -419,6 +341,11 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     if(p == IRQ_USB && cfg != NULL) {
         USBIrqCfg_t *irqcfg = (USBIrqCfg_t *)cfg;
+
+        if (irqcfg->first_irq_number != FSP_INVALID_VECTOR) {
+            // already configured, return
+            goto end_config;
+        }
 
         /* configuring USB interrupts */
         /* in case of USB which does not use any FSP API the cfg contains the 
@@ -478,6 +405,11 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     else if(p == IRQ_USB_HS && cfg != NULL) {
         USBIrqCfg_t *irqcfg = (USBIrqCfg_t *)cfg;
 
+        if (irqcfg->first_irq_number != FSP_INVALID_VECTOR) {
+            // already configured, return
+            goto end_config;
+        }
+
         /* configuring USB interrupts */
         /* in case of USB which does not use any FSP API the cfg contains the 
            only interrupt handler function used */
@@ -525,16 +457,13 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                                       AGT
        ********************************************************************** */
     else if(p == IRQ_AGT && cfg != NULL) {
-        if( (last_interrupt_index +  AGT_REQ_NUM) < PROG_IRQ_NUM ) {
-            timer_cfg_t *p_cfg = (timer_cfg_t *)cfg;
+        timer_cfg_t *p_cfg = (timer_cfg_t *)cfg;
+        if (p_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
             p_cfg->cycle_end_ipl = AGT_PRIORITY;
             p_cfg->cycle_end_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)agt_int_isr;
             set_agt_link_event(last_interrupt_index, p_cfg->channel);
             last_interrupt_index++;
-        }
-        else {
-            rv = false;
         }
     }
     /* **********************************************************************
@@ -542,45 +471,39 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_SCI_UART && cfg != NULL) {
         uart_cfg_t *p_cfg = (uart_cfg_t *)cfg;
-        if( (last_interrupt_index +  UART_SCI_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
+            /* TX interrupt */
+            p_cfg->txi_ipl = UART_SCI_PRIORITY;
+            p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_txi_isr;
+            set_sci_tx_link_event(last_interrupt_index, p_cfg->channel);
+            last_interrupt_index++;
 
-            if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
-                /* TX interrupt */
-                p_cfg->txi_ipl = UART_SCI_PRIORITY;
-                p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_txi_isr;
-                set_sci_tx_link_event(last_interrupt_index, p_cfg->channel);
-                last_interrupt_index++;
+            /* TX-ERROR interrupt */
+            p_cfg->tei_ipl = UART_SCI_PRIORITY;
+            p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_tei_isr;
+            set_sci_tei_link_event(last_interrupt_index, p_cfg->channel);
+            last_interrupt_index++;
 
-                /* TX-ERROR interrupt */
-                p_cfg->tei_ipl = UART_SCI_PRIORITY;
-                p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_tei_isr;
-                set_sci_tei_link_event(last_interrupt_index, p_cfg->channel);
-                last_interrupt_index++;
+            /* RX interrupt */
+            p_cfg->rxi_ipl = UART_SCI_PRIORITY;
+            p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
+            set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
+            last_interrupt_index++;
 
-                /* RX interrupt */
-                p_cfg->rxi_ipl = UART_SCI_PRIORITY;
-                p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
-                set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
-                last_interrupt_index++;
-
-                /* RX-ERROR interrupt */
-                p_cfg->eri_ipl = UART_SCI_PRIORITY;
-                p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
-                set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
-                last_interrupt_index++;
-            }
-            R_BSP_IrqEnable (p_cfg->txi_irq);
-            R_BSP_IrqEnable (p_cfg->tei_irq);
-            R_BSP_IrqEnable (p_cfg->rxi_irq);
-            R_BSP_IrqEnable (p_cfg->eri_irq);
+            /* RX-ERROR interrupt */
+            p_cfg->eri_ipl = UART_SCI_PRIORITY;
+            p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
+            set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
+            last_interrupt_index++;
         }
-        else {
-            rv = false;
-        }
+        R_BSP_IrqEnable (p_cfg->txi_irq);
+        R_BSP_IrqEnable (p_cfg->tei_irq);
+        R_BSP_IrqEnable (p_cfg->rxi_irq);
+        R_BSP_IrqEnable (p_cfg->eri_irq);
     }
     /* **********************************************************************
                                       RTC
@@ -588,36 +511,43 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
 #if RTC_HOWMANY > 0
     else if(p == IRQ_RTC && cfg != NULL) {
         RTCIrqCfg_t *p_cfg = (RTCIrqCfg_t *)cfg;
+
         /* rtc interrupts are added once a time and not all three together */
-        if( (last_interrupt_index) < PROG_IRQ_NUM ) {
-            
-            if(p_cfg->req == RTC_ALARM) {
+
+        if(p_cfg->req == RTC_ALARM) {
+            if (p_cfg->cfg->alarm_irq == FSP_INVALID_VECTOR) {
                 p_cfg->cfg->alarm_ipl = RTC_PRIORITY;
                 p_cfg->cfg->alarm_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_alarm_periodic_isr;
                 R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_ALARM);
                 R_BSP_IrqCfg(p_cfg->cfg->alarm_irq, p_cfg->cfg->alarm_ipl, p_cfg->ctrl);
-                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
                 last_interrupt_index++;
             }
-            else if(p_cfg->req == RTC_PERIODIC) {
+            R_BSP_IrqEnable (p_cfg->cfg->alarm_irq);
+
+        }
+        else if(p_cfg->req == RTC_PERIODIC) {
+            if (p_cfg->cfg->periodic_irq == FSP_INVALID_VECTOR) {
                 p_cfg->cfg->periodic_ipl = RTC_PRIORITY;
                 p_cfg->cfg->periodic_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_alarm_periodic_isr;
                 R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_PERIOD);
                 R_BSP_IrqCfg(p_cfg->cfg->periodic_irq, p_cfg->cfg->periodic_ipl, p_cfg->ctrl);
-                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
                 last_interrupt_index++;
             }
-            else if(p_cfg->req == RTC_CARRY) {
+            R_BSP_IrqEnable (p_cfg->cfg->periodic_irq);
+
+        }
+        else if(p_cfg->req == RTC_CARRY) {
+            if (p_cfg->cfg->carry_irq == FSP_INVALID_VECTOR) {
                 p_cfg->cfg->carry_ipl = RTC_PRIORITY;
                 p_cfg->cfg->carry_irq = (IRQn_Type)last_interrupt_index;
                 *(irq_ptr + last_interrupt_index) = (uint32_t)rtc_carry_isr;
                 R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_RTC_CARRY);
                 R_BSP_IrqCfg(p_cfg->cfg->carry_irq, p_cfg->cfg->carry_ipl, p_cfg->ctrl);
-                R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
                 last_interrupt_index++;
             }
+            R_BSP_IrqEnable (p_cfg->cfg->carry_irq);
         }
         else {
             rv = false;
@@ -632,13 +562,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->cfg;
         uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
-        if( (last_interrupt_index +  I2C_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (mcfg->txi_irq  == FSP_INVALID_VECTOR) {
             /* TX interrupt */
             mcfg->txi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_master_txi_isr;
             set_iic_tx_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* RX interrupt */
@@ -646,7 +575,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_master_rxi_isr;
             set_iic_rx_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* TX ERROR interrupt */
@@ -654,7 +582,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_master_tei_isr;
             set_iic_tei_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* RX ERROR interrupt */
@@ -662,12 +589,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_master_eri_isr;
             set_iic_eri_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
         }
-        else {
-            rv = false;
-        }
+        R_BSP_IrqEnable (mcfg->txi_irq);
+        R_BSP_IrqEnable (mcfg->rxi_irq);
+        R_BSP_IrqEnable (mcfg->tei_irq);
+        R_BSP_IrqEnable (mcfg->eri_irq);
     }
     else if(p == IRQ_SCI_I2C_MASTER && cfg != NULL) {
         I2CIrqMasterReq_t *p_cfg = (I2CIrqMasterReq_t *)cfg;
@@ -675,13 +602,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->cfg;
         uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
-        if( (last_interrupt_index +  I2C_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (mcfg->txi_irq  == FSP_INVALID_VECTOR) {
             /* TX interrupt */
             mcfg->txi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_txi_isr;
             set_sci_tx_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* RX interrupt */
@@ -689,7 +615,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_rxi_isr;
             set_sci_rx_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* TX ERROR interrupt */
@@ -697,7 +622,6 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_tei_isr;
             set_sci_tei_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* RX ERROR interrupt */
@@ -706,51 +630,50 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_eri_isr;
             set_sci_eri_link_event(last_interrupt_index, hw_channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
             #endif
         }
-        else {
-            rv = false;
-        }
-
+        R_BSP_IrqEnable (mcfg->txi_irq);
+        R_BSP_IrqEnable (mcfg->rxi_irq);
+        R_BSP_IrqEnable (mcfg->tei_irq);
+        #if 0
+        R_BSP_IrqEnable (mcfg->eri_irq);
+        #endif
     }
     else if(p == IRQ_I2C_SLAVE && cfg != NULL) {
         i2c_slave_cfg_t *p_cfg = (i2c_slave_cfg_t *)cfg;
         p_cfg->ipl = I2C_SLAVE_PRIORITY;
         p_cfg->eri_ipl = I2C_SLAVE_PRIORITY;
-        if( (last_interrupt_index +  I2C_SLAVE_REQ_NUM) < PROG_IRQ_NUM ) {
+        if (p_cfg->txi_irq  == FSP_INVALID_VECTOR) {
             /* TX interrupt */
             p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_txi_isr;
             set_iic_tx_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* RX interrupt */
             p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_rxi_isr;
             set_iic_rx_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* TEI interrupt */
             p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_tei_isr;
             set_iic_tei_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
 
             /* ERI interrupt */
             p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)iic_slave_eri_isr;
             set_iic_eri_link_event(last_interrupt_index, p_cfg->channel);
-            R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
             last_interrupt_index++;
         }
-        else {
-            rv = false;
-        }
+        R_BSP_IrqEnable (p_cfg->txi_irq);
+        R_BSP_IrqEnable (p_cfg->rxi_irq);
+        R_BSP_IrqEnable (p_cfg->tei_irq);
+        R_BSP_IrqEnable (p_cfg->eri_irq);
+
     }
 #endif
 
@@ -760,20 +683,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_EXTERNAL_PIN && cfg != NULL) {
         external_irq_cfg_t *p_cfg = (external_irq_cfg_t *)cfg;
-        if( (p_cfg->irq == FSP_INVALID_VECTOR) && (last_interrupt_index + EXTERNAL_PIN_NUM) < PROG_IRQ_NUM ) {
+        if (p_cfg->irq == FSP_INVALID_VECTOR) {
             p_cfg->ipl = EXTERNAL_PIN_PRIORITY;
             p_cfg->irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)r_icu_isr;
             set_ext_link_event(last_interrupt_index, p_cfg->channel);
             last_interrupt_index++;
-        }
-        else {
-            if(p_cfg->irq == FSP_INVALID_VECTOR) {
-                rv = false;
-            }
-            else {
-                rv = true;
-            }
         }
     }
 #endif
@@ -783,87 +698,95 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                                       SPI MASTER
        ********************************************************************** */
     else if(p == IRQ_SPI_MASTER && cfg != NULL) {
-      if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->cfg;
         uint8_t const hw_channel = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->hw_channel;
 
-        /* TX interrupt */
-        p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_txi_isr;
-        set_spi_tx_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
-        last_interrupt_index++;
+        if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
+            /* TX interrupt */
+            p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)spi_txi_isr;
+            set_spi_tx_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* RX interrupt */
-        p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_rxi_isr;
-        set_spi_rx_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
-        last_interrupt_index++;
+            /* RX interrupt */
+            p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)spi_rxi_isr;
+            set_spi_rx_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Error interrupt */
-        p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_eri_isr;
-        set_spi_eri_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
-        last_interrupt_index++;
+            /* Error interrupt */
+            p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)spi_eri_isr;
+            set_spi_eri_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* TX register empty interrupt */
-        p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)spi_tei_isr;
-        set_spi_tei_link_event(last_interrupt_index, hw_channel);
+            /* TX register empty interrupt */
+            p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)spi_tei_isr;
+            set_spi_tei_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
+            last_interrupt_index++;
+        }
+        R_BSP_IrqEnable (p_cfg->txi_irq);
+        R_BSP_IrqEnable (p_cfg->rxi_irq);
+        R_BSP_IrqEnable (p_cfg->eri_irq);
         /* Note tei_irq is not enabled until the last data frame is transfered. */
-        R_BSP_IrqCfg(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
-        last_interrupt_index++;
-      }
+        // R_BSP_IrqEnable (p_cfg->tei_irq);
     }
 
     /* **********************************************************************
                                     SCI SPI MASTER
        ********************************************************************** */
     else if(p == IRQ_SCI_SPI_MASTER && cfg != NULL) {
-      if ((last_interrupt_index + SPI_MASTER_REQ_NUM) < PROG_IRQ_NUM ) {
         sci_spi_instance_ctrl_t * p_ctrl = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->ctrl;
         spi_cfg_t  * p_cfg  = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->cfg;
         uint8_t const hw_channel = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->hw_channel;
 
-        /* TX interrupt */
-        p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_txi_isr;
-        set_sci_tx_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
-        last_interrupt_index++;
+        if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
+            /* TX interrupt */
+            p_cfg->txi_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->txi_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_txi_isr;
+            set_sci_tx_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->txi_irq, p_cfg->txi_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* RX interrupt */
-        p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_rxi_isr;
-        set_sci_rx_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
-        last_interrupt_index++;
+            /* RX interrupt */
+            p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->rxi_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_rxi_isr;
+            set_sci_rx_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->rxi_irq, p_cfg->rxi_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Error interrupt */
-        p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_eri_isr;
-        set_sci_eri_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
-        last_interrupt_index++;
+            /* Error interrupt */
+            p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->eri_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_eri_isr;
+            set_sci_eri_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->eri_irq, p_cfg->eri_ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* TX register empty interrupt */
-        p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
-        p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_tei_isr;
-        set_sci_tei_link_event(last_interrupt_index, hw_channel);
-        R_BSP_IrqCfgEnable(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
-        last_interrupt_index++;
-      }
+            /* TX register empty interrupt */
+            p_cfg->tei_irq = (IRQn_Type)last_interrupt_index;
+            p_cfg->tei_ipl = SPI_MASTER_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sci_spi_tei_isr;
+            set_sci_tei_link_event(last_interrupt_index, hw_channel);
+            R_BSP_IrqCfg(p_cfg->tei_irq, p_cfg->tei_ipl, p_ctrl);
+            last_interrupt_index++;
+        }
+        R_BSP_IrqEnable (p_cfg->txi_irq);
+        R_BSP_IrqEnable (p_cfg->rxi_irq);
+        R_BSP_IrqEnable (p_cfg->eri_irq);
+        R_BSP_IrqEnable (p_cfg->tei_irq);
     }
 #endif
 
@@ -872,32 +795,35 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                                       CAN
        ********************************************************************** */
     else if(p == IRQ_CAN && cfg != NULL) {
-      if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
         can_instance_ctrl_t * p_ctrl = reinterpret_cast<CanIrqReq_t *>(cfg)->ctrl;
         can_cfg_t * p_cfg  = reinterpret_cast<CanIrqReq_t *>(cfg)->cfg;
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
-        /* Error interrupt */
-        p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)can_error_isr;
-        set_can_error_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
+        if (p_cfg->error_irq == FSP_INVALID_VECTOR) {
+            /* Error interrupt */
+            p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)can_error_isr;
+            set_can_error_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Receive interrupt */
-        p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
-        set_can_rx_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
+            /* Receive interrupt */
+            p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)can_rx_isr;
+            set_can_rx_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Transmit interrupt */
-        p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
-        set_can_tx_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
-      }
+            /* Transmit interrupt */
+            p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)can_tx_isr;
+            set_can_tx_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
+        }
+        R_BSP_IrqEnable (p_cfg->error_irq);
+        R_BSP_IrqEnable (p_cfg->rx_irq);
+        R_BSP_IrqEnable (p_cfg->tx_irq);
     }
 #endif /* CAN_HOWMANY > 0 */
 
@@ -908,15 +834,12 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
        ********************************************************************** */
     else if(p == IRQ_ETHERNET && cfg != NULL) {
         ether_cfg_t *eth = (ether_cfg_t *)cfg;
-        if ((last_interrupt_index + ETHERNET_REQ_NUM) < PROG_IRQ_NUM && eth->irq == FSP_INVALID_VECTOR) {
+        if (eth->irq == FSP_INVALID_VECTOR) {
             eth->irq = (IRQn_Type)last_interrupt_index;
             eth->interrupt_priority = ETHERNET_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ether_eint_isr;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_EDMAC0_EINT);
             last_interrupt_index++;
-        }
-        else {
-            rv = (eth->irq == FSP_INVALID_VECTOR) ? false : true;
         }
     }
 #endif
@@ -926,32 +849,35 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
                                       CANFD
        ********************************************************************** */
     else if(p == IRQ_CANFD && cfg != NULL) {
-      if ((last_interrupt_index + CAN_REQ_NUM) < PROG_IRQ_NUM ) {
         canfd_instance_ctrl_t * p_ctrl = reinterpret_cast<CanFdIrqReq_t *>(cfg)->ctrl;
         can_cfg_t * p_cfg  = reinterpret_cast<CanFdIrqReq_t *>(cfg)->cfg;
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
-        /* Error interrupt */
-        p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_error_isr;
-        set_canfd_error_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
+        if (p_cfg->error_irq == FSP_INVALID_VECTOR) {
+            /* Error interrupt */
+            p_cfg->error_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_error_isr;
+            set_canfd_error_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->error_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Receive interrupt */
-        p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_rx_fifo_isr;
-        set_canfd_rx_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
+            /* Receive interrupt */
+            p_cfg->rx_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_rx_fifo_isr;
+            set_canfd_rx_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->rx_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
 
-        /* Transmit interrupt */
-        p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
-        *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_channel_tx_isr;
-        set_canfd_tx_link_event(last_interrupt_index, p_cfg->channel);
-        R_BSP_IrqCfgEnable(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
-        last_interrupt_index++;
-      }
+            /* Transmit interrupt */
+            p_cfg->tx_irq = (IRQn_Type)last_interrupt_index;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)canfd_channel_tx_isr;
+            set_canfd_tx_link_event(last_interrupt_index, p_cfg->channel);
+            R_BSP_IrqCfg(p_cfg->tx_irq, p_cfg->ipl, p_ctrl);
+            last_interrupt_index++;
+        }
+        R_BSP_IrqEnable (p_cfg->error_irq);
+        R_BSP_IrqEnable (p_cfg->rx_irq);
+        R_BSP_IrqEnable (p_cfg->tx_irq);
     }
 #endif /* CANFD_HOWMANY > 0 */
 
@@ -962,45 +888,40 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     else if(p == IRQ_SDCARD && cfg != NULL) {
         sdmmc_cfg_t *sd_cfg = (sdmmc_cfg_t *)cfg;
         /* SDCARD_ACCESS */
-        if ((last_interrupt_index + SDCARD_REQ_NUM) < PROG_IRQ_NUM ) {
-            if(sd_cfg->access_irq == FSP_INVALID_VECTOR) {
+        if(sd_cfg->access_irq == FSP_INVALID_VECTOR) {
 
-                sd_cfg->access_irq = (IRQn_Type)last_interrupt_index;
-                sd_cfg->access_ipl = SDCARD_ACCESS_PRIORITY;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_accs_isr;
-                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_ACCS);
-                last_interrupt_index++;
-            }
-            /*
-            this interrupt is neeed if DTC is used but it must not be used if
-            DMA is used 
-            -----------
-            if(sd_cfg->dma_req_irq == FSP_INVALID_VECTOR) {
-                sd_cfg->dma_req_irq = (IRQn_Type)last_interrupt_index;
-                sd_cfg->dma_req_ipl = SDCARD_DMA_REQ_PRIORITY;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_dma_req_isr;
-                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_DMA_REQ);
-                last_interrupt_index++;
-            }
-            */
-            if(sd_cfg->card_irq == FSP_INVALID_VECTOR) {
-                sd_cfg->card_irq = (IRQn_Type)last_interrupt_index;
-                sd_cfg->card_ipl = SDCARD_CARD_PRIORITY;
-                *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_card_isr;
-                R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_CARD);
-                last_interrupt_index++;
-            }
+            sd_cfg->access_irq = (IRQn_Type)last_interrupt_index;
+            sd_cfg->access_ipl = SDCARD_ACCESS_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_accs_isr;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_ACCS);
+            last_interrupt_index++;
         }
-
-        if(sd_cfg->access_irq == FSP_INVALID_VECTOR || sd_cfg->dma_req_irq == FSP_INVALID_VECTOR || sd_cfg->card_irq == FSP_INVALID_VECTOR) {
-            rv = false;
+        /*
+        this interrupt is neeed if DTC is used but it must not be used if
+        DMA is used
+        -----------
+        if(sd_cfg->dma_req_irq == FSP_INVALID_VECTOR) {
+            sd_cfg->dma_req_irq = (IRQn_Type)last_interrupt_index;
+            sd_cfg->dma_req_ipl = SDCARD_DMA_REQ_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_dma_req_isr;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_DMA_REQ);
+            last_interrupt_index++;
         }
-        rv = true;
+        */
+        if(sd_cfg->card_irq == FSP_INVALID_VECTOR) {
+            sd_cfg->card_irq = (IRQn_Type)last_interrupt_index;
+            sd_cfg->card_ipl = SDCARD_CARD_PRIORITY;
+            *(irq_ptr + last_interrupt_index) = (uint32_t)sdhimmc_card_isr;
+            R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_CARD);
+            last_interrupt_index++;
+        }
     }
 #endif
     else {
         rv = false;
     }
+
+end_config:
     __enable_irq();
     return rv;
 }

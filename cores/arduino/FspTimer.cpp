@@ -14,6 +14,7 @@ TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     // AGT0 is always used for timekeeping (millis() and micros())
     // agt_used_channel[0] = TIMER_USED;
+    timer_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
 }
 
 FspTimer::~FspTimer() {
@@ -72,7 +73,6 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, uint32_t pe
     timer_cfg.p_context                             = ctx;
     timer_cfg.p_extend                              = nullptr;
     timer_cfg.cycle_end_ipl                         = (BSP_IRQ_DISABLED);
-    timer_cfg.cycle_end_irq                         = FSP_INVALID_VECTOR;
 
     if(tp == GPT_TIMER) {
         type = GPT_TIMER;

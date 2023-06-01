@@ -33,7 +33,7 @@ using IrqFuncParam_f         = void (*)(void *);
 
 class CIrq {
     public:
-    CIrq() {cfg.irq = FSP_INVALID_VECTOR; }
+    CIrq() { cfg.irq = FSP_INVALID_VECTOR; }
     volatile IrqFuncVoid_f fnc_void = nullptr;
     volatile IrqFuncParam_f fnc_param = nullptr;
     icu_instance_ctrl_t ctrl;
@@ -203,7 +203,6 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
     }
 
     if(irq_context != nullptr) {
-    
         irq_context->cfg.channel            = ch;
         irq_context->cfg.pclk_div           = EXTERNAL_IRQ_PCLK_DIV_BY_64;
         irq_context->cfg.filter_enable      = false;
