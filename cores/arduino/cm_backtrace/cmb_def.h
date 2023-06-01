@@ -54,7 +54,7 @@
 
 /* name max length, default size: 32 */
 #ifndef CMB_NAME_MAX
-#define CMB_NAME_MAX                      128
+#define CMB_NAME_MAX                      16
 #endif
 
 /* print information language, default is English */

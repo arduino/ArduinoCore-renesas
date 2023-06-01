@@ -117,7 +117,7 @@ static const char * const print_info[] = {
 #endif
 };
 
-static char fw_name[CMB_NAME_MAX] = {0};
+static char fw_name[128] = {0};
 static char hw_ver[CMB_NAME_MAX] = {0};
 static char sw_ver[CMB_NAME_MAX] = {0};
 static uint32_t main_stack_start_addr = 0;
