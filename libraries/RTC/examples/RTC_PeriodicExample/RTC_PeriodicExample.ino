@@ -39,26 +39,26 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::ONCE_EVERY_1_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::ONCE_EVERY_1_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N2_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N2_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N4_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N4_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N8_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N8_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N16_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N16_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N32_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N32_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N16_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N16_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N8_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N8_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N4_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N4_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::N2_TIMES_EVERY_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::N2_TIMES_EVERY_SEC);
   delay(BLINK_DELAY);
-  Serial.println(RTC.setPeriodicCallback(periodicCallback, Period::ONCE_EVERY_1_SEC));
+  RTC.setPeriodicCallback(periodicCallback, Period::ONCE_EVERY_1_SEC);
   delay(BLINK_DELAY);
 }
