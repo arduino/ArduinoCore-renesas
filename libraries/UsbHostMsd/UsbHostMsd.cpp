@@ -94,10 +94,9 @@ bool USBHostMSD::connect() {
 /*                                      */
 /* -------------------------------------------------------------------------- */
 static bool in_progress = false;
-bool complete_cb(uint8_t dev_addr, msc_cbw_t const* cbw, msc_csw_t const* csw) {
+bool complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data) {
     in_progress = false;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /*                                WRITE                                     */
@@ -115,7 +114,7 @@ int USBHostMSD::write(const void *buffer, bd_addr_t addr, bd_size_t size) {
 
         for (uint32_t b = block_number; b < block_number + count; b++) {
             in_progress = true;
-            if(tuh_msc_write10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb)) {
+            if(tuh_msc_write10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb, 0)) {
                 while(in_progress) {
                     delay(10);
                 }
@@ -147,7 +146,7 @@ int USBHostMSD::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
         for (uint32_t b = block_number; b < block_number + count; b++) {
             in_progress = true;
-            if(tuh_msc_read10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb)) {
+            if(tuh_msc_read10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb, 0)) {
                 while(in_progress) {
                     delay(10);
                 }
