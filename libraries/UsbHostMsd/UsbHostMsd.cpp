@@ -96,6 +96,7 @@ bool USBHostMSD::connect() {
 static bool in_progress = false;
 bool complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data) {
     in_progress = false;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
