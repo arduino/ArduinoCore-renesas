@@ -35,7 +35,10 @@ class WiFiClient : public Client {
 
 public:
   WiFiClient();
+  /* this constructor is not intended to be called outside of the Server class */
   WiFiClient(int s);
+  WiFiClient(const WiFiClient& c);
+  ~WiFiClient();
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char *host, uint16_t port);
   virtual size_t write(uint8_t);
@@ -61,9 +64,11 @@ public:
 protected:
   int _sock;
   void getSocket();
-  FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
+  FifoBuffer<uint8_t,RX_BUFFER_DIM> *rx_buffer;
   int _read();
   bool read_needed(size_t s);
+  void clear_buffer();
+  bool destroy_at_distructor;
 
 
   

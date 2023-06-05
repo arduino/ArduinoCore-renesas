@@ -25,12 +25,13 @@
 #include "Modem.h"
 #include "WiFiClient.h"
 
-class WiFiClient;
+
 
 class WiFiServer : public Server {
 private:
   int _sock;
   int _port;
+  WiFiClient client;
   
 public:
   WiFiServer();
@@ -44,6 +45,8 @@ public:
   
 
   using Print::write;
+
+  friend class WiFiClient;
 };
 
 #endif
