@@ -224,7 +224,7 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
       return false;
    }
 
-   for(int i = 5; i >= 0; i--) {
+   for(int i = 0; i < 6; i++) {
       std::string str_num(mac_in+(i*3),2);
       *(mac_out+i) = std::stoul(str_num,nullptr,16);
    }
