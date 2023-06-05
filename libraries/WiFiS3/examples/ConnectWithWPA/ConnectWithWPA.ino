@@ -8,7 +8,7 @@
  modified 31 May 2012
  by Tom Igoe
  */
-#include <WiFi.h>
+#include <WiFiS3.h>
 
 #include "arduino_secrets.h" 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
@@ -31,7 +31,7 @@ void setup() {
   }
 
   String fv = WiFi.firmwareVersion();
-  if (fv < WiFi_FIRMWARE_LATEST_VERSION) {
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
 

@@ -41,10 +41,9 @@ class FifoBuffer
     }
     inline bool isEmpty() const { return (_numElems == 0); }
     T _aucBuffer[size] ;
-    volatile uint32_t _iHead ;
-    volatile uint32_t _iTail ;
-    volatile uint32_t _numElems;
-
+    uint32_t _iHead ;
+    uint32_t _iTail ;
+    uint32_t _numElems;
   public:
     /* ---------------------------------------------------------------------- */
     FifoBuffer( void ) {
