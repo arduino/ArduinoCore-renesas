@@ -31,6 +31,7 @@ void ModemClass::begin(int badurate){
       _serial->begin(badurate);
       beginned = true;
       string res = "";
+      _serial->flush();
       modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
   }
 }
@@ -198,6 +199,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                found = true;
                read_by_size = false;
                res = true;
+               data_res = data_res.substr(0, data_res.length() - sizeof(RESULT_OK));
             }
          }
          else {
