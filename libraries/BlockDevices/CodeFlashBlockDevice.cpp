@@ -341,7 +341,7 @@ const char *CodeFlashBlockDevice::get_type() const
 
 bool CodeFlashBlockDevice::is_valid_program(bd_addr_t addr, bd_size_t size) const
 {
-    return (addr % get_program_size() == 0 && size % get_program_size() == 0 && addr + size <= this->size() && addr % get_erase_size(addr) == 0);
+    return (addr % get_program_size() == 0 && size % get_program_size() == 0 && addr + size <= this->size());
 }
 
 bool CodeFlashBlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size) const

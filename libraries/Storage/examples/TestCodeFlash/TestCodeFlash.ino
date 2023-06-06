@@ -49,14 +49,14 @@ void loop() {
 
   // Select a random start address in region 0 after the bootloader and compute block start offset
   int  address = random(0x00004000, 0x00010000 - WRITE_SIZE);
-  int  offset  = address & ~(root.get_erase_size(address) - 1);
+  int  offset  = address & ~(root.get_program_size() - 1);
 
   // Start Test
   erase_write_read_compare(pattern, offset, repeat);
 
   // Select a random start address in region 1 after the sketch and compute block start offset
   address = random(0x000A0000, root.size() - WRITE_SIZE);
-  offset  = address & ~(root.get_erase_size(address) - 1);
+  offset  = address & ~(root.get_program_size() - 1);
   
   // Start Test
   erase_write_read_compare(pattern, offset, repeat);
@@ -72,13 +72,23 @@ void erase_write_read_compare(byte pattern, int offset, int repeat) {
 
   memset(&w_buffer[0], pattern, repeat);
 
+  // Double check we are using only one memory region for each test run
+  if(root.get_erase_size(offset) != root.get_erase_size(offset + repeat )) {
+    Serial.println("Error: different secotr size not handled");
+    return;
+  }
+  // Start offset is aligned to program size but erase command needs to be
+  // aligned to erase block size
+  int erase_start = offset & ~(root.get_erase_size(offset) - 1);
+  // Since we are using only one memory reagion erase size is always the same
+  int erase_size = root.get_erase_size(erase_start);
   // Check if we need to delete more consecutive blocks
   // Should happen only in region 0 due to write buffer size
-  int erase_size = root.get_erase_size(offset);
-  while(erase_size < repeat) {
-    erase_size += erase_size;
+  int erased = 0;
+  while(erase_start + erased < offset + repeat ) {
+    root.erase(erase_start + erased, erase_size);
+    erased += erase_size;
   }
-  root.erase(offset, erase_size);
 
   // Write pattern
   root.program(&w_buffer[0], offset, repeat);
