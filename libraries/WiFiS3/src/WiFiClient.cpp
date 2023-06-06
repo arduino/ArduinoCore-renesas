@@ -2,31 +2,19 @@
 
 /* -------------------------------------------------------------------------- */
 WiFiClient::WiFiClient() : _sock(-1), destroy_at_distructor(true), rx_buffer(nullptr) { 
-   rx_buffer = new FifoBuffer<uint8_t,RX_BUFFER_DIM>();
+   rx_buffer = shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
    
 /* -------------------------------------------------------------------------- */
 WiFiClient::WiFiClient(int s) : _sock(s), destroy_at_distructor(false), rx_buffer(nullptr) {
-   rx_buffer = new FifoBuffer<uint8_t,RX_BUFFER_DIM>();
+   rx_buffer = shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-WiFiClient::~WiFiClient() {
-   if(destroy_at_distructor) {
-      clear_buffer();
-   }
-}
+WiFiClient::~WiFiClient() { }
 /* -------------------------------------------------------------------------- */
-
-void WiFiClient::clear_buffer() {
-   if(rx_buffer != nullptr) {
-      delete rx_buffer;
-      rx_buffer = nullptr;
-   }
-}
-
 
 /* -------------------------------------------------------------------------- */   
 WiFiClient::WiFiClient(const WiFiClient& c) {
@@ -34,7 +22,6 @@ WiFiClient::WiFiClient(const WiFiClient& c) {
    _sock = c._sock;
    rx_buffer = c.rx_buffer;
 }
-
 
 /* -------------------------------------------------------------------------- */
 void WiFiClient::getSocket() {
@@ -47,8 +34,6 @@ void WiFiClient::getSocket() {
       }
    }   
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 int WiFiClient::connect(IPAddress ip, uint16_t port){
@@ -113,6 +98,7 @@ int WiFiClient::available(){
          modem.begin();
          if(modem.write(string(PROMPT(_AVAILABLE)),res, "%s%d\r\n" , CMD_WRITE(_AVAILABLE), _sock)) {
             rv = atoi(res.c_str());
+            
          }  
       }
    }
@@ -131,6 +117,7 @@ int WiFiClient::_read() {
       /* important - it works one shot */
       modem.avoid_trim_results();
       modem.read_using_size();
+      
       if(modem.write(string(PROMPT(_CLIENTRECEIVE)),res, "%s%d,%d\r\n" , CMD_WRITE(_CLIENTRECEIVE), _sock, size)) {
          for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
             rx_buffer->store((uint8_t)res[i]);
@@ -138,8 +125,6 @@ int WiFiClient::_read() {
          }
       }
    }
-   
-   
    return rv;
 }  
 

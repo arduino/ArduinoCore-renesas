@@ -15,14 +15,13 @@ WiFiClient WiFiServer::available() {
    if(_sock != -1) {
       string res = "";
       modem.begin();
+      /* call the server available on esp so that the accept is performed */
       if(modem.write(string(PROMPT(_SERVERAVAILABLE)),res, "%s%d\r\n" , CMD_WRITE(_SERVERAVAILABLE), _sock)) {
          int client_sock = atoi(res.c_str());
-         
          if(client._sock == client_sock) {
             return client;
          }
          else {
-            client.clear_buffer();
             client = WiFiClient(client_sock);
             return client;
          }
