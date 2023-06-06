@@ -1,5 +1,5 @@
 /*
-  SFU.h
+  lzss.h
   Copyright (c) 2023 Arduino SA.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -17,8 +17,24 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "SFU.h"
+#ifndef SSU_LZSS_H_
+#define SSU_LZSS_H_
 
-const unsigned char SFU[0x20000] __attribute__ ((section(".second_stage_ota"), used)) = {
-	#include "c33.h"
-};
+/**************************************************************************************
+   INCLUDE
+ **************************************************************************************/
+
+#include <stdint.h>
+#include <stdio.h>
+
+typedef void(*SFUWatchdogResetFuncPointer)(void);
+
+/**************************************************************************************
+   FUNCTION DEFINITION
+ **************************************************************************************/
+
+void lzss_init(FILE * update_file_ptr, FILE * target_file_ptr, uint32_t const lzss_file_size, SFUWatchdogResetFuncPointer wdog_feed_func_ptr);
+void lzss_decode();
+void lzss_flush();
+
+#endif /* SSU_LZSS_H_ */

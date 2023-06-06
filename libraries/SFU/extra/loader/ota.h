@@ -1,5 +1,5 @@
 /*
-  SFU.h
+  ota.h
   Copyright (c) 2023 Arduino SA.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -17,8 +17,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "SFU.h"
+#ifndef SFU_OTA_H_
+#define SFU_OTA_H_
 
-const unsigned char SFU[0x20000] __attribute__ ((section(".second_stage_ota"), used)) = {
-	#include "c33.h"
-};
+#include <CodeFlashBlockDevice.h>
+#include "lzss.h"
+
+#define POST_APPLICATION_ADDR                         (0x20000)
+
+int verify_header(FILE* update_file);
+int decompress(FILE* update_file, FILE* target_file, SFUWatchdogResetFuncPointer wdog_feed_func_ptr);
+int verify_sketch(FILE* file);
+int flash(FILE *file, CodeFlashBlockDevice* flash, uint32_t address);
+
+#endif
