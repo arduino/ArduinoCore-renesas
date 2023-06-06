@@ -3,12 +3,12 @@
 
 /* -------------------------------------------------------------------------- */
 CWifi::CWifi() : _timeout(50000){
-   mak[0] = 0;
-   mak[1] = 0;
-   mak[2] = 0;
-   mak[3] = 0;
-   mak[4] = 0;
-   mak[5] = 0;
+   mac[0] = 0;
+   mac[1] = 0;
+   mac[2] = 0;
+   mac[3] = 0;
+   mac[4] = 0;
+   mac[5] = 0;
 }
 /* -------------------------------------------------------------------------- */
 
@@ -234,7 +234,7 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
 
 
 /* -------------------------------------------------------------------------- */
-uint8_t* CWifi::macAddress(uint8_t* mac) {
+uint8_t* CWifi::macAddress(uint8_t* _mac) {
 /* -------------------------------------------------------------------------- */   
   string res = "";
   modem.begin();
@@ -242,23 +242,21 @@ uint8_t* CWifi::macAddress(uint8_t* mac) {
       if(atoi(res.c_str()) == 1) {
          if(modem.write(string(PROMPT(_MACSTA)),res, "%s" , CMD_READ(_MACSTA)))  {
             macStr2macArray(mac, res.c_str());
-            return mac;
          }
       }
       else if(atoi(res.c_str()) == 2) {
          if(modem.write(string(PROMPT(_MACSOFTAP)),res, "%s" , CMD_READ(_MACSOFTAP)))  {
             macStr2macArray(mac, res.c_str());
-            return mac;
          }
       }
    }
 
    for(int i = 0; i < 6; i++) 
    {
-      mac[i] = mak[i];
+      _mac[i] = mac[5 - i];
    }
 
-   return mac;
+   return _mac;
 }
 
 
