@@ -193,19 +193,24 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       while( _serial->available() ){
          char c = _serial->read();
          data_res += c;
+         #ifdef SELECTABLE_MODEM_DEBUG
+         if(enable_dbg) {
+            Serial.print(c);
+         }
+         #endif
             
          if(read_by_size) {
             if(read_by_size_finished(data_res)) {
                found = true;
                read_by_size = false;
                res = true;
-               data_res = data_res.substr(0, data_res.length() - sizeof(RESULT_OK));
+               data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_OK) - 1));
             }
          }
          else {
             if(string::npos != data_res.rfind(RESULT_DATA)) {
                found = true;
-               data_res = data_res.substr(0, data_res.length() - sizeof(RESULT_DATA));
+               data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_DATA) - 1));
                if(prompt != DO_NOT_CHECK_CMD) {
                   if(removeAtBegin(data_res, prompt)) {
                      res = true;
@@ -218,7 +223,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
             }
             else if(string::npos != data_res.rfind(RESULT_OK)){
                found = true;
-               data_res = data_res.substr(0, data_res.length() - sizeof(RESULT_OK));
+               data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_OK) - 1) );
                if(prompt != DO_NOT_CHECK_CMD) {
                   if(removeAtBegin(data_res, prompt)) {
                      res = true;
@@ -230,7 +235,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                break;
             } 
             else if (string::npos != data_res.rfind(RESULT_ERROR)) {
-               data_res.substr(0, data_res.length() - sizeof(RESULT_ERROR));
+               data_res.substr(0, data_res.length() - (sizeof(RESULT_ERROR) - 1));
                res = false;
                break;
             }

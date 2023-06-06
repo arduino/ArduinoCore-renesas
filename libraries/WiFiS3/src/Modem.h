@@ -9,6 +9,7 @@
 //#define MODEM_DEBUG
 //#define MODEM_DEBUG_PASSTHROUGH
 #define MODEM_TIMEOUT  10000
+//#define SELECTABLE_MODEM_DEBUG
 #define MAX_BUFF_SIZE  64
 
 #define DO_NOT_CHECK_CMD "NO_CMD_CHECK"
@@ -38,6 +39,11 @@ public:
     read_by_size = true;
   } 
   bool beginned;
+
+  #ifdef SELECTABLE_MODEM_DEBUG
+  bool enable_dbg = false;
+  void debug(bool e) {enable_dbg = e;}
+  #endif
 
 private:
   bool buf_read(const string &cmd, string &data_res);
