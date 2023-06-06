@@ -15,6 +15,8 @@
 #include <vector>
 #include <string>
 #include "QSPIFlashBlockDevice.h"
+#include <BlockDevice.h>
+#include <MBRBlockDevice.h>
 #include "FATFileSystem.h"
 
 #define TEST_FS_NAME "qspi"
@@ -23,7 +25,8 @@
 #define DELETE_FILE_DIMENSION 150
 
 
-QSPIFlashBlockDevice block_device(PIN_QSPI_CLK, PIN_QSPI_SS, PIN_QSPI_D0, PIN_QSPI_D1, PIN_QSPI_D2, PIN_QSPI_D3); 
+BlockDevice* block_device = BlockDevice::get_default_instance();
+MBRBlockDevice mbr(block_device, 2);
 FATFileSystem fs(TEST_FS_NAME);
 
 std::string root_folder       = std::string("/") + std::string(TEST_FS_NAME);
@@ -51,12 +54,12 @@ void setup() {
    */
    
   Serial.println("Mounting QSPI FLASH...");
-  int err =  fs.mount(&block_device);
+  int err =  fs.mount(&mbr);
   if (err) {
     // Reformat if we can't mount the filesystem
     // this should only happen on the first boot
     Serial.println("No filesystem found, formatting... ");
-    err = fs.reformat(&block_device);
+    err = fs.reformat(&mbr);
   }
   
   if (err) {
