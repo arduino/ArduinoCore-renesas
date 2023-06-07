@@ -6,8 +6,8 @@
  *
  **************************************************************/
 
-#include "CWifi.h"
-#include "CWifiClient.h"
+#include "WiFiC3.h"
+#include "WiFiClient.h"
 #include "SSLClient.h"
 //To make http request esay: https://github.com/arduino-libraries/ArduinoHttpClient
 #include <ArduinoHttpClient.h>
