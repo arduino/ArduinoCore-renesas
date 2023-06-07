@@ -344,7 +344,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
     }
     
     if ((rootCABuff != NULL) || ((rootCAPath != NULL))) {
-        log_e("free buffer");
+        log_d("free buffer");
         mbedtls_x509_crt_free(&ssl_client->ca_cert);
     }
 
