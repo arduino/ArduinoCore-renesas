@@ -252,7 +252,8 @@ public:
 
 extern CWifi WiFi;
 
-
-
+#include "WiFiClient.h"
+#include "WiFiServer.h"
+#include "WiFiUdp.h"
 
 #endif
