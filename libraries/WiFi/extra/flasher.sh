@@ -14,6 +14,12 @@ fi
 
 PATH=$ESPTOOL_PATH:$PATH
 
-esptool.py --chip esp32c3 -p $PORT -b 230400 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 2MB 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 network_adapter.bin
+if [ -f "$ESPTOOL_PATH/esptool.py" ]; then
+ESPTOOL_CMD=esptool.py
+else
+ESPTOOL_CMD=esptool
+fi
+
+$ESPTOOL_CMD --chip esp32c3 -p $PORT -b 230400 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 2MB 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 network_adapter.bin
 
 
