@@ -22,7 +22,7 @@ int keyIndex = 0;            // your network key index number (needed only for W
 unsigned int localPort = 2390;      // local port to listen on
 
 char packetBuffer[256]; //buffer to hold incoming packet
-char  ReplyBuffer[] = "acknowledged";       // a string to send back
+char  ReplyBuffer[] = "acknowledged\n";       // a string to send back
 
 WiFiUDP Udp;
 

@@ -33,7 +33,7 @@ char server[] = "example.org";
 //IPAddress server(64,131,82,241);
 
 unsigned long lastConnectionTime = 0;            // last time you connected to the server, in milliseconds
-const unsigned long postingInterval = 10L * 200L; // delay between updates, in milliseconds
+const unsigned long postingInterval = 10L * 1000L; // delay between updates, in milliseconds
 
 /* -------------------------------------------------------------------------- */
 void setup() {
@@ -80,11 +80,11 @@ void read_request() {
     /* actual data reception */
     char c = client.read();
     /* print data to serial port */
-    //Serial.print(c);
+    Serial.print(c);
     /* wrap data to 80 columns*/
     received_data_num++;
     if(received_data_num % 80 == 0) { 
-      Serial.print('.');
+      
     }
     
   }  
