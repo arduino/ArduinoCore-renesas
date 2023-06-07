@@ -266,9 +266,13 @@ uint8_t* CWifi::macAddress(uint8_t* _mac) {
 int8_t CWifi::scanNetworks() {
 /* -------------------------------------------------------------------------- */
    modem.begin();
+
+   modem.avoid_trim_results();
+   modem.read_using_size();
+
    access_points.clear();
    string res;
-   
+
    vector<string> aps;
    if(modem.write(string(PROMPT(_WIFISCAN)),res,CMD(_WIFISCAN))) {
 
