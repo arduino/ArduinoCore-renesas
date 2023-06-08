@@ -79,6 +79,7 @@ class RTCTime {
 
     public:
     RTCTime();
+    RTCTime(time_t t);
     RTCTime(struct tm &t);
     RTCTime(int _day, Month _m, int _year, int _hours, int _minutes, int _seconds, DayOfWeek _dof, SaveLight _sl);
     ~RTCTime();
@@ -92,6 +93,7 @@ class RTCTime {
     bool setSecond(int second); /* from 0 to 59 */
     bool setDayOfWeek(DayOfWeek d);
     bool setSaveLight(SaveLight sl);
+    bool setUnixTime(time_t time);
 
     void setTM(struct tm &t);
     /* getters */
