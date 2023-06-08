@@ -40,10 +40,6 @@ SSLClient::SSLClient()
     _private_key = NULL;
     _pskIdent = NULL;
     _psKey = NULL;
-
-    ssl_init(sslclient, nullptr, _CA_path);
-
-    sslclient->handshake_timeout = 5000;
 }
 
 SSLClient::SSLClient(Client* client)
@@ -90,6 +86,13 @@ SSLClient::~SSLClient()
 {
     stop();
     delete sslclient;
+}
+
+void SSLClient::setClient(Client& client)
+{
+    ssl_init(sslclient, &client, _CA_path);
+
+    sslclient->handshake_timeout = 5000;
 }
 
 void SSLClient::stop()
