@@ -202,6 +202,10 @@ SaveLight tm2SaveLight(struct tm &t) {
     return (t.tm_isdst == 0) ?  SaveLight::SAVING_TIME_INACTIVE : SaveLight::SAVING_TIME_ACTIVE;
 }
 
+RTCTime::RTCTime(time_t t)  {
+    setUnixTime(t);
+}
+
 RTCTime::RTCTime(struct tm &t)  {
     setTM(t);
 }
@@ -335,6 +339,13 @@ bool RTCTime::setDayOfWeek(DayOfWeek d) {
 bool RTCTime::setSaveLight(SaveLight sl) {
     save_light = sl;
     stime.tm_isdst = SaveLight2tm(save_light);
+    return true;
+}
+
+bool RTCTime::setUnixTime(time_t time) {
+    struct tm *t;
+    t = localtime(&time);
+    setTM(*t);
     return true;
 }
 
