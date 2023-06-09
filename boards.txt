@@ -60,7 +60,7 @@ minima.build.fpu=-mfpu=fpv4-sp-d16
 minima.build.float-abi=-mfloat-abi=hard
 
 minima.build.board=MINIMA
-minima.build.defines=-DF_CPU=48000000
+minima.build.defines=-DF_CPU=48000000 -DARDUINO_UNOR4_MINIMA
 minima.vid.0=0x2341
 minima.pid.0=0x0069
 minima.vid.1=0x2341
@@ -108,7 +108,7 @@ unor4wifi.build.fpu=-mfpu=fpv4-sp-d16
 unor4wifi.build.float-abi=-mfloat-abi=hard
 
 unor4wifi.build.board=UNOWIFIR4
-unor4wifi.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT
+unor4wifi.build.defines=-DF_CPU=48000000 -DNO_USB -DBACKTRACE_SUPPORT -DARDUINO_UNOR4_WIFI
 unor4wifi.vid.0=0x2341
 unor4wifi.pid.0=0x1002
 unor4wifi.vid.1=0x2341
