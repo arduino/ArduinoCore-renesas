@@ -473,7 +473,6 @@ SECTIONS
         . = ABSOLUTE(RAM_START + RAM_LENGTH);
     } > RAM
 
-	//__StackLimit = __StackTop - SIZEOF(.stack_dummy);
 	PROVIDE(__stack = __StackTop);
 
     /* This symbol represents the end of user allocated RAM. The RAM after this symbol can be used
