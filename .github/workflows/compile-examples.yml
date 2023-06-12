@@ -26,8 +26,8 @@ jobs:
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - libraries/AnalogWave
-        - libraries/Arduino_CAN/CANRead
-        - libraries/Arduino_CAN/CANWrite
+        - libraries/Arduino_CAN/examples/CANRead
+        - libraries/Arduino_CAN/examples/CANWrite
         - libraries/Arduino_FreeRTOS
         - libraries/EEPROM
         - libraries/RTC
@@ -55,8 +55,8 @@ jobs:
               - libraries/SSLClient
               - libraries/SE05X
               - libraries/Ethernet
-              - libraries/Arduino_CAN/CAN1Read
-              - libraries/Arduino_CAN/CAN1Write
+              - libraries/Arduino_CAN/examples/CAN1Read
+              - libraries/Arduino_CAN/examples/CAN1Write
           - board:
               fqbn: "arduino:renesas:unor4wifi"
             additional-sketch-paths: |
