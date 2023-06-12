@@ -23,8 +23,8 @@ public:
 
   void begin(int badurate = 115200);
   void end();
-  bool write(const string &cmd, string &str, char * fmt, ...);
-  void write_nowait(const string &cmd, string &str, char * fmt, ...);
+  bool write(const std::string &cmd, std::string &str, char * fmt, ...);
+  void write_nowait(const std::string &cmd, std::string &str, char * fmt, ...);
 
   bool passthrough(const uint8_t *data, size_t size);
   void avoid_trim_results() {
@@ -44,14 +44,14 @@ public:
   #endif
 
 private:
-  bool buf_read(const string &cmd, string &data_res);
+  bool buf_read(const std::string &cmd, std::string &data_res);
   bool delete_serial;
   UART * _serial;
   unsigned long _timeout;
   uint8_t tx_buff[MAX_BUFF_SIZE];
   bool trim_results;
   bool read_by_size;
-  bool read_by_size_finished(string &rx);
+  bool read_by_size_finished(std::string &rx);
 };
 
 extern ModemClass modem;

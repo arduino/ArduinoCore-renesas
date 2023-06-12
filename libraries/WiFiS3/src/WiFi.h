@@ -18,12 +18,12 @@
 
 class CAccessPoint {
    public:
-      string ssid;
-      string bssid;
+      std::string ssid;
+      std::string bssid;
       uint8_t uint_bssid[6];
-      string rssi;
-      string channel;
-      string encryption_mode;
+      std::string rssi;
+      std::string channel;
+      std::string encryption_mode;
 };
 
 
@@ -34,7 +34,7 @@ private:
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
    unsigned long _timeout;
    uint8_t mac[6];
-   vector<CAccessPoint> access_points;
+   std::vector<CAccessPoint> access_points;
    
 
    IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;

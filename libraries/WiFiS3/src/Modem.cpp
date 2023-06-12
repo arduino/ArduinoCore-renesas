@@ -4,6 +4,8 @@
 #define RESULT_ERROR "ERROR\r\n"
 #define RESULT_DATA "DATA\r\n"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 ModemClass::ModemClass(int tx, int rx) : beginned(false), delete_serial(false), _timeout(MODEM_TIMEOUT), trim_results(true), read_by_size(false) {
 /* -------------------------------------------------------------------------- */

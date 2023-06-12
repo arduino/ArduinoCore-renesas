@@ -65,7 +65,7 @@ public:
 protected:
   int _sock;
   void getSocket();
-  shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>> rx_buffer;
+  std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>> rx_buffer;
   int _read();
   bool read_needed(size_t s);
   void clear_buffer();
