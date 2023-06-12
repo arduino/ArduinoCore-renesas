@@ -28,8 +28,6 @@
 
 #include <vector>
 
-using namespace std;
-
 #include "esp_hosted_config.pb-c.h"
 
 #include "CMsg.h"
@@ -989,7 +987,7 @@ public:
    }
    
    /* ----------------------------------------------------------------------- */
-   int extractSoftConnectedStationList(vector<WifiConnectedSta_t>& l) {
+   int extractSoftConnectedStationList(std::vector<WifiConnectedSta_t>& l) {
    /* ----------------------------------------------------------------------- */   
       
       if(checkResponsePayload<CtrlMsgRespSoftAPConnectedSTA>(answer, 
@@ -1113,7 +1111,7 @@ public:
 
 
    /* ----------------------------------------------------------------------- */
-   int extractAccessPointList(vector<AccessPoint_t>& l) {
+   int extractAccessPointList(std::vector<AccessPoint_t>& l) {
    /* ----------------------------------------------------------------------- */
       
       if(checkResponsePayload<CtrlMsgRespScanResult>(answer, 

@@ -14,8 +14,6 @@
 
 #define DO_NOT_CHECK_CMD "NO_CMD_CHECK"
 
-using namespace std;
-
 class ModemClass {
 
 public:

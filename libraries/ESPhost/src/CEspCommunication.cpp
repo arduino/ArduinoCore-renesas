@@ -20,10 +20,10 @@
 
 #include "CEspCommunication.h"
 
-queue<CMsg> CEspCom::to_ESP32_queue;
-queue<CMsg> CEspCom::from_ESP32_queue;
-queue<CMsg> CEspCom::rxStationQueue;
-queue<CMsg> CEspCom::rxSoftApQueue;
+std::queue<CMsg> CEspCom::to_ESP32_queue;
+std::queue<CMsg> CEspCom::from_ESP32_queue;
+std::queue<CMsg> CEspCom::rxStationQueue;
+std::queue<CMsg> CEspCom::rxSoftApQueue;
 /* -------------------------------------------------------------------------- */
 bool CEspCom::send_msg_to_esp(CMsg &msg) {
 /* -------------------------------------------------------------------------- */  

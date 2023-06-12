@@ -64,7 +64,7 @@ public:
    }
 
    static void macArray2macStr(char *mac_out, const uint8_t *mac_in) {
-      string MAC = "";
+      std::string MAC = "";
       for(int i = 0; i < WIFI_MAC_ADDRESS_DIM; i++) {
          MAC += std::to_string(*(mac_in + i));
          if(i < WIFI_MAC_ADDRESS_DIM - 1) {
@@ -105,14 +105,14 @@ public:
    int getWifiMode(WifiMode_t &mode, EspCallback_f cb = nullptr);
    int setWifiMode(WifiMode_t mode, EspCallback_f cb = nullptr);
 
-   int getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f cb = nullptr);
+   int getAccessPointScanList(std::vector<AccessPoint_t>& l, EspCallback_f cb = nullptr);
 
    int connectAccessPoint(WifiApCfg_t &ap_cfg, EspCallback_f cb = nullptr);
    int getAccessPointConfig(WifiApCfg_t &ap, EspCallback_f cb = nullptr);
    int disconnectAccessPoint(EspCallback_f cb = nullptr);
 
    int getSoftAccessPointConfig(SoftApCfg_t &sap_cfg, EspCallback_f cb = nullptr);
-   int getSoftConnectedStationList(vector<WifiConnectedSta_t>& l, EspCallback_f cb = nullptr);
+   int getSoftConnectedStationList(std::vector<WifiConnectedSta_t>& l, EspCallback_f cb = nullptr);
    int setSoftAccessPointVndIe(WifiVendorSoftApIe_t &vendor_ie, EspCallback_f cb = nullptr);
    int startSoftAccessPoint(SoftApCfg_t &cfg, EspCallback_f cb = nullptr);
    int stopSoftAccessPoint(EspCallback_f cb = nullptr);

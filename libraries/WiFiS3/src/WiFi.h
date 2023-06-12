@@ -9,8 +9,6 @@
 #include "Modem.h"
 
 
-using namespace std;
-
 #define DEFAULT_IP_AP_ADDRESS           IPAddress(192,168,4,1)
 #define DEFAULT_GW_AP_ADDRESS           IPAddress(192,168,1,1)
 #define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)

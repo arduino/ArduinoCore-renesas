@@ -5,8 +5,6 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
-
 void ltrim(std::string &s);
 
 // trim from end (in place)

@@ -2,8 +2,6 @@
 #include "CNetIf.h"
 #include <string>
 
-using namespace std;
-
 /* GPIO_LOCAL C33 
    - 0. P010 
    - 1. P207

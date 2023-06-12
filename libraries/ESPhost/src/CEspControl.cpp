@@ -602,7 +602,7 @@ int CEspControl::setWifiMode(WifiMode_t mode, EspCallback_f cb) {
 /* -------------------------------------------------------------------------- */
 /* GET ACCESS POINT SCAN LIST: see GENERAL NOTE ABOUT THE REQUEST function structure above*/
 /* -------------------------------------------------------------------------- */
-int CEspControl::getAccessPointScanList(vector<AccessPoint_t>& l, EspCallback_f cb) {
+int CEspControl::getAccessPointScanList(std::vector<AccessPoint_t>& l, EspCallback_f cb) {
    #ifdef ESP_HOST_DEBUG_ENABLED
    Serial.println("[REQUEST] CEspControl::getAccessPointScanList");
    #endif
@@ -828,7 +828,7 @@ int CEspControl::getSoftAccessPointConfig(SoftApCfg_t &sap_cfg, EspCallback_f cb
 /* -------------------------------------------------------------------------- */
 /* GET SOFT CONNECTED STATION LIST: see GENERAL NOTE ABOUT THE REQUEST function structure above */
 /* -------------------------------------------------------------------------- */
-int CEspControl::getSoftConnectedStationList(vector<WifiConnectedSta_t>& l, EspCallback_f cb) {
+int CEspControl::getSoftConnectedStationList(std::vector<WifiConnectedSta_t>& l, EspCallback_f cb) {
    #ifdef ESP_HOST_DEBUG_ENABLED
    Serial.println("[REQUEST] CEspControl::getSoftConnectedStationList");
    #endif

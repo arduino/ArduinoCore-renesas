@@ -93,8 +93,6 @@ typedef enum {
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
-using namespace std;
-
 class CNetIf;
 
 using NetIfRxCb_f = int (*)(CNetIf*);
@@ -276,7 +274,7 @@ public:
 class CLwipIf {
     /* -------------------------------------------------------------------------- */
 private:
-    static queue<struct pbuf*> eth_queue;
+    static std::queue<struct pbuf*> eth_queue;
 
     bool eth_initialized;
 
@@ -296,7 +294,7 @@ private:
     static void timer_cb(timer_callback_args_t* arg);
 #endif
 
-    vector<AccessPoint_t> access_points;
+    std::vector<AccessPoint_t> access_points;
     WifiApCfg_t access_point_cfg;
 
     SoftApCfg_t soft_ap_cfg;

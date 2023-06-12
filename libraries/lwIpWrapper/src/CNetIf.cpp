@@ -9,7 +9,7 @@ CNetIf* CLwipIf::net_ifs[] = { nullptr };
 bool CLwipIf::wifi_hw_initialized = false;
 bool CLwipIf::connected_to_access_point = false;
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
-queue<struct pbuf*> CLwipIf::eth_queue;
+std::queue<struct pbuf*> CLwipIf::eth_queue;
 bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;

@@ -30,14 +30,12 @@
 #include <queue>
 #include "CMsg.h"
 
-using namespace std;
-
 class CEspCom {
 private:
-   static queue<CMsg> to_ESP32_queue;
-   static queue<CMsg> from_ESP32_queue;
-   static queue<CMsg> rxStationQueue;
-   static queue<CMsg> rxSoftApQueue;
+   static std::queue<CMsg> to_ESP32_queue;
+   static std::queue<CMsg> from_ESP32_queue;
+   static std::queue<CMsg> rxStationQueue;
+   static std::queue<CMsg> rxSoftApQueue;
 public:
    /* application layer call this function when wants to send a message to esp*/
    static bool send_msg_to_esp(CMsg &msg);
