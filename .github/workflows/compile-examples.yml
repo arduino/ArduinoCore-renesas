@@ -1,0 +1,135 @@
+name: Compile Examples
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "cores/**"
+      - "libraries/**"
+      - "variants/**"
+      - "boards.txt"
+      - "platform.txt"
+  push:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "cores/**"
+      - "libraries/**"
+      - "variants/**"
+      - "boards.txt"
+      - "platform.txt"
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+
+    env:
+      # sketch paths to compile (recursive) for all boards
+      UNIVERSAL_SKETCH_PATHS: |
+        - libraries/AnalogWave
+        - libraries/Arduino_CAN/CANRead
+        - libraries/Arduino_CAN/CANWrite
+        - libraries/Arduino_FreeRTOS
+        - libraries/EEPROM
+        - libraries/RTC
+        - libraries/SoftwareSerial
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board: [
+          {"fqbn": "arduino:renesas:portenta_c33"},
+          {"fqbn": "arduino:renesas:minima"},
+          {"fqbn": "arduino:renesas:unor4wifi"},
+        ]
+
+        # make board type-specific customizations to the matrix jobs
+        include:
+          - board:
+              fqbn: "arduino:renesas:portenta_c33"
+            additional-sketch-paths: |
+              - libraries/WiFi
+              - libraries/UsbMsd
+              - libraries/UsbHostMsd
+              - libraries/Storage
+              - libraries/SSLClient
+              - libraries/SE05X
+              - libraries/Ethernet
+              - libraries/Arduino_CAN/CAN1Read
+              - libraries/Arduino_CAN/CAN1Write
+          - board:
+              fqbn: "arduino:renesas:unor4wifi"
+            additional-sketch-paths: |
+              - libraries/WiFiS3
+              - libraries/Arduino_LED_Matrix
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: extras/ArduinoCore-API
+
+      - name: Check if API should be compiled in the core
+        id: checkapi
+        run: |
+          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+
+      - name: Install ArduinoCore-API
+        run: rm "$GITHUB_WORKSPACE/cores/arduino/api" && mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        if: steps.checkapi.outputs.IS_API == 'true'
+
+      - name: Checkout Basic examples
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/arduino-examples
+          path: extras
+
+      - name: Compile examples
+        uses: arduino/compile-sketches@main
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            - name: Keyboard
+            - name: Mouse
+            - name: Servo
+            - name: LiquidCrystal
+            - name: CapacitiveSensor
+            - name: Ethernet
+            - name: ArduinoBearSSL
+            - name: ArduinoHttpClient
+            - name: NTPClient
+            - name: ArduinoMqttClient
+            - name: Stepper
+            - name: SD
+            - name: Arduino_JSON
+            - name: Arduino_HTS221
+            - name: Firmata
+            - name: ArduinoModbus
+            - name: ArduinoDMX
+            - name: ArduinoRS485
+            - name: WiFi
+            - name: ArduinoIoTCloud
+          platforms: |
+            # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
+            - name: "arduino:renesas"
+              source-url: "https://downloads.arduino.cc/packages/package_renesas_secret_index.json"
+            # Overwrite the Board Manager installation with the local platform
+            - source-path: "./"
+              name: "arduino:renesas"
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.additional-sketch-paths }}
+          enable-deltas-report: 'true'
+          verbose: 'false'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save memory usage change report as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: sketches-reports
+          path: sketches-reports
