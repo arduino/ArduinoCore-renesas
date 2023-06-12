@@ -38,15 +38,15 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino:renesas:portenta_c33"},
-          {"fqbn": "arduino:renesas:minima"},
-          {"fqbn": "arduino:renesas:unor4wifi"},
+          {"fqbn": "arduino-git:renesas:portenta_c33"},
+          {"fqbn": "arduino-git:renesas:minima"},
+          {"fqbn": "arduino-git:renesas:unor4wifi"},
         ]
 
         # make board type-specific customizations to the matrix jobs
         include:
           - board:
-              fqbn: "arduino:renesas:portenta_c33"
+              fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
               - libraries/WiFi
               - libraries/UsbMsd
@@ -58,7 +58,7 @@ jobs:
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
           - board:
-              fqbn: "arduino:renesas:unor4wifi"
+              fqbn: "arduino-git:renesas:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
               - libraries/Arduino_LED_Matrix
@@ -124,7 +124,7 @@ jobs:
               source-url: "https://downloads.arduino.cc/packages/package_renesas_secret_index.json"
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
-              name: "arduino:renesas"
+              name: "arduino-git:renesas"
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
