@@ -100,7 +100,7 @@ void arduino_main(void)
 #ifdef BACKTRACE_SUPPORT
    // "install" stacktrace print over Hardfault handler
    *(irq_vector_table + 3) = (uint32_t)Stacktrace_Handler;
-   cm_backtrace_init(stringify(PROJECT_NAME), "RA", __DATE__);
+   cm_backtrace_init(stringify(PROJECT_NAME), "RA", __DATE__ "\0");
 #endif
 
    _init();
