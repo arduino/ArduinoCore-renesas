@@ -232,7 +232,21 @@ int SDCardBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _si
 int SDCardBlockDevice::open() {
    fsp_err_t rv = FSP_SUCCESS;
    
-   IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
+   // This check is necessary when the SDCardBlockDevice object is destroyed and
+   // created again. With only the FSP_INVALID_VECTOR fix, multiple interrupt
+   // vector entries will be created in this particular case. Worse, the SDCARD
+   // interrupts will be reenabled after R_SDHI_Close() but before R_SDHI_Open(),
+   // which will cause sdhimmc_accs_isr() inside the Renesas FSP to send an invalid
+   // context pointer to r_sdhi_access_irq_process(), causing a hard fault.
+   // -->
+   static bool wasOpenedBefore = false;
+   if (false == wasOpenedBefore)
+   {
+      IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
+      wasOpenedBefore = true;
+   }
+   // <--
+
    #ifdef USE_DMAC
    IRQManager::getInstance().addDMA(g_transfer0_extend);
    #endif
