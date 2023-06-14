@@ -9,12 +9,12 @@
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
-#define PIN_A0   (16u)
-#define PIN_A1   (17u)
-#define PIN_A2   (18u)
-#define PIN_A3   (19u)
-#define PIN_A4   (20u)
-#define PIN_A5   (21u)
+#define PIN_A0   (14u)
+#define PIN_A1   (15u)
+#define PIN_A2   (16u)
+#define PIN_A3   (17u)
+#define PIN_A4   (18u)
+#define PIN_A5   (19u)
 
 #define DAC8_HOWMANY (0)
 #define DAC12_HOWMANY (1)
@@ -88,8 +88,8 @@ static const uint8_t A5 = PIN_A5;
 /****** WIRE CORE DEFINES ******/
 
 #define WIRE_HOWMANY      1
-#define WIRE_SDA_PIN      14 /* A4 */
-#define WIRE_SCL_PIN      15 /* A5 */
+#define WIRE_SDA_PIN      18 /* A4 */
+#define WIRE_SCL_PIN      19 /* A5 */
 
 static const uint8_t SDA = WIRE_SDA_PIN;
 static const uint8_t SCL = WIRE_SDA_PIN;
@@ -131,7 +131,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
-#define AVCC_MEASURE_PIN        22
+#define AVCC_MEASURE_PIN        20
 #define AVCC_MULTIPLY_FACTOR    8.33
 
 #define USB_VID           (0x2341)

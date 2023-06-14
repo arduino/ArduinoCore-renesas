@@ -38,16 +38,14 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_01_PIN_09,    P109   }, /* (11) D11~ */
   { BSP_IO_PORT_01_PIN_10,    P110   }, /* (12) D12 */
   { BSP_IO_PORT_01_PIN_11,    P111   }, /* (13) D13 */
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (14) D14 */
-  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (15) D15 */
-  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (16) A0  --------------------------  ANALOG  */
-  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (17) A1  */
-  { BSP_IO_PORT_00_PIN_01,    P001   }, /* (18) A2  */
-  { BSP_IO_PORT_00_PIN_02,    P002   }, /* (19) A3  */
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
-  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
+  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (14) A0  --------------------------  ANALOG  */
+  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (15) A1  */
+  { BSP_IO_PORT_00_PIN_01,    P001   }, /* (16) A2  */
+  { BSP_IO_PORT_00_PIN_02,    P002   }, /* (17) A3  */
+  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (18) A4/SDA  */
+  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (19) A5/SCL  */
 
-  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (22) Analog voltage measure pin  */
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (20) Analog voltage measure pin  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
