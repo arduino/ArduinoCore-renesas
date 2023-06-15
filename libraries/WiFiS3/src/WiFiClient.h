@@ -58,7 +58,7 @@ public:
   
   using Print::write;
 
-protected:
+private:
   int _sock;
   void getSocket();
   FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
@@ -66,7 +66,6 @@ protected:
   bool read_needed(size_t s);
 
 
-  
 };
 
 #endif

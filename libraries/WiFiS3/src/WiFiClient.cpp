@@ -74,7 +74,7 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size){
 }
 
 /* -------------------------------------------------------------------------- */
-int WiFiClient::available(){
+int WiFiClient::available() {
 /* -------------------------------------------------------------------------- */   
    int rv = 0;
    if(_sock >= 0) {
@@ -86,7 +86,10 @@ int WiFiClient::available(){
          modem.begin();
          if(modem.write(string(PROMPT(_AVAILABLE)),res, "%s%d\r\n" , CMD_WRITE(_AVAILABLE), _sock)) {
             rv = atoi(res.c_str());
-         }  
+            if (rv < 0) {
+               return 0;
+            }
+         }
       }
    }
    return rv;
