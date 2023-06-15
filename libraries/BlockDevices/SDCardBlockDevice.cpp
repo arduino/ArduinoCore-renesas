@@ -243,16 +243,34 @@ int SDCardBlockDevice::open() {
    // context pointer to r_sdhi_access_irq_process(), causing a hard fault.
    // -->
    static bool wasOpenedBefore = false;
+   static IRQn_Type accessAssigned = (IRQn_Type) 0;
+   static IRQn_Type cardAssigned = (IRQn_Type) 0;
+   static IRQn_Type sdioAssigned = (IRQn_Type) 0;
    if (false == wasOpenedBefore)
    {
       IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
+      #ifdef USE_DMAC
+      IRQManager::getInstance().addDMA(g_transfer0_extend);
+      #endif      
       wasOpenedBefore = true;
+      // It's also necessary to save the assigned IRQs, or they will be lost and
+      // replaced with FSP_INVALID_VECTOR if the SDCardBlockDevice is destroyed
+      // and created again
+      accessAssigned = cfg.access_irq;
+      cardAssigned = cfg.card_irq;
+      sdioAssigned = cfg.sdio_irq;
+   }
+   else
+   {
+      // Was destroyed and is now created again, so restore the previously assigned IRQs,
+      // because if we don't, r_sdhi_card_identify() inside the Renesas FSP will
+      // return FSP_ERR_RESPONSE because of a timeout when it tries to put the card in
+      // idle mode, and R_SDHI_MediaInit() will fail a bit further down in this function
+      cfg.access_irq = accessAssigned;
+      cfg.card_irq = cardAssigned;
+      cfg.sdio_irq = sdioAssigned;
    }
    // <--
-
-   #ifdef USE_DMAC
-   IRQManager::getInstance().addDMA(g_transfer0_extend);
-   #endif
 
    #ifdef SDHI_DEBUG
    Serial.println("[CALL]: R_SDHI_Open");   
