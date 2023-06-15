@@ -26,8 +26,8 @@ jobs:
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - libraries/AnalogWave
-        - libraries/Arduino_CAN/CANRead
-        - libraries/Arduino_CAN/CANWrite
+        - libraries/Arduino_CAN/examples/CANRead
+        - libraries/Arduino_CAN/examples/CANWrite
         - libraries/Arduino_FreeRTOS
         - libraries/EEPROM
         - libraries/RTC
@@ -38,15 +38,15 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino:renesas:portenta_c33"},
-          {"fqbn": "arduino:renesas:minima"},
-          {"fqbn": "arduino:renesas:unor4wifi"},
+          {"fqbn": "arduino-git:renesas:portenta_c33"},
+          {"fqbn": "arduino-git:renesas:minima"},
+          {"fqbn": "arduino-git:renesas:unor4wifi"},
         ]
 
         # make board type-specific customizations to the matrix jobs
         include:
           - board:
-              fqbn: "arduino:renesas:portenta_c33"
+              fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
               - libraries/WiFi
               - libraries/UsbMsd
@@ -55,10 +55,10 @@ jobs:
               - libraries/SSLClient
               - libraries/SE05X
               - libraries/Ethernet
-              - libraries/Arduino_CAN/CAN1Read
-              - libraries/Arduino_CAN/CAN1Write
+              - libraries/Arduino_CAN/examples/CAN1Read
+              - libraries/Arduino_CAN/examples/CAN1Write
           - board:
-              fqbn: "arduino:renesas:unor4wifi"
+              fqbn: "arduino-git:renesas:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
               - libraries/Arduino_LED_Matrix
@@ -66,6 +66,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_SUBMODULES_CLONE }}
+          fetch-depth: 0
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
@@ -120,7 +124,7 @@ jobs:
               source-url: "https://downloads.arduino.cc/packages/package_renesas_secret_index.json"
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
-              name: "arduino:renesas"
+              name: "arduino-git:renesas"
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
