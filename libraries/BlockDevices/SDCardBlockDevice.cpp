@@ -156,7 +156,7 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
 /*                              DISTRUCTOR                                    */
 /* -------------------------------------------------------------------------- */
 SDCardBlockDevice::~SDCardBlockDevice() {
-   // These static member variables must be reset when the oject is destroyed
+   // These static member variables must be reset when the object is destroyed
    SDCardBlockDevice::card_inserted = false;
    SDCardBlockDevice::initialized = false;
    SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;   
