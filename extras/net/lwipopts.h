@@ -111,7 +111,7 @@
  * already use it.
  */
 #ifndef MEM_LIBC_MALLOC
-#define MEM_LIBC_MALLOC                 1
+#define MEM_LIBC_MALLOC                 0
 #endif
 
 /**
