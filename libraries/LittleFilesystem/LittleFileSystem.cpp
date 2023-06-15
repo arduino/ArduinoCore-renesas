@@ -144,6 +144,7 @@ LittleFileSystem::LittleFileSystem(const char *name, BlockDevice *bd,
                                      lfs_size_t cache_size, lfs_size_t lookahead_size)
     : FileSystem(name)
 {
+    _bd = bd;
     memset(&_config, 0, sizeof(_config));
     _config.block_size = block_size;
     _config.block_cycles = block_cycles;
