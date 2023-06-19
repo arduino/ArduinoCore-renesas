@@ -10,14 +10,14 @@
       },
       "platforms": [
         {
-          "name": "Arduino Renesas Boards",
-          "architecture": "renesas",
+          "name": "Arduino UNO R4 Boards",
+          "architecture": "renesas_uno",
           "version": "%%VERSION%%",
           "category": "Arduino",
-          "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME%%",
-          "archiveFileName": "%%FILENAME%%",
-          "checksum": "SHA-256:%%CHECKSUM%%",
-          "size": "%%SIZE%%",
+          "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME_UNO%%",
+          "archiveFileName": "%%FILENAME_UNO%%",
+          "checksum": "SHA-256:%%CHECKSUM_UNO%%",
+          "size": "%%SIZE_UNO%%",
           "help": {
             "online": "https://github.com/arduino/ArduinoCore-renesas/issues"
           },
@@ -27,12 +27,52 @@
             },
             {
               "name": "Arduino UNO R4 WiFi"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "openocd",
+              "version": "0.11.0-arduino2"
             },
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "7-2017q4"
+            },
+            {
+              "packager": "arduino",
+              "version": "0.11.0-arduino5",
+              "name": "dfu-util"
+            },
+            {
+              "packager": "arduino",
+              "version": "1.9.1-arduino5",
+              "name": "bossac"
+            }
+          ],
+          "discoveryDependencies": [
+            {
+              "packager": "builtin",
+              "name": "dfu-discovery"
+            }
+          ]
+        },
+        {
+          "name": "Arduino Renesas Portenta Boards",
+          "architecture": "renesas_portenta",
+          "version": "%%VERSION%%",
+          "category": "Arduino",
+          "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME_PORTENTA%%",
+          "archiveFileName": "%%FILENAME_PORTENTA%%",
+          "checksum": "SHA-256:%%CHECKSUM_PORTENTA%%",
+          "size": "%%SIZE_PORTENTA%%",
+          "help": {
+            "online": "https://github.com/arduino/ArduinoCore-renesas/issues"
+          },
+          "boards": [
             {
               "name": "Arduino Portenta C33"
-            },
-            {
-              "name": "Arduino Science Kit R3 Audio Module"
             }
           ],
           "toolsDependencies": [
