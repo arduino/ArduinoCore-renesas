@@ -22,7 +22,7 @@ echo muxto.hide=true >> boards.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
-tar $EXCLUDE_TAGS --exclude='*.vscode*' --exclude='*tar*' --exclude='*json*' --exclude='*.git*' --exclude='*e2studio*' --exclude='*extras*' -cjhvf $FILENAME $CORE_BASE
+tar $EXCLUDE_TAGS --exclude='*.vscode*' --exclude='*.tar.*' --exclude='*.json*' --exclude='*.git*' --exclude='*e2studio*' --exclude='*extras*' -cjhvf $FILENAME $CORE_BASE
 cd -
 
 mv ../$FILENAME .
@@ -51,7 +51,7 @@ echo muxto.hide=true >> boards.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
-tar $EXCLUDE_TAGS --exclude='*.vscode*' --exclude='*tar*' --exclude='*json*' --exclude='*.git*' --exclude='*e2studio*' --exclude='*extras*' -cjhvf $FILENAME $CORE_BASE
+tar $EXCLUDE_TAGS --exclude='*.vscode*' --exclude='*.tar.*' --exclude='*.json*' --exclude='*.git*' --exclude='*e2studio*' --exclude='*extras*' -cjhvf $FILENAME $CORE_BASE
 cd -
 
 mv ../$FILENAME .
