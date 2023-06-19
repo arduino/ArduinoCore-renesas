@@ -77,7 +77,7 @@ minima.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
 minima.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 minima.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 minima.compiler.fsp.includes={build.variant.path}/includes.txt
-minima.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+minima.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 minima.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
 minima.upload.tool=dfu-util
@@ -125,7 +125,7 @@ unor4wifi.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
 unor4wifi.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 unor4wifi.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 unor4wifi.compiler.fsp.includes={build.variant.path}/includes.txt
-unor4wifi.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+unor4wifi.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 unor4wifi.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
 unor4wifi.upload.tool=bossac
@@ -171,7 +171,7 @@ muxto.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM23 -D_RENESAS_RA_
 muxto.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 muxto.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
 muxto.compiler.fsp.includes={build.variant.path}/includes.txt
-muxto.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+muxto.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 muxto.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
 muxto.upload.tool=dfu-util
