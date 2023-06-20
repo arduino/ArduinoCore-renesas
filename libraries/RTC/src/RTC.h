@@ -94,21 +94,18 @@ class RTCTime {
     bool setDayOfWeek(DayOfWeek d);
     bool setSaveLight(SaveLight sl);
     bool setUnixTime(time_t time);
-
     void setTM(struct tm &t);
-    /* getters */
-    int getDayOfMonth();
-    Month getMonth();
-    int getYear();
-    int getHour();
-    int getMinutes();
-    int getSeconds();
-    DayOfWeek getDayOfWeek();
-    
+
+    /* Getters */
+    int getDayOfMonth() const;
+    Month getMonth() const;
+    int getYear() const;
+    int getHour() const;
+    int getMinutes() const;
+    int getSeconds() const;
+    DayOfWeek getDayOfWeek() const;    
     time_t getUnixTime();
     struct tm getTmTime();
-};
-
 
 
 enum class Period {
