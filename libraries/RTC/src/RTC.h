@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include "r_rtc_api.h"
+#include <api/String.h>
 
 struct timeval {
 	time_t		tv_sec;
@@ -107,6 +108,12 @@ class RTCTime {
     time_t getUnixTime();
     struct tm getTmTime();
 
+    /**
+     * @brief Returns the ISO 8601 string representation of the date and time.
+     * 
+     * @return String The date and time in the format YYYY-MM-DDTHH:MM:SS.
+     */
+    arduino::String toString() const;  
 
 enum class Period {
     ONCE_EVERY_2_SEC,

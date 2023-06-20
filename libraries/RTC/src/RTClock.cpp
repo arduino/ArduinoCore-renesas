@@ -361,6 +361,48 @@ DayOfWeek RTCTime::getDayOfWeek() const { return day_of_week; }
 time_t RTCTime::getUnixTime()  { return mktime ( (struct tm *)&stime ); }
 struct tm RTCTime::getTmTime() { return (struct tm)stime; }
 
+arduino::String RTCTime::toString() const {
+     String formattedTime = "";
+
+    // Year
+    formattedTime += String(getYear());
+    formattedTime += "-";
+
+    // Month
+    uint8_t month = static_cast<uint8_t>(getMonth()) + 1;
+    if (month < 10)
+        formattedTime += '0';
+    formattedTime += String(month);
+    formattedTime += "-";
+
+    // Day of month
+    if (getDayOfMonth() < 10)
+        formattedTime += '0';
+    formattedTime += String(getDayOfMonth());
+
+    // T separator
+    formattedTime += "T";
+
+    // Hours
+    if (getHour() < 10)
+        formattedTime += '0';
+    formattedTime += String(getHour());
+    formattedTime += ":";
+
+    // Minutes
+    if (getMinutes() < 10)
+        formattedTime += '0';
+    formattedTime += String(getMinutes());
+    formattedTime += ":";
+
+    // Seconds
+    if (getSeconds() < 10)
+        formattedTime += '0';
+    formattedTime += String(getSeconds());
+
+    return formattedTime;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                             RTClass                                        */
 /* -------------------------------------------------------------------------- */
