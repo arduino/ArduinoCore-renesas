@@ -52,8 +52,8 @@ class UART : public arduino::HardwareSerial {
   public:
     static UART *g_uarts[MAX_UARTS]; 
     static void WrapperCallback(uart_callback_args_t *p_args);
-    
-    UART(int _pin_tx, int _pin_rx);
+
+    UART(int _pin_tx, int _pin_rx, int pin_rts = -1, int pin_cts = -1);
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
     void end();
@@ -70,6 +70,8 @@ class UART : public arduino::HardwareSerial {
   private:          
     int                       tx_pin;
     int                       rx_pin;
+    int                       rts_pin = -1;
+    int                       cts_pin = -1;
     bool                      cfg_pins(int max_index);
 
     int                       channel;

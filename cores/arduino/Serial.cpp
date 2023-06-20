@@ -82,10 +82,11 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
 }
 
 
-/* -------------------------------------------------------------------------- */
-UART::UART(int _pin_tx, int _pin_rx) :
+UART::UART(int _pin_tx, int _pin_rx, int _pin_rts, int _pin_cts):
   tx_pin(_pin_tx),
   rx_pin(_pin_rx),
+  rts_pin(_pin_rts),
+  cts_pin(_pin_cts),
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
   uart_cfg.txi_irq = FSP_INVALID_VECTOR;
@@ -93,9 +94,6 @@ UART::UART(int _pin_tx, int _pin_rx) :
   uart_cfg.rxi_irq = FSP_INVALID_VECTOR;
   uart_cfg.eri_irq = FSP_INVALID_VECTOR;
 }
-
-
-
 
 /* -------------------------------------------------------------------------- */
 bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
@@ -181,9 +179,14 @@ done:
   /* actually configuring PIN function */
   ioport_peripheral_t ioport_tx = USE_SCI_EVEN_CFG(cfg_tx) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
   ioport_peripheral_t ioport_rx = USE_SCI_EVEN_CFG(cfg_rx) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
-  
+
   R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[tx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_tx));
   R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[rx_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_rx));
+  if (rts_pin != -1 && cts_pin != -1) {
+    // hopefully people using flow control have read the datasheet so let's avoid the double check
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[rts_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_rx));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[cts_pin].pin, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | ioport_rx));
+  }
 
   return true;
 }
@@ -213,6 +216,9 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     uart_cfg_extend.p_baud_setting                = &uart_baud;
     uart_cfg_extend.flow_control                  = SCI_UART_FLOW_CONTROL_RTS;
     uart_cfg_extend.flow_control_pin              = (bsp_io_port_pin_t) UINT16_MAX;
+    if (rts_pin != -1 && cts_pin != -1) {
+      uart_cfg_extend.flow_control                  = SCI_UART_FLOW_CONTROL_HARDWARE_CTSRTS;
+    }
     uart_cfg_extend.rs485_setting.enable          = SCI_UART_RS485_DISABLE;
     uart_cfg_extend.rs485_setting.polarity        = SCI_UART_RS485_DE_POLARITY_HIGH;
     uart_cfg_extend.rs485_setting.de_control_pin  = (bsp_io_port_pin_t) UINT16_MAX;
