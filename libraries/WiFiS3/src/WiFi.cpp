@@ -150,7 +150,6 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPA
 void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */
    IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
-   Serial.println(_gw);
    IPAddress _sm(255,255,255,0);
    IPAddress dns(0,0,0,0);
    return _config(local_ip, _gw, _sm,dns_server,dns);
