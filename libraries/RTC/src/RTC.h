@@ -114,6 +114,14 @@ class RTCTime {
      * @return String The date and time in the format YYYY-MM-DDTHH:MM:SS.
      */
     arduino::String toString() const;  
+    
+    /**
+     * @brief Returns the ISO 8601 string representation of the date and time
+     * by calling the toString() method.
+     * @return String The date and time in the format YYYY-MM-DDTHH:MM:SS.
+     */
+    operator arduino::String() const;
+};
 
 enum class Period {
     ONCE_EVERY_2_SEC,

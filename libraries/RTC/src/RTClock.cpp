@@ -403,6 +403,10 @@ arduino::String RTCTime::toString() const {
     return formattedTime;
 }
 
+RTCTime::operator String() const{
+    return toString();
+}
+
 /* -------------------------------------------------------------------------- */
 /*                             RTClass                                        */
 /* -------------------------------------------------------------------------- */
