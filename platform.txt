@@ -3,7 +3,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino Renesas fsp Boards
-version=0.8.7
+version=0.9.1
 
 # Compile variables
 # ------------------------
@@ -16,13 +16,13 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={build.compiler_path}
 compiler.c.cmd={build.crossprefix}gcc
-compiler.c.flags=-c {compiler.warning_flags} -Os -g3 --specs=nano.specs -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+compiler.c.flags=-c {compiler.warning_flags} -Os -g3 -nostdlib {build.defines} -MMD -std=gnu11 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
 compiler.c.elf.cmd={build.crossprefix}g++
-compiler.c.elf.flags=-Wl,--gc-sections --specs=nano.specs --specs=nosys.specs {compiler.warning_flags} -mcpu={build.mcu} {build.float-abi} {build.fpu}
+compiler.c.elf.flags=-Wl,--gc-sections --specs=nosys.specs {compiler.warning_flags} -mcpu={build.mcu} {build.float-abi} {build.fpu}
 compiler.S.cmd={build.crossprefix}g++
 compiler.S.flags=-c -g -x assembler-with-cpp -Os -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections
 compiler.cpp.cmd={build.crossprefix}g++
-compiler.cpp.flags=-c {compiler.warning_flags} -Os --specs=nano.specs -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+compiler.cpp.flags=-c {compiler.warning_flags} -Os -g3 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -MMD -nostdlib {build.defines} -MMD -std=gnu++17 -mcpu={build.mcu} {build.float-abi} {build.fpu} -fsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
 compiler.ar.cmd={build.crossprefix}ar
 compiler.ar.flags=rcs
 compiler.ar.extra_flags=
@@ -64,13 +64,13 @@ build.usb_flags=
 # -----------------------
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cflags} {compiler.tinyusb.cflags}  {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_ARCH_RENESAS -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cflags} {compiler.tinyusb.cflags}  {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" -o "{object_file}" "{source_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} "-DPROJECT_NAME="{build.path}/{build.project_name}"" -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DARDUINO={runtime.ide.version} "-DPROJECT_NAME="{build.path}/{build.project_name}"" -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_ARCH_RENESAS -DARDUINO_FSP -D_XOPEN_SOURCE {compiler.fsp.cxxflags} {compiler.tinyusb.cxxflags} {build.extra_flags} {tinyusb.includes} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
 
 ## Compile asm files
-recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_FSP -D_XOPEN_SOURCE {includes} {build.extra_flags} {build.extra_ldflags} {compiler.cpp.extra_flags} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
+recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_ARCH_RENESAS -DARDUINO_FSP -D_XOPEN_SOURCE {includes} {build.extra_flags} {build.extra_ldflags} {compiler.cpp.extra_flags} "-I{build.core.path}/api/deprecated" "-I{build.core.path}/api/deprecated-avr-comp" {includes} "-iprefix{runtime.platform.path}" "@{compiler.fsp.includes}" "{source_file}" -o "{object_file}"
 
 ## Create archives
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
@@ -104,7 +104,12 @@ tools.dfu-util.upload.params.quiet=
 # -Q introduced with latest dfu-util
 tools.dfu-util.upload.pattern="{path}/{cmd}" --device {upload.vid}:{pid.0},:{upload.pid} -D "{build.path}/{build.project_name}.bin" -a{upload.interface} -Q
 
-pluggable_discovery.required=builtin:dfu-discovery
+# Required discoveries and monitors
+# ---------------------------------
+pluggable_discovery.required.0=builtin:serial-discovery
+pluggable_discovery.required.1=builtin:mdns-discovery
+pluggable_discovery.required.2=builtin:dfu-discovery
+pluggable_monitor.required.serial=builtin:serial-monitor
 
 tools.bossac.path={runtime.tools.bossac-1.9.1-arduino5.path}
 tools.bossac.cmd=bossac
