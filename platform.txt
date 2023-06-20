@@ -104,7 +104,12 @@ tools.dfu-util.upload.params.quiet=
 # -Q introduced with latest dfu-util
 tools.dfu-util.upload.pattern="{path}/{cmd}" --device {upload.vid}:{pid.0},:{upload.pid} -D "{build.path}/{build.project_name}.bin" -a{upload.interface} -Q
 
-pluggable_discovery.required=builtin:dfu-discovery
+# Required discoveries and monitors
+# ---------------------------------
+pluggable_discovery.required.0=builtin:serial-discovery
+pluggable_discovery.required.1=builtin:mdns-discovery
+pluggable_discovery.required.2=builtin:dfu-discovery
+pluggable_monitor.required.serial=builtin:serial-monitor
 
 tools.bossac.path={runtime.tools.bossac-1.9.1-arduino5.path}
 tools.bossac.cmd=bossac
