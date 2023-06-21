@@ -3,17 +3,12 @@
 
 #include "Arduino.h"
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 //#define STORAGE_DEBUG
 //#define STORAGE_ASSERT
-
-
-
 
 /* -------------------------------------------------------------------------- */
 /*                                 STORAGE DEBUG                              */
@@ -197,18 +192,4 @@ struct pollfh {
  */
 int poll(pollfh fhs[], unsigned nfhs, int timeout);
 
-inline static void singleton_lock(void)
-{
-
-}
-
-
-inline static void singleton_unlock(void)
-{
-
-}
-
 #endif
-
-
-

@@ -156,7 +156,10 @@ SDCardBlockDevice::SDCardBlockDevice(  pin_t _ck,
 /*                              DISTRUCTOR                                    */
 /* -------------------------------------------------------------------------- */
 SDCardBlockDevice::~SDCardBlockDevice() {
-   
+   // These static member variables must be reset when the object is destroyed
+   SDCardBlockDevice::card_inserted = false;
+   SDCardBlockDevice::initialized = false;
+   SDCardBlockDevice::st = CmdStatus::IN_PROGRESS;   
 }
 
 /* -------------------------------------------------------------------------- */
@@ -232,10 +235,42 @@ int SDCardBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t _si
 int SDCardBlockDevice::open() {
    fsp_err_t rv = FSP_SUCCESS;
    
-   IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
-   #ifdef USE_DMAC
-   IRQManager::getInstance().addDMA(g_transfer0_extend);
-   #endif
+   // This check is necessary when the SDCardBlockDevice object is destroyed and
+   // created again. With only the FSP_INVALID_VECTOR fix, multiple interrupt
+   // vector entries will be created in this particular case. Worse, the SDCARD
+   // interrupts will be reenabled after R_SDHI_Close() but before R_SDHI_Open(),
+   // which will cause sdhimmc_accs_isr() inside the Renesas FSP to send an invalid
+   // context pointer to r_sdhi_access_irq_process(), causing a hard fault.
+   // -->
+   static bool wasOpenedBefore = false;
+   static IRQn_Type accessAssigned = (IRQn_Type) 0;
+   static IRQn_Type cardAssigned = (IRQn_Type) 0;
+   static IRQn_Type sdioAssigned = (IRQn_Type) 0;
+   if (false == wasOpenedBefore)
+   {
+      IRQManager::getInstance().addPeripheral(IRQ_SDCARD,&cfg);
+      #ifdef USE_DMAC
+      IRQManager::getInstance().addDMA(g_transfer0_extend);
+      #endif      
+      wasOpenedBefore = true;
+      // It's also necessary to save the assigned IRQs, or they will be lost and
+      // replaced with FSP_INVALID_VECTOR if the SDCardBlockDevice is destroyed
+      // and created again
+      accessAssigned = cfg.access_irq;
+      cardAssigned = cfg.card_irq;
+      sdioAssigned = cfg.sdio_irq;
+   }
+   else
+   {
+      // Was destroyed and is now created again, so restore the previously assigned IRQs,
+      // because if we don't, r_sdhi_card_identify() inside the Renesas FSP will
+      // return FSP_ERR_RESPONSE because of a timeout when it tries to put the card in
+      // idle mode, and R_SDHI_MediaInit() will fail a bit further down in this function
+      cfg.access_irq = accessAssigned;
+      cfg.card_irq = cardAssigned;
+      cfg.sdio_irq = sdioAssigned;
+   }
+   // <--
 
    #ifdef SDHI_DEBUG
    Serial.println("[CALL]: R_SDHI_Open");   

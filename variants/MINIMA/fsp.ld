@@ -242,7 +242,6 @@ SECTIONS
         __HeapBase = .;
         end = .;
         KEEP(*(.heap))
-        __HeapLimit = .;
     } > RAM
 
 	__StackTop = ORIGIN(RAM) + LENGTH(RAM) - VECTOR_TABLE_LENGTH;
@@ -253,6 +252,8 @@ SECTIONS
 	.stack_dummy ABSOLUTE(__StackTop - BSP_CFG_STACK_MAIN_BYTES) (NOLOAD):
 	{
         . = ALIGN(8);
+        __HeapLimit = .;
+        __StackLimit = .;
         KEEP(*(.stack))
 		KEEP(*(.stack*))
         __StackTopAll = .;
@@ -265,7 +266,6 @@ SECTIONS
         . = ABSOLUTE(RAM_START + RAM_LENGTH);
     } > RAM
 
-	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
 	PROVIDE(__stack = __StackTop);
 
     .ns_buffer (NOLOAD):

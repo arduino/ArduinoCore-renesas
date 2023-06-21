@@ -38,14 +38,15 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_04_PIN_11,    P411   }, /* (11) D11~ */
   { BSP_IO_PORT_04_PIN_10,    P410   }, /* (12) D12 */
   { BSP_IO_PORT_01_PIN_02,    P102   }, /* (13) D13 */
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (14) D14 */
-  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (15) D15 */
-  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (16) A0  --------------------------  ANALOG  */
-  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (17) A1  */
-  { BSP_IO_PORT_00_PIN_01,    P001   }, /* (18) A2  */
-  { BSP_IO_PORT_00_PIN_02,    P002   }, /* (19) A3  */
-  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (20) A4  */
-  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (21) A5  */
+  { BSP_IO_PORT_00_PIN_14,    P014   }, /* (14) A0  --------------------------  ANALOG  */
+  { BSP_IO_PORT_00_PIN_00,    P000   }, /* (15) A1  */
+  { BSP_IO_PORT_00_PIN_01,    P001   }, /* (16) A2  */
+  { BSP_IO_PORT_00_PIN_02,    P002   }, /* (17) A3  */
+  { BSP_IO_PORT_01_PIN_01,    P101   }, /* (18) A4/SDA  */
+  { BSP_IO_PORT_01_PIN_00,    P100   }, /* (19) A5/SCL  */
+
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (20) Analog voltage measure pin  */
+  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (21) USB switch, drive high for RA4  */
 
   { BSP_IO_PORT_01_PIN_09,    P109   }, /* (22) D22 ------------------------  TX */
   { BSP_IO_PORT_01_PIN_10,    P110   }, /* (23) D23 ------------------------  RX */
@@ -66,9 +67,6 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_02_PIN_06,    P206   }, /* (36) D36  */
   { BSP_IO_PORT_02_PIN_12,    P212   }, /* (37) D37  */
   { BSP_IO_PORT_02_PIN_13,    P213   }, /* (38) D38  */
-
-  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (39) Analog voltage measure pin  */
-  { BSP_IO_PORT_04_PIN_08,    P408   }, /* (40) USB switch, drive high for RA4  */
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
@@ -94,8 +92,8 @@ void configure_usb_mux() {
   (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 40;
   R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
 
-  pinMode(40, OUTPUT);
-  digitalWrite(40, HIGH);
+  pinMode(21, OUTPUT);
+  digitalWrite(21, HIGH);
 }
 
 #include "FspTimer.h"

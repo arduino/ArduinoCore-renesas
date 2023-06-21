@@ -17,5 +17,5 @@ make
 
 ### Move libraries inside SSLClient 
 ```bash
-cp liblwIP.a ../../libraries/Ethernet/src/cortex-m33/
+cp liblwIP.a ../../libraries/lwIpWrapper/src/cortex-m33/
 ```

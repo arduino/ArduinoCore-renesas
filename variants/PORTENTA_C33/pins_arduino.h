@@ -80,6 +80,8 @@ static const uint8_t A7 = PIN_A7;
 #define UART4_RX_PIN        58
 #define UART5_TX_PIN        92
 #define UART5_RX_PIN        93
+#define UART5_RTS_PIN       94
+#define UART5_CTS_PIN       95
 
 /****** WIRE CORE DEFINES ******/
 
