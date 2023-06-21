@@ -72,7 +72,6 @@ protected:
   bool destroy_at_distructor;
 
 
-  
 };
 
 #endif
