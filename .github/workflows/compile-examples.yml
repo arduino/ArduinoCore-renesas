@@ -76,12 +76,10 @@ jobs:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
-              - libraries/Arduino_LED_Matrix
           - board:
               fqbn: "arduino-git:renesas:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
-              - libraries/Arduino_LED_Matrix
 
     steps:
       - name: Checkout repository
