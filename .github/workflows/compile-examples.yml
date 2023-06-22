@@ -32,7 +32,9 @@ jobs:
         - libraries/Arduino_CAN/examples/CANWrite
         - libraries/Arduino_FreeRTOS
         - libraries/EEPROM
-        - libraries/RTC
+        - libraries/RTC/examples/RTC_AutomaticExample
+        - libraries/RTC/examples/RTC_PeriodicExample
+        - libraries/RTC/examples/Test_RTC
         - libraries/SoftwareSerial
 
     strategy:
@@ -62,6 +64,8 @@ jobs:
               - libraries/Ethernet
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
+              - libraries/RTC/examples/RTC_NTPSync
+              - libraries/RTC/examples/RTC_Alarm
           - board:
               fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
@@ -74,6 +78,8 @@ jobs:
               - libraries/Ethernet
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
+              - libraries/RTC/examples/RTC_NTPSync
+              - libraries/RTC/examples/RTC_Alarm
           - board:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
@@ -85,9 +91,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
+        uses: actions/checkout@v3
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
@@ -110,6 +114,12 @@ jobs:
         with:
           repository: arduino/arduino-examples
           path: extras
+
+      - name: Submodule update
+        run: git submodule init && git submodule update
+
+      - name: List files in core
+        run: tree extras/
 
       - name: Compile examples
         uses: arduino/compile-sketches@main
@@ -148,8 +158,8 @@ jobs:
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
-          enable-deltas-report: 'true'
-          verbose: 'false'
+          enable-deltas-report: 'false'
+          verbose: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save memory usage change report as artifact
