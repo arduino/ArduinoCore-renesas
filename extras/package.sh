@@ -16,9 +16,10 @@ EXCLUDE_TAGS=--exclude-tag-all=.unor4_only
 FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 
 git checkout boards.txt
-echo minima.hide=true >> boards.txt
-echo unor4wifi.hide=true >> boards.txt
-echo muxto.hide=true >> boards.txt
+
+sed -i 's/minima./#minima./g' boards.txt
+sed -i 's/unor4wifi./#unor4wifi./g' boards.txt
+sed -i 's/muxto./#muxto./g' boards.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
@@ -46,8 +47,9 @@ EXCLUDE_TAGS=--exclude-tag-all=.portenta_only
 FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 
 git checkout boards.txt
-echo portenta_c33.hide=true >> boards.txt
-echo muxto.hide=true >> boards.txt
+
+sed -i 's/portenta_c33./#portenta_c33./g' boards.txt
+sed -i 's/muxto./#muxto./g' boards.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
