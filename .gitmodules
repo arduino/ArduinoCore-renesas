@@ -1,18 +1,18 @@
 [submodule "extras/tinyusb"]
 	path = extras/tinyusb
-	url = git@github.com:arduino/tinyusb.git
+	url = https://github.com/arduino/tinyusb
 [submodule "extras/uno-r4-wifi-usb-bridge"]
 	path = extras/uno-r4-wifi-usb-bridge
-	url = git@github.com:bcmi-labs/uno-r4-wifi-usb-bridge
+	url = https://github.com/bcmi-labs/uno-r4-wifi-usb-bridge
 [submodule "extras/fsp"]
 	path = extras/fsp
-	url = git@github.com:arduino/fsp.git
+	url = https://github.com/arduino/fsp
 [submodule "extras/protobuf-c"]
 	path = extras/protobuf-c
-	url = git@github.com:protobuf-c/protobuf-c.git
+	url = https://github.com/protobuf-c/protobuf-c
 [submodule "extras/tls/mbedtls"]
 	path = extras/tls/mbedtls
-	url = git@github.com:bcmi-labs/mbedtls.git
+	url = https://github.com/bcmi-labs/mbedtls
 [submodule "extras/net/lwip"]
 	path = extras/net/lwip
 	url = https://git.savannah.nongnu.org/git/lwip.git
