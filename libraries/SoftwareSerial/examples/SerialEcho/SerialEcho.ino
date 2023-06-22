@@ -4,7 +4,7 @@
 // can be used for RX:
 // D0, D1, D2, D3, D8, D14, D15, A1, A2, A3, A4, A5
 
-SoftwareSerial SoftSerial(D8, D7); // Rx, Tx
+SoftwareSerial SoftSerial(2, 7); // Rx, Tx
 
 void setup() {
     Serial.begin(9600);
