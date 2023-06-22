@@ -17,6 +17,8 @@
 
 #include "FileSystemHandle.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 //namespace mbed {
 
 int FileSystemHandle::open(DirHandle **dir, const char *path)

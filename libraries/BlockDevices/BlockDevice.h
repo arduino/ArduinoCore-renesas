@@ -41,10 +41,10 @@ typedef pin_size_t pin_t;
 
 class BlockDevice {
 private:
-   virtual int open() {}
-   virtual int close() {}
+   virtual int open() { return 0; }
+   virtual int close() { return 0; }
    virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) {
-      program(buffer, addr, size);
+      return program(buffer, addr, size);
    }
 
 
@@ -67,13 +67,20 @@ public:
    /* Write blocks */
    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
    virtual int erase(bd_addr_t addr, bd_size_t size) = 0;
-   virtual int trim(bd_addr_t addr, bd_size_t size) { return 0; }
+   virtual int trim(bd_addr_t addr, bd_size_t size) {
+      (void)addr;
+      (void)size;
+      return 0;
+   }
    
 
    virtual bd_size_t get_read_size() const = 0;
    virtual bd_size_t get_program_size() const = 0;
    virtual bd_size_t get_erase_size() const { return get_program_size();}
-   virtual bd_size_t get_erase_size(bd_addr_t addr) const { return get_erase_size(); }
+   virtual bd_size_t get_erase_size(bd_addr_t addr) const {
+      (void)addr;
+      return get_erase_size();
+   }
 
 
    virtual int get_erase_value() const { return -1; }

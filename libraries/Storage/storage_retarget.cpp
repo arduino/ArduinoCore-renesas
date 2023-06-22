@@ -28,6 +28,8 @@
 #include <errno.h>
 #include "storage_retarget.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 static PlatformMutex _mutex;
 
 /* DIR is typedeffed to struct DIR_impl in header */

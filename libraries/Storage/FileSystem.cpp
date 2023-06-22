@@ -20,6 +20,8 @@
 #include "FileSystem.h"
 #include <errno.h>
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 //namespace mbed {
 
 FileSystem::FileSystem(const char *name)

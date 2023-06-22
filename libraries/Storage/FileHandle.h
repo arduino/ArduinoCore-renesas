@@ -148,6 +148,7 @@ public:
      */
     virtual int truncate(off_t length)
     {
+        (void)length;
         return -EINVAL;
     }
 
@@ -189,6 +190,7 @@ public:
      */
     virtual int enable_input(bool enabled)
     {
+        (void)enabled;
         return -EINVAL;
     }
 
@@ -207,6 +209,7 @@ public:
      */
     virtual int enable_output(bool enabled)
     {
+        (void)enabled;
         return -EINVAL;
     }
 
@@ -223,6 +226,7 @@ public:
     virtual short poll(short events) const
     {
         // Possible default for real files
+        (void)events;
         return POLLIN | POLLOUT;
     }
 
@@ -268,6 +272,7 @@ public:
     virtual void sigio(void (*func)())
     {
         //Default for real files. Do nothing for real files.
+        (void)func;
     }
 };
 

@@ -77,15 +77,17 @@ static inline void debug_mem(uint8_t *b, uint32_t _size)
 #else
 
 static inline void debug_if(int condition, const char *format, ...) {
-
+    (void)condition;
+    (void)format;
 }
 
 static inline void debug(const char *format, ...) {
-    
+    (void)format;
 }
 
 static inline void debug_mem(uint8_t *b, uint32_t _size) {
-
+    (void)b;
+    (void)_size;
 }
 
 #endif // STORAGE_DEBUG

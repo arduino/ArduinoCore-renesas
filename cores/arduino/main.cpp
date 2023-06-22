@@ -133,7 +133,10 @@ extern "C" {
 }
 
 //Declared weak in Arduino.h to allow user redefinitions.
-int atexit(void (*func)()) { return 0; }
+int atexit(void (*func)()) {
+   (void)func;
+   return 0;
+}
 
 namespace __gnu_cxx {
    void __verbose_terminate_handler() { }
