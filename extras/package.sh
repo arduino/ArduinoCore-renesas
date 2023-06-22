@@ -5,6 +5,10 @@ if [ ! -f platform.txt ]; then
   exit 2
 fi
 
+if [ ! -d ../ArduinoCore-API ]; then
+  git clone git@github.com:arduino/ArduinoCore-API.git ../ArduinoCore-API
+fi
+
 VERSION=`cat platform.txt | grep "version=" | cut -f2 -d"="`
 echo $VERSION
 
