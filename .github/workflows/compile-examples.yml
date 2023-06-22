@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/compile-examples.yml"
       - "cores/**"
+      - "extras/**"
       - "libraries/**"
       - "variants/**"
       - "boards.txt"
@@ -13,6 +14,7 @@ on:
     paths:
       - ".github/workflows/compile-examples.yml"
       - "cores/**"
+      - "extras/**"
       - "libraries/**"
       - "variants/**"
       - "boards.txt"
@@ -86,8 +88,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-          token: ${{ secrets.PRIVATE_SUBMODULES_CLONE }}
-          fetch-depth: 0
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
