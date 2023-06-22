@@ -38,15 +38,15 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino-git:renesas:portenta_c33"},
-          {"fqbn": "arduino-git:renesas:minima"},
-          {"fqbn": "arduino-git:renesas:unor4wifi"},
+          {"fqbn": "arduino-git:renesas_portenta:portenta_c33"},
+          {"fqbn": "arduino-git:renesas_uno:minima"},
+          {"fqbn": "arduino-git:renesas_uno:unor4wifi"},
         ]
 
         # make board type-specific customizations to the matrix jobs
         include:
           - board:
-              fqbn: "arduino-git:renesas:portenta_c33"
+              fqbn: "arduino-git:renesas_portenta:portenta_c33"
             additional-sketch-paths: |
               - libraries/WiFi
               - libraries/UsbMsd
@@ -58,7 +58,7 @@ jobs:
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
           - board:
-              fqbn: "arduino-git:renesas:unor4wifi"
+              fqbn: "arduino-git:renesas_uno:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
               - libraries/Arduino_LED_Matrix
@@ -120,8 +120,10 @@ jobs:
             - name: ArduinoIoTCloud
           platforms: |
             # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
-            - name: "arduino:renesas"
-              source-url: "https://downloads.arduino.cc/packages/package_renesas_secret_index.json"
+            - name: "arduino:renesas_uno"
+              source-url: "https://downloads.arduino.cc/packages/package_renesas_release_index.json"
+            - name: "arduino:renesas_portenta"
+              source-url: "https://downloads.arduino.cc/packages/package_renesas_release_index.json"
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
               name: "arduino-git:renesas"
