@@ -17,7 +17,6 @@
 #include "WiFiC3.h"
 #include "WiFiClient.h"
 #include "IPAddress.h"
-#include "MemoryFree.h"
 
 #include "arduino_secrets.h" 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
