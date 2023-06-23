@@ -12,4 +12,4 @@ jobs:
 
     steps:
       - name: Comment size deltas reports to PRs
-        uses: arduino/report-size-deltas@main
+        uses: arduino/report-size-deltas@v1
