@@ -23,6 +23,7 @@ on:
 jobs:
   compile-test:
     runs-on: ubuntu-latest
+    permissions: {}
 
     env:
       # sketch paths to compile (recursive) for all boards
