@@ -20,10 +20,12 @@ EXCLUDE_TAGS=--exclude-tag-all=.unor4_only
 FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 
 git checkout boards.txt
+git checkout platform.txt
 
 sed -i 's/minima./#minima./g' boards.txt
 sed -i 's/unor4wifi./#unor4wifi./g' boards.txt
 sed -i 's/muxto./#muxto./g' boards.txt
+sed -i 's/Arduino Renesas fsp Boards/Arduino Renesas Portenta Boards/g' platform.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
@@ -51,9 +53,11 @@ EXCLUDE_TAGS=--exclude-tag-all=.portenta_only
 FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 
 git checkout boards.txt
+git checkout platform.txt
 
 sed -i 's/portenta_c33./#portenta_c33./g' boards.txt
 sed -i 's/muxto./#muxto./g' boards.txt
+sed -i 's/Arduino Renesas fsp Boards/Arduino Renesas UNO R4 Boards/g' platform.txt
 
 CORE_BASE=`basename $PWD`
 cd ..
@@ -74,3 +78,6 @@ sed "s/%%CHECKSUM_UNO%%/${CHKSUM}/" |
 sed "s/%%SIZE_UNO%%/${SIZE}/" > package_renesas_${VERSION}_index.json
 
 cat package_renesas_${VERSION}_index.json
+
+git checkout boards.txt
+git checkout platform.txt
