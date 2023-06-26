@@ -1,4 +1,4 @@
-:floppy_disk: `bootloaders/SANTIAGO`
+:floppy_disk: `bootloaders/UNO_R4`
 ====================================
 Sources for Uno R4 WIFi at git@github.com:bcmi-labs/tinyusb.git , commit 185ae31ff15a1013a5a890455220a29bad1ed209
 
@@ -21,7 +21,7 @@ Prerequisite: install esp-idf v5.0.0 (or newer) and run
 ```
 . $esp-idf-path/export.sh
 
-cd extras/santiago-leven-usb-bridge
+cd extras/uno-r4-wifi-usb-bridge
 ```
 
 Restart the board in ESP download mode by shorting ESP_DOWNLOAD with GND, then power via USB
@@ -45,7 +45,7 @@ stty -F $portname 2400
 
 Then flash the bootloader with
 ```
-rfp-cli -device ra -port $portname -p dfu_leven.hex
+rfp-cli -device ra -port $portname -p dfu_wifi.hex
 ```
 
 :rocket: `How to load bootloader (UNO R4 Minima)`
