@@ -48,7 +48,7 @@ portenta_c33.upload.maximum_data_size=523624
 
 ##############################################################
 
-minima.name=Arduino Uno R4 Minima
+minima.name=Arduino UNO R4 Minima
 minima.build.core=arduino
 minima.build.crossprefix=arm-none-eabi-
 minima.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -96,7 +96,7 @@ minima.upload.maximum_data_size=32768
 
 ##############################################################
 
-unor4wifi.name=Arduino Uno R4 WiFi
+unor4wifi.name=Arduino UNO R4 WiFi
 unor4wifi.build.core=arduino
 unor4wifi.build.crossprefix=arm-none-eabi-
 unor4wifi.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
