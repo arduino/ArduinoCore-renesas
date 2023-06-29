@@ -364,6 +364,17 @@ void ArduinoSPI::configSpiSettings(arduino::SPISettings const & settings)
     configSpi(settings);
 }
 
+
+#define ONE_BIT           1
+#define TWO_BITS          3
+
+#define CPHA_POS          0
+#define CPOL_POS          1
+#define BRDV_POS          2
+
+#define BIT_ORDER_POS     12
+
+
 void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 {
   auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
@@ -374,22 +385,34 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   uint32_t spcmd0 = _spi_ctrl.p_regs->SPCMD[0];
 
   /* Configure CPHA setting. */
-  spcmd0 |= (uint32_t) clk_phase;
+  uint32_t mask = (ONE_BIT << CPHA_POS);
+  spcmd0 &= ~(uint32_t)mask; 
+  spcmd0 |= (clk_phase << CPHA_POS);
 
   /* Configure CPOL setting. */
-  spcmd0 |= (uint32_t) clk_polarity << 1;
+  mask = (ONE_BIT << CPOL_POS);
+  spcmd0 &= ~(uint32_t)mask; 
+  spcmd0 |= ((uint32_t) clk_polarity << CPOL_POS);
 
   /* Configure Bit Order (MSB,LSB) */
-  spcmd0 |= (uint32_t) bit_order << 12;
+  mask = (ONE_BIT << BIT_ORDER_POS);
+  spcmd0 &= ~(uint32_t)mask; 
+  spcmd0 |= ((uint32_t) bit_order << BIT_ORDER_POS);
 
   /* Configure the Bit Rate Division Setting */
-  spcmd0 &= ~(((uint32_t) 3) << 2);
-  spcmd0 |= (uint32_t) spck_div.brdv << 2;
+  mask = (TWO_BITS << BRDV_POS);
+  spcmd0 &= ~(uint32_t)mask;
+  spcmd0 |= ((uint32_t) spck_div.brdv << BRDV_POS);
 
   /* Update settings. */
   _spi_ctrl.p_regs->SPCMD[0] = (uint16_t) spcmd0;
   _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
 }
+
+#define SCI_CKPH_POS        7
+#define SCI_CKPOL_POS       6
+#define SCI_DIRECTION_POS   3 
+#define SCI_CK_SEL_POS      0
 
 void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
 {
@@ -403,16 +426,24 @@ void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
   uint32_t smr  = R_SCI0_SMR_CM_Msk;
 
   /* Configure CPHA setting. */
-  spmr |= (uint32_t) clk_phase << 7;
+  uint32_t mask = (ONE_BIT << SCI_CKPH_POS);
+  spmr &= ~(uint32_t)mask; // reset bit 0
+  spmr |= ((uint32_t) clk_phase << SCI_CKPH_POS);
 
   /* Configure CPOL setting. */
-  spmr |= (uint32_t) clk_polarity << 6;
+  mask = (ONE_BIT << SCI_CKPOL_POS);
+  spmr &= ~(uint32_t)mask; // reset bit 0
+  spmr |= ((uint32_t) clk_polarity << SCI_CKPOL_POS);
 
   /* Configure Bit Order (MSB,LSB) */
-  scmr |= (uint32_t) bit_order << 3;
+  mask = (ONE_BIT << SCI_DIRECTION_POS);
+  scmr &= ~(uint32_t)mask; // reset bit 0
+  scmr |= ((uint32_t) bit_order << SCI_DIRECTION_POS);
 
   /* Select the baud rate generator clock divider. */
-  smr |= (uint32_t) clk_div.cks;
+  mask = (TWO_BITS << SCI_CK_SEL_POS);
+  smr &= ~(uint32_t)mask; // reset bit 0
+  smr |= ((uint32_t) clk_div.cks << SCI_CK_SEL_POS);
 
   /* Update settings. */
   _spi_sci_ctrl.p_reg->SMR  = (uint8_t) smr;
