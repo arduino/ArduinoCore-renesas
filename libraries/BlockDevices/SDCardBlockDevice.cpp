@@ -478,7 +478,7 @@ fsp_err_t SDCardBlockDevice::wait_for_completition() {
       
       rv = FSP_ERR_TIMEOUT;
    }
-
+   return rv;
 }
 
 
