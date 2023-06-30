@@ -54,8 +54,8 @@ using FLASH_set_callback_f         = fsp_err_t (*)(flash_ctrl_t * const p_api_ct
 class CodeFlashBlockDevice : public BlockDevice {
 private:
     CodeFlashBlockDevice();
-    int erase_block(uint32_t add);
-    int check_blank(uint32_t add);
+    int erase_block(bd_addr_t add);
+    int check_blank(bd_addr_t add);
     uint32_t get_block_starting_address(bd_addr_t add);
     uint32_t get_physical_address(bd_addr_t add);
     virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
