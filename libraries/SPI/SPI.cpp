@@ -383,7 +383,7 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   spcmd0 |= (uint32_t) bit_order << 12;
 
   /* Configure the Bit Rate Division Setting */
-  spcmd0 &= !(((uint32_t)0xFF) << 2);
+  spcmd0 &= ~(((uint32_t) 3) << 2);
   spcmd0 |= (uint32_t) spck_div.brdv << 2;
 
   /* Update settings. */
