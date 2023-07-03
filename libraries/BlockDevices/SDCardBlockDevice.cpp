@@ -313,7 +313,7 @@ int SDCardBlockDevice::open() {
          read_block_size = sd_card_info.sector_size_bytes;
          erase_block_size = sd_card_info.sector_size_bytes;
          write_block_size = sd_card_info.sector_size_bytes;
-         total_size = sd_card_info.sector_count * sd_card_info.sector_size_bytes;
+         total_size = (bd_size_t) sd_card_info.sector_count * (bd_size_t) sd_card_info.sector_size_bytes;
          
       }
    }
@@ -478,7 +478,7 @@ fsp_err_t SDCardBlockDevice::wait_for_completition() {
       
       rv = FSP_ERR_TIMEOUT;
    }
-
+   return rv;
 }
 
 
