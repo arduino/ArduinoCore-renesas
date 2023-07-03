@@ -43,7 +43,7 @@ So, to reflash the bootloader, change the port baud to 2400
 stty -F $portname 2400
 ```
 
-Then flash the bootloader with
+Then flash the bootloader with [`rfp-cli`](https://www.renesas.com/us/en/software-tool/renesas-flash-programmer-programming-gui#download)
 ```
 rfp-cli -device ra -port $portname -p dfu_leven.hex
 ```
@@ -54,7 +54,7 @@ rfp-cli -device ra -port $portname -p dfu_leven.hex
 Reboot the board with BOOT shorted to GND
 The board will enumerate as Renesas RA USB Boot
 
-Then flash the bootloader with
+Then flash the bootloader with [`rfp-cli`](https://www.renesas.com/us/en/software-tool/renesas-flash-programmer-programming-gui#download)
 ```
 rfp-cli -device ra -port $portname -p dfu_minima.hex
 ```
