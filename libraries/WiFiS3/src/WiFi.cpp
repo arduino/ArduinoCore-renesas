@@ -19,6 +19,7 @@ static char fw_version[12];
 const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
    string res = "";
+   modem.begin();
    if(modem.write(string(PROMPT(_FWVERSION)), res, CMD_READ(_FWVERSION))) {
       memset(fw_version,0x00,12);
       memcpy(fw_version, res.c_str(), res.size() < 12 ? res.size() : 11);
