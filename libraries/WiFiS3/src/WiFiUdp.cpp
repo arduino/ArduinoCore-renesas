@@ -249,7 +249,12 @@ void WiFiUDP::flush() {
       modem.write(string(PROMPT(_UDPFLUSH)),res, "%s%d\r\n" , CMD_WRITE(_UDPFLUSH), _sock);
    }
 } 
- 
+
+bool WiFiUDP::operator==(const WiFiUDP& whs)
+{
+   return _sock == whs._sock;
+}
+
 /* -------------------------------------------------------------------------- */
 IPAddress WiFiUDP::remoteIP() {
 /* -------------------------------------------------------------------------- */    
