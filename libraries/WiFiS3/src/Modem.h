@@ -6,10 +6,10 @@
 #include "StringHelpers.h"
 
 
-//#define MODEM_DEBUG
-//#define MODEM_DEBUG_PASSTHROUGH
+/* uncomment this will allow debug for passthrough "binary" commands */
+#define MODEM_DEBUG_PASSTHROUGH
+
 #define MODEM_TIMEOUT  10000
-//#define SELECTABLE_MODEM_DEBUG
 #define MAX_BUFF_SIZE  64
 
 #define DO_NOT_CHECK_CMD "NO_CMD_CHECK"
@@ -38,6 +38,29 @@ public:
   } 
   bool beginned;
 
+  /* calling this function with no argument will enable debug message to be printed
+     on Serial
+     use first parameter UART *u to redirect debug output to a different serial 
+
+     level from 0 defaul to 2 (maximum) */
+
+  void debug(UART *u = nullptr, uint8_t level = 0) {
+    if(u == nullptr) {
+      _serial_debug = &Serial;
+    }
+    else {
+      _serial_debug = u;
+    }
+    if(level > 2) {
+      level = 2;
+    }
+    _debug_level = level;
+  }
+
+  void noDebug() {
+    _serial_debug = nullptr;
+  }
+
   #ifdef SELECTABLE_MODEM_DEBUG
   bool enable_dbg = false;
   void debug(bool e) {enable_dbg = e;}
@@ -52,6 +75,8 @@ private:
   bool trim_results;
   bool read_by_size;
   bool read_by_size_finished(std::string &rx);
+  UART * _serial_debug;
+  uint8_t _debug_level = 0;
 };
 
 extern ModemClass modem;
