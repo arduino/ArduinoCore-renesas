@@ -187,7 +187,6 @@ int WiFiUDP::_read() {
             }
          }
          else {
-            this->flush();
             rv = 0;
          }
       }

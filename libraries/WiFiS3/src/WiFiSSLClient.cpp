@@ -131,7 +131,6 @@ int WiFiSSLClient::_read() {
             }
          }
          else {
-            this->flush();
             rv = 0;
          }
       }

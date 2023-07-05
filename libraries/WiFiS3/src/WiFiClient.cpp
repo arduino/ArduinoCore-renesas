@@ -130,7 +130,6 @@ int WiFiClient::_read() {
             }
          }
          else {
-            this->flush();
             rv = 0;
          }
       }

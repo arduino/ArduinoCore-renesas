@@ -158,6 +158,9 @@ bool ModemClass::read_by_size_finished(string &rx) {
             string n = rx.substr(pos_space,pos);
             int to_be_rx = atoi(n.c_str());
             if(to_be_rx <= 0) {
+               while( _serial->available() ){
+                  _serial->read();
+               }
                rv = true;
                first_call = true;
                st = IDLE;
@@ -215,6 +218,9 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                res = true;
                if(data_res.size() > 0) {
                   data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_OK) - 1));
+               }
+               else {
+                  break;
                }
             }
          }
