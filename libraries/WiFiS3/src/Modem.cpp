@@ -69,18 +69,19 @@ bool ModemClass::passthrough(const uint8_t *data, size_t size) {
             break;
          }
       }
-   }   
-   #ifdef MODEM_DEBUG_PASSTHROUGH
-      Serial.print("  passthrough, rx |>>");
-      Serial.print(data_res.c_str());
-      Serial.println("<<|");
+   }  
+   
+   if(_serial_debug && _debug_level >= 2) {       
+      _serial_debug->print("   ANSWER (passthrough): ");
+      _serial_debug->println(data_res.c_str());
       if(res) {
-         Serial.println("  Result: OK");
+         _serial_debug->println("   Result: OK");
       }
       else {
-         Serial.println("  Result: FAILED");
-      }
-    #endif
+         _serial_debug->println("   Result: FAILED");
+      }  
+   }     
+   
    return res;
 }
 
@@ -92,11 +93,13 @@ void ModemClass::write_nowait(const string &cmd, string &str, char * fmt, ...) {
    va_start (va, fmt);
    vsprintf ((char *)tx_buff, fmt, va);
    va_end (va);
-   #ifdef MODEM_DEBUG
-    Serial.print("  Write Call no wait, command sent: ");
-    Serial.write(tx_buff,strlen((char *)tx_buff));
-    Serial.println();
-   #endif
+   
+   if(_serial_debug && _debug_level >= 2) { 
+      _serial_debug->print("REQUEST (passthrough): ");
+      _serial_debug->write(tx_buff,strlen((char *)tx_buff));
+      _serial_debug->println();
+   }
+   
    _serial->write(tx_buff,strlen((char *)tx_buff));
    return;
 }
@@ -105,25 +108,22 @@ void ModemClass::write_nowait(const string &cmd, string &str, char * fmt, ...) {
 /* -------------------------------------------------------------------------- */
 bool ModemClass::write(const string &prompt, string &data_res, char * fmt, ...){
 /* -------------------------------------------------------------------------- */  
-  data_res.clear();
-  memset(tx_buff,0x00,MAX_BUFF_SIZE);
-  va_list va;
-  va_start (va, fmt);
-  vsprintf ((char *)tx_buff, fmt, va);
-  va_end (va);
-  #ifdef MODEM_DEBUG
-    Serial.println();
-    Serial.println("###>");
-    Serial.print("READ BY SIZE: ");
-    Serial.println((int)read_by_size);
-    Serial.print("  Write Call, command sent: ");
-    Serial.write(tx_buff,strlen((char *)tx_buff));
-    Serial.println();
+   data_res.clear();
+   memset(tx_buff,0x00,MAX_BUFF_SIZE);
+   va_list va;
+   va_start (va, fmt);
+   vsprintf ((char *)tx_buff, fmt, va);
+   va_end (va);
+  
+   if(_serial_debug) {
+      _serial_debug->println();
+      _serial_debug->print("REQUEST: ");
+      _serial_debug->write(tx_buff,strlen((char *)tx_buff));
+      _serial_debug->println();
+   }
 
-    Serial.println("<###");
-  #endif
-  _serial->write(tx_buff,strlen((char *)tx_buff));
-  return buf_read(prompt,data_res);;
+   _serial->write(tx_buff,strlen((char *)tx_buff));
+   return buf_read(prompt,data_res);;
 }
 
 
@@ -200,16 +200,20 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    bool res = false;
    bool found = false;
    
+   if(_serial_debug  && _debug_level >= 1) {
+      _serial_debug->print("RAW: ");
+   }
+
    unsigned long start_time = millis();
    while((millis() - start_time < _timeout) && !found){
       while( _serial->available() ){
          char c = _serial->read();
          data_res += c;
-         #ifdef SELECTABLE_MODEM_DEBUG
-         if(enable_dbg) {
-            Serial.print(c);
+         
+         if(_serial_debug  && _debug_level >= 1) {
+            _serial_debug->print(c);
          }
-         #endif
+         
             
          if(read_by_size) {
             if(read_by_size_finished(data_res)) {
@@ -264,18 +268,24 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    }
    trim_results = true;
    read_by_size = false;
-   #ifdef MODEM_DEBUG
-      Serial.print("  Write Call, response rx |>>");
-      Serial.print(data_res.c_str());
-      Serial.println("<<|");
+
+   if(_serial_debug && _debug_level >= 1) {
+      _serial_debug->print("<-RAW END");
+      _serial_debug->println();
+   }
+
+   if(_serial_debug) {       
+      _serial_debug->print("   ANSWER: ");
+      _serial_debug->println(data_res.c_str());
       if(res) {
-         Serial.println("  Result: OK");
+         _serial_debug->println("   Result: OK");
       }
       else {
-         Serial.println("  Result: FAILED");
-      }
-   #endif
-      
+         _serial_debug->println("   Result: FAILED");
+      }  
+   }      
+
+
    return res;
 }
 
