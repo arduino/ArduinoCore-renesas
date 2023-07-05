@@ -156,12 +156,19 @@ bool ModemClass::read_by_size_finished(string &rx) {
          int pos_space = rx.find(" ");
          if(pos != string::npos && pos_space != string::npos) {
             string n = rx.substr(pos_space,pos);
-            /* add 4 because OK\r\n is always added at the end of data */
-            data_to_be_received = atoi(n.c_str()) + 4;
-            rx.clear();
-            data_received = 0;
-            st = WAIT_FOR_DATA; 
-            
+            int to_be_rx = atoi(n.c_str());
+            if(to_be_rx <= 0) {
+               rv = true;
+               first_call = true;
+               st = IDLE;
+            }
+            else {
+               /* add 4 because OK\r\n is always added at the end of data */
+               data_to_be_received = to_be_rx + 4;
+               data_received = 0;
+               st = WAIT_FOR_DATA;
+            } 
+            rx.clear();     
          }
       }
       break;
@@ -206,7 +213,9 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                found = true;
                read_by_size = false;
                res = true;
-               data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_OK) - 1));
+               if(data_res.size() > 0) {
+                  data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_OK) - 1));
+               }
             }
          }
          else {

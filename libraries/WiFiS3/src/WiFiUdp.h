@@ -39,7 +39,7 @@ private:
 
 protected:
   virtual int _read();
-  virtual bool read_needed(size_t s);
+  virtual void read_if_needed(size_t s);
   
 public:
   WiFiUDP();  // Constructor
