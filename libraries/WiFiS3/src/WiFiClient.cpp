@@ -123,9 +123,14 @@ int WiFiClient::_read() {
       modem.read_using_size();
       
       if(modem.write(string(PROMPT(_CLIENTRECEIVE)),res, "%s%d,%d\r\n" , CMD_WRITE(_CLIENTRECEIVE), _sock, size)) {
-         for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
-            rx_buffer->store((uint8_t)res[i]);
-            rv++;
+         if(res.size() > 0) {
+            for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
+               rx_buffer->store((uint8_t)res[i]);
+               rv++;
+            }
+         }
+         else {
+            rv = 0;
          }
       }
    }
@@ -133,7 +138,7 @@ int WiFiClient::_read() {
 }  
 
 /* -------------------------------------------------------------------------- */
-bool WiFiClient::read_needed(size_t s) {
+void WiFiClient::read_if_needed(size_t s) {
 /* -------------------------------------------------------------------------- */   
    if(rx_buffer != nullptr) {
       if((size_t)rx_buffer->available() < s) {
@@ -155,7 +160,7 @@ int WiFiClient::read() {
 /* -------------------------------------------------------------------------- */
 int WiFiClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */
-   read_needed(size);
+   read_if_needed(size);
    int rv = 0;
    bool go_on = true;
    if(_sock >= 0 && rx_buffer != nullptr) {

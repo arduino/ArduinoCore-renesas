@@ -180,9 +180,14 @@ int WiFiUDP::_read() {
       modem.avoid_trim_results();
       modem.read_using_size();
       if(modem.write(string(PROMPT(_UDPREAD)),res, "%s%d,%d\r\n" , CMD_WRITE(_UDPREAD), _sock, size)) {
-         for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
-            rx_buffer.store((uint8_t)res[i]);
-            rv++;
+         if(res.size() > 0) {
+            for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
+               rx_buffer.store((uint8_t)res[i]);
+               rv++;
+            }
+         }
+         else {
+            rv = 0;
          }
       }
    }
@@ -190,7 +195,7 @@ int WiFiUDP::_read() {
 }
 
 /* -------------------------------------------------------------------------- */
-bool WiFiUDP::read_needed(size_t s) {
+void WiFiUDP::read_if_needed(size_t s) {
 /* -------------------------------------------------------------------------- */
    if((size_t)rx_buffer.available() < s) {
       _read();
@@ -210,7 +215,7 @@ int WiFiUDP::read() {
 /* -------------------------------------------------------------------------- */
 int WiFiUDP::read(unsigned char* buf, size_t size) {
 /* -------------------------------------------------------------------------- */    
-   read_needed(size);
+   read_if_needed(size);
    int rv = 0;
    bool go_on = true;
    for(int i = 0; i < size && go_on; i++) {
