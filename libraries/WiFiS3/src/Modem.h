@@ -44,13 +44,9 @@ public:
 
      level from 0 defaul to 2 (maximum) */
 
-  void debug(UART *u = nullptr, uint8_t level = 0) {
-    if(u == nullptr) {
-      _serial_debug = &Serial;
-    }
-    else {
-      _serial_debug = u;
-    }
+  void debug(Stream  &u, uint8_t level = 0) {
+    _serial_debug = &u;
+    
     if(level > 2) {
       level = 2;
     }
@@ -75,7 +71,7 @@ private:
   bool trim_results;
   bool read_by_size;
   bool read_by_size_finished(std::string &rx);
-  UART * _serial_debug;
+  Stream * _serial_debug;
   uint8_t _debug_level = 0;
 };
 
