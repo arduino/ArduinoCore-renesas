@@ -37,6 +37,7 @@ jobs:
         - libraries/RTC/examples/RTC_PeriodicExample
         - libraries/RTC/examples/Test_RTC
         - libraries/SoftwareSerial
+        - libraries/WDT
 
     strategy:
       fail-fast: false
@@ -133,26 +134,22 @@ jobs:
             - name: LiquidCrystal
             - name: CapacitiveSensor
             - name: Ethernet
-            - name: ArduinoBearSSL
             - name: ArduinoHttpClient
             - name: NTPClient
             - name: ArduinoMqttClient
             - name: Stepper
             - name: SD
             - name: Arduino_JSON
-            - name: Arduino_HTS221
+            - name: ArduinoBLE
             - name: Firmata
             - name: ArduinoModbus
             - name: ArduinoDMX
             - name: ArduinoRS485
-            - name: WiFi
             - name: ArduinoIoTCloud
           platforms: |
-            # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
+            # Use Board Manager to install the latest release of Arduino Renesas Boards to get the toolchain
             - name: "arduino:renesas_uno"
-              source-url: "https://downloads.arduino.cc/packages/package_renesas_release_index.json"
             - name: "arduino:renesas_portenta"
-              source-url: "https://downloads.arduino.cc/packages/package_renesas_release_index.json"
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
               name: "arduino-git:renesas"
