@@ -224,6 +224,10 @@ uint8_t WiFiSSLClient::connected() {
    }
    return rv;
 }
+bool WiFiSSLClient::operator==(const WiFiSSLClient& whs)
+{
+       return _sock == whs._sock;
+}
 
 /* -------------------------------------------------------------------------- */
 IPAddress WiFiSSLClient::remoteIP() {

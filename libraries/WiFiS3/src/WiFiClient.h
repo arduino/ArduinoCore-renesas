@@ -54,7 +54,11 @@ public:
   virtual operator bool() {
     return _sock != -1;
   }
-
+  virtual bool operator==(const WiFiClient&);
+  virtual bool operator!=(const WiFiClient& whs)
+  {
+      return !this->operator==(whs);
+  };
   virtual IPAddress remoteIP();
   virtual uint16_t remotePort();
 
