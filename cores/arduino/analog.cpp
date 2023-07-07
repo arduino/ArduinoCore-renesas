@@ -480,16 +480,6 @@ static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
     
     R_ADC_Open(&(_adc->ctrl), &(_adc->cfg));
     adc_status_t status;
-
-#ifdef R7FA2A1AB_H
-    fsp_err_t err = R_ADC_Calibrate ( &(_adc->ctrl), &(_adc->cfg_extend));
-    if(err == FSP_SUCCESS) {
-      status.state  = ADC_STATE_SCAN_IN_PROGRESS;
-      while (ADC_STATE_IDLE != status.state) {
-        R_ADC_StatusGet(&(_adc->ctrl), &status);
-      }
-    }
-#endif
     
     R_ADC_ScanCfg(&(_adc->ctrl), &(_adc->channel_cfg));
     R_ADC_ScanStart(&(_adc->ctrl));
