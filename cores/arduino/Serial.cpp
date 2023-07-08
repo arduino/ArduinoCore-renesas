@@ -272,9 +272,12 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   
   fsp_err_t err;
   const bool bit_mod = true;
-  const uint32_t err_rate = 5;
+  const uint32_t err_rate = 3000; //means 3%
 
   err = R_SCI_UART_BaudCalculate(baudrate, bit_mod, err_rate, &uart_baud);
+  if (uart_baud.mddr == 0) {
+    err = R_SCI_UART_BaudCalculate(baudrate, false, err_rate, &uart_baud);
+  }
   err = R_SCI_UART_Open (&uart_ctrl, &uart_cfg);
   if(err != FSP_SUCCESS) while(1);
   err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &uart_baud);

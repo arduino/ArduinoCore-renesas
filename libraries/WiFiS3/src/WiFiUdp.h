@@ -39,7 +39,7 @@ private:
 
 protected:
   virtual int _read();
-  virtual bool read_needed(size_t s);
+  virtual void read_if_needed(size_t s);
   
 public:
   WiFiUDP();  // Constructor
@@ -82,6 +82,11 @@ public:
   // Return the next byte from the current packet without moving on to the next byte
   virtual int peek();
   virtual void flush();	// Finish reading the current packet
+  virtual bool operator==(const WiFiUDP&);
+  virtual bool operator!=(const WiFiUDP& whs)
+  {
+    return !this->operator==(whs);
+  };
 
   // Return the IP address of the host who sent the current incoming packet
   virtual IPAddress remoteIP();

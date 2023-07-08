@@ -124,9 +124,14 @@ int WiFiSSLClient::_read() {
       modem.avoid_trim_results();
       modem.read_using_size();
       if(modem.write(string(PROMPT(_SSLCLIENTRECEIVE)),res, "%s%d,%d\r\n" , CMD_WRITE(_SSLCLIENTRECEIVE), _sock, size)) {
-         for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
-            rx_buffer->store((uint8_t)res[i]);
-            rv++;
+         if(res.size() > 0) {
+            for(int i = 0, rv = 0; i < size && i < res.size(); i++) {
+               rx_buffer->store((uint8_t)res[i]);
+               rv++;
+            }
+         }
+         else {
+            rv = 0;
          }
       }
    }
@@ -134,7 +139,7 @@ int WiFiSSLClient::_read() {
 }  
 
 /* -------------------------------------------------------------------------- */
-bool WiFiSSLClient::read_needed(size_t s) {
+void WiFiSSLClient::read_if_needed(size_t s) {
 /* -------------------------------------------------------------------------- */   
    if((size_t)rx_buffer->available() < s) {
       _read();
@@ -154,7 +159,7 @@ int WiFiSSLClient::read() {
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */
-   read_needed(size);
+   read_if_needed(size);
    int rv = 0;
    bool go_on = true;
    for(int i = 0; i < size && go_on; i++) {
@@ -218,6 +223,10 @@ uint8_t WiFiSSLClient::connected() {
       }  
    }
    return rv;
+}
+bool WiFiSSLClient::operator==(const WiFiSSLClient& whs)
+{
+       return _sock == whs._sock;
 }
 
 /* -------------------------------------------------------------------------- */
