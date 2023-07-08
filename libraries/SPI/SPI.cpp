@@ -147,6 +147,7 @@ void ArduinoSPI::begin()
 
   configSpiSettings(DEFAULT_SPI_SETTINGS);
 
+#if 0
   /* Configure the Interrupt Controller. */
   if (_is_sci)
   {
@@ -180,6 +181,7 @@ void ArduinoSPI::begin()
       init_ok = false;
     }
   }
+#endif
 
   _is_initialized = init_ok;
 }
@@ -197,7 +199,8 @@ void ArduinoSPI::end()
 uint8_t ArduinoSPI::transfer(uint8_t data)
 {
   uint8_t rxbuf;
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+#if 0
+   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
   if (_is_sci) {
     _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
   } else {
@@ -214,6 +217,16 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
       end();
       return 0;
   }
+#endif
+
+#if 1
+  _spi_ctrl.p_regs->SPDR_BY = data;
+//  while (0 == _spi_ctrl.p_regs->SPSR_b.SPTEF) {}
+//  while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
+  while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+  rxbuf = _spi_ctrl.p_regs->SPDR_BY;
+#endif
+
   return rxbuf;
 }
 
@@ -234,6 +247,7 @@ uint16_t ArduinoSPI::transfer16(uint16_t data)
 
 void ArduinoSPI::transfer(void *buf, size_t count)
 {
+#if 0
   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
   if (_is_sci) {
@@ -251,6 +265,19 @@ void ArduinoSPI::transfer(void *buf, size_t count)
   {
       end();
   }
+#endif
+
+#if 1
+    uint8_t *buffer = (uint8_t *) buf;
+
+    for(size_t index = 0; index < count; index++)
+    {
+        _spi_ctrl.p_regs->SPDR_BY = buffer[index];
+        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+        buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
+    }
+        while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
+#endif
 }
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
@@ -366,6 +393,7 @@ void ArduinoSPI::configSpiSettings(arduino::SPISettings const & settings)
 
 void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 {
+#if 0
   auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
 
   rspck_div_setting_t spck_div = _spi_ext_cfg.spck_div;
@@ -383,12 +411,84 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   spcmd0 |= (uint32_t) bit_order << 12;
 
   /* Configure the Bit Rate Division Setting */
-  spcmd0 &= ~(((uint32_t) 3) << 2);
+  spcmd0 &= !(((uint32_t)0xFF) << 2);
   spcmd0 |= (uint32_t) spck_div.brdv << 2;
 
   /* Update settings. */
   _spi_ctrl.p_regs->SPCMD[0] = (uint16_t) spcmd0;
   _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
+#endif
+
+#if 1
+/** SPI base register access macro.  */
+#define SPI_REG(channel)    ((R_SPI0_Type *) ((uint32_t) R_SPI0 +                       \
+                                              ((uint32_t) R_SPI1 - (uint32_t) R_SPI0) * \
+                                              (channel)))
+
+  _spi_ctrl.p_cfg             = &_spi_cfg;
+  _spi_ctrl.p_callback        = _spi_cfg.p_callback;
+  _spi_ctrl.p_context         = _spi_cfg.p_context;
+  _spi_ctrl.p_callback_memory = NULL;
+  _spi_ctrl.p_regs = SPI_REG(_spi_ctrl.p_cfg->channel);
+
+  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+
+  rspck_div_setting_t spck_div = _spi_ext_cfg.spck_div;
+  R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+
+  uint32_t spcmd0 = 0;
+  uint32_t spcr   = 0;
+  uint32_t sslp   = 0;
+  uint32_t sppcr  = 0;
+  uint32_t spcr2  = 0;
+  uint32_t spckd  = 0;
+  uint32_t sslnd  = 0;
+  uint32_t spnd   = 0;
+
+  spcmd0 |= (uint32_t) clk_phase;  /* Configure CPHA setting. */
+  spcmd0 |= (uint32_t) clk_polarity << 1;  /* Configure CPOL setting. */
+  spcmd0 |= (uint32_t) spck_div.brdv << 2; /* Configure the Bit Rate Division Setting */
+  spcmd0 |= (uint32_t) SPI_BIT_WIDTH_8_BITS << 8; /* Configure 8 bit data width */
+  spcmd0 |= (uint32_t) bit_order << 12; /* Configure Bit Order (MSB,LSB) */
+
+  /* TXMD = 0 -> full duplex, SPxIE = 0 -> no interrupts */
+  spcr |= R_SPI0_SPCR_SPMS_Msk; /* configure 3-Wire Mode */
+  if(SPI_MODE_MASTER == _spi_cfg.operating_mode)
+  {
+    spcr |= R_SPI0_SPCR_MSTR_Msk;
+    spcr2 |= R_SPI0_SPCR2_SCKASE_Msk;
+  }
+
+  /* Configure SSLn polarity setting. */
+  sslp |= (uint32_t) _spi_ext_cfg.ssl_polarity << _spi_ext_cfg.ssl_select;
+
+  /* set MOSI idle value to low */
+  sppcr |= R_SPI0_SPPCR_MOIFE_Msk;
+
+  /* Power up the SPI module. */
+  R_BSP_MODULE_START(FSP_IP_SPI, _spi_cfg.channel);
+
+  /* Write registers */
+  _spi_ctrl.p_regs->SPCR     = (uint8_t) spcr;
+  _spi_ctrl.p_regs->SSLP     = (uint8_t) sslp;
+  _spi_ctrl.p_regs->SPPCR    = (uint8_t) sppcr;
+  _spi_ctrl.p_regs->SPCKD    = (uint8_t) spckd;
+  _spi_ctrl.p_regs->SSLND    = (uint8_t) sslnd;
+  _spi_ctrl.p_regs->SPND     = (uint8_t) spnd;
+  _spi_ctrl.p_regs->SPCR2    = (uint8_t) spcr2;
+
+  _spi_ctrl.p_regs->SPCMD[0] = (uint16_t) spcmd0;
+  _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
+
+  _spi_ctrl.p_regs->SPDCR_b.SPBYT = 1; /* SPI byte access */
+
+  _spi_ctrl.p_regs->SPSR; /* read to clear OVRF */
+  _spi_ctrl.p_regs->SPSR = 0; /* clear status register */
+
+  _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+  _spi_ctrl.open = (0x52535049ULL); /* "SPI" in ASCII, used to determine if channel is open. */
+#endif
 }
 
 void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
