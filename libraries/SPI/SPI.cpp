@@ -220,11 +220,18 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
 #endif
 
 #if 1
-  _spi_ctrl.p_regs->SPDR_BY = data;
+  if (_is_sci)
+  {
+
+  }
+  else
+  {
+    _spi_ctrl.p_regs->SPDR_BY = data;
 //  while (0 == _spi_ctrl.p_regs->SPSR_b.SPTEF) {}
 //  while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
-  while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-  rxbuf = _spi_ctrl.p_regs->SPDR_BY;
+    while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+    rxbuf = _spi_ctrl.p_regs->SPDR_BY;
+  }
 #endif
 
   return rxbuf;
@@ -268,15 +275,43 @@ void ArduinoSPI::transfer(void *buf, size_t count)
 #endif
 
 #if 1
-    uint8_t *buffer = (uint8_t *) buf;
+  if (_is_sci)
+  {
+  }
+  else
+  {
+    uint32_t *buffer32 = (uint32_t *) buf;
 
-    for(size_t index = 0; index < count; index++)
+    _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+    _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
+
+    size_t n32 = count / 4;
+    count &= 3U;
+
+    for (;n32 > 0; n32--)
     {
-        _spi_ctrl.p_regs->SPDR_BY = buffer[index];
-        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-        buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
+      _spi_ctrl.p_regs->SPDR = buffer32[0];
+      while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+      buffer32[0] = _spi_ctrl.p_regs->SPDR;
+      buffer32++;
     }
-        while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
+
+    _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+    _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+
+    uint8_t *buffer = (uint8_t *) buffer32;
+
+    for (; count > 0; count--)
+    {
+        _spi_ctrl.p_regs->SPDR_BY = buffer[0];
+        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+        buffer[0] = _spi_ctrl.p_regs->SPDR_BY;
+        buffer++;
+    }
+
+    while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
+  }
+
 #endif
 }
 
@@ -481,6 +516,10 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
 
   _spi_ctrl.p_regs->SPDCR_b.SPBYT = 1; /* SPI byte access */
+
+  /* register undocumented for the RA4M1 but found to be working and necessary */
+  /* BYSW - Byte Swap Operating Mode Select - 1 = Byte Swap ON - essential for 32 bit transfers */
+  _spi_ctrl.p_regs->SPDCR2_b.BYSW = 1;
 
   _spi_ctrl.p_regs->SPSR; /* read to clear OVRF */
   _spi_ctrl.p_regs->SPSR = 0; /* clear status register */
