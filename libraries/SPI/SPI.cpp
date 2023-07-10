@@ -147,7 +147,6 @@ void ArduinoSPI::begin()
 
   configSpiSettings(DEFAULT_SPI_SETTINGS);
 
-#if 0
   /* Configure the Interrupt Controller. */
   if (_is_sci)
   {
@@ -167,6 +166,8 @@ void ArduinoSPI::begin()
   }
   else
   {
+#if 0
+/* not using FSP for SPI anymore and no interrupts */
     SpiMasterIrqReq_t irq_req
     {
       .ctrl = &_spi_ctrl,
@@ -180,8 +181,8 @@ void ArduinoSPI::begin()
     } else {
       init_ok = false;
     }
-  }
 #endif
+  }
 
   _is_initialized = init_ok;
 }
@@ -198,122 +199,184 @@ void ArduinoSPI::end()
 
 uint8_t ArduinoSPI::transfer(uint8_t data)
 {
-  uint8_t rxbuf;
-#if 0
-   _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  }
+    uint8_t rxbuf;
 
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-      return 0;
-  }
-#endif
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
-#if 1
-  if (_is_sci)
-  {
-
-  }
-  else
-  {
-    _spi_ctrl.p_regs->SPDR_BY = data;
-//  while (0 == _spi_ctrl.p_regs->SPSR_b.SPTEF) {}
-//  while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
-    while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-    rxbuf = _spi_ctrl.p_regs->SPDR_BY;
-  }
-#endif
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+            return 0;
+        }
+    }
+    else
+    {
+        _spi_ctrl.p_regs->SPDR_BY = data;
+        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+        rxbuf = _spi_ctrl.p_regs->SPDR_BY;
+    }
 
   return rxbuf;
 }
 
 uint16_t ArduinoSPI::transfer16(uint16_t data)
 {
-  union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
-  t.val = data;
+    union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
+    t.val = data;
 
-  if (_settings.getBitOrder() == LSBFIRST) {
-    t.lsb = transfer(t.lsb);
-    t.msb = transfer(t.msb);
-  } else {
-    t.msb = transfer(t.msb);
-    t.lsb = transfer(t.lsb);
-  }
-  return t.val;
+    if (_settings.getBitOrder() == LSBFIRST) {
+        t.lsb = transfer(t.lsb);
+        t.msb = transfer(t.msb);
+    } else {
+        t.msb = transfer(t.msb);
+        t.lsb = transfer(t.lsb);
+    }
+    return t.val;
 }
 
 void ArduinoSPI::transfer(void *buf, size_t count)
 {
-#if 0
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
-  if (_is_sci) {
-    _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    _write_then_read(&_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  }
+        _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
 
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-  }
-#endif
-
-#if 1
-  if (_is_sci)
-  {
-  }
-  else
-  {
-    uint32_t *buffer32 = (uint32_t *) buf;
-
-    _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
-    _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
-
-    size_t n32 = count / 4;
-    count &= 3U;
-
-    for (;n32 > 0; n32--)
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+        }
+    }
+    else
     {
-      _spi_ctrl.p_regs->SPDR = buffer32[0];
-      while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-      buffer32[0] = _spi_ctrl.p_regs->SPDR;
-      buffer32++;
+        if(buf) {
+
+            uint32_t *buffer32 = (uint32_t *) buf;
+
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+            size_t n32 = count / 4;
+            count &= 3U;
+
+            for (;n32 > 0; n32--) {
+                _spi_ctrl.p_regs->SPDR = buffer32[0];
+                while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+                buffer32[0] = _spi_ctrl.p_regs->SPDR;
+                buffer32++;
+            }
+
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+            uint8_t *buffer = (uint8_t *) buffer32;
+
+            for (; count > 0; count--) {
+                _spi_ctrl.p_regs->SPDR_BY = buffer[0];
+                while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+                buffer[0] = _spi_ctrl.p_regs->SPDR_BY;
+                buffer++;
+            }
+
+//            while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
+        }
+    }
+}
+
+void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
+{
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+
+        _write_then_read(&_spi_sci_ctrl, buf, rxbuf, count, SPI_BIT_WIDTH_8_BITS);
+
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+        }
+    }
+    else {
+        size_t n32 = count / 4;
+        if (n32) {
+
+        _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+        _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+        _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
+        _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+        const uint32_t* tx32 = (const uint32_t *) buf;
+        uint32_t* rx32 = (uint32_t *) rxbuf;
+        size_t ir = 0;
+        size_t it = 0;
+
+        while ((it < 2) && (it < n32)) {
+            if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
+                _spi_ctrl.p_regs->SPDR = (buf) ? tx32[it] : 0xFFFFFFFF;
+                it++;
+            }
+        }
+
+        while (it < n32) {
+            if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                _spi_ctrl.p_regs->SPDR = (buf) ? tx32[it] : 0xFFFFFFFF;
+                if (rxbuf) {
+                    rx32[ir] = tmp;
+                }
+                ir++;
+                it++;
+            }
+        }
+
+        while (ir < n32) { /* collect the last word received */
+            if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                if (rxbuf) {
+                    rx32[ir] = tmp;
+                }
+                ir++;
+            }
+        }
     }
 
+    _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
     _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
     _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+    _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
 
-    uint8_t *buffer = (uint8_t *) buffer32;
-
-    for (; count > 0; count--)
-    {
-        _spi_ctrl.p_regs->SPDR_BY = buffer[0];
-        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-        buffer[0] = _spi_ctrl.p_regs->SPDR_BY;
-        buffer++;
+    /* send the remaining bytes with 8-bit transfers */
+    if (count != 4 * n32) {
+        uint8_t* rx = (uint8_t *) rxbuf;
+        const uint8_t* tx = (const uint8_t *) buf;
+        for (size_t i = 4 * n32; i < count; i++) {
+            uint8_t tmp = transfer((buf) ? tx[i] : 0xFF);
+            if (rxbuf) {
+                rx[i] = tmp;
+            }
+        }
     }
-
-    while (_spi_ctrl.p_regs->SPSR_b.IDLNF) {}
   }
-
-#endif
 }
+
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
@@ -456,9 +519,8 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 
 #if 1
 /** SPI base register access macro.  */
-#define SPI_REG(channel)    ((R_SPI0_Type *) ((uint32_t) R_SPI0 +                       \
-                                              ((uint32_t) R_SPI1 - (uint32_t) R_SPI0) * \
-                                              (channel)))
+#define SPI_REG(channel)  ((R_SPI0_Type *) ((uint32_t) R_SPI0 + \
+                           ((uint32_t) R_SPI1 - (uint32_t) R_SPI0) * (channel)))
 
   _spi_ctrl.p_cfg             = &_spi_cfg;
   _spi_ctrl.p_callback        = _spi_cfg.p_callback;
@@ -486,8 +548,7 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
   spcmd0 |= (uint32_t) SPI_BIT_WIDTH_8_BITS << 8; /* Configure 8 bit data width */
   spcmd0 |= (uint32_t) bit_order << 12; /* Configure Bit Order (MSB,LSB) */
 
-  /* TXMD = 0 -> full duplex, SPxIE = 0 -> no interrupts */
-  spcr |= R_SPI0_SPCR_SPMS_Msk; /* configure 3-Wire Mode */
+  /* SPMS = 0 -> SPI operation, TXMD = 0 -> full duplex, SPxIE = 0 -> no interrupts */
   if(SPI_MODE_MASTER == _spi_cfg.operating_mode)
   {
     spcr |= R_SPI0_SPCR_MSTR_Msk;
@@ -499,6 +560,8 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 
   /* set MOSI idle value to low */
   sppcr |= R_SPI0_SPPCR_MOIFE_Msk;
+
+  _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
 
   /* Power up the SPI module. */
   R_BSP_MODULE_START(FSP_IP_SPI, _spi_cfg.channel);
