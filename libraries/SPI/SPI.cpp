@@ -218,7 +218,7 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
     else
     {
         _spi_ctrl.p_regs->SPDR_BY = data;
-        while (0 == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+        while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
         rxbuf = _spi_ctrl.p_regs->SPDR_BY;
     }
 
@@ -259,14 +259,14 @@ void ArduinoSPI::transfer(void *buf, size_t count)
     }
     else
     {
-        if(buf) {
+        if (buf) {
             uint32_t *buffer32 = (uint32_t *) buf;
             size_t ir = 0;
             size_t it = 0;
             size_t n32 = count / 4U;
             count &= 3U;
 
-            if(n32) {
+            if (n32) {
                 _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
                 _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
                 _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
@@ -557,7 +557,7 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
     _spi_ctrl.p_regs->SPCR2 = 0;
 
     /* SPMS = 0 -> SPI operation, TXMD = 0 -> full-duplex, SPxIE = 0 -> no interrupts */
-    if(SPI_MODE_MASTER == _spi_cfg.operating_mode) {
+    if (SPI_MODE_MASTER == _spi_cfg.operating_mode) {
         _spi_ctrl.p_regs->SPCR_b.MSTR = 1;
     }
 
