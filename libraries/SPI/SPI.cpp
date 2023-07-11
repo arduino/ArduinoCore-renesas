@@ -386,7 +386,9 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
             uint8_t *rx = (uint8_t *) rxbuf;
             const uint8_t* tx = (const uint8_t *) buf;
             for (size_t i = 4U * n32; i < count; i++) {
-                uint8_t tmp = transfer((buf) ? tx[i] : 0xFF);
+                _spi_ctrl.p_regs->SPDR_BY = (buf) ? tx[i] : 0xFF;
+                while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+                uint8_t tmp = _spi_ctrl.p_regs->SPDR_BY;
                 if (rxbuf) {
                     rx[i] = tmp;
                 }
@@ -394,7 +396,6 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
         }
     }
 }
-
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
 {
