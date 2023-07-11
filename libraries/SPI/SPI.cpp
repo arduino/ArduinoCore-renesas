@@ -259,14 +259,14 @@ void ArduinoSPI::transfer(void *buf, size_t count)
     }
     else
     {
-        if (buf) {
+        if (buf != NULL) {
             uint32_t *buffer32 = (uint32_t *) buf;
             size_t ir = 0;
             size_t it = 0;
-            size_t n32 = count / 4U;
-            count &= 3U;
+            size_t const n32 = count / 4U;
+            uint8_t const bytes_remaining = (uint8_t) (count & 3U);
 
-            if (n32) {
+            if (n32 != 0U) {
                 _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
                 _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
                 _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
@@ -303,14 +303,13 @@ void ArduinoSPI::transfer(void *buf, size_t count)
                 _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
             }
 
+            /* send the remaining bytes with 8-bit transfers */
             uint8_t *buffer = (uint8_t *) &buffer32[ir];
 
-            /* send the remaining bytes with 8-bit transfers */
-            for (; count > 0U; count--) {
-                _spi_ctrl.p_regs->SPDR_BY = buffer[0];
+            for (uint8_t index = 0; index < bytes_remaining; index++) {
+                _spi_ctrl.p_regs->SPDR_BY = buffer[index];
                 while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-                buffer[0] = _spi_ctrl.p_regs->SPDR_BY;
-                buffer++;
+                buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
             }
         }
     }
@@ -335,7 +334,7 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
     }
     else {
         size_t n32 = count / 4U;
-        if (n32) {
+        if (n32 != 0U) {
             _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
             _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
             _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
@@ -348,7 +347,7 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
 
             while ((it < 2U) && (it < n32)) {
                 if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
-                    _spi_ctrl.p_regs->SPDR = (buf) ? tx32[it] : 0xFFFFFFFF;
+                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[it] : 0xFFFFFFFF;
                     it++;
                 }
             }
@@ -356,8 +355,8 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
             while (it < n32) {
                 if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                     uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                    _spi_ctrl.p_regs->SPDR = (buf) ? tx32[it] : 0xFFFFFFFF;
-                    if (rxbuf) {
+                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[it] : 0xFFFFFFFF;
+                    if (rxbuf != NULL) {
                         rx32[ir] = tmp;
                     }
                     ir++;
@@ -368,7 +367,7 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
             while (ir < n32) { /* collect the last word received */
                 if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                     uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                    if (rxbuf) {
+                    if (rxbuf != NULL) {
                         rx32[ir] = tmp;
                     }
                     ir++;
@@ -386,10 +385,10 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
             uint8_t *rx = (uint8_t *) rxbuf;
             const uint8_t* tx = (const uint8_t *) buf;
             for (size_t i = 4U * n32; i < count; i++) {
-                _spi_ctrl.p_regs->SPDR_BY = (buf) ? tx[i] : 0xFF;
+                _spi_ctrl.p_regs->SPDR_BY = (buf != NULL) ? tx[i] : 0xFF;
                 while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
                 uint8_t tmp = _spi_ctrl.p_regs->SPDR_BY;
-                if (rxbuf) {
+                if (rxbuf != NULL) {
                     rx[i] = tmp;
                 }
             }
