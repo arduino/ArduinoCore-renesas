@@ -204,6 +204,8 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
     if (_is_sci) {
         _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
+        _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+
         for (auto const start = millis();
             (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
         {
