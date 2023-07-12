@@ -1,18 +1,24 @@
 /**
- * This example shows how to set the RTC (Real Time Clock) on the Portenta C33 
+ * This example shows how to set the RTC (Real Time Clock) on the Portenta C33 / UNO R4 WiFi
  * to the current date and time retrieved from an NTP server on the Internet (pool.ntp.org).
  * Then the current time from the RTC is printed to the Serial port.
  * 
  * Instructions:
  * 1. Change the WiFi credentials in the arduino_secrets.h file to match your WiFi network.
- * 2. Upload this sketch to Portenta C33.
+ * 2. Upload this sketch to Portenta C33 / UNO R4 WiFi.
  * 3. Open the Serial Monitor.
  * 
  * Initial author: Sebastian Romero @sebromero
  */
 
 #include "RTC.h"
+
+#if defined(ARDUINO_PORTENTA_C33)
 #include <WiFiC3.h>
+#elif defined(ARDUINO_UNOWIFIR4)
+#include <WiFiS3.h>
+#endif
+
 #include <WiFiUdp.h>
 #include "arduino_secrets.h" 
 
