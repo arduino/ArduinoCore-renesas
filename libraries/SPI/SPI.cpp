@@ -164,25 +164,8 @@ void ArduinoSPI::begin()
       init_ok = false;
     }
   }
-  else
-  {
-#if 0
-/* not using FSP for SPI anymore and no interrupts */
-    SpiMasterIrqReq_t irq_req
-    {
-      .ctrl = &_spi_ctrl,
-      .cfg = &_spi_cfg,
-      .hw_channel = (uint8_t)_channel,
-    };
-    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
 
-    if (FSP_SUCCESS == _open(&_spi_ctrl, &_spi_cfg)) {
-      init_ok &= true;
-    } else {
-      init_ok = false;
-    }
-#endif
-  }
+  /* not using FSP for SPI anymore and no interrupts */
 
   _is_initialized = init_ok;
 }
@@ -229,17 +212,17 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
 
 uint16_t ArduinoSPI::transfer16(uint16_t data)
 {
-    union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
-    t.val = data;
+  union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
+  t.val = data;
 
-    if (_settings.getBitOrder() == LSBFIRST) {
-        t.lsb = transfer(t.lsb);
-        t.msb = transfer(t.msb);
-    } else {
-        t.msb = transfer(t.msb);
-        t.lsb = transfer(t.lsb);
-    }
-    return t.val;
+  if (_settings.getBitOrder() == LSBFIRST) {
+    t.lsb = transfer(t.lsb);
+    t.msb = transfer(t.msb);
+  } else {
+    t.msb = transfer(t.msb);
+    t.lsb = transfer(t.lsb);
+  }
+  return t.val;
 }
 
 void ArduinoSPI::transfer(void *buf, size_t count)
@@ -263,8 +246,8 @@ void ArduinoSPI::transfer(void *buf, size_t count)
     {
         if (buf != NULL) {
             uint32_t *buffer32 = (uint32_t *) buf;
-            size_t ir = 0;
-            size_t it = 0;
+            size_t index_rx = 0;
+            size_t index_tx = 0;
             size_t const n32 = count / 4U;
             uint8_t const bytes_remaining = (uint8_t) (count & 3U);
 
@@ -274,28 +257,28 @@ void ArduinoSPI::transfer(void *buf, size_t count)
                 _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
                 _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
 
-                while ((it < 2U) && (it < n32)) {
+                while ((index_tx < 2U) && (index_tx < n32)) {
                     if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
-                        _spi_ctrl.p_regs->SPDR = buffer32[it];
-                        it++;
+                        _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                        index_tx++;
                     }
                 }
 
-                while (it < n32) {
+                while (index_tx < n32) {
                     if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                         uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                        _spi_ctrl.p_regs->SPDR = buffer32[it];
-                        buffer32[ir] = tmp;
-                        ir++;
-                        it++;
+                        _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                        buffer32[index_rx] = tmp;
+                        index_rx++;
+                        index_tx++;
                     }
                 }
 
-                while (ir < n32) { /* collect the last word received */
+                while (index_rx < n32) { /* collect the last word received */
                     if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                         uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                        buffer32[ir] = tmp;
-                        ir++;
+                        buffer32[index_rx] = tmp;
+                        index_rx++;
                     }
                 }
 
@@ -306,7 +289,7 @@ void ArduinoSPI::transfer(void *buf, size_t count)
             }
 
             /* send the remaining bytes with 8-bit transfers */
-            uint8_t *buffer = (uint8_t *) &buffer32[ir];
+            uint8_t *buffer = (uint8_t *) &buffer32[index_rx];
 
             for (uint8_t index = 0; index < bytes_remaining; index++) {
                 _spi_ctrl.p_regs->SPDR_BY = buffer[index];
@@ -344,35 +327,35 @@ void ArduinoSPI::transfer(void *buf, void *rxbuf, size_t count)
 
             const uint32_t* tx32 = (const uint32_t *) buf;
             uint32_t* rx32 = (uint32_t *) rxbuf;
-            size_t ir = 0;
-            size_t it = 0;
+            size_t index_rx = 0;
+            size_t index_tx = 0;
 
-            while ((it < 2U) && (it < n32)) {
+            while ((index_tx < 2U) && (index_tx < n32)) {
                 if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
-                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[it] : 0xFFFFFFFF;
-                    it++;
+                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[index_tx] : 0xFFFFFFFF;
+                    index_tx++;
                 }
             }
 
-            while (it < n32) {
+            while (index_tx < n32) {
                 if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                     uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[it] : 0xFFFFFFFF;
+                    _spi_ctrl.p_regs->SPDR = (buf != NULL) ? tx32[index_tx] : 0xFFFFFFFF;
                     if (rxbuf != NULL) {
-                        rx32[ir] = tmp;
+                        rx32[index_rx] = tmp;
                     }
-                    ir++;
-                    it++;
+                    index_rx++;
+                    index_tx++;
                 }
             }
 
-            while (ir < n32) { /* collect the last word received */
+            while (index_rx < n32) { /* collect the last word received */
                 if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
                     uint32_t tmp = _spi_ctrl.p_regs->SPDR;
                     if (rxbuf != NULL) {
-                        rx32[ir] = tmp;
+                        rx32[index_rx] = tmp;
                     }
-                    ir++;
+                    index_rx++;
                 }
             }
 
