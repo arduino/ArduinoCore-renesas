@@ -184,13 +184,12 @@ void TwoWire::WireSlaveCallback(i2c_slave_callback_args_t *arg) {
 
 
 /* -------------------------------------------------------------------------- */
-TwoWire::TwoWire(int scl, int sda, WireSpeed_t wp /*= SPEED_STANDARD*/, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*/, bool prefer_sci /*= false*/) : 
+TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*/, bool prefer_sci /*= false*/) :
   scl_pin(scl),
   sda_pin(sda), 
   init_ok(false),
   is_master(true),
   is_sci(false),
-  speed_mode(wp),
   address_mode(am),
   timeout(1000),
   transmission_begun(false),
@@ -281,11 +280,14 @@ void TwoWire::begin(void) {
   init_ok &= cfg_pins(max_index);
 
   if(init_ok) {
-    
+
     /* -----------------------------------
         ->>>>>  MASTER initialization
      * ----------------------------------- */
     if(is_master) {
+
+      setClock(I2C_MASTER_RATE_STANDARD);
+
       if(is_sci) {
         TwoWire::g_SCIWires[channel]          = this;
   
@@ -317,29 +319,8 @@ void TwoWire::begin(void) {
         m_i2c_cfg.p_callback                  = WireMasterCallback;
       }
 
-      m_sci_i2c_extend.clock_settings.clk_divisor_value = 0;
-      m_sci_i2c_extend.clock_settings.brr_value = 14;
-      m_sci_i2c_extend.clock_settings.mddr_value = 255;
-      m_sci_i2c_extend.clock_settings.bitrate_modulation = false;
-      m_sci_i2c_extend.clock_settings.cycles_value = 15;
-      m_sci_i2c_extend.clock_settings.snfr_value = (1);
-
-
-      /* Actual calculated bitrate: 99272. Actual calculated duty cycle: 49%. */
-      m_i2c_extend.timeout_mode             = IIC_MASTER_TIMEOUT_MODE_SHORT;
-      m_i2c_extend.timeout_scl_low          = IIC_MASTER_TIMEOUT_SCL_LOW_DISABLED;
-      m_i2c_extend.clock_settings.brl_value = 27;
-      m_i2c_extend.clock_settings.brh_value = 26;
-      m_i2c_extend.clock_settings.cks_value = 2;
-
       m_i2c_cfg.channel                     = channel;
       m_i2c_cfg.rate                        = I2C_MASTER_RATE_STANDARD;
-      if(speed_mode == SPEED_FAST) {
-          m_i2c_cfg.rate                    = I2C_MASTER_RATE_FAST;
-      }
-      else if(speed_mode == SPEED_VERY_FAST) {
-          m_i2c_cfg.rate                    = I2C_MASTER_RATE_FASTPLUS;
-      }
       m_i2c_cfg.slave                       = 0x00;
       m_i2c_cfg.addr_mode                   = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_MASTER_ADDR_MODE_7BIT : I2C_MASTER_ADDR_MODE_10BIT;
       m_i2c_cfg.p_transfer_tx               = NULL;
@@ -347,8 +328,7 @@ void TwoWire::begin(void) {
       
       m_i2c_cfg.p_context                   = &m_i2c_cfg;
       m_i2c_cfg.ipl                         = (12);
-      
-    
+
     } // if(is_master) {
     /* -----------------------------------
         ->>>>>  SLAVE initialization
@@ -369,12 +349,6 @@ void TwoWire::begin(void) {
       
       s_i2c_cfg.channel                 = channel;
       s_i2c_cfg.rate                    = I2C_SLAVE_RATE_STANDARD;
-      if(speed_mode == SPEED_FAST) {
-        s_i2c_cfg.rate                  = I2C_SLAVE_RATE_FAST;
-      }
-      else if(speed_mode == SPEED_VERY_FAST) {
-        s_i2c_cfg.rate                  = I2C_SLAVE_RATE_FASTPLUS;
-      }
       s_i2c_cfg.slave                   = slave_address;
       s_i2c_cfg.addr_mode               = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_SLAVE_ADDR_MODE_7BIT : I2C_SLAVE_ADDR_MODE_10BIT;
       s_i2c_cfg.general_call_enable     = false;
@@ -544,7 +518,7 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
 }
 
 /* -------------------------------------------------------------------------- */    
-void TwoWire::setClock(uint32_t ws) {
+void TwoWire::setClock(uint32_t freq) {
 /* -------------------------------------------------------------------------- */      
   if(init_ok && is_master) {
     if(m_close != nullptr) {
@@ -553,16 +527,40 @@ void TwoWire::setClock(uint32_t ws) {
   }
 
   if(is_master) {
-    if((WireSpeed_t)ws == SPEED_STANDARD) {
-        m_i2c_cfg.rate                    = I2C_MASTER_RATE_STANDARD;
-    }
-    else if((WireSpeed_t)ws == SPEED_FAST) {
-        m_i2c_cfg.rate                    = I2C_MASTER_RATE_FAST;
-    }
-    else if((WireSpeed_t)ws == SPEED_VERY_FAST) {
-        m_i2c_cfg.rate                    = I2C_MASTER_RATE_FASTPLUS;
-    }
+    m_i2c_cfg.rate = (i2c_master_rate_t)freq;
 
+    if (is_sci) {
+      switch (m_i2c_cfg.rate) {
+        case I2C_MASTER_RATE_STANDARD:
+          m_sci_i2c_extend.clock_settings.brr_value = 14;
+          m_sci_i2c_extend.clock_settings.mddr_value = 255;
+          m_sci_i2c_extend.clock_settings.bitrate_modulation = false;
+          break;
+        case I2C_MASTER_RATE_FAST:
+          m_sci_i2c_extend.clock_settings.brr_value = 2;
+          m_sci_i2c_extend.clock_settings.mddr_value = 204;
+          m_sci_i2c_extend.clock_settings.bitrate_modulation = true;
+          break;
+        }
+    } else {
+      switch (m_i2c_cfg.rate) {
+        case I2C_MASTER_RATE_STANDARD:
+          m_i2c_extend.clock_settings.brl_value = 27;
+          m_i2c_extend.clock_settings.brh_value = 26;
+          m_i2c_extend.clock_settings.cks_value = 2;
+          break;
+        case I2C_MASTER_RATE_FAST:
+          m_i2c_extend.clock_settings.brl_value = 24;
+          m_i2c_extend.clock_settings.brh_value = 23;
+          m_i2c_extend.clock_settings.cks_value = 0;
+          break;
+        case I2C_MASTER_RATE_FASTPLUS:
+          m_i2c_extend.clock_settings.brl_value = 6;
+          m_i2c_extend.clock_settings.brh_value = 5;
+          m_i2c_extend.clock_settings.cks_value = 0;
+          break;
+      }
+    }
   }
 
   if(init_ok) {
