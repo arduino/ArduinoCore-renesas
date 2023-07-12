@@ -227,24 +227,23 @@ uint16_t ArduinoSPI::transfer16(uint16_t data)
 
 void ArduinoSPI::transfer(void *buf, size_t count)
 {
-    if (_is_sci) {
-        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+    if (buf != NULL) {
+        if (_is_sci) {
+            _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
-        _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+            _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
 
-        for (auto const start = millis();
-            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-        {
-            __NOP();
+            for (auto const start = millis();
+                (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+            {
+                __NOP();
+            }
+            if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+            {
+                end();
+            }
         }
-        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-        {
-            end();
-        }
-    }
-    else
-    {
-        if (buf != NULL) {
+        else {
             uint32_t *buffer32 = (uint32_t *) buf;
             size_t index_rx = 0;
             size_t index_tx = 0;
