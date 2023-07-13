@@ -34,7 +34,6 @@
  **************************************************************************************/
 
 extern "C" {
-    void spi_callback(spi_callback_args_t *p_args);
     void sci_spi_callback(spi_callback_args_t *p_args);
 }
 
