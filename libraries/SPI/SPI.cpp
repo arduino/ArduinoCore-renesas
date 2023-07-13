@@ -227,74 +227,76 @@ uint16_t ArduinoSPI::transfer16(uint16_t data)
 
 void ArduinoSPI::transfer(void *buf, size_t count)
 {
-    if (buf != NULL) {
-        if (_is_sci) {
-            _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+    if (NULL == buf) {
+        return;
+    }
 
-            _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
-            for (auto const start = millis();
-                (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-            {
-                __NOP();
-            }
-            if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-            {
-                end();
-            }
+        _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
         }
-        else {
-            uint32_t *buffer32 = (uint32_t *) buf;
-            size_t index_rx = 0;
-            size_t index_tx = 0;
-            size_t const n32 = count / 4U;
-            uint8_t const bytes_remaining = (uint8_t) (count & 3U);
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+        }
+    }
+    else {
+        uint32_t *buffer32 = (uint32_t *) buf;
+        size_t index_rx = 0;
+        size_t index_tx = 0;
+        size_t const n32 = count / 4U;
+        uint8_t const bytes_remaining = (uint8_t) (count & 3U);
 
-            if (n32 != 0U) {
-                _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
-                _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
-                _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
-                _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+        if (n32 != 0U) {
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
 
-                while ((index_tx < 2U) && (index_tx < n32)) {
-                    if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
-                        _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
-                        index_tx++;
-                    }
+            while ((index_tx < 2U) && (index_tx < n32)) {
+                if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
+                    _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                    index_tx++;
                 }
-
-                while (index_tx < n32) {
-                    if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
-                        uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                        _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
-                        buffer32[index_rx] = tmp;
-                        index_rx++;
-                        index_tx++;
-                    }
-                }
-
-                while (index_rx < n32) { /* collect the last word received */
-                    if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
-                        uint32_t tmp = _spi_ctrl.p_regs->SPDR;
-                        buffer32[index_rx] = tmp;
-                        index_rx++;
-                    }
-                }
-
-                _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
-                _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
-                _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
-                _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
             }
 
-            /* send the remaining bytes with 8-bit transfers */
-            uint8_t *buffer = (uint8_t *) &buffer32[index_rx];
-
-            for (uint8_t index = 0; index < bytes_remaining; index++) {
-                _spi_ctrl.p_regs->SPDR_BY = buffer[index];
-                while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
-                buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
+            while (index_tx < n32) {
+                if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                    uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                    _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                    buffer32[index_rx] = tmp;
+                    index_rx++;
+                    index_tx++;
+                }
             }
+
+            while (index_rx < n32) { /* collect the last word received */
+                if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                    uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                    buffer32[index_rx] = tmp;
+                    index_rx++;
+                }
+            }
+
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+        }
+
+        /* send the remaining bytes with 8-bit transfers */
+        uint8_t *buffer = (uint8_t *) &buffer32[index_rx];
+
+        for (uint8_t index = 0; index < bytes_remaining; index++) {
+            _spi_ctrl.p_regs->SPDR_BY = buffer[index];
+            while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+            buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
         }
     }
 }
