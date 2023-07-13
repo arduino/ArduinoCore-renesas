@@ -459,7 +459,7 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 
     _spi_ctrl.p_regs->SPND = 0;
 
-    _spi_ctrl.p_regs->SPCR2 = 0;
+    _spi_ctrl.p_regs->SPCR2 = R_SPI0_SPCR2_SCKASE_Msk;
 
     /* SPMS = 0 -> SPI operation, TXMD = 0 -> full-duplex, SPxIE = 0 -> no interrupts */
     if (SPI_MODE_MASTER == _spi_cfg.operating_mode) {
