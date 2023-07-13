@@ -102,7 +102,7 @@ void ArduinoSPI::begin()
     _cb_event_idx       = _channel;
 
     _spi_cfg.p_extend   = &_spi_ext_cfg;
-    _spi_cfg.p_callback = spi_callback;
+    _spi_cfg.p_callback = nullptr;
   }
 
   /* SPI configuration for SPI HAL driver. */
@@ -548,19 +548,6 @@ std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toF
 /**************************************************************************************
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
-
-void spi_callback(spi_callback_args_t *p_args)
-{
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
-  {
-    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
-  }
-  else
-  {
-    /* Updating the flag here to capture and handle all other error events */
-    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_ABORTED;
-  }
-}
 
 void sci_spi_callback(spi_callback_args_t *p_args)
 {
