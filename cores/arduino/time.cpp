@@ -27,6 +27,7 @@ static FspTimer main_timer;
 #define _timer_clock_freq     24000000UL
 #define _timer_ticks_per_us   (_timer_clock_freq / ((1 << _timer_clock_divider) * 1000000UL))
 #define _timer_period         (_timer_ticks_per_us * 1000UL)
+#define TIMER_PRIORITY        8
 
 static void timer_micros_callback(timer_callback_args_t __attribute((unused)) *p_args) {
 	agt_time_ms += 1;
@@ -34,7 +35,7 @@ static void timer_micros_callback(timer_callback_args_t __attribute((unused)) *p
 
 void startAgt() {
 	main_timer.begin(TIMER_MODE_PERIODIC, _timer_type, _timer_index, _timer_period, 1, _timer_clock_divider, timer_micros_callback);;
-	main_timer.setup_overflow_irq();
+	main_timer.setup_overflow_irq(TIMER_PRIORITY);
 	main_timer.open();
 	main_timer.start(); // bug in R4 1.0.2: calling start() is not necessary: open() starts the counter already !?
 }
