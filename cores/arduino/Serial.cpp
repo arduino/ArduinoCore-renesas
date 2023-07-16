@@ -29,7 +29,19 @@
 #undef Serial
 #endif
 
+//#define ENABLE_DEBUG
+#ifdef ENABLE_DEBUG
+#define DBGDigitalWrite digitalWrite
+#else
+inline void DBGDigitalWrite(int pin, int state) {};
+#endif
+
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
+
+// Major hacks
+extern uint32_t attachInterruptVector(uint32_t interrupt_index, void (*pfunc)());
+
+
 
 void uart_callback(uart_callback_args_t __attribute((unused)) *p_args)
 {
@@ -50,6 +62,7 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
   }
   
 
+
   switch (p_args->event){
       case UART_EVENT_ERR_PARITY:
       case UART_EVENT_ERR_FRAMING:
@@ -58,12 +71,33 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       {
           break;
       }
-      case UART_EVENT_TX_COMPLETE:
       case UART_EVENT_TX_DATA_EMPTY:
       {
-        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
-        //while (to_enqueue) {
-        uart_ptr->tx_done = true;
+        DBGDigitalWrite(4, HIGH);
+#if 0
+        if (uart_ptr->txBuffer.available() == 0) {
+          uart_ptr->tx_fsi_active = false;  // maybe...
+        } else {
+          size_t cb = 0;
+          while (cb < sizeof(tx_fsi_buffer)) {
+            int ch = uart_ptr->txBuffer.read_char();
+            if (ch == -1) break;
+            uart_ptr->tx_fsi_buffer[cb++] = ch;            
+          }
+          uart_ptr->tx_fsi_active = true;
+          R_SCI_UART_Write(&(uart_ptr->uart_ctrl), uart_ptr->tx_fsi_buffer, cb);
+          //R_SCI_UART_SetWriteBuffer(&(uart_ptr->uart_ctrl), uart_ptr->tx_fsi_buffer, cb);
+        }
+#endif
+        DBGDigitalWrite(4, LOW);
+        break;
+      }
+      case UART_EVENT_TX_COMPLETE:
+      {
+        // 
+        DBGDigitalWrite(3, HIGH);
+        uart_ptr->tx_fsi_active = false;
+        DBGDigitalWrite(3, LOW);
         break;
       }
       case UART_EVENT_RX_CHAR:
@@ -102,28 +136,52 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 
   rv = IRQManager::getInstance().addPeripheral(IRQ_SCI_UART,&cfg);
   
+  attachInterruptVector( uart_cfg.txi_irq, &uart_txi_isr);
+
   return rv;
 } 
 
 /* -------------------------------------------------------------------------- */
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
-  if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, &c, 1);
-    while (!tx_done) {}
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  return write(&c, 1);
 }
 
-size_t  UART::write(uint8_t* c, size_t len) {
-  if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, c, len);
-    while (!tx_done) {}
+size_t  UART::write(const uint8_t* c, size_t len) {
+  if(init_ok && (len > 0)) {
+    DBGDigitalWrite(2, HIGH);
+    size_t i = 0;
+
+    // disable the transmit interrupts while we are working on this
+    uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TIE_Msk | R_SCI0_SCR_TEIE_Msk);
+
+    while (i < len) {
+      // see if we have room in the FIFO to store this character.
+      if (!txBuffer.isFull()) {
+        txBuffer.store_char(*c++);
+        i++;
+      }
+      // See if we can directly output to the hardware
+      // Might need to check to see if we have dat if buffer
+      // but don't see any way we can get here without...
+      if (uart_ctrl.fifo_depth) {
+        if ((uint32_t) uart_ctrl.p_reg->FDR_b.T < uart_ctrl.fifo_depth) {
+          uart_ctrl.p_reg->FTDRL =  txBuffer.read_char();  
+        }
+
+      } else {
+        // Uart does not have FIFO so check TDRE..
+        if (uart_ctrl.p_reg->SSR_b.TDRE) {
+          uart_ctrl.p_reg->TDR = txBuffer.read_char();
+        }
+      }
+    }
+
+    // turn back on the transfe empty interrput.
+    tx_fsi_active = true;
+    uart_ctrl.p_reg->SCR |= R_SCI0_SCR_TIE_Msk;
+
+    DBGDigitalWrite(2, LOW);
     return len;
   }
   else {
@@ -263,6 +321,7 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     }
     
     uart_cfg.p_callback = UART::WrapperCallback;
+    tx_fsi_active = false;
   }
   else {
     return;
@@ -322,8 +381,19 @@ int UART::read() {
 /* -------------------------------------------------------------------------- */
 void UART::flush() {
 /* -------------------------------------------------------------------------- */  
-  while(txBuffer.available());
+  // wait until our software queue is not empty and we are not at TEND.
+//  while(txBuffer.available());
+//  while ((uart_ctrl.p_reg->SSR_b.TEND == 0) || (uart_ctrl.p_reg->SSR_b.TDRE == 0)) {}
+  while(tx_fsi_active) ;
+
 }
+
+/* -------------------------------------------------------------------------- */
+int UART::availableForWrite() {
+/* -------------------------------------------------------------------------- */  
+  return txBuffer.availableForStore();
+}
+
 
 /* -------------------------------------------------------------------------- */
 size_t UART::write_raw(uint8_t* c, size_t len) {
@@ -336,3 +406,138 @@ size_t UART::write_raw(uint8_t* c, size_t len) {
   }
   return len;
 }
+
+void UART::printDebugInfo(Stream *pstream) {
+  pstream->print("Channel: ");
+  pstream->print(channel, DEC);
+  pstream->print("\nPins:(TR) ");
+  pstream->print(tx_pin, DEC);
+  pstream->print(" ");
+  pstream->print(rx_pin, DEC);
+  pstream->println();
+}
+
+/*******************************************************************************************************************//**
+ * TXI interrupt processing for UART mode. TXI interrupt fires when the data in the data register or FIFO register has
+ * been transferred to the data shift register, and the next data can be written.  This interrupt writes the next data.
+ * After the last data byte is written, this interrupt disables the TXI interrupt and enables the TEI (transmit end)
+ * interrupt.
+ **********************************************************************************************************************/
+#if 0
+static void r_sci_uart_call_callback (sci_uart_instance_ctrl_t * p_ctrl, uint32_t data, uart_event_t event)
+{
+    uart_callback_args_t args;
+
+    /* Store callback arguments in memory provided by user if available.  This allows callback arguments to be
+     * stored in non-secure memory so they can be accessed by a non-secure callback function. */
+    uart_callback_args_t * p_args = p_ctrl->p_callback_memory;
+    if (NULL == p_args)
+    {
+        /* Store on stack */
+        p_args = &args;
+    }
+    else
+    {
+        /* Save current arguments on the stack in case this is a nested interrupt. */
+        args = *p_args;
+    }
+
+    p_args->channel   = p_ctrl->p_cfg->channel;
+    p_args->data      = data;
+    p_args->event     = event;
+    p_args->p_context = p_ctrl->p_context;
+
+
+    /* If the project is not Trustzone Secure, then it will never need to change security state in order to call the callback. */
+    p_ctrl->p_callback(p_args);
+    if (NULL != p_ctrl->p_callback_memory)
+    {
+        /* Restore callback memory in case this is a nested interrupt. */
+        *p_ctrl->p_callback_memory = args;
+    }
+}
+#endif
+
+void UART::uart_txi_isr (void)
+{
+  IRQn_Type irq = R_FSP_CurrentIrqGet();
+  //static uint8_t count_calls = 0;
+  //digitalWrite(LED_BUILTIN, (count_calls++ & 1)? HIGH : LOW);
+
+  /* Clear pending IRQ to make sure it doesn't fire again after exiting */
+  R_BSP_IrqStatusClear(irq);
+
+  /* Recover ISR context saved in open. */
+  sci_uart_instance_ctrl_t * p_ctrl = (sci_uart_instance_ctrl_t *) R_FSP_IsrContextGet(irq);
+
+  /* get pointer to the UART object */
+  UART *uart_ptr = UART::g_uarts[p_ctrl->p_cfg->channel];
+
+  /* Write the data to the FIFO if the channel has a FIFO.  
+     Otherwise write data based on size to the transmit  register. */
+
+  if (p_ctrl->fifo_depth)
+  {
+    uint32_t cnt = (uint32_t) p_ctrl->p_reg->FDR_b.T;
+    for (; cnt < p_ctrl->fifo_depth; cnt++)
+    {
+      int ch = uart_ptr->txBuffer.read_char();
+      if (ch == -1) break;     
+      p_ctrl->p_reg->FTDRL = ch;
+    }
+
+    /* Clear TDFE flag */
+    p_ctrl->p_reg->SSR_FIFO_b.TDFE = 0U;
+  }
+  else
+  {
+    /* Not FIFO see if we have anything in our txBuffer to write */
+    int ch = uart_ptr->txBuffer.read_char();
+    if (ch != -1)
+    {
+      p_ctrl->p_reg->TDR = ch;
+    }
+  }
+
+  /* now see if we have anything still in txBuffer to output */
+  if (uart_ptr->txBuffer.available() == 0) 
+  {
+    /* After all data has been transmitted, disable transmit interrupts and enable the transmit end interrupt. */
+    uint8_t scr_temp = p_ctrl->p_reg->SCR;
+    scr_temp          |= R_SCI0_SCR_TEIE_Msk;
+    scr_temp          &= (uint8_t) ~R_SCI0_SCR_TIE_Msk;
+    p_ctrl->p_reg->SCR = scr_temp;
+
+    /* we first do call back to see if the caller wishes to update the buffer */
+    // Not sure if we need to do any callbacks here...
+    p_ctrl->p_tx_src = NULL;
+
+    /* If a callback was provided, call it with the argument */
+    //if (NULL != p_ctrl->p_callback)
+    //{
+    //    r_sci_uart_call_callback(p_ctrl, 0U, UART_EVENT_TX_DATA_EMPTY);
+    //}
+  }
+
+  /* Restore context if RTOS is used */
+  FSP_CONTEXT_RESTORE;
+}
+
+
+
+#define FIXED_IRQ_NUM   16
+
+/* -------------------------------------------------------------------------- */
+uint32_t attachInterruptVector(uint32_t interrupt_index, void (*pfunc)() ) {
+/* -------------------------------------------------------------------------- */    
+  volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+  /* set the displacement to the "programmable" part of the table */
+  irq_ptr += FIXED_IRQ_NUM;
+
+  __disable_irq();
+  uint32_t return_value =  *(irq_ptr + interrupt_index);
+  *(irq_ptr + interrupt_index) = (uint32_t)pfunc;
+  __enable_irq();
+  return return_value;
+}
+

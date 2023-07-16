@@ -39,6 +39,7 @@
 
 #undef SERIAL_BUFFER_SIZE
 #define SERIAL_BUFFER_SIZE 512
+#define SERIAL_FSI_BUFFER_SIZE 16
 
 #define MAX_UARTS    10
 
@@ -52,7 +53,8 @@ class UART : public arduino::HardwareSerial {
   public:
     static UART *g_uarts[MAX_UARTS]; 
     static void WrapperCallback(uart_callback_args_t *p_args);
-
+    static void uart_txi_isr(void);
+    
     UART(int _pin_tx, int _pin_rx, int pin_rts = -1, int pin_cts = -1);
     void begin(unsigned long);
     void begin(unsigned long, uint16_t config);
@@ -62,7 +64,8 @@ class UART : public arduino::HardwareSerial {
     int read(void);
     void flush(void);
     size_t write(uint8_t c);
-    size_t write(uint8_t* c, size_t len);
+    size_t write(const uint8_t* c, size_t len);
+    virtual int availableForWrite() override;
     size_t write_raw(uint8_t* c, size_t len);
     using Print::write; 
     operator bool(); // { return true; }
@@ -78,7 +81,9 @@ class UART : public arduino::HardwareSerial {
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
-    volatile bool tx_done;
+    uint8_t                   tx_fsi_buffer[SERIAL_FSI_BUFFER_SIZE];
+
+    volatile bool             tx_fsi_active;
 
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
@@ -91,6 +96,9 @@ class UART : public arduino::HardwareSerial {
 
   protected:
     bool                      init_ok;
+  public:
+    R_SCI0_Type *             get_p_reg() {return  uart_ctrl.p_reg;}
+    void                      printDebugInfo(Stream *pstream);
 };
 
     
