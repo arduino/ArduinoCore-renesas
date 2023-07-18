@@ -35,6 +35,25 @@ static const uint8_t A3 = PIN_A3;
 static const uint8_t A4 = PIN_A4;
 static const uint8_t A5 = PIN_A5;
 
+// Digital pins
+// -----------
+#define PIN_D0   (0u)
+#define PIN_D1   (1u)
+#define PIN_D2   (2u)
+#define PIN_D3   (3u)
+#define PIN_D4   (4u)
+#define PIN_D5   (5u)
+#define PIN_D6   (6u)
+#define PIN_D7   (7u)
+#define PIN_D8   (8u)
+#define PIN_D9   (9u)
+#define PIN_D10   (10u)
+#define PIN_D11   (11u)
+#define PIN_D12   (12u)
+#define PIN_D13   (13u)
+#define PIN_D14   (14u)
+#define PIN_D15   (15u)
+
 #undef D0
 #undef D1
 #undef D2
