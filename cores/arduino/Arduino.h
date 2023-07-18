@@ -125,4 +125,8 @@ float analogReference();
 #include "pins_arduino.h"
 #include "usb/USB.h"
 
+#ifdef R7FA2A1AB_H
+  #define USE_ADC_FIX_IN_SCIENCE_KIT_REV_3_0
+#endif
+
 #endif //__ARDUINO__H__
