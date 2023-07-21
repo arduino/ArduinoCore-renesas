@@ -1,7 +1,8 @@
 /*
   This sketch allows live editing of the matrix pixels using WebSerial
   To test, head to https://ledmatrix-editor.arduino.cc
-  press 'p' and select 'UNO R4 WiFi' board from the list.
+
+  The LED Matrix editor is part of Arduino Labs (https://labs.arduino.cc/), and is therefore considered experimental software.
 
   Don't forget to close any serial monitor already opened.
 */
