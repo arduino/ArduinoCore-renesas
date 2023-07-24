@@ -70,22 +70,22 @@ static const uint8_t A5 = PIN_A5;
 #undef D13
 #undef D14
 #undef D15
-static constexpr uint8_t D0 = PIN_D0;
-static constexpr uint8_t D1 = PIN_D1;
-static constexpr uint8_t D2 = PIN_D2;
-static constexpr uint8_t D3 = PIN_D3;
-static constexpr uint8_t D4 = PIN_D4;
-static constexpr uint8_t D5 = PIN_D5;
-static constexpr uint8_t D6 = PIN_D6;
-static constexpr uint8_t D7 = PIN_D7;
-static constexpr uint8_t D8 = PIN_D8;
-static constexpr uint8_t D9 = PIN_D9;
-static constexpr uint8_t D10 = PIN_D10;
-static constexpr uint8_t D11 = PIN_D11;
-static constexpr uint8_t D12 = PIN_D12;
-static constexpr uint8_t D13 = PIN_D13;
-static constexpr uint8_t D14 = PIN_D14;
-static constexpr uint8_t D15 = PIN_D15;
+static const uint8_t D0 = PIN_D0;
+static const uint8_t D1 = PIN_D1;
+static const uint8_t D2 = PIN_D2;
+static const uint8_t D3 = PIN_D3;
+static const uint8_t D4 = PIN_D4;
+static const uint8_t D5 = PIN_D5;
+static const uint8_t D6 = PIN_D6;
+static const uint8_t D7 = PIN_D7;
+static const uint8_t D8 = PIN_D8;
+static const uint8_t D9 = PIN_D9;
+static const uint8_t D10 = PIN_D10;
+static const uint8_t D11 = PIN_D11;
+static const uint8_t D12 = PIN_D12;
+static const uint8_t D13 = PIN_D13;
+static const uint8_t D14 = PIN_D14;
+static const uint8_t D15 = PIN_D15;
 
 // LEDs
 // ----
