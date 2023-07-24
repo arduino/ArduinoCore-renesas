@@ -56,7 +56,7 @@ unsigned long micros() {
 	uint32_t const down_counts = main_timer.get_counter();
 	if (_timer_get_underflow_bit() && (down_counts > (_timer_period / 2)))
 	{
-		// the counter wrapped arround just before it was read
+		// the counter wrapped around just before it was read
 		++ms;
 	}
 	NVIC_EnableIRQ(main_timer.get_cfg()->cycle_end_irq);
