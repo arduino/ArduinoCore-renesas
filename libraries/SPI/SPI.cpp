@@ -102,7 +102,7 @@ void ArduinoSPI::begin()
     _cb_event_idx       = _channel;
 
     _spi_cfg.p_extend   = &_spi_ext_cfg;
-    _spi_cfg.p_callback = spi_callback;
+    _spi_cfg.p_callback = nullptr;
   }
 
   /* SPI configuration for SPI HAL driver. */
@@ -164,22 +164,8 @@ void ArduinoSPI::begin()
       init_ok = false;
     }
   }
-  else
-  {
-    SpiMasterIrqReq_t irq_req
-    {
-      .ctrl = &_spi_ctrl,
-      .cfg = &_spi_cfg,
-      .hw_channel = (uint8_t)_channel,
-    };
-    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SPI_MASTER, &irq_req);
 
-    if (FSP_SUCCESS == _open(&_spi_ctrl, &_spi_cfg)) {
-      init_ok &= true;
-    } else {
-      init_ok = false;
-    }
-  }
+  /* not using FSP for SPI anymore and no interrupts */
 
   _is_initialized = init_ok;
 }
@@ -196,24 +182,31 @@ void ArduinoSPI::end()
 
 uint8_t ArduinoSPI::transfer(uint8_t data)
 {
-  uint8_t rxbuf;
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
-  if (_is_sci) {
-    _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    _write_then_read(&_spi_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
-  }
+    uint8_t rxbuf;
 
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-      return 0;
-  }
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+
+        _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_8_BITS);
+
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+            return 0;
+        }
+    }
+    else
+    {
+        _spi_ctrl.p_regs->SPDR_BY = data;
+        while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+        rxbuf = _spi_ctrl.p_regs->SPDR_BY;
+    }
+
   return rxbuf;
 }
 
@@ -234,23 +227,78 @@ uint16_t ArduinoSPI::transfer16(uint16_t data)
 
 void ArduinoSPI::transfer(void *buf, size_t count)
 {
-  _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+    if (NULL == buf) {
+        return;
+    }
 
-  if (_is_sci) {
-    _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  } else {
-    _write_then_read(&_spi_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
-  }
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
 
-  for (auto const start = millis();
-       (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
-  {
-      __NOP();
-  }
-  if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
-  {
-      end();
-  }
+        _write_then_read(&_spi_sci_ctrl, buf, buf, count, SPI_BIT_WIDTH_8_BITS);
+
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+        }
+    }
+    else {
+        uint32_t *buffer32 = (uint32_t *) buf;
+        size_t index_rx = 0;
+        size_t index_tx = 0;
+        size_t const n32 = count / 4U;
+        uint8_t const bytes_remaining = (uint8_t) (count & 3U);
+
+        if (n32 != 0U) {
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 2; /* spi bit width = 32 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+            while ((index_tx < 2U) && (index_tx < n32)) {
+                if (_spi_ctrl.p_regs->SPSR_b.SPTEF) {
+                    _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                    index_tx++;
+                }
+            }
+
+            while (index_tx < n32) {
+                if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                    uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                    _spi_ctrl.p_regs->SPDR = buffer32[index_tx];
+                    buffer32[index_rx] = tmp;
+                    index_rx++;
+                    index_tx++;
+                }
+            }
+
+            while (index_rx < n32) { /* collect the last word received */
+                if (_spi_ctrl.p_regs->SPSR_b.SPRF) {
+                    uint32_t tmp = _spi_ctrl.p_regs->SPDR;
+                    buffer32[index_rx] = tmp;
+                    index_rx++;
+                }
+            }
+
+            _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+            _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+            _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+            _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+        }
+
+        /* send the remaining bytes with 8-bit transfers */
+        uint8_t *buffer = (uint8_t *) &buffer32[index_rx];
+
+        for (uint8_t index = 0; index < bytes_remaining; index++) {
+            _spi_ctrl.p_regs->SPDR_BY = buffer[index];
+            while (0U == _spi_ctrl.p_regs->SPSR_b.SPRF) {}
+            buffer[index] = _spi_ctrl.p_regs->SPDR_BY;
+        }
+    }
 }
 
 void ArduinoSPI::beginTransaction(arduino::SPISettings settings)
@@ -366,29 +414,71 @@ void ArduinoSPI::configSpiSettings(arduino::SPISettings const & settings)
 
 void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 {
-  auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+/** SPI base register access macro.  */
+#define SPI_REG(channel)  ((R_SPI0_Type *) ((uint32_t) R_SPI0 + \
+                           ((uint32_t) R_SPI1 - (uint32_t) R_SPI0) * (channel)))
 
-  rspck_div_setting_t spck_div = _spi_ext_cfg.spck_div;
-  R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
+    _spi_ctrl.p_cfg             = &_spi_cfg;
+    _spi_ctrl.p_callback        = _spi_cfg.p_callback;
+    _spi_ctrl.p_context         = _spi_cfg.p_context;
+    _spi_ctrl.p_callback_memory = NULL;
+    _spi_ctrl.p_regs = SPI_REG(_spi_ctrl.p_cfg->channel);
 
-  uint32_t spcmd0 = _spi_ctrl.p_regs->SPCMD[0];
+    auto [clk_phase, clk_polarity, bit_order] = toFspSpiConfig(settings);
+    rspck_div_setting_t spck_div = _spi_ext_cfg.spck_div;
+    R_SPI_CalculateBitrate(settings.getClockFreq(), &spck_div);
 
-  /* Configure CPHA setting. */
-  spcmd0 |= (uint32_t) clk_phase;
+    _spi_ctrl.p_regs->SPCR = 0; /* disable SPI unit */
 
-  /* Configure CPOL setting. */
-  spcmd0 |= (uint32_t) clk_polarity << 1;
+    /* Power up the SPI module. */
+    R_BSP_MODULE_START(FSP_IP_SPI, _spi_cfg.channel);
 
-  /* Configure Bit Order (MSB,LSB) */
-  spcmd0 |= (uint32_t) bit_order << 12;
+    /* configure SSLn polarity setting. */
+    uint32_t sslp = 0;
+    sslp |= (uint32_t) _spi_ext_cfg.ssl_polarity << _spi_ext_cfg.ssl_select;
+    _spi_ctrl.p_regs->SSLP = (uint8_t) sslp;
 
-  /* Configure the Bit Rate Division Setting */
-  spcmd0 &= ~(((uint32_t) 3) << 2);
-  spcmd0 |= (uint32_t) spck_div.brdv << 2;
+    uint32_t sppcr  = 0;
+    /* set MOSI idle value to low */
+    sppcr |= R_SPI0_SPPCR_MOIFE_Msk;
+    _spi_ctrl.p_regs->SPPCR = (uint8_t) sppcr;
 
-  /* Update settings. */
-  _spi_ctrl.p_regs->SPCMD[0] = (uint16_t) spcmd0;
-  _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
+    /* configure bit rate */
+    _spi_ctrl.p_regs->SPBR = (uint8_t) spck_div.spbr;
+
+    /* the SPBYT bit in SPDCR is documented only by "Technical Update" */
+    _spi_ctrl.p_regs->SPDCR_b.SPBYT = 1; /* SPI byte access */
+
+    /* register undocumented for the RA4M1 but found to be working and necessary */
+    /* BYSW - Byte Swap Operating Mode Select - 1 = Byte Swap ON - essential for 32 bit transfers */
+    _spi_ctrl.p_regs->SPDCR2_b.BYSW = 1;
+
+    _spi_ctrl.p_regs->SPCKD = 0;
+
+    _spi_ctrl.p_regs->SSLND = 0;
+
+    _spi_ctrl.p_regs->SPND = 0;
+
+    _spi_ctrl.p_regs->SPCR2 = R_SPI0_SPCR2_SCKASE_Msk;
+
+    /* SPMS = 0 -> SPI operation, TXMD = 0 -> full-duplex, SPxIE = 0 -> no interrupts */
+    if (SPI_MODE_MASTER == _spi_cfg.operating_mode) {
+        _spi_ctrl.p_regs->SPCR_b.MSTR = 1;
+    }
+
+    _spi_ctrl.p_regs->SPCMD[0] = 0;
+    _spi_ctrl.p_regs->SPCMD_b[0].CPHA = clk_phase;
+    _spi_ctrl.p_regs->SPCMD_b[0].CPOL = clk_polarity;
+    _spi_ctrl.p_regs->SPCMD_b[0].BRDV = spck_div.brdv; /* set bit rate division */
+    _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+    _spi_ctrl.p_regs->SPCMD_b[0].LSBF = bit_order;
+
+    _spi_ctrl.p_regs->SPSR; /* read to clear OVRF */
+    _spi_ctrl.p_regs->SPSR = 0; /* clear status register */
+
+    _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+    _spi_ctrl.open = (0x52535049ULL); /* "SPI" in ASCII, used to determine if channel is open. */
 }
 
 void ArduinoSPI::configSpiSci(arduino::SPISettings const & settings)
@@ -458,19 +548,6 @@ std::tuple<spi_clk_phase_t, spi_clk_polarity_t, spi_bit_order_t> ArduinoSPI::toF
 /**************************************************************************************
  * CALLBACKS FOR FSP FRAMEWORK
  **************************************************************************************/
-
-void spi_callback(spi_callback_args_t *p_args)
-{
-  if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
-  {
-    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_COMPLETE;
-  }
-  else
-  {
-    /* Updating the flag here to capture and handle all other error events */
-    _spi_cb_event[p_args->channel] = SPI_EVENT_TRANSFER_ABORTED;
-  }
-}
 
 void sci_spi_callback(spi_callback_args_t *p_args)
 {
