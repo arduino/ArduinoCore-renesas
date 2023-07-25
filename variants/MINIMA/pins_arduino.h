@@ -74,6 +74,8 @@ static const uint8_t A5 = PIN_A5;
 // ----
 #define PIN_LED     (13u)
 #define LED_BUILTIN PIN_LED
+#define LED_TX      (21u)
+#define LED_RX      (22u)
 
 /****** RTC CORE DEFINES *******/
 #define RTC_HOWMANY     1
