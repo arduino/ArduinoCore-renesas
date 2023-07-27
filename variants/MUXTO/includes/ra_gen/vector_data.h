@@ -6,21 +6,19 @@
         #endif
 /* Number of interrupts allocated */
 #ifndef VECTOR_DATA_IRQ_COUNT
-#define VECTOR_DATA_IRQ_COUNT    (12)
+#define VECTOR_DATA_IRQ_COUNT    (10)
 #endif
 /* ISR prototypes */
-void sci_spi_rxi_isr(void);
-void sci_spi_txi_isr(void);
-void sci_spi_tei_isr(void);
-void sci_spi_eri_isr(void);
+void sci_uart_rxi_isr(void);
+void sci_i2c_txi_isr(void);
+void sci_i2c_tei_isr(void);
+void sci_uart_eri_isr(void);
 void usbfs_interrupt_handler(void);
 void usbfs_resume_handler(void);
 void iic_slave_rxi_isr(void);
 void iic_slave_txi_isr(void);
 void iic_slave_tei_isr(void);
 void iic_slave_eri_isr(void);
-void spi_tei_isr(void);
-void spi_eri_isr(void);
 
 /* Vector table allocations */
 #define VECTOR_NUMBER_SCI0_RXI ((IRQn_Type) 0) /* SCI0 RXI (Receive data full) */
@@ -43,10 +41,6 @@ void spi_eri_isr(void);
 #define IIC0_TEI_IRQn          ((IRQn_Type) 8) /* IIC0 TEI (Transmit end) */
 #define VECTOR_NUMBER_IIC0_ERI ((IRQn_Type) 9) /* IIC0 ERI (Transfer error) */
 #define IIC0_ERI_IRQn          ((IRQn_Type) 9) /* IIC0 ERI (Transfer error) */
-#define VECTOR_NUMBER_SPI0_TEI ((IRQn_Type) 10) /* SPI0 TEI (Transmission complete event) */
-#define SPI0_TEI_IRQn          ((IRQn_Type) 10) /* SPI0 TEI (Transmission complete event) */
-#define VECTOR_NUMBER_SPI0_ERI ((IRQn_Type) 11) /* SPI0 ERI (Error) */
-#define SPI0_ERI_IRQn          ((IRQn_Type) 11) /* SPI0 ERI (Error) */
 #ifdef __cplusplus
         }
         #endif

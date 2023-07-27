@@ -1,8 +1,0 @@
--iwithprefixbefore/variants/CAPRI/includes/ra/fsp/inc
--iwithprefixbefore/variants/CAPRI/includes/ra/fsp/inc/api
--iwithprefixbefore/variants/CAPRI/includes/ra/fsp/inc/instances
--iwithprefixbefore/variants/CAPRI/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
--iwithprefixbefore/variants/CAPRI/includes/ra_gen
--iwithprefixbefore/variants/CAPRI/includes/ra_cfg/fsp_cfg/bsp
--iwithprefixbefore/variants/CAPRI/includes/ra_cfg/fsp_cfg
--iwithprefixbefore/variants/CAPRI/includes/ra/fsp/src/r_usb_basic/src/driver/inc

@@ -17,7 +17,6 @@
         <peripheral name="DAC0" group="DAC" security=""/>
         <peripheral name="DAC120" group="DAC12" security=""/>
         <peripheral name="DAC80" group="DAC8" security=""/>
-        <peripheral name="SPI0" group="SPI" security=""/>
         <peripheral name="ICU">
             <slot name="IRQ0" secure="false"/>
             <slot name="IRQ1" secure="false"/>
@@ -29,8 +28,6 @@
             <slot name="IRQ7" secure="false"/>
             <slot name="IRQ8" secure="false"/>
             <slot name="IRQ9" secure="false"/>
-            <slot name="IRQ10" secure="false"/>
-            <slot name="IRQ11" secure="false"/>
         </peripheral>
     </partition>
 </azone>
