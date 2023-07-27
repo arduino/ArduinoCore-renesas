@@ -190,3 +190,48 @@ muxto.upload.maximum_size=262144
 muxto.upload.maximum_data_size=32768
 
 ##############################################################
+
+capri.name=Arduino Capri
+capri.build.core=arduino
+capri.build.crossprefix=arm-none-eabi-
+capri.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+capri.build.variant=CAPRI
+capri.build.mcu=cortex-m23
+capri.build.architecture=cortex-m23
+capri.build.fpu=
+capri.build.float-abi=
+capri.build.board=CAPRI
+capri.build.defines=-DF_CPU=48000000 -DFIRST_BULK_PIPE=4
+capri.vid.0=0x2341
+capri.pid.0=0x006D
+capri.vid.1=0x2341
+capri.pid.1=0x016D
+capri.upload_port.0.vid=0x2341
+capri.upload_port.0.pid=0x006D
+capri.upload_port.1.vid=0x2341
+capri.upload_port.1.pid=0x016D
+capri.compiler.fsp.defines={build.variant.path}/defines.txt
+capri.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+capri.compiler.fsp.cflags=-mthumb -D_RA_CORE=CM23 -D_RENESAS_RA_
+capri.compiler.fsp.cxxflags=-mthumb -D_RA_CORE=CM23 -D_RENESAS_RA_
+capri.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+capri.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+capri.compiler.fsp.includes={build.variant.path}/includes.txt
+capri.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+capri.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+capri.upload.tool=dfu-util
+capri.upload.tool.default=dfu-util
+capri.upload.protocol=
+capri.upload.transport=
+capri.upload.vid=0x2341
+# temporary, recompile bootloader with the right PID
+capri.upload.pid=0x016D
+capri.upload.address=0x00010000
+capri.upload.interface=0
+capri.upload.use_1200bps_touch=false
+capri.upload.wait_for_upload_port=false
+capri.upload.native_usb=true
+capri.upload.maximum_size=262144
+capri.upload.maximum_data_size=32768
+
+##############################################################
