@@ -103,7 +103,9 @@ typedef struct st_sci_uart_instance_ctrl
 typedef enum e_sci_uart_rx_fifo_trigger
 {
     SCI_UART_RX_FIFO_TRIGGER_1   = 0x1, ///< Callback after each byte is received without buffering
+    SCI_UART_RX_FIFO_TRIGGER_HALF = 0x8, ///< Callback when FIFO is half full or  (fewer interrupts, but leaves room)
     SCI_UART_RX_FIFO_TRIGGER_MAX = 0xF, ///< Callback when FIFO is full or after 15 bit times with no data (fewer interrupts)
+    SCI_UART_RX_FIFO_TRIGGER_DEFAULT = SCI_UART_RX_FIFO_TRIGGER_HALF, ///< CCallback when FIFO is half full or  (fewer interrupts, but leaves room)
 } sci_uart_rx_fifo_trigger_t;
 
 /** Asynchronous Start Bit Edge Detection configuration. */

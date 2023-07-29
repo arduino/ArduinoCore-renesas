@@ -117,9 +117,9 @@ static const char * const print_info[] = {
 #endif
 };
 
-static char* fw_name;
-static char* hw_ver;
-static char* sw_ver;
+const static char* fw_name;
+const static char* hw_ver;
+const static char* sw_ver;
 static uint32_t main_stack_start_addr = 0;
 static size_t main_stack_size = 0;
 static uint32_t code_start_addr = 0;

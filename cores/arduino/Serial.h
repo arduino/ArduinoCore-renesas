@@ -35,10 +35,15 @@
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 
-#include "SafeRingBuffer.h"
+//#include "SafeRingBuffer.h"
+#include "FasterSafeRingBuffer.h"
 
 #undef SERIAL_BUFFER_SIZE
 #define SERIAL_BUFFER_SIZE 512
+#define SERIAL_FSI_BUFFER_SIZE 16
+
+// Uncomment to enable additional Debug code to be enabled
+//#define SERIAL_TEST_AND_DEBUG_TX_CODE
 
 #define MAX_UARTS    10
 
@@ -52,6 +57,8 @@ class UART : public arduino::HardwareSerial {
   public:
     static UART *g_uarts[MAX_UARTS]; 
     static void WrapperCallback(uart_callback_args_t *p_args);
+    static void WrapperCallbackFIFO(uart_callback_args_t *p_args);
+    static void uart_txi_isr(void);
 
     UART(int _pin_tx, int _pin_rx, int pin_rts = -1, int pin_cts = -1);
     void begin(unsigned long);
@@ -62,7 +69,8 @@ class UART : public arduino::HardwareSerial {
     int read(void);
     void flush(void);
     size_t write(uint8_t c);
-    size_t write(uint8_t* c, size_t len);
+    size_t write(const uint8_t* c, size_t len);
+    virtual int availableForWrite() override;
     size_t write_raw(uint8_t* c, size_t len);
     using Print::write; 
     operator bool(); // { return true; }
@@ -75,11 +83,35 @@ class UART : public arduino::HardwareSerial {
     bool                      cfg_pins(int max_index);
 
     int                       channel;
-    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
-    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
+    //arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
+    //arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
+    arduino::FasterSafeReadRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
+    arduino::FasterSafeWriteRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
-    volatile bool tx_done;
+    uint8_t                   tx_fsi_buffer[SERIAL_FSI_BUFFER_SIZE];
 
+    // 0 - not active, 1 - active, 2 - TDRE state empty waiting for TE
+    enum {TX_FSI_COMPLETE = 0, TX_FSI_ACTIVE, TX_FSI_WAITING_TE};
+
+    volatile uint8_t          tx_fsi_state; 
+
+    // tx debug
+    // Top 3 bits - what 
+    //   0000 - FSI_Write was empty
+    //   0010 - Not in complete tate
+    //   0100  TDRE->TEND
+    //   0110  TDRE Continue
+    //   1000  TEND 
+    #ifdef SERIAL_TEST_AND_DEBUG_TX_CODE
+    volatile uint8_t          last_tx_info_index = 0;
+    volatile uint8_t          last_tx_info[16];
+    inline void save_tx_info(uint8_t val) {
+        last_tx_info[last_tx_info_index] = val;
+        last_tx_info_index = (last_tx_info_index + 1) & 0xf;
+    }
+    #else
+    inline void save_tx_info(__attribute__((unused)) uint8_t val) {}
+    #endif
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
     baud_setting_t            uart_baud;
@@ -91,6 +123,9 @@ class UART : public arduino::HardwareSerial {
 
   protected:
     bool                      init_ok;
+  public:
+    R_SCI0_Type *             get_p_reg() {return  uart_ctrl.p_reg;}
+    void                      printDebugInfo(Stream *pstream);
 };
 
     
