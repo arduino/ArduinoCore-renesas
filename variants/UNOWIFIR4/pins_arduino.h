@@ -37,6 +37,23 @@ static const uint8_t A5 = PIN_A5;
 
 // Digital pins
 // -----------
+#define PIN_D0   (0u)
+#define PIN_D1   (1u)
+#define PIN_D2   (2u)
+#define PIN_D3   (3u)
+#define PIN_D4   (4u)
+#define PIN_D5   (5u)
+#define PIN_D6   (6u)
+#define PIN_D7   (7u)
+#define PIN_D8   (8u)
+#define PIN_D9   (9u)
+#define PIN_D10   (10u)
+#define PIN_D11   (11u)
+#define PIN_D12   (12u)
+#define PIN_D13   (13u)
+#define PIN_D14   (14u)
+#define PIN_D15   (15u)
+
 #undef D0
 #undef D1
 #undef D2
@@ -53,22 +70,22 @@ static const uint8_t A5 = PIN_A5;
 #undef D13
 #undef D14
 #undef D15
-#define D0  (0u)
-#define D1  (1u)
-#define D2  (2u)
-#define D3  (3u)
-#define D4  (4u)
-#define D5  (5u)
-#define D6  (6u)
-#define D7  (7u)
-#define D8  (8u)
-#define D9  (9u)
-#define D10 (10u)
-#define D11 (11u)
-#define D12 (12u)
-#define D13 (13u)
-#define D14 (14u)
-#define D15 (15u)
+static const uint8_t D0 = PIN_D0;
+static const uint8_t D1 = PIN_D1;
+static const uint8_t D2 = PIN_D2;
+static const uint8_t D3 = PIN_D3;
+static const uint8_t D4 = PIN_D4;
+static const uint8_t D5 = PIN_D5;
+static const uint8_t D6 = PIN_D6;
+static const uint8_t D7 = PIN_D7;
+static const uint8_t D8 = PIN_D8;
+static const uint8_t D9 = PIN_D9;
+static const uint8_t D10 = PIN_D10;
+static const uint8_t D11 = PIN_D11;
+static const uint8_t D12 = PIN_D12;
+static const uint8_t D13 = PIN_D13;
+static const uint8_t D14 = PIN_D14;
+static const uint8_t D15 = PIN_D15;
 
 // LEDs
 // ----
