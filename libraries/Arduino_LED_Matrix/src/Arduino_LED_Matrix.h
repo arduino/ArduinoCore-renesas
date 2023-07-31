@@ -175,8 +175,8 @@ public:
             }
             if(_callBack != nullptr){
                 _callBack();
-                _sequenceDone = true;
             }
+            _sequenceDone = true;
         }
         memcpy(framebuffer, (uint32_t*)frame, sizeof(frame));
     }
