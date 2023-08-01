@@ -281,17 +281,17 @@ void _usbhs_interrupt_handler(void)
 
 #if CFG_TUSB_RHPORT1_MODE & OPT_MODE_HOST
   tuh_int_handler(1);
+  tuh_task();
 #endif
 
 #if CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE
   tud_int_handler(1);
-#endif
   tud_task();
+#endif
 }
 
 extern "C" {
-    void tud_set_irq_usbfs(IRQn_Type q);
-    void tud_set_irq_usbhs(IRQn_Type q);
+    void tusb_rusb2_set_irqnum(uint8_t rhport, int32_t irqnum);
 }
 
 __attribute__((weak)) void configure_usb_mux() {}
@@ -324,7 +324,11 @@ void __USBStart() {
     usb_irq_cfg.address_of_handler = (uint32_t)_usbfs_interrupt_handler;
     usb_irq_cfg.first_irq_number = FSP_INVALID_VECTOR;
     IRQManager::getInstance().addPeripheral(IRQ_USB,(void*)&usb_irq_cfg);
-    tud_set_irq_usbfs((IRQn_Type)(usb_irq_cfg.first_irq_number));
+    #if CFG_TUSB_RHPORT0_MODE & OPT_MODE_DEVICE
+        tusb_rusb2_set_irqnum(BOARD_TUD_RHPORT, usb_irq_cfg.first_irq_number);
+    #else
+        tusb_rusb2_set_irqnum(BOARD_TUH_RHPORT, usb_irq_cfg.first_irq_number);
+    #endif
 #endif
 #endif
 
@@ -334,7 +338,11 @@ void __USBStart() {
     usb_irq_cfg.address_of_handler = (uint32_t)_usbhs_interrupt_handler;
     usb_irq_cfg.first_irq_number = FSP_INVALID_VECTOR;
     IRQManager::getInstance().addPeripheral(IRQ_USB_HS,(void*)&usb_irq_cfg);
-    tud_set_irq_usbhs((IRQn_Type)(usb_irq_cfg.first_irq_number));
+    #if CFG_TUSB_RHPORT1_MODE & OPT_MODE_DEVICE
+        tusb_rusb2_set_irqnum(BOARD_TUD_RHPORT, usb_irq_cfg.first_irq_number);
+    #else
+        tusb_rusb2_set_irqnum(BOARD_TUH_RHPORT, usb_irq_cfg.first_irq_number);
+    #endif
 #endif
 #endif
 
@@ -352,6 +360,10 @@ void __USBStart() {
 
     /* init device port*/
     tud_init(BOARD_TUD_RHPORT);
+
+#ifdef VUSB_LDO_ENABLE
+    ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;
+#endif
 
 #if 0 //defined(AZURE_RTOS_THREADX)
     static TX_BYTE_POOL byte_pool_0;

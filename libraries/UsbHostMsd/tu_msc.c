@@ -78,39 +78,41 @@ void usb_host_msd_attach_mnt_cbk(void (*fnc)(void)) {
 //--------------------------------------------------------------------+
 static scsi_inquiry_resp_t inquiry_resp;
 
-bool inquiry_complete_cb(uint8_t dev_addr, msc_cbw_t const* cbw, msc_csw_t const* csw)
+bool inquiry_complete_cb(uint8_t dev_addr, tuh_msc_complete_data_t const * cb_data)
 {
+  msc_cbw_t const* cbw = cb_data->cbw;
+  msc_csw_t const* csw = cb_data->csw;
+
   if (csw->status != 0)
   {
-    printf("Inquiry failed\r\n");
+    TU_LOG2("Inquiry failed\r\n");
     return false;
   }
 
   // Print out Vendor ID, Product ID and Rev
-  printf("%.8s %.16s rev %.4s\r\n", inquiry_resp.vendor_id, inquiry_resp.product_id, inquiry_resp.product_rev);
+  TU_LOG2("%.8s %.16s rev %.4s\r\n", inquiry_resp.vendor_id, inquiry_resp.product_id, inquiry_resp.product_rev);
 
   // Get capacity of device
   uint32_t const block_count = tuh_msc_get_block_count(dev_addr, cbw->lun);
   uint32_t const block_size = tuh_msc_get_block_size(dev_addr, cbw->lun);
 
-  printf("Disk Size: %lu MB\r\n", block_count / ((1024*1024)/block_size));
-  printf("Block Count = %lu, Block Size: %lu\r\n", block_count, block_size);
+  TU_LOG2("Disk Size: %lu MB\r\n", block_count / ((1024*1024)/block_size));
+  TU_LOG2("Block Count = %lu, Block Size: %lu\r\n", block_count, block_size);
 
   return true;
 }
 
 //------------- IMPLEMENTATION -------------//
 void tuh_msc_mount_cb(uint8_t dev_addr) {
-  #ifdef USB_DEBUG
-  mylogadd("[EVENT]: Mass Storage Device - MOUNT -> device address %i", dev_addr); 
-  #endif
+  TU_LOG2("[EVENT]: Mass Storage Device - MOUNT -> device address %i", dev_addr); 
+
+  uint8_t const lun = 0;
+  tuh_msc_inquiry(dev_addr, lun, &inquiry_resp, inquiry_complete_cb, 0);
 
   max_lun = tuh_msc_get_maxlun(dev_addr);
 
-  #ifdef USB_DEBUG
-  mylogadd("       : Max LUN %i", dev_addr); 
-  #endif
-  
+  TU_LOG2("       : Max LUN %i", dev_addr); 
+
   if(max_lun > 0) {
     if(usb_msc_device != NULL) {
       free(usb_msc_device);
@@ -157,9 +159,7 @@ void tuh_msc_mount_cb(uint8_t dev_addr) {
 
 void tuh_msc_umount_cb(uint8_t dev_addr) {
   (void) dev_addr;
-  #ifdef USB_DEBUG
-  mylogadd("[CALL]: tuh_msc_umount_cb %i --------- UMOUNT", dev_addr);  
-  #endif
+  TU_LOG2("[CALL]: tuh_msc_umount_cb %i --------- UMOUNT", dev_addr);  
   if(usb_msc_device != NULL) {
     free(usb_msc_device);
     usb_msc_device = NULL;

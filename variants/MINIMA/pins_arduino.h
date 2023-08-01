@@ -157,6 +157,8 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define USB_PID           (0x0069)
 #define USB_NAME          "UNO R4 Minima"
 
+#define VUSB_LDO_ENABLE     1
+
 /* EEPROM DEFINES */
 
 #define ARDUINO_FLASH_TYPE  LP_FLASH
