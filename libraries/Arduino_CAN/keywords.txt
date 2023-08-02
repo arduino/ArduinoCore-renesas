@@ -10,6 +10,8 @@ CAN	KEYWORD1
 CAN1	KEYWORD1
 CanMsg	KEYWORD1
 CanBitRate	KEYWORD1
+CanStandardId	KEYWORD2
+CanExtendedId	KEYWORD2
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -24,6 +26,11 @@ available	KEYWORD2
 read	KEYWORD2
 isError	KEYWORD2
 clearError	KEYWORD2
+
+getStandardId	KEYWORD2
+getExtendedId	KEYWORD2
+isStandardId	KEYWORD2
+isExtendedId	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
