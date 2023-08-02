@@ -113,7 +113,7 @@ bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
   /* Set the pointer to the right filtering structure. */
   if (_canfd_cfg.channel == 0)
     _canfd_extended_cfg.p_afl = CANFD0_AFL;
-  if (_canfd_cfg.channel == 1)
+  else if (_canfd_cfg.channel == 1)
     _canfd_extended_cfg.p_afl = CANFD1_AFL;
   else
     init_ok &= false;
