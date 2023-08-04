@@ -317,6 +317,9 @@ void TwoWire::begin(void) {
 
         m_i2c_cfg.p_extend                    = &m_i2c_extend;
         m_i2c_cfg.p_callback                  = WireMasterCallback;
+
+        m_i2c_extend.timeout_mode             = IIC_MASTER_TIMEOUT_MODE_SHORT;
+        m_i2c_extend.timeout_scl_low          = IIC_MASTER_TIMEOUT_SCL_LOW_DISABLED;
       }
 
       m_i2c_cfg.channel                     = channel;
@@ -325,7 +328,7 @@ void TwoWire::begin(void) {
       m_i2c_cfg.addr_mode                   = (address_mode == ADDRESS_MODE_7_BITS) ? I2C_MASTER_ADDR_MODE_7BIT : I2C_MASTER_ADDR_MODE_10BIT;
       m_i2c_cfg.p_transfer_tx               = NULL;
       m_i2c_cfg.p_transfer_rx               = NULL;
-      
+
       m_i2c_cfg.p_context                   = &m_i2c_cfg;
       m_i2c_cfg.ipl                         = (12);
 
@@ -457,13 +460,13 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
     }
     if(err == FSP_SUCCESS) {
       if(m_read != nullptr) {
+        bus_status = WIRE_STATUS_UNSET;
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    bus_status = WIRE_STATUS_UNSET;
-    while(timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
-      timeout_ms--;
-      delay(1);
+    timeout_ms = millis() + timeout_ms;
+    while(millis() < timeout_ms && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+
     }
   }
 
@@ -485,13 +488,13 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
     }
     if(err == FSP_SUCCESS) {
       if(m_write != nullptr) {
+        bus_status = WIRE_STATUS_UNSET;
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    bus_status = WIRE_STATUS_UNSET;
-    while(err == FSP_SUCCESS && timeout_ms > 0 && bus_status == WIRE_STATUS_UNSET) {
-      timeout_ms--;
-      delay(1);
+    timeout_ms = millis() + timeout_ms;
+    while(millis() < timeout_ms && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+
     }
 
     if(err != FSP_SUCCESS) {
@@ -529,7 +532,12 @@ void TwoWire::setClock(uint32_t freq) {
   if(is_master) {
     m_i2c_cfg.rate = (i2c_master_rate_t)freq;
 
+    int clock_divisor = (R_FSP_SystemClockHzGet(BSP_FEATURE_SCI_CLOCK) / 48000000u) - 1;
+
     if (is_sci) {
+      m_sci_i2c_extend.clock_settings.clk_divisor_value = 0;
+      m_sci_i2c_extend.clock_settings.cycles_value = 15;
+      m_sci_i2c_extend.clock_settings.snfr_value = (1);
       switch (m_i2c_cfg.rate) {
         case I2C_MASTER_RATE_STANDARD:
           m_sci_i2c_extend.clock_settings.brr_value = 14;
@@ -537,6 +545,7 @@ void TwoWire::setClock(uint32_t freq) {
           m_sci_i2c_extend.clock_settings.bitrate_modulation = false;
           break;
         case I2C_MASTER_RATE_FAST:
+        default:
           m_sci_i2c_extend.clock_settings.brr_value = 2;
           m_sci_i2c_extend.clock_settings.mddr_value = 204;
           m_sci_i2c_extend.clock_settings.bitrate_modulation = true;
@@ -547,18 +556,20 @@ void TwoWire::setClock(uint32_t freq) {
         case I2C_MASTER_RATE_STANDARD:
           m_i2c_extend.clock_settings.brl_value = 27;
           m_i2c_extend.clock_settings.brh_value = 26;
-          m_i2c_extend.clock_settings.cks_value = 2;
+          m_i2c_extend.clock_settings.cks_value = 2 + clock_divisor;
           break;
         case I2C_MASTER_RATE_FAST:
-          m_i2c_extend.clock_settings.brl_value = 24;
-          m_i2c_extend.clock_settings.brh_value = 23;
-          m_i2c_extend.clock_settings.cks_value = 0;
+          m_i2c_extend.clock_settings.brl_value = 16;
+          m_i2c_extend.clock_settings.brh_value = 15;
+          m_i2c_extend.clock_settings.cks_value = 0 + clock_divisor;
           break;
+#if BSP_FEATURE_IIC_FAST_MODE_PLUS
         case I2C_MASTER_RATE_FASTPLUS:
           m_i2c_extend.clock_settings.brl_value = 6;
           m_i2c_extend.clock_settings.brh_value = 5;
           m_i2c_extend.clock_settings.cks_value = 0;
           break;
+#endif
       }
     }
   }
