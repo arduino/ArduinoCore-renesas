@@ -19,21 +19,23 @@ __attribute__((weak)) void yield() {
 }
 
 static FspTimer main_timer;
-// specifying these details as constants makes micros() faster !
-#define _timer_type                AGT_TIMER
-#define _timer_index               0
-#define _timer_get_underflow_bit() R_AGT0->AGTCR_b.TUNDF
-#define _timer_clock_divider       TIMER_SOURCE_DIV_8 // dividers 1, 2 and 8 work because _timer_period is < 16-bit. the divider 4 seems not supported: acts as 1
-#define _timer_clock_freq          24000000UL
-#define _timer_counts_per_us       (_timer_clock_freq / ((1 << _timer_clock_divider) * 1000000UL))
-#define _timer_period              (_timer_counts_per_us * 1000UL)
-#define TIMER_PRIORITY             8
+const uint8_t _timer_type = AGT_TIMER;
+const uint8_t _timer_index = 0;
+inline uint8_t _timer_get_underflow_bit() { return R_AGT0->AGTCR_b.TUNDF; }
+// clock divider 8 works for the Uno R4 and Portenta C33 both because _timer_period is < 16-bit. 
+// on the Uno R4 the AGT clock is 24 MHz / 8 -> 3000 ticks per ms
+// on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
+const timer_source_div_t _timer_clock_divider = TIMER_SOURCE_DIV_8;
+uint32_t _timer_period;
+const uint8_t TIMER_PRIORITY = 8;
 
 static void timer_micros_callback(timer_callback_args_t __attribute((unused))* p_args) {
 	agt_time_ms += 1;
 }
 
 void startAgt() {
+	const uint32_t _timer_clock_freq = R_FSP_SystemClockHzGet(_timer_type == AGT_TIMER ? FSP_PRIV_CLOCK_PCLKB : FSP_PRIV_CLOCK_PCLKD);
+	_timer_period = _timer_clock_freq / ((1 << _timer_clock_divider) * 1000UL);
 	main_timer.begin(TIMER_MODE_PERIODIC, _timer_type, _timer_index, _timer_period, 1, _timer_clock_divider, timer_micros_callback);;
 	main_timer.setup_overflow_irq(TIMER_PRIORITY);
 	main_timer.open();
@@ -61,5 +63,5 @@ unsigned long micros() {
 	}
 	NVIC_EnableIRQ(main_timer.get_cfg()->cycle_end_irq);
 	uint32_t const up_counts = (_timer_period - 1) - down_counts;
-	return  (ms * 1000) + (up_counts / _timer_counts_per_us);
+	return  (ms * 1000) + ((up_counts * 1000) / _timer_period);
 }
