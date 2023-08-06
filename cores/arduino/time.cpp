@@ -22,6 +22,7 @@ static FspTimer main_timer;
 const uint8_t _timer_type = AGT_TIMER;
 const uint8_t _timer_index = 0;
 inline uint8_t _timer_get_underflow_bit() { return R_AGT0->AGTCR_b.TUNDF; }
+inline uint16_t _timer_get_counter() { return R_AGT0->AGT; }
 // clock divider 8 works for the Uno R4 and Portenta C33 both because _timer_period is < 16-bit. 
 // on the Uno R4 the AGT clock is 24 MHz / 8 -> 3000 ticks per ms
 // on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
@@ -55,7 +56,7 @@ unsigned long micros() {
 	// Return time in us
 	NVIC_DisableIRQ(main_timer.get_cfg()->cycle_end_irq);
 	uint32_t ms = agt_time_ms;
-	uint32_t const down_counts = main_timer.get_counter();
+	uint32_t const down_counts = _timer_get_counter();
 	if (_timer_get_underflow_bit() && (down_counts > (_timer_period / 2)))
 	{
 		// the counter wrapped around just before it was read
