@@ -545,11 +545,15 @@ void analogReference(uint8_t mode) {
         ctrl = ADC_VREF_CONTROL_AVCC0_AVSS0; break;
   }
 
-  R_ADC_Close(&adc.ctrl);
+  if(adc.ctrl.opened) {
+    R_ADC_Close(&adc.ctrl);
+  }
   adc.cfg_extend.adc_vref_control = ctrl;
   R_ADC_Open(&adc.ctrl, &adc.cfg);
 
-  R_ADC_Close(&adc1.ctrl);
+  if(adc1.ctrl.opened) {
+    R_ADC_Close(&adc1.ctrl);
+  }
   adc1.cfg_extend.adc_vref_control = ctrl;
   R_ADC_Open(&adc1.ctrl, &adc1.cfg);
 }
@@ -638,13 +642,17 @@ void analogReadResolution(int bits) {
       break;
   }
 
-  R_ADC_Close(&adc.ctrl);
+  if(adc.ctrl.opened) {
+    R_ADC_Close(&adc.ctrl);
+  }
   auto res = R_ADC_Open(&adc.ctrl, &adc.cfg);
   if (res != FSP_SUCCESS) {
     adc.cfg.resolution = old_read_resolution;
   }  
 
-  R_ADC_Close(&adc1.ctrl);
+  if(adc1.ctrl.opened) {
+    R_ADC_Close(&adc1.ctrl);
+  }
   res = R_ADC_Open(&adc1.ctrl, &adc1.cfg);
   if (res != FSP_SUCCESS) {
     adc1.cfg.resolution = old1_read_resolution;
