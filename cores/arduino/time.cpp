@@ -3,9 +3,6 @@
 #include "FspTimer.h"
 
 // this file implements the following public funcions: delay, delayMicroseconds, yield, millis, micros
-// The millis and micros implementation uses timer AGT0 (24 HMz, 16-bits, count-down mode, 1 ms period)
-
-volatile unsigned long agt_time_ms = 0;
 
 __attribute__((weak)) void delay(uint32_t ms) {
 	R_BSP_SoftwareDelay(ms, BSP_DELAY_UNITS_MILLISECONDS);
@@ -18,29 +15,25 @@ void delayMicroseconds(unsigned int us) {
 __attribute__((weak)) void yield() {
 }
 
-static FspTimer main_timer;
-const uint8_t _timer_type = AGT_TIMER;
-const uint8_t _timer_index = 0;
-inline uint8_t _timer_get_underflow_bit() { return R_AGT0->AGTCR_b.TUNDF; }
-inline uint16_t _timer_get_counter() { return R_AGT0->AGT; }
-// clock divider 8 works for the Uno R4 and Portenta C33 both because _timer_period is < 16-bit. 
-// on the Uno R4 the AGT clock is 24 MHz / 8 -> 3000 ticks per ms
-// on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
-const timer_source_div_t _timer_clock_divider = TIMER_SOURCE_DIV_8;
-uint32_t _timer_period;
-const uint8_t TIMER_PRIORITY = 8;
+static FspTimer   agt_timer;
+volatile uint32_t agt_time_ms = 0;
 
 static void timer_micros_callback(timer_callback_args_t __attribute((unused))* p_args) {
 	agt_time_ms += 1;
 }
 
 void startAgt() {
-	const uint32_t _timer_clock_freq = R_FSP_SystemClockHzGet(_timer_type == AGT_TIMER ? FSP_PRIV_CLOCK_PCLKB : FSP_PRIV_CLOCK_PCLKD);
-	_timer_period = _timer_clock_freq / ((1 << _timer_clock_divider) * 1000UL);
-	main_timer.begin(TIMER_MODE_PERIODIC, _timer_type, _timer_index, _timer_period, 1, _timer_clock_divider, timer_micros_callback);;
-	main_timer.setup_overflow_irq(TIMER_PRIORITY);
-	main_timer.open();
-	main_timer.start(); // bug in R4 1.0.2: calling start() is not necessary: open() starts the counter already !?
+	// configure AGT timer 0 to generate an underflow interrupt every 1 ms
+	// a clock divider 8 works for both the Uno R4 and Portenta C33 because number of clock ticks 
+	// in 1 ms (period) is an integer number and below the 16-bit counter limit
+	// on the Uno R4 the AGT clock is 24 MHz / 8 -> 3000 ticks per ms
+	// on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
+	const uint32_t clock_freq = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
+	const uint32_t period = clock_freq / ((1 << TIMER_SOURCE_DIV_8) * 1000UL);
+	agt_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 0, period, 1, TIMER_SOURCE_DIV_8, timer_micros_callback);;
+	agt_timer.setup_overflow_irq(8);
+	agt_timer.open();
+	agt_timer.start(); // bug in R4 1.0.2: calling start() is not necessary: open() starts the counter already !?
 }
 
 unsigned long millis()
@@ -54,15 +47,17 @@ unsigned long millis()
 
 unsigned long micros() {
 	// Return time in us
-	NVIC_DisableIRQ(main_timer.get_cfg()->cycle_end_irq);
+	const timer_cfg_t* cfg = agt_timer.get_cfg();
+	NVIC_DisableIRQ(cfg->cycle_end_irq);
 	uint32_t ms = agt_time_ms;
-	uint32_t const down_counts = _timer_get_counter();
-	if (_timer_get_underflow_bit() && (down_counts > (_timer_period / 2)))
-	{
-		// the counter wrapped around just before it was read
+	// read from the R_AGT0 registers directly for performance reasons
+	uint32_t const down_counts = R_AGT0->AGT; // get the counter value
+	if (R_AGT0->AGTCR_b.TUNDF && (down_counts > (cfg->period_counts / 2))) {
+		// if the TUNDF (underflow) bit is set, the counter wrapped around 
+		// just before down_counts was read and agt_time_ms was not yet updated
 		++ms;
 	}
-	NVIC_EnableIRQ(main_timer.get_cfg()->cycle_end_irq);
-	uint32_t const up_counts = (_timer_period - 1) - down_counts;
-	return  (ms * 1000) + ((up_counts * 1000) / _timer_period);
+	NVIC_EnableIRQ(cfg->cycle_end_irq);
+	uint32_t const up_counts = (cfg->period_counts - 1) - down_counts;
+	return  (ms * 1000) + ((up_counts * 1000) / cfg->period_counts);
 }
