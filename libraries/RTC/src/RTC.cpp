@@ -610,6 +610,7 @@ bool RTClock::begin() {
     else {
         is_initialized = false;
     }
+    return is_initialized;
 }
 
 bool RTClock::getTime(RTCTime &t) {
