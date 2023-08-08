@@ -30,7 +30,13 @@ void startAgt() {
 	// on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
 	const uint32_t clock_freq_Hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
 	const uint32_t period = clock_freq_Hz / ((1 << TIMER_SOURCE_DIV_8) * 1000UL);
-	agt_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 0, period, 1, TIMER_SOURCE_DIV_8, timer_micros_callback);;
+	agt_timer.begin(/* mode */ TIMER_MODE_PERIODIC,
+                  /* type */ AGT_TIMER,
+                  /* channel */ 0,
+                  period,
+                  /* pulse */ 1,
+                  TIMER_SOURCE_DIV_8,
+                  timer_micros_callback);;
 	agt_timer.setup_overflow_irq(8);
 	agt_timer.open();
 	agt_timer.start(); // bug in R4 1.0.2: calling start() is not necessary: open() starts the counter already !?
