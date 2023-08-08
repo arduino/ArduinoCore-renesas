@@ -28,8 +28,8 @@ void startAgt() {
 	// in 1 ms (period) is an integer number and below the 16-bit counter limit
 	// on the Uno R4 the AGT clock is 24 MHz / 8 -> 3000 ticks per ms
 	// on the Portenta C33 the AGT clock is 50 Mhz / 8 -> 6250 ticks per ms
-	const uint32_t clock_freq = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
-	const uint32_t period = clock_freq / ((1 << TIMER_SOURCE_DIV_8) * 1000UL);
+	const uint32_t clock_freq_Hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
+	const uint32_t period = clock_freq_Hz / ((1 << TIMER_SOURCE_DIV_8) * 1000UL);
 	agt_timer.begin(TIMER_MODE_PERIODIC, AGT_TIMER, 0, period, 1, TIMER_SOURCE_DIV_8, timer_micros_callback);;
 	agt_timer.setup_overflow_irq(8);
 	agt_timer.open();
