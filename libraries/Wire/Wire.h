@@ -84,13 +84,6 @@ typedef enum {
 } WireAddressMode_t;
 
 typedef enum {
-  SPEED_STANDARD = 0,  //100 kHz
-  SPEED_FAST,      //400 kHz
-  SPEED_VERY_FAST  //1 Mhz
-} WireSpeed_t;
-
-
-typedef enum {
   WIRE_STATUS_UNSET,
   WIRE_STATUS_RX_COMPLETED,
   WIRE_STATUS_TX_COMPLETED,
@@ -103,7 +96,7 @@ typedef enum {
 class TwoWire : public arduino::HardwareI2C {
   
   public:
-    TwoWire(int scl_pin, int sda_pin, WireSpeed_t wp = SPEED_STANDARD, WireAddressMode_t am = ADDRESS_MODE_7_BITS, bool prefer_sci = false);
+    TwoWire(int scl_pin, int sda_pin, WireAddressMode_t am = ADDRESS_MODE_7_BITS, bool prefer_sci = false);
     void begin();
     void begin(uint8_t);
     void begin(uint16_t);
@@ -172,7 +165,6 @@ class TwoWire : public arduino::HardwareI2C {
     bool is_master;
     int channel;
     bool is_sci;
-    WireSpeed_t speed_mode;
     WireAddressMode_t address_mode;
 
     unsigned int timeout;
