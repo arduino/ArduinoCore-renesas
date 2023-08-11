@@ -342,7 +342,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     if(p == IRQ_USB && cfg != NULL) {
         USBIrqCfg_t *irqcfg = (USBIrqCfg_t *)cfg;
 
-        if (irqcfg->first_irq_number != FSP_INVALID_VECTOR) {
+        if (irqcfg->first_irq_number != (uint32_t)FSP_INVALID_VECTOR) {
             // already configured, return
             goto end_config;
         }
@@ -405,7 +405,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     else if(p == IRQ_USB_HS && cfg != NULL) {
         USBIrqCfg_t *irqcfg = (USBIrqCfg_t *)cfg;
 
-        if (irqcfg->first_irq_number != FSP_INVALID_VECTOR) {
+        if (irqcfg->first_irq_number != (uint32_t)FSP_INVALID_VECTOR) {
             // already configured, return
             goto end_config;
         }
@@ -1659,7 +1659,7 @@ void IRQManager::set_can_tx_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_error_link_event(int li, int ch)
+void IRQManager::set_canfd_error_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_CHERR
@@ -1674,7 +1674,7 @@ void IRQManager::set_canfd_error_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_rx_link_event(int li, int ch)
+void IRQManager::set_canfd_rx_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_COMFRX
@@ -1689,7 +1689,7 @@ void IRQManager::set_canfd_rx_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_tx_link_event(int li, int ch)
+void IRQManager::set_canfd_tx_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_TX
