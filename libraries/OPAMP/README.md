@@ -2,22 +2,22 @@
 
 ## Description
 
-The Arduino Uno R4 Minima and WiFi boards, both a featuring a Renesas R7FA4M1AB3CFM#AA0 microcontroller, do have a built-in OPAMP peripheral.
+The Arduino UNO R4 Minima and WiFi boards, both a featuring a Renesas R7FA4M1AB3CFM#AA0 microcontroller, do have a built-in OPAMP peripheral.
 
-OMAMPs are very versatile. They can:
+Operational amplifiers (or "op amp") are very versatile. They can:
 * mirror an input voltage to its output ("voltage follower") 
-* amplify a small analog voltage to its output pin, output voltage range from 0 to ~4.7V ("non-inverting amplifier")
+* amplify a small analog voltage to its output pin, output voltage range from 0 to ~4.7 V ("non-inverting amplifier")
 * compare two input voltages and give a binary "higher" or "lower" output ("comparator")
 * integrate and differentiate signals ("integrator", "differentiator")
 * many more
 
 Electrical characteristics:
-* Input from 0.2V (low speed) / 0.3V (highspeed) to AVCC0 - 0.5V (lowspeed) to AVCC0 - 0.6V (high-speed) 
-* Output from 0.1V to AVCC0 - 0.1V
-* Open gain: 120dB typical
-* Input offset voltage: -10 to 10mV
-* Gain-bandwidth product: 0.04MHz (low-speed) / 1.7 MHz (high-speed)
-* Load current: -100 to 100µA max.
+* Input from 0.2 V (low speed) / 0. 3V (highspeed) to AVCC0 - 0.5 V (lowspeed) to AVCC0 - 0.6 V (high-speed) 
+* Output from 0.1 V to AVCC0 - 0.1 V
+* Open gain: 120 dB typical
+* Input offset voltage: -10 to 10 mV
+* Gain-bandwidth product: 0.04 MHz (low-speed) / 1.7 MHz (high-speed)
+* Load current: -100 to 100 µA max.
 
 ## Usage
 
@@ -27,7 +27,7 @@ To startup the opamp, simply include the library and call `OPAMP.begin()`. You c
 #include <OPAMP.h>
 
 void setup () {
-    OPAMP.begin(OPAMP_SPEED_HIGHSPEED);
+  OPAMP.begin(OPAMP_SPEED_HIGHSPEED);
 }
 
 void loop() {}
