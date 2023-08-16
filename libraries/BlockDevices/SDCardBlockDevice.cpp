@@ -346,6 +346,8 @@ int SDCardBlockDevice::close() {
    fsp_err_t rv = FSP_ERR_INVALID_ADDRESS;
    rv = R_SDHI_Close (&ctrl);
    opened = false;
+   card_inserted = false;
+   initialized = false;
    return (int)rv;
 }
 
