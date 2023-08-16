@@ -26,14 +26,38 @@
 
 class OTAUpdate {
 
-  //Add error definitions
-
 public:
-    OTAUpdate();
-    int setCACert(const char* root_ca);
-    int update(const char* url);
-    bool isRunning();
-    int getLastError();
+
+  enum class Error:  int {
+    None                 =  0,
+    StorageConfig        = -1,
+    NoOtaStorage         = -2,
+    OtaStorageInit       = -3,
+    OtaStorageEnd        = -4,
+    UrlParseError        = -5,
+    ServerConnectError   = -6,
+    HttpHeaderError      = -7,
+    ParseHttpHeader      = -8,
+    OtaHeaderLength      = -9,
+    OtaHeaderCrc         = -10,
+    OtaHeaderMagicNumber = -11,
+    OtaDownload          = -12,
+    OtaFlash             = -13,
+    Library              = -14,
+    Modem                = -15,
+  };
+
+  OTAUpdate();
+  OTAUpdate::Error setCACert(const char* root_ca);
+  OTAUpdate::Error begin();
+  OTAUpdate::Error begin(const char* file_path);
+  int download(const char* url);
+  int download(const char* url, const char* file_path);
+  OTAUpdate::Error verify();
+  OTAUpdate::Error update();
+  OTAUpdate::Error update(const char* file_path);
+  OTAUpdate::Error reset();
+
 };
 
 #endif /* OTA_UPDATE_H */

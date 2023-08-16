@@ -1,7 +1,8 @@
 /*
   OTA
 
- This sketch demonstrates how to make an OTA Update on the UNO R4 WiFi
+  This sketch demonstrates how to make an OTA Update on the UNO R4 WiFi.
+  Upload the sketch and wait for the invasion!
 
 */
 
@@ -17,6 +18,7 @@ char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as k
 int status = WL_IDLE_STATUS;
 
 OTAUpdate ota;
+static char const OTA_FILE_LOCATION[] = "https://downloads.arduino.cc/ota/UNOR4WIFI_Animation.ota";
 
 /* -------------------------------------------------------------------------- */
 void setup() {
@@ -50,18 +52,42 @@ void setup() {
     delay(1000);
   }
 
-  printWifiStatus();
+  OTAUpdate::Error ret = OTAUpdate::Error::None;
+  ret = ota.begin("/update.bin");
+  if(ret != OTAUpdate::Error::None) {
+    Serial.println("ota.begin() error: ");
+    Serial.println((int)ret);
+    return;
+  }
+  ret = ota.setCACert(root_ca);
+  if(ret != OTAUpdate::Error::None) {
+    Serial.println("ota.setCACert() error: ");
+    Serial.println((int)ret);
+    return;
+  }
+  if(ota.download(OTA_FILE_LOCATION, "/update.bin") <= 0) {
+    Serial.println("ota.download() error: ");
+    Serial.println((int)ret);
+    return;
+  }
+  ret = ota.verify();
+  if(ret != OTAUpdate::Error::None) {
+    Serial.println("ota.verify() error: ");
+    Serial.println((int)ret);
+    return;
+  }
 
-  if(!ota.isRunning()) {
-    ota.setCACert(root_ca);
-    ota.update("http://downloads.arduino.cc/ota/UNOR4WIFI_Animation.ota");
+  ret = ota.update("/update.bin");
+  if(ret != OTAUpdate::Error::None) {
+    Serial.println("ota.update() error: ");
+    Serial.println((int)ret);
+    return;
   }
 }
 
 /* -------------------------------------------------------------------------- */
 void loop() {
 /* -------------------------------------------------------------------------- */
-  Serial.println(ota.getLastError());
   delay(1000);
 }
 
