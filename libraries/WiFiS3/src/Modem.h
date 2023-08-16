@@ -9,8 +9,9 @@
 /* uncomment this will allow debug for passthrough "binary" commands */
 #define MODEM_DEBUG_PASSTHROUGH
 
-#define MODEM_TIMEOUT  10000
-#define MAX_BUFF_SIZE  128
+#define MODEM_TIMEOUT          10000
+#define EXTENDED_MODEM_TIMEOUT 60000
+#define MAX_BUFF_SIZE            128
 
 #define DO_NOT_CHECK_CMD "NO_CMD_CHECK"
 
@@ -61,6 +62,8 @@ public:
   bool enable_dbg = false;
   void debug(bool e) {enable_dbg = e;}
   #endif
+
+  void timeout(size_t timeout_ms) {_timeout = timeout_ms;}
 
 private:
   bool buf_read(const std::string &cmd, std::string &data_res);
