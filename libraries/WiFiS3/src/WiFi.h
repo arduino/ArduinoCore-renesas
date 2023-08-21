@@ -14,7 +14,7 @@
 #define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
 
 
-#define WIFI_FIRMWARE_LATEST_VERSION "0.1.0"
+#define WIFI_FIRMWARE_LATEST_VERSION "0.2.1"
 
 class CAccessPoint {
    public:
@@ -286,3 +286,4 @@ extern CWifi WiFi;
 
 
 #endif
+
