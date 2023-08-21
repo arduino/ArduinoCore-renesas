@@ -1,6 +1,16 @@
 /*
+  Game Of Life
+
+  The Game of Life, also known simply as Life, is a cellular automaton devised 
+  by the British mathematician John Horton Conway in 1970. It is a zero-player game, 
+  meaning that its evolution is determined by its initial state, requiring no further 
+  input.
+
   Example developed starting from Toby Oxborrow's sketch
   https://github.com/tobyoxborrow/gameoflife-arduino/blob/master/GameOfLife.ino
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/led-matrix
 */
 
 #include "Arduino_LED_Matrix.h"

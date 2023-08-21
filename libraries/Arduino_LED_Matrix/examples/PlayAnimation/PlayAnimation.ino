@@ -1,7 +1,14 @@
+/*
+Sketch shows animation defined in animation.h
+*/
+
+//Include library and animation.h
+
 #include "Arduino_LED_Matrix.h"
 #include "animation.h"
 
-ArduinoLEDMatrix matrix;
+// Create an instance of the ArduinoLEDMatrix class
+ArduinoLEDMatrix matrix;  
 
 void setup() {
   Serial.begin(115200);
