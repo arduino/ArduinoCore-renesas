@@ -1,11 +1,16 @@
 /*
-Sketch shows animation defined in animation.h
+  Play Animation
+
+  Sketch shows animation defined in animation.h
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/led-matrix
 */
 
-//Include library and animation.h
 
-#include "Arduino_LED_Matrix.h"
-#include "animation.h"
+
+#include "Arduino_LED_Matrix.h"   //Include the LED_Matrix library
+#include "animation.h"            //Include animation.h header file
 
 // Create an instance of the ArduinoLEDMatrix class
 ArduinoLEDMatrix matrix;  

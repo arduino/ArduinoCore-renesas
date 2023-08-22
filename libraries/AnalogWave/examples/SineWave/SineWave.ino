@@ -3,7 +3,7 @@
 
   Generates a pre-generated sawtooth-waveform.
 
-  See the full documentatio here:
+  See the full documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/dac
 */
 

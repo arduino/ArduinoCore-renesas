@@ -10,9 +10,15 @@
  * 4. Open the Serial Monitor.
  * 
  * Initial author: Sebastian Romero @sebromero
+ * 
+ * Find the full UNO R4 WiFi RTC documentation here:
+ * https://docs.arduino.cc/tutorials/uno-r4-wifi/rtc
  */
 
+// Include the RTC library
 #include "RTC.h"
+
+//Include the NTP library
 #include <NTPClient.h>
 
 #if defined(ARDUINO_PORTENTA_C33)

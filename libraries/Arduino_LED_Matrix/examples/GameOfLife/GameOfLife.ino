@@ -13,7 +13,7 @@
   https://docs.arduino.cc/tutorials/uno-r4-wifi/led-matrix
 */
 
-#include "Arduino_LED_Matrix.h"
+#include "Arduino_LED_Matrix.h" // Include the LED_Matrix library
 
 // grid dimensions. should not be larger than 8x8
 #define MAX_Y 8

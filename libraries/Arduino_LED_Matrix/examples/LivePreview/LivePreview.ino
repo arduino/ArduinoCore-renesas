@@ -10,7 +10,7 @@
   https://docs.arduino.cc/tutorials/uno-r4-wifi/led-matrix  
 */
 
-#include "Arduino_LED_Matrix.h" // Include the library for controlling LED matrix
+#include "Arduino_LED_Matrix.h" // Include the LED_Matrix library
 
 ArduinoLEDMatrix matrix;        // Create an instance of the ArduinoLEDMatrix class
 

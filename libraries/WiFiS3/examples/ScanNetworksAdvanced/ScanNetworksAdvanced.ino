@@ -12,6 +12,9 @@
 
   created 1 Mar 2017
   by Arturo Guadalupi
+
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#scan-networks-advanced
 */
 
 

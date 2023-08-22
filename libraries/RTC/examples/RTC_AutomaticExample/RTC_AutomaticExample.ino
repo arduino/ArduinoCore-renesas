@@ -1,4 +1,6 @@
 /*
+ * RTC_AutomaticExample
+ *
  * This example sets the RTC (Real Time Clock) on the Portenta C33 automatically by
  * retrieving the date and time from the computer you upload the sketch from, at the
  * point when you start the upload.
@@ -8,8 +10,11 @@
  * The alarm, which now goes off once a minute, triggers a callback that prints the
  * current time to the Serial Monitor.
  *
+ * Find the full UNO R4 WiFi RTC documentation here:
+ * https://docs.arduino.cc/tutorials/uno-r4-wifi/rtc
  */
 
+// Include the RTC library
 #include "RTC.h"
 
 DayOfWeek convertDayOfWeek(String s)
