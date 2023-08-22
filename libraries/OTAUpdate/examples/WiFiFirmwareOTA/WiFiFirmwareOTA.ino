@@ -1,9 +1,15 @@
 /*
   OTA
 
-  This sketch demonstrates how to make an self OTA Update the UNO R4 WiFi Firmware
-  Upload the Sketch and wait for Serial detach.
-  After the update the new wifi firmware version will be 98.98.98
+  This sketch demonstrates how to make the UNO R4 WiFi self-update its Wi-Fi module
+  firmware via OTA. Upload the Sketch and wait for Serial detach. After the update
+  the new Wi-Fi firmware version will be 98.98.98
+
+  WARNING: running this sketch will load a test Wi-Fi firmware version on the UNO R4
+  WiFi module. To restore a production firmware use the Arduino Firmware Uploader or
+  the update packages available here:
+
+  https://github.com/arduino/uno-r4-wifi-usb-bridge/releases
 
 */
 
@@ -30,9 +36,9 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // check for the WiFi module:
+  // check for the Wi-Fi module:
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
+    Serial.println("Communication with Wi-Fi module failed!");
     // don't continue
     while (true);
   }
@@ -42,10 +48,10 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  Serial.print("Current WIFi firmware version: ");
+  Serial.print("Current Wi-Fi firmware version: ");
   Serial.println(fv);
 
-  // attempt to connect to WiFi network:
+  // attempt to connect to Wi-Fi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
@@ -56,7 +62,7 @@ void setup() {
     delay(1000);
   }
 
-  printWifiStatus();
+  printWiFiStatus();
 
   OTAUpdate::Error ret = OTAUpdate::Error::None;
   ret = ota.begin();
@@ -102,13 +108,13 @@ void loop() {
 /* -------------------------------------------------------------------------- */
 
   String fv = WiFi.firmwareVersion();
-  Serial.print("Updated WiFi firmware version: ");
+  Serial.print("Updated Wi-Fi firmware version: ");
   Serial.println(fv);
   delay(1000);
 }
 
 /* -------------------------------------------------------------------------- */
-void printWifiStatus() {
+void printWiFiStatus() {
 /* -------------------------------------------------------------------------- */
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");

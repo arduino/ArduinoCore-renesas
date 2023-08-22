@@ -29,9 +29,9 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // check for the WiFi module:
+  // check for the Wi-Fi module:
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
+    Serial.println("Communication with Wi-Fi module failed!");
     // don't continue
     while (true);
   }
@@ -41,7 +41,7 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  // attempt to connect to WiFi network:
+  // attempt to connect to Wi-Fi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
@@ -51,6 +51,8 @@ void setup() {
     // wait 1 seconds for connection:
     delay(1000);
   }
+
+  printWiFiStatus();
 
   OTAUpdate::Error ret = OTAUpdate::Error::None;
   ret = ota.begin("/update.bin");
@@ -92,7 +94,7 @@ void loop() {
 }
 
 /* -------------------------------------------------------------------------- */
-void printWifiStatus() {
+void printWiFiStatus() {
 /* -------------------------------------------------------------------------- */
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
