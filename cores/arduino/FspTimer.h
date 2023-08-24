@@ -76,10 +76,11 @@ class AGTimer {
 	    ext_cfg.trigger_edge                  = AGT_TRIGGER_EDGE_RISING;
 
       cfg.p_extend                         = &ext_cfg;
+
+      memset(&ctrl, 0, sizeof(agt_instance_ctrl_t));
   }
   agt_extended_cfg_t ext_cfg;
   agt_instance_ctrl_t ctrl;
-
 };
 
 
