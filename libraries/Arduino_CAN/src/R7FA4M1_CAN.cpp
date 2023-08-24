@@ -142,7 +142,7 @@ bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
 
   /* Configure the pins for CAN.
    */
-  int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int const max_index = PINS_COUNT;
   init_ok &= cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
 
   /* Configure the interrupts.

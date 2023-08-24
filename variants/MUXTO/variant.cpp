@@ -62,7 +62,11 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_02_PIN_06,    P206   }, /* (27) D27  */
 };
 
-extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_pin_cfg) / sizeof(g_pin_cfg[0]));
+    }
+}
 
 const ioport_pin_cfg_t bsp_pin_cfg_data[] = {
   { ((uint32_t) IOPORT_CFG_PERIPHERAL_PIN | (uint32_t) IOPORT_PERIPHERAL_USB_FS), BSP_IO_PORT_09_PIN_15 },

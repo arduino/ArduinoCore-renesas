@@ -61,7 +61,6 @@ ioport_peripheral_t getPinConfig(bsp_io_port_pin_t pin);
 extern "C" {
 #endif
 extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
 #if defined(__cplusplus)
 }
 #endif

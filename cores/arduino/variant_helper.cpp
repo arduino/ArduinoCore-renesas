@@ -1,13 +1,10 @@
 #include "Arduino.h"
 #include "variant.h"
 
-extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
-
 std::array<uint16_t, 3> getPinCfgs(const pin_size_t pin, PinCfgReq_t req) {
 
   std::array<uint16_t, 3> ret = {0 , 0, 0};
-  if (pin > g_pin_cfg_size) {
+  if (pin > PINS_COUNT) {
     return ret;
   }
 

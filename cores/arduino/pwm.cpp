@@ -2,9 +2,6 @@
 #include "pwm.h"
 #include "bsp_api.h"
 
-extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
-
 PwmOut::PwmOut(int pinNumber) :
   _pin(pinNumber),
   _enabled(false)
@@ -43,7 +40,7 @@ bool PwmOut::cfg_pin(int max_index) {
 /* default begin function, starts the timers with default pwm configuration (490Hz and 50%) */
 bool PwmOut::begin() {
   bool rv = true;
-  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int max_index = PINS_COUNT;
   rv &= cfg_pin(max_index);
 
   if(rv) {
@@ -67,7 +64,7 @@ bool PwmOut::begin() {
 bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= false */, timer_source_div_t sd /*= TIMER_SOURCE_DIV_1*/) {
 /* -------------------------------------------------------------------------- */
   _enabled = true;
-  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int max_index = PINS_COUNT;
   _enabled &= cfg_pin(max_index);
   
   if(_enabled) {
