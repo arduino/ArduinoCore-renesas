@@ -80,41 +80,40 @@ size_t _SerialUSB::write(uint8_t c) {
     return write(&c, 1);
 }
 
-size_t _SerialUSB::write(const uint8_t *buf, size_t length) {
-    if (!_running) {
+#include "device/usbd_pvt.h"
+
+size_t _SerialUSB::write(const uint8_t *buf, size_t size) {
+   if (!_running) {
         return 0;
     }
 
-    static uint64_t last_avail_time;
-    int written = 0;
-    if (connected()) {
-        for (size_t i = 0; i < length;) {
-            int n = length - i;
-            int avail = tud_cdc_write_available();
-            if (n > avail) {
-                n = avail;
-            }
-            if (n) {
-                int n2 = tud_cdc_write(buf + i, n);
-                tud_task();
-                tud_cdc_write_flush();
-                i += n2;
-                written += n2;
-                last_avail_time = millis();
-            } else {
-                tud_task();
-                tud_cdc_write_flush();
-                if (connected() ||
-                        (!tud_cdc_write_available() && millis() > last_avail_time + 1000 /* 1 second */)) {
-                    break;
-                }
-            }
-        }
-    } else {
-        // reset our timeout
-        last_avail_time = 0;
+    if (!connected()) {
+        return 0;
     }
-    return written;
+    usbd_int_set(false);
+    size_t to_send = size, so_far = 0;
+    while(to_send){
+        size_t space = tud_cdc_write_available();
+        if(!space){
+            usbd_int_set(true);
+            tud_cdc_write_flush();
+            continue;
+        }
+        if(space > to_send){
+            space = to_send;
+        }
+        size_t sent = tud_cdc_write( buf+so_far, space);
+        usbd_int_set(true);
+        if(sent){
+            so_far += sent;
+            to_send -= sent;
+            tud_cdc_write_flush();
+        } else {
+            size = so_far;
+            break;
+        }
+    }
+    return size;
 }
 
 _SerialUSB::operator bool() {
