@@ -24,7 +24,6 @@
 #if EXT_INTERRUPTS_HOWMANY > 0
 
 extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
 
 #define MAX_IRQ_CHANNEL (15)
 
@@ -76,7 +75,7 @@ pin_size_t digitalPinToInterrupt(pin_size_t pin) { return pin; }
 static int pin2IrqChannel(int pin) {
 /* -------------------------------------------------------------------------- */  
   /* verify index are good */
-  if(pin < 0 || pin >= (int)(g_pin_cfg_size / sizeof(g_pin_cfg[0]))) {
+  if(pin < 0 || pin >= PINS_COUNT) {
     return -1;
   }
   /* getting configuration from table */

@@ -26,13 +26,6 @@
 using namespace arduino;
 
 /**************************************************************************************
- * EXTERN GLOBAL CONSTANTS
- **************************************************************************************/
-
-extern const PinMuxCfg_t g_pin_cfg[];
-extern const size_t g_pin_cfg_size;
-
-/**************************************************************************************
  * GLOBAL MEMBER VARIABLES
  **************************************************************************************/
 
@@ -73,7 +66,7 @@ void ArduinoSPI::begin()
   /* Configure the pins and auto-determine channel and
    * whether or not we are using a SCI.
    */
-  int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int const max_index = PINS_COUNT;
   auto [cfg_pins_ok, cfg_channel, cfg_is_sci] = cfg_pins(max_index, _miso_pin, _mosi_pin, _sck_pin, _periph_mode);
   init_ok &= cfg_pins_ok;
   _channel = cfg_channel;

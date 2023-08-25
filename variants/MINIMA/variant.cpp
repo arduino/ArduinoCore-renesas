@@ -50,10 +50,14 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_00_PIN_13,    P013   }, /* (22) RX LED  */
 };
 
-extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_pin_cfg) / sizeof(g_pin_cfg[0]));
+    }
+}
 
 int32_t getPinIndex(bsp_io_port_pin_t p) {
-  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int max_index = PINS_COUNT;
   int rv = -1;
   for(int i = 0; i < max_index; i++) {
     if(g_pin_cfg[i].pin == p) {
