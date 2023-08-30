@@ -483,12 +483,14 @@ const char* CWifi::SSID() {
    if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
       if(atoi(res.c_str()) == 1) {
          if(modem.write(string(PROMPT(_GETSSID)), res, CMD_READ(_GETSSID))) {
-            return res.c_str();
+            ssid = res;
+            return ssid.c_str();
          }
       }
       else if(atoi(res.c_str()) == 2) {
          if(modem.write(string(PROMPT(_GETSOFTAPSSID)), res, CMD_READ(_GETSOFTAPSSID))) {
-            return res.c_str();
+            apssid = res;
+            return apssid.c_str();
          }
       }
    }
@@ -521,7 +523,8 @@ const char* CWifi::softAPSSID() {
 /* -------------------------------------------------------------------------- */    
    string res = "";
    if(modem.write(string(PROMPT(_GETSOFTAPSSID)), res, CMD_READ(_GETSOFTAPSSID))) {
-      return res.c_str();
+      apssid = res;
+      return apssid.c_str();
    }
    return "";
 }

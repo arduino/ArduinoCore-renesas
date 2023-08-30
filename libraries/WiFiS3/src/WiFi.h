@@ -14,7 +14,7 @@
 #define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
 
 
-#define WIFI_FIRMWARE_LATEST_VERSION "0.2.1"
+#define WIFI_FIRMWARE_LATEST_VERSION "0.3.0"
 
 class CAccessPoint {
    public:
@@ -35,6 +35,8 @@ private:
    unsigned long _timeout;
    uint8_t mac[6];
    std::vector<CAccessPoint> access_points;
+   std::string ssid;
+   std::string apssid;
    
 
    IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
