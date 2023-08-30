@@ -10,8 +10,10 @@
  modified 13 Jan 2014
  by Federico Vanzati
 
- http://www.arduino.cc/en/Tutorial/WifiWebClientRepeating
  This code is in the public domain.
+
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-web-client-repeating
  */
 
 #include "WiFiS3.h"

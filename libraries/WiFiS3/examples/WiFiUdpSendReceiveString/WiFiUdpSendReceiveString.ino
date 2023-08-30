@@ -1,12 +1,14 @@
 /*
   WiFi UDP Send and Receive String
 
- This sketch waits for a UDP packet on localPort using the WiFi module.
- When a packet is received an Acknowledge packet is sent to the client on port remotePort
+  This sketch waits for a UDP packet on localPort using the WiFi module.
+  When a packet is received an Acknowledge packet is sent to the client on port remotePort
 
- created 30 December 2012
- by dlf (Metodo2 srl)
+  created 30 December 2012
+  by dlf (Metodo2 srl)
 
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-udp-send-receive-string
  */
 
 

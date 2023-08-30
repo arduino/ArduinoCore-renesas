@@ -11,6 +11,9 @@
 
   created 26 Jun 2023
   by Martino Facchin
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/led-matrix
 */
 
 

@@ -1,3 +1,11 @@
+/*
+  The code demonstrates the usage of FreeRTOS (Real-Time Operating System) to run concurrent tasks.
+
+  One task is responsible for running the loop() logic (in a thread-safe manner), 
+  while the other task blinks an LED using the built-in LED on non-Portenta boards or 
+  the RGB LED on the Portenta C33 board.
+*/
+
 /**************************************************************************************
  * INCLUDE
  **************************************************************************************/

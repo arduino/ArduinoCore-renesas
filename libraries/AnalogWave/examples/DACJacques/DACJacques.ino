@@ -1,4 +1,4 @@
-  /*
+/*
   DAC Melody player
 
   Generates a series of tones from MIDI note values
@@ -14,6 +14,9 @@ circuit:
   created 13 Feb 2017
   modified 3 Jul 2023
   by Tom Igoe
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/dac
 */
 #include "analogWave.h"
 analogWave wave(DAC);

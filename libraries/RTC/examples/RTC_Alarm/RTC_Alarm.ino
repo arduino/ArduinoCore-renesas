@@ -1,4 +1,6 @@
 /*
+ * RTC_Alarm
+ *
  * This example demonstrates how to use the alarm functionality of the RTC
  * (Real Time Clock) on the Portenta C33 and UNO R4 Minima / WiFi.
  *
@@ -9,12 +11,16 @@
  *
  * Note that the Portenta C33's LED is inverted and will be lit when
  * the state is 0 (LOW).
+ * 
+ * Find the full UNO R4 WiFi RTC documentation here:
+ * https://docs.arduino.cc/tutorials/uno-r4-wifi/rtc
  */
 
 unsigned long previousMillis = 0;
 const long interval = 1000;
 bool ledState = false;
 
+// Include the RTC library
 #include "RTC.h"
 
 void setup() {

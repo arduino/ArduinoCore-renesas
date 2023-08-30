@@ -1,11 +1,16 @@
 /*
+ * RTC_PeriodicExample
+ *
  * This example demonstrates how to use the periodic callback functionality of the RTC
  * (Real Time Clock) on the Portenta C33.
  *
  * It blinks the built-in LED at progressively faster and slower rates repeatedly.
  *
+ * Find the full UNO R4 WiFi RTC documentation here:
+ * https://docs.arduino.cc/tutorials/uno-r4-wifi/rtc
  */
 
+// Include the RTC library
 #include "RTC.h"
 
 #define BLINK_DELAY 2000

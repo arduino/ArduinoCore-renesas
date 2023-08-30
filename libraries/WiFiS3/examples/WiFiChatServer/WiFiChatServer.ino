@@ -1,22 +1,24 @@
 /*
- Chat  Server
+  Chat  Server
+  
+  A simple server that distributes any incoming messages to all
+  connected clients. To use, telnet to your device's IP address and type.
+  You can see the client's input in the serial monitor as well.
+  
+  This example is written for a network using WPA encryption. For
+  WEP or WPA, change the WiFi.begin() call accordingly.
+  
+  
+  Circuit:
+  * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
+  
+  created 18 Dec 2009
+  by David A. Mellis
+  modified 31 May 2012
+  by Tom Igoe
 
- A simple server that distributes any incoming messages to all
- connected clients. To use, telnet to your device's IP address and type.
- You can see the client's input in the serial monitor as well.
-
- This example is written for a network using WPA encryption. For
- WEP or WPA, change the WiFi.begin() call accordingly.
-
-
- Circuit:
- * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
-
- created 18 Dec 2009
- by David A. Mellis
- modified 31 May 2012
- by Tom Igoe
-
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-chat-server
  */
 
 
