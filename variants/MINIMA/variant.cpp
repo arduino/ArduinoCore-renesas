@@ -48,6 +48,11 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_05_PIN_00,    P500   }, /* (20) Analog voltage measure pin  */
   { BSP_IO_PORT_00_PIN_12,    P012   }, /* (21) TX LED  */
   { BSP_IO_PORT_00_PIN_13,    P013   }, /* (22) RX LED  */
+
+  { BSP_IO_PORT_05_PIN_01,    P501   }, /* (23) TX on SWD connector  */
+  { BSP_IO_PORT_05_PIN_02,    P502   }, /* (24) RX on SWD connector  */
+  { BSP_IO_PORT_01_PIN_08,    P108   }, /* (25) SWDIO  */
+  { BSP_IO_PORT_03_PIN_00,    P300   }, /* (26) SWCLK  */
 };
 
 extern "C" {
