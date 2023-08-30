@@ -1,17 +1,17 @@
 :floppy_disk: `bootloaders/UNO_R4`
 ====================================
-Sources for Uno R4 WIFi at git@github.com:bcmi-labs/tinyusb.git , commit 185ae31ff15a1013a5a890455220a29bad1ed209
-
 Compiled with
 ```bash
-cd examples/device/dfu && make BOARD=santiago_composta
-```
-
-Sources for Uno R4 Minima at git@github.com:bcmi-labs/tinyusb.git , commit b80fa8f4027c5aa4d9af5720a82e9238d8f792bb
-
-Compiled with
-```bash
-cd examples/device/dfu && make BOARD=santiago
+git clone https://github.com/arduino/arduino-renesas-bootloader
+git clone https://github.com/hathach/tinyusb
+cd tinyusb
+# This step is temporary
+patch -p1 < ../arduino-renesas-bootloader/0001-fix-arduino-bootloaders.patch
+python tools/get_deps.py ra
+cd ..
+cd arduino-renesas-bootloader
+TINYUSB_ROOT=$PWD/../tinyusb make -f Makefile.minima 
+# TINYUSB_ROOT=$PWD/../tinyusb make -f Makefile.wifi
 ```
 
 :rescue_worker_helmet: `How to update ESP32-S3 firmware`
