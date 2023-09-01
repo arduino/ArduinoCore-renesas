@@ -3,6 +3,11 @@
 
 #define NUM_LEDS    96
 
+#if __has_include("ArduinoGraphics.h")
+#include <ArduinoGraphics.h>
+#define MATRIX_WITH_ARDUINOGRAPHICS
+#endif
+
 static const int pin_zero_index = 28;
 
 static const uint8_t pins[][2] = {
@@ -138,10 +143,18 @@ static uint32_t reverse(uint32_t x)
 
 static uint8_t __attribute__((aligned)) framebuffer[NUM_LEDS / 8];
 
-class ArduinoLEDMatrix {
+class ArduinoLEDMatrix
+#ifdef MATRIX_WITH_ARDUINOGRAPHICS
+    : public ArduinoGraphics
+#endif
+     {
 
 public:
-    ArduinoLEDMatrix() {}
+    ArduinoLEDMatrix()
+    #ifdef MATRIX_WITH_ARDUINOGRAPHICS
+        : ArduinoGraphics(canvasWidth, canvasHeight)
+    #endif
+    {}
     // TODO: find a better name
     // autoscroll will be slower than calling next() at precise times
     void autoscroll(uint32_t interval_ms) {
@@ -153,7 +166,7 @@ public:
     void off(size_t pin) {
         turnLed(pin, false);
     }
-    void begin() {
+    int begin() {
         uint8_t type;
         uint8_t ch = FspTimer::get_available_timer(type);
         // TODO: avoid passing "this" argument to remove autoscroll
@@ -231,7 +244,37 @@ public:
     void setCallback(voidFuncPtr callBack){
         _callBack = callBack;
     }
-    
+
+#ifdef MATRIX_WITH_ARDUINOGRAPHICS
+    virtual void set(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
+      if (y >= canvasHeight || x >= canvasWidth) {
+        return;
+      }
+      // the r parameter is (mis)used to set the character to draw with
+      _canvasBuffer[y][x] = (r | g | b) > 0 ? 1 : 0;
+    }
+
+    void endText(int scrollDirection = NO_SCROLL) {
+      ArduinoGraphics::endText(scrollDirection);
+      renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
+    }
+
+    // display the drawing
+    void endDraw() {
+      ArduinoGraphics::endDraw();
+      // clear first line (no idea why it gets filled with random bits, probably some math not working fine for super small displays)
+      for (int i = 0; i < canvasWidth; i++) {
+        _canvasBuffer[0][i] = 0;
+      }
+      renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
+    }
+
+  private:
+    static const byte canvasWidth = 12;
+    static const byte canvasHeight = 8;
+    uint8_t _canvasBuffer[canvasHeight][canvasWidth] = {{0}};
+#endif
+
 private:
     int _currentFrame = 0;
     uint32_t _frameHolder[3];

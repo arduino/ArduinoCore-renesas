@@ -1,3 +1,12 @@
+/*
+  CANRead
+
+  Receive and read CAN Bus messages
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/can
+*/
+
 /**************************************************************************************
  * INCLUDE
  **************************************************************************************/

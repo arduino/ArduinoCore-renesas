@@ -21,6 +21,9 @@
    created 18 Dec 2018
    modified 3 Jul 2023
    by Tom Igoe
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/dac
 */
 
 // include the AnalogWave library:

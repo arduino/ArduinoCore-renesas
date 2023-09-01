@@ -3,7 +3,7 @@
 	url = https://github.com/arduino/tinyusb
 [submodule "extras/uno-r4-wifi-usb-bridge"]
 	path = extras/uno-r4-wifi-usb-bridge
-	url = https://github.com/bcmi-labs/uno-r4-wifi-usb-bridge
+	url = https://github.com/arduino/uno-r4-wifi-usb-bridge
 [submodule "extras/fsp"]
 	path = extras/fsp
 	url = https://github.com/arduino/fsp

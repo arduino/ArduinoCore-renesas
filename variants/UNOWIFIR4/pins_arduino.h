@@ -4,8 +4,11 @@
 
 // Pin count
 // ----
+#ifdef __cplusplus
+extern "C" unsigned int PINCOUNT_fn();
+#endif
 #define PINS_COUNT           (PINCOUNT_fn())
-#define NUM_DIGITAL_PINS     (22u)
+#define NUM_DIGITAL_PINS     (20u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
@@ -158,6 +161,8 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define USB_VID           (0x2341)
 #define USB_PID           (0x006D)
 #define USB_NAME          "UNO R4 WiFi"
+
+#define VUSB_LDO_ENABLE     1
 
 /* EEPROM DEFINES */
 

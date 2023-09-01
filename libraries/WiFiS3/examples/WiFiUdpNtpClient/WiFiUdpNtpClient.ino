@@ -1,20 +1,22 @@
 /*
- Udp NTP Client
+  Udp NTP Client
 
- Get the time from a Network Time Protocol (NTP) time server
- Demonstrates use of UDP sendPacket and ReceivePacket
- For more on NTP time servers and the messages needed to communicate with them,
- see http://en.wikipedia.org/wiki/Network_Time_Protocol
+  Get the time from a Network Time Protocol (NTP) time server
+  Demonstrates use of UDP sendPacket and ReceivePacket
+  For more on NTP time servers and the messages needed to communicate with them,
+  see http://en.wikipedia.org/wiki/Network_Time_Protocol
 
- created 4 Sep 2010
- by Michael Margolis
- modified 9 Apr 2012
- by Tom Igoe
- modified May, 4th 2023
- by Daniele Aimo
+  created 4 Sep 2010
+  by Michael Margolis
+  modified 9 Apr 2012
+  by Tom Igoe
+  modified May, 4th 2023
+  by Daniele Aimo
 
- This code is in the public domain.
+  This code is in the public domain.
 
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-udp-ntp-client
  */
 
 

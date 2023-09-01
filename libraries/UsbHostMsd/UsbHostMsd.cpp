@@ -113,16 +113,10 @@ int USBHostMSD::write(const void *buffer, bd_addr_t addr, bd_size_t size) {
         block_number =  addr / block_size;
         count = size / block_size;
 
-        for (uint32_t b = block_number; b < block_number + count; b++) {
-            in_progress = true;
-            if(tuh_msc_write10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb, 0)) {
-                while(in_progress) {
-                    delay(10);
-                }
-                buf += block_size;
-            }
-            else {
-                return -1;
+        in_progress = true;
+        if(tuh_msc_write10(usb_host_msd_get_device_address(), get_lun(), buf, block_number, count, complete_cb, 0)) {
+            while (in_progress) {
+                tuh_task();
             }
         }
         return 0;
@@ -145,16 +139,10 @@ int USBHostMSD::read(void *buffer, bd_addr_t addr, bd_size_t size)
         block_number =  addr / block_size;
         count = size / block_size;
 
-        for (uint32_t b = block_number; b < block_number + count; b++) {
-            in_progress = true;
-            if(tuh_msc_read10(usb_host_msd_get_device_address(), get_lun(), buf, b, 1, complete_cb, 0)) {
-                while(in_progress) {
-                    delay(10);
-                }
-                buf += block_size;
-            }
-            else {
-                return -1;
+        in_progress = true;
+        if(tuh_msc_read10(usb_host_msd_get_device_address(), get_lun(), buf, block_number, count, complete_cb, 0)) {
+            while (in_progress) {
+                tuh_task();
             }
         }
         return 0;

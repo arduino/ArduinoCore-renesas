@@ -102,10 +102,15 @@
 #define CFG_TUD_DFU_RUNTIME      1
 
 #define CFG_TUH_MSC              1
+#define CFG_TUH_HUB              1
+#define CFG_TUH_DEVICE_MAX       (3*CFG_TUH_HUB + 1)
+#define CFG_TUH_ENDPOINT_MAX     8
+#define CFG_TUH_API_EDPT_XFER    1
+
 
 // CDC FIFO size of TX and RX
-#define CFG_TUD_CDC_RX_BUFSIZE   ((TUD_OPT_HIGH_SPEED ? 512 : 64) * 8)
-#define CFG_TUD_CDC_TX_BUFSIZE   ((TUD_OPT_HIGH_SPEED ? 512 : 64) * 8)
+#define CFG_TUD_CDC_RX_BUFSIZE   (4096)
+#define CFG_TUD_CDC_TX_BUFSIZE   (64)
 
 // CDC Endpoint transfer buffer size, more is faster
 #define CFG_TUD_CDC_EP_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)

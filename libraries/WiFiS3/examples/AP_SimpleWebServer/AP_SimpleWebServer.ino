@@ -14,6 +14,9 @@
   created 25 Nov 2012
   by Tom Igoe
   adapted to WiFi AP by Adafruit
+
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#access-point
  */
 
 #include "WiFiS3.h"

@@ -194,7 +194,7 @@ done:
 /* -------------------------------------------------------------------------- */
 void UART::begin(unsigned long baudrate, uint16_t config) {
 /* -------------------------------------------------------------------------- */  
-  int max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int max_index = PINS_COUNT;
 
   init_ok = cfg_pins(max_index);
   

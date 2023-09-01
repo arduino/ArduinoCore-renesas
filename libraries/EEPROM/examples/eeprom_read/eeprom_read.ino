@@ -1,11 +1,15 @@
 /*
- * EEPROM Read
- *
- * Reads the value of each byte of the EEPROM and prints it
- * to the computer.
- * This example code is in the public domain.
+  EEPROM Read
+
+  Reads the value of each byte of the EEPROM and prints it
+  to the computer.
+  This example code is in the public domain.
+
+  See the full documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/eeprom
  */
 
+// Include the EEPROM library
 #include <EEPROM.h>
 
 // start reading from the first byte (address 0) of the EEPROM

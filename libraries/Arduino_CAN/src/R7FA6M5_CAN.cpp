@@ -105,7 +105,7 @@ bool R7FA6M5_CAN::begin(CanBitRate const can_bitrate)
 
   /* Configure the pins for CAN.
    */
-  int const max_index = g_pin_cfg_size / sizeof(g_pin_cfg[0]);
+  int const max_index = PINS_COUNT;
   auto [cfg_init_ok, cfg_channel] = cfg_pins(max_index, _can_tx_pin, _can_rx_pin);
   init_ok &= cfg_init_ok;
   _canfd_cfg.channel = cfg_channel;

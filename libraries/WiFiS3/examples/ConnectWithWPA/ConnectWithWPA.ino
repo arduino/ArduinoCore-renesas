@@ -1,12 +1,15 @@
 /*
- This example connects to an unencrypted WiFi network.
- Then it prints the MAC address of the WiFi module,
- the IP address obtained, and other network details.
+  This example connects to an unencrypted WiFi network.
+  Then it prints the MAC address of the WiFi module,
+  the IP address obtained, and other network details.
 
- created 13 July 2010
- by dlf (Metodo2 srl)
- modified 31 May 2012
- by Tom Igoe
+  created 13 July 2010
+  by dlf (Metodo2 srl)
+  modified 31 May 2012
+  by Tom Igoe
+
+  Find the full UNO R4 WiFi RTC documentation here:
+  https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#connect-with-wpa
  */
 #include <WiFiS3.h>
 
