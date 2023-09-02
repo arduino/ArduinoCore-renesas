@@ -75,6 +75,11 @@ SECTIONS
         __tz_FLASH_S = ABSOLUTE(FLASH_START);
         __ROM_Start = .;
 
+        /* .sketch_boot section supports the Arduino SxU libraries, which are second stage bootloaders.
+         * The bootloaded sketch then starts aligned at next flash page after the SxU */
+        KEEP(*(.sketch_boot))
+       . = ALIGN(0x800);
+       
         /* Even though the vector table is not 256 entries (1KB) long, we still allocate that much
          * space because ROM registers are at address 0x400 and there is very little space
          * in between. */
