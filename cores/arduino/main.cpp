@@ -146,35 +146,3 @@ extern "C" __attribute__((weak)) void __cxa_pure_virtual(void)
 {
    exit(1);
 }
-
-// Used by malloc() to request more heap memory. This function
-// must be defined if we want malloc() to return a null pointer
-// if more space is requested than is available. Notice that
-// there's no support for decrement as the very first action,
-// because the result of that is unspecified by the standard,
-// so we can do whatever we want in that case.
-extern "C" void * _sbrk(ptrdiff_t change)
-{
-  extern char __HeapBase;   // From the linker script
-  extern char __HeapLimit;  // From the linker script
-  static char *programBreak = nullptr;
-
-  // If malloc() hasn't been called before, then set the program break
-  // to __HeapBase from the linker script
-  if (nullptr == programBreak)
-  {
-    programBreak = &__HeapBase;
-  }
-  // We must return the old program break if everything is ok, so save it
-  char * const oldProgramBreak = programBreak;
-  // Check that the new program break doesn't pass __HeapLimit from the
-  // linker script
-  if ((programBreak + change) > &__HeapLimit)
-  {
-    return (void *) -1;
-  }
-  // Update the program break according to the requested amount of heap
-  // memory
-  programBreak += change;
-  return oldProgramBreak;
-}
