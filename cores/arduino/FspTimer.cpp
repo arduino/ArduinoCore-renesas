@@ -185,13 +185,13 @@ bool FspTimer::begin(timer_mode_t mode, uint8_t tp, uint8_t channel, float freq_
     
     init_ok = true;
     /* AGT timer is always 16 bit */
-    if(channel < TIMER_16_BIT_OFFSET && type == GPT_TIMER) {
+    if(channel < TIMER_16_BIT_OFFSET && tp == GPT_TIMER) {
         /* timer a 32 BIT */
-        set_period_counts(1.0 / freq_hz, CH32BIT_MAX);
+        set_period_counts(tp, 1.0 / freq_hz, CH32BIT_MAX);
         }
     else {
         /* timer a 16 BIT */
-        set_period_counts(1.0 / freq_hz, CH16BIT_MAX);
+        set_period_counts(tp, 1.0 / freq_hz, CH16BIT_MAX);
     }
 
     if(duty_perc >= 0 && duty_perc <= 100) {
@@ -215,11 +215,11 @@ void FspTimer::set_irq_callback(GPTimerCbk_f cbk , void *ctx /*= nullptr*/ ) {
 }
 
 /* -------------------------------------------------------------------------- */
-void FspTimer::set_period_counts(float period, uint32_t _max) {
+void FspTimer::set_period_counts(uint8_t tp, float period, uint32_t _max) {
 /* -------------------------------------------------------------------------- */    
     
     uint32_t freq_hz = 0;
-    if(type == GPT_TIMER) {
+    if(tp == GPT_TIMER) {
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKD);
         if(period * (float) freq_hz / 1.0 < _max) {
             _period_counts = (uint32_t) (period * (float) freq_hz / 1.0);
@@ -249,7 +249,7 @@ void FspTimer::set_period_counts(float period, uint32_t _max) {
             init_ok = false;
         }
     }
-    else if(type == AGT_TIMER) {
+    else if(tp == AGT_TIMER) {
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB);
         if(period * (float) freq_hz / 1.0 < _max) {
             _period_counts = (uint32_t) (period * (float) freq_hz / 1.0);
@@ -418,11 +418,11 @@ bool FspTimer::set_period_ms(double ms) {
     close();
     if(timer_cfg.channel < TIMER_16_BIT_OFFSET && type == GPT_TIMER) {
         /* timer a 32 BIT */
-        set_period_counts(period_sec, CH32BIT_MAX);
+        set_period_counts(type, period_sec, CH32BIT_MAX);
     }
     else {
         /* timer a 16 BIT */
-        set_period_counts(period_sec, CH16BIT_MAX);
+        set_period_counts(type, period_sec, CH16BIT_MAX);
     }
     
     timer_cfg.period_counts = _period_counts;
