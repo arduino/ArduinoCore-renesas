@@ -68,6 +68,7 @@ jobs:
               - libraries/Arduino_CAN/examples/CAN1Write
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
+              - libraries/SFU
           - board:
               fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
@@ -82,6 +83,7 @@ jobs:
               - libraries/Arduino_CAN/examples/CAN1Write
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
+              - libraries/SFU
           - board:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
