@@ -1060,8 +1060,8 @@
       <property id="config.driver.canfd.rxfifo.7.int_threshold" value="enum.driver.canfd.fifo.int_threshold.1_2"/>
       <property id="config.driver.canfd.rxfifo.7.payload" value="enum.driver.canfd.fifo.payload.8"/>
       <property id="config.driver.canfd.rxfifo.7.depth" value="enum.driver.canfd.fifo.depth.16"/>
-      <property id="config.driver.canfd.afl.ch0_num" value="1"/>
-      <property id="config.driver.canfd.afl.ch1_num" value="1"/>
+      <property id="config.driver.canfd.afl.ch0_num" value="2"/>
+      <property id="config.driver.canfd.afl.ch1_num" value="2"/>
     </config>
     <config id="config.driver.gpt">
       <property id="config.driver.gpt.param_checking_enable" value="config.driver.gpt.param_checking_enable.bsp"/>
