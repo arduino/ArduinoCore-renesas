@@ -88,6 +88,7 @@ jobs:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
               - libraries/WiFiS3
+              - libraries/OTAUpdate
           - board:
               fqbn: "arduino-git:renesas:unor4wifi"
             additional-sketch-paths: |
