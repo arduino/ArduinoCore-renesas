@@ -12,7 +12,7 @@ enum OpampSpeedMode {
 
 /* The supported boards have 4 OPAMP channels, however, only channel 0 is accessible. */
 /* All other channels are connected to the LED matrix or not exposed. */
-#define ARDUINO_USED_OPAMP_CHANNEL 0
+#define ARDUINO_DEFAULT_OPAMP_CHANNEL 0
 
 /**
  * Pin Mapping for OPAMP
@@ -32,13 +32,17 @@ class OpampClass {
 public:
     /* startup the OPAMP on channel 0 */
     bool begin(OpampSpeedMode speed = OPAMP_SPEED_HIGHSPEED);
-    /* stop the OPAMP on channel 0 */
+    /* startup the OPAMP with arbitrary channel mask */
+    bool begin(uint8_t channel_mask, OpampSpeedMode speed = OPAMP_SPEED_HIGHSPEED);
+    /* stop all OPAMP channels */
     void end();
-    /* i-th Bit: 0 if OPAMP channel is stopped, 1 if OPAMP channel is operating */
-    uint8_t getStatus();
+    /* stop specific OPAMP channel(s) */
+    void end(uint8_t channel_mask);
+    /* returns true if the specified OPAMP channel number is running */
+    bool isRunning(uint8_t const channel);
 private:
-    /* initializes OPAMP pins */
-    bool initPins();
+    /* initializes OPAMP pins for given channel(s) */
+    bool initPins(uint8_t channel_mask);
     /* activates OPAMP for given speed and channel(s) */
     void initOpamp(OpampSpeedMode speed, uint8_t channel_mask);
 };

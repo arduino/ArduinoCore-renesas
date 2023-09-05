@@ -1,25 +1,54 @@
 #include "OPAMP.h"
 #include <Arduino.h>
 
+/* Make sure this library fails to compile for unsupported boards. */
+#if !defined(ARDUINO_UNOWIFIR4) && !defined(ARDUINO_MINIMA)
+#error "Unsupported board for OPAMP library."
+#endif
+
 /* pin mode needed to activate OPAMP functionality */
 #define OPAMP_IN_PINCFG (IOPORT_CFG_PORT_DIRECTION_INPUT | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_CFG_ANALOG_ENABLE)
 #define OPAMP_OUT_PINCFG (IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PERIPHERAL_PIN | IOPORT_CFG_ANALOG_ENABLE)
 #define FSP_CHECK(err) do { if( (err) != FSP_SUCCESS) return false; } while(0)
 
-bool OpampClass::initPins() {
+// Compact structure for OPAMP channel pins
+struct opamp_channel_pins_t {
+    bsp_io_port_pin_t plus;
+    bsp_io_port_pin_t minus;
+    bsp_io_port_pin_t output;
+};
+
+// See Renesas RA4M1 Group Datasheet
+// Note: Channel 0 is the only accessible one one the Arduino Minima boards. 
+static const opamp_channel_pins_t opamp_channels[] = {
+    {BSP_IO_PORT_00_PIN_00, BSP_IO_PORT_00_PIN_01, BSP_IO_PORT_00_PIN_02}, /* CH0 */
+    {BSP_IO_PORT_00_PIN_13, BSP_IO_PORT_00_PIN_12, BSP_IO_PORT_00_PIN_03}, /* CH1 */
+    {BSP_IO_PORT_00_PIN_11, BSP_IO_PORT_00_PIN_10, BSP_IO_PORT_00_PIN_04}, /* CH2 */
+    {BSP_IO_PORT_00_PIN_05, BSP_IO_PORT_00_PIN_06, BSP_IO_PORT_00_PIN_07}, /* CH3 */
+};
+
+bool OpampClass::initPins(uint8_t channel_mask) {
     fsp_err_t err;
     ioport_instance_ctrl_t ioport_ctrl {};
-#if defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_MINIMA)
-    /* channel 0 pins. Only accessible ones. */
-    err = R_IOPORT_PinCfg(&ioport_ctrl, BSP_IO_PORT_00_PIN_00, OPAMP_IN_PINCFG);
-    FSP_CHECK(err);
-    err = R_IOPORT_PinCfg(&ioport_ctrl, BSP_IO_PORT_00_PIN_01, OPAMP_IN_PINCFG);
-    FSP_CHECK(err);
-    err = R_IOPORT_PinCfg(&ioport_ctrl, BSP_IO_PORT_00_PIN_02, OPAMP_OUT_PINCFG);
-    FSP_CHECK(err);
-#else
-#error "Unsupported board."
-#endif
+    // Make sure to return false if nothing was given to initialize
+    // or a too high channel bit is in there
+    if (channel_mask == 0 || channel_mask > 0b1111) {
+        return false;
+    }
+    // Check the 4 possible channels
+    for(uint8_t i = 0; i < 4; i++) {
+        // was this channel selected?
+        if (!(channel_mask & (1u << i))) {
+            continue;
+        }
+        opamp_channel_pins_t pins = opamp_channels[i];
+        err = R_IOPORT_PinCfg(&ioport_ctrl, pins.plus, OPAMP_IN_PINCFG);
+        FSP_CHECK(err);
+        err = R_IOPORT_PinCfg(&ioport_ctrl, pins.minus, OPAMP_IN_PINCFG);
+        FSP_CHECK(err);
+        err = R_IOPORT_PinCfg(&ioport_ctrl, pins.output, OPAMP_OUT_PINCFG);
+        FSP_CHECK(err);
+    }
     // if we got here, none of the checks triggered an early return.
     return true;
 }
@@ -49,20 +78,29 @@ void OpampClass::initOpamp(OpampSpeedMode speed, uint8_t channel_mask) {
 }
 
 bool OpampClass::begin(OpampSpeedMode speed) {
-    if(!initPins()) {
+    return this->begin(1u << ARDUINO_DEFAULT_OPAMP_CHANNEL, speed);
+}
+
+bool OpampClass::begin(uint8_t channel_mask, OpampSpeedMode speed) {
+    if(!initPins(channel_mask)) {
         return false;
     }
-    initOpamp(speed, (1u << ARDUINO_USED_OPAMP_CHANNEL));
+    initOpamp(speed, channel_mask);
     return true;
 }
 
-uint8_t OpampClass::getStatus() {
-    return R_OPAMP->AMPMON;
+bool OpampClass::isRunning(uint8_t const channel) {
+    return (R_OPAMP->AMPMON & (1u << channel)) != 0;
 }
 
 void OpampClass::end() {
-    // clear the bit for the used channel
-    R_OPAMP->AMPC &= (uint8_t) ~(1u << ARDUINO_USED_OPAMP_CHANNEL);
+    // deactivate all channels.
+    R_OPAMP->AMPC = 0;
+}
+
+void OpampClass::end(uint8_t channel_mask) {
+    // deactivate given channels
+    R_OPAMP->AMPC &= ~channel_mask;
 }
 
 /* global instance */
