@@ -9,8 +9,8 @@
 
 #define CANFD_CFG_PARAM_CHECKING_ENABLE   ((1))
 
-#define CANFD_CFG_AFL_CH0_RULE_NUM   (1)
-#define CANFD_CFG_AFL_CH1_RULE_NUM   (1)
+#define CANFD_CFG_AFL_CH0_RULE_NUM   (2)
+#define CANFD_CFG_AFL_CH1_RULE_NUM   (2)
 
 #define CANFD_CFG_GLOBAL_ERROR_CH    ((1U))
 
