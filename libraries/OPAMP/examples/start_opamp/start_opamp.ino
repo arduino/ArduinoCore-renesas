@@ -3,7 +3,10 @@
 void setup () {
   Serial.begin(9600);
   delay(2000); // serial monitor delay
-  // activate OPAMP
+  // activate OPAMP, default channel 0
+  // Plus: Analog A1
+  // Minus: Analog A2 
+  // Output: Analog A3
   if (!OPAMP.begin(OPAMP_SPEED_HIGHSPEED)) {
     Serial.println("Failed to start OPAMP!");
   }
