@@ -36,7 +36,7 @@ bool OpampClass::initPins(uint8_t channel_mask) {
         return false;
     }
     // Check the 4 possible channels
-    for(uint8_t i = 0; i < 4; i++) {
+    for (uint8_t i = 0; i < 4; i++) {
         // was this channel selected?
         if (!(channel_mask & (1u << i))) {
             continue;
@@ -82,7 +82,7 @@ bool OpampClass::begin(OpampSpeedMode speed) {
 }
 
 bool OpampClass::begin(uint8_t channel_mask, OpampSpeedMode speed) {
-    if(!initPins(channel_mask)) {
+    if (!initPins(channel_mask)) {
         return false;
     }
     initOpamp(speed, channel_mask);
