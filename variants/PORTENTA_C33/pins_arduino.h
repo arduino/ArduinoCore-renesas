@@ -205,3 +205,5 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define LORA_BOOT0          3 //PWM3
 #define LORA_IRQ_DUMB       4 //PWM4
 #define SerialLoRa          Serial3
+
+#define RTC_CLOCK_SOURCE    RTC_CLOCK_SOURCE_SUBCLK
