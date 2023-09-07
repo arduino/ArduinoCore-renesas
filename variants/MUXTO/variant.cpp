@@ -80,6 +80,11 @@ static const ioport_cfg_t bsp_pin_cfg = {
 };
 static ioport_instance_ctrl_t ioport_ctrl;
 
+void usb_post_initialization() {
+  ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;
+  ((R_USB_FS0_Type*)R_USB_FS0_BASE)->SYSCFG_b.DPRPU = 1;
+}
+
 void initVariant() {
     //R_IOPORT_Open(&ioport_ctrl, &bsp_pin_cfg);
     //R_IOPORT_PinCfg(NULL, BSP_IO_PORT_09_PIN_14, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_USB_FS));
