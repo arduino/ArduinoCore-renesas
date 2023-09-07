@@ -1,7 +1,7 @@
 /*
   Test RTC
-  
-  A test sketch showcasing all RTC showcasing various functionalities related to the RTC module, 
+
+  A test sketch showcasing all RTC showcasing various functionalities related to the RTC module,
   including setting the time, handling interrupts, and reading time values.
 
   Find the full UNO R4 WiFi RTC documentation here:
@@ -19,15 +19,15 @@ void periodic_cbk() {
   static bool clb_st = false;
 
   // Toggle the LED based on callback state
-  if(clb_st) {
-    digitalWrite(LED_ON_INTERRUPT,HIGH);
+  if (clb_st) {
+    digitalWrite(LED_ON_INTERRUPT, HIGH);
   }
   else {
-    digitalWrite(LED_ON_INTERRUPT,LOW);
+    digitalWrite(LED_ON_INTERRUPT, LOW);
   }
 
   clb_st = !clb_st;  // Toggle callback state
- 
+
   // Print message indicating periodic interrupt
   Serial.println("PERIODIC INTERRUPT");
 }
@@ -41,23 +41,30 @@ void setup() {
   // Initialize serial communication
   Serial.begin(9600);
   // Wait for serial connection
-  while(!Serial) {
-    
+  while (!Serial) {
+
   }
-  
+
   // Set LED pins as outputs
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_ON_INTERRUPT, OUTPUT);
-  
+
   // Initialize the RTC
   RTC.begin();
 
   // Set a specific initial time (August 25, 2022, 14:37:00 Thursday)
   RTCTime mytime(25, Month::AUGUST, 2022, 14, 37, 00, DayOfWeek::THURSDAY, SaveLight::SAVING_TIME_ACTIVE);
 
+  RTCTime savedTime;
+  RTC.getTime(savedTime);
+
   // Set the initial time if RTC is not running
-  if(!RTC.isRunning()) {
-    RTC.setTime(mytime);
+  if (!RTC.isRunning()) {
+    if (savedTime.getYear() != 2000) {
+      RTC.setTime(mytime);
+    } else {
+      RTC.setTime(savedTime);
+    }
   }
 
   // Create an alarm time set to 35 seconds
@@ -69,36 +76,35 @@ void setup() {
   am.addMatchSecond();
 
   // Set the periodic callback function to run once every 2 seconds
-  if(!RTC.setPeriodicCallback(periodic_cbk, Period::ONCE_EVERY_2_SEC)) {
+  if (!RTC.setPeriodicCallback(periodic_cbk, Period::ONCE_EVERY_2_SEC)) {
     Serial.println("ERROR: periodic callback not set");
   }
-  
+
   // Set the alarm callback function with the alarm time and matching condition
-  if(!RTC.setAlarmCallback(alarm_cbk, alarmtime, am)) {
+  if (!RTC.setAlarmCallback(alarm_cbk, alarmtime, am)) {
     Serial.println("ERROR: alarm callback not set");
   }
-
 }
 
 void loop() {
   static bool status = false;
-  
+
   RTCTime currenttime;
-  
+
   // Check if RTC is running and print status
-  if(status) {
+  if (status) {
 
     // Toggle LED and display RTC status if 'status' is true
-    if(RTC.isRunning()) {
+    if (RTC.isRunning()) {
       Serial.println("RTC is running");
     }
     else {
       Serial.println("RTC is not running");
     }
-    
+
     /* GET CURRENT TIME FROM RTC */
     RTC.getTime(currenttime);
-    
+
     /* PRINT CURRENT TIME on Serial */
     Serial.print("Current time: ");
     /* DATE */
@@ -108,18 +114,18 @@ void loop() {
     Serial.print("/");
     Serial.print(currenttime.getYear());
     Serial.print(" - ");
-    
+
     /* ORE:MINUTI:SECONDI */
     Serial.print(currenttime.getHour());
     Serial.print(":");
     Serial.print(currenttime.getMinutes());
     Serial.print(":");
     Serial.println(currenttime.getSeconds());
-    
-    digitalWrite(LED_BUILTIN, HIGH); 
+
+    digitalWrite(LED_BUILTIN, HIGH);
   }
   else {
-    digitalWrite(LED_BUILTIN, LOW);  
+    digitalWrite(LED_BUILTIN, LOW);
   }
 
   status = !status;
