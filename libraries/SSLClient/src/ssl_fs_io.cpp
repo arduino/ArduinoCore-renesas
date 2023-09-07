@@ -18,15 +18,16 @@
 */
 
 #include "Arduino.h"
-#include "QSPIFlashBlockDevice.h"
+#include "MBRBlockDevice.h"
 #include "FATFileSystem.h"
 #include "ssl_fs_io.h"
 #include "ssl_debug.h"
 
-static BlockDevice * get_mbedtls_bd()
+static MBRBlockDevice * get_mbedtls_bd()
 {
-  static QSPIFlashBlockDevice root(PIN_QSPI_CLK, PIN_QSPI_SS, PIN_QSPI_D0, PIN_QSPI_D1, PIN_QSPI_D2, PIN_QSPI_D3);
-  return &root;
+  BlockDevice* root = BlockDevice::get_default_instance();
+  static MBRBlockDevice sys_bd(root, 1);
+  return &sys_bd;
 }
 
 static FATFileSystem * get_mbedtls_fs()
