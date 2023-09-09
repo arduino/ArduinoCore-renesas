@@ -44,7 +44,7 @@ int WiFiClient::connect(IPAddress ip, uint16_t port){
    if(_sock >= 0) {
       string res = "";
       modem.begin();
-      if(modem.write(string(PROMPT(_CLIENTCONNECTIP)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_CLIENTCONNECTIP), _sock, ip.toString(),port)) {
+      if(modem.write(string(PROMPT(_CLIENTCONNECTIP)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_CLIENTCONNECTIP), _sock, ip.toString().c_str(), port)) {
          return 1;
       }  
    }
