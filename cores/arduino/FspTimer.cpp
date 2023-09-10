@@ -11,7 +11,7 @@ bool FspTimer::force_pwm_reserved = false;
 TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = { TIMER_FREE };
 TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 
-FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
+FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER), _buffer_period(true) {
     // AGT0 is always used for timekeeping (millis() and micros())
     // agt_used_channel[0] = TIMER_USED;
     timer_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
@@ -453,14 +453,51 @@ bool FspTimer::set_period(uint32_t p) {
 /* -------------------------------------------------------------------------- */    
 
     if(type == GPT_TIMER && gpt_timer != nullptr) {
+        if (_buffer_period) {
         if (R_GPT_PeriodSet(&(gpt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;
+        }
+    }
+        else {
+            // Not buffered set it directl
+            gpt_timer->ctrl.p_reg->GTPR = p;
         }
     }
     else if(type == AGT_TIMER && agt_timer != nullptr) {
         if (R_AGT_PeriodSet(&(agt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;
         }
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+bool FspTimer::use_period_buffer(bool buffer_period) {
+/* -------------------------------------------------------------------------- */    
+
+    if (_buffer_period == (uint8_t)buffer_period) {
+        return true;
+    }
+
+    _buffer_period = (uint8_t)buffer_period;
+    if(type == GPT_TIMER && gpt_timer != nullptr) {
+
+        if (buffer_period) {
+            gpt_timer->ctrl.p_reg->GTBER_b.PR = 1;
+            gpt_timer->ctrl.p_reg->GTBER_b.BD1 = 0;
+        }
+        else {
+            gpt_timer->ctrl.p_reg->GTBER_b.PR = 0;
+            gpt_timer->ctrl.p_reg->GTBER_b.BD1 = 1;
+        } 
+    }
+    else if(type == AGT_TIMER && agt_timer != nullptr) {
+        // not buffered..
     }
     else {
         return false;
