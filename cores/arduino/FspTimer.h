@@ -95,7 +95,7 @@ class FspTimer {
     uint32_t _duty_cycle_counts;
     timer_source_div_t _sd;
     uint8_t type;
-    uint8_t _buffer_period;
+    uint8_t _period_buffer;
     void set_period_counts(uint8_t tp, float period, uint32_t max);
     TimerIrqCfg_t get_cfg_for_irq();
     static bool force_pwm_reserved;
@@ -112,8 +112,7 @@ class FspTimer {
     bool reset();
     bool set_duty_cycle(uint32_t const duty_cycle_counts, TimerPWMChannel_t pwm_ch);
     bool set_period(uint32_t p);
-    bool use_period_buffer(bool buffer_period);
-
+    bool set_period_buffer(bool period_buffer);
     bool close();
     void enable_pwm_channel(TimerPWMChannel_t pwm_channel);
     uint32_t get_counter();

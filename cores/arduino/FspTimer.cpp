@@ -11,7 +11,7 @@ bool FspTimer::force_pwm_reserved = false;
 TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = { TIMER_FREE };
 TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 
-FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER), _buffer_period(true) {
+FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER), _period_buffer(true) {
     // AGT0 is always used for timekeeping (millis() and micros())
     // agt_used_channel[0] = TIMER_USED;
     timer_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
@@ -453,7 +453,7 @@ bool FspTimer::set_period(uint32_t p) {
 /* -------------------------------------------------------------------------- */    
 
     if(type == GPT_TIMER && gpt_timer != nullptr) {
-        if (_buffer_period) {
+        if (_period_buffer) {
         if (R_GPT_PeriodSet(&(gpt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;
         }
@@ -477,17 +477,17 @@ bool FspTimer::set_period(uint32_t p) {
 
 
 /* -------------------------------------------------------------------------- */
-bool FspTimer::use_period_buffer(bool buffer_period) {
+bool FspTimer::set_period_buffer(bool period_buffer) {
 /* -------------------------------------------------------------------------- */    
 
-    if (_buffer_period == (uint8_t)buffer_period) {
+    if (_period_buffer == (uint8_t)period_buffer) {
         return true;
     }
 
-    _buffer_period = (uint8_t)buffer_period;
+    _period_buffer = (uint8_t)period_buffer;
     if(type == GPT_TIMER && gpt_timer != nullptr) {
 
-        if (buffer_period) {
+        if (period_buffer) {
             gpt_timer->ctrl.p_reg->GTBER_b.PR = 1;
             gpt_timer->ctrl.p_reg->GTBER_b.BD1 = 0;
         }
