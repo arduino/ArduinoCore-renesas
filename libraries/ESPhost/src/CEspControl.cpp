@@ -68,12 +68,11 @@ int CEspControl::process_test_messages(CCtrlMsgWrapper* response) {
    return 0;
 }
 
-
 /* -------------------------------------------------------------------------- */
 uint8_t *CEspControl::getStationRx(uint8_t &if_num, uint16_t &dim) {
 /* -------------------------------------------------------------------------- */   
    uint8_t *rv = nullptr;
-   CMsg msg; 
+   CMsg msg;
    __disable_irq();
    bool res = CEspCom::getMsgForStation(msg);
    if(!res) {
@@ -89,6 +88,16 @@ uint8_t *CEspControl::getStationRx(uint8_t &if_num, uint16_t &dim) {
       }
    }
    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+uint16_t CEspControl::peekStationRxMsgSize() {
+/* -------------------------------------------------------------------------- */
+   uint16_t res;
+   __disable_irq();
+   res = CEspCom::peekMsgSizeForStation();
+   __enable_irq();
+   return res;
 }
 
 /* -------------------------------------------------------------------------- */

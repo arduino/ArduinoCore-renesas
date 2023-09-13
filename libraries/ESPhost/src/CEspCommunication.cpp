@@ -138,6 +138,15 @@ bool CEspCom::getMsgForStation(CMsg &msg) {
 }
 
 /* -------------------------------------------------------------------------- */
+int CEspCom::peekMsgSizeForStation() {
+/* -------------------------------------------------------------------------- */
+   if(CEspCom::rxStationQueue.size() > 0) {
+      return CEspCom::rxStationQueue.front().get_size();
+   }
+   return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 bool CEspCom::getMsgForSoftAp(CMsg &msg) {
 /* -------------------------------------------------------------------------- */
    if(CEspCom::rxSoftApQueue.size() > 0) {
