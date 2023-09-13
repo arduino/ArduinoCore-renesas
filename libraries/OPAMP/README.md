@@ -21,7 +21,7 @@ Electrical characteristics:
 
 ## Usage
 
-To startup the opamp, simply include the library and call `OPAMP.begin()`. You can optionally chose to use a low-speed (=lower power) or high-speed (default) mode.
+To startup the opamp, simply include the library and call `OPAMP.begin(speed)`. As the optional `speed` argument to this function, can chose either `OPAMP_SPEED_LOWSPEED` as the low-speed (=lower power) mode or `OPAMP_SPEED_HIGHSPEED` as the high-speed, high-power mode.
 
 ```cpp
 #include <OPAMP.h>

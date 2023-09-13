@@ -30,10 +30,12 @@ enum OpampSpeedMode {
 */
 class OpampClass {
 public:
-    /* startup the OPAMP on channel 0 */
-    bool begin(OpampSpeedMode speed = OPAMP_SPEED_HIGHSPEED);
+    /* startup the OPAMP on channel 0 in high-speed mode */
+    bool begin();
+    /* startup the OPAMP on channel 0 with specific mode */
+    bool begin(OpampSpeedMode speed);
     /* startup the OPAMP with arbitrary channel mask */
-    bool begin(uint8_t channel_mask, OpampSpeedMode speed = OPAMP_SPEED_HIGHSPEED);
+    bool begin(uint8_t channel_mask, OpampSpeedMode speed);
     /* stop all OPAMP channels */
     void end();
     /* stop specific OPAMP channel(s) */

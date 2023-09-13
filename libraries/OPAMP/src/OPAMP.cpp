@@ -77,6 +77,10 @@ void OpampClass::initOpamp(OpampSpeedMode speed, uint8_t channel_mask) {
     }
 }
 
+bool OpampClass::begin() {
+    return this->begin(OPAMP_SPEED_HIGHSPEED);
+}
+
 bool OpampClass::begin(OpampSpeedMode speed) {
     return this->begin(1u << ARDUINO_DEFAULT_OPAMP_CHANNEL, speed);
 }
