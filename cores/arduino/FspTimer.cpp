@@ -459,7 +459,7 @@ bool FspTimer::set_period(uint32_t p) {
         }
     }
         else {
-            // Not buffered set it directl
+            // Not buffered set it directly
             gpt_timer->ctrl.p_reg->GTPR = p;
         }
     }
