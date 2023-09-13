@@ -27,7 +27,7 @@ static const opamp_channel_pins_t opamp_channels[] = {
     {BSP_IO_PORT_00_PIN_05, BSP_IO_PORT_00_PIN_06, BSP_IO_PORT_00_PIN_07}, /* CH3 */
 };
 
-bool OpampClass::initPins(uint8_t channel_mask) {
+bool OpampClass::initPins(uint8_t const channel_mask) {
     fsp_err_t err;
     ioport_instance_ctrl_t ioport_ctrl {};
     // Make sure to return false if nothing was given to initialize
@@ -53,7 +53,7 @@ bool OpampClass::initPins(uint8_t channel_mask) {
     return true;
 }
 
-void OpampClass::initOpamp(OpampSpeedMode speed, uint8_t channel_mask) {
+void OpampClass::initOpamp(OpampSpeedMode speed, uint8_t const channel_mask) {
     uint8_t ampmc_val  = 0U;
     /* setup amplifier speed mode within amplifier mode control */
     /* for all boards, this is at bit position 7 with either 0 (lowspeed) or 1 (highspeed) */
@@ -85,7 +85,7 @@ bool OpampClass::begin(OpampSpeedMode speed) {
     return this->begin(1u << ARDUINO_DEFAULT_OPAMP_CHANNEL, speed);
 }
 
-bool OpampClass::begin(uint8_t channel_mask, OpampSpeedMode speed) {
+bool OpampClass::begin(uint8_t const channel_mask, OpampSpeedMode speed) {
     if (!initPins(channel_mask)) {
         return false;
     }
@@ -102,7 +102,7 @@ void OpampClass::end() {
     R_OPAMP->AMPC = 0;
 }
 
-void OpampClass::end(uint8_t channel_mask) {
+void OpampClass::end(uint8_t const channel_mask) {
     // deactivate given channels
     R_OPAMP->AMPC &= ~channel_mask;
 }

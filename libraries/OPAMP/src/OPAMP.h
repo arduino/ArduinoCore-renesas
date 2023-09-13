@@ -35,18 +35,18 @@ public:
     /* startup the OPAMP on channel 0 with specific mode */
     bool begin(OpampSpeedMode speed);
     /* startup the OPAMP with arbitrary channel mask */
-    bool begin(uint8_t channel_mask, OpampSpeedMode speed);
+    bool begin(uint8_t const channel_mask, OpampSpeedMode speed);
     /* stop all OPAMP channels */
     void end();
     /* stop specific OPAMP channel(s) */
-    void end(uint8_t channel_mask);
+    void end(uint8_t const channel_mask);
     /* returns true if the specified OPAMP channel number is running */
     bool isRunning(uint8_t const channel);
 private:
     /* initializes OPAMP pins for given channel(s) */
-    bool initPins(uint8_t channel_mask);
+    bool initPins(uint8_t const channel_mask);
     /* activates OPAMP for given speed and channel(s) */
-    void initOpamp(OpampSpeedMode speed, uint8_t channel_mask);
+    void initOpamp(OpampSpeedMode speed, uint8_t const channel_mask);
 };
 
 extern OpampClass OPAMP;
