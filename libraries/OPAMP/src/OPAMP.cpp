@@ -82,7 +82,7 @@ bool OpampClass::begin() {
 }
 
 bool OpampClass::begin(OpampSpeedMode speed) {
-    return this->begin(1u << ARDUINO_DEFAULT_OPAMP_CHANNEL, speed);
+    return this->begin(1u << ARDUINO_UNO_R4_DEFAULT_OPAMP_CHANNEL, speed);
 }
 
 bool OpampClass::begin(uint8_t const channel_mask, OpampSpeedMode speed) {

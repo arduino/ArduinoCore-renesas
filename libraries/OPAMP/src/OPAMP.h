@@ -12,11 +12,11 @@ enum OpampSpeedMode {
 
 /* The supported boards have 4 OPAMP channels, however, only channel 0 is accessible. */
 /* All other channels are connected to the LED matrix or not exposed. */
-#define ARDUINO_DEFAULT_OPAMP_CHANNEL 0
+#define ARDUINO_UNO_R4_DEFAULT_OPAMP_CHANNEL 0
 
 /**
  * Pin Mapping for OPAMP
- * Uno R4 (Minima, WiFi):
+ * Arduino UNO R4 (Minima, WiFi):
  * ~Channel 0~
  *  Plus: Analog A1 (Renesas P0.00)
  *  Minus: Analog A2 (Renesas P0.01) 
