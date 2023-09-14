@@ -10,7 +10,7 @@ void setup () {
   if (!OPAMP.begin(OPAMP_SPEED_HIGHSPEED)) {
     Serial.println("Failed to start OPAMP!");
   }
-  bool isRunning = OPAMP.isRunning(0);
+  bool const isRunning = OPAMP.isRunning(0);
   if (isRunning) {
     Serial.println("OPAMP running on channel 0!");
   } else {
