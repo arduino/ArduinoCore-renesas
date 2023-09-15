@@ -94,6 +94,11 @@ jobs:
             additional-sketch-paths: |
               - libraries/WiFiS3
               - libraries/OTAUpdate
+              - libraries/OPAMP
+          - board:
+              fqbn: "arduino-git:renesas:minima"
+            additional-sketch-paths: |
+              - libraries/OPAMP
 
     steps:
       - name: Checkout repository
