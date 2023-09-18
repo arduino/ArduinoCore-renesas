@@ -25,6 +25,8 @@ MBRBlockDevice user_bd(root, 2);
 FATFileSystem sys_fs("sys");
 FATFileSystem user_fs("user");
 
+int err = 0;
+
 /* -------------------------------------------------------------------------- */
 void printDirectoryContent(const char* name) {
 /* -------------------------------------------------------------------------- */  
@@ -67,7 +69,7 @@ void setup() {
   Serial.println("*** USB Mass Storage DEVICE on QSPI Flash ***");
 
   /* Mount the partition */
-  int err =  sys_fs.mount(&sys_bd);
+  err =  sys_fs.mount(&sys_bd);
   if (err) {
     Serial.println("Unable to mount system filesystem");
     while(1) {
@@ -77,9 +79,8 @@ void setup() {
   /* Mount the partition */
   err =  user_fs.mount(&user_bd);
   if (err) {
-    Serial.println("Unable to mount user filesystem");
-    while(1) {
-    }
+    Serial.println("Unable to mount user filesystem. Only FatFS is supported");
+    /* Probably the user is using LittleFs. Go on and show only system fs */
   }
 }
 
@@ -89,7 +90,9 @@ void setup() {
 void loop() {
   Serial.println("Content of the system partition:");
   printDirectoryContent("/sys");
-  Serial.println("Content of the user partition:");
-  printDirectoryContent("/user");
+  if(!err) {
+    Serial.println("Content of the user partition:");
+    printDirectoryContent("/user");
+  }
   delay(2000);
 }
