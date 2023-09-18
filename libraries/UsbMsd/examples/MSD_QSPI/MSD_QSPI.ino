@@ -14,22 +14,16 @@
   This example code is in the public domain.
 */
 
-/* 
- * CONFIGURATION DEFINES 
- */
-    
-/* the name of the filesystem */
-#define TEST_FS_NAME "qspi"
-
-#include "QSPIFlashBlockDevice.h"
+#include "BlockDevice.h"
+#include "MBRBlockDevice.h"
 #include "UsbMsd.h"
 #include "FATFileSystem.h"
 
 BlockDevice* root = BlockDevice::get_default_instance();
-USBMSD msd(root);
-FATFileSystem fs(TEST_FS_NAME);
-
-std::string root_folder = std::string("/") + std::string(TEST_FS_NAME);
+MBRBlockDevice sys_bd(root, 1);
+MBRBlockDevice user_bd(root, 2);
+FATFileSystem sys_fs("sys");
+FATFileSystem user_fs("user");
 
 /* -------------------------------------------------------------------------- */
 void printDirectoryContent(const char* name) {
@@ -64,33 +58,38 @@ void printDirectoryContent(const char* name) {
 /*                                      SETUP                                 */
 /* -------------------------------------------------------------------------- */
 void setup() {
-  
+
   /* SERIAL INITIALIZATION */
   Serial.begin(9600);
-  while(!Serial) {
-    
+    while(!Serial) {
   }
 
   Serial.println("*** USB Mass Storage DEVICE on QSPI Flash ***");
-  
-  
+
   /* Mount the partition */
-  int err =  fs.mount(root);
+  int err =  sys_fs.mount(&sys_bd);
   if (err) {
-    Serial.println("Unable to mount filesystem");
+    Serial.println("Unable to mount system filesystem");
     while(1) {
-      
     }
-  }  
+  }
+
+  /* Mount the partition */
+  err =  user_fs.mount(&user_bd);
+  if (err) {
+    Serial.println("Unable to mount user filesystem");
+    while(1) {
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                       LOOP                                 */
 /* -------------------------------------------------------------------------- */
 void loop() {
-  Serial.print("Content of the folder ");
-  Serial.print(root_folder.c_str());
-  Serial.println(":");
-  printDirectoryContent(root_folder.c_str());
+  Serial.println("Content of the system partition:");
+  printDirectoryContent("/sys");
+  Serial.println("Content of the user partition:");
+  printDirectoryContent("/user");
   delay(2000);
 }
