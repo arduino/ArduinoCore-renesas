@@ -83,7 +83,7 @@ public:
     bool verify(const char* fingerprint, const char* domain_name);
     void setHandshakeTimeout(unsigned long handshake_timeout);
 
-    void setTimeout(unsigned long seconds);
+    void setConnectionTimeout(unsigned long seconds);
 
     operator bool()
     {
