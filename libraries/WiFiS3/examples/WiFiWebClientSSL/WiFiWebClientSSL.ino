@@ -4,7 +4,7 @@
   Remeber to update the CA certificates using CertificateUploader sketch
   before using this sketch.
 
-  Find the full UNO R4 WiFi RTC documentation here:
+  Find the full UNO R4 WiFi Network documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-web-client-ssl
 */
 
