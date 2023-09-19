@@ -56,7 +56,7 @@ public:
     {
         return (_tcp_client->pcb->remote_port);
     };
-    void setTimeout(uint16_t timeout)
+    void setConnectionTimeout(uint16_t timeout)
     {
         _timeout = timeout;
     }
