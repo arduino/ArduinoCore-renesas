@@ -26,7 +26,7 @@ extern "C" uint8_t usb_host_msd_get_lun_num();
 extern "C" uint32_t usb_host_msd_get_num_of_blocks(uint8_t lun);
 extern "C" uint32_t usb_host_msd_get_block_size(uint8_t lun);
 extern "C" void usb_host_msd_attach_mnt_cbk(void (*fnc)(void));
-
+extern "C" void usb_host_msd_attach_umnt_cbk(void (*fnc)(void));
 
 /* -------------------------------------------------------------------------- */
 /*                               CONSTRUCTOR                                  */
@@ -224,4 +224,11 @@ const char *USBHostMSD::get_type() const {
 
 bool USBHostMSD::attach_detected_callback(void (*cbk)()) {
     usb_host_msd_attach_mnt_cbk(cbk);
+    return true;
 }
+
+bool USBHostMSD::attach_removed_callback(void (*cbk)()) {
+    usb_host_msd_attach_umnt_cbk(cbk);
+    return true;
+}
+
