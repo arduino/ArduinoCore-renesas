@@ -554,19 +554,19 @@ void TwoWire::setClock(uint32_t freq) {
     } else {
       switch (m_i2c_cfg.rate) {
         case I2C_MASTER_RATE_STANDARD:
-          m_i2c_extend.clock_settings.brl_value = 27;
-          m_i2c_extend.clock_settings.brh_value = 26;
+          m_i2c_extend.clock_settings.brl_value = 28;
+          m_i2c_extend.clock_settings.brh_value = 28;
           m_i2c_extend.clock_settings.cks_value = 2 + clock_divisor;
           break;
         case I2C_MASTER_RATE_FAST:
-          m_i2c_extend.clock_settings.brl_value = 16;
-          m_i2c_extend.clock_settings.brh_value = 15;
+          m_i2c_extend.clock_settings.brl_value = 25;
+          m_i2c_extend.clock_settings.brh_value = 26;
           m_i2c_extend.clock_settings.cks_value = 0 + clock_divisor;
           break;
 #if BSP_FEATURE_IIC_FAST_MODE_PLUS
         case I2C_MASTER_RATE_FASTPLUS:
-          m_i2c_extend.clock_settings.brl_value = 6;
-          m_i2c_extend.clock_settings.brh_value = 5;
+          m_i2c_extend.clock_settings.brl_value = 15;
+          m_i2c_extend.clock_settings.brh_value = 15;
           m_i2c_extend.clock_settings.cks_value = 0;
           break;
 #endif
