@@ -142,7 +142,7 @@ unor4wifi.upload.maximum_data_size=32768
 
 ##############################################################
 
-unor4wifiusb.name=Arduino UNO R4 WiFi bypass ESP32
+unor4wifiusb.name=Arduino UNO R4 WiFi USB
 unor4wifiusb.build.core=arduino
 unor4wifiusb.build.crossprefix=arm-none-eabi-
 unor4wifiusb.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
@@ -191,7 +191,7 @@ unor4wifiusb.upload.tool.default=dfu-util
 unor4wifiusb.upload.protocol=
 unor4wifiusb.upload.transport=
 unor4wifiusb.upload.vid=0x2341
-unor4wifiusb.upload.pid=0x0369
+unor4wifiusb.upload.pid=0x1002
 unor4wifiusb.upload.address=0x00010000
 unor4wifiusb.upload.interface=0
 unor4wifiusb.upload.use_1200bps_touch=false
