@@ -171,9 +171,13 @@ int lwipClient::read()
     uint8_t b;
     if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
         __disable_irq();
-        pbuffer_get_data(&(_tcp_client->data), &b, 1);
+        int rv = pbuffer_get_data(&(_tcp_client->data), &b, 1);
         __enable_irq();
-        return b;
+        if(rv == 1) {
+            return b;
+        } else {
+            return -1;
+        }
     }
     // No data available
     return -1;
