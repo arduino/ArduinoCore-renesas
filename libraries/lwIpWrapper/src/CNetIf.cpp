@@ -144,22 +144,22 @@ CLwipIf::~CLwipIf()
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
-   (void)resp;
-   if(CLwipIf::connected_to_access_point) {
-      wifi_status = WL_DISCONNECTED;
-      if(net_ifs[NI_WIFI_STATION] != nullptr) {
-         net_ifs[NI_WIFI_STATION]->setLinkDown();
-      }
-   }
-   return ESP_CONTROL_OK;
+    (void)resp;
+    if(CLwipIf::connected_to_access_point) {
+        wifi_status = WL_DISCONNECTED;
+        if(net_ifs[NI_WIFI_STATION] != nullptr) {
+            net_ifs[NI_WIFI_STATION]->setLinkDown();
+        }
+    }
+    return ESP_CONTROL_OK;
 }
 
 
 /* -------------------------------------------------------------------------- */
 int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-   (void)resp;
-   CLwipIf::wifi_hw_initialized = true;
-   return ESP_CONTROL_OK;
+    (void)resp;
+    CLwipIf::wifi_hw_initialized = true;
+    return ESP_CONTROL_OK;
 }
 
 
