@@ -11,7 +11,6 @@
 #include "CEspControl.h"
 #include "IPAddress.h"
 #include "EthernetDriver.h"
-#include <queue>
 #include <string>
 #ifdef USE_LWIP_AS_LIBRARY
 #include "lwip/include/lwip/dhcp.h"
@@ -216,6 +215,15 @@ public:
 class CEth : public CNetIf {
     /* -------------------------------------------------------------------------- */
 protected:
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    static err_t init(struct netif* ni);
+
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    static err_t output(struct netif* ni, struct pbuf* p);
 public:
     CEth();
     virtual ~CEth();
@@ -229,12 +237,23 @@ public:
         UNUSED(mac);
         return 1;
     }
+
+    virtual void handleEthRx();
 };
 
 /* -------------------------------------------------------------------------- */
 class CWifiStation : public CNetIf {
     /* -------------------------------------------------------------------------- */
 protected:
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    static err_t init(struct netif* ni);
+
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    static err_t output(struct netif* ni, struct pbuf* p);
 public:
     CWifiStation();
     virtual ~CWifiStation();
@@ -254,6 +273,16 @@ public:
 /* -------------------------------------------------------------------------- */
 class CWifiSoftAp : public CNetIf {
     /* -------------------------------------------------------------------------- */
+protected:
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    static err_t init(struct netif* ni);
+
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    static err_t output(struct netif* ni, struct pbuf* p);
 public:
     CWifiSoftAp();
     virtual ~CWifiSoftAp();
@@ -274,14 +303,14 @@ public:
 class CLwipIf {
     /* -------------------------------------------------------------------------- */
 private:
-    static std::queue<struct pbuf*> eth_queue;
-
     bool eth_initialized;
 
     int dns_num;
     bool willing_to_start_sync_req;
     bool async_requests_ongoing;
 
+    friend CWifiStation;
+    friend CWifiSoftAp;
     static CNetIf* net_ifs[NETWORK_INTERFACES_MAX_NUM];
     static WifiStatus_t wifi_status;
 
@@ -349,24 +378,6 @@ public:
     void addDns(IPAddress aDNSServer);
     IPAddress getDns(int _num = 0);
 
-    /*
-     * these functions are passed to netif_add function as 'init' function for
-     * that network interface
-     */
-
-    static err_t initEth(struct netif* ni);
-    static err_t initWifiStation(struct netif* ni);
-    static err_t initWifiSoftAp(struct netif* ni);
-
-    /*
-     * these functions are passed to are set to netif->linkoutput function during
-     * the execution of the previous init function
-     */
-
-    static err_t ouputEth(struct netif* ni, struct pbuf* p);
-    static err_t outputWifiStation(struct netif* netif, struct pbuf* p);
-    static err_t outputWifiSoftAp(struct netif* netif, struct pbuf* p);
-
     /* when you 'get' a network interface, you get a pointer to one of the pointers
        held by net_ifs array
        if the array element then an attempt to set up the network interface is made
@@ -380,9 +391,7 @@ public:
 
     static void ethLinkUp();
     static void ethLinkDown();
-    static void ethFrameRx();
 
-    static void setPendingEthRx();
     /* this function set the mac address of the corresponding interface to mac
        and set this value for lwip */
     bool setMacAddress(NetIfType_t type, uint8_t* mac = nullptr);
@@ -414,8 +423,6 @@ public:
     uint8_t getEncryptionType(NetIfType_t type);
 
     int setWifiMode(WifiMode_t mode);
-
-    struct pbuf* getEthFrame();
 
     void lwip_task();
 };

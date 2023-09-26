@@ -1,4 +1,5 @@
 #include "CNetIf.h"
+#include <functional>
 
 IPAddress CNetIf::default_ip("192.168.0.10");
 IPAddress CNetIf::default_nm("255.255.255.0");
@@ -9,7 +10,6 @@ CNetIf* CLwipIf::net_ifs[] = { nullptr };
 bool CLwipIf::wifi_hw_initialized = false;
 bool CLwipIf::connected_to_access_point = false;
 WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
-std::queue<struct pbuf*> CLwipIf::eth_queue;
 bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
@@ -69,7 +69,22 @@ CLwipIf::CLwipIf()
         ch = FspTimer::get_available_timer(type, true);
     }
 
-    timer.begin(TIMER_MODE_PERIODIC, type, ch, 10.0, 50.0, timer_cb);
+    /*
+     * NOTE Timer and buffer size
+     * The frequency for the timer highly influences the memory requirements for the desired transfer speed
+     * You can calculate the buffer size required to achieve that performance from the following formula:
+     * buffer_size[byte] = Speed[bit/s] * timer_frequency[Hz]^-1 / 8
+     *
+     * In the case of portenta C33, the maximum speed achievable was measured with
+     * iperf2 tool (provided by lwip) and can reach up to 12Mbit/s.
+     * Further improvements can be made, but if we desire to reach that speed the buffer size
+     * and the timer frequency should be designed accordingly.
+     * buffer = 12 * 10^6 bit/s * (100Hz)^-1 / 8 = 15000 Byte = 15KB
+     *
+     * Since this is a constrained environment we could accept performance loss and
+     * delegate lwip to handle lost packets.
+     */
+    timer.begin(TIMER_MODE_PERIODIC, type, ch, 100.0, 50.0, timer_cb);
     timer.setup_overflow_irq();
     timer.open();
     timer.start();
@@ -252,56 +267,48 @@ CNetIf* CLwipIf::get(NetIfType_t type,
 }
 
 /* -------------------------------------------------------------------------- */
-void CLwipIf::ethLinkUp()
+void CEth::handleEthRx()
 {
-    /* -------------------------------------------------------------------------- */
-    if (net_ifs[NI_ETHERNET] != nullptr) {
-        net_ifs[NI_ETHERNET]->setLinkUp();
-    }
-}
+    /*
+     * This function is called by the ethernet driver, when a frame is receiverd,
+     * as a callback inside an interrupt context.
+     * It is required to be as fast as possible and not perform busy waits.
+     *
+     * The idea is the following:
+     * - take the rx buffer pointer
+     * - try to allocate a pbuf of the desired size
+     *   - if it is possible copy the the buffer inside the pbuf and give it to lwip netif
+     * - release the buffer
+     *
+     * If the packet is discarded the upper TCP/IP layers should handle the retransmission of the lost packets.
+     * This should not happen really often if the buffers and timers are designed taking into account the
+     * desired performance
+     */
+    __disable_irq();
 
-/* -------------------------------------------------------------------------- */
-void CLwipIf::ethLinkDown()
-{
-    /* -------------------------------------------------------------------------- */
-    if (net_ifs[NI_ETHERNET] != nullptr) {
-        net_ifs[NI_ETHERNET]->setLinkDown();
-    }
-}
+    volatile uint32_t rx_frame_dim = 0;
+    volatile uint8_t* rx_frame_buf = eth_input(&rx_frame_dim);
+    if (rx_frame_dim > 0 && rx_frame_buf != nullptr) {
+        struct pbuf* p=nullptr;
 
-/* -------------------------------------------------------------------------- */
-void CLwipIf::ethFrameRx()
-{
-    /* -------------------------------------------------------------------------- */
+        p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
 
-    if (pending_eth_rx) {
-        pending_eth_rx = false;
-        volatile uint32_t rx_frame_dim = 0;
-        volatile uint8_t* rx_frame_buf = eth_input(&rx_frame_dim);
-        if (rx_frame_dim > 0 && rx_frame_buf != nullptr) {
-            while (rx_frame_dim % 4 != 0) {
-                rx_frame_dim++;
-            }
-            struct pbuf* p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
-            if (p != NULL) {
-                /* Copy ethernet frame into pbuf */
-                pbuf_take((struct pbuf*)p, (uint8_t*)rx_frame_buf, (uint32_t)rx_frame_dim);
-                eth_release_rx_buffer();
-                eth_queue.push((struct pbuf*)p);
+        if (p != NULL) {
+            /* Copy ethernet frame into pbuf */
+            pbuf_take((struct pbuf*)p, (uint8_t*)rx_frame_buf, (uint32_t)rx_frame_dim);
+
+            if (ni.input((struct pbuf*)p, &ni) != ERR_OK) {
+                pbuf_free((struct pbuf*)p);
             }
         }
+
+        eth_release_rx_buffer();
     }
+    __enable_irq();
 }
 
 /* -------------------------------------------------------------------------- */
-void CLwipIf::setPendingEthRx()
-{
-    /* -------------------------------------------------------------------------- */
-    pending_eth_rx = true;
-}
-
-/* -------------------------------------------------------------------------- */
-err_t CLwipIf::initEth(struct netif* _ni)
+err_t CEth::init(struct netif* _ni)
 {
     /* -------------------------------------------------------------------------- */
 #if LWIP_NETIF_HOSTNAME
@@ -316,7 +323,7 @@ err_t CLwipIf::initEth(struct netif* _ni)
      * from it if you have to do some checks before sending (e.g. if link
      * is available...) */
     _ni->output = etharp_output;
-    _ni->linkoutput = ouputEth;
+    _ni->linkoutput = CEth::output;
 
     /* set MAC hardware address */
     _ni->hwaddr_len = eth_get_mac_address(_ni->hwaddr);
@@ -328,36 +335,42 @@ err_t CLwipIf::initEth(struct netif* _ni)
     /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
     _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
-    /* set the callback function that is called when an ethernet frame is physically
-       received, it is important that the callbacks are set before the initializiation */
-    eth_set_rx_frame_cbk(setPendingEthRx);
-    eth_set_link_on_cbk(ethLinkUp);
-    eth_set_link_off_cbk(ethLinkDown);
-
     return ERR_OK;
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::ouputEth(struct netif* _ni, struct pbuf *p) {
-/* -------------------------------------------------------------------------- */   
-  (void)_ni;
+err_t CEth::output(struct netif* _ni, struct pbuf *p) {
+/* -------------------------------------------------------------------------- */
+    /*
+     * This function is called inside the lwip timeout engine. Since we are working inside
+     * an environment without threads it is required to not lock. For this reason we should
+     * avoid busy waiting and instead discard the transmission. Lwip will handle the retransmission
+     * of the packet.
+     */
+    (void)_ni;
 
-  err_t errval = ERR_OK;
-  uint16_t tx_buf_dim = 0;
-  uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
-  assert (p->tot_len <= tx_buf_dim);
+    err_t errval = ERR_OK;
 
-    uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
-    if (bytes_actually_copied > 0) {
-        if (!eth_output(tx_buf, bytes_actually_copied)) {
+    if(eth_output_can_transimit()) {
+        uint16_t tx_buf_dim = 0;
+
+        // TODO analyze the race conditions that may arise from sharing a non synchronized buffer
+        uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
+        assert (p->tot_len <= tx_buf_dim);
+
+        uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
+
+        if (bytes_actually_copied > 0 && !eth_output(tx_buf, bytes_actually_copied)) {
             errval = ERR_IF;
         }
+    } else {
+        errval = ERR_INPROGRESS;
     }
     return errval;
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
+err_t CWifiStation::output(struct netif* _ni, struct pbuf *p) {
 /* -------------------------------------------------------------------------- */   
     (void)_ni;
     err_t errval = ERR_IF;
@@ -366,8 +379,8 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
         uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
         if (bytes_actually_copied > 0) {
             int ifn = 0;
-            if (net_ifs[NI_WIFI_STATION] != nullptr) {
-                ifn = net_ifs[NI_WIFI_STATION]->getId();
+            if (CLwipIf::net_ifs[NI_WIFI_STATION] != nullptr) {
+                ifn = CLwipIf::net_ifs[NI_WIFI_STATION]->getId();
             }
 
 #ifdef DEBUG_OUTPUT_DISABLED
@@ -391,7 +404,7 @@ err_t CLwipIf::outputWifiStation(struct netif* _ni, struct pbuf *p) {
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::initWifiStation(struct netif* _ni)
+err_t CWifiStation::init(struct netif* _ni)
 {
     /* -------------------------------------------------------------------------- */
 #if LWIP_NETIF_HOSTNAME
@@ -406,7 +419,7 @@ err_t CLwipIf::initWifiStation(struct netif* _ni)
      * from it if you have to do some checks before sending (e.g. if link
      * is available...) */
     _ni->output = etharp_output;
-    _ni->linkoutput = outputWifiStation;
+    _ni->linkoutput = CWifiStation::output;
 
     /* maximum transfer unit */
     _ni->mtu = 1500;
@@ -422,7 +435,7 @@ err_t CLwipIf::initWifiStation(struct netif* _ni)
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf* p)
+err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p)
 {
     /* -------------------------------------------------------------------------- */
     (void)_ni;
@@ -434,8 +447,8 @@ err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf* p)
         uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
         if (bytes_actually_copied > 0) {
             int ifn = 0;
-            if (net_ifs[NI_WIFI_SOFTAP] != nullptr) {
-                ifn = net_ifs[NI_WIFI_SOFTAP]->getId();
+            if (CLwipIf::net_ifs[NI_WIFI_SOFTAP] != nullptr) {
+                ifn = CLwipIf::net_ifs[NI_WIFI_SOFTAP]->getId();
             }
 
             if (CEspControl::getInstance().sendBuffer(ESP_AP_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
@@ -449,7 +462,7 @@ err_t CLwipIf::outputWifiSoftAp(struct netif* _ni, struct pbuf* p)
 }
 
 /* -------------------------------------------------------------------------- */
-err_t CLwipIf::initWifiSoftAp(struct netif* _ni)
+err_t CWifiSoftAp::init(struct netif* _ni)
 {
     /* -------------------------------------------------------------------------- */
 #if LWIP_NETIF_HOSTNAME
@@ -464,7 +477,7 @@ err_t CLwipIf::initWifiSoftAp(struct netif* _ni)
      * from it if you have to do some checks before sending (e.g. if link
      * is available...) */
     _ni->output = etharp_output;
-    _ni->linkoutput = outputWifiSoftAp;
+    _ni->linkoutput = CWifiSoftAp::output;
 
     /* maximum transfer unit */
     _ni->mtu = 1500;
@@ -640,8 +653,8 @@ int CLwipIf::connectToAp(const char* ssid, const char* pwd)
             rv = ESP_CONTROL_OK;
             /* when we get the connection to access point we are sure we are STATION
                and we are connected */
-            if (net_ifs[NI_WIFI_STATION] != nullptr) {
-                net_ifs[NI_WIFI_STATION]->setLinkUp();
+            if (CLwipIf::net_ifs[NI_WIFI_STATION] != nullptr) {
+                CLwipIf::net_ifs[NI_WIFI_STATION]->setLinkUp();
             }
 
       }
@@ -762,28 +775,13 @@ int CLwipIf::resetLowPowerMode()
     return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-struct pbuf* CLwipIf::getEthFrame()
-{
-    /* -------------------------------------------------------------------------- */
-    struct pbuf* rv = nullptr;
-    if (!CLwipIf::eth_queue.empty()) {
-        rv = CLwipIf::eth_queue.front();
-        CLwipIf::eth_queue.pop();
-    }
-    else {
-        CLwipIf::eth_queue = {};
-    }
-    return rv;
-}
-
 #ifdef LWIP_USE_TIMER
 /* -------------------------------------------------------------------------- */
 void CLwipIf::timer_cb(timer_callback_args_t *arg) {
 /*  -------------------------------------------------------------------------- */   
   (void)arg;
   CLwipIf::getInstance().lwip_task();
-} 
+}
 #endif
 
 /* ***************************************************************************
@@ -1288,7 +1286,7 @@ void CEth::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
     IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
     IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
 
-    netif_add(&ni, &ip, &nm, &gw, NULL, CLwipIf::initEth, ethernet_input);
+    netif_add(&ni, &ip, &nm, &gw, NULL, CEth::init, ethernet_input);
     netif_set_default(&ni);
 
     if (netif_is_link_up(&ni)) {
@@ -1303,32 +1301,27 @@ void CEth::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
     /* Set the link callback function, this function is called on change of link status */
     // netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
 #endif /* LWIP_NETIF_LINK_CALLBACK */
+    /*
+     * set the callback function that is called when an ethernet frame is physically
+     * received, it is important that the callbacks are set before the initializiation
+     */
+    eth_set_rx_frame_cbk(std::bind(&CEth::handleEthRx, this));
+    eth_set_link_on_cbk(std::bind(&CEth::setLinkUp, this));
+    eth_set_link_off_cbk(std::bind(&CEth::setLinkDown, this));
 }
 
 /* -------------------------------------------------------------------------- */
 void CEth::task()
 {
     /* -------------------------------------------------------------------------- */
-    struct pbuf* p = nullptr;
 
     eth_execute_link_process();
-
-    __disable_irq();
-    CLwipIf::ethFrameRx();
-    p = (struct pbuf*)CLwipIf::getInstance().getEthFrame();
-    __enable_irq();
-    if (p != nullptr) {
-
-        if (ni.input((struct pbuf*)p, &ni) != ERR_OK) {
-            pbuf_free((struct pbuf*)p);
-        }
-    }
-    
 
 #if LWIP_DHCP
     static unsigned long dhcp_last_time_call = 0;
     if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
         dhcp_task();
+        dhcp_last_time_call = millis();
     }
 #endif
 }
@@ -1351,7 +1344,7 @@ void CWifiStation::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
     IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
     IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
 
-    netif_add(&ni, &ip, &nm, &gw, NULL, CLwipIf::initWifiStation, ethernet_input);
+    netif_add(&ni, &ip, &nm, &gw, NULL, CWifiStation::init, ethernet_input);
     netif_set_default(&ni);
 
     if (netif_is_link_up(&ni)) {
@@ -1402,6 +1395,7 @@ void CWifiStation::task()
     static unsigned long dhcp_last_time_call = 0;
     if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
         dhcp_task();
+        dhcp_last_time_call = millis();
     }
 #endif
 }
@@ -1458,7 +1452,7 @@ void CWifiSoftAp::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
     IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
     IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
 
-    netif_add(&ni, &ip, &nm, &gw, NULL, CLwipIf::initWifiSoftAp, ethernet_input);
+    netif_add(&ni, &ip, &nm, &gw, NULL, CWifiSoftAp::init, ethernet_input);
     netif_set_default(&ni);
     if (netif_is_link_up(&ni)) {
         /* When the netif is fully configured this function must be called */
@@ -1478,7 +1472,8 @@ void CWifiSoftAp::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
 void CWifiSoftAp::task()
 {
     /* -------------------------------------------------------------------------- */
-    /* get messages and process it  */
+    /* get messages and process it
+     * TODO change the algorithm and make it similar to WiFiStation */
     uint8_t if_num;
     uint16_t dim;
     uint8_t* buf = nullptr;
@@ -1505,6 +1500,7 @@ void CWifiSoftAp::task()
     static unsigned long dhcp_last_time_call = 0;
     if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
         dhcp_task();
+        dhcp_last_time_call = millis();
     }
 #endif
 }
