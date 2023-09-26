@@ -5,8 +5,9 @@
 #include "r_ether_phy.h"
 #include "r_ether_api.h"
 #include "r_ether.h"
+#include <functional>
 
-using EtherCallback_f        = void (*)(void);
+using EtherCallback_f        = std::function<void(void)>;
 
 #define ETHERNET_IRQ_PRIORITY   10
 
