@@ -16,6 +16,7 @@ public:
     lwipClient();
     lwipClient(uint8_t sock);
     lwipClient(struct tcp_struct* tcpClient);
+    virtual ~lwipClient();
 
     uint8_t status();
     virtual int connect(IPAddress ip, uint16_t port);
@@ -68,6 +69,8 @@ public:
 private:
     struct tcp_struct* _tcp_client;
     uint16_t _timeout = 10000;
+
+    const bool _provided_tcp_client;
 };
 
 #endif
