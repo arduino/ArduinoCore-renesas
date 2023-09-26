@@ -101,12 +101,10 @@ void configure_usb_mux() {
 }
 
 #include "FspTimer.h"
-
 __attribute__((weak)) void __maybe_start_usb() {}
 
 void initVariant() {
-  __maybe_start_usb();
-  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
+  __maybe_start_usb();  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, OUTPUT);
   //pinMode(LEDB, OUTPUT);
   //pinMode(LEDR, OUTPUT);

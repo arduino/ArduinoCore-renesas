@@ -102,12 +102,12 @@ static const uint8_t D15 = PIN_D15;
 /****** UART CORE DEFINES ******/
 
 #define SERIAL_HOWMANY		3
-#define UART1_TX_PIN        22
-#define UART1_RX_PIN        23
-#define UART2_TX_PIN        1
-#define UART2_RX_PIN        0
-#define UART3_TX_PIN        24
-#define UART3_RX_PIN        25
+#define UART1_TX_PIN        1
+#define UART1_RX_PIN        0
+#define UART2_TX_PIN        24
+#define UART2_RX_PIN        25
+#define UART3_TX_PIN        22
+#define UART3_RX_PIN        23
 
 /****** WIRE CORE DEFINES ******/
 
@@ -160,7 +160,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x006D)
-#define USB_NAME          "UNO R4 WiFi"
+#define USB_NAME          "UNO R4 WiFi USB"
 
 #define VUSB_LDO_ENABLE     1
 

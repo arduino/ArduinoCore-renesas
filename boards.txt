@@ -156,13 +156,13 @@ unor4wifiusb.build.float-abi=-mfloat-abi=hard
 unor4wifiusb.build.board=UNOWIFIR4USB
 unor4wifiusb.build.defines=-DF_CPU=48000000 -DARDUINO_UNOR4_WIFIUSB
 unor4wifiusb.vid.0=0x2341
-unor4wifiusb.pid.0=0x1002
+unor4wifiusb.pid.0=0x006D
 unor4wifiusb.vid.1=0x2341
-unor4wifiusb.pid.1=0x006D
+unor4wifiusb.pid.1=0x0369
 unor4wifiusb.upload_port.0.vid=0x2341
-unor4wifiusb.upload_port.0.pid=0x1002
+unor4wifiusb.upload_port.0.pid=0x006D
 unor4wifiusb.upload_port.1.vid=0x2341
-unor4wifiusb.upload_port.1.pid=0x006D
+unor4wifiusb.upload_port.1.pid=0x0369
 
 unor4wifiusb.compiler.fsp.defines={build.variant.path}/defines.txt
 unor4wifiusb.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -174,24 +174,12 @@ unor4wifiusb.compiler.fsp.includes={build.variant.path}/includes.txt
 unor4wifiusb.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 unor4wifiusb.compiler.fsp="{build.variant.path}/libs/libfsp.a"
 
-#unor4wifiusb.upload.tool=bossac
-#unor4wifiusb.upload.tool.default=bossac
-#unor4wifiusb.upload.protocol=sam-ba
-#unor4wifiusb.upload.transport=
-#unor4wifiusb.upload.vid=0x2341
-#unor4wifiusb.upload.pid=0x1002
-#unor4wifiusb.upload.use_1200bps_touch=true
-#unor4wifiusb.upload.wait_for_upload_port=false
-#unor4wifiusb.upload.native_usb=true
-#unor4wifiusb.upload.maximum_size=262144
-#unor4wifiusb.upload.maximum_data_size=32768
-
 unor4wifiusb.upload.tool=dfu-util
 unor4wifiusb.upload.tool.default=dfu-util
 unor4wifiusb.upload.protocol=
 unor4wifiusb.upload.transport=
 unor4wifiusb.upload.vid=0x2341
-unor4wifiusb.upload.pid=0x1002
+unor4wifiusb.upload.pid=0x369
 unor4wifiusb.upload.address=0x00010000
 unor4wifiusb.upload.interface=0
 unor4wifiusb.upload.use_1200bps_touch=false
