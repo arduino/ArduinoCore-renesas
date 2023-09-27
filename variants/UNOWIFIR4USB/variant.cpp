@@ -87,25 +87,11 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
   return rv;
 }
 
-#define BSP_PRV_PRCR_KEY                (0xA500U)
-#define BSP_PRV_PRCR_PRC1_UNLOCK        ((BSP_PRV_PRCR_KEY) | 0x2U)
-#define BSP_PRV_PRCR_LOCK               ((BSP_PRV_PRCR_KEY) | 0x0U)
-// if _USBStart is called, this will swap the USB port over the ESP one
-void configure_usb_mux() {
-  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
-  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[1])) = 40;
-  R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
-
-  pinMode(21, OUTPUT);
-  digitalWrite(21, HIGH);
-}
-
 #include "FspTimer.h"
-__attribute__((weak)) void __maybe_start_usb() {}
 
 void initVariant() {
-  __maybe_start_usb();  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
-  pinMode(LED_BUILTIN, OUTPUT);
+  // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
+   pinMode(LED_BUILTIN, OUTPUT);
   //pinMode(LEDB, OUTPUT);
   //pinMode(LEDR, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
