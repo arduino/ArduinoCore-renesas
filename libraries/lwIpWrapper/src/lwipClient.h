@@ -43,10 +43,7 @@ public:
         return bool() != value;
     }
     virtual bool operator==(const lwipClient&);
-    virtual bool operator!=(const lwipClient& rhs)
-    {
-        return !this->operator==(rhs);
-    };
+    virtual bool operator!=(const lwipClient& rhs);
     uint8_t getSocketNumber();
     virtual uint16_t localPort()
     {

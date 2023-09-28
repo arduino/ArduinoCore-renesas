@@ -259,7 +259,7 @@ uint8_t lwipClient::connected()
 {
     /* -------------------------------------------------------------------------- */
     uint8_t s = status();
-    return ((available() && (s == TCP_CLOSING)) || (s == TCP_CONNECTED) || (s == TCP_ACCEPTED));
+    return s != TCP_DISCONNECTED && ((available() && (s == TCP_CLOSING)) || (s == TCP_CONNECTED) || (s == TCP_ACCEPTED));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -286,6 +286,13 @@ bool lwipClient::operator==(const lwipClient& rhs)
 {
     /* -------------------------------------------------------------------------- */
     return _tcp_client == rhs._tcp_client && _tcp_client->pcb == rhs._tcp_client->pcb;
+}
+
+/* -------------------------------------------------------------------------- */
+bool lwipClient::operator!=(const lwipClient& rhs)
+{
+    /* -------------------------------------------------------------------------- */
+    return _tcp_client != rhs._tcp_client || _tcp_client->pcb != rhs._tcp_client->pcb;
 }
 
 /* This function is not a function defined by Arduino. This is a function
