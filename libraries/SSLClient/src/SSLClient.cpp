@@ -85,6 +85,7 @@ SSLClient::SSLClient(Client* client, String ca_path)
 SSLClient::~SSLClient()
 {
     stop();
+    delete sslclient->client;
     delete sslclient;
 }
 
