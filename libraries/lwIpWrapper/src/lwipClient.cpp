@@ -29,6 +29,13 @@ lwipClient::lwipClient(struct tcp_struct* tcpClient)
 
 {
 }
+
+/* -------------------------------------------------------------------------- */
+lwipClient::lwipClient(lwipClient&& c) noexcept
+    :_tcp_client(std::move(c._tcp_client)), _provided_tcp_client(c._provided_tcp_client), _timeout(c._timeout)
+{
+
+}
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -40,6 +47,17 @@ lwipClient::~lwipClient()
         mem_free(_tcp_client); 
     }
 }
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+lwipClient& lwipClient::operator=(lwipClient&& c) {
+    this->_tcp_client = std::move(c._tcp_client);
+    this->_provided_tcp_client = c._provided_tcp_client;
+    this->_timeout = c._timeout;
+
+    return *this;
+}
+
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
