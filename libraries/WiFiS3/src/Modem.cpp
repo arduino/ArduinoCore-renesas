@@ -289,7 +289,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
    return res;
 }
 
-#ifdef ARDUINO_UNOWIFIR4
+#if defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_UNOWIFIR4USB)
   ModemClass modem = ModemClass(&Serial2);
 #else
   ModemClass modem = ModemClass(D24,D25);
