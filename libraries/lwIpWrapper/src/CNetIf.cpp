@@ -1374,27 +1374,28 @@ void CWifiStation::task()
     /* -------------------------------------------------------------------------- */
     /* get messages and process it  */
     uint8_t if_num;
-    uint16_t dim;
+    uint16_t dim = 0;
     uint8_t* buf = nullptr;
+    struct pbuf* p = nullptr;
+
     /* shall we verify something about if_num??? */
     do {
-        buf = CEspControl::getInstance().getStationRx(if_num, dim);
-
-        if (buf != nullptr) {
-            // Serial.println("Wifi Station - msg rx");
-
-            struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-            if (p != NULL) {
+        dim = CEspControl::getInstance().peekStationRxMsgSize();
+        if (dim > 0)
+        {
+            p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
+            if (p != nullptr)
+            {
+                buf = CEspControl::getInstance().getStationRx(if_num, dim);
                 /* Copy ethernet frame into pbuf */
                 pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
-                delete[] buf;
-
                 if (ni.input(p, &ni) != ERR_OK) {
                     pbuf_free(p);
                 }
+                delete[] buf;
             }
         }
-    } while(buf != nullptr);
+    } while(dim > 0 && p != nullptr);
 
 
 #if LWIP_DHCP

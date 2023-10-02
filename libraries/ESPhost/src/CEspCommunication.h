@@ -60,6 +60,7 @@ public:
    static bool storeStationMsg(CMsg &msg);
    static bool storeSoftApMsg(CMsg &msg); 
    static bool getMsgForStation(CMsg &msg);
+   static int  peekMsgSizeForStation();
    static bool getMsgForSoftAp(CMsg &msg);
 
    static void clearStationRx();
