@@ -68,9 +68,14 @@ uint32_t usb_host_msd_get_block_size(uint8_t lun) {
 }
 
 static void (*mount_fnc)(void) = NULL;
+static void (*unmount_fnc)(void) = NULL;
 
 void usb_host_msd_attach_mnt_cbk(void (*fnc)(void)) {
   mount_fnc = fnc;
+}
+
+void usb_host_msd_attach_umnt_cbk(void (*fnc)(void)) {
+  unmount_fnc = fnc;
 }
 
 //--------------------------------------------------------------------+
@@ -166,6 +171,10 @@ void tuh_msc_umount_cb(uint8_t dev_addr) {
   }
 
   device_address = -1;
+
+  if (unmount_fnc != NULL) {
+    unmount_fnc();
+  }
 
 //  uint8_t phy_disk = dev_addr-1;
 //
