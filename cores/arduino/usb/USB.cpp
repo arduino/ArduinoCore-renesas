@@ -295,6 +295,8 @@ extern "C" {
 }
 
 __attribute__((weak)) void configure_usb_mux() {}
+/* specific variant USB initialization should define this functiona in variant.cpp */
+__attribute__((weak)) void usb_post_initialization() {}
 
 void __USBStart() {
     USBIrqCfg_t usb_irq_cfg;
@@ -360,6 +362,8 @@ void __USBStart() {
 
     /* init device port*/
     tud_init(BOARD_TUD_RHPORT);
+
+    usb_post_initialization();
 
 #ifdef VUSB_LDO_ENABLE
     ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;

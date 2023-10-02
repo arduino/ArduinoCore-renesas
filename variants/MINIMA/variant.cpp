@@ -75,6 +75,11 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 
 #include "FspTimer.h"
 
+void usb_post_initialization() {
+  ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;
+}
+
+
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, OUTPUT);

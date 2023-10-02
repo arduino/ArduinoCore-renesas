@@ -104,6 +104,10 @@ void configure_usb_mux() {
 
 __attribute__((weak)) void __maybe_start_usb() {}
 
+void usb_post_initialization() {
+  ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;
+}
+
 void initVariant() {
   __maybe_start_usb();
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
