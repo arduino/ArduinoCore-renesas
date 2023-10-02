@@ -668,27 +668,15 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
         size_t cpy_size = (sizeof(at.time) <= sizeof(struct tm)) ? sizeof(at.time) : sizeof(struct tm);
         
         memcpy(&at.time, &alrm, cpy_size);
-        if(m.isMatchingSecond()) {
-            at.sec_match = true;
-        }
-        else if(m.isMatchingMinute()) {
-            at.min_match = true;
-        }
-        else if(m.isMatchingHour() ) {
-            at.hour_match = true;
-        }
-        else if(m.isMatchingDay() ) {
-            at.mday_match = true;
-        }
-        else if(m.isMatchingMonth()) {
-            at.mon_match = true;
-        }
-        else if(m.isMatchingYear()) {
-            at.year_match = true;
-        }
-        else if(m.isMatchingDayOfWeek()) {
-            at.dayofweek_match = true;
-        }
+
+        at.sec_match = m.isMatchingSecond();
+        at.min_match = m.isMatchingMinute();
+        at.hour_match = m.isMatchingHour();
+        at.mday_match = m.isMatchingDay();
+        at.mon_match = m.isMatchingMonth();
+        at.year_match = m.isMatchingYear();
+        at.dayofweek_match = m.isMatchingDayOfWeek();
+        
         if(IRQManager::getInstance().addPeripheral(IRQ_RTC,&rtc_irq_cfg)) {
             return setRtcAlarm(at);
         }
