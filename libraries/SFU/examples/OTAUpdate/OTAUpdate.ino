@@ -20,6 +20,9 @@
  ******************************************************************************/
 
 #include <SFU.h>
+#include <BlockDevice.h>
+#include <MBRBlockDevice.h>
+#include <FATFileSystem.h>
 #include <WiFiC3.h>
 #include <Arduino_DebugUtils.h>
 #include "arduino_secrets.h" 
@@ -37,6 +40,10 @@ static char const OTA_FILE_LOCATION[] = "http://downloads.arduino.cc/ota/OTAUsag
 #else
 #error "Board not supported"
 #endif
+
+BlockDevice* block_device = BlockDevice::get_default_instance();
+MBRBlockDevice mbr(block_device, 1);
+FATFileSystem fs("ota");
 
 /******************************************************************************
  * SETUP/LOOP
@@ -68,9 +75,24 @@ void setup()
   Serial.print  (WiFi.SSID());
   Serial.println("'");
 
+  int err = -1;
+  /* Mount the filesystem. */
+  if (err = fs.mount(&mbr) != 0)
+  {
+     DEBUG_ERROR("%s: fs.mount() failed with %d", __FUNCTION__, err);
+     return;
+  }
+
   SFU::begin();
 
-  SFU::download(OTA_FILE_LOCATION);
+  SFU::download("/ota/UPDATE.BIN.OTA", OTA_FILE_LOCATION);
+
+  /* Unmount the filesystem. */
+  if ((err = fs.unmount()) != 0)
+  {
+     DEBUG_ERROR("%s: fs.unmount() failed with %d", __FUNCTION__, err);
+     return;
+  }
 
   SFU::apply();
 }
