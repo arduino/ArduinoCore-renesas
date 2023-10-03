@@ -37,13 +37,12 @@ enum class OTAError : int
   PORTENTA_C33_ErrorParseHttpHeader = PORTENTA_C33_OTA_ERROR_BASE - 6,
   PORTENTA_C33_ErrorFlashInit       = PORTENTA_C33_OTA_ERROR_BASE - 7,
   PORTENTA_C33_ErrorReformat        = PORTENTA_C33_OTA_ERROR_BASE - 8,
-  PORTENTA_C33_ErrorUnmount         = PORTENTA_C33_OTA_ERROR_BASE - 9,
 };
 
 class SFU {
 public:
 	static int begin() {};
-	static int download(const char* url);
+	static int download(const char* ota_path, const char* ota_url);
 	static int apply() { NVIC_SystemReset(); };
 };
 

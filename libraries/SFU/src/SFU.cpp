@@ -18,9 +18,6 @@
 */
 
 #include "SFU.h"
-#include <BlockDevice.h>
-#include <MBRBlockDevice.h>
-#include "FATFileSystem.h"
 #include <Arduino_DebugUtils.h>
 #include <WiFiC3.h>
 #include <WiFiSSLClient.h>
@@ -31,10 +28,6 @@
 const unsigned char SFU[0x20000] __attribute__ ((section(".second_stage_ota"), used)) = {
 	#include "c33.h"
 };
-
-BlockDevice* block_device = BlockDevice::get_default_instance();
-MBRBlockDevice mbr(block_device, 1);
-FATFileSystem fs("ota");
 
 /* Original code: http://stackoverflow.com/questions/2616011/easy-way-to-parse-a-url-in-c-cross-platform */
 #include <string>
@@ -81,16 +74,10 @@ void URI::parse(const string& url_s)
   query_.assign(query_i, url_s.end());
 }
 
-int SFU::download(const char* ota_url) {
+int SFU::download(const char* ota_path, const char* ota_url) {
   int err = -1;
 
-  if ((err = fs.reformat(&mbr)) != 0)
-  {
-     DEBUG_ERROR("%s: fs.reformat() failed with %d", __FUNCTION__, err);
-     return static_cast<int>(OTAError::PORTENTA_C33_ErrorReformat);
-  }
-
-  FILE * file = fopen("/ota/UPDATE.BIN.OTA", "wb");
+  FILE * file = fopen(ota_path, "wb");
   if (!file)
   {
     DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
@@ -202,13 +189,6 @@ int SFU::download(const char* ota_url) {
 
   DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
   fclose(file);
-
-  /* Unmount the filesystem. */
-  if ((err = fs.unmount()) != 0)
-  {
-     DEBUG_ERROR("%s: fs.unmount() failed with %d", __FUNCTION__, err);
-     return static_cast<int>(OTAError::PORTENTA_C33_ErrorUnmount);
-  }
 
   return static_cast<int>(OTAError::None);
 }
