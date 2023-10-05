@@ -21,6 +21,7 @@
 #include <Arduino_DebugUtils.h>
 #include <WiFiC3.h>
 #include <WiFiSSLClient.h>
+#include <Client.h>
 
 #define AIOT_CONFIG_PORTENTA_C33_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms (5*1000UL);
 #define AIOT_CONFIG_PORTENTA_C33_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms (5*60*1000UL);
@@ -74,7 +75,7 @@ void URI::parse(const string& url_s)
   query_.assign(query_i, url_s.end());
 }
 
-int SFU::download(const char* ota_path, const char* ota_url) {
+int SFU::download(Client& client, const char* ota_path, const char* ota_url) {
   int err = -1;
 
   FILE * file = fopen(ota_path, "wb");
@@ -86,14 +87,11 @@ int SFU::download(const char* ota_path, const char* ota_url) {
   }
 
   URI url(ota_url);
-  Client * client = nullptr;
   int port = 0;
 
   if (url.protocol_ == "http") {
-    client = new WiFiClient();
     port = 80;
   } else if (url.protocol_ == "https") {
-    client = new WiFiSSLClient();
     port = 443;
   } else {
     DEBUG_ERROR("%s: Failed to parse OTA URL %s", __FUNCTION__, url.host_.c_str());
@@ -101,17 +99,17 @@ int SFU::download(const char* ota_path, const char* ota_url) {
     return static_cast<int>(OTAError::PORTENTA_C33_UrlParseError);
   }
 
-  if (!client->connect(url.host_.c_str(), port))
+  if (!client.connect(url.host_.c_str(), port))
   {
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, url.host_.c_str());
     fclose(file);
     return static_cast<int>(OTAError::PORTENTA_C33_ServerConnectError);
   }
 
-  client->println(String("GET ") + url.path_.c_str() + " HTTP/1.1");
-  client->println(String("Host: ") + url.host_.c_str());
-  client->println("Connection: close");
-  client->println();
+  client.println(String("GET ") + url.path_.c_str() + " HTTP/1.1");
+  client.println(String("Host: ") + url.host_.c_str());
+  client.println("Connection: close");
+  client.println();
 
   /* Receive HTTP header. */
   String http_header;
@@ -122,9 +120,9 @@ int SFU::download(const char* ota_path, const char* ota_url) {
     is_http_header_timeout = (millis() - start) > AIOT_CONFIG_PORTENTA_C33_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms;
     if (is_http_header_timeout) break;
 
-    if (client->available())
+    if (client.available())
     {
-      char const c = client->read();
+      char const c = client.read();
 
       http_header += c;
       if (http_header.endsWith("\r\n\r\n"))
@@ -166,9 +164,9 @@ int SFU::download(const char* ota_path, const char* ota_url) {
     is_http_data_timeout = (millis() - start) > AIOT_CONFIG_PORTENTA_C33_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms;
     if (is_http_data_timeout) break;
 
-    if (client->available())
+    if (client.available())
     {
-      char const c = client->read();
+      char const c = client.read();
 
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
       {

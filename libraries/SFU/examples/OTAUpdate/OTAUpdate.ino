@@ -45,6 +45,8 @@ BlockDevice* block_device = BlockDevice::get_default_instance();
 MBRBlockDevice mbr(block_device, 1);
 FATFileSystem fs("ota");
 
+WiFiClient client;
+
 /******************************************************************************
  * SETUP/LOOP
  ******************************************************************************/
@@ -85,7 +87,7 @@ void setup()
 
   SFU::begin();
 
-  SFU::download("/ota/UPDATE.BIN.OTA", OTA_FILE_LOCATION);
+  SFU::download(client, "/ota/UPDATE.BIN.OTA", OTA_FILE_LOCATION);
 
   /* Unmount the filesystem. */
   if ((err = fs.unmount()) != 0)

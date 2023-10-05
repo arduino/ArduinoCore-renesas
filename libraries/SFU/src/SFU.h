@@ -21,6 +21,7 @@
 #define _SFU_H_
 
 #include "Arduino.h"
+#include "Client.h"
 
 #define PORTENTA_C33_OTA_ERROR_BASE (-300)
 
@@ -42,7 +43,7 @@ enum class OTAError : int
 class SFU {
 public:
 	static int begin() {};
-	static int download(const char* ota_path, const char* ota_url);
+	static int download(Client& client, const char* ota_path, const char* ota_url);
 	static int apply() { NVIC_SystemReset(); };
 };
 
