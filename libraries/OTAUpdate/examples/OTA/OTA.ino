@@ -67,9 +67,10 @@ void setup() {
     Serial.println((int)ret);
     return;
   }
-  if(ota.download(OTA_FILE_LOCATION, "/update.bin") <= 0) {
+  int ota_size = ota.download(OTA_FILE_LOCATION, "/update.bin");
+  if(ota_size <= 0) {
     Serial.println("ota.download() error: ");
-    Serial.println((int)ret);
+    Serial.println(ota_size);
     return;
   }
   ret = ota.verify();
