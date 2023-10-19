@@ -64,7 +64,7 @@ private:
 #define ETHER_FRAME_TRANSFER_COMPLETED          (1UL << 21)
 #define ETHER_MAGIC_PACKET_DETECTED_MASK        (1UL << 1)
 
-static volatile bool frame_transmitted_flag = false;
+static volatile bool frame_being_transmitted = false;
 static EthernetDriver eth_driver;
 
 static uint8_t eth_tx_buffer[ETH_BUFF_DIM];
@@ -230,7 +230,7 @@ void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
             if (ETHER_FRAME_TRANSFER_COMPLETED == (reg_eesr & ETHER_FRAME_TRANSFER_COMPLETED)) {
                 
                 
-                frame_transmitted_flag = true;
+                frame_being_transmitted = false;
                 /* FRAME TRANSMISSION COMPLETED */
                 if(frame_transmitted != nullptr) {
                     frame_transmitted();
@@ -341,18 +341,23 @@ void eth_release_rx_buffer() {
 
 
 bool eth_output(uint8_t *buf, uint16_t dim) {
-    frame_transmitted_flag = false;
-    fsp_err_t err = R_ETHER_Write ( eth_driver.get_ctrl(), buf, dim);
-    if(err == FSP_SUCCESS) {
-        
-        while(!frame_transmitted_flag) {
+    bool retval = true;
 
-        }
-        return true;
+    fsp_err_t err = R_ETHER_Write(eth_driver.get_ctrl(), buf, dim);
+    if(err == FSP_SUCCESS) {
+        frame_being_transmitted = true;
+        retval = true;
     }
     else {
-        return false;
+        retval = false;
     }
+
+    return retval;
+}
+
+// this function return true if the tx buffer is not being used for the transmission of another frame
+bool eth_output_can_transimit() {
+    return !frame_being_transmitted;
 }
 
 uint8_t *eth_input(volatile uint32_t *dim) {

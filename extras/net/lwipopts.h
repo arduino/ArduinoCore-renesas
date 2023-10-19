@@ -137,7 +137,7 @@
  * a lot of data that needs to be copied, this should be set high.
  */
 #ifndef MEM_SIZE
-#define MEM_SIZE                        (1522*4)
+#define MEM_SIZE                        (15*1024)
 #endif
 
 
@@ -596,7 +596,7 @@
  * Define to 0 if your device is low on memory.
  */
 #ifndef TCP_QUEUE_OOSEQ
-#define TCP_QUEUE_OOSEQ                 (LWIP_TCP)
+#define TCP_QUEUE_OOSEQ                 0
 #endif
 
 /**
