@@ -187,6 +187,18 @@ void R7FA4M1_CAN::end()
   R_CAN_Close(&_can_ctrl);
 }
 
+
+void R7FA4M1_CAN::setMailboxMask(int mailbox_group, uint32_t mask)
+{
+	_can_mailbox_mask[mailbox_group] = mask;
+}
+
+void R7FA4M1_CAN::setMailboxID(int mailbox, int id)
+{
+	_can_mailbox[mailbox].mailbox_id = id;
+}
+
+
 int R7FA4M1_CAN::enableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
