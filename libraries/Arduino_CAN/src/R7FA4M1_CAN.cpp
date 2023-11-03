@@ -188,7 +188,7 @@ void R7FA4M1_CAN::end()
 }
 
 
-void R7FA4M1_CAN::setMailboxMask(int mailbox_group, uint32_t mask)
+void R7FA4M1_CAN::setMailboxMask(size_t const mailbox_group, uint32_t const mask)
 {
 	_can_mailbox_mask[mailbox_group] = mask;
 }
