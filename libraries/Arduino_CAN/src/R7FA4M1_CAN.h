@@ -55,7 +55,7 @@ public:
   void end() override;
 
   void setMailboxMask(size_t const mailbox_group,uint32_t const mask);
-  void setMailboxID(int mailbox,int id);
+  void setMailboxID(size_t const mailbox, uint32_t const id);
 
   int enableInternalLoopback();
   int disableInternalLoopback();
