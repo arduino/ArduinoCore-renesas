@@ -54,7 +54,7 @@ public:
   bool begin(CanBitRate const can_bitrate) override;
   void end() override;
 
-  void setMailboxMask(int mailbox_group,uint32_t mask);
+  void setMailboxMask(size_t const mailbox_group,uint32_t const mask);
   void setMailboxID(int mailbox,int id);
 
   int enableInternalLoopback();
