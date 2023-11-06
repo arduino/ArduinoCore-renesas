@@ -17,6 +17,8 @@
 // Include the RTC library
 #include "RTC.h"
 
+bool alarmFlag = false;
+
 DayOfWeek convertDayOfWeek(String s)
 {
   if (s == String("Mon"))
@@ -139,20 +141,7 @@ RTCTime currentRTCTime()
 }
 
 void alarmCallback() {
-  Serial.println("An alarm was triggered at:");
-  RTCTime currentTime;
-  RTC.getTime(currentTime); 
-  Serial.print(currentTime.getYear());
-  Serial.print("-");
-  Serial.print(Month2int(currentTime.getMonth()));
-  Serial.print("-");
-  Serial.print(currentTime.getDayOfMonth());
-  Serial.print(" ");
-  Serial.print(currentTime.getHour());
-  Serial.print(":");
-  Serial.print(currentTime.getMinutes());
-  Serial.print(":");
-  Serial.println(currentTime.getSeconds());
+ alarmFlag = true;
 }
 
 void setup()
@@ -195,4 +184,21 @@ void setup()
 
 void loop()
 {
+  if(alarmFlag){
+  Serial.println("An alarm was triggered at:");
+  RTCTime currentTime;
+  RTC.getTime(currentTime); 
+  Serial.print(currentTime.getYear());
+  Serial.print("-");
+  Serial.print(Month2int(currentTime.getMonth()));
+  Serial.print("-");
+  Serial.print(currentTime.getDayOfMonth());
+  Serial.print(" ");
+  Serial.print(currentTime.getHour());
+  Serial.print(":");
+  Serial.print(currentTime.getMinutes());
+  Serial.print(":");
+  Serial.println(currentTime.getSeconds());
+  alarmFlag = false;
+  }
 }

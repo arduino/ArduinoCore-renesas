@@ -14,29 +14,19 @@
 // Define the interrupt pin for LED control during interrupts
 const int LED_ON_INTERRUPT  = 22;
 
+bool periodicFlag = false;
+bool alarmFlag = false;
+
 // Callback function for periodic interrupt
 void periodic_cbk() {
-  static bool clb_st = false;
-
-  // Toggle the LED based on callback state
-  if (clb_st) {
-    digitalWrite(LED_ON_INTERRUPT, HIGH);
-  }
-  else {
-    digitalWrite(LED_ON_INTERRUPT, LOW);
-  }
-
-  clb_st = !clb_st;  // Toggle callback state
-
-  // Print message indicating periodic interrupt
-  Serial.println("PERIODIC INTERRUPT");
-}
-
-void alarm_cbk() {
-  Serial.println("ALARM INTERRUPT");
+  periodicFlag = true;
 }
 
 // Callback function for alarm interrupt
+void alarm_cbk() {
+  alarmFlag = true;
+}
+
 void setup() {
   // Initialize serial communication
   Serial.begin(9600);
@@ -90,6 +80,33 @@ void loop() {
   static bool status = false;
 
   RTCTime currenttime;
+
+  if(periodicFlag){
+    // Print message indicating periodic interrupt
+    Serial.println("PERIODIC INTERRUPT");
+
+    static bool clb_st = false;
+
+    // Toggle the LED based on callback state
+    if (clb_st) {
+      digitalWrite(LED_ON_INTERRUPT, HIGH);
+    }
+    else {
+      digitalWrite(LED_ON_INTERRUPT, LOW);
+    }
+
+    clb_st = !clb_st;  // Toggle callback state
+
+    periodicFlag = false;
+  }
+
+  if(alarmFlag){
+    // Print message indicating alarm interrupt
+    Serial.println("ALARM INTERRUPT");
+
+    alarmFlag = false;
+  }
+
 
   // Check if RTC is running and print status
   if (status) {
