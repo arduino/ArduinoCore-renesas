@@ -20,7 +20,9 @@ typedef enum {
 enum wl_enc_type {
     ENC_TYPE_WEP,
     ENC_TYPE_WPA,
+    ENC_TYPE_TKIP = ENC_TYPE_WPA,
     ENC_TYPE_WPA2,
+    ENC_TYPE_CCMP = ENC_TYPE_WPA2,
     ENC_TYPE_WPA2_ENTERPRISE,
     ENC_TYPE_WPA3,
     ENC_TYPE_NONE,
