@@ -200,11 +200,23 @@ void R7FA4M1_CAN::setFilterMask_Extended(uint32_t const mask)
   _can_mailbox_mask[5] = mask;
 }
 
-void R7FA4M1_CAN::setMailboxID(size_t const mailbox, uint32_t const id)
+void R7FA4M1_CAN::setFilterId_Standard(size_t const mailbox, uint32_t const id)
 {
-	_can_mailbox[mailbox].mailbox_id = id;
+  if (mailbox > CAN_MAX_STANDARD_MAILBOXES)
+    return;
+
+  size_t const mailbox_idx = CAN_MAX_STANDARD_MAILBOX_OFFSET + mailbox;
+  _can_mailbox[mailbox_idx].mailbox_id = id;
 }
 
+void R7FA4M1_CAN::setFilterId_Extended(size_t const mailbox, uint32_t const id)
+{
+  if (mailbox > CAN_MAX_EXTENDED_MAILBOXES)
+    return;
+
+  size_t const mailbox_idx = CAN_MAX_EXTENDED_MAILBOX_OFFSET + mailbox;
+  _can_mailbox[mailbox_idx].mailbox_id = id;
+}
 
 int R7FA4M1_CAN::enableInternalLoopback()
 {

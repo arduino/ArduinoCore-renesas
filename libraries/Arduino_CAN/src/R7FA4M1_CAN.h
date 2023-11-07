@@ -56,7 +56,8 @@ public:
 
   void setFilterMask_Standard(uint32_t const mask);
   void setFilterMask_Extended(uint32_t const mask);
-  void setMailboxID(size_t const mailbox, uint32_t const id);
+  void setFilterId_Standard(size_t const mailbox, uint32_t const id);
+  void setFilterId_Extended(size_t const mailbox, uint32_t const id);
 
   int enableInternalLoopback();
   int disableInternalLoopback();
@@ -73,9 +74,13 @@ public:
   /* This function is used by the library and should NOT be called by the user. */
   void onCanCallback(can_callback_args_t * p_args);
 
+  static size_t constexpr CAN_MAX_STANDARD_MAILBOXES = 8U;
+  static size_t constexpr CAN_MAX_EXTENDED_MAILBOXES = 8U;
 
 private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;
+  static size_t constexpr CAN_MAX_STANDARD_MAILBOX_OFFSET = 24U;
+  static size_t constexpr CAN_MAX_EXTENDED_MAILBOX_OFFSET = 16U;
 
   int const _can_tx_pin;
   int const _can_rx_pin;
