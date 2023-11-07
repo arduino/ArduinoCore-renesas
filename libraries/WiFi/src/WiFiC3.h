@@ -9,6 +9,7 @@ class CWifi {
 private: 
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
    unsigned long _timeout;
+   bool _useStaticIp = false;
    CNetIf *ni;
     
 public:

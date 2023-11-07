@@ -25,7 +25,7 @@ int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */   
    ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
    CLwipIf::getInstance().connectToAp(ssid, nullptr);
-   if(ni != nullptr) {
+   if(ni != nullptr && !_useStaticIp) {
       ni->DhcpStart();
    }
    
@@ -39,7 +39,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    
    ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
    CLwipIf::getInstance().connectToAp(ssid, passphrase); 
-   if(ni != nullptr) {
+   if(ni != nullptr && !_useStaticIp) {
       ni->DhcpStart();
    }
    
@@ -96,6 +96,7 @@ extern uint8_t *IpAddress2uint8(IPAddress a);
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
+   _useStaticIp = local_ip != INADDR_NONE;
    if(ni != nullptr) {
       ni->DhcpStop();
       ni->DhcpNotUsed();
