@@ -23,8 +23,12 @@
 
 #include <Arduino_CAN.h>
 
-#define Mask11Bit 0x1FFC0000 
-#define Mask29Bit 0x1FFFFFFF 
+/**************************************************************************************
+ * CONST
+ **************************************************************************************/
+
+static uint32_t const CAN_FILTER_MASK_STANDARD = 0x1FFC0000;
+static uint32_t const CAN_FILTER_MASK_EXTENDED = 0x1FFFFFFF;
 
 /**************************************************************************************
  * SETUP/LOOP
@@ -35,8 +39,8 @@ void setup()
   Serial.begin(115200);
   while (!Serial) { }
 
-  CAN.setFilterMask_Extended(Mask29Bit);
-  CAN.setFilterMask_Standard(Mask11Bit);
+  CAN.setFilterMask_Extended(CAN_FILTER_MASK_EXTENDED);
+  CAN.setFilterMask_Standard(CAN_FILTER_MASK_STANDARD);
 
   for (int c=16; c <= 23; c++) {
     CAN.setMailboxID(c, 0x0100);
