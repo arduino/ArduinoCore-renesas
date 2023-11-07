@@ -74,8 +74,8 @@ public:
   /* This function is used by the library and should NOT be called by the user. */
   void onCanCallback(can_callback_args_t * p_args);
 
-  static size_t constexpr CAN_MAX_STANDARD_MAILBOXES = 8U;
-  static size_t constexpr CAN_MAX_EXTENDED_MAILBOXES = 8U;
+  static size_t constexpr CAN_MAX_NO_STANDARD_MAILBOXES = 8U;
+  static size_t constexpr CAN_MAX_NO_EXTENDED_MAILBOXES = 8U;
 
 private:
   static size_t constexpr CAN_MAX_NO_MAILBOXES = 32U;

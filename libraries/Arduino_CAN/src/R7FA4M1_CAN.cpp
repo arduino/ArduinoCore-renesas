@@ -202,7 +202,7 @@ void R7FA4M1_CAN::setFilterMask_Extended(uint32_t const mask)
 
 void R7FA4M1_CAN::setFilterId_Standard(size_t const mailbox, uint32_t const id)
 {
-  if (mailbox > CAN_MAX_STANDARD_MAILBOXES)
+  if (mailbox > CAN_MAX_NO_STANDARD_MAILBOXES)
     return;
 
   size_t const mailbox_idx = CAN_MAX_STANDARD_MAILBOX_OFFSET + mailbox;
@@ -211,7 +211,7 @@ void R7FA4M1_CAN::setFilterId_Standard(size_t const mailbox, uint32_t const id)
 
 void R7FA4M1_CAN::setFilterId_Extended(size_t const mailbox, uint32_t const id)
 {
-  if (mailbox > CAN_MAX_EXTENDED_MAILBOXES)
+  if (mailbox > CAN_MAX_NO_EXTENDED_MAILBOXES)
     return;
 
   size_t const mailbox_idx = CAN_MAX_EXTENDED_MAILBOX_OFFSET + mailbox;

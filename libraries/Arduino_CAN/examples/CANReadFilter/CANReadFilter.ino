@@ -42,12 +42,12 @@ void setup()
   CAN.setFilterMask_Extended(CAN_FILTER_MASK_EXTENDED);
   CAN.setFilterMask_Standard(CAN_FILTER_MASK_STANDARD);
 
-  for (int mailbox = 0; mailbox < R7FA4M1_CAN::CAN_MAX_EXTENDED_MAILBOXES; mailbox++)
+  for (int mailbox = 0; mailbox < R7FA4M1_CAN::CAN_MAX_NO_EXTENDED_MAILBOXES; mailbox++)
   {
     CAN.setFilterId_Extended(mailbox, 0x0100);
   }
 
-  for (int mailbox = 0; mailbox < R7FA4M1_CAN::CAN_MAX_STANDARD_MAILBOXES; mailbox++)
+  for (int mailbox = 0; mailbox < R7FA4M1_CAN::CAN_MAX_NO_STANDARD_MAILBOXES; mailbox++)
   {
     CAN.setFilterId_Standard(mailbox, 0x10);
   }
