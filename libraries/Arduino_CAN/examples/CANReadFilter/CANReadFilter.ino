@@ -35,8 +35,8 @@ void setup()
   Serial.begin(115200);
   while (!Serial) { }
 
-  CAN.setMailboxMask(4, Mask29Bit);
-  CAN.setMailboxMask(6, Mask11Bit);
+  CAN.setFilterMask_Extended(Mask29Bit);
+  CAN.setFilterMask_Standard(Mask11Bit);
 
   for (int c=16; c <= 23; c++) {
     CAN.setMailboxID(c, 0x0100);
