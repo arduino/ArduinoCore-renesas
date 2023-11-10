@@ -277,6 +277,7 @@ done:
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin() {
 /* -------------------------------------------------------------------------- */
+  end();
   is_master = true;
   _begin();
 }
@@ -434,6 +435,7 @@ void TwoWire::_begin(void) {
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(uint16_t address) {
 /* -------------------------------------------------------------------------- */
+  end();
   is_master = false;
   slave_address = address;
   /* Address is set inside begin() using slave_address member variable */
@@ -444,6 +446,7 @@ void TwoWire::begin(uint16_t address) {
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(int address) {
 /* -------------------------------------------------------------------------- */
+  end();
   is_master = false;
   slave_address = (uint16_t)address;
   begin((uint16_t)address);
@@ -452,6 +455,7 @@ void TwoWire::begin(int address) {
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(uint8_t address) {
 /* -------------------------------------------------------------------------- */
+  end();
   is_master = false;
   slave_address = (uint16_t)address;
   begin((uint16_t)address);
