@@ -187,6 +187,37 @@ void R7FA4M1_CAN::end()
   R_CAN_Close(&_can_ctrl);
 }
 
+
+void R7FA4M1_CAN::setFilterMask_Standard(uint32_t const mask)
+{
+  _can_mailbox_mask[6] = mask;
+  _can_mailbox_mask[7] = mask;
+}
+
+void R7FA4M1_CAN::setFilterMask_Extended(uint32_t const mask)
+{
+  _can_mailbox_mask[4] = mask;
+  _can_mailbox_mask[5] = mask;
+}
+
+void R7FA4M1_CAN::setFilterId_Standard(size_t const mailbox, uint32_t const id)
+{
+  if (mailbox > CAN_MAX_NO_STANDARD_MAILBOXES)
+    return;
+
+  size_t const mailbox_idx = CAN_MAX_STANDARD_MAILBOX_OFFSET + mailbox;
+  _can_mailbox[mailbox_idx].mailbox_id = id;
+}
+
+void R7FA4M1_CAN::setFilterId_Extended(size_t const mailbox, uint32_t const id)
+{
+  if (mailbox > CAN_MAX_NO_EXTENDED_MAILBOXES)
+    return;
+
+  size_t const mailbox_idx = CAN_MAX_EXTENDED_MAILBOX_OFFSET + mailbox;
+  _can_mailbox[mailbox_idx].mailbox_id = id;
+}
+
 int R7FA4M1_CAN::enableInternalLoopback()
 {
   if(fsp_err_t const rc = R_CAN_ModeTransition(&_can_ctrl, CAN_OPERATION_MODE_NORMAL, CAN_TEST_MODE_LOOPBACK_EXTERNAL); rc != FSP_SUCCESS)
