@@ -223,6 +223,10 @@ class IRQManager {
     ~IRQManager();
 
     private:
+    int rcfg_I2C_interrupt_index_txi;
+    int rcfg_I2C_interrupt_index_rxi;
+    int rcfg_I2C_interrupt_index_tei;
+    int rcfg_I2C_interrupt_index_eri;
     size_t last_interrupt_index;
     bool set_adc_end_link_event(int li, int ch);
     bool set_adc_end_b_link_event(int li, int ch);

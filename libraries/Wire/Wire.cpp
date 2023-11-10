@@ -22,6 +22,7 @@
   Version 2022 for Renesas RA4 by Daniele Aimo (d.aimo@arduino.cc)
 */
 
+#include "r_iic_slave.h"
 extern "C" {
   #include <stdlib.h>
   #include <string.h>
@@ -252,8 +253,9 @@ done:
     ioport_sda = USE_SCI_EVEN_CFG(cfg_sda) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
     ioport_scl = USE_SCI_EVEN_CFG(cfg_scl) ? IOPORT_PERIPHERAL_SCI0_2_4_6_8 : IOPORT_PERIPHERAL_SCI1_3_5_7_9;
   
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    fsp_err_t err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+    
+    err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
   
   }
   else {
@@ -264,20 +266,34 @@ done:
     ioport_sda = IOPORT_PERIPHERAL_IIC;
     ioport_scl = IOPORT_PERIPHERAL_IIC;
 
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
-    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    fsp_err_t err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+    Serial.print("pin sda ");
+    Serial.println(err);    
+
+    err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    Serial.print("pin scl ");
+    Serial.println(err);    
   }
 
   return true;
 }
 
+void TwoWire::begin() {
+  Serial.println("MASTER BEGIN");
+  is_master = true;
+  _begin();
+}
+
+
 /* -------------------------------------------------------------------------- */
-void TwoWire::begin(void) {
+void TwoWire::_begin(void) {
 /* -------------------------------------------------------------------------- */  
   init_ok = true;
   int max_index = PINS_COUNT;
 
   init_ok &= cfg_pins(max_index);
+
+  Serial.println("intenal BEGIN");
 
   if(init_ok) {
 
@@ -285,7 +301,7 @@ void TwoWire::begin(void) {
         ->>>>>  MASTER initialization
      * ----------------------------------- */
     if(is_master) {
-
+      Serial.println("intenal BEGIN as MASTER");
       setClock(I2C_MASTER_RATE_STANDARD);
 
       if(is_sci) {
@@ -304,6 +320,7 @@ void TwoWire::begin(void) {
         m_i2c_cfg.p_callback                  = WireSCIMasterCallback;
       }
       else {
+        Serial.println("intenal BEGIN as MASTER");
         TwoWire::g_I2CWires[channel]          = this; 
 
         m_open                                = R_IIC_MASTER_Open;
@@ -339,9 +356,11 @@ void TwoWire::begin(void) {
     else {
       /* a slave device cannot be instatiated on SCI peripheral */
       if(is_sci) {
+        Serial.println("intenal BEGIN !!!! Slave SCI !!!!");
         init_ok = false;
         return;
       }
+      Serial.println("intenal BEGIN as SLAVE");
       TwoWire::g_I2CWires[channel]      = this;
 
       s_open                            = R_IIC_SLAVE_Open;
@@ -367,37 +386,71 @@ void TwoWire::begin(void) {
     init_ok = false;
     return;
   }
-
+  
   if(is_master) {
-      I2CIrqMasterReq_t irq_req;
-      irq_req.ctrl = &m_i2c_ctrl; 
-      irq_req.cfg = &m_i2c_cfg;
-      /* see note in the cfg_pins
-           the IRQ manager need to know the HW channel that in case of SCI 
-           peripheral is not the one in the cfg structure but the one in 
-           the Wire channel, so copy it in the request */
-      irq_req.hw_channel = channel;
-      if(is_sci) {
-        init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_I2C_MASTER,&irq_req);
-      }
-      else {
-        init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_MASTER,&irq_req);
-      }
-      if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
-         init_ok &= true;
-      }
-      else {
-         init_ok = false;
-      }
-  }
-  else {
-      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_SLAVE,&s_i2c_cfg);
-      if(FSP_SUCCESS == s_open(&s_i2c_ctrl,&s_i2c_cfg)) {
-         init_ok &= true;
-      }
-      else {
-         init_ok = false;
-      }
+    /* master but IRQ has already been configured as slave */
+    if(slave_irq_added) {
+      //s_i2c_ctrl.p_reg->ICCR1 &= ~(1 << 7); /* Performing manual initial reset if the peripheral is already initialized */
+      //s_i2c_ctrl.p_reg->ICCR1 |= (1 << 6); /* Performing manual initial reset if the peripheral is already initialized */
+      //s_i2c_ctrl.p_reg->ICCR1 |= (1 << 7); /* Performing manual initial reset if the peripheral is already initialized */
+      Serial.println("COPY MASTER IRQ from SLAVE");
+      m_i2c_cfg.txi_irq = s_i2c_cfg.txi_irq;
+      m_i2c_cfg.rxi_irq = s_i2c_cfg.rxi_irq;
+      m_i2c_cfg.tei_irq = s_i2c_cfg.tei_irq;
+      m_i2c_cfg.eri_irq = s_i2c_cfg.eri_irq;
+    } 
+
+
+    I2CIrqMasterReq_t irq_req;
+    irq_req.ctrl = &m_i2c_ctrl; 
+    irq_req.cfg = &m_i2c_cfg;
+    /* see note in the cfg_pins
+         the IRQ manager need to know the HW channel that in case of SCI 
+         peripheral is not the one in the cfg structure but the one in 
+         the Wire channel, so copy it in the request */
+    irq_req.hw_channel = channel;
+    if(is_sci) {
+      Serial.println("CONFIGURED MASTER IRQ as SCI");
+      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_I2C_MASTER,&irq_req);
+    }
+    else {
+      Serial.println("CONFIGURED MASTER IRQ as IIC");
+      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_MASTER,&irq_req);
+    }
+    master_irq_added = true;
+    
+	
+    if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
+      Serial.println("I2C master open OK");
+       init_ok &= true;
+    } else {
+      Serial.println("I2C master open WRONG");
+       init_ok = false;
+    }
+
+  } else {
+    if(master_irq_added) {
+      Serial.println("COPY SLAVE IRQ from MASTER"); 
+      //m_i2c_ctrl.p_reg->ICCR1 &= ~(1 << 7); /* Performing manual initial reset if the peripheral is already initialized */
+      //m_i2c_ctrl.p_reg->ICCR1 |= (1 << 6); /* Performing manual initial reset if the peripheral is already initialized */
+      //m_i2c_ctrl.p_reg->ICCR1 |= (1 << 7); /* Performing manual initial reset if the peripheral is already initialized */
+       s_i2c_cfg.txi_irq = m_i2c_cfg.txi_irq;      
+       s_i2c_cfg.rxi_irq = m_i2c_cfg.rxi_irq;
+       s_i2c_cfg.tei_irq = m_i2c_cfg.tei_irq;
+       s_i2c_cfg.eri_irq = m_i2c_cfg.eri_irq;    
+    } 
+
+    Serial.println("CONFIGURING SLAVE IRQ");
+    init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_SLAVE,&s_i2c_cfg);
+    slave_irq_added = true;
+     
+    if(FSP_SUCCESS == s_open(&s_i2c_ctrl,&s_i2c_cfg)) {
+      Serial.println("I2C slave open OK");
+      init_ok &= true;
+    } else {
+      Serial.println("I2C slave open WRONG");
+      init_ok = false;
+    }
   }
 }
 
@@ -407,7 +460,8 @@ void TwoWire::begin(uint16_t address) {
   is_master = false;
   slave_address = address;
   /* Address is set inside begin() using slave_address member variable */
-  begin();
+  Serial.println("SLAVE BEGIN");
+  _begin();
   
 }
 
@@ -431,21 +485,29 @@ void TwoWire::begin(uint8_t address) {
 void TwoWire::end(void) {
 /* -------------------------------------------------------------------------- */  
 
-  if(init_ok) {
-    if(is_master) {
-      if(m_close != nullptr) {
-        m_close(&m_i2c_ctrl);  
+  if (init_ok) {
+    if (is_master) {
+      if (m_close != nullptr) {
+        m_close(&m_i2c_ctrl);
+        Serial.println("--- DISABLING MASTER IRQ");
+        R_BSP_IrqDisable(m_i2c_cfg.txi_irq);
+        R_BSP_IrqDisable(m_i2c_cfg.rxi_irq);
+        R_BSP_IrqDisable(m_i2c_cfg.tei_irq);
+        R_BSP_IrqDisable(m_i2c_cfg.eri_irq);
       }
-    }
-    else {
-      if(s_close != nullptr) {
+    } else {
+      if (s_close != nullptr) {
         s_close(&s_i2c_ctrl);
+        Serial.println("--- DISABLING SLAVE IRQ");
+        R_BSP_IrqDisable(s_i2c_cfg.txi_irq);
+        R_BSP_IrqDisable(s_i2c_cfg.rxi_irq);
+        R_BSP_IrqDisable(s_i2c_cfg.tei_irq);
+        R_BSP_IrqDisable(s_i2c_cfg.eri_irq);
       }
     }
   }
   init_ok = false;
 }
-
 
 
 /* -------------------------------------------------------------------------- */

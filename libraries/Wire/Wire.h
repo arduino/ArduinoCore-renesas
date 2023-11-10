@@ -151,6 +151,9 @@ class TwoWire : public arduino::HardwareI2C {
     }
 
   private:
+    bool master_irq_added;
+    bool slave_irq_added;
+    void _begin();
     
     static TwoWire *g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS];
     static TwoWire *g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS];
