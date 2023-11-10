@@ -1,4 +1,7 @@
 .idea
+compile_commands.json
+.clangd
+.cache/
 cores/arduino/mydebug.cpp
 libraries/Storage/.development
 cores/arduino/mydebug.cpp.donotuse
