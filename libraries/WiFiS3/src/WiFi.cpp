@@ -106,7 +106,7 @@ void CWifi::config(IPAddress local_ip) {
   IPAddress _gw(local_ip[0],local_ip[1], local_ip[2], 1);
   IPAddress _sm(255,255,255,0);
   IPAddress dns(0,0,0,0);
-  return _config(local_ip, _gw, _sm,dns,dns);
+  return _config(local_ip, _gw, _sm, _gw, dns);
 }
 
 /* -------------------------------------------------------------------------- */
