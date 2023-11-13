@@ -265,10 +265,8 @@ done:
     is_sci = false;
     ioport_sda = IOPORT_PERIPHERAL_IIC;
     ioport_scl = IOPORT_PERIPHERAL_IIC;
-
-    fsp_err_t err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
-
-    err = R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[sda_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_sda));
+    R_IOPORT_PinCfg(&g_ioport_ctrl, g_pin_cfg[scl_pin].pin, (uint32_t) (IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_DRIVE_MID | IOPORT_CFG_PERIPHERAL_PIN | ioport_scl));
   }
 
   return true;
