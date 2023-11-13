@@ -79,6 +79,11 @@ void usb_post_initialization() {
   ((R_USB_FS0_Type*)R_USB_FS0_BASE)->USBMC_b.VDCEN = 1;
 }
 
+void enableSubclockInputPins() {
+  R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_CGC);
+  R_SYSTEM->SOSCCR_b.SOSTP = 1;
+  R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_CGC);
+}
 
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
