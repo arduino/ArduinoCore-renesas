@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 project(can-test)
 ##########################################################################
 include_directories(../../src)
+include_directories(../../../../cores/arduino)
 include_directories(external/catch2/v2.13.10/include)
 ##########################################################################
 set(CMAKE_CXX_STANDARD 17)
