@@ -158,6 +158,8 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define AVCC_MEASURE_PIN        20
 #define AVCC_MULTIPLY_FACTOR    8.33
 
+#define AR_INTERNAL_VOLTAGE     1.43f
+
 #define USB_VID           (0x2341)
 #define USB_PID           (0x006D)
 #define USB_NAME          "UNO R4 WiFi"

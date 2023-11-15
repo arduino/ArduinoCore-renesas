@@ -570,13 +570,17 @@ float analogReference() {
       case ADC_VREF_CONTROL_VREFH0_AVSS0:
         // the user must know the voltage he applies from outside
         return NAN;
+#ifdef AR_INTERNAL_VOLTAGE
+      case ADC_VREF_CONTROL_IVREF_AVSS0:
+        return AR_INTERNAL_VOLTAGE;
+#endif
       default:
         #if defined(AVCC_MEASURE_PIN)
         if (aref == 0) {
           analogReference(AR_INTERNAL);
           delayMicroseconds(5);
           for (int i = 0; i < 10; i++) {
-            aref += analogRead(AVCC_MEASURE_PIN) * 1.43f  * AVCC_MULTIPLY_FACTOR / (1 << _analogRequestedReadResolution);
+            aref += analogRead(AVCC_MEASURE_PIN) * AR_INTERNAL_VOLTAGE * AVCC_MULTIPLY_FACTOR / (1 << _analogRequestedReadResolution);
           }
           aref = aref / 10;
           analogReference(AR_DEFAULT);
