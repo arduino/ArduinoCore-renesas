@@ -383,12 +383,6 @@ void TwoWire::_begin(void) {
   irq_req.scfg = &s_i2c_cfg;
   
   if(is_master) {    
-      /* see note in the cfg_pins
-           the IRQ manager need to know the HW channel that in case of SCI 
-           peripheral is not the one in the cfg structure but the one in 
-           the Wire channel, so copy it in the request */
-      irq_req.hw_channel = channel;
-      
       if(is_sci) {
         init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_I2C_MASTER,&irq_req);
       }

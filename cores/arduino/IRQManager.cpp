@@ -561,35 +561,34 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         I2CIrqReq_t *p_cfg = (I2CIrqReq_t *)cfg;
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->mcfg;
         i2c_slave_cfg_t *scfg = (i2c_slave_cfg_t *)p_cfg->scfg;
-        uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
         
         if (mcfg->txi_irq  == FSP_INVALID_VECTOR) {
             /* TX interrupt */
             mcfg->txi_irq = (IRQn_Type)last_interrupt_index;
             scfg->txi_irq = (IRQn_Type)last_interrupt_index;
-            set_iic_tx_link_event(last_interrupt_index, hw_channel);
+            set_iic_tx_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
             /* RX interrupt */
             mcfg->rxi_irq = (IRQn_Type)last_interrupt_index;
             scfg->rxi_irq = (IRQn_Type)last_interrupt_index;
-            set_iic_rx_link_event(last_interrupt_index, hw_channel);
+            set_iic_rx_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
             /* TX ERROR interrupt */
             mcfg->tei_irq = (IRQn_Type)last_interrupt_index;
             scfg->tei_irq = (IRQn_Type)last_interrupt_index;
-            set_iic_tei_link_event(last_interrupt_index, hw_channel);
+            set_iic_tei_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
             /* RX ERROR interrupt */
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
             scfg->eri_irq = (IRQn_Type)last_interrupt_index;
-            set_iic_eri_link_event(last_interrupt_index, hw_channel);
+            set_iic_eri_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
         }
@@ -608,27 +607,26 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     else if(p == IRQ_SCI_I2C_MASTER && cfg != NULL) {
         I2CIrqReq_t *p_cfg = (I2CIrqReq_t *)cfg;
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->mcfg;
-        uint8_t hw_channel = p_cfg->hw_channel;
         mcfg->ipl = I2C_MASTER_PRIORITY;
         if (mcfg->txi_irq  == FSP_INVALID_VECTOR) {
             /* TX interrupt */
             mcfg->txi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_txi_isr;
-            set_sci_tx_link_event(last_interrupt_index, hw_channel);
+            set_sci_tx_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
             /* RX interrupt */
             mcfg->rxi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_rxi_isr;
-            set_sci_rx_link_event(last_interrupt_index, hw_channel);
+            set_sci_rx_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
             /* TX ERROR interrupt */
             mcfg->tei_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_tei_isr;
-            set_sci_tei_link_event(last_interrupt_index, hw_channel);
+            set_sci_tei_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
 
@@ -636,7 +634,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             #if 0
             mcfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_i2c_eri_isr;
-            set_sci_eri_link_event(last_interrupt_index, hw_channel);
+            set_sci_eri_link_event(last_interrupt_index, p_cfg->mcfg->channel);
             R_BSP_IrqCfg((IRQn_Type)last_interrupt_index, I2C_MASTER_PRIORITY, mcfg);
             last_interrupt_index++;
             #endif

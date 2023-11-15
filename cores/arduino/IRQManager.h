@@ -77,7 +77,6 @@ typedef struct rtc_irq {
 typedef struct i2c_irq_req {
     i2c_master_cfg_t *mcfg;
     i2c_slave_cfg_t  *scfg;
-    uint8_t hw_channel;    // needed for SCI
 } I2CIrqReq_t;
 #endif
 
