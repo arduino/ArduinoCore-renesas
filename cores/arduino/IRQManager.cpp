@@ -683,7 +683,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         *(irq_ptr + scfg->txi_irq) = (uint32_t)iic_slave_txi_isr;
         *(irq_ptr + scfg->rxi_irq) = (uint32_t)iic_slave_rxi_isr;
         *(irq_ptr + scfg->tei_irq) = (uint32_t)iic_slave_tei_isr;
-        *(irq_ptr + scfg->eri_irq) = (uint32_t)iic_slave_tei_isr;
+        *(irq_ptr + scfg->eri_irq) = (uint32_t)iic_slave_eri_isr;
         R_BSP_IrqEnable (scfg->txi_irq);
         R_BSP_IrqEnable (scfg->rxi_irq);
         R_BSP_IrqEnable (scfg->tei_irq);
