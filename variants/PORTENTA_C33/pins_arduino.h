@@ -207,3 +207,5 @@ static const uint8_t SS  =  PIN_SPI_CS;
 #define SerialLoRa          Serial3
 
 #define RTC_CLOCK_SOURCE    RTC_CLOCK_SOURCE_SUBCLK
+
+#define AR_INTERNAL_VOLTAGE     1.18f
