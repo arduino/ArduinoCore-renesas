@@ -117,16 +117,26 @@ pluggable_discovery.required.1=builtin:mdns-discovery
 pluggable_discovery.required.2=builtin:dfu-discovery
 pluggable_monitor.required.serial=builtin:serial-monitor
 
+#
+# Debugger
+#
 
-# Debugger configuration (general options)
-# ----------------------------------------
-# EXPERIMENTAL feature:
-#  - this is alpha and may be subject to change without notice
-#debug.executable={build.path}/{build.project_name}.elf
-#debug.toolchain=gcc
-#debug.toolchain.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
-#debug.toolchain.prefix=arm-none-eabi-
-#debug.server=openocd
-#debug.server.openocd.path={runtime.tools.openocd-0.11.0-arduino2.path}/bin/openocd
-#debug.server.openocd.scripts_dir={runtime.tools.openocd-0.11.0-arduino2.path}/share/openocd/scripts/
-#debug.server.openocd.script={runtime.platform.path}/variants/{build.variant}/openocd.cfg
+tools.gdb.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+tools.gdb.cmd=arm-none-eabi-gdb
+tools.gdb.cmd.windows=arm-none-eabi-gdb.exe
+
+debug.executable={build.path}/{build.project_name}.elf
+debug.toolchain=gcc
+debug.toolchain.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+debug.toolchain.prefix=arm-none-eabi
+debug.server=openocd
+debug.server.openocd.path={runtime.tools.openocd-0.11.0-arduino2.path}/bin/openocd
+debug.server.openocd.scripts_dir={runtime.tools.openocd-0.11.0-arduino2.path}/share/openocd/scripts/
+
+debug.cortex-debug.custom.postAttachCommands.0=set remote hardware-watchpoint-limit 2
+debug.cortex-debug.custom.postAttachCommands.1=monitor reset halt
+debug.cortex-debug.custom.postAttachCommands.2=monitor gdb_sync
+debug.cortex-debug.custom.postAttachCommands.3=c
+debug.cortex-debug.custom.overrideRestartCommands.0=monitor reset halt
+debug.cortex-debug.custom.overrideRestartCommands.1=monitor gdb_sync
+debug.cortex-debug.custom.overrideRestartCommands.2=c
