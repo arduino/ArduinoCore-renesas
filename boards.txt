@@ -48,7 +48,7 @@ portenta_c33.upload.maximum_data_size=523624
 
 portenta_c33.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
 portenta_c33.debug.server.openocd.scripts.1={programmer.transport_script}
-portenta_c33.debug.server.openocd.scripts.2=target/R7FA6M5BH.cfg
+portenta_c33.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA6M5BH.cfg
 portenta_c33.debug.svd_file={runtime.platform.path}/svd/R7FA6M5BH.svd
 
 
@@ -102,7 +102,7 @@ minima.upload.maximum_data_size=32768
 
 minima.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
 minima.debug.server.openocd.scripts.1={programmer.transport_script}
-minima.debug.server.openocd.scripts.2=target/R7FA4M1AB.cfg
+minima.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA4M1AB.cfg
 minima.debug.svd_file={runtime.platform.path}/svd/R7FA4M1AB.svd
 
 ##############################################################
@@ -153,7 +153,7 @@ unor4wifi.upload.maximum_data_size=32768
 
 unor4wifi.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
 unor4wifi.debug.server.openocd.scripts.1={programmer.transport_script}
-unor4wifi.debug.server.openocd.scripts.2=target/R7FA4M1AB.cfg
+unor4wifi.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA4M1AB.cfg
 unor4wifi.debug.svd_file={runtime.platform.path}/svd/R7FA4M1AB.svd
 
 ##############################################################
