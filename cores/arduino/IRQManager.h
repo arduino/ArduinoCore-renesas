@@ -74,18 +74,10 @@ typedef struct rtc_irq {
 #include "r_iic_master.h"
 #include "r_iic_slave.h"
 
-typedef struct i2c_master_irq {
-    iic_master_instance_ctrl_t *ctrl;
-    i2c_master_cfg_t *cfg;
-    uint8_t hw_channel;
-
-} I2CIrqMasterReq_t;
-
-typedef struct i2c_slave_irq {
-    iic_slave_instance_ctrl_t *ctrl;
-    i2c_slave_cfg_t  *cfg;
-
-} I2CIrqSlaveReq_t;
+typedef struct i2c_irq_req {
+    i2c_master_cfg_t *mcfg;
+    i2c_slave_cfg_t  *scfg;
+} I2CIrqReq_t;
 #endif
 
 #if SPI_HOWMANY > 0
