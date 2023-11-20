@@ -133,8 +133,8 @@ debug.server=openocd
 debug.server.openocd.path={runtime.tools.openocd-0.11.0-arduino2.path}/bin/openocd
 debug.server.openocd.scripts_dir={runtime.tools.openocd-0.11.0-arduino2.path}/share/openocd/scripts/
 
-debug.cortex-debug.custom.postAttachCommands.0=set remote hardware-watchpoint-limit 2
-debug.cortex-debug.custom.postAttachCommands.1=monitor reset halt
+debug.cortex-debug.custom.postAttachCommands.0=monitor reset halt
+debug.cortex-debug.custom.postAttachCommands.1=monitor gdb_breakpoint_override hard
 debug.cortex-debug.custom.postAttachCommands.2=monitor gdb_sync
 debug.cortex-debug.custom.postAttachCommands.3=c
 debug.cortex-debug.custom.overrideRestartCommands.0=monitor reset halt
