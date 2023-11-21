@@ -140,3 +140,4 @@ debug.cortex-debug.custom.postAttachCommands.3=c
 debug.cortex-debug.custom.overrideRestartCommands.0=monitor reset halt
 debug.cortex-debug.custom.overrideRestartCommands.1=monitor gdb_sync
 debug.cortex-debug.custom.overrideRestartCommands.2=c
+debug.cortex-debug.custom.request=attach
