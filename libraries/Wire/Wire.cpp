@@ -477,7 +477,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t startMillis = millis();
+    uint32_t const start = millis();
     while(((millis() - startMillis) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
