@@ -505,7 +505,7 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t start = millis();
+    uint32_t const start = millis();
     while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
