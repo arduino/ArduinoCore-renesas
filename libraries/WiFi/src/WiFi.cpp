@@ -224,6 +224,11 @@ IPAddress CWifi::gatewayIP() {
 }
 
 /* -------------------------------------------------------------------------- */
+IPAddress CWifi::dnsIP(int n) {
+   return CLwipIf::getInstance().getDns(n);
+}
+
+/* -------------------------------------------------------------------------- */
 const char* CWifi::SSID(uint8_t networkItem) {  
    return CLwipIf::getInstance().getSSID(networkItem);
 }

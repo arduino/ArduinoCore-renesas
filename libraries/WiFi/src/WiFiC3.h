@@ -137,6 +137,13 @@ public:
      */
    IPAddress gatewayIP();
 
+   /*
+    * Get the DNS server IP address.
+    *
+    * return: DNS server IP address value
+    */
+   IPAddress dnsIP(int n = 0);
+
     /*
      * Return the current SSID associated with the network
      *
