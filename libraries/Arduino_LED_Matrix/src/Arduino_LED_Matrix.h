@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "FspTimer.h"
+#include "gallery.h"
 
 #define NUM_LEDS    96
 
