@@ -305,7 +305,6 @@ class CLwipIf {
 private:
     bool eth_initialized;
 
-    int dns_num;
     bool willing_to_start_sync_req;
     bool async_requests_ongoing;
 
@@ -375,7 +374,7 @@ public:
 
     int getHostByName(const char* aHostname, IPAddress& aResult);
     void beginDns(IPAddress aDNSServer);
-    void addDns(IPAddress aDNSServer);
+    void setDns(uint8_t num, IPAddress aDNSServer);
     IPAddress getDns(int _num = 0);
 
     /* when you 'get' a network interface, you get a pointer to one of the pointers
