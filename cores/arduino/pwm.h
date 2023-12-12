@@ -22,6 +22,7 @@ class PwmOut {
        TIMER_SOURCE_DIV_256
        TIMER_SOURCE_DIV_1024 */
     bool begin(uint32_t period_usec, uint32_t pulse_usec, bool raw = false, timer_source_div_t sd = TIMER_SOURCE_DIV_1);
+    bool begin(float freq_hz, float duty_perc);
     void end();
     bool period(int ms);
     bool pulseWidth(int ms);
