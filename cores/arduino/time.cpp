@@ -4,8 +4,11 @@
 
 // this file implements the following public funcions: delay, delayMicroseconds, yield, millis, micros
 
-__attribute__((weak)) void delay(uint32_t ms) {
-	R_BSP_SoftwareDelay(ms, BSP_DELAY_UNITS_MILLISECONDS);
+__attribute__((weak)) void delay(uint32_t ms)
+{
+  auto const start = millis();
+  auto const stop = start + ms;
+  while(millis() < stop) yield();
 }
 
 void delayMicroseconds(unsigned int us) {
