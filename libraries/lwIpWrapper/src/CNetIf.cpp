@@ -981,7 +981,7 @@ uint8_t* CLwipIf::getBSSID(NetIfType_t type, uint8_t* bssid)
 {
     /* -------------------------------------------------------------------------- */
     if (type == NI_WIFI_STATION) {
-        CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.out_mac);
+        CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.bssid);
         return bssid;
     } else if (type == NI_WIFI_SOFTAP) {
         CNetUtilities::macStr2macArray(bssid, (const char*)soft_ap_cfg.out_mac);
