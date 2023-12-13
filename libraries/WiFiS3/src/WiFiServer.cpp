@@ -84,6 +84,11 @@ void WiFiServer::end() {
    }
 }
 
+WiFiServer::operator bool()
+{
+   return (_sock != -1);
+}
+
 bool WiFiServer::operator==(const WiFiServer& whs)
 {
        return _sock == whs._sock;
