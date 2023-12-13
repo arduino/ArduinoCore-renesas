@@ -5,6 +5,22 @@
   messages to all connected clients. Connect two or more
   telnet sessions to see how server.available() and
   server.print() work.
+
+  You may need to update the firwmare on your WiFi module.
+  Download the files and follow the instructions from
+  https://github.com/arduino/uno-r4-wifi-usb-bridge/releases/tag/0.3.0 .
+
+  Run a nmap scan or check the output of this sketch to obtain
+  the IP given to your DHCP server to this sketch, i.e.
+
+  Nmap scan report for esp32s3-C4E524 (192.168.8.161)
+    Host is up (0.012s latency).
+    Not shown: 999 closed ports
+    PORT   STATE SERVICE
+    23/tcp open  telnet
+
+  Connect via telnet (at least twice):
+    telnet 192.168.8.161
 */
 
 #include <WiFiS3.h>
