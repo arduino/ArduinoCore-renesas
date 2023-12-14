@@ -33,7 +33,6 @@ class CWifi {
 private: 
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
    unsigned long _timeout;
-   uint8_t mac[6];
    std::vector<CAccessPoint> access_points;
    std::string ssid;
    std::string apssid;
