@@ -1,6 +1,9 @@
 #include "CEspControl.h"
 #include "CNetIf.h"
 #include <string>
+#include <vector>
+
+using namespace std;
 
 /* GPIO_LOCAL C33 
    - 0. P010 
@@ -79,7 +82,6 @@ void setup() {
   CEspControl::getInstance().listenForStationDisconnectEvent(stationDisconnectionEvent);
   CEspControl::getInstance().listenForDisconnectionFromSoftApEvent(disconnectionFromSofApEvent);
   
-  CEspControl::getInstance().begin();
 
   
 
