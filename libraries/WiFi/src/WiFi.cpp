@@ -79,22 +79,18 @@ void CWifi::config(IPAddress local_ip) { // FIXME
 extern uint8_t *IpAddress2uint8(IPAddress a);
 
 /* -------------------------------------------------------------------------- */
-void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) { // FIXME
-/* -------------------------------------------------------------------------- */
-    // _useStaticIp = local_ip != INADDR_NONE;
-    // if(ni != nullptr) {
-    //     ni->DhcpStop();
-    //     ni->DhcpNotUsed();
-    //     IP_ADDR4(&ni->ip, local_ip[0], local_ip[1], local_ip[2], local_ip[3]);
-    //     IP_ADDR4(&ni->gw, gateway[0], gateway[1], gateway[2], gateway[3]);
-    //     IP_ADDR4(&ni->nm, subnet[0], subnet[1], subnet[2], subnet[3]);
-    // }
-    // else {
-    //     CNetIf::default_ip = local_ip;
-    //     CNetIf::default_nm = subnet;
-    //     CNetIf::default_gw = gateway;
-    //     CNetIf::default_dhcp_server_ip = local_ip;
-    // }
+void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
+/* -------------------------------------------------------------------------- */    
+   _useStaticIp = local_ip != INADDR_NONE;
+   if(ni != nullptr) {
+     ni->config(local_ip, gateway, subnet);
+   }
+   else {
+      CNetIf::default_ip = local_ip;
+      CNetIf::default_nm = subnet; 
+      CNetIf::default_gw = gateway;
+      CNetIf::default_dhcp_server_ip = local_ip;
+   }
 }
 
 /* -------------------------------------------------------------------------- */

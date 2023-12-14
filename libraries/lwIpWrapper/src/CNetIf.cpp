@@ -948,7 +948,7 @@ err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
         errval = ERR_OK;
         // NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
         // NETIF_STATS_TX_TIME_AVERAGE(this->stats);
-    } else {
+            } else {
         // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
         // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
     }
@@ -960,6 +960,25 @@ exit:
     // arduino::unlock();
     return errval;
 }
+
+/* -------------------------------------------------------------------------- */
+void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm)
+{
+    DhcpStop();
+    DhcpNotUsed();
+
+    IP_ADDR4(&ip, _ip[0], _ip[1], _ip[2], _ip[3]);
+    IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
+    IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
+
+    netif_set_addr(&ni, &ip, &nm, &gw);
+
+    if (netif_is_link_up(&ni)) {
+        netif_set_down(&ni);
+        netif_set_up(&ni);
+    }
+}
+
 
 void CWifiSoftAp::task() {
     // calling the base class task, in order to make thigs work

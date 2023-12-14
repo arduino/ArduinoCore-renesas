@@ -160,6 +160,7 @@ public:
     //     memset(hostname, 0x00, MAX_HOSTNAME_DIM);
     //     memcpy(hostname, name, strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
     // }
+    void config(IPAddress _ip, IPAddress _gw, IPAddress _nm);
 
 
     virtual int getMacAddress(uint8_t* mac) = 0;
