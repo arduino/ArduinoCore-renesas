@@ -6,7 +6,7 @@
   BSSID and WiFi channel are printed
 
   Circuit:
-  * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
+  * Portenta C33
 
   This example is based on ScanNetworks
 
@@ -130,14 +130,14 @@ void print2Digits(byte thisByte) {
 }
 
 void printMacAddress(byte mac[]) {
-  for (int i = 5; i >= 0; i--) {
+  for (int i = 0; i < 6; i++) {
+    if (i > 0) {
+      Serial.print(":");
+    }
     if (mac[i] < 16) {
       Serial.print("0");
     }
     Serial.print(mac[i], HEX);
-    if (i > 0) {
-      Serial.print(":");
-    }
   }
   Serial.println();
 }
