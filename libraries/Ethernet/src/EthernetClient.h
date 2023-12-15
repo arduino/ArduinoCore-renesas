@@ -8,6 +8,7 @@ class EthernetClient : public lwipClient {
    public:
    EthernetClient() {}
    EthernetClient(struct tcp_struct *tcpClient) : lwipClient(tcpClient) {}
+   EthernetClient(lwipClient& client) : lwipClient(client) {}
 };
 
 #endif
