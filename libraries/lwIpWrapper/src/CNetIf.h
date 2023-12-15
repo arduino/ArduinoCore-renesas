@@ -90,7 +90,7 @@ typedef enum {
     NI_ETHERNET
 } NetIfType_t;
 
-#define MAX_CLIENT 32
+#define MAX_CLIENT MEMP_NUM_TCP_PCB
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
