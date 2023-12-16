@@ -5,7 +5,7 @@
  connect to any network, so no encryption scheme is specified.
 
  Circuit:
- * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
+ * Portenta C33
 
  created 13 July 2010
  by dlf (Metodo2 srl)
@@ -108,14 +108,14 @@ void printEncryptionType(int thisType) {
 }
 
 void printMacAddress(byte mac[]) {
-  for (int i = 5; i >= 0; i--) {
+  for (int i = 0; i < 6; i++) {
+    if (i > 0) {
+      Serial.print(":");
+    }
     if (mac[i] < 16) {
       Serial.print("0");
     }
     Serial.print(mac[i], HEX);
-    if (i > 0) {
-      Serial.print(":");
-    }
   }
   Serial.println();
 }

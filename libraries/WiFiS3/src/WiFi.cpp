@@ -4,12 +4,6 @@ using namespace std;
 
 /* -------------------------------------------------------------------------- */
 CWifi::CWifi() : _timeout(50000){
-   mac[0] = 0;
-   mac[1] = 0;
-   mac[2] = 0;
-   mac[3] = 0;
-   mac[4] = 0;
-   mac[5] = 0;
 }
 /* -------------------------------------------------------------------------- */
 
@@ -242,19 +236,14 @@ uint8_t* CWifi::macAddress(uint8_t* _mac) {
   if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
       if(atoi(res.c_str()) == 1) {
          if(modem.write(string(PROMPT(_MACSTA)),res, "%s" , CMD_READ(_MACSTA)))  {
-            macStr2macArray(mac, res.c_str());
+            macStr2macArray(_mac, res.c_str());
          }
       }
       else if(atoi(res.c_str()) == 2) {
          if(modem.write(string(PROMPT(_MACSOFTAP)),res, "%s" , CMD_READ(_MACSOFTAP)))  {
-            macStr2macArray(mac, res.c_str());
+            macStr2macArray(_mac, res.c_str());
          }
       }
-   }
-
-   for(int i = 0; i < 6; i++) 
-   {
-      _mac[i] = mac[5 - i];
    }
 
    return _mac;
