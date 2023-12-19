@@ -174,6 +174,10 @@ uint8_t *CEthernet::MACAddress(void) {
   return mac_address;
 }
 
+void CEthernet::MACAddress(uint8_t *mac) {
+  CLwipIf::getInstance().getMacAddress(NI_ETHERNET, mac);
+}
+
 IPAddress CEthernet::localIP() {
   if(ni != nullptr) {
       return IPAddress(ni->getIpAdd());   

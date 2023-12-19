@@ -62,6 +62,7 @@ class CEthernet {
 
    
     uint8_t *MACAddress(void);
+    void MACAddress(uint8_t *mac);
     IPAddress localIP();
     IPAddress subnetMask();
     IPAddress gatewayIP();
