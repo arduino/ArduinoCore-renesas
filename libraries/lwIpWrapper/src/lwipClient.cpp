@@ -243,7 +243,7 @@ uint8_t lwipClient::status()
 lwipClient::operator bool()
 {
     /* -------------------------------------------------------------------------- */
-    return (_tcp_client && (_tcp_client->state != TCP_CLOSING));
+    return (_tcp_client != nullptr);
 }
 
 /* -------------------------------------------------------------------------- */
