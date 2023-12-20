@@ -377,7 +377,12 @@ void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
         0x83, 0xA3, 0x5E, 0x5B, 0x64, 0x1D, 0x29, 0xED, 0x85
     };
 
-    key[28] = KeySlot;
+    // store the KeySlot in BigEndian before the 64 bit magic word (0xA5A6B5B6A5A6B5B6)
+    // as per https://github.com/NXPPlugNTrust/nano-package?tab=readme-ov-file#mbedtls-alt-files
+    key[25] = (KeySlot & 0xFF000000) >> 24;
+    key[26] = (KeySlot & 0x00FF0000) >> 16;
+    key[27] = (KeySlot & 0x0000FF00) >>  8;
+    key[28] = (KeySlot & 0x000000FF) >>  0;
 
     if ((ret = mbedtls_pem_write_buffer("-----BEGIN EC PRIVATE KEY-----\n",
                                         "-----END EC PRIVATE KEY-----\n",
