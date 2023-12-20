@@ -79,7 +79,7 @@ public:
     bool loadCACert(Stream& stream, size_t size);
     bool loadCertificate(Stream& stream, size_t size);
     bool loadPrivateKey(Stream& stream, size_t size);
-    void setEccSlot(int KeySlot, const byte cert[], int certLen);
+    void setEccSlot(unsigned int KeySlot, const byte cert[], int certLen);
     bool verify(const char* fingerprint, const char* domain_name);
     void setHandshakeTimeout(unsigned long handshake_timeout);
 

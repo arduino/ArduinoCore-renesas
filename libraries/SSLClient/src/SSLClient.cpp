@@ -349,7 +349,7 @@ bool SSLClient::loadPrivateKey(Stream& stream, size_t size) {
   return ret;
 }
 
-void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
+void SSLClient::setEccSlot(unsigned int KeySlot, const byte cert[], int certLen) {
     unsigned char buf[1024];
     size_t olen;
     int ret;
@@ -377,7 +377,10 @@ void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
         0x83, 0xA3, 0x5E, 0x5B, 0x64, 0x1D, 0x29, 0xED, 0x85
     };
 
-    key[28] = KeySlot;
+    key[25] = (KeySlot >> 24) & 0xFF;
+    key[26] = (KeySlot >> 16) & 0xFF;
+    key[27] = (KeySlot >>  8) & 0xFF;
+    key[28] = KeySlot & 0xFF;
 
     if ((ret = mbedtls_pem_write_buffer("-----BEGIN EC PRIVATE KEY-----\n",
                                         "-----END EC PRIVATE KEY-----\n",
