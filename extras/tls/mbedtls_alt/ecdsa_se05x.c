@@ -166,9 +166,36 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
         return -1;
     }
 
+    SE05x_ECSignatureAlgo_t signatureAlgo = kSE05x_ECSignatureAlgo_NA;
+
+    switch (blen) {
+    case 20:
+        signatureAlgo = kSE05x_ECSignatureAlgo_SHA;
+        break;
+    case 28:
+        signatureAlgo = kSE05x_ECSignatureAlgo_SHA_224;
+        break;
+    case 32:
+        signatureAlgo = kSE05x_ECSignatureAlgo_SHA_256;
+        break;
+    case 48:
+        signatureAlgo = kSE05x_ECSignatureAlgo_SHA_384;
+        break;
+    case 64:
+        signatureAlgo = kSE05x_ECSignatureAlgo_SHA_512;
+        break;
+    default:
+        break;
+    }
+
+    if (signatureAlgo == kSE05x_ECSignatureAlgo_NA) {
+        SMLOG_E("Unknown EC signature algo %d\r\n", blen);
+        return -1;
+    }
+
     SMLOG_I("Using SE05x for ecdsa sign. blen: %d\r\n", blen);
     status = Se05x_API_ECDSASign(
-        pSession, keyID, kSE05x_ECSignatureAlgo_SHA_384, (uint8_t *)buf, blen, signature, &signature_len);
+        pSession, keyID, signatureAlgo, (uint8_t *)buf, blen, signature, &signature_len);
     if (status != SM_OK) {
         SMLOG_E("Error in Se05x_API_ECDSASign\r\n");
         return -1;
