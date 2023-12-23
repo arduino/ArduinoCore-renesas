@@ -189,6 +189,8 @@ public:
     uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
     uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.gw)); }
 
+    void config(IPAddress _ip, IPAddress _gw, IPAddress _nm);
+
     void setHostname(const char* name)
     {
         memset(hostname, 0x00, MAX_HOSTNAME_DIM);

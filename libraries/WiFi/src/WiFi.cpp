@@ -98,11 +98,7 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */    
    _useStaticIp = local_ip != INADDR_NONE;
    if(ni != nullptr) {
-      ni->DhcpStop();
-      ni->DhcpNotUsed();
-      IP_ADDR4(&ni->ip, local_ip[0], local_ip[1], local_ip[2], local_ip[3]);
-      IP_ADDR4(&ni->gw, gateway[0], gateway[1], gateway[2], gateway[3]);
-      IP_ADDR4(&ni->nm, subnet[0], subnet[1], subnet[2], subnet[3]);
+     ni->config(local_ip, gateway, subnet);
    }
    else {
       CNetIf::default_ip = local_ip;

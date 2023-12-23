@@ -53,9 +53,13 @@ int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
 int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   
-  ni = CLwipIf::getInstance().get(NI_ETHERNET,  local_ip, gateway, subnet);
-  if(ni == nullptr) {
-    return 0;
+  if (ni != nullptr) {
+    ni->config(local_ip, gateway, subnet);
+  } else {
+    ni = CLwipIf::getInstance().get(NI_ETHERNET, local_ip, gateway, subnet);
+    if (ni == nullptr) {
+      return 0;
+    }
   }
 
   /* If there is a local DHCP informs it of our manual IP configuration to prevent IP conflict */
