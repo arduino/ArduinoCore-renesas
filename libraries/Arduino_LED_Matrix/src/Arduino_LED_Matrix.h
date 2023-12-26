@@ -175,6 +175,7 @@ public:
         _ledTimer.setup_overflow_irq();
         _ledTimer.open();
         _ledTimer.start();
+        return 1; // ArduinoGraphics::begin() overrides return 1 for success and 0 for failure.
     }
     void next() {
         uint32_t frame[3];
