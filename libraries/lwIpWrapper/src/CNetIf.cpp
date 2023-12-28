@@ -384,820 +384,384 @@ bool CNetIf::dhcpRelease() {
 bool CNetIf::dhcpRenew() {
     return dhcp_renew(&this->ni) == ERR_OK;
 }
-/* -------------------------------------------------------------------------- */
-int CLwipIf::connectToAp(const char* ssid, const char* pwd)
-{
-    /* -------------------------------------------------------------------------- */
-    WifiApCfg_t ap;
-    int rv = ESP_CONTROL_CTRL_ERROR;
-    bool found = false;
-    uint8_t index = 0;
-    for (uint8_t i = 0; i < access_points.size() && !found; i++) {
-        if (strcmp(ssid, (const char*)access_points[i].ssid) == 0) {
-            found = true;
-            index = i;
-        }
-    }
 
-    if (found) {
-        memset(ap.ssid, 0x00, SSID_LENGTH);
-        memcpy(ap.ssid, access_points[index].ssid, SSID_LENGTH);
-        memset(ap.pwd, 0x00, PASSWORD_LENGTH);
-        if (pwd != nullptr) {
-            memcpy(ap.pwd, pwd, (strlen(pwd) < PASSWORD_LENGTH) ? strlen(pwd) : PASSWORD_LENGTH);
-        }
-        memset(ap.bssid, 0x00, BSSID_LENGTH);
-        memcpy(ap.bssid, access_points[index].bssid, BSSID_LENGTH);
-
-        CLwipIf::getInstance().startSyncRequest();
-        if (CEspControl::getInstance().connectAccessPoint(ap) == ESP_CONTROL_OK) {
-            CLwipIf::connected_to_access_point = true;
-            wifi_status = WL_CONNECTED;
-            CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
-
-            rv = ESP_CONTROL_OK;
-            /* when we get the connection to access point we are sure we are STATION
-               and we are connected */
-            if (CLwipIf::net_ifs[NI_WIFI_STATION] != nullptr) {
-                CLwipIf::net_ifs[NI_WIFI_STATION]->setLinkUp();
-            }
-
-      }
-      else {
-
-         wifi_status = WL_CONNECT_FAILED;
-         CLwipIf::connected_to_access_point = false;
-      }
-
-      CLwipIf::getInstance().restartAsyncRequest();
-   }
-   else {
-      /* in case SSID was available scan again for access point 
-         (perhaps a wifi hostpoint has been added) */
-      CLwipIf::getInstance().scanForAp();
-      //Serial.println("SSID not found in the list of available AP");
-   }
-   return rv;
-}
-
-/* -------------------------------------------------------------------------- */
-const char* CLwipIf::getSSID()
-{
-    /* -------------------------------------------------------------------------- */
-    return (const char*)access_point_cfg.ssid;
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t* CLwipIf::getBSSID(uint8_t* bssid)
-{
-    /* -------------------------------------------------------------------------- */
-    CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.bssid);
-    return bssid;
-}
-
-/* -------------------------------------------------------------------------- */
-uint32_t CLwipIf::getRSSI()
-{
-    /* -------------------------------------------------------------------------- */
-    return (uint32_t)access_point_cfg.rssi;
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t CLwipIf::getEncrType()
-{
-    /* -------------------------------------------------------------------------- */
-    return Encr2wl_enc(access_point_cfg.encryption_mode);
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::disconnectFromAp()
-{
-    /* -------------------------------------------------------------------------- */
-    wifi_status = WL_DISCONNECTED;
-    CLwipIf::getInstance().startSyncRequest();
-    int rv = CEspControl::getInstance().disconnectAccessPoint();
-    CLwipIf::getInstance().restartAsyncRequest();
-    wifi_status = WL_DISCONNECTED;
-    if (net_ifs[NI_WIFI_STATION] != nullptr) {
-        net_ifs[NI_WIFI_STATION]->setLinkDown();
-    }
-    return rv;
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::startSoftAp(const char* ssid, const char* passphrase, uint8_t channel)
-{
-    /* -------------------------------------------------------------------------- */
-    CLwipIf::getInstance().startSyncRequest();
-    SoftApCfg_t cfg;
-    memset(cfg.ssid, 0x00, SSID_LENGTH);
-    memcpy(cfg.ssid, ssid, (strlen(ssid) < SSID_LENGTH) ? strlen(ssid) : SSID_LENGTH);
-    memset(cfg.pwd, 0x00, PASSWORD_LENGTH);
-    if (passphrase == nullptr) {
-        memcpy(cfg.pwd, "arduinocc", strlen("arduinocc"));
-    } else {
-        memcpy(cfg.pwd, passphrase, strlen(passphrase) < PASSWORD_LENGTH ? strlen(passphrase) : PASSWORD_LENGTH);
-    }
-    channel = (channel == 0) ? 1 : channel;
-    cfg.channel = (channel > MAX_CHNL_NO) ? MAX_CHNL_NO : channel;
-    cfg.max_connections = MAX_SOFAT_CONNECTION_DEF;
-    cfg.encryption_mode = WIFI_AUTH_WPA_WPA2_PSK;
-    cfg.bandwidth = WIFI_BW_HT40;
-    cfg.ssid_hidden = false;
-
-    int rv = CEspControl::getInstance().startSoftAccessPoint(cfg);
-    if (rv == ESP_CONTROL_OK) {
-        CEspControl::getInstance().getSoftAccessPointConfig(soft_ap_cfg);
-        wifi_status = WL_AP_LISTENING;
-        if (net_ifs[NI_WIFI_SOFTAP] != nullptr) {
-            net_ifs[NI_WIFI_SOFTAP]->setLinkUp();
-        }
-    } else {
-        wifi_status = WL_AP_FAILED;
-    }
-    CLwipIf::getInstance().restartAsyncRequest();
-
-    return rv;
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::setLowPowerMode()
-{
-    /* -------------------------------------------------------------------------- */
-    CLwipIf::getInstance().startSyncRequest();
-    int rv = CEspControl::getInstance().setPowerSaveMode(1);
-    CLwipIf::getInstance().restartAsyncRequest();
-    return rv;
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::resetLowPowerMode()
-{
-    /* -------------------------------------------------------------------------- */
-    CLwipIf::getInstance().startSyncRequest();
-    int rv = CEspControl::getInstance().setPowerSaveMode(0);
-    CLwipIf::getInstance().restartAsyncRequest();
-    return rv;
-}
-
-#ifdef LWIP_USE_TIMER
-/* -------------------------------------------------------------------------- */
-void CLwipIf::timer_cb(timer_callback_args_t *arg) {
-/*  -------------------------------------------------------------------------- */   
-  (void)arg;
-  CLwipIf::getInstance().lwip_task();
-}
 #endif
 
-/* ***************************************************************************
- *                               DNS related functions
- * ****************************************************************************/
+/* ##########################################################################
+ *                      ETHERNET NETWORK INTERFACE CLASS
+ * ########################################################################## */
+uint8_t CEth::eth_id = 0;
 
-/* -------------------------------------------------------------------------- */
-void CLwipIf::dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
-/* -------------------------------------------------------------------------- */   
-  (void)name;
-  if (ipaddr != NULL) {
-    *((uint32_t *)callback_arg) = ip4_addr_get_u32(ipaddr);
-  } else {
-    *((uint32_t *)callback_arg) = 0;
-  }
+CEth::CEth() {
+    CNetif::driver = &C33EthernetDriver; // FIXME driver is the pointer to C33 ethernet driver implementation
+    C33EthernetDriver.stats = &this->stats;
 }
 
-/* -------------------------------------------------------------------------- */
-int8_t CLwipIf::get_ip_address_from_hostname(const char* hostname, uint32_t* ipaddr)
-{
-    /* -------------------------------------------------------------------------- */
-    ip_addr_t iphost;
-    err_t err;
-    unsigned long dns_request_sent = 0;
-    int8_t ret = 0;
+void CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+    // The driver needs a callback to consume the incoming buffer
+    this->driver->setConsumeCallback(
+        std::bind(&CEth::consume_callback,
+            this, std::placeholders:: _1, std::placeholders::_2));
 
-    *ipaddr = 0;
-    err = dns_gethostbyname(hostname, &iphost, &dns_callback, ipaddr);
-
-    switch (err) {
-    case ERR_OK:
-        *ipaddr = ip4_addr_get_u32(&iphost);
-        ret = 1;
-        break;
-
-    case ERR_INPROGRESS:
-        dns_request_sent = millis();
-        while (*ipaddr == 0) {
-            lwip_task();
-            if ((millis() - dns_request_sent) >= TIMEOUT_DNS_REQUEST) {
-                ret = -1;
-                break;
-            }
-        }
-
-        if (ret == 0) {
-            if (*ipaddr == 0) {
-                ret = -2;
-            } else {
-                ret = 1;
-            }
-        }
-        break;
-
-    case ERR_ARG:
-        ret = -4;
-        break;
-
-    default:
-        ret = -4;
-        break;
-    }
-
-    return ret;
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::getHostByName(const char* aHostname, IPAddress& aResult)
-{
-    /* -------------------------------------------------------------------------- */
-    int ret = 0;
-    uint32_t ipResult = 0;
-
-    // See if it's a numeric IP address
-    if (inet2aton(aHostname, aResult)) {
-        // It is, our work here is done
-        return 1;
-    }
-
-    if (getDns(0) == IPAddress(0, 0, 0, 0)) {
-        return INVALID_SERVER;
-    }
-
-#if LWIP_DNS
-    ret = get_ip_address_from_hostname(aHostname, &ipResult);
-    aResult = IPAddress(ipResult);
-#endif
-    return ret;
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::inet2aton(const char* address, IPAddress& result)
-{
-    /* -------------------------------------------------------------------------- */
-    uint16_t acc = 0; // Accumulator
-    uint8_t dots = 0;
-
-    if (address == NULL) {
-        return 0;
-    }
-
-    while (*address) {
-        char c = *address++;
-        if (c >= '0' && c <= '9') {
-            acc = acc * 10 + (c - '0');
-            if (acc > 255) {
-                // Value out of [0..255] range
-                return 0;
-            }
-        } else if (c == '.') {
-            if (dots == 3) {
-                // Too much dots (there must be 3 dots)
-                return 0;
-            }
-            result[dots++] = acc;
-            acc = 0;
-        } else {
-            // Invalid char
-            return 0;
-        }
-    }
-
-    if (dots != 3) {
-        // Too few dots (there must be 3 dots)
-        return 0;
-    }
-    result[3] = acc;
-    return 1;
-}
-
-/* -------------------------------------------------------------------------- */
-void CLwipIf::beginDns(IPAddress aDNSServer)
-{
-    /* -------------------------------------------------------------------------- */
-    addDns(aDNSServer);
+    // Call the begin function on the Parent class to init the interface
+    CNetif::begin(ip, nm, gw);
+    netif_set_link_up(&this->ni); // TODO test that moving this here still makes ethernet work
 }
 
 
-
-/* -------------------------------------------------------------------------- */
-void CLwipIf::addDns(IPAddress aDNSServer)
-{
-    /* -------------------------------------------------------------------------- */
-#if LWIP_DNS
-    ip_addr_t ip;
-    dns_num++;
-    /* DNS initialized by DHCP when call dhcp_start() */
-    bool dhcp_started = false;
-
-    for (int i = 0; i < NETWORK_INTERFACES_MAX_NUM; i++) {
-        if (net_ifs[i] != nullptr) {
-            if (net_ifs[i]->DhcpIsStarted()) {
-                dhcp_started = true;
-                break;
-            }
-        }
-    }
-
-    if (!dhcp_started) {
-        dns_init();
-        IP_ADDR4(&ip, aDNSServer[0], aDNSServer[1], aDNSServer[2], aDNSServer[3]);
-        dns_setserver(dns_num, &ip);
-    }
-#endif
-}
-
-/* -------------------------------------------------------------------------- */
-IPAddress CLwipIf::getDns(int _num)
-{
-    /* -------------------------------------------------------------------------- */
-#if LWIP_DNS
-    const ip_addr_t* tmp = dns_getserver(_num);
-    return IPAddress(ip4_addr_get_u32(tmp));
-#else
-    IPAddress(0, 0, 0, 0);
-#endif
-}
-
-
-
-
-/* -------------------------------------------------------------------------- */
-const char* CLwipIf::getSSID(NetIfType_t type)
-{
-    /* -------------------------------------------------------------------------- */
-    if (type == NI_WIFI_STATION) {
-        return (char*)access_point_cfg.ssid;
-    } else if (type == NI_WIFI_SOFTAP) {
-        return (char*)soft_ap_cfg.ssid;
-    } else {
-        return nullptr;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t* CLwipIf::getBSSID(NetIfType_t type, uint8_t* bssid)
-{
-    /* -------------------------------------------------------------------------- */
-    if (type == NI_WIFI_STATION) {
-        CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.bssid);
-        return bssid;
-    } else if (type == NI_WIFI_SOFTAP) {
-        CNetUtilities::macStr2macArray(bssid, (const char*)soft_ap_cfg.out_mac);
-        return bssid;
-    } else {
-        return nullptr;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-int32_t CLwipIf::getRSSI(NetIfType_t type)
-{
-    /* -------------------------------------------------------------------------- */
-    if (type == NI_WIFI_STATION) {
-        return access_point_cfg.rssi;
-    } else {
-        return 0;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t CLwipIf::getEncryptionType(NetIfType_t type)
-{
-    /* -------------------------------------------------------------------------- */
-    if (type == NI_WIFI_STATION) {
-        return Encr2wl_enc(access_point_cfg.encryption_mode);
-    } else if (type == NI_WIFI_SOFTAP) {
-        return Encr2wl_enc((uint8_t)soft_ap_cfg.encryption_mode);
-    } else {
-        return ENC_TYPE_UNKNOWN;
-    }
-}
-
-/* ########################################################################## */
-/*                      BASE NETWORK INTERFACE CLASS                          */
-/* ########################################################################## */
-
-/* -------------------------------------------------------------------------- */
-CNetIf::CNetIf()
-    : dhcp_timeout(30000)
-    , dhcp_started(false)
-    , dhcp_acquired(false)
-    , id(0)
-    , dhcp_st(DHCP_IDLE_STATUS)
-    , _dhcp_lease_state(DHCP_CHECK_NONE)
-{
-    /* -------------------------------------------------------------------------- */
-    memset(hostname, 0x00, MAX_HOSTNAME_DIM);
-    hostname[0] = 'C';
-    hostname[1] = '3';
-    hostname[2] = '3';
+err_t CEth::init(struct netif* ni) {
+    // Setting up netif
 #if LWIP_NETIF_HOSTNAME
-    ni.hostname = (const char*)&hostname;
+    // TODO pass the hostname in the constructor os with a setter
+    ni->hostname                       = "C33_eth";
 #endif
-#ifdef CNETWORK_INTERFACE_DEBUG
-    Serial.println("[CNET]: CNetIf constructor");
-#endif
+    ni->name[0]                        = CEth::eth_ifname_prefix;
+    ni->name[1]                        = '0' + CEth::eth_id++;
+    ni->mtu                            = 1500; // FIXME get this from the network
+    ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    memcpy(ni->hwaddr, this->driver->getMacAddress(), 6); // FIXME handle this using a constant
+    // ni->hwaddr                         = C33EthernetDriver.getMacAddress();
+    // ni->hwaddr_len                     = sizeof(macaddress);
+    ni->hwaddr_len                     = 6;
+
+    ni->output                         = etharp_output;
+    ni->linkoutput                     = _netif_output;
+
+    return ERR_OK;
 }
 
-/* -------------------------------------------------------------------------- */
-CNetIf::~CNetIf()
-{
-    /* -------------------------------------------------------------------------- */
-#ifdef CNETWORK_INTERFACE_DEBUG
-    Serial.println("[CNET]: CNetIf destructor");
-#endif
-}
+err_t CEth::output(struct netif* ni, struct pbuf* p) {
+    err_t errval = ERR_OK;
 
-/* ***************************************************************************
- *                               DHCP related functions
- * ****************************************************************************/
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::DhcpNotUsed()
-{
-    /* -------------------------------------------------------------------------- */
-    DhcpStop();
-    dhcp_inform(getNi());
-}
-
-/* -------------------------------------------------------------------------- */
-int CNetIf::checkLease()
-{
-    /* -------------------------------------------------------------------------- */
-    int rc = DHCP_CHECK_NONE;
-
-    task();
-    rc = dhcp_get_lease_state();
-
-    if (rc != _dhcp_lease_state) {
-        switch (_dhcp_lease_state) {
-        case DHCP_CHECK_NONE:
-            _dhcp_lease_state = rc;
-            rc = DHCP_CHECK_NONE;
-            break;
-
-        case DHCP_CHECK_RENEW_OK:
-            _dhcp_lease_state = rc;
-            if (rc == DHCP_CHECK_NONE) {
-                rc = DHCP_CHECK_RENEW_OK;
-            } else {
-                rc = DHCP_CHECK_RENEW_FAIL;
-            }
-            break;
-
-        case DHCP_CHECK_REBIND_OK:
-            _dhcp_lease_state = rc;
-            if (rc == DHCP_CHECK_NONE) {
-                rc = DHCP_CHECK_REBIND_OK;
-            } else {
-                rc = DHCP_CHECK_REBIND_FAIL;
-            }
-            break;
-
-        default:
-            _dhcp_lease_state = DHCP_CHECK_NONE;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t CNetIf::dhcp_get_lease_state()
-{
-    /* -------------------------------------------------------------------------- */
-    uint8_t res = 0;
-    struct dhcp* dhcp = (struct dhcp*)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
-
-    if (dhcp->state == 5 /*DHCP_STATE_RENEWING*/) {
-        res = 2;
-    } else if (dhcp->state == 4 /* DHCP_STATE_REBINDING */) {
-        res = 4;
-    }
-    return res;
-}
-
-/* -------------------------------------------------------------------------- */
-bool CNetIf::dhcp_request()
-{
-    /* -------------------------------------------------------------------------- */
-    /* make a DHCP request: it runs till an address is acquired or a timeout
-       expires */
-    unsigned long startTime = millis();
-    bool acquired = false;
-
-    do {
-        acquired = isDhcpAcquired();
-        if (!acquired && ((millis() - startTime) > dhcp_timeout)) {
-            break;
-        }
-
-    } while (!acquired);
-
-    return acquired;
-}
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::dhcp_reset()
-{
-    /* -------------------------------------------------------------------------- */
-    /* it resets the DHCP status to IDLE */
-    while (dhcp_st != DHCP_IDLE_STATUS) {
-        task();
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::DhcpSetTimeout(unsigned long t)
-{
-    /* -------------------------------------------------------------------------- */
-    dhcp_timeout = t;
-}
-
-/* -------------------------------------------------------------------------- */
-bool CNetIf::isDhcpAcquired()
-{
-    return dhcp_acquired;
-}
-/* -------------------------------------------------------------------------- */
-bool CNetIf::DhcpStart()
-{
-    /* first stop / reset */
-    DhcpStop();
-    /* then actually start */
-    dhcp_started = true;
-    dhcp_st = DHCP_START_STATUS;
-    return dhcp_request();
-}
-/* -------------------------------------------------------------------------- */
-void CNetIf::DhcpStop()
-{
-    /* -------------------------------------------------------------------------- */
-    dhcp_started = false;
-    if (dhcp_st == DHCP_IDLE_STATUS) {
-        return;
-    }
-    if (dhcp_st == DHCP_GOT_STATUS && netif_is_link_up(getNi())) {
-        dhcp_st = DHCP_RELEASE_STATUS;
-    } else {
-        dhcp_st = DHCP_STOP_STATUS;
-    }
-    dhcp_reset();
-}
-/* -------------------------------------------------------------------------- */
-void CNetIf::dhcp_task()
-{
-    /* -------------------------------------------------------------------------- */
-
-    struct dhcp* lwip_dhcp;
-    static unsigned long DHCPStartTime;
-
-    switch (dhcp_st) {
-    case DHCP_IDLE_STATUS:
-        /* nothing to do... wait for DhcpStart() to start the process */
-        break;
-    case DHCP_START_STATUS:
-        if (netif_is_link_up(getNi())) {
-            ip_addr_set_zero_ip4(&(getNi()->ip_addr));
-            ip_addr_set_zero_ip4(&(getNi()->netmask));
-            ip_addr_set_zero_ip4(&(getNi()->gw));
-            /* start lwIP dhcp */
-            dhcp_start(getNi());
-
-            DHCPStartTime = millis();
-            dhcp_st = DHCP_WAIT_STATUS;
-        }
-        break;
-    case DHCP_WAIT_STATUS:
-        if (netif_is_link_up(getNi())) {
-            if (dhcp_supplied_address(getNi())) {
-                dhcp_acquired = true;
-                dhcp_st = DHCP_GOT_STATUS;
-            } else if (millis() - DHCPStartTime > 1000) {
-                /* TIMEOUT */
-                lwip_dhcp = (struct dhcp*)netif_get_client_data(getNi(), LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
-                if (lwip_dhcp->tries > MAX_DHCP_TRIES) {
-                    dhcp_st = DHCP_STOP_STATUS;
-                }
-            }
-        } else {
-            dhcp_st = DHCP_START_STATUS;
-        }
-        break;
-    case DHCP_GOT_STATUS:
-        if (!netif_is_link_up(getNi())) {
-            dhcp_st = DHCP_STOP_STATUS;
-        }
-
-        break;
-    case DHCP_RELEASE_STATUS:
-        dhcp_release(getNi());
-        dhcp_acquired = false;
-        dhcp_st = DHCP_STOP_STATUS;
-        break;
-    case DHCP_STOP_STATUS:
-        dhcp_acquired = false;
-        dhcp_stop(getNi());
-        if (dhcp_started) {
-            dhcp_st = DHCP_START_STATUS;
-        } else {
-            dhcp_st = DHCP_IDLE_STATUS;
-        }
-        break;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::setLinkUp()
-{
-    /* -------------------------------------------------------------------------- */
-    netif_set_link_up(&ni);
-    /* When the netif is fully configured this function must be called.*/
-    netif_set_up(&ni);
-}
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::setLinkDown()
-{
-    /* -------------------------------------------------------------------------- */
-    netif_set_link_down(&ni);
-    /* When the netif is fully configured this function must be called.*/
-    netif_set_down(&ni);
-}
-
-/* ########################################################################## */
-/*                      ETHERNET NETWORK INTERFACE CLASS                      */
-/* ########################################################################## */
-CEth::CEth() { }
-CEth::~CEth() { }
-
-/* -------------------------------------------------------------------------- */
-void CEth::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
-{
-    if (_ip == INADDR_NONE) {
-      _ip = default_ip;
-      _nm = default_nm;
-      _gw = default_gw;
-    }
-    IP_ADDR4(&ip, _ip[0], _ip[1], _ip[2], _ip[3]);
-    IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
-    IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
-
-    netif_add(&ni, &ip, &nm, &gw, NULL, CEth::init, ethernet_input);
-    netif_set_default(&ni);
-
-    if (netif_is_link_up(&ni)) {
-        /* When the netif is fully configured this function must be called */
-        netif_set_up(&ni);
-    } else {
-        /* When the netif link is down this function must be called */
-        netif_set_down(&ni);
-    }
-
-#if LWIP_NETIF_LINK_CALLBACK
-    /* Set the link callback function, this function is called on change of link status */
-    // netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
-#endif /* LWIP_NETIF_LINK_CALLBACK */
-    /*
-     * set the callback function that is called when an ethernet frame is physically
-     * received, it is important that the callbacks are set before the initializiation
+    /* TODO check if this makes sense, I may get a pbuf chain
+     * it could happen that if I get a pbuf chain
+     * - there are enough tx_buffers available to accomodate all the packets in the chain
+     * - most of the chain is enqueued for delivery, but a certain point the driver.send call returns error
+     *   then lwip is supposed to handle that, that may be an issue
      */
-    eth_set_rx_frame_cbk(std::bind(&CEth::handleEthRx, this));
-    eth_set_link_on_cbk(std::bind(&CEth::setLinkUp, this));
-    eth_set_link_off_cbk(std::bind(&CEth::setLinkDown, this));
+    struct pbuf *q = p;
+    do {
+        NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+        NETIF_STATS_TX_TIME_START(this->stats);
+        auto err = C33EthernetDriver.send((uint8_t*)q->payload, q->len);
+        if(err != 0) {
+            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            errval = ERR_IF;
+            break;
+        }
+        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, q->len);
+        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+        q = q->next;
+
+        // FIXME remove this, only purpose is to verify if I ever deal with a pbuf chain
+        // if(q!=nullptr) {
+        //     NETIF_STATS_INCREMENT_ERROR(this->stats, 1024);
+        // }
+    } while(q != nullptr && errval != ERR_OK);
+
+    return errval;
 }
 
-/* -------------------------------------------------------------------------- */
-void CEth::task()
-{
-    /* -------------------------------------------------------------------------- */
+void CEth::consume_callback(uint8_t* buffer, uint32_t len) {
+    // TODO understand if this callback can be moved into the base class
+    // arduino::lock();
 
-    eth_execute_link_process();
+    const uint16_t trimmed_size = len;
 
-#if LWIP_DHCP
-    static unsigned long dhcp_last_time_call = 0;
-    if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
-        dhcp_task();
-        dhcp_last_time_call = millis();
+    // zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, 1536);
+    zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, trimmed_size);
+
+    // mem_trim should be passed as an argument, since it depends on the kind of allocation performed
+    void* buf = mem_trim(buffer, trimmed_size);
+
+    // TODO consider allocating a custom pool for RX or use PBUF_POOL
+    struct pbuf *p = pbuf_alloced_custom(
+        PBUF_RAW, len, PBUF_RAM, &custom_pbuf->p, buffer, trimmed_size);
+
+    err_t err = this->ni.input((struct pbuf*)p, &this->ni);
+    if (err != ERR_OK) {
+        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+
+        NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+        NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+        pbuf_free((struct pbuf*)p);
+    } else {
+        NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
     }
-#endif
+    // arduino::unlock();
 }
 
 /* ########################################################################## */
 /*                    CWifiStation NETWORK INTERFACE CLASS                    */
 /* ########################################################################## */
+uint8_t CWifiStation::wifistation_id = 0;
 
-CWifiStation::CWifiStation() { }
-CWifiStation::~CWifiStation() { }
-
-void CWifiStation::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
-{
-    if (_ip == INADDR_NONE) {
-      _ip = default_ip;
-      _nm = default_nm;
-      _gw = default_gw;
-    }
-    IP_ADDR4(&ip, _ip[0], _ip[1], _ip[2], _ip[3]);
-    IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
-    IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
-
-    netif_add(&ni, &ip, &nm, &gw, NULL, CWifiStation::init, ethernet_input);
-    netif_set_default(&ni);
-
-    if (netif_is_link_up(&ni)) {
-        /* When the netif is fully configured this function must be called */
-        netif_set_up(&ni);
-    } else {
-        /* When the netif link is down this function must be called */
-        netif_set_down(&ni);
-    }
-
-#if LWIP_NETIF_LINK_CALLBACK
-    /* Set the link callback function, this function is called on change of link status */
-    // netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
-#endif /* LWIP_NETIF_LINK_CALLBACK */
+CWifiStation::CWifiStation()
+: hw_init(false) {
+    // TODO this class should implement the driver interface
+    // CLwipIf::getInstance()
 }
 
-/* -------------------------------------------------------------------------- */
-void CWifiStation::task()
-{
-    /* -------------------------------------------------------------------------- */
-    /* get messages and process it  */
-    uint8_t if_num;
+int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) { // TODO This should be called only once, make it private
+    int res = 0;
+    int time_num = 0;
+
+    // arduino::lock();
+    CEspControl::getInstance().listenForStationDisconnectEvent([this] (CCtrlMsgWrapper *resp) -> int {
+        netif_set_link_down(&this->ni);
+        return ESP_CONTROL_OK;
+    });
+    CEspControl::getInstance().listenForInitEvent([this] (CCtrlMsgWrapper *resp) -> int {
+        // Serial.println("init");
+        this->hw_init = true;
+        return ESP_CONTROL_OK;
+    });
+
+    if ((res=CEspControl::getInstance().initSpiDriver()) != 0) {
+        res = -1; // FIXME put a proper error code
+        goto exit;
+    }
+
+    while (time_num < 100 && !hw_init) { // TODO #define WIFI_INIT_TIMEOUT_MS 10000
+        CEspControl::getInstance().communicateWithEsp();
+        R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MILLISECONDS);
+        time_num++;
+    }
+
+    res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+    CNetif::begin(ip, nm, gw);
+    // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
+exit:
+    // arduino::unlock();
+    return res;
+}
+
+int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
+    WifiApCfg_t ap;
+    int rv = ESP_CONTROL_CTRL_ERROR; // FIXME this should be set with an error meaning AP not found
+    bool found = false;
+    int8_t best_index = -1; // this index is used to find the ap with the best rssi
+    // AccessPoint_t* best_matching_ap;
+    // arduino::lock();
+
+    // if(access_points.size() == 0) {
+    //     this->scanForAp();
+    // }
+    if((rv=this->scanForAp()) != WL_SCAN_COMPLETED) {
+        // rv = -1; // FIXME set proper error code
+        goto exit;
+    }
+    this->printAps();
+
+    // find the AP with the best rssi
+    for (uint8_t i = 0; i < access_points.size(); i++) {
+        if(strcmp(ssid, (const char*)access_points[i].ssid) == 0
+            && (best_index == -1 || access_points[best_index].rssi < access_points[i].rssi)
+            ) {
+            best_index=i;
+        }
+    }
+    if(best_index != -1) {
+        // memset(ap.ssid, 0x00, SSID_LENGTH); // I shouldn't need to zero the ssid string pointer
+        strncpy((char*)ap.ssid, ssid, SSID_LENGTH);
+        // memcpy(ap.ssid, access_points[best_index].ssid, SSID_LENGTH);
+
+        // memset(ap.pwd, 0x00, PASSWORD_LENGTH);
+        if(passphrase != nullptr) {
+            auto slen = strlen(passphrase)+1;
+            strncpy((char*)ap.pwd, passphrase, (slen < PASSWORD_LENGTH) ? slen : PASSWORD_LENGTH);
+            // memcpy(ap.pwd, passphrase, (slen < PASSWORD_LENGTH) ? slen : PASSWORD_LENGTH);
+        } else {
+            // memset(ap.pwd, 0x00, PASSWORD_LENGTH);
+            ap.pwd[0] = '\0';
+        }
+
+        memset(ap.bssid, 0x00, BSSID_LENGTH);
+        memcpy(ap.bssid, access_points[best_index].bssid, BSSID_LENGTH);
+
+        // arduino::lock();
+        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
+
+        rv=CEspControl::getInstance().connectAccessPoint(ap);
+        // arduino::unlock();
+
+        if (rv == ESP_CONTROL_OK) {
+            CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
+
+            netif_set_link_up(&this->ni);
+        }
+        // arduino::unlock();
+    }
+    // else {
+    //     // TODO return AP not found error
+    // }
+
+exit:
+    // arduino::unlock();
+
+    return rv;
+}
+
+// disconnect
+int CWifiStation::disconnectFromAp() {
+    return CEspControl::getInstance().disconnectAccessPoint();
+}
+
+err_t CWifiStation::init(struct netif* ni) {
+    // Setting up netif
+#if LWIP_NETIF_HOSTNAME
+    // TODO pass the hostname in the constructor os with a setter
+    ni->hostname                       = "C33-WifiSta";
+#endif
+    ni->name[0]                        = CWifiStation::wifistation_ifname_prefix;
+    ni->name[1]                        = '0' + CWifiStation::wifistation_id++;
+    ni->mtu                            = 1500; // FIXME get this from the network
+    ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    WifiMac_t MAC;
+    MAC.mode = WIFI_MODE_STA;
+    CEspControl::getInstance().getWifiMacAddress(MAC);
+    CNetUtilities::macStr2macArray(ni->hwaddr, MAC.mac);
+    ni->hwaddr_len = 6; // FIXME this should be a macro defined somewhere
+    // ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, ni->hwaddr);
+
+    ni->output                         = etharp_output;
+    ni->linkoutput                     = _netif_output;
+
+    return ERR_OK;
+}
+
+err_t CWifiStation::output(struct netif* _ni, struct pbuf* p) {
+    // FIXME set ifn
+    int ifn = 0; // interface number in CNetif.cpp seems to not be set anywhere
+    uint8_t *buf = nullptr;
+    uint16_t size=p->tot_len;
+    err_t errval = ERR_IF;
+    int err = ESP_CONTROL_OK;
+
+    NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+    NETIF_STATS_TX_TIME_START(this->stats);
+
+    // arduino::lock();
+    // p may be a chain of pbufs
+    if(p->next != nullptr) {
+        buf = (uint8_t*) malloc(size*sizeof(uint8_t));
+        if(buf == nullptr) {\
+            NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
+            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            errval = ERR_MEM;
+            goto exit;
+        }
+
+        // copy the content of pbuf
+        assert(pbuf_copy_partial(p, buf, size, 0) == size);
+    } else {
+        buf = (uint8_t*)p->payload;
+    }
+
+    // sendBuffer makes a memcpy of buffer
+    // TODO send buffer should handle the buffer deletion and avoid a memcpy
+    if ((err = CEspControl::getInstance().sendBuffer(
+            ESP_STA_IF, ifn, buf, size)) == ESP_CONTROL_OK) {
+        errval = ERR_OK;
+        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
+        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+    } else {
+        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+        NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+    }
+
+exit:
+    if(p->next != nullptr && buf != nullptr) {
+        free(buf);
+    }
+    // arduino::unlock();
+    return errval;
+}
+
+void CWifiStation::task() {
+    // calling the base class task, in order to make thigs work
+    CNetif::task();
+
+    // TODO in order to make things easier this should be implemented inside of Wifi driver
+    // and not override LWIPInterface method
+
+    uint8_t if_num = 0;
     uint16_t dim = 0;
-    uint8_t* buf = nullptr;
+    uint8_t* buffer = nullptr;
     struct pbuf* p = nullptr;
 
-    /* shall we verify something about if_num??? */
-    do {
-        dim = CEspControl::getInstance().peekStationRxMsgSize();
-        if (dim > 0)
-        {
-            p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-            if (p != nullptr)
-            {
-                buf = CEspControl::getInstance().getStationRx(if_num, dim);
-                /* Copy ethernet frame into pbuf */
-                pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
-                if (ni.input(p, &ni) != ERR_OK) {
-                    pbuf_free(p);
-                }
-                delete[] buf;
-            }
-        }
-    } while(dim > 0 && p != nullptr);
+    NETIF_STATS_RX_TIME_START(this->stats);
+    // arduino::lock();
+    // TODO do not perform this when not connected to an AP
+    if(hw_init) {
+        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
 
-
-#if LWIP_DHCP
-    static unsigned long dhcp_last_time_call = 0;
-    if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
-        dhcp_task();
-        dhcp_last_time_call = millis();
+        // TODO handling buffer this way may be harmful for the memory
+        buffer = CEspControl::getInstance().getStationRx(if_num, dim);
     }
-#endif
+
+    // empty the ESP32 queue
+    while(buffer != nullptr) {
+        // FIXME this section is redundant and should be generalized toghether with CEth::consume_callback
+        // TODO understand if this should be moved into the base class
+        NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
+        // NETIF_STATS_RX_TIME_START(this->stats);
+
+        zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, dim, free);
+
+        // TODO consider allocating a custom pool for RX or use PBUF_POOL
+        struct pbuf *p = pbuf_alloced_custom(
+            PBUF_RAW, dim, PBUF_RAM, &custom_pbuf->p, buffer, dim);
+
+        err_t err = this->ni.input((struct pbuf*)p, &this->ni);
+        if (err != ERR_OK) {
+            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+
+            NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+            NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+            pbuf_free((struct pbuf*)p);
+        } else {
+            NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
+        }
+
+        buffer = CEspControl::getInstance().getStationRx(if_num, dim);
+        // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    }
+    NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    // arduino::unlock();
 }
 
-/* -------------------------------------------------------------------------- */
-int CWifiStation::getMacAddress(uint8_t* mac) {
-/* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, mac);
+void CWifiStation::consume_callback(uint8_t* buffer, uint32_t len) {
+    // FIXME take what is written in task and put it in here
 }
 
-/* -------------------------------------------------------------------------- */
-const char* CWifiStation::getSSID()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getSSID(NI_WIFI_STATION);
+const char* CWifiStation::getSSID() {
+    return (const char*)access_point_cfg.ssid;
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t* CWifiStation::getBSSID(uint8_t* bssid)
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getBSSID(NI_WIFI_STATION, bssid);
+uint8_t* CWifiStation::getBSSID(uint8_t* bssid){
+    CNetUtilities::macStr2macArray(bssid, (const char*)access_point_cfg.bssid);
+    return bssid;
 }
 
-/* -------------------------------------------------------------------------- */
-int32_t CWifiStation::getRSSI()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getRSSI(NI_WIFI_STATION);
+int32_t CWifiStation::getRSSI() {
+    // TODO should this be updated?
+    return (uint32_t)access_point_cfg.rssi;
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t CWifiStation::getEncryptionType()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getEncryptionType(NI_WIFI_STATION);
+uint8_t CWifiStation::getEncryptionType() {
+    return Encr2wl_enc(access_point_cfg.encryption_mode);
 }
+
+// int CWifiStation::getMacAddress(uint8_t* mac) {
+// }
+
+// uint8_t CWifiStation::getChannel() {
+//     return (uint8_t)access_point_cfg.channel;
+// }
 
 /* ########################################################################## */
 /*                      CWifiSoftAp NETWORK INTERFACE CLASS                   */
@@ -1206,105 +770,236 @@ uint8_t CWifiStation::getEncryptionType()
 CWifiSoftAp::CWifiSoftAp() { }
 CWifiSoftAp::~CWifiSoftAp() { }
 
-void CWifiSoftAp::begin(IPAddress _ip, IPAddress _gw, IPAddress _nm)
-{
-    if (_ip == INADDR_NONE) {
-      _ip = default_dhcp_server_ip;
-      _nm = default_nm;
-      _gw = default_dhcp_server_ip;
-    }
-    IP_ADDR4(&ip, _ip[0], _ip[1], _ip[2], _ip[3]);
-    IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
-    IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
+uint8_t CWifiSoftAp::softap_id = 0;
 
-    netif_add(&ni, &ip, &nm, &gw, NULL, CWifiSoftAp::init, ethernet_input);
-    netif_set_default(&ni);
-    if (netif_is_link_up(&ni)) {
-        /* When the netif is fully configured this function must be called */
-        netif_set_up(&ni);
+// This is required for dhcp server to assign ip addresses to AP clients
+IPAddress default_nm("255.255.255.0");
+IPAddress default_dhcp_server_ip("192.168.4.1");
+
+CWifiSoftAp::CWifiSoftAp()
+: hw_init(false) {
+
+}
+
+int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) { // TODO use provided ip address, instead of default ones
+    int res = 0;
+    int time_num = 0;
+
+    // arduino::lock();
+    CEspControl::getInstance().listenForInitEvent([this] (CCtrlMsgWrapper *resp) -> int {
+        // Serial.println("init");
+        this->hw_init = true;
+        return ESP_CONTROL_OK;
+    });
+
+    if ((res=CEspControl::getInstance().initSpiDriver()) != 0) {
+        // res = -1; // FIXME put a proper error code
+        goto exit;
+    }
+
+    while (time_num < 100 && !hw_init) { // TODO #define WIFI_INIT_TIMEOUT_MS 10000
+        CEspControl::getInstance().communicateWithEsp();
+        R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MILLISECONDS);
+        time_num++;
+    }
+
+    res = CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
+
+    // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
+    CNetif::begin(
+        default_dhcp_server_ip,
+        default_nm,
+        default_dhcp_server_ip
+    );
+exit:
+    // arduino::unlock();
+    return res;
+}
+
+// TODO scan the other access point first and then set the channel if 0
+// TODO there are requirements for ssid and password
+int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t channel) {
+    SoftApCfg_t cfg;
+
+    strncpy((char*)cfg.ssid, ssid, SSID_LENGTH);
+
+    if (passphrase == nullptr) {
+        cfg.pwd[0] = '\0';
+        cfg.encryption_mode = WIFI_AUTH_OPEN;
     } else {
-        /* When the netif link is down this function must be called */
-        netif_set_down(&ni);
+        auto slen = strlen(passphrase)+1;
+        strncpy((char*)cfg.pwd, passphrase, (slen < PASSWORD_LENGTH) ? slen : PASSWORD_LENGTH);
+
+        cfg.encryption_mode = WIFI_AUTH_WPA_WPA2_PSK;
     }
 
-#if LWIP_NETIF_LINK_CALLBACK
-    /* Set the link callback function, this function is called on change of link status */
-    // netif_set_link_callback(&eth0if, eht0if_link_toggle_cbk);
-#endif /* LWIP_NETIF_LINK_CALLBACK */
+    channel = (channel == 0) ? 1 : channel;
+    cfg.channel = (channel > MAX_CHNL_NO) ? MAX_CHNL_NO : channel;
+    cfg.max_connections = 10; // FIXME
+    // cfg.max_connections = MAX_SOFAT_CONNECTION_DEF; // FIXME
+    cfg.bandwidth = WIFI_BW_HT40;
+    cfg.ssid_hidden = false;
+
+    int rv = CEspControl::getInstance().startSoftAccessPoint(cfg);
+    if (rv == ESP_CONTROL_OK) {
+        CEspControl::getInstance().getSoftAccessPointConfig(soft_ap_cfg);
+        // wifi_status = WL_AP_LISTENING;
+        netif_set_link_up(&this->ni);
+
+        // FIXME the dhcp server should be started somewhere else
+        dhcps_start(&(this->ni));
+    } else {
+        // wifi_status = WL_AP_FAILED;
+    }
+
+
+    return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-void CWifiSoftAp::task()
-{
-    /* -------------------------------------------------------------------------- */
-    /* get messages and process it
-     * TODO change the algorithm and make it similar to WiFiStation */
-    uint8_t if_num;
-    uint16_t dim;
-    uint8_t* buf = nullptr;
-    /* shall we verify something about if_num??? */
-    do {
+int CWifiSoftAp::stopSoftAp() {
 
-        buf = CEspControl::getInstance().getSoftApRx(if_num, dim);
+}
 
-        if (buf != nullptr) {
-            struct pbuf* p = pbuf_alloc(PBUF_RAW, dim, PBUF_RAM);
-            if (p != NULL) {
-                /* Copy ethernet frame into pbuf */
-                pbuf_take((struct pbuf*)p, (uint8_t*)buf, (uint32_t)dim);
-                delete[] buf;
-
-                if (ni.input(p, &ni) != ERR_OK) {
-                    pbuf_free(p);
-                }
-            }
-        }
-    } while(buf != nullptr);
-
-#if LWIP_DHCP
-    static unsigned long dhcp_last_time_call = 0;
-    if (dhcp_last_time_call == 0 || millis() - dhcp_last_time_call > DHCP_FINE_TIMER_MSECS) {
-        dhcp_task();
-        dhcp_last_time_call = millis();
-    }
+err_t CWifiSoftAp::init(struct netif* ni) {
+    // Setting up netif
+#if LWIP_NETIF_HOSTNAME
+    // TODO pass the hostname in the constructor os with a setter
+    ni->hostname                       = "C33-SoftAP";
 #endif
+    ni->name[0]                        = CWifiSoftAp::softap_ifname_prefix;
+    ni->name[1]                        = '0' + CWifiSoftAp::softap_id++;
+    ni->mtu                            = 1500; // FIXME get this from the network
+    ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    WifiMac_t MAC;
+    MAC.mode = WIFI_MODE_AP;
+    CEspControl::getInstance().getWifiMacAddress(MAC);
+    CNetUtilities::macStr2macArray(ni->hwaddr, MAC.mac);
+    ni->hwaddr_len = 6; // FIXME this should be a macro defined somewhere
+
+    ni->output                         = etharp_output;
+    ni->linkoutput                     = _netif_output;
+
+    return ERR_OK;
 }
 
-/* -------------------------------------------------------------------------- */
-int CWifiSoftAp::getMacAddress(uint8_t* mac)
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getMacAddress(NI_WIFI_SOFTAP, mac);
+err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
+    // FIXME set ifn
+    int ifn = 0; // interface number in CNetif.cpp seems to not be set anywhere
+    uint8_t *buf = nullptr;
+    uint16_t size=p->tot_len;
+    err_t errval = ERR_IF;
+    int err = ESP_CONTROL_OK;
+
+    NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+    NETIF_STATS_TX_TIME_START(this->stats);
+
+    // arduino::lock();
+    // p may be a chain of pbufs
+    if(p->next != nullptr) {
+        buf = (uint8_t*) malloc(size*sizeof(uint8_t));
+        if(buf == nullptr) {\
+            NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
+            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            errval = ERR_MEM;
+            goto exit;
+        }
+
+        // copy the content of pbuf
+        assert(pbuf_copy_partial(p, buf, size, 0) == size);
+    } else {
+        buf = (uint8_t*)p->payload;
+    }
+
+    // sendBuffer makes a memcpy of buffer
+    // TODO send buffer should handle the buffer deletion and avoid a memcpy
+    if ((err = CEspControl::getInstance().sendBuffer(
+            ESP_AP_IF, ifn, buf, size)) == ESP_CONTROL_OK) {
+        errval = ERR_OK;
+        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
+        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+    } else {
+        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+        NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+    }
+
+exit:
+    if(p->next != nullptr && buf != nullptr) {
+        free(buf);
+    }
+    // arduino::unlock();
+    return errval;
 }
 
-/* -------------------------------------------------------------------------- */
-const char* CWifiSoftAp::getSSID()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getSSID(NI_WIFI_SOFTAP);
+void CWifiSoftAp::task() {
+    // calling the base class task, in order to make thigs work
+    CNetif::task();
+
+    // TODO in order to make things easier this should be implemented inside of Wifi driver
+    // and not override LWIPInterface method
+
+    uint8_t if_num = 0;
+    uint16_t dim = 0;
+    uint8_t* buffer = nullptr;
+    struct pbuf* p = nullptr;
+
+    NETIF_STATS_RX_TIME_START(this->stats);
+    // arduino::lock();
+    // TODO do not perform this when not connected to an AP
+    if(hw_init) {
+        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
+
+        // TODO handling buffer this way may be harmful for the memory
+        buffer = CEspControl::getInstance().getSoftApRx(if_num, dim);
+    }
+
+    // empty the ESP32 queue
+    while(buffer != nullptr) {
+        // FIXME this section is redundant and should be generalized toghether with CEth::consume_callback
+        // TODO understand if this should be moved into the base class
+        NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
+        // NETIF_STATS_RX_TIME_START(this->stats);
+
+        zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, dim, free);
+
+        // TODO consider allocating a custom pool for RX or use PBUF_POOL
+        struct pbuf *p = pbuf_alloced_custom(
+            PBUF_RAW, dim, PBUF_RAM, &custom_pbuf->p, buffer, dim);
+
+        err_t err = this->ni.input((struct pbuf*)p, &this->ni);
+        if (err != ERR_OK) {
+            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+
+            NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+            NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+            pbuf_free((struct pbuf*)p);
+        } else {
+            NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
+        }
+
+        buffer = CEspControl::getInstance().getStationRx(if_num, dim);
+        // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    }
+    NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    // arduino::unlock();
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t* CWifiSoftAp::getBSSID(uint8_t* bssid)
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getBSSID(NI_WIFI_SOFTAP, bssid);
+const char* CWifiSoftAp::getSSID() {
+    return (const char*)soft_ap_cfg.ssid;
 }
 
-/* -------------------------------------------------------------------------- */
-int32_t CWifiSoftAp::getRSSI()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getRSSI(NI_WIFI_SOFTAP);
+uint8_t* CWifiSoftAp::getBSSID(uint8_t* bssid){
+    // CNetUtilities::macStr2macArray(bssid, (const char*)soft_ap_cfg.bssid);
+    // return bssid;
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t CWifiSoftAp::getEncryptionType()
-{
-    /* -------------------------------------------------------------------------- */
-    return CLwipIf::getInstance().getEncryptionType(NI_WIFI_SOFTAP);
+uint8_t CWifiSoftAp::getEncryptionType() {
+    return Encr2wl_enc(soft_ap_cfg.encryption_mode);
 }
 
+/* ##########################################################################
+ *                      DEBUG UTILS
+ * ########################################################################## */
 
 #if DHCPS_DEBUG == 1
 char b_dbg[512];
