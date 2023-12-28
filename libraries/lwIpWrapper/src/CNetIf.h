@@ -43,17 +43,6 @@
 
 #define WL_MAC_ADDR_LENGTH 6
 
-/* DEFAULT ADDRESS FOR ETHERNET CONFIGURATION */
-
-#define ETH_IFNAME0 'e'
-#define ETH_IFNAME1 't'
-
-#define WST_IFNAME0 'w'
-#define WST_IFNAME1 'f'
-
-#define WSA_IFNAME0 'w'
-#define WSA_IFNAME1 'a'
-
 typedef enum {
     WL_NO_SHIELD = 255,
     WL_NO_MODULE = WL_NO_SHIELD,
@@ -94,11 +83,6 @@ typedef enum {
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
-class CNetIf;
-
-using NetIfRxCb_f = int (*)(CNetIf*);
-using LwipInit_f = err_t (*)(struct netif* netif);
-using LwipInput_f = err_t (*)(struct pbuf* p, struct netif* inp);
 
 #define DHCP_CHECK_NONE (0)
 #define DHCP_CHECK_RENEW_FAIL (1)
