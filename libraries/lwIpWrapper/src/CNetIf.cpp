@@ -1,32 +1,57 @@
 #include "CNetIf.h"
 #include <functional>
 
-IPAddress CNetIf::default_ip("192.168.0.10");
-IPAddress CNetIf::default_nm("255.255.255.0");
-IPAddress CNetIf::default_gw("192.168.0.1");
-IPAddress CNetIf::default_dhcp_server_ip("192.168.4.1");
+// TODO make better documentation on how this works
+// TODO hostname should be defined at network stack level and shared among ifaces
+// TODO buffer management (allocation/deallocation/trim/etc.) should be properly handled by a wrapper class and be transparent wrt the user
+// TODO the device could be moving and as a consequence it may be nice to rescan APs to get one with the best rssi
+// TODO implement setLowPowerMode and resetLowPowerMode in WIFI driver
+// TODO implement stop softAP and include it in the destructor of the class
+// TODO split netif definition in different files
+// TODO implement WIFINetworkDriver that is then being used by both Wifi station and softAP. This will allow to use both at the same time
 
-CNetIf* CLwipIf::net_ifs[] = { nullptr };
-bool CLwipIf::wifi_hw_initialized = false;
-bool CLwipIf::connected_to_access_point = false;
-WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
-bool CLwipIf::pending_eth_rx = false;
+err_t _netif_init(struct netif* ni);
+err_t _netif_output(struct netif* ni, struct pbuf* p);
 
-FspTimer CLwipIf::timer;
+#if LWIP_DNS
+static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+#endif // LWIP_DNS
 
-ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
-{
-    IP_ADDR4(ipaddr, ipu8[0], ipu8[1], ipu8[2], ipu8[3]);
-    return ipaddr;
+// Custom Pbuf definition used to handle RX zero copy
+// TODO Move this in a separate file (understand if it is required)
+typedef struct zerocopy_pbuf {
+    struct pbuf_custom p;
+    uint8_t* buffer;
+    uint32_t size;
+    void(*buffer_free)(void*);
+} zerocopy_pbuf_t;
+
+static void zerocopy_pbuf_mem_free(struct pbuf *p) {
+    // SYS_ARCH_DECL_PROTECT(zerocopy_pbuf_free);
+    zerocopy_pbuf_t* zcpbuf = (zerocopy_pbuf_t*) p;
+
+    // arduino::lock();
+    // SYS_ARCH_PROTECT(zerocopy_pbuf_free);
+
+    // FIXME pbufs may be allocated in a different memory pool, deallocate them accordingly
+    zcpbuf->buffer_free(zcpbuf->buffer);
+    zcpbuf->buffer = nullptr;
+    mem_free(zcpbuf); // TODO understand if pbuf_free deletes the pbuf
+    // SYS_ARCH_UNPROTECT(zerocopy_pbuf_free);
+
+    // arduino::unlock();
 }
 
-uint32_t ip_addr_to_u32(ip_addr_t* ipaddr)
-{
-    return ip4_addr_get_u32(ipaddr);
+static inline zerocopy_pbuf_t* get_zerocopy_pbuf(uint8_t *buffer, uint32_t size, void(*buffer_free)(void*) = mem_free) {
+    zerocopy_pbuf_t* p = (zerocopy_pbuf_t*)mem_malloc(sizeof(zerocopy_pbuf_t));
+    p->buffer = buffer;
+    p->size = size;
+    p->p.custom_free_function = zerocopy_pbuf_mem_free;
+    p->buffer_free = buffer_free;
+    return p;
 }
 
-static uint8_t Encr2wl_enc(int enc)
-{
+static uint8_t Encr2wl_enc(int enc) {
     if (enc == WIFI_AUTH_OPEN) {
         return ENC_TYPE_NONE;
     } else if (enc == WIFI_AUTH_WEP) {
@@ -48,20 +73,13 @@ static uint8_t Encr2wl_enc(int enc)
     }
 }
 
-/* -------------------------------------------------------------------------- */
-CLwipIf::CLwipIf()
-    : eth_initialized(false)
-    , dns_num(-1)
-    , willing_to_start_sync_req(false)
-    , async_requests_ongoing(true)
-{
-    /* -------------------------------------------------------------------------- */
+CLwipIf::CLwipIf() {
+
     /* Initialize lwIP stack, singletone implementation guarantees that lwip is
        initialized just once  */
     lwip_init();
 
-/* START THE TIMER FOR LWIP tasks - #CORE_DEPENDENT_STUFF */
-#ifdef LWIP_USE_TIMER
+#ifdef NETWORKSTACK_USE_TIMER
     uint8_t type = 8;
     int8_t ch = FspTimer::get_available_timer(type);
 
@@ -84,327 +102,162 @@ CLwipIf::CLwipIf()
      * Since this is a constrained environment we could accept performance loss and
      * delegate lwip to handle lost packets.
      */
-    timer.begin(TIMER_MODE_PERIODIC, type, ch, 100.0, 50.0, timer_cb);
-    timer.setup_overflow_irq();
-    timer.open();
-    timer.start();
+    timer.begin(TIMER_MODE_PERIODIC, type, ch, 100.0, 0, timer_cb, this); // TODO make the user decide how to handle these parameters
 #endif
 }
 
-/* -------------------------------------------------------------------------- */
-void CLwipIf::lwip_task()
-{
-    /* -------------------------------------------------------------------------- */
-    if (CLwipIf::wifi_hw_initialized)
-        CEspControl::getInstance().communicateWithEsp();
-
-    if (net_ifs[NI_ETHERNET] != nullptr) {
-        net_ifs[NI_ETHERNET]->task();
+void CLwipIf::task() {
+    for(CNetIf* iface: this->ifaces) { // FIXME is this affecting performances?
+        iface->task();
     }
 
-    if (net_ifs[NI_WIFI_STATION] != nullptr) {
-        net_ifs[NI_WIFI_STATION]->task();
-    }
-
-    if (net_ifs[NI_WIFI_SOFTAP] != nullptr) {
-        net_ifs[NI_WIFI_SOFTAP]->task();
-    }
-
-    /* Handle LwIP timeouts */
+    arduino::lock();
     sys_check_timeouts();
+    arduino::unlock();
+}
 
-    if (willing_to_start_sync_req) {
-        timer.disable_overflow_irq();
-        willing_to_start_sync_req = false;
-        async_requests_ongoing = false;
+void CLwipIf::setDefaultIface(CNetif* iface) {
+    // TODO check if the iface is in the vector
+
+    netif_set_default(&iface->ni);
+}
+
+void CLwipIf::add_iface(CNetif* iface) {
+    // if it is the first interface set it as the default route
+    if(this->ifaces.empty()) {
+        netif_set_default(&iface->ni); // TODO let the user decide which is the default one
+
+#ifdef NETWORKSTACK_USE_TIMER
+        timer.setup_overflow_irq();
+        timer.open();
+        timer.start();
+#endif
     }
+
+    // add the interface if not already present in the vector
+    this->ifaces.push_back(iface);
 }
 
-/* -------------------------------------------------------------------------- */
-/* GET INSTANCE SINGLETONE FUNCTION */
-/* -------------------------------------------------------------------------- */
-CLwipIf& CLwipIf::getInstance()
-{
-    /* -------------------------------------------------------------------------- */
-    static CLwipIf instance;
-    return instance;
-}
-
-/* -------------------------------------------------------------------------- */
-CLwipIf::~CLwipIf()
-{
-    /* -------------------------------------------------------------------------- */
-    for (int i = 0; i < NETWORK_INTERFACES_MAX_NUM; i++) {
-        if (net_ifs[i] != nullptr) {
-            delete net_ifs[i];
-            net_ifs[i] = nullptr;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-int CLwipIf::disconnectEventcb(CCtrlMsgWrapper *resp) {
-    (void)resp;
-    if(CLwipIf::connected_to_access_point) {
-        wifi_status = WL_DISCONNECTED;
-        if(net_ifs[NI_WIFI_STATION] != nullptr) {
-            net_ifs[NI_WIFI_STATION]->setLinkDown();
-        }
-    }
-    return ESP_CONTROL_OK;
+CLwipIf::~CLwipIf() {
+    // TODO free iface array
 }
 
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::initEventCb(CCtrlMsgWrapper *resp) {
-    (void)resp;
-    CLwipIf::wifi_hw_initialized = true;
-    return ESP_CONTROL_OK;
-}
-
-
-/* -------------------------------------------------------------------------- */
 int CLwipIf::setWifiMode(WifiMode_t mode) {
-/* -------------------------------------------------------------------------- */   
-      CLwipIf::getInstance().startSyncRequest();
-      int rv = CEspControl::getInstance().setWifiMode(mode);
-      CLwipIf::getInstance().restartAsyncRequest();
-      return rv;
+    // TODO adapt this
+    // CLwipIf::getInstance().startSyncRequest();
+    // int rv = CEspControl::getInstance().setWifiMode(mode);
+    // CLwipIf::getInstance().restartAsyncRequest();
+    // return rv;
 }
 
-/* -------------------------------------------------------------------------- */
-bool CLwipIf::initWifiHw(bool asStation)
-{
-    /* -------------------------------------------------------------------------- */
-    bool rv = true;
+/* ***************************************************************************
+ *                               DNS related functions
+ * ****************************************************************************/
 
-    if (!CLwipIf::wifi_hw_initialized) {
+#if LWIP_DNS
 
-        CEspControl::getInstance().listenForStationDisconnectEvent(CLwipIf::disconnectEventcb);
-        CEspControl::getInstance().listenForInitEvent(CLwipIf::initEventCb);
-        if (CEspControl::getInstance().initSpiDriver() == 0) {
-            wifi_status = WL_NO_SSID_AVAIL;
-        }
+struct dns_callback {
+    std::function<void(const IPAddress&)> cbk;
+};
 
-        if (wifi_status == WL_NO_SSID_AVAIL) {
-            int time_num = 0;
-            while (time_num < WIFI_INIT_TIMEOUT_MS && !CLwipIf::wifi_hw_initialized) {
-                CEspControl::getInstance().communicateWithEsp();
-                R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MILLISECONDS);
-                time_num++;
-            }
+static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+    dns_callback* cbk = (dns_callback*)callback_arg;
 
-            if (asStation) {
-                int res = CLwipIf::getInstance().setWifiMode(WIFI_MODE_STA);
+    cbk->cbk(toArduinoIP(ipaddr));
 
-                if (res == ESP_CONTROL_OK) {
-                    CLwipIf::getInstance().scanForAp();
-                }
-            } else {
-                CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
-            }
-        }
-    }
-
-    if (wifi_status != WL_SCAN_COMPLETED) {
-        rv = false;
-    }
-
-    return rv;
+    delete cbk;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Sort of factory method, dependig on the requested type it setUp a different
-   Network interface and returns it to the caller */
-/* -------------------------------------------------------------------------- */
-CNetIf* CLwipIf::get(NetIfType_t type,
-    IPAddress _ip,
-    IPAddress _gw,
-    IPAddress _nm)
-{
-    /* -------------------------------------------------------------------------- */
-    static int id = 0;
-    CNetIf* rv = nullptr;
-    bool isStation = true;
-    bool isEth = false;
+// add a dns server, priority set to 0 means it is the first being queryed, -1 means the last
+uint8_t CLwipIf::addDnsServer(const IPAddress& aDNSServer, int8_t priority) {
+    // TODO test this function with all the possible cases of dns server position
+    if(priority == -1) {
+        // lwip has an array for dns servers that can be iterated with dns_getserver(num)
+        // when a dns server is set to any value, it means it is the last
 
-    if (type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
-        if (net_ifs[type] == nullptr) {
-            switch (type) {
-            case NI_WIFI_STATION:
-                net_ifs[type] = new CWifiStation();
-                isStation = true;
-                break;
-
-            case NI_WIFI_SOFTAP:
-                net_ifs[type] = new CWifiSoftAp();
-                isStation = false;
-                break;
-
-            case NI_ETHERNET:
-                net_ifs[type] = new CEth();
-                isEth = true;
-                break;
-            default:
-                break;
-            }
-
-            if (net_ifs[type] != nullptr) {
-                if (!isEth) {
-                    CLwipIf::initWifiHw(isStation);
-                    net_ifs[type]->begin(_ip, _gw, _nm);
-                    net_ifs[type]->setId(0);
-                } else {
-                    eth_init();
-                    net_ifs[type]->begin(_ip, _gw, _nm);
-                    eth_initialized = true;
-                }
-            }
-        }
-        rv = net_ifs[type];
+        for(priority=0;
+            priority<DNS_MAX_SERVERS && !ip_addr_isany_val(*dns_getserver(priority));
+            priority++) {}
     }
-    return rv;
+
+    if(priority >= DNS_MAX_SERVERS) {
+        // unable to add another dns server, because priority is more than the dns server available space
+        return -1;
+    }
+
+    ip_addr_t ip = fromArduinoIP(aDNSServer);
+
+    dns_setserver(priority, &ip);
 }
 
-/* -------------------------------------------------------------------------- */
-void CEth::handleEthRx()
-{
-    /*
-     * This function is called by the ethernet driver, when a frame is receiverd,
-     * as a callback inside an interrupt context.
-     * It is required to be as fast as possible and not perform busy waits.
-     *
-     * The idea is the following:
-     * - take the rx buffer pointer
-     * - try to allocate a pbuf of the desired size
-     *   - if it is possible copy the the buffer inside the pbuf and give it to lwip netif
-     * - release the buffer
-     *
-     * If the packet is discarded the upper TCP/IP layers should handle the retransmission of the lost packets.
-     * This should not happen really often if the buffers and timers are designed taking into account the
-     * desired performance
+void CLwipIf::clearDnsServers() {
+    for(uint8_t i=0; i<DNS_MAX_SERVERS; i++) {
+        dns_setserver(i, IP_ANY_TYPE);
+    }
+}
+
+// DNS resolution works with a callback if the resolution doesn't return immediately
+int CLwipIf::getHostByName(const char* aHostname, IPAddress& aResult, bool execute_task) {
+    /* this has to be a blocking call but we need to understand how to handle wait time
+     * - we can have issues when running concurrently from different contextes,
+     *   meaning that issues may arise if we run task() method of this class from an interrupt
+     *   context and the "userspace".
+     * - this function is expected to be called in the application layer, while the lwip stack is
+     *   being run in an interrupt context, otherwise this call won't work because it will block
+     *   everything
+     * - this function shouldn't be called when lwip is run in the same context as the application
      */
-    __disable_irq();
+    volatile bool completed = false;
 
-    volatile uint32_t rx_frame_dim = 0;
-    volatile uint8_t* rx_frame_buf = eth_input(&rx_frame_dim);
-    if (rx_frame_dim > 0 && rx_frame_buf != nullptr) {
-        struct pbuf* p=nullptr;
+    uint8_t res = this->getHostByName(aHostname, [&aResult, &completed](const IPAddress& ip){
+        aResult = ip;
+        completed = true;
+    });
 
-        p = pbuf_alloc(PBUF_RAW, rx_frame_dim, PBUF_RAM);
-
-        if (p != NULL) {
-            /* Copy ethernet frame into pbuf */
-            pbuf_take((struct pbuf*)p, (uint8_t*)rx_frame_buf, (uint32_t)rx_frame_dim);
-
-            if (ni.input((struct pbuf*)p, &ni) != ERR_OK) {
-                pbuf_free((struct pbuf*)p);
-            }
+    while(res == 1 && !completed) { // DNS timeouts seems to be handled by lwip, no need to put one here
+        delay(1);
+        if(execute_task) {
+            this->task();
         }
-
-        eth_release_rx_buffer();
     }
-    __enable_irq();
+
+    return res == 1 ? 0 : res;
 }
 
-/* -------------------------------------------------------------------------- */
-err_t CEth::init(struct netif* _ni)
-{
-    /* -------------------------------------------------------------------------- */
-#if LWIP_NETIF_HOSTNAME
-    /* Initialize interface hostname */
-    _ni->hostname = "C33-onEth";
-#endif /* LWIP_NETIF_HOSTNAME */
+// TODO instead of returning int return an enum value
+int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAddress&)> cbk) {
+    ip_addr_t addr; // TODO understand if this needs to be in the heap
+    uint8_t res = 0;
 
-    _ni->name[0] = ETH_IFNAME0;
-    _ni->name[1] = ETH_IFNAME1;
-    /* We directly use etharp_output() here to save a function call.
-     * You can instead declare your own function an call etharp_output()
-     * from it if you have to do some checks before sending (e.g. if link
-     * is available...) */
-    _ni->output = etharp_output;
-    _ni->linkoutput = CEth::output;
+    dns_callback* dns_cbk = new dns_callback;
+    dns_cbk->cbk = cbk;
+    err_t err = dns_gethostbyname(aHostname, &addr, _getHostByNameCBK, dns_cbk);
 
-    /* set MAC hardware address */
-    _ni->hwaddr_len = eth_get_mac_address(_ni->hwaddr);
+    switch(err) {
+    case ERR_OK:
+        // the address was already present in the local cache
+        cbk(toArduinoIP(&addr));
 
-    /* maximum transfer unit */
-    _ni->mtu = 1500;
-
-    /* device capabilities */
-    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-    _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-
-    return ERR_OK;
-}
-
-/* -------------------------------------------------------------------------- */
-err_t CEth::output(struct netif* _ni, struct pbuf *p) {
-/* -------------------------------------------------------------------------- */
-    /*
-     * This function is called inside the lwip timeout engine. Since we are working inside
-     * an environment without threads it is required to not lock. For this reason we should
-     * avoid busy waiting and instead discard the transmission. Lwip will handle the retransmission
-     * of the packet.
-     */
-    (void)_ni;
-
-    err_t errval = ERR_OK;
-
-    if(eth_output_can_transimit()) {
-        uint16_t tx_buf_dim = p->tot_len;
-
-        // TODO analyze the race conditions that may arise from sharing a non synchronized buffer
-        uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
-        if (p->tot_len <= tx_buf_dim) {
-
-            uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
-
-            if (bytes_actually_copied > 0 && !eth_output(tx_buf, bytes_actually_copied)) {
-                errval = ERR_IF;
-            }
-        } else {
-            errval = ERR_MEM;
-        }
-    } else {
-        errval = ERR_INPROGRESS;
+        delete dns_cbk;
+        break;
+    case ERR_INPROGRESS:
+        // the address is not present in the local cache, return and wait for the address resolution to complete
+        res = 1;
+        break;
+    case ERR_ARG: // there are issues in the arguments passed
+    default:
+        delete dns_cbk;
+        res = -1;
     }
-    return errval;
+
+    return res;
 }
-
-/* -------------------------------------------------------------------------- */
-err_t CWifiStation::output(struct netif* _ni, struct pbuf *p) {
-/* -------------------------------------------------------------------------- */   
-    (void)_ni;
-    err_t errval = ERR_IF;
-    uint8_t *buf = new uint8_t[p->tot_len];
-    if (buf != nullptr) {
-        uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
-        if (bytes_actually_copied > 0) {
-            int ifn = 0;
-            if (CLwipIf::net_ifs[NI_WIFI_STATION] != nullptr) {
-                ifn = CLwipIf::net_ifs[NI_WIFI_STATION]->getId();
-            }
-
-#ifdef DEBUG_OUTPUT_DISABLED
-            Serial.println("Bytes LWIP wants to send: ");
-
-            for (int i = 0; i < bytes_actually_copied; i++) {
-                Serial.print(buf[i], HEX);
-                Serial.print(" ");
-            }
-            Serial.println();
 #endif
 
-            if (CEspControl::getInstance().sendBuffer(ESP_STA_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
-                errval = ERR_OK;
-            }
-        }
-        delete[] buf;
-    }
-
-    return errval;
-}
+/* ##########################################################################
+ *                      BASE NETWORK INTERFACE CLASS
+ * ########################################################################## */
 
 /* -------------------------------------------------------------------------- */
 err_t CWifiStation::init(struct netif* _ni)
