@@ -259,221 +259,130 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
  *                      BASE NETWORK INTERFACE CLASS
  * ########################################################################## */
 
-/* -------------------------------------------------------------------------- */
-err_t CWifiStation::init(struct netif* _ni)
+CNetIf::CNetIf()
+:
+#ifdef LWIP_DHCP
+    dhcp_acquired(false)
+#endif
 {
-    /* -------------------------------------------------------------------------- */
-#if LWIP_NETIF_HOSTNAME
-    /* Initialize interface hostname */
-    _ni->hostname = "C33-WifiSta";
-#endif /* LWIP_NETIF_HOSTNAME */
+    // NETIF_STATS_INIT(this->stats); // TODO create a proper stats interface
 
-    _ni->name[0] = WST_IFNAME0;
-    _ni->name[1] = WST_IFNAME1;
-    /* We directly use etharp_output() here to save a function call.
-     * You can instead declare your own function an call etharp_output()
-     * from it if you have to do some checks before sending (e.g. if link
-     * is available...) */
-    _ni->output = etharp_output;
-    _ni->linkoutput = CWifiStation::output;
-
-    /* maximum transfer unit */
-    _ni->mtu = 1500;
-
-    /* device capabilities */
-    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-    _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-
-    /* set MAC hardware address */
-    _ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_STATION, _ni->hwaddr);
-
-    return ERR_OK;
+    if(driver != nullptr) {
+        // driver->stats = this->stats; // TODO
+        // TODO check that this calls are effective
+        driver->setLinkDownCallback(std::bind(&CNetIf::linkDownCallback, this));
+        driver->setLinkUpCallback(std::bind(&CNetIf::linkUpCallback, this));
+    }
 }
 
-/* -------------------------------------------------------------------------- */
-err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p)
-{
-    /* -------------------------------------------------------------------------- */
-    (void)_ni;
-    err_t errval = ERR_IF;
+void CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+    ip_addr_t _ip = fromArduinoIP(ip);
+    ip_addr_t _nm = fromArduinoIP(nm);
+    ip_addr_t _gw = fromArduinoIP(gw);
 
-    uint8_t* buf = new uint8_t[p->tot_len];
-
-    if (buf != nullptr) {
-        uint16_t bytes_actually_copied = pbuf_copy_partial(p, buf, p->tot_len, 0);
-        if (bytes_actually_copied > 0) {
-            int ifn = 0;
-            if (CLwipIf::net_ifs[NI_WIFI_SOFTAP] != nullptr) {
-                ifn = CLwipIf::net_ifs[NI_WIFI_SOFTAP]->getId();
-            }
-
-            if (CEspControl::getInstance().sendBuffer(ESP_AP_IF, ifn, buf, bytes_actually_copied) == ESP_CONTROL_OK) {
-                errval = ERR_OK;
-            }
-        }
-        delete[] buf;
+    // netif add copies the ip addresses into the netif, no need to store them also in the object
+    struct netif *_ni = netif_add(
+        &this->ni,
+        &_ip, &_nm, &_gw, // ip addresses are being copied and not taken as reference, use a local defined variable
+        this,
+        _netif_init,
+        ethernet_input
+    );
+    if(_ni == nullptr) {
+        // FIXME error if netif_add, return error
+        return;
     }
 
-    return errval;
-}
+    //TODO add link up and down callback and set the link
+    netif_set_up(&this->ni);
 
-/* -------------------------------------------------------------------------- */
-err_t CWifiSoftAp::init(struct netif* _ni)
-{
-    /* -------------------------------------------------------------------------- */
-#if LWIP_NETIF_HOSTNAME
-    /* Initialize interface hostname */
-    _ni->hostname = "C33-WifiSta";
-#endif /* LWIP_NETIF_HOSTNAME */
-
-    _ni->name[0] = WSA_IFNAME0;
-    _ni->name[1] = WSA_IFNAME1;
-    /* We directly use etharp_output() here to save a function call.
-     * You can instead declare your own function an call etharp_output()
-     * from it if you have to do some checks before sending (e.g. if link
-     * is available...) */
-    _ni->output = etharp_output;
-    _ni->linkoutput = CWifiSoftAp::output;
-
-    /* maximum transfer unit */
-    _ni->mtu = 1500;
-
-    /* device capabilities */
-    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-    _ni->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-
-    /* set MAC hardware address */
-    _ni->hwaddr_len = CLwipIf::getInstance().getMacAddress(NI_WIFI_SOFTAP, _ni->hwaddr);
-
-    return ERR_OK;
-}
-
-/* -------------------------------------------------------------------------- */
-bool CLwipIf::setMacAddress(NetIfType_t type, uint8_t* mac)
-{
-    /* -------------------------------------------------------------------------- */
-
-    CLwipIf::getInstance().startSyncRequest();
-    WifiMac_t MAC;
-    CNetUtilities::macArray2macStr(MAC.mac, mac);
-
-    if (type == NI_WIFI_STATION) {
-        MAC.mode = WIFI_MODE_STA;
-        if (CEspControl::getInstance().setWifiMacAddress(MAC) != ESP_CONTROL_OK) {
-            return false;
-        }
-
-    } else if (type == NI_WIFI_SOFTAP) {
-        MAC.mode = WIFI_MODE_AP;
-        if (CEspControl::getInstance().setWifiMacAddress(MAC) != ESP_CONTROL_OK) {
-            return false;
-        }
+#ifdef LWIP_DHCP
+    // dhcp is started when begin gets ip == nullptr
+    if(ip != INADDR_NONE) {
+        this->dhcpNotUsed();
     } else {
-        eth_set_mac_address(mac);
+        this->dhcpStart();
     }
+#endif
 
-    CLwipIf::getInstance().restartAsyncRequest();
-    return true;
+    // add the interface to the network stack
+    CLwipIf::getInstance().add_iface(this); // TODO remove interface when it is needed (??)
 }
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac)
-{
-    /* -------------------------------------------------------------------------- */
-    int rv = 0;
-    WifiMac_t MAC;
-
-    CLwipIf::getInstance().startSyncRequest();
-
-    if (type == NI_WIFI_STATION) {
-        MAC.mode = WIFI_MODE_STA;
-        if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-            CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
-        }
-    } else if (type == NI_WIFI_SOFTAP) {
-        MAC.mode = WIFI_MODE_AP;
-        if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
-            CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
-        }
-    } else {
-        eth_get_mac_address(mac);
-        rv = MAC_ADDRESS_DIM;
+void CNetif::task() {
+#ifdef LWIP_DHCP
+    // TODO we can add a lazy evaluated timer for this condition if dhcp_supplied_address takes too long
+    if(!this->dhcp_acquired && dhcp_supplied_address(&this->ni)) {
+        dhcp_acquired = true;
     }
 
-    CLwipIf::getInstance().restartAsyncRequest();
-    return rv;
+#endif
+    if(driver != nullptr) {
+        driver->poll();
+    }
 }
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::scanForAp()
-{
-    /* -------------------------------------------------------------------------- */
-    access_points.clear();
-    CLwipIf::getInstance().startSyncRequest();
-    int res = CEspControl::getInstance().getAccessPointScanList(access_points);
-    CLwipIf::getInstance().restartAsyncRequest();
-    if (res == ESP_CONTROL_OK) {
-        wifi_status = WL_SCAN_COMPLETED;
-    } else {
-        wifi_status = WL_NO_SSID_AVAIL;
-    }
-    return res;
+
+err_t _netif_init(struct netif* ni) {
+    CNetif *iface = (CNetif*)ni->state;
+
+    return iface->init(ni); // This function call can be a jmp instruction
 }
 
-/* -------------------------------------------------------------------------- */
-int CLwipIf::getApNum() { return access_points.size(); }
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-const char* CLwipIf::getSSID(uint8_t i)
-{
-    /* -------------------------------------------------------------------------- */
-    if (access_points.size() > 0 && i < access_points.size()) {
-        return (const char*)access_points[i].ssid;
-    }
-    return nullptr;
+err_t _netif_output(struct netif* ni, struct pbuf* p) {
+    CNetif *iface = (CNetif*)ni->state;
+
+    return iface->output(ni, p); // This function call can be a jmp instruction
 }
 
-/* -------------------------------------------------------------------------- */
-int32_t CLwipIf::getRSSI(uint8_t i)
-{
-    /* -------------------------------------------------------------------------- */
-    if (access_points.size() > 0 && i < access_points.size()) {
-        return (int32_t)access_points[i].rssi;
-    }
-    return 0;
+void CNetIf::up() {
+    netif_set_up(&this->ni);
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t CLwipIf::getEncrType(uint8_t i)
-{
-    /* -------------------------------------------------------------------------- */
-    if (access_points.size() > 0 && i < access_points.size()) {
-        return Encr2wl_enc(access_points[i].encryption_mode);
-    }
-    return 0;
+void CNetIf::down() {
+    netif_set_down(&this->ni);
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t* CLwipIf::getBSSID(uint8_t i, uint8_t* bssid)
-{
-    /* -------------------------------------------------------------------------- */
-    if (access_points.size() > 0 && i < access_points.size()) {
-        CNetUtilities::macStr2macArray(bssid, (const char*)access_points[i].bssid);
-        return bssid;
-    }
-    return nullptr;
+void CNetIf::linkUpCallback() {
+    netif_set_link_up(&this->ni); // TODO check that this sets the interface up also
 }
 
-/* -------------------------------------------------------------------------- */
-uint8_t CLwipIf::getChannel(uint8_t i)
-{
-    /* -------------------------------------------------------------------------- */
-    if (access_points.size() > 0 && i < access_points.size()) {
-        return (uint8_t)access_points[i].channel;
+void CNetIf::linkDownCallback() {
+    netif_set_link_down(&this->ni); // TODO check that this sets the interface down also
+}
+
+/* ##########################################################################
+ *                               DHCP related functions
+ * ########################################################################## */
+
+
+#ifdef LWIP_DHCP
+
+void CNetIf::dhcpNotUsed() {
+    dhcp_inform(&this->ni);
+}
+
+bool CNetIf::isDhcpAcquired() {
+    if(dhcp_acquired) {
+        Serial.println(ip_2_ip4(ni.ip_addr).addr, HEX);
     }
-    return 0;
+    return dhcp_acquired;
+}
+
+bool CNetIf::dhcpStart() {
+    return dhcp_start(&this->ni) == ERR_OK;
+}
+
+void CNetIf::dhcpStop() {
+    this->dhcpRelease();
+    dhcp_stop(&this->ni);
+}
+bool CNetIf::dhcpRelease() {
+    return dhcp_release(&this->ni) == ERR_OK;
+}
+
+bool CNetIf::dhcpRenew() {
+    return dhcp_renew(&this->ni) == ERR_OK;
 }
 /* -------------------------------------------------------------------------- */
 int CLwipIf::connectToAp(const char* ssid, const char* pwd)
