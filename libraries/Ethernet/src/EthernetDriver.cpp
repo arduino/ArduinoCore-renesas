@@ -153,19 +153,19 @@ void EthernetC33Driver::poll() {
         return;
     }
 
-    netif_stats &stats = *(this->stats);
-    NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(stats);
+    // netif_stats &stats = *(this->stats);
+    // NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(stats);
 
     // arduino::lock();
     while(ETHER_RD0_RACT != (ctrl.p_rx_descriptor->status & ETHER_RD0_RACT)) {
-        NETIF_STATS_RX_TIME_START(stats); // FIXME add stats
+        // NETIF_STATS_RX_TIME_START(stats); // FIXME add stats
         // Getting the available data in the Eth DMA buffer
         err = R_ETHER_Read(&this->ctrl, &rx_frame_buf, &rx_frame_dim);
         // DEBUG_INFO("[polling] read %08X, %u, %u", rx_frame_buf, rx_frame_dim, err);
         if(err != FSP_SUCCESS) {
-            NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(stats);
-            NETIF_STATS_INCREMENT_ERROR(stats, err);
-            NETIF_STATS_RX_TIME_AVERAGE(stats);
+            // NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(stats);
+            // NETIF_STATS_INCREMENT_ERROR(stats, err);
+            // NETIF_STATS_RX_TIME_AVERAGE(stats);
 
 
             // Error, discarding the buffer without consuming it
@@ -192,8 +192,8 @@ void EthernetC33Driver::poll() {
             this->consumed = false; // this indicates that the buffer had been consumed and the new buffer is allocated
         }
         err = R_ETHER_RxBufferUpdate(&ctrl, new_buffer);
-        NETIF_STATS_INCREMENT_ERROR(stats, err);
-        NETIF_STATS_RX_TIME_AVERAGE(stats);
+        // NETIF_STATS_INCREMENT_ERROR(stats, err);
+        // NETIF_STATS_RX_TIME_AVERAGE(stats);
         if(err != FSP_SUCCESS) {
             // DEBUG_INFO("%u", err); // FIXME handle this
         }
