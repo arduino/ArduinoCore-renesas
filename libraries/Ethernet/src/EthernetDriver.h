@@ -92,7 +92,6 @@ private:
 
     virtual void irq_ether_callback(ether_callback_args_t* p_args);
     friend void _irq_ether_callback(ether_callback_args_t* p_args);
-#endif
 };
 
 extern EthernetC33Driver C33EthernetDriver;
