@@ -5,7 +5,8 @@ extern "C" {
 #include "Arduino.h"
 
 #include "lwipClient.h"
-
+#include "CNetIf.h"
+#include "utils.h"
 // FIXME understand hos to syncronize the interrupt thread and "userspace"
 // TODO look into tcp_bind_netif for Ethernet and WiFiClient classes
 // TODO generalize the functions for extracting and inserting data into pbufs, they may be reused in UDP
@@ -203,7 +204,7 @@ size_t lwipClient::write(uint8_t b) {
     return write(&b, 1);
 }
 
-size_t lwipClient::write(const uint8_t* buf, size_t size) {
+size_t lwipClient::write(const uint8_t* buffer, size_t size) {
     arduino::lock();
 
     uint8_t* buffer_cursor = (uint8_t*)buffer;
@@ -244,23 +245,23 @@ int lwipClient::read() {
     return res == 1 ? c : res;
 }
 
-int lwipClient::read(uint8_t* buf, size_t size) {
-    if(buffer_size==0 || buffer==nullptr || this->pbuf_head==nullptr) {
+int lwipClient::read(uint8_t* buffer, size_t size) {
+    if(size==0 || buffer==nullptr || this->pbuf_head==nullptr) {
         return 0; // TODO extend checks
     }
     // copy data from the lwip buffer to the app provided buffer
     // TODO look into pbuf_get_contiguous(this->pbuf_head, buffer_cursor, len);
-    // pbuf_get_contiguous: returns the pointer to the payload if buffer_size <= pbuf.len
+    // pbuf_get_contiguous: returns the pointer to the payload if size <= pbuf.len
     //      otherwise copies data in the user provided buffer. This can be used in a callback paradigm,
     //      in order to avoid memcpy data
 
     /*
-     * a chain of pbuf is not granted to have a size multiple of buffer_size length
+     * a chain of pbuf is not granted to have a size multiple of size length
      * meaning that across different calls of this function a pbuf could be partially copied
      * we need to account that
      */
     arduino::lock();
-    uint16_t copied = pbuf_copy_partial(this->pbuf_head, buffer, buffer_size, this->pbuf_offset);
+    uint16_t copied = pbuf_copy_partial(this->pbuf_head, buffer, size, this->pbuf_offset);
 
     this->free_pbuf_chain(copied);
     // __enable_irq();
