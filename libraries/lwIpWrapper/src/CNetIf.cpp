@@ -1,5 +1,6 @@
 #include "CNetIf.h"
 #include <functional>
+#include "utils.h"
 
 // TODO make better documentation on how this works
 // TODO hostname should be defined at network stack level and shared among ifaces
@@ -10,12 +11,18 @@
 // TODO split netif definition in different files
 // TODO implement WIFINetworkDriver that is then being used by both Wifi station and softAP. This will allow to use both at the same time
 
+extern "C" void dhcps_start(struct netif *netif); // TODO understand why not include
+
 err_t _netif_init(struct netif* ni);
 err_t _netif_output(struct netif* ni, struct pbuf* p);
 
 #if LWIP_DNS
 static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 #endif // LWIP_DNS
+
+#ifdef LWIP_USE_TIMER
+static void timer_cb(timer_callback_args_t* arg);
+#endif
 
 // Custom Pbuf definition used to handle RX zero copy
 // TODO Move this in a separate file (understand if it is required)
@@ -79,7 +86,7 @@ CLwipIf::CLwipIf() {
        initialized just once  */
     lwip_init();
 
-#ifdef NETWORKSTACK_USE_TIMER
+#ifdef LWIP_USE_TIMER
     uint8_t type = 8;
     int8_t ch = FspTimer::get_available_timer(type);
 
@@ -88,6 +95,7 @@ CLwipIf::CLwipIf() {
     }
 
     /*
+     * FIXME update this comment
      * NOTE Timer and buffer size
      * The frequency for the timer highly influences the memory requirements for the desired transfer speed
      * You can calculate the buffer size required to achieve that performance from the following formula:
@@ -106,6 +114,14 @@ CLwipIf::CLwipIf() {
 #endif
 }
 
+#ifdef LWIP_USE_TIMER
+static void timer_cb(timer_callback_args_t* arg) {
+    CLwipIf* context = (CLwipIf*)arg->p_context;
+
+    context->task();
+}
+#endif
+
 void CLwipIf::task() {
     for(CNetIf* iface: this->ifaces) { // FIXME is this affecting performances?
         iface->task();
@@ -116,18 +132,18 @@ void CLwipIf::task() {
     arduino::unlock();
 }
 
-void CLwipIf::setDefaultIface(CNetif* iface) {
+void CLwipIf::setDefaultIface(CNetIf* iface) {
     // TODO check if the iface is in the vector
 
     netif_set_default(&iface->ni);
 }
 
-void CLwipIf::add_iface(CNetif* iface) {
+void CLwipIf::add_iface(CNetIf* iface) {
     // if it is the first interface set it as the default route
     if(this->ifaces.empty()) {
         netif_set_default(&iface->ni); // TODO let the user decide which is the default one
 
-#ifdef NETWORKSTACK_USE_TIMER
+#ifdef LWIP_USE_TIMER
         timer.setup_overflow_irq();
         timer.open();
         timer.start();
@@ -143,13 +159,13 @@ CLwipIf::~CLwipIf() {
 }
 
 
-int CLwipIf::setWifiMode(WifiMode_t mode) {
+// int CLwipIf::setWifiMode(WifiMode_t mode) {
     // TODO adapt this
     // CLwipIf::getInstance().startSyncRequest();
     // int rv = CEspControl::getInstance().setWifiMode(mode);
     // CLwipIf::getInstance().restartAsyncRequest();
     // return rv;
-}
+// }
 
 /* ***************************************************************************
  *                               DNS related functions
@@ -259,10 +275,10 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
  *                      BASE NETWORK INTERFACE CLASS
  * ########################################################################## */
 
-CNetIf::CNetIf()
-:
+CNetIf::CNetIf(NetworkDriver *driver)
+: driver(driver)
 #ifdef LWIP_DHCP
-    dhcp_acquired(false)
+    , dhcp_acquired(false)
 #endif
 {
     // NETIF_STATS_INIT(this->stats); // TODO create a proper stats interface
@@ -275,7 +291,9 @@ CNetIf::CNetIf()
     }
 }
 
-void CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+    driver->begin();
+
     ip_addr_t _ip = fromArduinoIP(ip);
     ip_addr_t _nm = fromArduinoIP(nm);
     ip_addr_t _gw = fromArduinoIP(gw);
@@ -290,7 +308,7 @@ void CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw
     );
     if(_ni == nullptr) {
         // FIXME error if netif_add, return error
-        return;
+        return -1;
     }
 
     //TODO add link up and down callback and set the link
@@ -307,9 +325,10 @@ void CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw
 
     // add the interface to the network stack
     CLwipIf::getInstance().add_iface(this); // TODO remove interface when it is needed (??)
+    return 0;
 }
 
-void CNetif::task() {
+void CNetIf::task() {
 #ifdef LWIP_DHCP
     // TODO we can add a lazy evaluated timer for this condition if dhcp_supplied_address takes too long
     if(!this->dhcp_acquired && dhcp_supplied_address(&this->ni)) {
@@ -324,13 +343,13 @@ void CNetif::task() {
 
 
 err_t _netif_init(struct netif* ni) {
-    CNetif *iface = (CNetif*)ni->state;
+    CNetIf *iface = (CNetIf*)ni->state;
 
     return iface->init(ni); // This function call can be a jmp instruction
 }
 
 err_t _netif_output(struct netif* ni, struct pbuf* p) {
-    CNetif *iface = (CNetif*)ni->state;
+    CNetIf *iface = (CNetIf*)ni->state;
 
     return iface->output(ni, p); // This function call can be a jmp instruction
 }
@@ -341,6 +360,14 @@ void CNetIf::up() {
 
 void CNetIf::down() {
     netif_set_down(&this->ni);
+}
+
+void CNetIf::setLinkUp() {
+    this->up();
+}
+
+void CNetIf::setLinkDown() {
+    this->down();
 }
 
 void CNetIf::linkUpCallback() {
@@ -392,20 +419,22 @@ bool CNetIf::dhcpRenew() {
  * ########################################################################## */
 uint8_t CEth::eth_id = 0;
 
-CEth::CEth() {
-    CNetif::driver = &C33EthernetDriver; // FIXME driver is the pointer to C33 ethernet driver implementation
-    C33EthernetDriver.stats = &this->stats;
+CEth::CEth(NetworkDriver *driver)
+: CNetIf(driver) {
+    // driver.stats = &this->stats;
 }
 
-void CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
     // The driver needs a callback to consume the incoming buffer
     this->driver->setConsumeCallback(
         std::bind(&CEth::consume_callback,
             this, std::placeholders:: _1, std::placeholders::_2));
 
     // Call the begin function on the Parent class to init the interface
-    CNetif::begin(ip, nm, gw);
+    CNetIf::begin(ip, nm, gw);
     netif_set_link_up(&this->ni); // TODO test that moving this here still makes ethernet work
+
+    return 0;
 }
 
 
@@ -442,23 +471,18 @@ err_t CEth::output(struct netif* ni, struct pbuf* p) {
      */
     struct pbuf *q = p;
     do {
-        NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
-        NETIF_STATS_TX_TIME_START(this->stats);
-        auto err = C33EthernetDriver.send((uint8_t*)q->payload, q->len);
+        // NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+        // NETIF_STATS_TX_TIME_START(this->stats);
+        auto err = driver->send((uint8_t*)q->payload, q->len);
         if(err != 0) {
-            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
-            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+            // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
             errval = ERR_IF;
             break;
         }
-        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, q->len);
-        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+        // NETIF_STATS_INCREMENT_TX_BYTES(this->stats, q->len);
+        // NETIF_STATS_TX_TIME_AVERAGE(this->stats);
         q = q->next;
-
-        // FIXME remove this, only purpose is to verify if I ever deal with a pbuf chain
-        // if(q!=nullptr) {
-        //     NETIF_STATS_INCREMENT_ERROR(this->stats, 1024);
-        // }
     } while(q != nullptr && errval != ERR_OK);
 
     return errval;
@@ -482,13 +506,13 @@ void CEth::consume_callback(uint8_t* buffer, uint32_t len) {
 
     err_t err = this->ni.input((struct pbuf*)p, &this->ni);
     if (err != ERR_OK) {
-        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+        // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
 
-        NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
-        NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+        // NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+        // NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
         pbuf_free((struct pbuf*)p);
     } else {
-        NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
+        // NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
     }
     // arduino::unlock();
 }
@@ -502,6 +526,10 @@ CWifiStation::CWifiStation()
 : hw_init(false) {
     // TODO this class should implement the driver interface
     // CLwipIf::getInstance()
+}
+
+CWifiStation::~CWifiStation() {
+
 }
 
 int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) { // TODO This should be called only once, make it private
@@ -531,7 +559,7 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
     }
 
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
-    CNetif::begin(ip, nm, gw);
+    CNetIf::begin(ip, nm, gw);
     // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
 exit:
     // arduino::unlock();
@@ -553,7 +581,6 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         // rv = -1; // FIXME set proper error code
         goto exit;
     }
-    this->printAps();
 
     // find the AP with the best rssi
     for (uint8_t i = 0; i < access_points.size(); i++) {
@@ -635,22 +662,22 @@ err_t CWifiStation::init(struct netif* ni) {
 
 err_t CWifiStation::output(struct netif* _ni, struct pbuf* p) {
     // FIXME set ifn
-    int ifn = 0; // interface number in CNetif.cpp seems to not be set anywhere
+    int ifn = 0; // interface number in CNetIf.cpp seems to not be set anywhere
     uint8_t *buf = nullptr;
     uint16_t size=p->tot_len;
     err_t errval = ERR_IF;
     int err = ESP_CONTROL_OK;
 
-    NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
-    NETIF_STATS_TX_TIME_START(this->stats);
+    // NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+    // NETIF_STATS_TX_TIME_START(this->stats);
 
     // arduino::lock();
     // p may be a chain of pbufs
     if(p->next != nullptr) {
         buf = (uint8_t*) malloc(size*sizeof(uint8_t));
         if(buf == nullptr) {\
-            NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
-            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
+            // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
             errval = ERR_MEM;
             goto exit;
         }
@@ -666,11 +693,11 @@ err_t CWifiStation::output(struct netif* _ni, struct pbuf* p) {
     if ((err = CEspControl::getInstance().sendBuffer(
             ESP_STA_IF, ifn, buf, size)) == ESP_CONTROL_OK) {
         errval = ERR_OK;
-        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
-        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+        // NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
+        // NETIF_STATS_TX_TIME_AVERAGE(this->stats);
     } else {
-        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
-        NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+        // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+        // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
     }
 
 exit:
@@ -683,7 +710,7 @@ exit:
 
 void CWifiStation::task() {
     // calling the base class task, in order to make thigs work
-    CNetif::task();
+    CNetIf::task();
 
     // TODO in order to make things easier this should be implemented inside of Wifi driver
     // and not override LWIPInterface method
@@ -693,7 +720,7 @@ void CWifiStation::task() {
     uint8_t* buffer = nullptr;
     struct pbuf* p = nullptr;
 
-    NETIF_STATS_RX_TIME_START(this->stats);
+    // NETIF_STATS_RX_TIME_START(this->stats);
     // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
@@ -707,8 +734,7 @@ void CWifiStation::task() {
     while(buffer != nullptr) {
         // FIXME this section is redundant and should be generalized toghether with CEth::consume_callback
         // TODO understand if this should be moved into the base class
-        NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
-        // NETIF_STATS_RX_TIME_START(this->stats);
+        // NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
 
         zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, dim, free);
 
@@ -718,25 +744,24 @@ void CWifiStation::task() {
 
         err_t err = this->ni.input((struct pbuf*)p, &this->ni);
         if (err != ERR_OK) {
-            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+            // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
 
-            NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
-            NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
             pbuf_free((struct pbuf*)p);
         } else {
-            NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
+            // NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
         }
 
         buffer = CEspControl::getInstance().getStationRx(if_num, dim);
-        // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
     }
-    NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
     // arduino::unlock();
 }
 
-void CWifiStation::consume_callback(uint8_t* buffer, uint32_t len) {
-    // FIXME take what is written in task and put it in here
-}
+// void CWifiStation::consume_callback(uint8_t* buffer, uint32_t len) {
+//     // FIXME take what is written in task and put it in here
+// }
 
 const char* CWifiStation::getSSID() {
     return (const char*)access_point_cfg.ssid;
@@ -766,10 +791,6 @@ uint8_t CWifiStation::getEncryptionType() {
 /* ########################################################################## */
 /*                      CWifiSoftAp NETWORK INTERFACE CLASS                   */
 /* ########################################################################## */
-
-CWifiSoftAp::CWifiSoftAp() { }
-CWifiSoftAp::~CWifiSoftAp() { }
-
 uint8_t CWifiSoftAp::softap_id = 0;
 
 // This is required for dhcp server to assign ip addresses to AP clients
@@ -780,6 +801,9 @@ CWifiSoftAp::CWifiSoftAp()
 : hw_init(false) {
 
 }
+
+CWifiSoftAp::~CWifiSoftAp() { }
+
 
 int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) { // TODO use provided ip address, instead of default ones
     int res = 0;
@@ -806,7 +830,7 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
 
     // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
-    CNetif::begin(
+    CNetIf::begin(
         default_dhcp_server_ip,
         default_nm,
         default_dhcp_server_ip
@@ -885,22 +909,22 @@ err_t CWifiSoftAp::init(struct netif* ni) {
 
 err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
     // FIXME set ifn
-    int ifn = 0; // interface number in CNetif.cpp seems to not be set anywhere
+    int ifn = 0; // interface number in CNetIf.cpp seems to not be set anywhere
     uint8_t *buf = nullptr;
     uint16_t size=p->tot_len;
     err_t errval = ERR_IF;
     int err = ESP_CONTROL_OK;
 
-    NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
-    NETIF_STATS_TX_TIME_START(this->stats);
+    // NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
+    // NETIF_STATS_TX_TIME_START(this->stats);
 
     // arduino::lock();
     // p may be a chain of pbufs
     if(p->next != nullptr) {
         buf = (uint8_t*) malloc(size*sizeof(uint8_t));
         if(buf == nullptr) {\
-            NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
-            NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
+            // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
             errval = ERR_MEM;
             goto exit;
         }
@@ -916,11 +940,11 @@ err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
     if ((err = CEspControl::getInstance().sendBuffer(
             ESP_AP_IF, ifn, buf, size)) == ESP_CONTROL_OK) {
         errval = ERR_OK;
-        NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
-        NETIF_STATS_TX_TIME_AVERAGE(this->stats);
+        // NETIF_STATS_INCREMENT_TX_BYTES(this->stats, size);
+        // NETIF_STATS_TX_TIME_AVERAGE(this->stats);
     } else {
-        NETIF_STATS_INCREMENT_ERROR(this->stats, err);
-        NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
+        // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+        // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
     }
 
 exit:
@@ -933,7 +957,7 @@ exit:
 
 void CWifiSoftAp::task() {
     // calling the base class task, in order to make thigs work
-    CNetif::task();
+    CNetIf::task();
 
     // TODO in order to make things easier this should be implemented inside of Wifi driver
     // and not override LWIPInterface method
@@ -943,7 +967,7 @@ void CWifiSoftAp::task() {
     uint8_t* buffer = nullptr;
     struct pbuf* p = nullptr;
 
-    NETIF_STATS_RX_TIME_START(this->stats);
+    // NETIF_STATS_RX_TIME_START(this->stats);
     // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
@@ -957,8 +981,7 @@ void CWifiSoftAp::task() {
     while(buffer != nullptr) {
         // FIXME this section is redundant and should be generalized toghether with CEth::consume_callback
         // TODO understand if this should be moved into the base class
-        NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
-        // NETIF_STATS_RX_TIME_START(this->stats);
+        // NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
 
         zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, dim, free);
 
@@ -968,19 +991,18 @@ void CWifiSoftAp::task() {
 
         err_t err = this->ni.input((struct pbuf*)p, &this->ni);
         if (err != ERR_OK) {
-            NETIF_STATS_INCREMENT_ERROR(this->stats, err);
+            // NETIF_STATS_INCREMENT_ERROR(this->stats, err);
 
-            NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
-            NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_RX_NI_INPUT_FAILED_CALLS(this->stats);
+            // NETIF_STATS_INCREMENT_RX_INTERRUPT_FAILED_CALLS(this->stats);
             pbuf_free((struct pbuf*)p);
         } else {
-            NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
+            // NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
         }
 
         buffer = CEspControl::getInstance().getStationRx(if_num, dim);
-        // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
     }
-    NETIF_STATS_RX_TIME_AVERAGE(this->stats);
+    // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
     // arduino::unlock();
 }
 
