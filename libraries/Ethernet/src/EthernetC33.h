@@ -19,8 +19,9 @@
 #ifdef ARDUINO_PORTENTA_C33
 
 // TODO Instantiate the drivers for ethernet with default configuration parameters
-// EthernetC33Driver C33EthernetDriver(2, 2, mem_malloc, 1536);
+inline EthernetC33Driver EthernetDriver(2, 2, mem_malloc, 1536);
 
 // FIXME Instantiate a global variable from CEth, calling it Ethernet
+inline CEth Ethernet(&EthernetDriver);
 
 #endif
