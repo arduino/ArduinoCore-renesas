@@ -4,22 +4,23 @@
 #include <IPAddress.h>
 #include <Print.h>
 
-class lwipClient : public Client {
+// TODO improve documentation
 
+class lwipClient : public arduino::Client {
 public:
     lwipClient();
     lwipClient(uint8_t sock);
-    lwipClient(struct tcp_struct* tcpClient); // FIXME this should be a private constructor, friend of Server
+    lwipClient(struct tcp_pcb* tcpClient); // FIXME this should be a private constructor, friend of Server
 
     // disable copy constructor
-    LWIPTCPClient(const LWIPTCPClient&) = delete;
-    void operator=(const LWIPTCPClient&) = delete;
+    lwipClient(const lwipClient&) = delete;
+    void operator=(const lwipClient&) = delete;
 
     // keep move constructor
-    LWIPTCPClient(LWIPTCPClient&&);
-    void operator=(LWIPTCPClient&&);
+    lwipClient(lwipClient&&);
+    void operator=(lwipClient&&);
 
-    virtual ~LWIPTCPClient();
+    virtual ~lwipClient();
 
     virtual uint8_t status();
     virtual int connect(IPAddress ip, uint16_t port);
@@ -54,13 +55,13 @@ public:
 
     uint8_t getSocketNumber();
     virtual uint16_t localPort() {
-        return (_tcp_client->pcb->local_port);
+        return (this->pcb->local_port);
     };
     virtual IPAddress remoteIP() {
-        return (IPAddress(_tcp_client->pcb->remote_ip.addr));
+        return (IPAddress(this->pcb->remote_ip.addr));
     };
     virtual uint16_t remotePort() {
-        return (_tcp_client->pcb->remote_port);
+        return (this->pcb->remote_port);
     };
     void setConnectionTimeout(uint16_t timeout) {
         _timeout = timeout;
