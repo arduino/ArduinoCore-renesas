@@ -51,11 +51,11 @@ void lwipServer::accept()
     /* Free client if disconnected */
     for (int n = 0; n < MAX_CLIENT; n++) {
         if (_tcp_client[n] != NULL) {
-            lwipClient client(_tcp_client[n]);
-            if (client.status() == TCP_CLOSING) {
-                mem_free(_tcp_client[n]);
-                _tcp_client[n] = NULL;
-            }
+            // lwipClient client(_tcp_client[n]); // FIXME
+            // if (client.status() == TCP_CLOSING) {
+            //     mem_free(_tcp_client[n]);
+            //     _tcp_client[n] = NULL;
+            // }
         }
     }
 }
@@ -67,19 +67,20 @@ lwipClient lwipServer::available()
     for (int n = 0; n < MAX_CLIENT; n++) {
         if (_tcp_client[n] != NULL) {
             if (_tcp_client[n]->pcb != NULL) {
-                lwipClient client(_tcp_client[n]);
-                uint8_t s = client.status();
-                if (s == TCP_ACCEPTED) {
-                    if (client.available()) {
-                        return client;
-                    }
-                }
+                // lwipClient client(_tcp_client[n]); // FIXME
+                // uint8_t s = client.status();
+                // if (s == TCP_ACCEPTED) {
+                //     if (client.available()) {
+                //         return client;
+                //     }
+                // }
             }
         }
     }
 
     struct tcp_struct* default_client = NULL;
-    return lwipClient(default_client);
+    return lwipClient(); // FIXME
+    // return lwipClient(default_client);
 }
 
 size_t lwipServer::write(uint8_t b)
@@ -96,11 +97,11 @@ size_t lwipServer::write(const uint8_t* buffer, size_t size)
     for (int n = 0; n < MAX_CLIENT; n++) {
         if (_tcp_client[n] != NULL) {
             if (_tcp_client[n]->pcb != NULL) {
-                lwipClient client(_tcp_client[n]);
-                uint8_t s = client.status();
-                if (s == TCP_ACCEPTED) {
-                    n += client.write(buffer, size);
-                }
+                // lwipClient client(_tcp_client[n]);
+                // uint8_t s = client.status();
+                // if (s == TCP_ACCEPTED) {
+                //     n += client.write(buffer, size);
+                // }
             }
         }
     }

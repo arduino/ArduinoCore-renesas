@@ -64,7 +64,7 @@ uint8_t lwipUDP::begin(IPAddress ip, uint16_t port, bool multicast)
 
     ip_addr_t ipaddr;
     err_t err;
-    u8_to_ip_addr(rawIPAddress(ip), &ipaddr);
+    // u8_to_ip_addr(rawIPAddress(ip), &ipaddr); // FIXME
     if (multicast) {
         err = udp_bind(_udp.pcb, IP_ADDR_ANY, port);
     } else {
@@ -86,7 +86,7 @@ uint8_t lwipUDP::begin(IPAddress ip, uint16_t port, bool multicast)
     _port = port;
     _remaining = 0;
 
-    CLwipIf::getInstance().lwip_task();
+    // CLwipIf::getInstance().lwip_task();
 
     return 1;
 }
@@ -107,7 +107,7 @@ void lwipUDP::stop()
         _udp.pcb = NULL;
     }
 
-    CLwipIf::getInstance().lwip_task();
+    // CLwipIf::getInstance().lwip_task();
 }
 
 int lwipUDP::beginPacket(const char* host, uint16_t port)
@@ -135,7 +135,7 @@ int lwipUDP::beginPacket(IPAddress ip, uint16_t port)
     _sendtoPort = port;
 
     udp_recv(_udp.pcb, &udp_receive_callback, &_udp);
-    CLwipIf::getInstance().lwip_task();
+    // CLwipIf::getInstance().lwip_task();
 
     return 1;
 }
@@ -147,16 +147,16 @@ int lwipUDP::endPacket()
     }
 
     ip_addr_t ipaddr;
-    if (ERR_OK != udp_sendto(_udp.pcb, _data, u8_to_ip_addr(rawIPAddress(_sendtoIP), &ipaddr), _sendtoPort)) {
-        __disable_irq();
-        _data = pbuffer_free_data(_data);
-        __enable_irq();
-        return 0;
-    }
+    // if (ERR_OK != udp_sendto(_udp.pcb, _data, u8_to_ip_addr(rawIPAddress(_sendtoIP), &ipaddr), _sendtoPort)) {
+    //     __disable_irq();
+    //     _data = pbuffer_free_data(_data);
+    //     __enable_irq();
+    //     return 0;
+    // }
 
     _data = NULL;
 
-    CLwipIf::getInstance().lwip_task();
+    // CLwipIf::getInstance().lwip_task();
 
     return 1;
 }
@@ -188,10 +188,10 @@ int lwipUDP::parsePacket()
     //   read();
     // }
 
-    CLwipIf::getInstance().lwip_task();
+    // CLwipIf::getInstance().lwip_task();
 
     if (_udp.data.available > 0) {
-        _remoteIP = IPAddress(ip_addr_to_u32(&(_udp.ip)));
+        // _remoteIP = IPAddress(ip_addr_to_u32(&(_udp.ip))); // FIXME
         _remotePort = _udp.port;
         _remaining = _udp.data.available;
 
