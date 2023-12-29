@@ -35,7 +35,6 @@
 #include "CCtrlWrapper.h"
 #include "CEspCommunication.h"
 #include "EspSpiDriver.h"
-#include "CNetIf.h"
 #include "CEspCbks.h"
 #include <string>
 

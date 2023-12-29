@@ -1,5 +1,4 @@
 #include "CEspControl.h"
-#include "CNetIf.h"
 #include <string>
 #include <vector>
 
@@ -23,8 +22,6 @@ using namespace std;
 
 #define SerialESP      Serial5
 
-extern int esp_host_spi_init();
-
 void getESPDebugLog();
 int displayMenu();
 void makeRequest(int req);
@@ -33,12 +30,15 @@ string prompt(string p);
 
 const char mac_address[] = "aa:bb:cc:dd:ee:ff";
 
+bool wifiHwInitialized = false;
 
 
 int initEvent(CCtrlMsgWrapper *resp) {
   if(resp->isInitEventReceived() == ESP_CONTROL_OK) {
     Serial.println("[EVENT !!!!]: Init event received");
+    wifiHwInitialized = true;
   }
+  return ESP_CONTROL_OK;
 }
 
 int stationDisconnectionEvent(CCtrlMsgWrapper *resp) {
@@ -47,6 +47,7 @@ int stationDisconnectionEvent(CCtrlMsgWrapper *resp) {
     Serial.print("[EVENT !!!!]: C33 was disconnected from AP for reason ");
     Serial.println(reason);
   }
+  return ESP_CONTROL_OK;
 }
 
 int disconnectionFromSofApEvent(CCtrlMsgWrapper *resp) {
@@ -56,6 +57,7 @@ int disconnectionFromSofApEvent(CCtrlMsgWrapper *resp) {
     Serial.print(MAC);
     Serial.println(" disconnected from ESP32 Soft AP");
   }
+  return ESP_CONTROL_OK;
 }
 
 
@@ -65,6 +67,7 @@ int heartBeatEvent(CCtrlMsgWrapper *resp) {
     Serial.print("[EVENT !!!!]: heart beat n ");
     Serial.println(hb);
   }
+  return ESP_CONTROL_OK;
 }
 
 
@@ -83,10 +86,19 @@ void setup() {
   CEspControl::getInstance().listenForDisconnectionFromSoftApEvent(disconnectionFromSofApEvent);
   
 
-  
+  int err = CEspControl::getInstance().initSpiDriver();
+  if (err != 0) {
+    Serial.print("Error initSpiDriver err ");
+    Serial.println(err);
+  } else {
+    Serial.println("initSpiDriver OK");
+  }
+  while (!wifiHwInitialized) {
+    CEspControl::getInstance().communicateWithEsp();
+    delay(100);
+  }
 
   Serial.println("STARTING PROGRAM");
-  delay(1000);
 }
 
 
@@ -685,7 +697,7 @@ int displayMenu() {
         cmd_acquired = true;
         rv = stoi(c);
       }
-      else {
+      else if(ch >= '0' && ch <='9') {
         c += ch;
       }
     }
