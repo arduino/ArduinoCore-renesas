@@ -1,5 +1,4 @@
-#ifndef _ARDUINO_LWIP_NETIF_H_
-#define _ARDUINO_LWIP_NETIF_H_
+#pragma once
 
 // #define LWIP_USE_TIMER
 #define UNUSED(x) (void)(x)
@@ -12,6 +11,8 @@
 #include "IPAddress.h"
 #include "EthernetDriver.h"
 #include <string>
+#include <interface.h>
+
 #ifdef USE_LWIP_AS_LIBRARY
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/dns.h"
@@ -27,7 +28,7 @@
 #include "lwIP_Arduino.h"
 #endif
 
-#define LWIP_USE_TIMER
+// #define LWIP_USE_TIMER
 
 #ifdef LWIP_USE_TIMER
 #include "FspTimer.h"
@@ -95,32 +96,18 @@ typedef enum {
 #define TRUNCATED -3
 #define INVALID_RESPONSE -4
 
-
-ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr);
-
-uint32_t ip_addr_to_u32(ip_addr_t* ipaddr);
+class CLwipIf;
 
 /* Base class implements DHCP, derived class will switch it on or off */
-class CNetIf {
-protected:
-    struct netif ni;
-
-#ifdef LWIP_DHCP
-    bool dhcp_acquired;
-#endif
-
-    // IPAddress _dnsServerAddress;
-
-    // Driver interface pointer
-    NetworkDriver *driver = nullptr;
+class CNetIf: public NetworkInterface {
 public:
-    CNetIf();
-    virtual ~CNetIf();
+    CNetIf(NetworkDriver *driver=nullptr);
+    virtual ~CNetIf() {}
     /*
      * The begin function is called by the user in the sketch to initialize the network interface
      * that he is planning on using in the sketch.
      */
-    virtual void begin(
+    virtual int begin(
         const IPAddress &ip = INADDR_NONE,
         const IPAddress &nm = INADDR_NONE,
         const IPAddress &gw = INADDR_NONE);
@@ -162,46 +149,72 @@ public:
     uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
     uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.gw)); }
 
-    void setHostname(const char* name)
-    {
-        memset(hostname, 0x00, MAX_HOSTNAME_DIM);
-        memcpy(hostname, name, strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
-    }
+    // void setHostname(const char* name)
+    // {
+    //     memset(hostname, 0x00, MAX_HOSTNAME_DIM);
+    //     memcpy(hostname, name, strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
+    // }
 
 
     virtual int getMacAddress(uint8_t* mac) = 0;
-};
 
-/* -------------------------------------------------------------------------- */
-class CEth : public CNetIf {
-    /* -------------------------------------------------------------------------- */
+    friend CLwipIf;
 protected:
+    struct netif ni;
+
+#ifdef LWIP_DHCP
+    bool dhcp_acquired;
+#endif
+
     /*
      * this function is used to initialize the netif structure of lwip
      */
-    static err_t init(struct netif* ni) override;
+    virtual err_t init(struct netif* ni) = 0;
 
     /*
      * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
      */
-    static err_t output(struct netif* ni, struct pbuf* p) override;
-    static const char eth_ifname_prefix = 'e';
-    static uint8_t eth_id;
+    virtual err_t output(struct netif* ni, struct pbuf* p) = 0;
+
+    // the following functions are used to call init and output from lwip in the object context in the C code
+    friend err_t _netif_init(struct netif* ni);
+    friend err_t _netif_output(struct netif* ni, struct pbuf* p);
+
+    // IPAddress _dnsServerAddress;
+
+    // Driver interface pointer
+    NetworkDriver *driver = nullptr;
+
+    void linkDownCallback();
+    void linkUpCallback();
+};
+
+class CEth : public CNetIf {
 public:
-    CEth();
-    virtual ~CEth();
-    virtual void begin(
+    CEth(NetworkDriver *driver=nullptr);
+    // virtual ~CEth();
+    virtual int begin(
         const IPAddress &ip = INADDR_NONE,
         const IPAddress &nm = INADDR_NONE,
         const IPAddress &gw = INADDR_NONE) override;
-
-    virtual void task() override;
 
     virtual int getMacAddress(uint8_t* mac) override {
         UNUSED(mac); // FIXME not implemented
         return 1;
     }
+protected:
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    err_t init(struct netif* ni) override;
 
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    err_t output(struct netif* ni, struct pbuf* p) override;
+
+    static const char eth_ifname_prefix = 'e';
+    static uint8_t eth_id;
 private:
     /*
      * This function is passed to the driver class and it is meant to
@@ -210,28 +223,11 @@ private:
     void consume_callback(uint8_t* buffer, uint32_t len);
 };
 
-/* -------------------------------------------------------------------------- */
 class CWifiStation : public CNetIf {
-    /* -------------------------------------------------------------------------- */
-protected:
-    static const char wifistation_ifname_prefix = 'w';
-    static uint8_t wifistation_id;
-
-    /*
-     * this function is used to initialize the netif structure of lwip
-     */
-    static err_t init(struct netif* ni) override;
-
-    /*
-     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
-     */
-    static err_t output(struct netif* ni, struct pbuf* p) override;
-
-    WifiApCfg_t access_point_cfg;
 public:
     CWifiStation();
     virtual ~CWifiStation();
-    virtual void begin(
+    virtual int begin(
         const IPAddress &ip = INADDR_NONE,
         const IPAddress &nm = INADDR_NONE,
         const IPAddress &gw = INADDR_NONE) override;
@@ -248,33 +244,38 @@ public:
     virtual uint8_t* getBSSID(uint8_t* bssid);
     virtual int32_t getRSSI();
     virtual uint8_t getEncryptionType();
-};
-
-/* -------------------------------------------------------------------------- */
-class CWifiSoftAp : public CNetIf {
-    /* -------------------------------------------------------------------------- */
 protected:
     static const char wifistation_ifname_prefix = 'w';
     static uint8_t wifistation_id;
+
     /*
      * this function is used to initialize the netif structure of lwip
      */
-    static err_t init(struct netif* ni);
+    err_t init(struct netif* ni) override;
 
     /*
      * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
      */
-    static err_t output(struct netif* ni, struct pbuf* p);
+    err_t output(struct netif* ni, struct pbuf* p) override;
 
-    SoftApCfg_t soft_ap_cfg;
+private:
+    std::vector<AccessPoint_t> access_points;
+    WifiApCfg_t access_point_cfg;
+    bool hw_init; // TODO this should be moved to the wifi driver class
+};
+
+class CWifiSoftAp : public CNetIf {
 public:
     CWifiSoftAp();
     virtual ~CWifiSoftAp();
-    virtual void begin(
+    virtual int begin(
         const IPAddress &ip = INADDR_NONE,
         const IPAddress &nm = INADDR_NONE,
         const IPAddress &gw = INADDR_NONE) override;
     virtual void task() override;
+
+    int startSoftAp(const char* ssid, const char* passphrase=nullptr, uint8_t channel=0);
+    int stopSoftAp();
 
     virtual int getMacAddress(uint8_t* mac) override;
 
@@ -282,6 +283,23 @@ public:
     virtual uint8_t* getBSSID(uint8_t* bssid);
     virtual int32_t getRSSI();
     virtual uint8_t getEncryptionType();
+protected:
+    static const char softap_ifname_prefix = 's';
+    static uint8_t softap_id;
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    err_t init(struct netif* ni);
+
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    err_t output(struct netif* ni, struct pbuf* p);
+
+private:
+    std::vector<AccessPoint_t> access_points;
+    SoftApCfg_t soft_ap_cfg;
+    bool hw_init; // TODO this should be moved to the wifi driver class
 };
 
 class CLwipIf {
@@ -307,6 +325,7 @@ public:
 
     // function for setting an iface as default
     void setDefaultIface(CNetIf* iface);
+    // TODO get iface method
 
     // functions that handle DNS resolution
     // DNS servers are also set by dhcp
@@ -321,6 +340,7 @@ public:
 #endif
 private:
     CLwipIf();
+    ~CLwipIf();
 
     // TODO define a Timer for calling tasks
 
@@ -333,9 +353,7 @@ private:
 
     friend class CNetIf;
 
-#ifdef NETWORKSTACK_USE_TIMER
+#ifdef LWIP_USE_TIMER
     FspTimer timer;
 #endif
 };
-
-#endif
