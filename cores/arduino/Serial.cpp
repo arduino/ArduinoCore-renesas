@@ -29,40 +29,6 @@
 #undef Serial
 #endif
 
-//#define ENABLE_DEBUG
-
-#define DEBUG_PIN_WRITE_CALL 3
-#define DEBUG_PIN_WRITE_TOGGLE 4
-#define DEBUG_PIN_CALLBACK_TXDE 5
-#define DEBUG_PIN_CALLBACK_TE 6
-#define DEBUG_PIN_CALLBACK_RX 7
-#define DEBUG_PIN_CALLBACK_ERROR 8
-#ifdef ENABLE_DEBUG
-static R_PORT0_Type *port_table[] = { R_PORT0, R_PORT1, R_PORT2, R_PORT3, R_PORT4, R_PORT5, R_PORT6, R_PORT7 };
-static const uint16_t mask_table[] = { 1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7,
-                                       1 << 8, 1 << 9, 1 << 10, 1 << 11, 1 << 12, 1 << 13, 1 << 14, 1 << 15 };
-// quick and dirty digitalWriteFast
-static inline void DBGDigitalWrite(pin_size_t pin, PinStatus val) {
-  uint16_t hardware_port_pin = g_pin_cfg[pin].pin;
-  //uint16_t mask = 1 << (hardware_port_pin & 0xf);
-  uint16_t pin_mask = mask_table[hardware_port_pin & 0xf];
-  R_PORT0_Type *portX = port_table[hardware_port_pin >> 8];
-
-  if (val) portX->POSR = pin_mask;
-  else portX->PORR = pin_mask;
-}
-static inline void DBGDigitalToggle(pin_size_t pin) {
-  uint16_t hardware_port_pin = g_pin_cfg[pin].pin;
-  uint16_t pin_mask = mask_table[hardware_port_pin & 0xf];
-  R_PORT0_Type *portX = port_table[hardware_port_pin >> 8];
-
-  if (portX->PODR & pin_mask) portX->PORR = pin_mask;
-  else portX->POSR = pin_mask;
-}
-#else
-inline void DBGDigitalWrite(__attribute__((unused)) int pin, __attribute__((unused))int state) {};
-inline void DBGDigitalToggle(__attribute__((unused)) int pin) {};
-#endif
 
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
@@ -91,13 +57,13 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       case UART_EVENT_ERR_OVERFLOW:
       case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
       {
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
           break;
       }
       case UART_EVENT_TX_DATA_EMPTY:
       {
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
         if (uart_ptr->txBuffer.available() == 0) {
           uart_ptr->tx_fsi_state = TX_FSI_WAITING_TE;  // maybe...
           uart_ptr->save_tx_info(0x40); // top nibble bits 0100
@@ -109,7 +75,7 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
             uart_ptr->tx_fsi_buffer[cb++] = ch;            
           }
           uart_ptr->tx_fsi_state = TX_FSI_ACTIVE;
-          DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+          //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
           // See if we can simply stuff out the new buffer and count
           // Maybe special case if we get here and TDR is already empty
           // maybe different test for FIFO.
@@ -127,26 +93,26 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
             uart_ptr->uart_ctrl.p_reg->SCR |= (uint8_t)R_SCI0_SCR_TIE_Msk;
           }
         }
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
         break;
       }
       case UART_EVENT_TX_COMPLETE:
       {
         // 
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
         uart_ptr->tx_fsi_state = TX_FSI_COMPLETE;
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
         uart_ptr->save_tx_info(0x80); // top nibble bits 0110
         break;
       }
       case UART_EVENT_RX_CHAR:
       {
 
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
         if (uart_ptr->rxBuffer.availableForStore()) {
           uart_ptr->rxBuffer.store_char(p_args->data);
         }
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
         break;
       }
       case UART_EVENT_BREAK_DETECT:
@@ -176,13 +142,13 @@ void UART::WrapperCallbackFIFO(uart_callback_args_t *p_args) {
       case UART_EVENT_ERR_OVERFLOW:
       case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
       {
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
           break;
       }
       case UART_EVENT_TX_DATA_EMPTY:
       {
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
         if (uart_ptr->txBuffer.available() == 0) {
           uart_ptr->tx_fsi_state = TX_FSI_WAITING_TE;  // maybe...
           uart_ptr->save_tx_info(0x40); // top nibble bits 0100
@@ -194,7 +160,7 @@ void UART::WrapperCallbackFIFO(uart_callback_args_t *p_args) {
             uart_ptr->tx_fsi_buffer[cb++] = ch;            
           }
           uart_ptr->tx_fsi_state = TX_FSI_ACTIVE;
-          DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+          //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
           // we are losing chars.  See if the UART is full, before and see if waiting helps
           // two cases with or without fifo.
           // but don't see any way we can get here without...
@@ -212,20 +178,20 @@ void UART::WrapperCallbackFIFO(uart_callback_args_t *p_args) {
             uart_ptr->uart_ctrl.p_tx_src     =  uart_ptr->tx_fsi_buffer;
   
             // and reenable the TIE and not TEIE
-            uart_ptr->uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TEIE_Msk); // don't wait on transer end interrupt.
+            uart_ptr->uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TEIE_Msk); // don't wait on transfer end interrupt.
             uart_ptr->uart_ctrl.p_reg->SCR |= (uint8_t)R_SCI0_SCR_TIE_Msk;
           }
 
         }
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
         break;
       }
       case UART_EVENT_TX_COMPLETE:
       {
         // 
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
         uart_ptr->tx_fsi_state = TX_FSI_COMPLETE;
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
         uart_ptr->save_tx_info(0x80); // top nibble bits 0110
         break;
       }
@@ -235,14 +201,14 @@ void UART::WrapperCallbackFIFO(uart_callback_args_t *p_args) {
         // more data in the FIFO...
         // Don't look to see if there is room, as the store_char does the same
         // and in either case we toss it anyway
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
         uart_ptr->rxBuffer.store_char(p_args->data);
-        DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
 
         while (uart_ptr->uart_ctrl.p_reg->FDR_b.R > 0U) {
-          DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
+          //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
           uart_ptr->rxBuffer.store_char( uart_ptr->uart_ctrl.p_reg->FRDRHL & 0xff);
-          DBGDigitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+          //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
         }
 
         break;
@@ -287,7 +253,7 @@ size_t UART::write(uint8_t c) {
 
 size_t  UART::write(const uint8_t* c, size_t len) {
   if(init_ok && (len > 0)) {
-    DBGDigitalWrite(DEBUG_PIN_WRITE_CALL, HIGH);
+    //digitalWrite(DEBUG_PIN_WRITE_CALL, HIGH);
     size_t cb_left = len;
 
     // If there is no transfer active, try to bypass putting stuff into
@@ -300,7 +266,7 @@ size_t  UART::write(const uint8_t* c, size_t len) {
       cb_left -= cb_copy;
       c += cb_copy;
       tx_fsi_state = TX_FSI_ACTIVE;
-      DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+      //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
       save_tx_info(cb_copy); // top nibble bits 0010
       R_SCI_UART_Write(&(uart_ctrl), tx_fsi_buffer, cb_copy);
     }
@@ -321,7 +287,7 @@ size_t  UART::write(const uint8_t* c, size_t len) {
         if (cb_copy > sizeof(tx_fsi_buffer)) cb_copy = sizeof(tx_fsi_buffer);
         for (uint16_t i = 0; i < cb_copy; i++) tx_fsi_buffer[i] = txBuffer.read_char();
         tx_fsi_state = TX_FSI_ACTIVE;
-        DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+        //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
 
         // we were losing chars.  See if the UART is full, before and see if waiting helps
         // two cases with or without fifo.
@@ -332,7 +298,7 @@ size_t  UART::write(const uint8_t* c, size_t len) {
         } else {
           // Uart does not have FIFO so check TDRE..
           while ((((uint32_t)micros() - start_time) < 250) && !uart_ctrl.p_reg->SSR_b.TDRE) {
-            DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+            //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
           }
         }
         save_tx_info(cb_copy | 0x20); // top nibble bits 0010
@@ -354,9 +320,9 @@ size_t  UART::write(const uint8_t* c, size_t len) {
         }
       }
 #endif    
-      DBGDigitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+      //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
     }
-    DBGDigitalWrite(DEBUG_PIN_WRITE_CALL, LOW);
+    //digitalWrite(DEBUG_PIN_WRITE_CALL, LOW);
     return len;
   }
   else {
@@ -590,36 +556,4 @@ size_t UART::write_raw(uint8_t* c, size_t len) {
     i++;
   }
   return len;
-}
-
-void UART::printDebugInfo(Stream *pstream) {
-  pstream->print("\tChannel: ");
-  pstream->print(channel, DEC);
-  pstream->print("\n\tPins:(TR) ");
-  pstream->print(tx_pin, DEC);
-  pstream->print(" ");
-  pstream->print(rx_pin, DEC);
-  pstream->println();
-  pstream->print("\ttx_fsi_state: ");
-  pstream->print(tx_fsi_state, HEX);
-  #ifdef SERIAL_TEST_AND_DEBUG_TX_CODE
-
-  pstream->print(" : ");
-  uint8_t info_index = last_tx_info_index;
-  for (uint8_t i = 0; i < 16; i++) {
-    info_index = (info_index == 0)? 15 : info_index - 1;
-    uint8_t val = last_tx_info[info_index];
-    switch (val & 0xe0) {
-    case 0: pstream->print("WIDLE:"); break;
-    case 0x20: pstream->print("WFBUF:"); break;
-    case 0x40: pstream->print("TDRE->TEND:"); break;
-    case 0x60: pstream->print("TDRE-CONT:"); break;
-    case 0x80: pstream->print("TEND:"); break;
-    case 0xA0: pstream->print("TDRE-WR:"); break;
-    };
-    pstream->print(val & 0x1f, DEC);
-    pstream->print(" ");
-  }
-  #endif
-  pstream->println();
 }

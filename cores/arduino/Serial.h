@@ -35,15 +35,11 @@
 #include "r_sci_uart.h"
 #include "r_uart_api.h"
 
-//#include "SafeRingBuffer.h"
-#include "FasterSafeRingBuffer.h"
+#include "SafeRingBuffer.h"
 
 #undef SERIAL_BUFFER_SIZE
 #define SERIAL_BUFFER_SIZE 512
 #define SERIAL_FSI_BUFFER_SIZE 16
-
-// Uncomment to enable additional Debug code to be enabled
-//#define SERIAL_TEST_AND_DEBUG_TX_CODE
 
 #define MAX_UARTS    10
 
@@ -83,10 +79,8 @@ class UART : public arduino::HardwareSerial {
     bool                      cfg_pins(int max_index);
 
     int                       channel;
-    //arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
-    //arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
-    arduino::FasterSafeReadRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
-    arduino::FasterSafeWriteRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
     uint8_t                   tx_fsi_buffer[SERIAL_FSI_BUFFER_SIZE];
 
