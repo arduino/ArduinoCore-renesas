@@ -24,27 +24,14 @@
 //#define ESP_HOST_DEBUG_ENABLED
 
 #include "Arduino.h"
-#include "IRQManager.h"
 #include "CEspCommunication.h"
-//#include "esp_host_protocol.h"
-
-#include "r_spi.h"
-#include "r_sci_spi.h"
-
-using CbkFuncRx_f = void(*)();
 
 #define ESP_HOSTED_SPI_DRIVER_OK   0
 #define ESP_HOSTED_SPI_NOTHING_TO_TX_OR_RX    3
 #define ESP_HOSTED_SPI_MESSAGE_RECEIVED       8
 
-
-#define ESP_HOSTED_SPI_DRIVER_INIT_IRQ_FAILED 1
-#define ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN   2
-#define ESP_HOSTED_SPI_SPI_TRANSACTION_ERR    4
-#define ESP_HOSTED_SPI_ESP_NOT_READY          5
-#define ESP_HOSTED_SPI_TX_RX_ABORTED          6
-#define ESP_HOSTED_SPI_TIMEOUT                7
-#define ESP_HOSTED_MSG_PREPARATION_ERROR      9
+#define ESP_HOSTED_SPI_SPI_TRANSACTION_ERR    1
+#define ESP_HOSTED_SPI_ESP_NOT_READY          2
 
 /* init the SPI driver */
 int esp_host_spi_init(void);
@@ -57,9 +44,5 @@ bool isEspSpiInitialized() ;
 bool arePendingRxMsg();
 
 bool isSpiTransactionInProgress();
-void setSpiTransactionInPRogress();
-
-
-
 
 #endif
