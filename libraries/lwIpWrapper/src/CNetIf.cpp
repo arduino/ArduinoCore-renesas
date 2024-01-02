@@ -292,6 +292,7 @@ CNetIf::CNetIf(NetworkDriver *driver)
 }
 
 int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+    CLwipIf::getInstance(); // This call is required in order to setup the network stack
     driver->begin();
 
     ip_addr_t _ip = fromArduinoIP(ip);
@@ -631,6 +632,23 @@ exit:
     return rv;
 }
 
+int CWifiStation::scanForAp() {
+        // arduino::lock();
+    access_points.clear(); // FIXME create access_points vector
+
+    int res = CEspControl::getInstance().getAccessPointScanList(access_points);
+    if (res == ESP_CONTROL_OK) {
+        res = WL_SCAN_COMPLETED;
+    }
+    // else {
+    //     res = WL_NO_SSID_AVAIL; // TODO
+    // }
+
+    // arduino::unlock();
+
+    return res;
+}
+
 // disconnect
 int CWifiStation::disconnectFromAp() {
     return CEspControl::getInstance().disconnectAccessPoint();
@@ -880,10 +898,6 @@ int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t c
     return rv;
 }
 
-int CWifiSoftAp::stopSoftAp() {
-
-}
-
 err_t CWifiSoftAp::init(struct netif* ni) {
     // Setting up netif
 #if LWIP_NETIF_HOSTNAME
@@ -922,7 +936,7 @@ err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
     // p may be a chain of pbufs
     if(p->next != nullptr) {
         buf = (uint8_t*) malloc(size*sizeof(uint8_t));
-        if(buf == nullptr) {\
+        if(buf == nullptr) {
             // NETIF_STATS_INCREMENT_ERROR(this->stats, ERR_MEM);
             // NETIF_STATS_INCREMENT_TX_TRANSMIT_FAILED_CALLS(this->stats);
             errval = ERR_MEM;
