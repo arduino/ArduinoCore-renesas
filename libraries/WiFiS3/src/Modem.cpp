@@ -256,6 +256,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
                break;
             } 
             else if (string::npos != data_res.rfind(RESULT_ERROR)) {
+               found = true;
                data_res.substr(0, data_res.length() - (sizeof(RESULT_ERROR) - 1));
                res = false;
                break;
