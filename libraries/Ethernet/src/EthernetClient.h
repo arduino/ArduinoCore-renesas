@@ -5,9 +5,13 @@
 #include "lwipClient.h"
 
 class EthernetClient : public lwipClient {
-   public:
-   EthernetClient() {}
-   EthernetClient(struct tcp_struct *tcpClient) : lwipClient() {} // FIXME
+public:
+   EthernetClient() {
+      this->bindCNetIf(Ethernet);
+   }
+   EthernetClient(struct tcp_pcb *pcb) : lwipClient(pcb) {
+      this->bindCNetIf(Ethernet);
+   }
 };
 
 #endif

@@ -97,6 +97,7 @@ typedef enum {
 #define INVALID_RESPONSE -4
 
 class CLwipIf;
+class lwipClient;
 
 /* Base class implements DHCP, derived class will switch it on or off */
 class CNetIf: public NetworkInterface {
@@ -238,7 +239,7 @@ public:
 
     virtual void task() override;
 
-    virtual int getMacAddress(uint8_t* mac) override;
+    virtual int getMacAddress(uint8_t* mac) override {}
 
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
@@ -277,7 +278,7 @@ public:
     int startSoftAp(const char* ssid, const char* passphrase=nullptr, uint8_t channel=0);
     int stopSoftAp();
 
-    virtual int getMacAddress(uint8_t* mac) override;
+    virtual int getMacAddress(uint8_t* mac) override {}
 
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
@@ -357,3 +358,6 @@ private:
     FspTimer timer;
 #endif
 };
+
+extern CEth Ethernet;
+extern CWifiStation WiFi;

@@ -3,6 +3,7 @@
 #include <lwip/include/lwip/tcp.h>
 #include <IPAddress.h>
 #include <Print.h>
+#include "CNetIf.h"
 
 // TODO improve documentation
 
@@ -67,6 +68,10 @@ public:
         _timeout = timeout;
     }
 
+    void bindCNetIf(CNetIf &n) {
+        tcp_bind_netif(this->pcb, n.getNi());
+    }
+
     friend class lwipServer;
 
     using Print::write;
@@ -82,7 +87,7 @@ private:
     // TCP related info of the socket
     _tcp_state_t state =        TCP_NONE;
     struct pbuf* pbuf_head =    nullptr;
-    struct tcp_pcb* pcb =              nullptr;
+    struct tcp_pcb* pcb =       nullptr;
     uint16_t pbuf_offset =      0;
 
     uint16_t _timeout = 10000;
