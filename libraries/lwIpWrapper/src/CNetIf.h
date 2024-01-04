@@ -1,6 +1,5 @@
 #pragma once
 
-// #define LWIP_USE_TIMER
 #define UNUSED(x) (void)(x)
 
 #define USE_LWIP_AS_LIBRARY
@@ -80,7 +79,7 @@ typedef enum {
     NI_ETHERNET
 } NetIfType_t;
 
-#define MAX_CLIENT 32
+#define MAX_CLIENT MEMP_NUM_TCP_PCB
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
@@ -97,7 +96,6 @@ typedef enum {
 #define INVALID_RESPONSE -4
 
 class CLwipIf;
-class lwipClient;
 
 /* Base class implements DHCP, derived class will switch it on or off */
 class CNetIf: public NetworkInterface {
@@ -331,7 +329,7 @@ public:
     // functions that handle DNS resolution
     // DNS servers are also set by dhcp
 #if LWIP_DNS
-    // add a dns server, priority set to 0 means it is the first being queryed, -1 means the last
+    // add a dns server, priority set to 0 means it is the first being queried, -1 means the last
     uint8_t addDnsServer(const IPAddress& aDNSServer, int8_t priority=-1);
     void clearDnsServers();
 
