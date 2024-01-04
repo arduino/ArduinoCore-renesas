@@ -293,7 +293,10 @@ CNetIf::CNetIf(NetworkDriver *driver)
 
 int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
     CLwipIf::getInstance(); // This call is required in order to setup the network stack
-    driver->begin();
+
+    if(driver != nullptr) {
+        driver->begin();
+    }
 
     ip_addr_t _ip = fromArduinoIP(ip);
     ip_addr_t _nm = fromArduinoIP(nm);
