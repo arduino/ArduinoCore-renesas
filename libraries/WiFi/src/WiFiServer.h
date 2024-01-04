@@ -1,35 +1,16 @@
-#ifndef ARDUINO_LWIP_WIFI_SERVER_H
-#define ARDUINO_LWIP_WIFI_SERVER_H
-
+#pragma once
 
 #include "lwipServer.h"
-#include "WiFiClient.h"
+#include "lwipClient.h"
 
-class WiFiServer : public lwipServer {
-   public:
-   WiFiServer() {}
-   WiFiServer(uint16_t port) : lwipServer(port) {}
+class WiFiServer: public lwipServer {
+public:
+    void begin() {
+        lwipServer::begin();
+        this->bindCNetIf(WiFi);
+    }
 
-   WiFiClient available() {
-      accept();
-
-      for (int n = 0; n < MAX_CLIENT; n++) {
-         if (_tcp_client[n] != NULL) {
-            if (_tcp_client[n]->pcb != NULL) {
-               WiFiClient client(_tcp_client[n]);
-               uint8_t s = client.status();
-               if (s == TCP_ACCEPTED) {
-                  if (client.available()) {
-                     return client;
-                  }
-               }
-            }
-         }
-     }
-
-     struct tcp_struct *default_client = NULL;
-     return WiFiClient(default_client);
-   }
+    WiFiClient available() {
+        return WiFiClient(lwipServer::available());
+    }
 };
-
-#endif

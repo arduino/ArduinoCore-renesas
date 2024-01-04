@@ -21,17 +21,61 @@ static err_t _lwip_tcp_sent_callback(void* arg, struct tcp_pcb* tpcb, u16_t len)
 void _lwip_tcp_err_callback(void *arg, err_t err);
 
 lwipClient::lwipClient()
-    : pcb(NULL) {
+: tcp_info(new tcp_info_t)
+{
+    // tcp_info = std::shared_ptr<tcp_info_t>(new tcp_info_t);
+    this->tcp_info->state         = TCP_NONE;
+    this->tcp_info->pcb           = nullptr;
+    this->tcp_info->server        = nullptr;
+    this->tcp_info->pbuf_offset   = 0;
+    this->tcp_info->pbuf_head     = nullptr;
 }
 
 /* Deprecated constructor. Keeps compatibility with W5100 architecture
 sketches but sock is ignored. */
-lwipClient::lwipClient(uint8_t sock)
-    : pcb(NULL) {
+lwipClient::lwipClient(uint8_t sock) {}
+
+lwipClient::lwipClient(struct tcp_pcb* pcb, lwipServer *server)
+: tcp_info(new tcp_info_t)
+{
+    // tcp_info = std::shared_ptr<tcp_info_t>(new tcp_info_t);
+    this->tcp_info->state         = TCP_ACCEPTED;
+    this->tcp_info->pcb           = pcb;
+    this->tcp_info->server        = server;
+    this->tcp_info->pbuf_offset   = 0;
+    this->tcp_info->pbuf_head     = nullptr;
+
+    tcp_arg(this->tcp_info->pcb, this);
+
+    tcp_err(this->tcp_info->pcb, _lwip_tcp_err_callback); // FIXME make this a user callback?
+
+    /* initialize LwIP tcp_recv callback function */
+    tcp_recv(this->tcp_info->pcb, _lwip_tcp_recv_callback);
+
+    /* initialize LwIP tcp_sent callback function */
+    tcp_sent(this->tcp_info->pcb, _lwip_tcp_sent_callback); // FIXME do we actually need it?
 }
 
-lwipClient::lwipClient(struct tcp_pcb* pcb)
-: pcb(pcb) {
+lwipClient::lwipClient(const lwipClient& c)
+: tcp_info(c.tcp_info), _timeout(c._timeout), _ip(c._ip) {
+}
+
+lwipClient& lwipClient::operator=(const lwipClient& rhs) {
+    this->tcp_info =    rhs.tcp_info;
+    this->_timeout =    rhs._timeout;
+    this->_ip =         rhs._ip;
+    return *this;
+}
+
+lwipClient::lwipClient(lwipClient&& c)
+: tcp_info(std::move(c.tcp_info)), _timeout(std::move(c._timeout)), _ip(std::move(c._ip)) {
+}
+
+lwipClient& lwipClient::operator=(lwipClient&& rhs) {
+    this->tcp_info =    std::move(rhs.tcp_info);
+    this->_timeout =    std::move(rhs._timeout);
+    this->_ip =         std::move(rhs._ip);
+    return *this;
 }
 
 lwipClient::~lwipClient() {
@@ -51,27 +95,30 @@ int lwipClient::connect(const char* host, uint16_t port) {
 
 int lwipClient::connect(IPAddress ip, uint16_t port) {
     err_t err = ERR_OK;
-    this->pcb = tcp_new();
 
-    if(this->pcb == nullptr) {
+    // the connect method is only connected when trying to connect a client to a server
+    // and not when a client is created out of a listening socket
+    this->tcp_info->pcb = tcp_new();
+
+    if(this->tcp_info->pcb == nullptr) {
         // return ; // TODO find the proper error code
         return err;
     }
 
-    tcp_err(this->pcb, _lwip_tcp_err_callback); // FIXME make this a user callback?
+    tcp_err(this->tcp_info->pcb, _lwip_tcp_err_callback); // FIXME make this a user callback?
     if(err != ERR_OK) {
         return err;
     }
 
-    this->state = TCP_NONE;
+    this->tcp_info->state = TCP_NONE;
 
-    tcp_arg(this->pcb, this);
+    tcp_arg(this->tcp_info->pcb, this);
 
     this->_ip = fromArduinoIP(ip);
 
     // FIXME this doesn't include timeout of connection, does lwip have it by default?
     err = tcp_connect(
-        this->pcb, &this->_ip, port, // FIXME check if _ip gets copied
+        this->tcp_info->pcb, &this->_ip, port, // FIXME check if _ip gets copied
         _lwip_tcp_connected_callback // FIXME we need to define a static private function
     );
     return err;
@@ -107,7 +154,7 @@ err_t lwipClient::connected_callback(struct tcp_pcb* tpcb, err_t err) {
         return ERR_ARG;
     }
 
-    this->state = TCP_CONNECTED;
+    this->tcp_info->state = TCP_CONNECTED;
 
     /* initialize LwIP tcp_recv callback function */
     tcp_recv(tpcb, _lwip_tcp_recv_callback);
@@ -183,14 +230,14 @@ err_t lwipClient::recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err)
         return ERR_OK;
     }
     arduino::lock();
-    if(this->state == TCP_CONNECTED) {
-        if (this->pbuf_head == nullptr) {
+    if(this->tcp_info->state == TCP_CONNECTED) {
+        if (this->tcp_info->pbuf_head == nullptr) {
             // no need to increment the references of the pbuf,
             // since it is already 1 and lwip shifts the control to this code
-            this->pbuf_head = p;
+            this->tcp_info->pbuf_head = p;
         } else {
-            // no need to increment the references of p, since it is already 1 and the only reference is this->pbuf_head->next
-            pbuf_cat(this->pbuf_head, p);
+            // no need to increment the references of p, since it is already 1 and the only reference is this->tcp_info->pbuf_head->next
+            pbuf_cat(this->tcp_info->pbuf_head, p);
         }
 
         ret_err = ERR_OK;
@@ -211,14 +258,14 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
     uint8_t bytes_to_send = 0;
 
     do {
-        bytes_to_send = min(size - (buffer - buffer_cursor), tcp_sndbuf(this->pcb));
+        bytes_to_send = min(size - (buffer - buffer_cursor), tcp_sndbuf(this->tcp_info->pcb));
 
         /*
          * TODO: Look into the following flags, especially for write of 1 byte
          * TCP_WRITE_FLAG_COPY (0x01) data will be copied into memory belonging to the stack
          * TCP_WRITE_FLAG_MORE (0x02) for TCP connection, PSH flag will not be set on last segment sent
          */
-        err_t res = tcp_write(this->pcb, buffer_cursor, bytes_to_send, TCP_WRITE_FLAG_COPY);
+        err_t res = tcp_write(this->tcp_info->pcb, buffer_cursor, bytes_to_send, TCP_WRITE_FLAG_COPY);
 
         if(res == ERR_OK) {
             buffer_cursor += bytes_to_send;
@@ -228,7 +275,7 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
 
         // TODO understand if the tcp_write will send data if the buffer is not full
         // force send only if we filled the send buffer
-        // if (ERR_OK != tcp_output(this->pcb)) {
+        // if (ERR_OK != tcp_output(this->tcp_info->pcb)) {
         //     // return 0;
         //     break;
         // }
@@ -246,11 +293,11 @@ int lwipClient::read() {
 }
 
 int lwipClient::read(uint8_t* buffer, size_t size) {
-    if(size==0 || buffer==nullptr || this->pbuf_head==nullptr) {
+    if(size==0 || buffer==nullptr || this->tcp_info->pbuf_head==nullptr) {
         return 0; // TODO extend checks
     }
     // copy data from the lwip buffer to the app provided buffer
-    // TODO look into pbuf_get_contiguous(this->pbuf_head, buffer_cursor, len);
+    // TODO look into pbuf_get_contiguous(this->tcp_info->pbuf_head, buffer_cursor, len);
     // pbuf_get_contiguous: returns the pointer to the payload if size <= pbuf.len
     //      otherwise copies data in the user provided buffer. This can be used in a callback paradigm,
     //      in order to avoid memcpy data
@@ -261,7 +308,7 @@ int lwipClient::read(uint8_t* buffer, size_t size) {
      * we need to account that
      */
     arduino::lock();
-    uint16_t copied = pbuf_copy_partial(this->pbuf_head, buffer, size, this->pbuf_offset);
+    uint16_t copied = pbuf_copy_partial(this->tcp_info->pbuf_head, buffer, size, this->tcp_info->pbuf_offset);
 
     this->free_pbuf_chain(copied);
     // __enable_irq();
@@ -278,31 +325,31 @@ int lwipClient::peek() {
     }
 
     arduino::lock();
-    b = pbuf_get_at(this->pbuf_head, 0); // TODO test this
+    b = pbuf_get_at(this->tcp_info->pbuf_head, 0); // TODO test this
     arduino::unlock();
 
     return b;
 }
 
 void lwipClient::flush() {
-    if ((this->pcb == NULL)) {
+    if ((this->tcp_info->pcb == NULL)) {
         return;
     }
-    tcp_output(this->pcb);
+    tcp_output(this->tcp_info->pcb);
 }
 
 void lwipClient::stop() {
-    tcp_recv(this->pcb, nullptr);
-    tcp_sent(this->pcb, nullptr);
-    tcp_poll(this->pcb, nullptr, 0);
-    tcp_err(this->pcb, nullptr);
-    tcp_accept(this->pcb, nullptr);
+    tcp_recv(this->tcp_info->pcb, nullptr);
+    tcp_sent(this->tcp_info->pcb, nullptr);
+    tcp_poll(this->tcp_info->pcb, nullptr, 0);
+    tcp_err(this->tcp_info->pcb, nullptr);
+    tcp_accept(this->tcp_info->pcb, nullptr);
 
-    if(this->pcb != nullptr) {
-        err_t err = tcp_close(this->pcb);
-        this->state = TCP_CLOSING;
+    if(this->tcp_info->pcb != nullptr) {
+        err_t err = tcp_close(this->tcp_info->pcb);
+        this->tcp_info->state = TCP_CLOSING;
 
-        this->pcb = nullptr;
+        this->tcp_info->pcb = nullptr;
 
         // FIXME if err != ERR_OK retry, there may be memory issues, retry?
     }
@@ -315,25 +362,26 @@ void lwipClient::stop() {
 }
 
 uint8_t lwipClient::connected() {
-    return this->state != TCP_NONE; //TODO
+    return this->tcp_info->state == TCP_CONNECTED || this->tcp_info->state == TCP_ACCEPTED;
 }
 
 uint8_t lwipClient::status() {
-    if (this == NULL) {
+    if (this == nullptr) {
         return TCP_NONE;
     }
-    return this->state;
+    return this->tcp_info->state;
 }
 
 // the next function allows us to use the client returned by
 // EthernetServer::available() as the condition in an if-statement.
 
 lwipClient::operator bool() {
-    return (this->pcb != nullptr);
+    return (this->tcp_info->pcb != nullptr);
 }
 
 bool lwipClient::operator==(const lwipClient& rhs) {
-    // return pcb == rhs.this && this->pcb == rhs.this->pcb;
+    // return pcb == rhs.this && this->tcp_info->pcb == rhs.this->tcp_info->pcb;
+    return this->tcp_info == rhs.tcp_info;
 }
 
 /* This function is not a function defined by Arduino. This is a function
@@ -347,13 +395,13 @@ uint8_t lwipClient::getSocketNumber() {
 // this allows the user to avoid using temporary buffers
 size_t lwipClient::read_until_token(
     const uint8_t* buffer, uint16_t buffer_size, char* token, bool &found) {
-    if(buffer_size==0 || buffer==nullptr || this->pbuf_head==nullptr) {
+    if(buffer_size==0 || buffer==nullptr || this->tcp_info->pbuf_head==nullptr) {
         return 0; // TODO extend checks
     }
     arduino::lock();
     // TODO check that the buffer size is less than the token len
 
-    uint16_t offset=this->pbuf_offset;
+    uint16_t offset=this->tcp_info->pbuf_offset;
     /* iterate over pbufs until:
     * - the first occurrence of token
     * - the provided buffer is full
@@ -362,7 +410,7 @@ size_t lwipClient::read_until_token(
     size_t tkn_len = strlen(token);
 
     // FIXME if we have already found the token we hare wasting time to check the entire buffer again
-    uint16_t position = pbuf_memfind(this->pbuf_head, token, tkn_len, this->pbuf_offset); // TODO check efficiency of this function
+    uint16_t position = pbuf_memfind(this->tcp_info->pbuf_head, token, tkn_len, this->tcp_info->pbuf_offset); // TODO check efficiency of this function
     uint16_t buf_copy_len = buffer_size;
 
     // TODO triple check the indices of these conditions
@@ -383,7 +431,7 @@ size_t lwipClient::read_until_token(
         found = false;
     }
 
-    uint16_t copied = pbuf_copy_partial(this->pbuf_head, (uint8_t*)buffer, buf_copy_len, this->pbuf_offset);
+    uint16_t copied = pbuf_copy_partial(this->tcp_info->pbuf_head, (uint8_t*)buffer, buf_copy_len, this->tcp_info->pbuf_offset);
 
     this->free_pbuf_chain(copied);
     arduino::unlock();
@@ -399,12 +447,12 @@ void lwipClient::free_pbuf_chain(uint16_t copied) {
      * taking into account the previously not entirely consumed pbuf
      */
     uint32_t tobefreed = 0;
-    copied += this->pbuf_offset;
+    copied += this->tcp_info->pbuf_offset;
 
     // in order to clean up the chain we need to find the pbuf in the last pbuf in the chain
     // that got completely consumed by the application, dechain it from it successor and delete the chain before it
 
-    struct pbuf *head = this->pbuf_head, *last=head, *prev=nullptr; // FIXME little optimization prev can be substituted by last->next
+    struct pbuf *head = this->tcp_info->pbuf_head, *last=head, *prev=nullptr; // FIXME little optimization prev can be substituted by last->next
 
     while(last!=nullptr && last->len + tobefreed <= copied) {
         tobefreed += last->len;
@@ -415,22 +463,20 @@ void lwipClient::free_pbuf_chain(uint16_t copied) {
     // dechain if we are not at the end of the chain (last == nullptr)
     // and if we haven't copied entirely the first pbuf (prev == nullptr) (head == last)
     // if we reached the end of the chain set the this pbuf pointer to nullptr
-    if(prev != nullptr && last != nullptr) {
+    if(prev != nullptr) {
         prev->next = nullptr;
-        this->pbuf_head = last;
-    } if(last == nullptr) {
-        this->pbuf_head = nullptr;
+        this->tcp_info->pbuf_head = last;
     }
 
-    // the chain that is referenced by head is detached by the one referenced by this->pbuf_head
+    // the chain that is referenced by head is detached by the one referenced by this->tcp_info->pbuf_head
     // free the chain if we haven't copied entirely the first pbuf (prev == nullptr)
-    if(this->pbuf_head != head) {
+    if(this->tcp_info->pbuf_head != head) {
         uint8_t refs = pbuf_free(head);
     }
 
-    this->pbuf_offset = copied - tobefreed; // This offset should be referenced to the first pbuf in queue
+    this->tcp_info->pbuf_offset = copied - tobefreed; // This offset should be referenced to the first pbuf in queue
 
     // acknowledge the received data
-    tcp_recved(this->pcb, copied);
+    tcp_recved(this->tcp_info->pcb, copied);
     arduino::unlock();
 }

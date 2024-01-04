@@ -1,17 +1,23 @@
-#ifndef ARDUINO_LWIP_ETHERNET_CLIENT_H
-#define ARDUINO_LWIP_ETHERNET_CLIENT_H
-
+#pragma once
 
 #include "lwipClient.h"
 
 class EthernetClient : public lwipClient {
 public:
-   EthernetClient() {
-      this->bindCNetIf(Ethernet);
-   }
-   EthernetClient(struct tcp_pcb *pcb) : lwipClient(pcb) {
-      this->bindCNetIf(Ethernet);
-   }
-};
+    EthernetClient() {
+    }
+    EthernetClient(struct tcp_pcb *pcb, lwipServer *server)
+    : lwipClient(pcb, server) {
+    }
+    EthernetClient(lwipClient c)
+    : lwipClient(c) {
+    }
 
-#endif
+    int connect(IPAddress ip, uint16_t port) {
+        auto res = lwipClient::connect(ip, port);
+
+        this->bindCNetIf(Ethernet);
+
+        return res;
+    }
+};

@@ -1,18 +1,23 @@
-#ifndef ARDUINO_LWIP_WIFI_CLIENT_H
-#define ARDUINO_LWIP_WIFI_CLIENT_H
-
+#pragma once
 
 #include "lwipClient.h"
 
-class WiFiClient : public lwipClient {
-   public:
-   WiFiClient() {
-      this->bindCNetIf(WiFi);
-   }
-   WiFiClient(struct tcp_pcb *pcb) : lwipClient(pcb) {
-      this->bindCNetIf(WiFi);
-   }
+class WiFiClient: public lwipClient {
+public:
+    WiFiClient() {
+    }
+    WiFiClient(struct tcp_pcb *pcb, lwipServer *server)
+    : lwipClient(pcb, server) {
+    }
+    WiFiClient(lwipClient c)
+    : lwipClient(c) {
+    }
+
+    int connect(IPAddress ip, uint16_t port) {
+        auto res = lwipClient::connect(ip, port);
+
+        this->bindCNetIf(WiFi);
+
+        return res;
+    }
 };
-
-#endif
-

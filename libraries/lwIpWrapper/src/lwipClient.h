@@ -4,22 +4,31 @@
 #include <IPAddress.h>
 #include <Print.h>
 #include "CNetIf.h"
+#include "lwipServer.h"
+#include <memory>
 
 // TODO improve documentation
+
+enum _tcp_state_t: uint8_t {
+    TCP_NONE = 0,
+    TCP_ACCEPTED,
+    TCP_CONNECTED,
+    TCP_CLOSING
+};
 
 class lwipClient : public arduino::Client {
 public:
     lwipClient();
     lwipClient(uint8_t sock);
-    lwipClient(struct tcp_pcb* tcpClient); // FIXME this should be a private constructor, friend of Server
+    lwipClient(struct tcp_pcb* tcpClient, lwipServer *server); // FIXME this should be a private constructor, friend of Server
 
     // disable copy constructor
-    lwipClient(const lwipClient&) = delete;
-    void operator=(const lwipClient&) = delete;
+    lwipClient(const lwipClient&);
+    lwipClient& operator=(const lwipClient&);
 
     // keep move constructor
     lwipClient(lwipClient&&);
-    void operator=(lwipClient&&);
+    lwipClient& operator=(lwipClient&&);
 
     virtual ~lwipClient();
 
@@ -30,7 +39,9 @@ public:
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t* buf, size_t size);
 
-    inline virtual int available() { return this->pbuf_head == nullptr ? 0 : this->pbuf_head->tot_len; }
+    inline virtual int available() {
+        return this->tcp_info->pbuf_head == nullptr ? 0 : this->tcp_info->pbuf_head->tot_len - this->tcp_info->pbuf_offset;
+    }
 
     virtual int read();
     virtual int read(uint8_t* buf, size_t size);
@@ -56,20 +67,20 @@ public:
 
     uint8_t getSocketNumber();
     virtual uint16_t localPort() {
-        return (this->pcb->local_port);
+        return (this->tcp_info->pcb->local_port);
     };
     virtual IPAddress remoteIP() {
-        return (IPAddress(this->pcb->remote_ip.addr));
+        return (IPAddress(this->tcp_info->pcb->remote_ip.addr));
     };
     virtual uint16_t remotePort() {
-        return (this->pcb->remote_port);
+        return (this->tcp_info->pcb->remote_port);
     };
     void setConnectionTimeout(uint16_t timeout) {
         _timeout = timeout;
     }
 
     void bindCNetIf(CNetIf &n) {
-        tcp_bind_netif(this->pcb, n.getNi());
+        tcp_bind_netif(this->tcp_info->pcb, n.getNi());
     }
 
     friend class lwipServer;
@@ -77,18 +88,17 @@ public:
     using Print::write;
 
 private:
-    enum _tcp_state_t: uint8_t {
-        TCP_NONE = 0,
-        // TCP_ACCEPTED,
-        TCP_CONNECTED,
-        TCP_CLOSING
+    // TCP related info of the socket
+    struct tcp_info_t {
+        _tcp_state_t state;
+        struct pbuf* pbuf_head;
+        struct tcp_pcb* pcb;
+        uint16_t pbuf_offset;
+        // this pointer is used to correctly clean the lwipClient when created from a server class
+        lwipServer* server;
     };
 
-    // TCP related info of the socket
-    _tcp_state_t state =        TCP_NONE;
-    struct pbuf* pbuf_head =    nullptr;
-    struct tcp_pcb* pcb =       nullptr;
-    uint16_t pbuf_offset =      0;
+    std::shared_ptr<tcp_info_t> tcp_info;
 
     uint16_t _timeout = 10000;
     ip_addr_t _ip;
@@ -100,3 +110,5 @@ private:
     friend err_t _lwip_tcp_recv_callback(void* arg, struct tcp_pcb* tpcb, struct pbuf* p, err_t err);
     friend err_t _lwip_tcp_connected_callback(void* arg, struct tcp_pcb* tpcb, err_t err);
 };
+
+inline const lwipClient CLIENT_NONE(nullptr, nullptr);
