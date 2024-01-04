@@ -24,4 +24,4 @@ inline EthernetC33Driver EthernetDriver(2, 2, mem_malloc, 1536);
 // FIXME Instantiate a global variable from CEth, calling it Ethernet
 inline CEth Ethernet(&EthernetDriver);
 
-#endif
+#endif // ARDUINO_PORTENTA_C33
