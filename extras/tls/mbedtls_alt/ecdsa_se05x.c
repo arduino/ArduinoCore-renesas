@@ -126,6 +126,7 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
 
     smStatus_t status = SM_NOT_OK;
     SE05x_Result_t result;
+    SE05x_ECSignatureAlgo_t ecSignAlgo;
     uint32_t keyID          = 0;
     uint8_t magic_bytes[]   = ALT_KEYS_MAGIC;
     uint8_t buffer[150]     = {0};
@@ -166,9 +167,32 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
         return -1;
     }
 
+    // decide on the algo based on the input size
+    // (input being the hash) 
+    switch(blen) {
+        case 20:
+            ecSignAlgo = kSE05x_ECSignatureAlgo_SHA;
+            break;
+        case 28:
+            ecSignAlgo = kSE05x_ECSignatureAlgo_SHA_224;
+            break;
+        case 32:
+            ecSignAlgo = kSE05x_ECSignatureAlgo_SHA_256;
+            break;
+        case 48:
+            ecSignAlgo = kSE05x_ECSignatureAlgo_SHA_384;
+            break;
+        case 64:
+            ecSignAlgo = kSE05x_ECSignatureAlgo_SHA_512;
+            break;
+        default:
+            SMLOG_E("Unsupported hash length: %d\r\n",  blen);
+            return -1;
+    }
+
     SMLOG_I("Using SE05x for ecdsa sign. blen: %d\r\n", blen);
     status = Se05x_API_ECDSASign(
-        pSession, keyID, kSE05x_ECSignatureAlgo_SHA_384, (uint8_t *)buf, blen, signature, &signature_len);
+        pSession, keyID, ecSignAlgo, (uint8_t *)buf, blen, signature, &signature_len);
     if (status != SM_OK) {
         SMLOG_E("Error in Se05x_API_ECDSASign\r\n");
         return -1;
