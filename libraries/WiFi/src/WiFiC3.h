@@ -1,17 +1,14 @@
-#ifndef C_ARDUINO_WIFI_H
-#define C_ARDUINO_WIFI_H
+#pragma once
 
 #include "CNetIf.h"
 
 #define WIFI_FIRMWARE_LATEST_VERSION "1.5.0"
 
 class CWifi {
-private: 
-   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
-   unsigned long _timeout;
-   bool _useStaticIp = false;
-   CNetIf *ni;
-    
+private:
+    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
+    unsigned long _timeout;
+    bool _useStaticIp = false;
 public:
     CWifi();
 
@@ -21,13 +18,11 @@ public:
     static const char* firmwareVersion();
 
 
-    /* 
-     * Start WiFi connection for OPEN networks 
+    /*
+     * Start WiFi connection for OPEN networks
      * param ssid: Pointer to the SSID string.
      */
     int begin(const char* ssid);
-
-    
 
     /* Start WiFi connection with passphrase
      * the most secure supported mode will be automatically selected
@@ -51,29 +46,29 @@ public:
     void config(IPAddress local_ip);
 
     /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        */
+     *
+     * param local_ip:  Static IP configuration
+     * param dns_server:     IP configuration for DNS server 1
+     */
     void config(IPAddress local_ip, IPAddress dns_server);
 
     /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        * param gateway :  Static gateway configuration
-        */
+     *
+     * param local_ip:  Static IP configuration
+     * param dns_server:     IP configuration for DNS server 1
+     * param gateway :  Static gateway configuration
+     */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
 
     /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        * param gateway:   Static gateway configuration
-        * param subnet:    Static Subnet mask
-        */
+     *
+     * param local_ip:  Static IP configuration
+     * param dns_server:     IP configuration for DNS server 1
+     * param gateway:   Static gateway configuration
+     * param subnet:    Static Subnet mask
+     */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-    
+
     /* Change DNS IP configuration
      *
      * param dns_server1: IP configuration for DNS server 1
@@ -109,8 +104,8 @@ public:
      * Get the interface MAC address.
      *
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
-     * 
-     * the value returned by this function is meaningfull only if called 
+     *
+     * the value returned by this function is meaningfull only if called
      * afert a begin (both begin or beginAP) or a ScanNetwork function
      * otherwise an empty mac address is returned
      */
@@ -135,14 +130,14 @@ public:
      *
      * return: gateway IP address value
      */
-   IPAddress gatewayIP();
+    IPAddress gatewayIP();
 
-   /*
-    * Get the DNS server IP address.
-    *
-    * return: DNS server IP address value
-    */
-   IPAddress dnsIP(int n = 0);
+    /*
+     * Get the DNS server IP address.
+     *
+     * return: DNS server IP address value
+     */
+    IPAddress dnsIP(int n = 0);
 
     /*
      * Return the current SSID associated with the network
@@ -194,20 +189,20 @@ public:
      * Return the encryption type of the networks discovered during the scanNetworks
      *
      * param networkItem: specify from which network item want to get the information
-    *
+     *
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
 
-     enum wl_enc_type : 
-      ENC_TYPE_WEP,
-      ENC_TYPE_WPA,
-      ENC_TYPE_WPA2,
-      ENC_TYPE_WPA2_ENTERPRISE,
-      ENC_TYPE_WPA3,
-      ENC_TYPE_NONE,
-      ENC_TYPE_AUTO,
-
-      ENC_TYPE_UNKNOWN = 255
-      
+     * enum wl_enc_type :
+     *  ENC_TYPE_WEP,
+     *  ENC_TYPE_WPA,
+     *  ENC_TYPE_WPA2,
+     *  ENC_TYPE_WPA2_ENTERPRISE,
+     *  ENC_TYPE_WPA3,
+     *  ENC_TYPE_NONE,
+     *  ENC_TYPE_AUTO,
+     *
+     *  ENC_TYPE_UNKNOWN = 255
+     *
      */
     uint8_t encryptionType(uint8_t networkItem);
 
@@ -251,17 +246,11 @@ public:
     void lowPowerMode();
     void noLowPowerMode();
 
-    
-
     void setTimeout(unsigned long timeout);
-
-    
 };
 
-extern CWifi WiFi;
+inline CWifi WiFi;
 
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 #include "WiFiUdp.h"
-
-#endif
