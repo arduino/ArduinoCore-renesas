@@ -28,6 +28,7 @@ Preferences::~Preferences() {
 bool Preferences::begin(const char * name, bool readOnly, const char* partition_label){
     string res = "";
     modem.begin();
+    modem.debug(Serial,2);
     if (name != nullptr && strlen(name) > 0) {
         if (modem.write(string(PROMPT(_PREF_BEGIN)), res, "%s%s,%d,%s\r\n", CMD_WRITE(_PREF_BEGIN), name, readOnly, partition_label != NULL ? partition_label : "")) {
             return (atoi(res.c_str()) != 0) ? true : false;
@@ -74,7 +75,7 @@ bool Preferences::remove(const char * key) {
 size_t Preferences::putChar(const char* key, int8_t value) {
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%hhd\r\n", CMD_WRITE(_PREF_PUT), key, PT_I8, value)) {
+        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%hd\r\n", CMD_WRITE(_PREF_PUT), key, PT_I8, value)) {
             return atoi(res.c_str());
         }
     }
@@ -84,7 +85,7 @@ size_t Preferences::putChar(const char* key, int8_t value) {
 size_t Preferences::putUChar(const char* key, uint8_t value) {
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%hhu\r\n", CMD_WRITE(_PREF_PUT), key, PT_U8, value)) {
+        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%hu\r\n", CMD_WRITE(_PREF_PUT), key, PT_U8, value)) {
             return atoi(res.c_str());
         }
     }
@@ -215,22 +216,22 @@ bool Preferences::isKey(const char* key) {
  * */
 
 int8_t Preferences::getChar(const char* key, const int8_t defaultValue) {
-    int8_t value = defaultValue;
+    int16_t value = defaultValue;
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%hhd\r\n", CMD_WRITE(_PREF_GET), key, PT_I8, defaultValue)) {
-            sscanf(res.c_str(), "%hhd", &value);
+        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%hd\r\n", CMD_WRITE(_PREF_GET), key, PT_I8, defaultValue)) {
+            sscanf(res.c_str(), "%hd", &value);
         }
     }
     return value;
 }
 
 uint8_t Preferences::getUChar(const char* key, const uint8_t defaultValue) {
-    uint8_t value = defaultValue;
+    uint16_t value = defaultValue;
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%hhu\r\n", CMD_WRITE(_PREF_GET), key, PT_U8, defaultValue)) {
-            sscanf(res.c_str(), "%hhu", &value);
+        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%hu\r\n", CMD_WRITE(_PREF_GET), key, PT_U8, defaultValue)) {
+            sscanf(res.c_str(), "%hu", &value);
         }
     }
     return value;
