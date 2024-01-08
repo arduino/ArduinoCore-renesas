@@ -280,7 +280,6 @@ public:
 
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
-    virtual int32_t getRSSI();
     virtual uint8_t getEncryptionType();
 protected:
     static const char softap_ifname_prefix = 's';
@@ -358,4 +357,5 @@ private:
 };
 
 extern CEth Ethernet;
-extern CWifiStation WiFi;
+extern CWifiStation WiFiStation;
+extern CWifiSoftAp WiFiSoftAP;
