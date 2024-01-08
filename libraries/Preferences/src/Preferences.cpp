@@ -141,23 +141,11 @@ size_t Preferences::putULong(const char* key, uint32_t value) {
 }
 
 size_t Preferences::putLong64(const char* key, int64_t value) {
-    string res = "";
-    if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%lld\r\n", CMD_WRITE(_PREF_PUT), key, PT_I64, value)) {
-            return atoi(res.c_str());
-        }
-    }
-    return 0;
+    return putBytes(key, (void*)&value, sizeof(int64_t));
 }
 
 size_t Preferences::putULong64(const char* key, uint64_t value) {
-    string res = "";
-    if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%llu\r\n", CMD_WRITE(_PREF_PUT), key, PT_U64, value)) {
-            return atoi(res.c_str());
-        }
-    }
-    return 0;
+    return putBytes(key, (void*)&value, sizeof(uint64_t));
 }
 
 size_t Preferences::putFloat(const char* key, const float_t value) {
@@ -291,23 +279,13 @@ uint32_t Preferences::getULong(const char* key, const uint32_t defaultValue) {
 
 int64_t Preferences::getLong64(const char* key, const int64_t defaultValue) {
     int64_t value = defaultValue;
-    string res = "";
-    if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%lld\r\n", CMD_WRITE(_PREF_GET), key, PT_I64, defaultValue)) {
-            sscanf(res.c_str(), "%lld", &value);
-        }
-    }
+    getBytes(key, (void*) &value, sizeof(int64_t));
     return value;
 }
 
 uint64_t Preferences::getULong64(const char* key, const uint64_t defaultValue) {
     uint64_t value = defaultValue;
-    string res = "";
-    if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%llu\r\n", CMD_WRITE(_PREF_GET), key, PT_U64, defaultValue)) {
-            sscanf(res.c_str(), "%llu", &value);
-        }
-    }
+    getBytes(key, (void*) &value, sizeof(uint64_t));
     return value;
 }
 
