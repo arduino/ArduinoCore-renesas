@@ -202,12 +202,22 @@ public:
     virtual int begin(
         const IPAddress &ip = INADDR_NONE,
         const IPAddress &nm = INADDR_NONE,
-        const IPAddress &gw = INADDR_NONE) override;
+        const IPAddress &gw = INADDR_NONE,
+        const IPAddress &dns = INADDR_NONE);
+
+    // virtual int begin(
+    //     const IPAddress &ip = INADDR_NONE,
+    //     const IPAddress &nm = INADDR_NONE,
+    //     const IPAddress &gw = INADDR_NONE,
+    //     const IPAddress &dns = INADDR_NONE);
 
     virtual int getMacAddress(uint8_t* mac) override {
         UNUSED(mac); // FIXME not implemented
         return 1;
     }
+
+    int maintain() {} // Deprecated method for retrocompatibility
+    void schedule(void) {} // Deprecated method for retrocompatibility
 protected:
     /*
      * this function is used to initialize the netif structure of lwip

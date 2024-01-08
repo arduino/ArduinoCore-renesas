@@ -428,7 +428,7 @@ CEth::CEth(NetworkDriver *driver)
     // driver.stats = &this->stats;
 }
 
-int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
+int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw, const IPAddress &dns) {
     // The driver needs a callback to consume the incoming buffer
     this->driver->setConsumeCallback(
         std::bind(&CEth::consume_callback,
@@ -438,9 +438,10 @@ int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
     CNetIf::begin(ip, nm, gw);
     netif_set_link_up(&this->ni); // TODO test that moving this here still makes ethernet work
 
+    // TODO set dns server
+
     return 0;
 }
-
 
 err_t CEth::init(struct netif* ni) {
     // Setting up netif
