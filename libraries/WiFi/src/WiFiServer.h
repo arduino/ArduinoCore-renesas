@@ -5,9 +5,10 @@
 
 class WiFiServer: public lwipServer {
 public:
+    WiFiServer(uint16_t port) : lwipServer(port) {}
     void begin() {
         lwipServer::begin();
-        this->bindCNetIf(WiFi);
+        this->bindCNetIf(WiFiStation);
     }
 
     WiFiClient available() {
