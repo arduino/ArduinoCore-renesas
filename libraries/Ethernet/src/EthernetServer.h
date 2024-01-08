@@ -5,9 +5,10 @@
 
 class EthernetServer: public lwipServer {
 public:
+    EthernetServer(uint16_t port) : lwipServer(port) {}
     void begin() {
         lwipServer::begin();
-        this->bindCNetIf(WiFi);
+        this->bindCNetIf(Ethernet);
     }
 
     EthernetClient available() {
