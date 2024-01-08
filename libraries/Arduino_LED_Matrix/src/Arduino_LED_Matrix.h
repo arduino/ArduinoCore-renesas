@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Arduino.h"
 #include "FspTimer.h"
 #include "gallery.h"
