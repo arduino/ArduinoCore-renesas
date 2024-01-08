@@ -177,6 +177,7 @@ IPAddress CWifi::localIP() { //FIXME
     //     return IPAddress(ni->getIpAdd());
     // }
     // return IPAddress((uint32_t)0);
+    return WiFiStation.localIP();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -186,6 +187,7 @@ IPAddress CWifi::subnetMask() { // FIXME
 //         return IPAddress(ni->getNmAdd());
 //     }
 //     return IPAddress((uint32_t)0);
+    return WiFiStation.subnetMask();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -195,6 +197,7 @@ IPAddress CWifi::gatewayIP() { // FIXME
     //     return IPAddress(ni->getGwAdd());
     // }
     // return IPAddress((uint32_t)0);
+    return WiFiStation.gatewayIP();
 }
 
 /* -------------------------------------------------------------------------- */

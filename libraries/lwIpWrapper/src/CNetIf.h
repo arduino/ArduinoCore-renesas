@@ -148,6 +148,13 @@ public:
     uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
     uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.gw)); }
 
+    // FIXME when dhcp has not provided an ip address yet return IPADDR_NONE
+    IPAddress localIP()     { return IPAddress(this->getIpAdd()); }
+    IPAddress subnetMask()  { return IPAddress(this->getNmAdd()); }
+    IPAddress gatewayIP()   { return IPAddress(this->getGwAdd()); }
+    IPAddress dnsServerIP() { /* FIXME understand where dns should be managed */}
+
+    // FIXME hostname should be defined in the NetworkStack singleton
     // void setHostname(const char* name)
     // {
     //     memset(hostname, 0x00, MAX_HOSTNAME_DIM);
