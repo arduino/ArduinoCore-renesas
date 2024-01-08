@@ -4,6 +4,14 @@
 
 #define WIFI_FIRMWARE_LATEST_VERSION "1.5.0"
 
+// TODO Instantiate the drivers for wifi with default configuration parameters
+// ESPHostFGDriver WifiDriver;
+
+// Instantiate a global variable from CWifiStation calling it WiFi
+
+inline CWifiStation WiFiStation;
+inline CWifiSoftAp WiFiSoftAP;
+
 class CWifi {
 private:
     void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet);
