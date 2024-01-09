@@ -208,7 +208,7 @@ void CLwipIf::clearDnsServers() {
 }
 
 IPAddress CLwipIf::getDns(int n) {
-    ip_addr_t dns = dns_getserver(i);
+    const ip_addr_t* dns = dns_getserver(n);
 
     return toArduinoIP(dns);
 }
@@ -254,7 +254,7 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
     case ERR_OK:
         // the address was already present in the local cache
         cbk(toArduinoIP(addr));
-        delete ipaddr;
+        delete addr;
         delete dns_cbk;
         break;
     case ERR_INPROGRESS:
@@ -263,7 +263,7 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
         break;
     case ERR_ARG: // there are issues in the arguments passed
     default:
-        delete ipaddr;
+        delete addr;
         delete dns_cbk;
         res = -1;
     }
