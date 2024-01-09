@@ -205,12 +205,6 @@ public:
         const IPAddress &gw = INADDR_NONE,
         const IPAddress &dns = INADDR_NONE);
 
-    // virtual int begin(
-    //     const IPAddress &ip = INADDR_NONE,
-    //     const IPAddress &nm = INADDR_NONE,
-    //     const IPAddress &gw = INADDR_NONE,
-    //     const IPAddress &dns = INADDR_NONE);
-
     virtual int getMacAddress(uint8_t* mac) override {
         UNUSED(mac); // FIXME not implemented
         return 1;
@@ -254,12 +248,18 @@ public:
 
     virtual void task() override;
 
-    virtual int getMacAddress(uint8_t* mac) override {}
+    virtual int getMacAddress(uint8_t* mac) override {
+        // FIXME not implemented
+    }
 
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
     virtual int32_t getRSSI();
     virtual uint8_t getEncryptionType();
+    virtual uint8_t getChannel();
+
+    int setLowPowerMode();
+    int resetLowPowerMode();
 protected:
     static const char wifistation_ifname_prefix = 'w';
     static uint8_t wifistation_id;
@@ -293,11 +293,17 @@ public:
     int startSoftAp(const char* ssid, const char* passphrase=nullptr, uint8_t channel=0);
     int stopSoftAp();
 
-    virtual int getMacAddress(uint8_t* mac) override {}
+    virtual int getMacAddress(uint8_t* mac) override {
+        // FIXME not implemented
+    }
 
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
     virtual uint8_t getEncryptionType();
+    virtual uint8_t getChannel();
+
+    int setLowPowerMode();
+    int resetLowPowerMode();
 protected:
     static const char softap_ifname_prefix = 's';
     static uint8_t softap_id;
@@ -348,6 +354,8 @@ public:
     // add a dns server, priority set to 0 means it is the first being queried, -1 means the last
     uint8_t addDnsServer(const IPAddress& aDNSServer, int8_t priority=-1);
     void clearDnsServers();
+
+    IPAddress getDns(int n);
 
     // DNS resolution works with a callback if the resolution doesn't return immediately
     int getHostByName(const char* aHostname, IPAddress& aResult, bool execute_task=false); // blocking call

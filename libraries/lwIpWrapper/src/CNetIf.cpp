@@ -10,8 +10,11 @@
 // TODO implement stop softAP and include it in the destructor of the class
 // TODO split netif definition in different files
 // TODO implement WIFINetworkDriver that is then being used by both Wifi station and softAP. This will allow to use both at the same time
+// TODO adapt network statistics collection
+// TODO define enum for error collection and return them instead of int value
+// FIXME Wifi driver requires interrupt safety in order to work properly in the timer
 
-extern "C" void dhcps_start(struct netif *netif); // TODO understand why not include
+extern "C" void dhcps_start(struct netif *netif);
 
 err_t _netif_init(struct netif* ni);
 err_t _netif_output(struct netif* ni, struct pbuf* p);
@@ -123,7 +126,7 @@ static void timer_cb(timer_callback_args_t* arg) {
 #endif
 
 void CLwipIf::task() {
-    for(CNetIf* iface: this->ifaces) { // FIXME is this affecting performances?
+    for(CNetIf* iface: this->ifaces) {
         iface->task();
     }
 
@@ -141,7 +144,7 @@ void CLwipIf::setDefaultIface(CNetIf* iface) {
 void CLwipIf::add_iface(CNetIf* iface) {
     // if it is the first interface set it as the default route
     if(this->ifaces.empty()) {
-        netif_set_default(&iface->ni); // TODO let the user decide which is the default one
+        netif_set_default(&iface->ni);
 
 #ifdef LWIP_USE_TIMER
         timer.setup_overflow_irq();
@@ -155,17 +158,7 @@ void CLwipIf::add_iface(CNetIf* iface) {
 }
 
 CLwipIf::~CLwipIf() {
-    // TODO free iface array
 }
-
-
-// int CLwipIf::setWifiMode(WifiMode_t mode) {
-    // TODO adapt this
-    // CLwipIf::getInstance().startSyncRequest();
-    // int rv = CEspControl::getInstance().setWifiMode(mode);
-    // CLwipIf::getInstance().restartAsyncRequest();
-    // return rv;
-// }
 
 /* ***************************************************************************
  *                               DNS related functions
@@ -182,6 +175,7 @@ static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *c
 
     cbk->cbk(toArduinoIP(ipaddr));
 
+    delete ipaddr;
     delete cbk;
 }
 
@@ -211,6 +205,12 @@ void CLwipIf::clearDnsServers() {
     for(uint8_t i=0; i<DNS_MAX_SERVERS; i++) {
         dns_setserver(i, IP_ANY_TYPE);
     }
+}
+
+IPAddress CLwipIf::getDns(int n) {
+    ip_addr_t dns = dns_getserver(i);
+
+    return toArduinoIP(dns);
 }
 
 // DNS resolution works with a callback if the resolution doesn't return immediately
@@ -243,18 +243,18 @@ int CLwipIf::getHostByName(const char* aHostname, IPAddress& aResult, bool execu
 
 // TODO instead of returning int return an enum value
 int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAddress&)> cbk) {
-    ip_addr_t addr; // TODO understand if this needs to be in the heap
+    ip_addr_t *addr = new ip_addr_t;
     uint8_t res = 0;
 
     dns_callback* dns_cbk = new dns_callback;
     dns_cbk->cbk = cbk;
-    err_t err = dns_gethostbyname(aHostname, &addr, _getHostByNameCBK, dns_cbk);
+    err_t err = dns_gethostbyname(aHostname, addr, _getHostByNameCBK, dns_cbk);
 
     switch(err) {
     case ERR_OK:
         // the address was already present in the local cache
-        cbk(toArduinoIP(&addr));
-
+        cbk(toArduinoIP(addr));
+        delete ipaddr;
         delete dns_cbk;
         break;
     case ERR_INPROGRESS:
@@ -263,6 +263,7 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
         break;
     case ERR_ARG: // there are issues in the arguments passed
     default:
+        delete ipaddr;
         delete dns_cbk;
         res = -1;
     }
@@ -281,10 +282,10 @@ CNetIf::CNetIf(NetworkDriver *driver)
     , dhcp_acquired(false)
 #endif
 {
-    // NETIF_STATS_INIT(this->stats); // TODO create a proper stats interface
+    // NETIF_STATS_INIT(this->stats);
 
     if(driver != nullptr) {
-        // driver->stats = this->stats; // TODO
+        // driver->stats = this->stats;
         // TODO check that this calls are effective
         driver->setLinkDownCallback(std::bind(&CNetIf::linkDownCallback, this));
         driver->setLinkUpCallback(std::bind(&CNetIf::linkUpCallback, this));
@@ -311,11 +312,9 @@ int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw)
         ethernet_input
     );
     if(_ni == nullptr) {
-        // FIXME error if netif_add, return error
         return -1;
     }
 
-    //TODO add link up and down callback and set the link
     netif_set_up(&this->ni);
 
 #ifdef LWIP_DHCP
@@ -334,7 +333,7 @@ int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw)
 
 void CNetIf::task() {
 #ifdef LWIP_DHCP
-    // TODO we can add a lazy evaluated timer for this condition if dhcp_supplied_address takes too long
+    // TODO add timeout
     if(!this->dhcp_acquired && dhcp_supplied_address(&this->ni)) {
         dhcp_acquired = true;
     }
@@ -375,11 +374,11 @@ void CNetIf::setLinkDown() {
 }
 
 void CNetIf::linkUpCallback() {
-    netif_set_link_up(&this->ni); // TODO check that this sets the interface up also
+    netif_set_link_up(&this->ni);
 }
 
 void CNetIf::linkDownCallback() {
-    netif_set_link_down(&this->ni); // TODO check that this sets the interface down also
+    netif_set_link_down(&this->ni);
 }
 
 /* ##########################################################################
@@ -436,9 +435,9 @@ int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw, c
 
     // Call the begin function on the Parent class to init the interface
     CNetIf::begin(ip, nm, gw);
-    netif_set_link_up(&this->ni); // TODO test that moving this here still makes ethernet work
+    netif_set_link_up(&this->ni);
 
-    // TODO set dns server
+    CLwipIf::getInstance().addDnsServer(dns);
 
     return 0;
 }
@@ -446,12 +445,11 @@ int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw, c
 err_t CEth::init(struct netif* ni) {
     // Setting up netif
 #if LWIP_NETIF_HOSTNAME
-    // TODO pass the hostname in the constructor os with a setter
     ni->hostname                       = "C33_eth";
 #endif
     ni->name[0]                        = CEth::eth_ifname_prefix;
     ni->name[1]                        = '0' + CEth::eth_id++;
-    ni->mtu                            = 1500; // FIXME get this from the network
+    ni->mtu                            = 1500; // TODO get this from the network
     ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
     memcpy(ni->hwaddr, this->driver->getMacAddress(), 6); // FIXME handle this using a constant
@@ -529,15 +527,13 @@ uint8_t CWifiStation::wifistation_id = 0;
 
 CWifiStation::CWifiStation()
 : hw_init(false) {
-    // TODO this class should implement the driver interface
-    // CLwipIf::getInstance()
 }
 
 CWifiStation::~CWifiStation() {
 
 }
 
-int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) { // TODO This should be called only once, make it private
+int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
     int res = 0;
     int time_num = 0;
 
@@ -565,7 +561,6 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
 
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
     CNetIf::begin(ip, nm, gw);
-    // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
 exit:
     // arduino::unlock();
     return res;
@@ -579,11 +574,7 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
     // AccessPoint_t* best_matching_ap;
     // arduino::lock();
 
-    // if(access_points.size() == 0) {
-    //     this->scanForAp();
-    // }
     if((rv=this->scanForAp()) != WL_SCAN_COMPLETED) {
-        // rv = -1; // FIXME set proper error code
         goto exit;
     }
 
@@ -614,7 +605,7 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         memcpy(ap.bssid, access_points[best_index].bssid, BSSID_LENGTH);
 
         // arduino::lock();
-        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
+        CEspControl::getInstance().communicateWithEsp();
 
         rv=CEspControl::getInstance().connectAccessPoint(ap);
         // arduino::unlock();
@@ -626,9 +617,6 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         }
         // arduino::unlock();
     }
-    // else {
-    //     // TODO return AP not found error
-    // }
 
 exit:
     // arduino::unlock();
@@ -638,15 +626,14 @@ exit:
 
 int CWifiStation::scanForAp() {
         // arduino::lock();
-    access_points.clear(); // FIXME create access_points vector
+    access_points.clear();
 
     int res = CEspControl::getInstance().getAccessPointScanList(access_points);
     if (res == ESP_CONTROL_OK) {
         res = WL_SCAN_COMPLETED;
+    } else {
+        res = WL_NO_SSID_AVAIL;
     }
-    // else {
-    //     res = WL_NO_SSID_AVAIL; // TODO
-    // }
 
     // arduino::unlock();
 
@@ -661,7 +648,6 @@ int CWifiStation::disconnectFromAp() {
 err_t CWifiStation::init(struct netif* ni) {
     // Setting up netif
 #if LWIP_NETIF_HOSTNAME
-    // TODO pass the hostname in the constructor os with a setter
     ni->hostname                       = "C33-WifiSta";
 #endif
     ni->name[0]                        = CWifiStation::wifistation_ifname_prefix;
@@ -734,9 +720,6 @@ void CWifiStation::task() {
     // calling the base class task, in order to make thigs work
     CNetIf::task();
 
-    // TODO in order to make things easier this should be implemented inside of Wifi driver
-    // and not override LWIPInterface method
-
     uint8_t if_num = 0;
     uint16_t dim = 0;
     uint8_t* buffer = nullptr;
@@ -746,7 +729,7 @@ void CWifiStation::task() {
     // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
-        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
+        CEspControl::getInstance().communicateWithEsp();
 
         // TODO handling buffer this way may be harmful for the memory
         buffer = CEspControl::getInstance().getStationRx(if_num, dim);
@@ -755,7 +738,6 @@ void CWifiStation::task() {
     // empty the ESP32 queue
     while(buffer != nullptr) {
         // FIXME this section is redundant and should be generalized toghether with CEth::consume_callback
-        // TODO understand if this should be moved into the base class
         // NETIF_STATS_INCREMENT_RX_INTERRUPT_CALLS(this->stats);
 
         zerocopy_pbuf_t *custom_pbuf = get_zerocopy_pbuf(buffer, dim, free);
@@ -795,7 +777,7 @@ uint8_t* CWifiStation::getBSSID(uint8_t* bssid){
 }
 
 int32_t CWifiStation::getRSSI() {
-    // TODO should this be updated?
+    // TODO update the rssi on request of this method
     return (uint32_t)access_point_cfg.rssi;
 }
 
@@ -806,9 +788,17 @@ uint8_t CWifiStation::getEncryptionType() {
 // int CWifiStation::getMacAddress(uint8_t* mac) {
 // }
 
-// uint8_t CWifiStation::getChannel() {
-//     return (uint8_t)access_point_cfg.channel;
-// }
+uint8_t CWifiStation::getChannel() {
+    return (uint8_t)access_point_cfg.channel;
+}
+
+int CWifiStation::setLowPowerMode() {
+    return CEspControl::getInstance().setPowerSaveMode(1);
+}
+
+int CWifiStation::resetLowPowerMode() {
+    return CEspControl::getInstance().setPowerSaveMode(1);
+}
 
 /* ########################################################################## */
 /*                      CWifiSoftAp NETWORK INTERFACE CLASS                   */
@@ -851,7 +841,6 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
 
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
 
-    // netif_set_link_up(&this->ni); // TODO this should be set only when successfully connected to an AP
     CNetIf::begin(
         default_dhcp_server_ip,
         default_nm,
@@ -881,8 +870,7 @@ int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t c
 
     channel = (channel == 0) ? 1 : channel;
     cfg.channel = (channel > MAX_CHNL_NO) ? MAX_CHNL_NO : channel;
-    cfg.max_connections = 10; // FIXME
-    // cfg.max_connections = MAX_SOFAT_CONNECTION_DEF; // FIXME
+    cfg.max_connections = MAX_SOFAT_CONNECTION_DEF; // FIXME make user decide this parameter
     cfg.bandwidth = WIFI_BW_HT40;
     cfg.ssid_hidden = false;
 
@@ -989,7 +977,7 @@ void CWifiSoftAp::task() {
     // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
-        CEspControl::getInstance().communicateWithEsp(); // TODO make this shared between SoftAP and station
+        CEspControl::getInstance().communicateWithEsp();
 
         // TODO handling buffer this way may be harmful for the memory
         buffer = CEspControl::getInstance().getSoftApRx(if_num, dim);
@@ -1035,6 +1023,18 @@ uint8_t* CWifiSoftAp::getBSSID(uint8_t* bssid){
 
 uint8_t CWifiSoftAp::getEncryptionType() {
     return Encr2wl_enc(soft_ap_cfg.encryption_mode);
+}
+
+uint8_t CWifiSoftAp::getChannel() {
+    return (uint8_t)soft_ap_cfg.channel;
+}
+
+int CWifiSoftAp::setLowPowerMode() {
+    return CEspControl::getInstance().setPowerSaveMode(1);
+}
+
+int CWifiSoftAp::resetLowPowerMode() {
+    return CEspControl::getInstance().setPowerSaveMode(1);
 }
 
 /* ##########################################################################

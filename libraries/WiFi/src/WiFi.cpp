@@ -153,15 +153,13 @@ void CWifi::end(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-uint8_t* CWifi::macAddress(uint8_t* mac) { // FIXME
+uint8_t* CWifi::macAddress(uint8_t* mac) {
 /* -------------------------------------------------------------------------- */
-//     if(ni != nullptr) {
-//         if(ni->getMacAddress(mac) == WL_MAC_ADDR_LENGTH) {
-//             return mac;
-//         }
-//     }
-//     memset(mac,0x00,6);
-//     return mac;
+    if(WiFiStation.getMacAddress(mac) == WL_MAC_ADDR_LENGTH) {
+        return mac;
+    }
+    memset(mac,0x00,6);
+    return mac;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,105 +169,57 @@ int8_t CWifi::scanNetworks() {
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress CWifi::localIP() { //FIXME
+IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return IPAddress(ni->getIpAdd());
-    // }
-    // return IPAddress((uint32_t)0);
     return WiFiStation.localIP();
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress CWifi::subnetMask() { // FIXME
+IPAddress CWifi::subnetMask() {
 /* -------------------------------------------------------------------------- */
-//     if(ni != nullptr) {
-//         return IPAddress(ni->getNmAdd());
-//     }
-//     return IPAddress((uint32_t)0);
     return WiFiStation.subnetMask();
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress CWifi::gatewayIP() { // FIXME
+IPAddress CWifi::gatewayIP() {
 /* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return IPAddress(ni->getGwAdd());
-    // }
-    // return IPAddress((uint32_t)0);
     return WiFiStation.gatewayIP();
 }
 
 /* -------------------------------------------------------------------------- */
-IPAddress CWifi::dnsIP(int n) { // FIXME
-    // return CLwipIf::getInstance().getDns(n);
+IPAddress CWifi::dnsIP(int n) {
+    return CLwipIf::getInstance().getDns(n);
 }
 
 /* -------------------------------------------------------------------------- */
-const char* CWifi::SSID(uint8_t networkItem) { // FIXME
-    // return CLwipIf::getInstance().getSSID(networkItem);
-}
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-int32_t CWifi::RSSI(uint8_t networkItem) { // FIXME
-    // return CLwipIf::getInstance().getRSSI(networkItem);
+const char* CWifi::SSID() {
+    return WiFiStation.getSSID();
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-uint8_t CWifi::encryptionType(uint8_t networkItem) { // FIXME
-    // return CLwipIf::getInstance().getEncrType(networkItem);
+int32_t CWifi::RSSI() {
+    return WiFiStation.getRSSI();
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) { // FIXME
-    // return CLwipIf::getInstance().getBSSID(networkItem,bssid);
+uint8_t CWifi::encryptionType() {
+    return WiFiStation.getEncryptionType();
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-uint8_t CWifi::channel(uint8_t networkItem) { // FIXME
-    // return CLwipIf::getInstance().getChannel(networkItem);
+uint8_t* CWifi::BSSID(uint8_t* bssid) {
+    return WiFiStation.getBSSID(bssid);
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-const char* CWifi::SSID() { // FIXME
-/* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return ni->getSSID();
-    // }
-    // return "";
+uint8_t CWifi::channel() {
+    return WiFiStation.getChannel();
 }
-
 /* -------------------------------------------------------------------------- */
-uint8_t* CWifi::BSSID(uint8_t* bssid) { // FIXME
-/* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return ni->getBSSID(bssid);
-    // }
-    // return nullptr;
-}
-
-/* -------------------------------------------------------------------------- */
-int32_t CWifi::RSSI() { // FIXME
-/* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return ni->getRSSI();
-    // }
-    // return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-uint8_t CWifi::encryptionType() { // FIXME
-/* -------------------------------------------------------------------------- */
-    // if(ni != nullptr) {
-    //     return ni->getEncryptionType();
-    // }
-    // return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::status() { // FIXME
@@ -278,21 +228,21 @@ uint8_t CWifi::status() { // FIXME
 }
 
 /* -------------------------------------------------------------------------- */
-int CWifi::hostByName(const char* aHostname, IPAddress& aResult) { // FIXME
+int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
 /* -------------------------------------------------------------------------- */
-    // return CLwipIf::getInstance().getHostByName(aHostname,aResult);
+    return CLwipIf::getInstance().getHostByName(aHostname, aResult);
 }
 
 /* -------------------------------------------------------------------------- */
-void CWifi::lowPowerMode() { // FIXME
+void CWifi::lowPowerMode() {
 /* -------------------------------------------------------------------------- */
-    // CLwipIf::getInstance().setLowPowerMode();
+    WiFiStation.setLowPowerMode();
 }
 
 /* -------------------------------------------------------------------------- */
-void CWifi::noLowPowerMode() { // FIXME
+void CWifi::noLowPowerMode() {
 /* -------------------------------------------------------------------------- */
-    // CLwipIf::getInstance().resetLowPowerMode();
+    WiFiStation.resetLowPowerMode();
 }
 
 uint8_t CWifi::reasonCode() {
