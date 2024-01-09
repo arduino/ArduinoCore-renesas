@@ -194,6 +194,46 @@ public:
      */    
     int readBinaryObject(int ObjectId, byte data[], size_t dataMaxLen, size_t* length);
 
+    /** AES_ECB_encrypt
+     *
+     * Enrypts something with AES ECB
+     *
+     * @param[in] ObjectId SE050 object ID
+     * @param[in] data Input data buffer
+     * @param[in] length Input data buffer size (should be a multiple of 16 bytes)
+     * @param[out] output Output data buffer
+     * @param[out] output_length Output data buffer size (same as input)
+     *
+     * @return 0 on Failure 1 on Success
+     */
+    int AES_ECB_encrypt(int objectId, const byte data[], size_t data_length, byte output[], size_t *output_len);
+
+    /** AES_ECB_decrypt
+     *
+     * Enrypts something with AES ECB
+     *
+     * @param[in] ObjectId SE050 object ID
+     * @param[in] data Input data buffer
+     * @param[in] length Input data buffer size (should be a multiple of 16 bytes)
+     * @param[out] output Output data buffer
+     * @param[out] output_length Output data buffer size (same as input)
+     *
+     * @return 0 on Failure 1 on Success
+     */
+    int AES_ECB_decrypt(int objectId, const byte data[], size_t data_length, byte output[], size_t *output_len);
+
+    /** writeAESKey
+     *
+     * Writes symmetric key into SE050 object.
+     *
+     * @param[in] ObjectId SE050 object ID
+     * @param[in] data Input data buffer
+     * @param[in] length Input data buffer size
+     *
+     * @return 0 on Failure 1 on Success
+     */
+    int writeAESKey(int ObjectId, const byte data[], size_t length);
+
     /** writeBinaryObject
      *
      * Writes binary data into SE050 object.
