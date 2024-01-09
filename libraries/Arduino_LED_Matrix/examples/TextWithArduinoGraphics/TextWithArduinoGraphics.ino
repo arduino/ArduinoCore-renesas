@@ -8,15 +8,16 @@ void setup() {
   Serial.begin(115200);
   matrix.begin();
 
+  matrix.textScrollSpeed(50);
+
   matrix.beginDraw();
   matrix.stroke(0xFFFFFFFF);
-  // add some static text
-  // will only show "UNO" (not enough space on the display)
+
   const char text[] = "UNO r4";
   matrix.textFont(Font_4x6);
   matrix.beginText(0, 1, 0xFFFFFF);
   matrix.println(text);
-  matrix.endText();
+  matrix.endText(SCROLL_LEFT);
 
   matrix.endDraw();
 
