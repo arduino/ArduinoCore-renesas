@@ -352,16 +352,19 @@ err_t CEth::output(struct netif* _ni, struct pbuf *p) {
     err_t errval = ERR_OK;
 
     if(eth_output_can_transimit()) {
-        uint16_t tx_buf_dim = 0;
+        uint16_t tx_buf_dim = p->tot_len;
 
         // TODO analyze the race conditions that may arise from sharing a non synchronized buffer
         uint8_t *tx_buf = eth_get_tx_buffer(&tx_buf_dim);
-        assert (p->tot_len <= tx_buf_dim);
+        if (p->tot_len <= tx_buf_dim) {
 
-        uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
+            uint16_t bytes_actually_copied = pbuf_copy_partial(p, tx_buf, p->tot_len, 0);
 
-        if (bytes_actually_copied > 0 && !eth_output(tx_buf, bytes_actually_copied)) {
-            errval = ERR_IF;
+            if (bytes_actually_copied > 0 && !eth_output(tx_buf, bytes_actually_copied)) {
+                errval = ERR_IF;
+            }
+        } else {
+            errval = ERR_MEM;
         }
     } else {
         errval = ERR_INPROGRESS;
@@ -516,7 +519,7 @@ bool CLwipIf::setMacAddress(NetIfType_t type, uint8_t* mac)
         eth_set_mac_address(mac);
     }
 
-    CLwipIf::getInstance().startSyncRequest();
+    CLwipIf::getInstance().restartAsyncRequest();
     return true;
 }
 
@@ -546,7 +549,7 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac)
         rv = MAC_ADDRESS_DIM;
     }
 
-    CLwipIf::getInstance().startSyncRequest();
+    CLwipIf::getInstance().restartAsyncRequest();
     return rv;
 }
 

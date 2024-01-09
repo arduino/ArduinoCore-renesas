@@ -76,9 +76,8 @@ void CEthernet::setDNS(IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
-  begin(timeout, responseTimeout);
-  return ret;
+  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
+  return begin(timeout, responseTimeout);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,7 +110,7 @@ int CEthernet::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_ser
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
+  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
   return begin(local_ip, dns_server, gateway, subnet);
 }
 

@@ -148,7 +148,7 @@ protected:
     unsigned long dhcp_timeout;
     DhcpSt_t dhcp_st;
     bool dhcp_started;
-    bool dhcp_acquired;
+    volatile bool dhcp_acquired;
     uint8_t _dhcp_lease_state;
     void dhcp_task();
     void dhcp_reset();
