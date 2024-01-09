@@ -964,12 +964,12 @@ exit:
 /* -------------------------------------------------------------------------- */
 void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm)
 {
-    DhcpStop();
-    DhcpNotUsed();
+    dhcpStop();
+    dhcpStart();
 
-    IP_ADDR4(&ip, _ip[0], _ip[1], _ip[2], _ip[3]);
-    IP_ADDR4(&nm, _nm[0], _nm[1], _nm[2], _nm[3]);
-    IP_ADDR4(&gw, _gw[0], _gw[1], _gw[2], _gw[3]);
+    ip_addr_t ip = fromArduinoIP(_ip);
+    ip_addr_t nm = fromArduinoIP(_gw);
+    ip_addr_t gw = fromArduinoIP(_nm);
 
     netif_set_addr(&ni, &ip, &nm, &gw);
 

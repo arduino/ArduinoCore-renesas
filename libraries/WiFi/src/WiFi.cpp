@@ -80,17 +80,8 @@ extern uint8_t *IpAddress2uint8(IPAddress a);
 
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
-/* -------------------------------------------------------------------------- */    
-   _useStaticIp = local_ip != INADDR_NONE;
-   if(ni != nullptr) {
-     ni->config(local_ip, gateway, subnet);
-   }
-   else {
-      CNetIf::default_ip = local_ip;
-      CNetIf::default_nm = subnet; 
-      CNetIf::default_gw = gateway;
-      CNetIf::default_dhcp_server_ip = local_ip;
-   }
+/* -------------------------------------------------------------------------- */
+    CWifiStation.config(local_ip, gateway, subnet)
 }
 
 /* -------------------------------------------------------------------------- */
