@@ -595,6 +595,57 @@ int SE05XClass::readSlot(int slot, byte data[], int length)
     return readBinaryObject(slot, data, length, &size);
 }
 
+int SE05XClass::AES_ECB_encrypt(int objectId, const byte data[], size_t data_length, byte output[], size_t *output_len)
+{
+    smStatus_t status;
+    status = Se05x_API_CipherOneShot(&_se05x_session, objectId, kSE05x_CipherMode_AES_ECB_NOPAD, data, data_length, 0, 0, output, output_len, kSE05x_Cipher_Oper_OneShot_Encrypt);
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_CipherOneShot \n");
+        return 0;
+    }
+    return 1;
+}
+
+int SE05XClass::AES_ECB_decrypt(int objectId, const byte data[], size_t data_length, byte output[], size_t *output_len)
+{
+    smStatus_t status;
+    status = Se05x_API_CipherOneShot(&_se05x_session, objectId, kSE05x_CipherMode_AES_ECB_NOPAD, data, data_length, 0, 0, output, output_len, kSE05x_Cipher_Oper_OneShot_Decrypt);
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_CipherOneShot \n");
+        return 0;
+    }
+    return 1;
+}
+
+int SE05XClass::writeAESKey(int objectId, const byte data[], size_t length)
+{
+    smStatus_t      status;
+    SE05x_Result_t  result;
+    uint16_t        offset = 0;
+    uint16_t        size;
+
+    status = Se05x_API_CheckObjectExists(&_se05x_session, objectId, &result);
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_CheckObjectExists \n");
+        return 0;
+    }
+
+    if (result == kSE05x_Result_SUCCESS) {
+        SMLOG_E("Object exists \n");
+        return 0;
+    }
+
+    uint16_t left = length;
+
+    status = Se05x_API_WriteSymmKey(&_se05x_session, NULL, 3, objectId, NULL, data, length, kSE05x_INS_NA, kSE05x_SymmKeyType_AES);
+
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_WriteSymmKey \n");
+        return 0;
+    }
+    return 1;
+}
+
 int SE05XClass::writeBinaryObject(int objectId, const byte data[], size_t length)
 {
     smStatus_t      status;
