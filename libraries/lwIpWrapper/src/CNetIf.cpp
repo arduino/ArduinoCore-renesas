@@ -389,6 +389,7 @@ void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm) {
 #ifdef LWIP_DHCP
     dhcpStop();
     dhcpStart();
+    dhcpNotUsed();
 #endif
 
     ip_addr_t ip = fromArduinoIP(_ip);
