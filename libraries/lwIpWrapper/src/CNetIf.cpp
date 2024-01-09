@@ -385,6 +385,24 @@ void CNetIf::linkDownCallback() {
  *                               DHCP related functions
  * ########################################################################## */
 
+void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm) {
+#ifdef LWIP_DHCP
+    dhcpStop();
+    dhcpStart();
+#endif
+
+    ip_addr_t ip = fromArduinoIP(_ip);
+    ip_addr_t nm = fromArduinoIP(_gw);
+    ip_addr_t gw = fromArduinoIP(_nm);
+
+    netif_set_addr(&ni, &ip, &nm, &gw);
+
+    if (netif_is_link_up(&ni)) {
+        netif_set_down(&ni);
+        netif_set_up(&ni);
+    }
+}
+
 
 #ifdef LWIP_DHCP
 
@@ -960,25 +978,6 @@ exit:
     // arduino::unlock();
     return errval;
 }
-
-/* -------------------------------------------------------------------------- */
-void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm)
-{
-    dhcpStop();
-    dhcpStart();
-
-    ip_addr_t ip = fromArduinoIP(_ip);
-    ip_addr_t nm = fromArduinoIP(_gw);
-    ip_addr_t gw = fromArduinoIP(_nm);
-
-    netif_set_addr(&ni, &ip, &nm, &gw);
-
-    if (netif_is_link_up(&ni)) {
-        netif_set_down(&ni);
-        netif_set_up(&ni);
-    }
-}
-
 
 void CWifiSoftAp::task() {
     // calling the base class task, in order to make thigs work
