@@ -81,7 +81,7 @@ extern uint8_t *IpAddress2uint8(IPAddress a);
 /* -------------------------------------------------------------------------- */
 void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
-    CWifiStation.config(local_ip, gateway, subnet)
+    WiFiStation.config(local_ip, gateway, subnet);
 }
 
 /* -------------------------------------------------------------------------- */
