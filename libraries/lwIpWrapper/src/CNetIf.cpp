@@ -811,6 +811,43 @@ uint8_t CWifiStation::getChannel() {
     return (uint8_t)access_point_cfg.channel;
 }
 
+const char* CWifiStation::getSSID(uint8_t i)
+{
+    if (access_points.size() > 0 && i < access_points.size()) {
+        return (const char*)access_points[i].ssid;
+    }
+    return nullptr;
+}
+
+int32_t CWifiStation::getRSSI(uint8_t i) {
+    if (access_points.size() > 0 && i < access_points.size()) {
+        return (int32_t)access_points[i].rssi;
+    }
+    return 0;
+}
+
+uint8_t CWifiStation::getEncrType(uint8_t i) {
+    if (access_points.size() > 0 && i < access_points.size()) {
+        return Encr2wl_enc(access_points[i].encryption_mode);
+    }
+    return 0;
+}
+
+uint8_t* CWifiStation::getBSSID(uint8_t i, uint8_t* bssid) {
+    if (access_points.size() > 0 && i < access_points.size()) {
+        CNetUtilities::macStr2macArray(bssid, (const char*)access_points[i].bssid);
+        return bssid;
+    }
+    return nullptr;
+}
+
+uint8_t CWifiStation::getChannel(uint8_t i) {
+    if (access_points.size() > 0 && i < access_points.size()) {
+        return (uint8_t)access_points[i].channel;
+    }
+    return 0;
+}
+
 int CWifiStation::setLowPowerMode() {
     return CEspControl::getInstance().setPowerSaveMode(1);
 }

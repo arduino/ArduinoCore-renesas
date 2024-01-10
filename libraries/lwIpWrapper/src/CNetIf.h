@@ -259,6 +259,12 @@ public:
     virtual uint8_t getEncryptionType();
     virtual uint8_t getChannel();
 
+    const char* getSSID(uint8_t i);
+    int32_t getRSSI(uint8_t i);
+    uint8_t getEncrType(uint8_t i);
+    uint8_t* getBSSID(uint8_t i, uint8_t* bssid);
+    uint8_t getChannel(uint8_t i);
+
     int setLowPowerMode();
     int resetLowPowerMode();
 protected:
