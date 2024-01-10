@@ -104,7 +104,6 @@ private:
     ip_addr_t _ip;
 
     err_t connected_callback(struct tcp_pcb* tpcb, err_t err);
-    void free_pbuf_chain(uint16_t copied);
     err_t recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err);
 
     friend err_t _lwip_tcp_recv_callback(void* arg, struct tcp_pcb* tpcb, struct pbuf* p, err_t err);

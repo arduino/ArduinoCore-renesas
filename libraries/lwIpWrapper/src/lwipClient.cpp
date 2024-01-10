@@ -5,6 +5,7 @@ extern "C" {
 #include "Arduino.h"
 
 #include "lwipClient.h"
+#include "lwippbuf.h"
 #include "CNetIf.h"
 #include "utils.h"
 // FIXME understand hos to syncronize the interrupt thread and "userspace"
@@ -310,8 +311,10 @@ int lwipClient::read(uint8_t* buffer, size_t size) {
     arduino::lock();
     uint16_t copied = pbuf_copy_partial(this->tcp_info->pbuf_head, buffer, size, this->tcp_info->pbuf_offset);
 
-    this->free_pbuf_chain(copied);
-    // __enable_irq();
+    this->tcp_info->pbuf_head = free_pbuf_chain(this->tcp_info->pbuf_head, copied, &this->tcp_info->pbuf_offset);
+
+    // acknowledge the received data
+    tcp_recved(this->tcp_info->pcb, copied);
     arduino::unlock();
 
     return copied;
@@ -433,50 +436,11 @@ size_t lwipClient::read_until_token(
 
     uint16_t copied = pbuf_copy_partial(this->tcp_info->pbuf_head, (uint8_t*)buffer, buf_copy_len, this->tcp_info->pbuf_offset);
 
-    this->free_pbuf_chain(copied);
-    arduino::unlock();
-
-    return copied;
-}
-
-void lwipClient::free_pbuf_chain(uint16_t copied) {
-    arduino::lock();
-    /*
-     * free pbufs that have been copied, if copied == 0 we have an error
-     * free the buffer chain starting from the head up to the last entire pbuf ingested
-     * taking into account the previously not entirely consumed pbuf
-     */
-    uint32_t tobefreed = 0;
-    copied += this->tcp_info->pbuf_offset;
-
-    // in order to clean up the chain we need to find the pbuf in the last pbuf in the chain
-    // that got completely consumed by the application, dechain it from it successor and delete the chain before it
-
-    struct pbuf *head = this->tcp_info->pbuf_head, *last=head, *prev=nullptr; // FIXME little optimization prev can be substituted by last->next
-
-    while(last!=nullptr && last->len + tobefreed <= copied) {
-        tobefreed += last->len;
-        prev = last;
-        last = last->next;
-    }
-
-    // dechain if we are not at the end of the chain (last == nullptr)
-    // and if we haven't copied entirely the first pbuf (prev == nullptr) (head == last)
-    // if we reached the end of the chain set the this pbuf pointer to nullptr
-    if(prev != nullptr) {
-        prev->next = nullptr;
-        this->tcp_info->pbuf_head = last;
-    }
-
-    // the chain that is referenced by head is detached by the one referenced by this->tcp_info->pbuf_head
-    // free the chain if we haven't copied entirely the first pbuf (prev == nullptr)
-    if(this->tcp_info->pbuf_head != head) {
-        uint8_t refs = pbuf_free(head);
-    }
-
-    this->tcp_info->pbuf_offset = copied - tobefreed; // This offset should be referenced to the first pbuf in queue
+    this->tcp_info->pbuf_head = free_pbuf_chain(this->tcp_info->pbuf_head, copied, &this->tcp_info->pbuf_offset);
 
     // acknowledge the received data
     tcp_recved(this->tcp_info->pcb, copied);
     arduino::unlock();
+
+    return copied;
 }
