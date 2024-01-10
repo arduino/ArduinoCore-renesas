@@ -67,13 +67,13 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel
 
 
 /* -------------------------------------------------------------------------- */
-void CWifi::config(IPAddress local_ip) { // FIXME
+void CWifi::config(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
-    // IPAddress _nm(255, 255, 255, 0);
-    // IPAddress _gw = local_ip;
-    // _gw[3] = 1;
+    IPAddress _nm(255, 255, 255, 0);
+    IPAddress _gw = local_ip;
+    _gw[3] = 1;
 
-    // _config(local_ip, _gw, _nm);
+    _config(local_ip, _gw, _nm);
 }
 
 extern uint8_t *IpAddress2uint8(IPAddress a);
@@ -85,10 +85,10 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 }
 
 /* -------------------------------------------------------------------------- */
-void CWifi::config(IPAddress local_ip, IPAddress dns_server) { // FIXME
+void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */
     config(local_ip);
-    // CLwipIf::getInstance().addDns(dns_server);
+    CLwipIf::getInstance().addDnsServer(dns_server, 0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -109,14 +109,14 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1) {
 /* -------------------------------------------------------------------------- */
-    // CLwipIf::getInstance().addDns(dns_server1);
+    CLwipIf::getInstance().addDnsServer(dns_server1, 0);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 /* -------------------------------------------------------------------------- */
-    // CLwipIf::getInstance().addDns(dns_server1);
-    // CLwipIf::getInstance().addDns(dns_server2);
+    CLwipIf::getInstance().addDnsServer(dns_server1, 0);
+    CLwipIf::getInstance().addDnsServer(dns_server2, 1);
 }
 
 /* -------------------------------------------------------------------------- */
