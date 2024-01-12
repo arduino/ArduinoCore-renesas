@@ -39,6 +39,7 @@ void setup() {
   Serial.print(schedule[1].setting1);
   Serial.print("/");
   Serial.print(schedule[1].setting2);
+  Serial.println();
 
   schedule[2] = {8, 30, 20, 21}; // add a third entry (unsafely)
 
