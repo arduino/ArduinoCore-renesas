@@ -15,6 +15,8 @@ compiler.warning_flags.more=-Wall
 compiler.warning_flags.all=-Wall -Wextra
 
 compiler.optimization_flags=-Os
+compiler.optimization_flags.release=-Os
+compiler.optimization_flags.debug=-Og
 
 compiler.path={build.compiler_path}
 compiler.c.cmd={build.crossprefix}gcc
