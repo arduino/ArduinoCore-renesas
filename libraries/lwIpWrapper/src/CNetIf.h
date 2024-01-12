@@ -27,7 +27,7 @@
 #include "lwIP_Arduino.h"
 #endif
 
-// #define LWIP_USE_TIMER
+#define LWIP_USE_TIMER
 
 #ifdef LWIP_USE_TIMER
 #include "FspTimer.h"
