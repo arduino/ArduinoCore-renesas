@@ -95,7 +95,7 @@
  * ATTENTION: This is required when using lwIP from more than one context! If
  * you disable this, you must be sure what you are doing!
  */
-#if !defined SYS_LIGHTWEIGHT_PROT
+#ifndef SYS_LIGHTWEIGHT_PROT
 #define SYS_LIGHTWEIGHT_PROT            0
 #endif
 
@@ -277,7 +277,7 @@
  * (requires the LWIP_RAW option)
  */
 #ifndef MEMP_NUM_RAW_PCB
-#define MEMP_NUM_RAW_PCB                0
+#define MEMP_NUM_RAW_PCB                4
 #endif
 
 /**
@@ -318,7 +318,7 @@
  * reassembly (whole packets, not fragments!)
  */
 #ifndef MEMP_NUM_REASSDATA
-#define MEMP_NUM_REASSDATA              0
+#define MEMP_NUM_REASSDATA              5
 #endif
 
 /**
@@ -329,7 +329,7 @@
  * where the packet is not yet sent when netif->output returns.
  */
 #ifndef MEMP_NUM_FRAG_PBUF
-#define MEMP_NUM_FRAG_PBUF              0
+#define MEMP_NUM_FRAG_PBUF              15
 #endif
 
 /**
@@ -353,11 +353,18 @@
 #endif
 
 /**
- * MEMP_NUM_SYS_TIMEOUT: the number of simulateously active timeouts.
- * (requires NO_SYS==0)
+ * The number of sys timeouts used by the core stack (not apps)
+ * The default number of timeouts is calculated here for all enabled modules.
+ */
+#define LWIP_NUM_SYS_TIMEOUT_INTERNAL   (LWIP_TCP + IP_REASSEMBLY + LWIP_ARP + (2*LWIP_DHCP) + LWIP_ACD + LWIP_IGMP + LWIP_DNS + PPP_NUM_TIMEOUTS + (LWIP_IPV6 * (1 + LWIP_IPV6_REASS + LWIP_IPV6_MLD + LWIP_IPV6_DHCP6)))
+
+/**
+ * MEMP_NUM_SYS_TIMEOUT: the number of simultaneously active timeouts.
+ * The default number of timeouts is calculated here for all enabled modules.
+ * The formula expects settings to be either '0' or '1'.
  */
 #ifndef MEMP_NUM_SYS_TIMEOUT
-#define MEMP_NUM_SYS_TIMEOUT            6
+#define MEMP_NUM_SYS_TIMEOUT            LWIP_NUM_SYS_TIMEOUT_INTERNAL
 #endif
 
 /**
@@ -416,7 +423,11 @@
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
 #ifndef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE                  4
+#define PBUF_POOL_SIZE                  16
+#endif
+
+#ifndef LWIP_SUPPORT_CUSTOM_PBUF
+#define LWIP_SUPPORT_CUSTOM_PBUF        1
 #endif
 
 /**
@@ -549,16 +560,27 @@
  * an upper limit on the MSS advertised by the remote host.
  */
 #ifndef TCP_MSS
-#define TCP_MSS                        536
+#define TCP_MSS                        1420
 #endif
 
+/**
+ * TCP_CALCULATE_EFF_SEND_MSS: "The maximum size of a segment that TCP really
+ * sends, the 'effective send MSS,' MUST be the smaller of the send MSS (which
+ * reflects the available reassembly buffer size at the remote host) and the
+ * largest size permitted by the IP layer" (RFC 1122)
+ * Setting this to 1 enables code that checks TCP_MSS against the MTU of the
+ * netif used for a connection and limits the MSS if it would be too big otherwise.
+ */
+#ifndef TCP_CALCULATE_EFF_SEND_MSS
+#define TCP_CALCULATE_EFF_SEND_MSS      1
+#endif
 
 /**
  * TCP_SND_BUF: TCP sender buffer space (bytes).
  * To achieve good performance, this should be at least 2 * TCP_MSS.
  */
 #ifndef TCP_SND_BUF
-#define TCP_SND_BUF                     1500
+#define TCP_SND_BUF                     (4 * TCP_MSS)
 #endif
 
 /**
@@ -596,7 +618,7 @@
  * Define to 0 if your device is low on memory.
  */
 #ifndef TCP_QUEUE_OOSEQ
-#define TCP_QUEUE_OOSEQ                 0
+#define TCP_QUEUE_OOSEQ                 (LWIP_TCP)
 #endif
 
 /**
@@ -738,13 +760,45 @@
 /**
  * LWIP_DEBUG==1: Enable Debug.
  */
+
+#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL
+
 #define LWIP_DEBUG                      0
+
+#define ETHARP_DEBUG                    LWIP_DBG_OFF
 #define NETIF_DEBUG                     LWIP_DBG_OFF
-#define DHCP_DEBUG                      LWIP_DBG_OFF
-#define UDP_DEBUG                       LWIP_DBG_OFF
-#define MEMP_DEBUG                      LWIP_DBG_OFF
-#define MEM_DEBUG                       LWIP_DBG_OFF
+#define PBUF_DEBUG                      LWIP_DBG_OFF
+#define API_LIB_DEBUG                   LWIP_DBG_OFF
+#define API_MSG_DEBUG                   LWIP_DBG_OFF
+#define SOCKETS_DEBUG                   LWIP_DBG_OFF
 #define ICMP_DEBUG                      LWIP_DBG_OFF
+#define IGMP_DEBUG                      LWIP_DBG_OFF
+#define INET_DEBUG                      LWIP_DBG_OFF
+#define IP_DEBUG                        LWIP_DBG_OFF
+#define IP_REASS_DEBUG                  LWIP_DBG_OFF
+#define RAW_DEBUG                       LWIP_DBG_OFF
+#define MEM_DEBUG                       LWIP_DBG_OFF
+#define MEMP_DEBUG                      LWIP_DBG_OFF
+#define SYS_DEBUG                       LWIP_DBG_OFF
+#define TIMERS_DEBUG                    LWIP_DBG_OFF
+#define TCP_DEBUG                       LWIP_DBG_OFF
+#define TCP_INPUT_DEBUG                 LWIP_DBG_OFF
+#define TCP_FR_DEBUG                    LWIP_DBG_OFF
+#define TCP_RTO_DEBUG                   LWIP_DBG_OFF
+#define TCP_CWND_DEBUG                  LWIP_DBG_OFF
+#define TCP_WND_DEBUG                   LWIP_DBG_OFF
+#define TCP_OUTPUT_DEBUG                LWIP_DBG_OFF
+#define TCP_RST_DEBUG                   LWIP_DBG_OFF
+#define TCP_QLEN_DEBUG                  LWIP_DBG_OFF
+#define UDP_DEBUG                       LWIP_DBG_OFF
+#define TCPIP_DEBUG                     LWIP_DBG_OFF
+#define SLIP_DEBUG                      LWIP_DBG_OFF
+#define DHCP_DEBUG                      LWIP_DBG_OFF
+#define AUTOIP_DEBUG                    LWIP_DBG_OFF
+#define ACD_DEBUG                       LWIP_DBG_OFF
+#define DNS_DEBUG                       LWIP_DBG_OFF
+#define IP6_DEBUG                       LWIP_DBG_OFF
+#define DHCP6_DEBUG                     LWIP_DBG_OFF
 #endif
 
 //#define LWIP_USE_EXTERNAL_MBEDTLS       1
