@@ -21,8 +21,11 @@ void setup() {
   // has to use a namespace name to prevent key name collisions. We will open storage in
   // RW-mode (second parameter has to be false).
   // Note: Namespace name is limited to 15 chars.
-  int ret = preferences.begin("my-app", false);
-  Serial.println(ret);
+  if (!preferences.begin("my-app", false)) {
+    Serial.println("Cannot initialize preferences");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.3.0");
+    while(1) {};
+  }
 
   // Remove all preferences under the opened namespace
   //preferences.clear();

@@ -17,7 +17,11 @@ typedef struct {
 void setup() {
   Serial.begin(115200);
 
-  prefs.begin("schedule"); // use "schedule" namespace
+  if (!prefs.begin("schedule")) { // use "schedule" namespace
+    Serial.println("Cannot initialize preferences");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.3.0");
+    while(1) {};
+  }
   uint8_t content[] = {9, 30, 235, 255, 20, 15, 0, 1}; // two entries
   prefs.putBytes("schedule", content, sizeof(content));
   size_t schLen = prefs.getBytesLength("schedule");
