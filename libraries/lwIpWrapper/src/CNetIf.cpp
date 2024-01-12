@@ -172,7 +172,6 @@ static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *c
 
     cbk->cbk(toArduinoIP(ipaddr));
 
-    delete ipaddr;
     delete cbk;
 }
 
@@ -240,18 +239,23 @@ int CLwipIf::getHostByName(const char* aHostname, IPAddress& aResult, bool execu
 
 // TODO instead of returning int return an enum value
 int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAddress&)> cbk) {
-    ip_addr_t *addr = new ip_addr_t;
+    /*
+     * according to lwip documentation: addr is a pointer to a ip_addr_t where to store the address if it is already cached
+     * in the dns_table (only valid if ERR_OK is returned!); thus this won't be the same ip_addr_t passed to the callback,
+     * there is no need to allocate it in the heap and delete it afterwards.
+     * on the contrary the struct dns_cbk must be allocated in the heap
+     */
+    ip_addr_t addr;
     uint8_t res = 0;
 
     dns_callback* dns_cbk = new dns_callback;
     dns_cbk->cbk = cbk;
-    err_t err = dns_gethostbyname(aHostname, addr, _getHostByNameCBK, dns_cbk);
+    err_t err = dns_gethostbyname(aHostname, &addr, _getHostByNameCBK, dns_cbk);
 
     switch(err) {
     case ERR_OK:
         // the address was already present in the local cache
-        cbk(toArduinoIP(addr));
-        delete addr;
+        cbk(toArduinoIP(&addr));
         delete dns_cbk;
         break;
     case ERR_INPROGRESS:
@@ -260,7 +264,6 @@ int CLwipIf::getHostByName(const char* aHostname, std::function<void(const IPAdd
         break;
     case ERR_ARG: // there are issues in the arguments passed
     default:
-        delete addr;
         delete dns_cbk;
         res = -1;
     }
