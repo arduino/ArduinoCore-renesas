@@ -6,7 +6,6 @@
 // TODO hostname should be defined at network stack level and shared among ifaces
 // TODO buffer management (allocation/deallocation/trim/etc.) should be properly handled by a wrapper class and be transparent wrt the user
 // TODO the device could be moving and as a consequence it may be nice to rescan APs to get one with the best rssi
-// TODO implement setLowPowerMode and resetLowPowerMode in WIFI driver
 // TODO implement stop softAP and include it in the destructor of the class
 // TODO split netif definition in different files
 // TODO implement WIFINetworkDriver that is then being used by both Wifi station and softAP. This will allow to use both at the same time
@@ -412,9 +411,9 @@ void CNetIf::dhcpNotUsed() {
 }
 
 bool CNetIf::isDhcpAcquired() {
-    if(dhcp_acquired) {
-        Serial.println(ip_2_ip4(ni.ip_addr).addr, HEX);
-    }
+    // if(dhcp_acquired) {
+    //     Serial.println(ip_2_ip4(ni.ip_addr).addr, HEX);
+    // }
     return dhcp_acquired;
 }
 
