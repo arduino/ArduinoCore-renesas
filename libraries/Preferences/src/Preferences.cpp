@@ -38,7 +38,7 @@ bool Preferences::begin(const char * name, bool readOnly, const char* partition_
 
 void Preferences::end() {
     string res = "";
-    modem.write(string(PROMPT(_PREF_END)), res, "%s\r\n", CMD(_PREF_END));
+    modem.write(string(PROMPT(_PREF_END)), res, "%s", CMD(_PREF_END));
 }
 
 /*
@@ -47,7 +47,7 @@ void Preferences::end() {
 
 bool Preferences::clear() {
     string res = "";
-    if (modem.write(string(PROMPT(_PREF_CLEAR)), res, "%s\r\n", CMD(_PREF_CLEAR))) {
+    if (modem.write(string(PROMPT(_PREF_CLEAR)), res, "%s", CMD(_PREF_CLEAR))) {
         return (atoi(res.c_str()) != 0) ? true : false;
     }
     return false;
@@ -354,7 +354,7 @@ size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen) {
 
 size_t Preferences::freeEntries() {
     string res = "";
-    if (modem.write(string(PROMPT(_PREF_STAT)), res, "%s\r\n", CMD(_PREF_STAT))) {
+    if (modem.write(string(PROMPT(_PREF_STAT)), res, "%s", CMD(_PREF_STAT))) {
         return atoi(res.c_str());
     }
     return 0;
