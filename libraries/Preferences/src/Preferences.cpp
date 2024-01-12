@@ -28,7 +28,6 @@ Preferences::~Preferences() {
 bool Preferences::begin(const char * name, bool readOnly, const char* partition_label){
     string res = "";
     modem.begin();
-    modem.debug(Serial,2);
     if (name != nullptr && strlen(name) > 0) {
         if (modem.write(string(PROMPT(_PREF_BEGIN)), res, "%s%s,%d,%s\r\n", CMD_WRITE(_PREF_BEGIN), name, readOnly, partition_label != NULL ? partition_label : "")) {
             return (atoi(res.c_str()) != 0) ? true : false;
