@@ -25,7 +25,7 @@ static void _getHostByNameCBK(const char *name, const ip_addr_t *ipaddr, void *c
 
 #ifdef LWIP_USE_TIMER
 static void timer_cb(timer_callback_args_t* arg);
-#endif
+#endif // LWIP_USE_TIMER
 
 // Custom Pbuf definition used to handle RX zero copy
 // TODO Move this in a separate file (understand if it is required)
@@ -40,7 +40,6 @@ static void zerocopy_pbuf_mem_free(struct pbuf *p) {
     // SYS_ARCH_DECL_PROTECT(zerocopy_pbuf_free);
     zerocopy_pbuf_t* zcpbuf = (zerocopy_pbuf_t*) p;
 
-    // arduino::lock();
     // SYS_ARCH_PROTECT(zerocopy_pbuf_free);
 
     // FIXME pbufs may be allocated in a different memory pool, deallocate them accordingly
@@ -48,8 +47,6 @@ static void zerocopy_pbuf_mem_free(struct pbuf *p) {
     zcpbuf->buffer = nullptr;
     mem_free(zcpbuf); // TODO understand if pbuf_free deletes the pbuf
     // SYS_ARCH_UNPROTECT(zerocopy_pbuf_free);
-
-    // arduino::unlock();
 }
 
 static inline zerocopy_pbuf_t* get_zerocopy_pbuf(uint8_t *buffer, uint32_t size, void(*buffer_free)(void*) = mem_free) {
@@ -512,7 +509,6 @@ err_t CEth::output(struct netif* ni, struct pbuf* p) {
 
 void CEth::consume_callback(uint8_t* buffer, uint32_t len) {
     // TODO understand if this callback can be moved into the base class
-    // arduino::lock();
 
     const uint16_t trimmed_size = len;
 
@@ -536,7 +532,6 @@ void CEth::consume_callback(uint8_t* buffer, uint32_t len) {
     } else {
         // NETIF_STATS_INCREMENT_RX_BYTES(this->stats, p->len);
     }
-    // arduino::unlock();
 }
 
 /* ########################################################################## */
@@ -556,7 +551,6 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
     int res = 0;
     int time_num = 0;
 
-    // arduino::lock();
     CEspControl::getInstance().listenForStationDisconnectEvent([this] (CCtrlMsgWrapper *resp) -> int {
         netif_set_link_down(&this->ni);
         return ESP_CONTROL_OK;
@@ -578,10 +572,12 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
         time_num++;
     }
 
+    CLwipIf::getInstance().sync_timer();
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+    CLwipIf::getInstance().enable_timer();
+
     CNetIf::begin(ip, nm, gw);
 exit:
-    // arduino::unlock();
     return res;
 }
 
@@ -590,8 +586,6 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
     int rv = ESP_CONTROL_CTRL_ERROR; // FIXME this should be set with an error meaning AP not found
     bool found = false;
     int8_t best_index = -1; // this index is used to find the ap with the best rssi
-    // AccessPoint_t* best_matching_ap;
-    // arduino::lock();
 
     if((rv=this->scanForAp()) != WL_SCAN_COMPLETED) {
         goto exit;
@@ -606,62 +600,60 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         }
     }
     if(best_index != -1) {
-        // memset(ap.ssid, 0x00, SSID_LENGTH); // I shouldn't need to zero the ssid string pointer
         strncpy((char*)ap.ssid, ssid, SSID_LENGTH);
-        // memcpy(ap.ssid, access_points[best_index].ssid, SSID_LENGTH);
 
-        // memset(ap.pwd, 0x00, PASSWORD_LENGTH);
         if(passphrase != nullptr) {
             auto slen = strlen(passphrase)+1;
             strncpy((char*)ap.pwd, passphrase, (slen < PASSWORD_LENGTH) ? slen : PASSWORD_LENGTH);
-            // memcpy(ap.pwd, passphrase, (slen < PASSWORD_LENGTH) ? slen : PASSWORD_LENGTH);
         } else {
-            // memset(ap.pwd, 0x00, PASSWORD_LENGTH);
             ap.pwd[0] = '\0';
         }
 
         memset(ap.bssid, 0x00, BSSID_LENGTH);
         memcpy(ap.bssid, access_points[best_index].bssid, BSSID_LENGTH);
 
-        // arduino::lock();
-        CEspControl::getInstance().communicateWithEsp();
-
+        CLwipIf::getInstance().sync_timer();
         rv=CEspControl::getInstance().connectAccessPoint(ap);
-        // arduino::unlock();
 
         if (rv == ESP_CONTROL_OK) {
             CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
 
             netif_set_link_up(&this->ni);
         }
-        // arduino::unlock();
+        CLwipIf::getInstance().enable_timer();
     }
 
 exit:
-    // arduino::unlock();
-
     return rv;
 }
 
 int CWifiStation::scanForAp() {
-        // arduino::lock();
     access_points.clear();
 
+    CLwipIf::getInstance().sync_timer();
+
     int res = CEspControl::getInstance().getAccessPointScanList(access_points);
+    CLwipIf::getInstance().enable_timer();
+
     if (res == ESP_CONTROL_OK) {
         res = WL_SCAN_COMPLETED;
     } else {
         res = WL_NO_SSID_AVAIL;
     }
 
-    // arduino::unlock();
 
     return res;
 }
 
 // disconnect
 int CWifiStation::disconnectFromAp() {
-    return CEspControl::getInstance().disconnectAccessPoint();
+    CLwipIf::getInstance().sync_timer();
+
+    auto res = CEspControl::getInstance().disconnectAccessPoint();
+
+    CLwipIf::getInstance().enable_timer();
+
+    return res;
 }
 
 err_t CWifiStation::init(struct netif* ni) {
@@ -698,7 +690,6 @@ err_t CWifiStation::output(struct netif* _ni, struct pbuf* p) {
     // NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
     // NETIF_STATS_TX_TIME_START(this->stats);
 
-    // arduino::lock();
     // p may be a chain of pbufs
     if(p->next != nullptr) {
         buf = (uint8_t*) malloc(size*sizeof(uint8_t));
@@ -731,7 +722,6 @@ exit:
     if(p->next != nullptr && buf != nullptr) {
         free(buf);
     }
-    // arduino::unlock();
     return errval;
 }
 
@@ -745,7 +735,6 @@ void CWifiStation::task() {
     struct pbuf* p = nullptr;
 
     // NETIF_STATS_RX_TIME_START(this->stats);
-    // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
         CEspControl::getInstance().communicateWithEsp();
@@ -779,7 +768,6 @@ void CWifiStation::task() {
         buffer = CEspControl::getInstance().getStationRx(if_num, dim);
     }
     // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
-    // arduino::unlock();
 }
 
 // void CWifiStation::consume_callback(uint8_t* buffer, uint32_t len) {
@@ -877,7 +865,6 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
     int res = 0;
     int time_num = 0;
 
-    // arduino::lock();
     CEspControl::getInstance().listenForInitEvent([this] (CCtrlMsgWrapper *resp) -> int {
         // Serial.println("init");
         this->hw_init = true;
@@ -895,7 +882,9 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
         time_num++;
     }
 
+    CLwipIf::getInstance().sync_timer();
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
+    CLwipIf::getInstance().enable_timer();
 
     CNetIf::begin(
         default_dhcp_server_ip,
@@ -903,13 +892,13 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
         default_dhcp_server_ip
     );
 exit:
-    // arduino::unlock();
     return res;
 }
 
 // TODO scan the other access point first and then set the channel if 0
 // TODO there are requirements for ssid and password
 int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t channel) {
+    CLwipIf::getInstance().sync_timer();
     SoftApCfg_t cfg;
 
     strncpy((char*)cfg.ssid, ssid, SSID_LENGTH);
@@ -942,7 +931,7 @@ int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t c
         // wifi_status = WL_AP_FAILED;
     }
 
-
+    CLwipIf::getInstance().enable_timer();
     return rv;
 }
 
@@ -980,7 +969,6 @@ err_t CWifiSoftAp::output(struct netif* _ni, struct pbuf* p) {
     // NETIF_STATS_INCREMENT_TX_TRANSMIT_CALLS(this->stats);
     // NETIF_STATS_TX_TIME_START(this->stats);
 
-    // arduino::lock();
     // p may be a chain of pbufs
     if(p->next != nullptr) {
         buf = (uint8_t*) malloc(size*sizeof(uint8_t));
@@ -1013,7 +1001,6 @@ exit:
     if(p->next != nullptr && buf != nullptr) {
         free(buf);
     }
-    // arduino::unlock();
     return errval;
 }
 
@@ -1030,7 +1017,6 @@ void CWifiSoftAp::task() {
     struct pbuf* p = nullptr;
 
     // NETIF_STATS_RX_TIME_START(this->stats);
-    // arduino::lock();
     // TODO do not perform this when not connected to an AP
     if(hw_init) {
         CEspControl::getInstance().communicateWithEsp();
@@ -1065,7 +1051,6 @@ void CWifiSoftAp::task() {
         buffer = CEspControl::getInstance().getStationRx(if_num, dim);
     }
     // NETIF_STATS_RX_TIME_AVERAGE(this->stats);
-    // arduino::unlock();
 }
 
 const char* CWifiSoftAp::getSSID() {
@@ -1086,11 +1071,19 @@ uint8_t CWifiSoftAp::getChannel() {
 }
 
 int CWifiSoftAp::setLowPowerMode() {
-    return CEspControl::getInstance().setPowerSaveMode(1);
+    CLwipIf::getInstance().sync_timer();
+    auto res = CEspControl::getInstance().setPowerSaveMode(1);
+    CLwipIf::getInstance().enable_timer();
+
+    return res;
 }
 
 int CWifiSoftAp::resetLowPowerMode() {
-    return CEspControl::getInstance().setPowerSaveMode(1);
+    CLwipIf::getInstance().sync_timer();
+    auto res = CEspControl::getInstance().setPowerSaveMode(1);
+    CLwipIf::getInstance().enable_timer();
+
+    return res;
 }
 
 /* ##########################################################################

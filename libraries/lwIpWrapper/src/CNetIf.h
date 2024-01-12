@@ -382,10 +382,27 @@ private:
     // lwip stores the netif in a linked list called: netif_list
 
     friend class CNetIf;
+    friend class CWifiSoftAp;
+    friend class CWifiStation;
 
 #ifdef LWIP_USE_TIMER
     FspTimer timer;
-#endif
+
+    inline void sync_timer() {
+        timer.disable_overflow_irq();
+        this->task();
+    }
+
+    inline void enable_timer() {
+        timer.enable_overflow_irq();
+    }
+#else // LWIP_USE_TIMER
+    inline void sync_timer() {
+        this->task();
+    }
+
+    inline void enable_timer() { }
+#endif // LWIP_USE_TIMER
 };
 
 extern CEth Ethernet;
