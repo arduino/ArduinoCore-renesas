@@ -234,6 +234,34 @@ public:
      */
     int writeAESKey(int ObjectId, const byte data[], size_t length);
 
+    /** writeHMACKey
+     *
+     * Writes symmetric key into SE050 object.
+     *
+     * @param[in] ObjectId SE050 object ID for the hmac key
+     * @param[in] data Input data buffer
+     * @param[in] length Input data buffer size
+     *
+     * @return 0 on Failure 1 on Success
+     */
+    int writeHMACKey(int ObjectId, const byte data[], size_t length);
+
+    /** HMAC_Generate
+     *
+     * Computes the HMAC digest with SE050 chip
+     *
+     * @param[in] objectId SE050 object ID for the hmac key
+     * @param[in] mac_operation Type of Hash function for HMAC
+     * @param[in] data Input data buffer
+     * @param[in] length Input data buffer size
+     * @param[out] output Output data buffer
+     * @param[out] output_length Output data buffer size (should be 32 bytes for SHA256)
+     *
+     * @return 0 on Failure 1 on Success
+     */
+    int HMAC_Generate(int objectId, uint8_t mac_operation, const byte data[], size_t data_length, byte output[], size_t *output_len);
+
+
     /** writeBinaryObject
      *
      * Writes binary data into SE050 object.

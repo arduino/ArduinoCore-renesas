@@ -646,6 +646,46 @@ int SE05XClass::writeAESKey(int objectId, const byte data[], size_t length)
     return 1;
 }
 
+int SE05XClass::writeHMACKey(int objectId, const byte data[], size_t length)
+{
+    smStatus_t      status;
+    SE05x_Result_t  result;
+    uint8_t         exists = 0;
+    uint16_t        offset = 0;
+    uint16_t        size;
+
+    status = Se05x_API_CheckObjectExists(&_se05x_session, objectId, &result);
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_CheckObjectExists \n");
+        return 0;
+    }
+
+    if (result == kSE05x_Result_SUCCESS) {
+        SMLOG_E("Object exists \n");
+        exists = 1;
+    }
+
+    status = Se05x_API_WriteSymmKey(&_se05x_session, NULL, 0, objectId, SE05x_KeyID_KEK_NONE, data, length, kSE05x_INS_NA, kSE05x_SymmKeyType_HMAC);
+
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_WriteSymmKey \n");
+        return 0;
+    }
+    return 1;
+}
+
+int SE05XClass::HMAC_Generate(int objectId, uint8_t mac_operation, const byte data[], size_t data_length, byte output[], size_t *output_len)
+{
+    smStatus_t status;
+    status = Se05x_API_MACOneShot_G(&_se05x_session, objectId, mac_operation, data, data_length, output, output_len);
+
+    if (status != SM_OK) {
+        SMLOG_E("Error in Se05x_API_CipherOneShot \n");
+        return status;
+    }
+    return 1;
+}
+
 int SE05XClass::writeBinaryObject(int objectId, const byte data[], size_t length)
 {
     smStatus_t      status;
@@ -719,7 +759,7 @@ int SE05XClass::deleteBinaryObject(int objectId)
 
     status = Se05x_API_DeleteSecureObject(&_se05x_session, objectId);
     if (status != SM_OK) {
-        SMLOG_E("Error in Se05x_API_CheckObjectExists \n");
+        SMLOG_E("Error in Se05x_API_DeleteSecureObject \n");
         return 0;
     }
 
