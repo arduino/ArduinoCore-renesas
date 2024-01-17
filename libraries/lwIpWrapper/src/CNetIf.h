@@ -79,6 +79,12 @@ typedef enum {
     NI_ETHERNET
 } NetIfType_t;
 
+enum EthernetLinkStatus {
+    Unknown,
+    LinkON,
+    LinkOFF
+};
+
 #define MAX_CLIENT MEMP_NUM_TCP_PCB
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
@@ -139,6 +145,10 @@ public:
 
     virtual void up();
     virtual void down();
+
+    inline int disconnect() { this->down(); return 0; }
+
+    inline EthernetLinkStatus linkStatus() { return netif_is_link_up(&ni) ? LinkON : LinkOFF; }
 
     bool isLinkUp() { return (bool)netif_is_link_up(&ni); }
 
