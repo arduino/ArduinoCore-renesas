@@ -80,7 +80,9 @@ lwipClient& lwipClient::operator=(lwipClient&& rhs) {
 }
 
 lwipClient::~lwipClient() {
-    this->stop();
+    if(this->tcp_info->state != TCP_CLOSING) {
+        this->stop();
+    }
 }
 
 int lwipClient::connect(const char* host, uint16_t port) {
@@ -231,7 +233,7 @@ err_t lwipClient::recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err)
         return ERR_OK;
     }
     arduino::lock();
-    if(this->tcp_info->state == TCP_CONNECTED) {
+    if(this->tcp_info->state == TCP_CONNECTED || this->tcp_info->state == TCP_ACCEPTED) {
         if (this->tcp_info->pbuf_head == nullptr) {
             // no need to increment the references of the pbuf,
             // since it is already 1 and lwip shifts the control to this code
@@ -273,16 +275,11 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
         } else if(res == ERR_MEM) {
             // FIXME handle this: we get into this case only if the sent data cannot be put in the send queue
         }
-
-        // TODO understand if the tcp_write will send data if the buffer is not full
-        // force send only if we filled the send buffer
-        // if (ERR_OK != tcp_output(this->tcp_info->pcb)) {
-        //     // return 0;
-        //     break;
-        // }
     } while(buffer_cursor < buffer + size);
-    arduino::unlock();
 
+    tcp_output(this->tcp_info->pcb);
+
+    arduino::unlock();
     return buffer - buffer_cursor;
 }
 
@@ -342,13 +339,13 @@ void lwipClient::flush() {
 }
 
 void lwipClient::stop() {
-    tcp_recv(this->tcp_info->pcb, nullptr);
-    tcp_sent(this->tcp_info->pcb, nullptr);
-    tcp_poll(this->tcp_info->pcb, nullptr, 0);
-    tcp_err(this->tcp_info->pcb, nullptr);
-    tcp_accept(this->tcp_info->pcb, nullptr);
-
     if(this->tcp_info->pcb != nullptr) {
+        tcp_recv(this->tcp_info->pcb, nullptr);
+        tcp_sent(this->tcp_info->pcb, nullptr);
+        tcp_poll(this->tcp_info->pcb, nullptr, 0);
+        tcp_err(this->tcp_info->pcb, nullptr);
+        tcp_accept(this->tcp_info->pcb, nullptr);
+
         err_t err = tcp_close(this->tcp_info->pcb);
         this->tcp_info->state = TCP_CLOSING;
 
@@ -362,6 +359,12 @@ void lwipClient::stop() {
     // if(tcp->p != nullptr) {
     //     pbuf_free(tcp->p); // FIXME it happens that a pbuf, with ref == 0 is added for some reason
     // }
+    if(this->tcp_info->server != nullptr) {
+        // need to first make the server point to nullptr, then remove the client, can cause infinite recursion
+        auto server = this->tcp_info->server;
+        this->tcp_info->server = nullptr;
+        server->remove(this);
+    }
 }
 
 uint8_t lwipClient::connected() {

@@ -9,8 +9,9 @@ public:
     EthernetClient(struct tcp_pcb *pcb, lwipServer *server)
     : lwipClient(pcb, server) {
     }
-    EthernetClient(lwipClient c)
+    EthernetClient(const lwipClient &c)
     : lwipClient(c) {
+        this->bindCNetIf(Ethernet);
     }
 
     int connect(IPAddress ip, uint16_t port) {

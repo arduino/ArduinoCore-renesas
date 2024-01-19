@@ -31,9 +31,11 @@ protected:
      * - when a client connection is closed (by calling stop on it or delete on the client)
      *   the server is notified and the remove() method is called thus the client is removed from the server list.
      */
-    void accept(struct tcp_pcb* new_client);
+    bool accept(struct tcp_pcb* new_client);
     // void clean();
     void remove(lwipClient* client);
+
+    lwipClient* available_ptr();
 
     uint16_t _port;
     const IPAddress &listen_address;

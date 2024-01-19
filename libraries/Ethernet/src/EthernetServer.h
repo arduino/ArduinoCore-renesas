@@ -12,6 +12,7 @@ public:
     }
 
     EthernetClient available() {
-        return EthernetClient(lwipServer::available());
+        lwipClient* res = available_ptr();
+        return res != nullptr ? EthernetClient(*res) : EthernetClient(CLIENT_NONE);
     }
 };

@@ -5,6 +5,7 @@ extern "C" {
 #include "CNetIf.h"
 #include "lwipClient.h"
 #include "lwipServer.h"
+#include "utils.h"
 
 err_t tcp_accept_callback(void* arg, struct tcp_pcb* newpcb, err_t err);
 
@@ -74,9 +75,12 @@ void lwipServer::begin(uint16_t port)
 // }
 
 void lwipServer::remove(lwipClient* client) {
+    arduino::lock();
+
     bool found = false;
     for (int i=0; i < size; i++) {
         if(found) {
+            // we move the client to delete to the end of the array, then we remove it
             clients[i-1] = clients[i];
         } else if(*client == *clients[i]) {
             found = true;
@@ -85,25 +89,41 @@ void lwipServer::remove(lwipClient* client) {
 
     delete clients[--size];
     clients[size] = nullptr;
+
+    arduino::unlock();
 }
 
-void lwipServer::accept(struct tcp_pcb* new_client) {
+bool lwipServer::accept(struct tcp_pcb* new_client) {
+    bool res = false;
     // this->clean();
-
+    arduino::lock();
     if(size < MAX_CLIENT-1) {
         clients[size] = new lwipClient(new_client, this);
         size++;
         clients_available++;
+        res = true;
     }
+    arduino::unlock();
+
+    return res;
 }
 
 lwipClient lwipServer::available()
 {
+    lwipClient* res = available_ptr();
+    return res != nullptr ? *res : CLIENT_NONE;
+}
+
+lwipClient* lwipServer::available_ptr()
+{
+    lwipClient* res=nullptr;
+    arduino::lock();
     if(size > 0 && clients_available>0) {
-        return *clients[size-clients_available--]; // TODO verify index
-    } else {
-        return CLIENT_NONE;
+        res = clients[size-clients_available--]; // TODO verify index
     }
+    arduino::unlock();
+
+    return res;
 }
 
 size_t lwipServer::write(uint8_t b)
@@ -112,28 +132,30 @@ size_t lwipServer::write(uint8_t b)
 }
 
 size_t lwipServer::write(const uint8_t* buffer, size_t size) {
+    arduino::lock();
     size_t written=0;
     // this->clean();
 
     for (int i = 0; i < MAX_CLIENT; i++) {
         written += clients[i]->write(buffer, size);
     }
+    arduino::unlock();
 
     return written;
 }
 
 err_t tcp_accept_callback(void* arg, struct tcp_pcb* newpcb, err_t err) {
+    arduino::lock();
     lwipServer* server = (lwipServer*) arg;
-    err_t ret_err;
+    err_t ret_err = ERR_OK;
 
     /* set priority for the newly accepted tcp connection newpcb */
     tcp_setprio(newpcb, TCP_PRIO_MIN);
 
-    if ((arg != NULL) && (ERR_OK == err)) {
-        server->accept(newpcb);
-    } else {
+    if ((arg == NULL) || (ERR_OK != err) || !server->accept(newpcb)) {
         tcp_close(newpcb);
         ret_err = ERR_ARG;
     }
+    arduino::unlock();
     return ret_err;
 }

@@ -9,8 +9,9 @@ public:
     WiFiClient(struct tcp_pcb *pcb, lwipServer *server)
     : lwipClient(pcb, server) {
     }
-    WiFiClient(lwipClient c)
+    WiFiClient(const lwipClient &c)
     : lwipClient(c) {
+        this->bindCNetIf(WiFiStation);
     }
 
     int connect(IPAddress ip, uint16_t port) {

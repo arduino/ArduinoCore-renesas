@@ -12,6 +12,7 @@ public:
     }
 
     WiFiClient available() {
-        return WiFiClient(lwipServer::available());
+        lwipClient* res = available_ptr();
+        return res != nullptr ? WiFiClient(*res) : WiFiClient(CLIENT_NONE);
     }
 };
