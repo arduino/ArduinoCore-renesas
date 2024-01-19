@@ -316,18 +316,28 @@ int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw)
 
     netif_set_up(&this->ni);
 
+    // add the interface to the network stack
+    CLwipIf::getInstance().add_iface(this); // TODO remove interface when it is needed (??)
+    netif_set_link_up(&this->ni);
+
 #ifdef LWIP_DHCP
     // dhcp is started when begin gets ip == nullptr
     if(ip != INADDR_NONE) {
         this->dhcpNotUsed();
     } else {
         this->dhcpStart();
+
+
+        CLwipIf::getInstance().sync_timer();
+        while(!this->isDhcpAcquired()) {
+            CLwipIf::getInstance().task();
+        }
+        CLwipIf::getInstance().enable_timer();
     }
+
 #endif
 
-    // add the interface to the network stack
-    CLwipIf::getInstance().add_iface(this); // TODO remove interface when it is needed (??)
-    return 0;
+    return this->isDhcpAcquired()? 1 : 0;
 }
 
 void CNetIf::task() {
@@ -452,12 +462,12 @@ int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw, c
             this, std::placeholders:: _1, std::placeholders::_2));
 
     // Call the begin function on the Parent class to init the interface
-    CNetIf::begin(ip, nm, gw);
-    netif_set_link_up(&this->ni);
+    // netif_set_link_up(&this->ni);
+    auto res = CNetIf::begin(ip, nm, gw);
 
     CLwipIf::getInstance().addDnsServer(dns);
 
-    return 0;
+    return res;
 }
 
 err_t CEth::init(struct netif* ni) {
@@ -578,7 +588,7 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
     CLwipIf::getInstance().enable_timer();
 
-    CNetIf::begin(ip, nm, gw);
+    return CNetIf::begin(ip, nm, gw);
 exit:
     return res;
 }

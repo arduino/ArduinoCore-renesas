@@ -180,7 +180,7 @@ protected:
     struct netif ni;
 
 #ifdef LWIP_DHCP
-    bool dhcp_acquired;
+    volatile bool dhcp_acquired;
 #endif
 
     /*
