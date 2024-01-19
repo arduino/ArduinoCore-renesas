@@ -7,6 +7,22 @@ Subject: [PATCH] Defaults for C33 BLE
  .../esp/esp_driver/network_adapter/main/slave_bt.h        | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
+index b2e8a73..3a7eae6 100644
+--- a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
++++ b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.c
+@@ -321,8 +321,8 @@ static void init_uart_c3_s3(void)
+     };
+     ESP_ERROR_CHECK(gdma_new_channel(&rx_channel_config, &s_rx_channel));
+ 
+-    gdma_connect(s_tx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UART, 0));
+-    gdma_connect(s_rx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UART, 0));
++    gdma_connect(s_tx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UHCI, 0));
++    gdma_connect(s_rx_channel, GDMA_MAKE_TRIGGER(GDMA_TRIG_PERIPH_UHCI, 0));
+ 
+     gdma_strategy_config_t strategy_config = {
+         .auto_update_desc = false,
+
 diff --git a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h b/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h
 index 87e29f7..30acaf1 100644
 --- a/esp_hosted_fg/esp/esp_driver/network_adapter/main/slave_bt.h
