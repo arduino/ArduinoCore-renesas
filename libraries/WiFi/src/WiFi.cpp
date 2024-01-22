@@ -23,16 +23,16 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {
 /* -------------------------------------------------------------------------- */
-    WiFiStation.begin();
-    return WiFiStation.connectToAP(ssid, nullptr);
+    WiFiStation.connectToAP(ssid, nullptr);
+    return WiFiStation.begin();
 }
 
 
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */
-    WiFiStation.begin();
-    return WiFiStation.connectToAP(ssid, passphrase);
+    WiFiStation.connectToAP(ssid, passphrase);
+    return WiFiStation.begin();;
 }
 
 /* passphrase is needed so a default one will be set */
@@ -242,6 +242,7 @@ uint8_t CWifi::channel(uint8_t networkItem) {
 uint8_t CWifi::status() { // FIXME
 /* -------------------------------------------------------------------------- */
     // return CLwipIf::getInstance().getWifiStatus();
+    return WiFiStation.status();
 }
 
 /* -------------------------------------------------------------------------- */

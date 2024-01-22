@@ -79,10 +79,15 @@ typedef enum {
     NI_ETHERNET
 } NetIfType_t;
 
-enum EthernetLinkStatus {
+enum LinkStatus {
     Unknown,
     LinkON,
     LinkOFF
+};
+
+enum EthernetHardwareStatus {
+    EthernetNoHardware,
+    EthernetLwip = 7
 };
 
 #define MAX_CLIENT MEMP_NUM_TCP_PCB
@@ -148,7 +153,7 @@ public:
 
     inline int disconnect() { this->down(); return 0; }
 
-    inline EthernetLinkStatus linkStatus() { return netif_is_link_up(&ni) ? LinkON : LinkOFF; }
+    inline LinkStatus linkStatus() { return netif_is_link_up(&ni) ? LinkON : LinkOFF; }
 
     bool isLinkUp() { return (bool)netif_is_link_up(&ni); }
 
@@ -164,16 +169,10 @@ public:
     IPAddress gatewayIP()   { return IPAddress(this->getGwAdd()); }
     IPAddress dnsServerIP() { /* FIXME understand where dns should be managed */}
 
-    // FIXME hostname should be defined in the NetworkStack singleton
-    // void setHostname(const char* name)
-    // {
-    //     memset(hostname, 0x00, MAX_HOSTNAME_DIM);
-    //     memcpy(hostname, name, strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
-    // }
     void config(IPAddress _ip, IPAddress _gw, IPAddress _nm);
 
-
     virtual int getMacAddress(uint8_t* mac) = 0;
+    virtual int setMacAddress(uint8_t* mac) = 0;
 
     friend CLwipIf;
 protected:
@@ -216,13 +215,40 @@ public:
         const IPAddress &gw = INADDR_NONE,
         const IPAddress &dns = INADDR_NONE);
 
+    // The following are overloaded begin methods kept for retrocompatibility with other Arduino cores
+    // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
+    // configuration through DHCP.
+    // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
+    virtual int begin(
+        uint8_t *mac_address,
+        const IPAddress &local_ip           = INADDR_NONE,
+        const IPAddress &dns_server         = INADDR_NONE,
+        const IPAddress &gateway            = INADDR_NONE,
+        const IPAddress &subnet             = INADDR_NONE,
+        const unsigned long timeout         = 60000,
+        const unsigned long responseTimeout = 4000);
+
+    virtual int begin(
+        uint8_t *mac_address,
+        const unsigned long timeout         = 60000,
+        const unsigned long responseTimeout = 4000);
+
+
     virtual int getMacAddress(uint8_t* mac) override {
         UNUSED(mac); // FIXME not implemented
         return 1;
     }
 
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
+    }
+
+
     int maintain() {} // Deprecated method for retrocompatibility
     void schedule(void) {} // Deprecated method for retrocompatibility
+
+    inline EthernetHardwareStatus hardwareStatus() { return EthernetLwip; }
 protected:
     /*
      * this function is used to initialize the netif structure of lwip
@@ -262,6 +288,11 @@ public:
         // FIXME not implemented
     }
 
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
+    }
+
     virtual const char* getSSID();
     virtual uint8_t* getBSSID(uint8_t* bssid);
     virtual int32_t getRSSI();
@@ -276,6 +307,10 @@ public:
 
     int setLowPowerMode();
     int resetLowPowerMode();
+
+    inline WifiStatus_t status() {
+        return wifi_status;
+    }
 protected:
     static const char wifistation_ifname[];
 
@@ -293,6 +328,7 @@ private:
     std::vector<AccessPoint_t> access_points;
     WifiApCfg_t access_point_cfg;
     bool hw_init; // TODO this should be moved to the wifi driver class
+    WifiStatus_t wifi_status = WL_IDLE_STATUS; // TODO this should be moved to the wifi driver class
 };
 
 class CWifiSoftAp : public CNetIf {
@@ -310,6 +346,11 @@ public:
 
     virtual int getMacAddress(uint8_t* mac) override {
         // FIXME not implemented
+    }
+
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
     }
 
     virtual const char* getSSID();

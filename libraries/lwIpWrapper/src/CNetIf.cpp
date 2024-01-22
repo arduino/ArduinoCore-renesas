@@ -597,11 +597,19 @@ CWifiStation::~CWifiStation() {
 }
 
 int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw) {
-    int res = 0;
+    return CNetIf::begin(ip, nm, gw);
+}
+
+int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
+    WifiApCfg_t ap;
+    int rv = ESP_CONTROL_CTRL_ERROR; // FIXME this should be set with an error meaning AP not found
+    bool found = false;
+    int8_t best_index = -1; // this index is used to find the ap with the best rssi
     int time_num = 0;
 
     CEspControl::getInstance().listenForStationDisconnectEvent([this] (CCtrlMsgWrapper *resp) -> int {
         netif_set_link_down(&this->ni);
+        wifi_status = WL_DISCONNECTED;
         return ESP_CONTROL_OK;
     });
     CEspControl::getInstance().listenForInitEvent([this] (CCtrlMsgWrapper *resp) -> int {
@@ -610,10 +618,11 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
         return ESP_CONTROL_OK;
     });
 
-    if ((res=CEspControl::getInstance().initSpiDriver()) != 0) {
-        res = -1; // FIXME put a proper error code
+    if ((rv=CEspControl::getInstance().initSpiDriver()) != 0  && !hw_init) {
+        rv = -1; // FIXME put a proper error code
         goto exit;
     }
+    wifi_status = WL_NO_SSID_AVAIL;
 
     while (time_num < 100 && !hw_init) { // TODO #define WIFI_INIT_TIMEOUT_MS 10000
         CEspControl::getInstance().communicateWithEsp();
@@ -622,21 +631,11 @@ int CWifiStation::begin(const IPAddress &ip, const IPAddress &nm, const IPAddres
     }
 
     CLwipIf::getInstance().sync_timer();
-    res = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
+    rv = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
     CLwipIf::getInstance().enable_timer();
 
-    return CNetIf::begin(ip, nm, gw);
-exit:
-    return res;
-}
-
-int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
-    WifiApCfg_t ap;
-    int rv = ESP_CONTROL_CTRL_ERROR; // FIXME this should be set with an error meaning AP not found
-    bool found = false;
-    int8_t best_index = -1; // this index is used to find the ap with the best rssi
-
     if((rv=this->scanForAp()) != WL_SCAN_COMPLETED) {
+        rv = -2;
         goto exit;
     }
 
@@ -666,8 +665,12 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
 
         if (rv == ESP_CONTROL_OK) {
             CEspControl::getInstance().getAccessPointConfig(access_point_cfg);
+            wifi_status = WL_CONNECTED;
+
 
             netif_set_link_up(&this->ni);
+        } else {
+            wifi_status = WL_CONNECT_FAILED;
         }
         CLwipIf::getInstance().enable_timer();
     }
@@ -685,13 +688,13 @@ int CWifiStation::scanForAp() {
     CLwipIf::getInstance().enable_timer();
 
     if (res == ESP_CONTROL_OK) {
-        res = WL_SCAN_COMPLETED;
+        wifi_status = WL_SCAN_COMPLETED;
     } else {
-        res = WL_NO_SSID_AVAIL;
+        wifi_status = WL_NO_SSID_AVAIL;
     }
 
 
-    return res;
+    return wifi_status;
 }
 
 // disconnect
