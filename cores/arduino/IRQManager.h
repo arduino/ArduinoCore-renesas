@@ -18,6 +18,15 @@
 #include "r_external_irq_api.h"
 #endif
 
+#if I2S_HOWMANY > 0
+#include "r_ssi.h"
+extern "C" {
+void ssi_txi_isr(void);
+void ssi_rxi_isr(void);
+void ssi_int_isr(void);
+}
+#endif
+
 #include "r_timer_api.h"
 
 #ifdef ELC_EVENT_DMAC0_INT
@@ -43,7 +52,8 @@ typedef enum {
     IRQ_CAN,
     IRQ_ETHERNET,
     IRQ_CANFD,
-    IRQ_SDCARD
+    IRQ_SDCARD,
+    IRQ_I2S
 } Peripheral_t;
 
 #if SDCARD_HOWMANY > 0
