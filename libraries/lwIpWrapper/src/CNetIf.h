@@ -234,8 +234,7 @@ protected:
      */
     err_t output(struct netif* ni, struct pbuf* p) override;
 
-    static const char eth_ifname_prefix = 'e';
-    static uint8_t eth_id;
+    static const char eth_ifname[];
 private:
     /*
      * This function is passed to the driver class and it is meant to
@@ -278,8 +277,7 @@ public:
     int setLowPowerMode();
     int resetLowPowerMode();
 protected:
-    static const char wifistation_ifname_prefix = 'w';
-    static uint8_t wifistation_id;
+    static const char wifistation_ifname[];
 
     /*
      * this function is used to initialize the netif structure of lwip
@@ -322,8 +320,7 @@ public:
     int setLowPowerMode();
     int resetLowPowerMode();
 protected:
-    static const char softap_ifname_prefix = 's';
-    static uint8_t softap_id;
+    static const char softap_ifname[];
     /*
      * this function is used to initialize the netif structure of lwip
      */

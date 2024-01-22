@@ -302,18 +302,32 @@ int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw)
     ip_addr_t _nm = fromArduinoIP(nm);
     ip_addr_t _gw = fromArduinoIP(gw);
 
-    // netif add copies the ip addresses into the netif, no need to store them also in the object
-    struct netif *_ni = netif_add(
-        &this->ni,
-        &_ip, &_nm, &_gw, // ip addresses are being copied and not taken as reference, use a local defined variable
-        this,
-        _netif_init,
-        ethernet_input
-    );
-    if(_ni == nullptr) {
-        return -1;
-    }
+    char name[3] = {
+        ni.name[0],
+        ni.name[1],
+        ni.num + '0',
+    };
+    if(netif_find(name) == nullptr) {
 
+        // netif add copies the ip addresses into the netif, no need to store them also in the object
+        struct netif *_ni = netif_add(
+            &this->ni,
+            &_ip, &_nm, &_gw, // ip addresses are being copied and not taken as reference, use a local defined variable
+            this,
+            _netif_init,
+            ethernet_input
+        );
+
+        if(_ni == nullptr) {
+            return -1;
+        }
+    } else {
+        if (netif_is_link_up(&this->ni)) {
+            netif_set_down(&this->ni);
+        }
+
+        // TODO check for any changes detected and update the iface
+    }
     netif_set_up(&this->ni);
 
     // add the interface to the network stack
@@ -448,7 +462,7 @@ bool CNetIf::dhcpRenew() {
 /* ##########################################################################
  *                      ETHERNET NETWORK INTERFACE CLASS
  * ########################################################################## */
-uint8_t CEth::eth_id = 0;
+const char CEth::eth_ifname[] = "en";
 
 CEth::CEth(NetworkDriver *driver)
 : CNetIf(driver) {
@@ -470,19 +484,42 @@ int CEth::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw, c
     return res;
 }
 
+int CEth::begin(
+        uint8_t *mac_address,
+        const IPAddress &local_ip,
+        const IPAddress &dns_server,
+        const IPAddress &gateway,
+        const IPAddress &subnet,
+        const unsigned long timeout,
+        const unsigned long responseTimeout) {
+
+    this->setMacAddress(mac_address);
+
+    return this->begin(local_ip, subnet, gateway, dns_server);
+}
+
+int CEth::begin(
+        uint8_t *mac_address,
+        const unsigned long timeout,
+        const unsigned long responseTimeout) {
+
+    this->setMacAddress(mac_address);
+
+    return this->begin();
+}
+
+
 err_t CEth::init(struct netif* ni) {
     // Setting up netif
 #if LWIP_NETIF_HOSTNAME
     ni->hostname                       = "C33_eth";
 #endif
-    ni->name[0]                        = CEth::eth_ifname_prefix;
-    ni->name[1]                        = '0' + CEth::eth_id++;
+    ni->name[0]                        = CEth::eth_ifname[0];
+    ni->name[1]                        = CEth::eth_ifname[1];
     ni->mtu                            = 1500; // TODO get this from the network
     ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
     memcpy(ni->hwaddr, this->driver->getMacAddress(), 6); // FIXME handle this using a constant
-    // ni->hwaddr                         = C33EthernetDriver.getMacAddress();
-    // ni->hwaddr_len                     = sizeof(macaddress);
     ni->hwaddr_len                     = 6;
 
     ni->output                         = etharp_output;
@@ -549,7 +586,7 @@ void CEth::consume_callback(uint8_t* buffer, uint32_t len) {
 /* ########################################################################## */
 /*                    CWifiStation NETWORK INTERFACE CLASS                    */
 /* ########################################################################## */
-uint8_t CWifiStation::wifistation_id = 0;
+const char CWifiStation::wifistation_ifname[] = "ws";
 
 CWifiStation::CWifiStation()
 : hw_init(false) {
@@ -673,8 +710,8 @@ err_t CWifiStation::init(struct netif* ni) {
 #if LWIP_NETIF_HOSTNAME
     ni->hostname                       = "C33-WifiSta";
 #endif
-    ni->name[0]                        = CWifiStation::wifistation_ifname_prefix;
-    ni->name[1]                        = '0' + CWifiStation::wifistation_id++;
+    ni->name[0]                        = CWifiStation::wifistation_ifname[0];
+    ni->name[1]                        = CWifiStation::wifistation_ifname[1];
     ni->mtu                            = 1500; // FIXME get this from the network
     ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
@@ -859,7 +896,7 @@ int CWifiStation::resetLowPowerMode() {
 /* ########################################################################## */
 /*                      CWifiSoftAp NETWORK INTERFACE CLASS                   */
 /* ########################################################################## */
-uint8_t CWifiSoftAp::softap_id = 0;
+const char CWifiSoftAp::softap_ifname[] = "sa";
 
 // This is required for dhcp server to assign ip addresses to AP clients
 IPAddress default_nm("255.255.255.0");
@@ -883,7 +920,7 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
         return ESP_CONTROL_OK;
     });
 
-    if ((res=CEspControl::getInstance().initSpiDriver()) != 0) {
+    if ((res=CEspControl::getInstance().initSpiDriver()) != 0 && !hw_init) {
         // res = -1; // FIXME put a proper error code
         goto exit;
     }
@@ -953,8 +990,8 @@ err_t CWifiSoftAp::init(struct netif* ni) {
     // TODO pass the hostname in the constructor os with a setter
     ni->hostname                       = "C33-SoftAP";
 #endif
-    ni->name[0]                        = CWifiSoftAp::softap_ifname_prefix;
-    ni->name[1]                        = '0' + CWifiSoftAp::softap_id++;
+    ni->name[0]                        = CWifiSoftAp::softap_ifname[0];
+    ni->name[1]                        = CWifiSoftAp::softap_ifname[1];
     ni->mtu                            = 1500; // FIXME get this from the network
     ni->flags                          |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
