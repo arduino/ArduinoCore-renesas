@@ -89,7 +89,7 @@ int lwipClient::connect(const char* host, uint16_t port) {
     IPAddress remote_addr;
 
     int ret = CLwipIf::getInstance().getHostByName(host, remote_addr); // TODO test this
-    if (ret == 1) {
+    if (ret == 0) {
         return connect(remote_addr, port);
     } else {
         return 0;
@@ -287,7 +287,7 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
     tcp_output(this->tcp_info->pcb);
 
     arduino::unlock();
-    return buffer - buffer_cursor;
+    return buffer_cursor - buffer;
 }
 
 int lwipClient::read() {
