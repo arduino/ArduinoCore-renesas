@@ -14,6 +14,14 @@ public:
         this->bindCNetIf(WiFiStation);
     }
 
+    int connect(const char* host, uint16_t port) {
+        auto res = lwipClient::connect(host, port);
+
+        this->bindCNetIf(WiFiStation);
+
+        return res;
+    }
+
     int connect(IPAddress ip, uint16_t port) {
         auto res = lwipClient::connect(ip, port);
 

@@ -14,6 +14,14 @@ public:
         this->bindCNetIf(Ethernet);
     }
 
+    int connect(const char* host, uint16_t port) {
+        auto res = lwipClient::connect(host, port);
+
+        this->bindCNetIf(Ethernet);
+
+        return res;
+    }
+
     int connect(IPAddress ip, uint16_t port) {
         auto res = lwipClient::connect(ip, port);
 

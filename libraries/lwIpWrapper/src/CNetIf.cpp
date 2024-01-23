@@ -459,6 +459,14 @@ bool CNetIf::dhcpRenew() {
 
 #endif
 
+IPAddress CNetIf::dnsServerIP() {
+#if LWIP_DNS
+    return CLwipIf::getInstance().getDns(0);
+#else
+    return INADDR_NONE;
+#endif
+}
+
 /* ##########################################################################
  *                      ETHERNET NETWORK INTERFACE CLASS
  * ########################################################################## */

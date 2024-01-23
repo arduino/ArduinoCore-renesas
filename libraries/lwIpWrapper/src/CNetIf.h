@@ -167,7 +167,7 @@ public:
     IPAddress localIP()     { return IPAddress(this->getIpAdd()); }
     IPAddress subnetMask()  { return IPAddress(this->getNmAdd()); }
     IPAddress gatewayIP()   { return IPAddress(this->getGwAdd()); }
-    IPAddress dnsServerIP() { /* FIXME understand where dns should be managed */}
+    IPAddress dnsServerIP();
 
     void config(IPAddress _ip, IPAddress _gw, IPAddress _nm);
 
