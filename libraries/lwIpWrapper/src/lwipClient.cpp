@@ -101,6 +101,7 @@ int lwipClient::connect(IPAddress ip, uint16_t port) {
 
     // the connect method is only connected when trying to connect a client to a server
     // and not when a client is created out of a listening socket
+    CLwipIf::getInstance().syncTimer();
     this->tcp_info->pcb = tcp_new();
 
     if(this->tcp_info->pcb == nullptr) {
@@ -124,7 +125,13 @@ int lwipClient::connect(IPAddress ip, uint16_t port) {
         this->tcp_info->pcb, &this->_ip, port, // FIXME check if _ip gets copied
         _lwip_tcp_connected_callback // FIXME we need to define a static private function
     );
-    return err;
+
+    while(!connected()) {
+        CLwipIf::getInstance().task();
+    }
+    CLwipIf::getInstance().enableTimer();
+
+    return err == ERR_OK? 1: -err;
 }
 
 err_t _lwip_tcp_connected_callback(void* arg, struct tcp_pcb* tpcb, err_t err) {

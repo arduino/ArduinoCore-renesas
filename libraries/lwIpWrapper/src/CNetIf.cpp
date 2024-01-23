@@ -342,11 +342,11 @@ int CNetIf::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress &gw)
         this->dhcpStart();
 
 
-        CLwipIf::getInstance().sync_timer();
+        CLwipIf::getInstance().syncTimer();
         while(!this->isDhcpAcquired()) {
             CLwipIf::getInstance().task();
         }
-        CLwipIf::getInstance().enable_timer();
+        CLwipIf::getInstance().enableTimer();
     }
 
 #endif
@@ -638,9 +638,9 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         time_num++;
     }
 
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
     rv = CEspControl::getInstance().setWifiMode(WIFI_MODE_STA);
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     if((rv=this->scanForAp()) != WL_SCAN_COMPLETED) {
         rv = -2;
@@ -668,7 +668,7 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         memset(ap.bssid, 0x00, BSSID_LENGTH);
         memcpy(ap.bssid, access_points[best_index].bssid, BSSID_LENGTH);
 
-        CLwipIf::getInstance().sync_timer();
+        CLwipIf::getInstance().syncTimer();
         rv=CEspControl::getInstance().connectAccessPoint(ap);
 
         if (rv == ESP_CONTROL_OK) {
@@ -680,7 +680,7 @@ int CWifiStation::connectToAP(const char* ssid, const char *passphrase) {
         } else {
             wifi_status = WL_CONNECT_FAILED;
         }
-        CLwipIf::getInstance().enable_timer();
+        CLwipIf::getInstance().enableTimer();
     }
 
 exit:
@@ -690,10 +690,10 @@ exit:
 int CWifiStation::scanForAp() {
     access_points.clear();
 
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
 
     int res = CEspControl::getInstance().getAccessPointScanList(access_points);
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     if (res == ESP_CONTROL_OK) {
         wifi_status = WL_SCAN_COMPLETED;
@@ -707,11 +707,11 @@ int CWifiStation::scanForAp() {
 
 // disconnect
 int CWifiStation::disconnectFromAp() {
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
 
     auto res = CEspControl::getInstance().disconnectAccessPoint();
 
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     return res;
 }
@@ -942,9 +942,9 @@ int CWifiSoftAp::begin(const IPAddress &ip, const IPAddress &nm, const IPAddress
         time_num++;
     }
 
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
     res = CEspControl::getInstance().setWifiMode(WIFI_MODE_AP);
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     CNetIf::begin(
         default_dhcp_server_ip,
@@ -958,7 +958,7 @@ exit:
 // TODO scan the other access point first and then set the channel if 0
 // TODO there are requirements for ssid and password
 int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t channel) {
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
     SoftApCfg_t cfg;
 
     strncpy((char*)cfg.ssid, ssid, SSID_LENGTH);
@@ -991,7 +991,7 @@ int CWifiSoftAp::startSoftAp(const char* ssid, const char* passphrase, uint8_t c
         // wifi_status = WL_AP_FAILED;
     }
 
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
     return rv;
 }
 
@@ -1131,17 +1131,17 @@ uint8_t CWifiSoftAp::getChannel() {
 }
 
 int CWifiSoftAp::setLowPowerMode() {
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
     auto res = CEspControl::getInstance().setPowerSaveMode(1);
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     return res;
 }
 
 int CWifiSoftAp::resetLowPowerMode() {
-    CLwipIf::getInstance().sync_timer();
+    CLwipIf::getInstance().syncTimer();
     auto res = CEspControl::getInstance().setPowerSaveMode(1);
-    CLwipIf::getInstance().enable_timer();
+    CLwipIf::getInstance().enableTimer();
 
     return res;
 }

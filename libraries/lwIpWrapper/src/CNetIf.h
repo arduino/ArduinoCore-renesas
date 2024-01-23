@@ -432,24 +432,24 @@ private:
     friend class CNetIf;
     friend class CWifiSoftAp;
     friend class CWifiStation;
-
+public:
 #ifdef LWIP_USE_TIMER
     FspTimer timer;
 
-    inline void sync_timer() {
+    inline void syncTimer() {
         timer.disable_overflow_irq();
         this->task();
     }
 
-    inline void enable_timer() {
+    inline void enableTimer() {
         timer.enable_overflow_irq();
     }
 #else // LWIP_USE_TIMER
-    inline void sync_timer() {
+    inline void syncTimer() {
         this->task();
     }
 
-    inline void enable_timer() { }
+    inline void enableTimer() { }
 #endif // LWIP_USE_TIMER
 };
 
