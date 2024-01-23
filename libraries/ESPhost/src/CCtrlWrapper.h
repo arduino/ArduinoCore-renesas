@@ -729,8 +729,8 @@ public:
          cfg_ok = false;
       }
 
-      if((strlen((char *)&cfg.pwd) > MAX_PWD_LENGTH) ||
-             ((cfg.encryption_mode == WIFI_AUTH_OPEN) &&
+      if((cfg.encryption_mode != WIFI_AUTH_OPEN) &&
+             ((strlen((char *)&cfg.pwd) > MAX_PWD_LENGTH) ||
               (strlen((char *)&cfg.pwd) < MIN_PWD_LENGTH)) ) {
          /* INVALID BASS*/
          Serial.println("[ERROR]: Invalid password");
