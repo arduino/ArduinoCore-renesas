@@ -32,7 +32,8 @@ int CWifi::begin(const char* ssid) {
 int CWifi::begin(const char* ssid, const char *passphrase) {
 /* -------------------------------------------------------------------------- */
     WiFiStation.connectToAP(ssid, passphrase);
-    return WiFiStation.begin();;
+    WiFiStation.begin();
+    return WiFiStation.status();
 }
 
 /* passphrase is needed so a default one will be set */
