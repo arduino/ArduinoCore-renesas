@@ -324,7 +324,7 @@ public:
 
     inline int locked() { return 1; }
     inline int lock() { return 1; }
-    inline int writeConfiguration(const byte data[]) { return 1; }
+    inline int writeConfiguration(const byte data[]) { (void)data; return 1; }
     inline Se05xSession_t* getSession() { return &_se05x_session; }
 
 private:
