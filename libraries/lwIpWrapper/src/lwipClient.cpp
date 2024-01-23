@@ -235,7 +235,7 @@ err_t lwipClient::recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err)
 
     if (p == NULL) {
         // Remote host has closed the connection -> close from our side
-        this->stop();
+        this->close_pcb();
 
         return ERR_OK;
     }
@@ -345,7 +345,7 @@ void lwipClient::flush() {
     tcp_output(this->tcp_info->pcb);
 }
 
-void lwipClient::stop() {
+void lwipClient::close_pcb() {
     if(this->tcp_info->pcb != nullptr) {
         tcp_recv(this->tcp_info->pcb, nullptr);
         tcp_sent(this->tcp_info->pcb, nullptr);
@@ -360,12 +360,18 @@ void lwipClient::stop() {
 
         // FIXME if err != ERR_OK retry, there may be memory issues, retry?
     }
+}
 
+void lwipClient::stop() {
+    this->close_pcb();
     // reset all the other variables in this class
 
-    // if(tcp->p != nullptr) {
-    //     pbuf_free(tcp->p); // FIXME it happens that a pbuf, with ref == 0 is added for some reason
-    // }
+    if(this->tcp_info->pbuf_head != nullptr) {
+        pbuf_free(this->tcp_info->pbuf_head); // FIXME it happens that a pbuf, with ref == 0 is added for some reason
+        this->tcp_info->pbuf_head = nullptr;
+    }
+    this->tcp_info->pbuf_offset = 0;
+
     if(this->tcp_info->server != nullptr) {
         // need to first make the server point to nullptr, then remove the client, can cause infinite recursion
         auto server = this->tcp_info->server;

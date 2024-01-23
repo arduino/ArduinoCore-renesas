@@ -108,6 +108,7 @@ private:
 
     friend err_t _lwip_tcp_recv_callback(void* arg, struct tcp_pcb* tpcb, struct pbuf* p, err_t err);
     friend err_t _lwip_tcp_connected_callback(void* arg, struct tcp_pcb* tpcb, err_t err);
+    void close_pcb();
 };
 
 inline const lwipClient CLIENT_NONE(nullptr, nullptr);
