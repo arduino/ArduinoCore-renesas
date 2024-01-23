@@ -19,15 +19,27 @@
 
 #include "../../platform/arduino/sm_port.h"
 
-void smlog_print(const char *format, ...) {
-    char debug_buf[1024];   
-    va_list argptr;
-    va_start(argptr, format);
-    vsprintf(debug_buf, format, argptr);
-    va_end(argptr);
-    Serial.print(debug_buf);
-}
+#if defined __has_include
+  #if __has_include (<Arduino_DebugUtils.h>)
+    #include <Arduino_DebugUtils.h>
+    #define SE05X_DEBUG_ENABLE 1
+  #else
+    #define SE05X_DEBUG_ENABLE 0
+  #endif
+#else
+  #define SE05X_DEBUG_ENABLE 0
+#endif
 
-void smlog_none(const char *format, ...) {
-    (void)format;
+void smlog_print(int const lvl, const char *fmt, ...) {
+#if SE05X_DEBUG_ENABLE
+    va_list args;
+    va_start(args, fmt);
+    Debug.newlineOff();
+    Debug.print(lvl, fmt, args);
+    Debug.newlineOn();
+    va_end(args);
+#else
+    (void)lvl;
+    (void)fmt;
+#endif
 }

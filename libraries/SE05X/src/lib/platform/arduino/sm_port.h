@@ -22,59 +22,33 @@
 #include "Arduino.h"
 
 /*
- * 0: NONE
- * 1: ERROR
- * 2: WARNING
- * 3: INFO
- * 4: DEBUG
- * 5: APDU
+ * -1: NONE
+ *  0: ERROR
+ *  1: WARNING
+ *  2: INFO
+ *  3: DEBUG
+ *  4: VERBOSE/APDU
  */
-#define DEBUG_LEVEL 0
 
-#if DEBUG_LEVEL > 0
-    #define SMLOG_E smlog_print
-#else
-    #define SMLOG_E smlog_none
-#endif
+#define SMLOG_E(fmt, ...) smlog_print(0, fmt, ## __VA_ARGS__)
+#define SMLOG_W(fmt, ...) smlog_print(1, fmt, ## __VA_ARGS__)
+#define SMLOG_I(fmt, ...) smlog_print(2, fmt, ## __VA_ARGS__)
+#define SMLOG_D(fmt, ...) smlog_print(3, fmt, ## __VA_ARGS__)
 
-#if DEBUG_LEVEL > 1
-    #define SMLOG_W smlog_print
-#else
-    #define SMLOG_W smlog_none
-#endif
+#define SMLOG_AU8_D(BUF, LEN)                                       \
+    smlog_print(4, ":");                                            \
+    for (size_t bufIndex = 0; bufIndex < (size_t)LEN; bufIndex++) { \
+        smlog_print(4, "%02x ", BUF[bufIndex]);                     \
+    }                                                               \
+    smlog_print(4, "\n")
 
-#if DEBUG_LEVEL > 2
-    #define SMLOG_I smlog_print
-#else
-    #define SMLOG_I smlog_none
-#endif
+#define SMLOG_MAU8_D(MSG, BUF, LEN)                                 \
+    smlog_print(4, "%s:", MSG);                                     \
+    for (size_t bufIndex = 0; bufIndex < (size_t)LEN; bufIndex++) { \
+        smlog_print(4, "%02x ", BUF[bufIndex]);                     \
+    }                                                               \
+    smlog_print(4, "\n")
 
-#if DEBUG_LEVEL > 3
-    #define SMLOG_D smlog_print
-#else
-    #define SMLOG_D smlog_none
-#endif
-    
-#if DEBUG_LEVEL > 4
-    #define SMLOG_AU8_D(BUF, LEN)                                       \
-        smlog_print("%s", ":");                                         \
-        for (size_t bufIndex = 0; bufIndex < (size_t)LEN; bufIndex++) { \
-            smlog_print("%02x ", BUF[bufIndex]);                        \
-        }                                                               \
-        smlog_print("%s","\n")
-
-    #define SMLOG_MAU8_D(MSG, BUF, LEN)                                 \
-        smlog_print("%s", MSG);                                         \
-        smlog_print("%s", ":");                                         \
-        for (size_t bufIndex = 0; bufIndex < (size_t)LEN; bufIndex++) { \
-            smlog_print("%02x ", BUF[bufIndex]);                        \
-        }                                                               \
-        smlog_print("%s","\n")
-
-#else
-    #define SMLOG_AU8_D(BUF, LEN)
-    #define SMLOG_MAU8_D(MSG, BUF, LEN)
-#endif
 
 #define SM_MUTEX_DEFINE(x)
 #define SM_MUTEX_INIT(x)
@@ -98,8 +72,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void smlog_print(const char *format, ...);
-void smlog_none(const char *format, ...);
+void smlog_print(int const lvl, const char *fmt, ...);
 #ifdef __cplusplus
 }
 #endif

@@ -27,7 +27,6 @@ extern "C" {
 #endif
 
 #include "lib/apdu/se05x_APDU_apis.h"
-#include "lib/platform/arduino/sm_port.h"
 
 #ifdef __cplusplus
 }

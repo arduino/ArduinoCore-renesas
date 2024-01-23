@@ -18,6 +18,7 @@
 */
 
 #include "SE05X.h"
+#include "lib/platform/arduino/sm_port.h"
 
 /**
  * 26 bytes see ecc_der_header_nist256
