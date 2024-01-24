@@ -432,6 +432,7 @@ void CNetIf::config(IPAddress _ip, IPAddress _gw, IPAddress _nm) {
 
 void CNetIf::dhcpNotUsed() {
     dhcp_inform(&this->ni);
+    dhcp_acquired = true;
 }
 
 bool CNetIf::isDhcpAcquired() {
