@@ -265,7 +265,7 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
     arduino::lock();
 
     uint8_t* buffer_cursor = (uint8_t*)buffer;
-    uint8_t bytes_to_send = 0;
+    uint16_t bytes_to_send = 0;
 
     do {
         bytes_to_send = min(size - (buffer - buffer_cursor), tcp_sndbuf(this->tcp_info->pcb));
@@ -282,7 +282,7 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
         } else if(res == ERR_MEM) {
             // FIXME handle this: we get into this case only if the sent data cannot be put in the send queue
         }
-    } while(buffer_cursor < buffer + size);
+    } while(buffer_cursor - buffer < size);
 
     tcp_output(this->tcp_info->pcb);
 
