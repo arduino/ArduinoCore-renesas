@@ -37,10 +37,9 @@ void setup() {
 
   Serial.println("Renesas file download example");
 
-  int res = 0;
   DEBUG_INFO("Connecting to AP");
-  while((res=WiFi.begin(SSID, SECRET_PASS)) != 1) {
-    DEBUG_INFO("Connection failed retry: %d", res);
+  while(WiFi.begin(SSID, SECRET_PASS) != WL_CONNECTED) {
+    DEBUG_INFO("Connection failed retry");
     delay(1000);
   }
   DEBUG_INFO("Connected to AP");

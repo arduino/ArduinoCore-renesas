@@ -36,9 +36,13 @@ void setup() {
 
   Serial.println("Renesas file download example");
 
+  IPAddress ip(192, 168, 10, 130);
+  IPAddress gw(192, 168, 10, 1);
+  IPAddress nm(255, 255, 255, 0);
+
   DEBUG_INFO("Setting up netif");
-  // Ethernet.begin(&ip, &nm, &gw);
-  Ethernet.begin();
+  Ethernet.begin(ip, nm, gw);
+  // Ethernet.begin();
 
   DEBUG_INFO("Begin of reception\n\n");
   debug_start = millis();
