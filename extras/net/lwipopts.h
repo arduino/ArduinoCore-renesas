@@ -129,7 +129,7 @@
  *    2 byte alignment -> #define MEM_ALIGNMENT 2
  */
 #ifndef MEM_ALIGNMENT
-#define MEM_ALIGNMENT                   4
+#define MEM_ALIGNMENT                   32
 #endif
 
 /**
