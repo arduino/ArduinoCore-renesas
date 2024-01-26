@@ -266,8 +266,7 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
     uint16_t bytes_to_send = 0;
 
     do {
-        bytes_to_send = min(size - (buffer - buffer_cursor), tcp_sndbuf(this->tcp_info->pcb));
-
+        bytes_to_send = min(size - (buffer_cursor - buffer), tcp_sndbuf(this->tcp_info->pcb));
         /*
          * TODO: Look into the following flags, especially for write of 1 byte
          * TCP_WRITE_FLAG_COPY (0x01) data will be copied into memory belonging to the stack
@@ -279,7 +278,17 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
             buffer_cursor += bytes_to_send;
         } else if(res == ERR_MEM) {
             // FIXME handle this: we get into this case only if the sent data cannot be put in the send queue
+            CLwipIf::getInstance().task();
+            // break;
+        } else {
+            break;
         }
+
+        // FIXME blocking call
+        while(tcp_sndbuf(this->tcp_info->pcb) == 0 && buffer_cursor - buffer < size) {
+            CLwipIf::getInstance().task();
+        }
+
     } while(buffer_cursor - buffer < size);
 
     tcp_output(this->tcp_info->pcb);
