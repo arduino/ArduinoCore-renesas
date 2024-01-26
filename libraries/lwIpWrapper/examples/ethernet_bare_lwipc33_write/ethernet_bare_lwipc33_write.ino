@@ -35,9 +35,10 @@ void setup() {
   IPAddress ip(192, 168, 10, 130);
   IPAddress gw(192, 168, 10, 1);
   IPAddress nm(255, 255, 255, 0);
+  IPAddress dns(8, 8, 8, 8);
 
   DEBUG_INFO("Setting up netif");
-  Ethernet.begin(ip, nm, gw);
+  Ethernet.begin(ip, nm, gw, dns);
   // Ethernet.begin();
 
   DEBUG_INFO("Begin of reception\n\n");
@@ -160,9 +161,9 @@ void reset_app(struct App& app) {
   }
 }
 
+uint16_t bytes_read=0;
 void application() {
   bool found = false;
-  uint16_t bytes_read=0;
 
   switch(app.current_state) {
   case APP_STATE_NONE:
@@ -189,8 +190,11 @@ void application() {
     // The link is up we connect to the server
     app.tcp_client = new lwipClient;
 
+    memset(app.buffer, 0x66, APP_BUFFER_SIZE);
+
     // Connection details:
     app.tcp_client->connect(app.server_ip, app.port);
+    // app.tcp_client->connect("tcpbin.com", 4242);
 
     app.prev_state = app.current_state;
     app.current_state = APP_STATE_CONNECTING;
@@ -223,31 +227,35 @@ void application() {
       state_strings[app.prev_state]);
     break;
   case APP_STATE_SEND: {
-    int res = app.tcp_client->write((uint8_t*)&app.counter, sizeof(counter_t));
-    DEBUG_INFO("counter sent, value 0x%08X, res: %d", app.counter, res);
+    int res = app.tcp_client->write(app.buffer, APP_BUFFER_SIZE);
+    DEBUG_INFO("buffer sent res: %d", res);
 
-    if(res == sizeof(counter_t)) {
-      app.counter++;
+    if(res == APP_BUFFER_SIZE) {
       app.prev_state = app.current_state;
       app.current_state = APP_STATE_RECEIVE;
-      // DEBUG_INFO("State changed: to %s, from %s",
-      //   state_strings[app.current_state],
-      //   state_strings[app.prev_state]);
+      DEBUG_INFO("State changed: to %s, from %s",
+        state_strings[app.current_state],
+        state_strings[app.prev_state]);
     }
     break;
   }
   case APP_STATE_RECEIVE: {
-    counter_t read_counter;
-    bytes_read = app.tcp_client->read((uint8_t*)&read_counter, sizeof(counter_t));
+    int res = app.tcp_client->read(app.buffer, APP_BUFFER_SIZE);
 
-    if(bytes_read == sizeof(counter_t)) {
-      DEBUG_INFO("counter echoed, value 0x%08X", read_counter);
+    if(res > 0) {
+      bytes_read += res;
+      DEBUG_INFO("received %d bytes", res);
+    }
+
+    if(bytes_read == APP_BUFFER_SIZE) {
+      DEBUG_INFO("buffer received: %d", bytes_read);
+      bytes_read = 0;
 
       app.prev_state = app.current_state;
       app.current_state = APP_STATE_SEND;
-      // DEBUG_INFO("State changed: to %s, from %s",
-      //   state_strings[app.current_state],
-      //   state_strings[app.prev_state]);
+      DEBUG_INFO("State changed: to %s, from %s",
+        state_strings[app.current_state],
+        state_strings[app.prev_state]);
     }
     break;
   }
