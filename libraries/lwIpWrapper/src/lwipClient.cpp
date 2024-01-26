@@ -239,7 +239,6 @@ err_t lwipClient::recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err)
 
         return ERR_OK;
     }
-    arduino::lock();
     if(this->tcp_info->state == TCP_CONNECTED || this->tcp_info->state == TCP_ACCEPTED) {
         if (this->tcp_info->pbuf_head == nullptr) {
             // no need to increment the references of the pbuf,
@@ -252,7 +251,6 @@ err_t lwipClient::recv_callback(struct tcp_pcb* tpcb, struct pbuf* p, err_t err)
 
         ret_err = ERR_OK;
     }
-    arduino::unlock();
 
     return ret_err;
 }
@@ -262,7 +260,7 @@ size_t lwipClient::write(uint8_t b) {
 }
 
 size_t lwipClient::write(const uint8_t* buffer, size_t size) {
-    arduino::lock();
+    CLwipIf::getInstance().syncTimer();
 
     uint8_t* buffer_cursor = (uint8_t*)buffer;
     uint16_t bytes_to_send = 0;
@@ -286,7 +284,8 @@ size_t lwipClient::write(const uint8_t* buffer, size_t size) {
 
     tcp_output(this->tcp_info->pcb);
 
-    arduino::unlock();
+    CLwipIf::getInstance().enableTimer();
+
     return buffer_cursor - buffer;
 }
 
@@ -312,14 +311,14 @@ int lwipClient::read(uint8_t* buffer, size_t size) {
      * meaning that across different calls of this function a pbuf could be partially copied
      * we need to account that
      */
-    arduino::lock();
+    CLwipIf::getInstance().syncTimer();
     uint16_t copied = pbuf_copy_partial(this->tcp_info->pbuf_head, buffer, size, this->tcp_info->pbuf_offset);
 
     this->tcp_info->pbuf_head = free_pbuf_chain(this->tcp_info->pbuf_head, copied, &this->tcp_info->pbuf_offset);
 
     // acknowledge the received data
     tcp_recved(this->tcp_info->pcb, copied);
-    arduino::unlock();
+    CLwipIf::getInstance().enableTimer();
 
     return copied;
 }
@@ -331,9 +330,9 @@ int lwipClient::peek() {
         return -1;
     }
 
-    arduino::lock();
+    CLwipIf::getInstance().syncTimer();
     b = pbuf_get_at(this->tcp_info->pbuf_head, 0); // TODO test this
-    arduino::unlock();
+    CLwipIf::getInstance().enableTimer();
 
     return b;
 }
@@ -417,7 +416,7 @@ size_t lwipClient::read_until_token(
     if(buffer_size==0 || buffer==nullptr || this->tcp_info->pbuf_head==nullptr) {
         return 0; // TODO extend checks
     }
-    arduino::lock();
+    CLwipIf::getInstance().syncTimer();
     // TODO check that the buffer size is less than the token len
 
     uint16_t offset=this->tcp_info->pbuf_offset;
@@ -456,7 +455,7 @@ size_t lwipClient::read_until_token(
 
     // acknowledge the received data
     tcp_recved(this->tcp_info->pcb, copied);
-    arduino::unlock();
+    CLwipIf::getInstance().enableTimer();
 
     return copied;
 }

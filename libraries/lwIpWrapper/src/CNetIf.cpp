@@ -126,9 +126,7 @@ void CLwipIf::task() {
         iface->task();
     }
 
-    arduino::lock();
     sys_check_timeouts();
-    arduino::unlock();
 }
 
 void CLwipIf::setDefaultIface(CNetIf* iface) {
