@@ -226,9 +226,13 @@ int CLwipIf::getHostByName(const char* aHostname, IPAddress& aResult, bool execu
 
     while(res == 1 && !completed) { // DNS timeouts seems to be handled by lwip, no need to put one here
         delay(1);
+#ifndef LWIP_USE_TIMER
+        this->task();
+#else // LWIP_USE_TIMER
         if(execute_task) {
             this->task();
         }
+#endif // LWIP_USE_TIMER
     }
 
     return res == 1 ? 0 : res;
