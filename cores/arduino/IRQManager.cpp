@@ -944,6 +944,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             i2s_cfg->txi_ipl = I2S_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ssi_txi_isr;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SSI0_TXI);
+            R_FSP_IsrContextSet(i2s_cfg->txi_irq, (void*)i2s_cfg->p_context);
             last_interrupt_index++;
         }
         if(i2s_cfg->rxi_irq == FSP_INVALID_VECTOR) {
@@ -951,6 +952,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             i2s_cfg->rxi_ipl = I2S_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ssi_rxi_isr;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SSI0_RXI);
+            R_FSP_IsrContextSet(i2s_cfg->rxi_irq, (void*)i2s_cfg->p_context);
             last_interrupt_index++;
         }
         if(i2s_cfg->int_irq == FSP_INVALID_VECTOR) {
@@ -958,6 +960,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             i2s_cfg->idle_err_ipl = I2S_PRIORITY;
             *(irq_ptr + last_interrupt_index) = (uint32_t)ssi_int_isr;
             R_ICU->IELSR[last_interrupt_index] = BSP_PRV_IELS_ENUM(EVENT_SSI0_INT);
+            R_FSP_IsrContextSet(i2s_cfg->int_irq, (void*)i2s_cfg->p_context);
             last_interrupt_index++;
         }
     }
