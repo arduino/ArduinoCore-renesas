@@ -1,0 +1,12 @@
+collapse/module.driver.basic_on_usb.283002553=false
+collapse/module.driver.i2c_on_iic_master.857983463=false
+collapse/module.driver.i2c_on_sci_i2c.66231608=false
+collapse/module.driver.i2s_on_ssi.803618372=false
+collapse/module.driver.pcdc_on_usb.592586967=false
+collapse/module.driver.sdmmc_on_sdmmc.61359805=false
+collapse/module.driver.spi_on_sci_spi.786111052=false
+collapse/module.driver.spi_on_spi.1145449710=false
+collapse/module.driver.uart_on_sci_uart.1673971705=false
+collapse/module.driver.uart_on_sci_uart.623240377=false
+collapse/module.driver.usb_composite.845210554=false
+eclipse.preferences.version=1

@@ -6,6 +6,7 @@ arduino_renesas_core_rules () {
     echo ""
 cat <<EOF
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", MODE:="0666"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b4f", MODE:="0666"
 EOF
 }
 
