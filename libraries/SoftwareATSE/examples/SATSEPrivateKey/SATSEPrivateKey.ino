@@ -28,6 +28,7 @@ void setup() {
 
   if (!SATSE.begin()) {
     Serial.println("Failed to communicate with Software Secure Element!");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.3.0");
     while (1);
   }
 
