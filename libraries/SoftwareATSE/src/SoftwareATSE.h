@@ -38,15 +38,103 @@ public:
   long random(long max);
   int random(byte data[], size_t length);
 
+  /** generatePrivateKey
+   *
+   * Create a new ECCurve_NIST_P256 keypair and stores it in the WiFi chip NVS.
+   * Public key X Y values will be available inside publicKey buffer that should
+   * be at least 64 bytes long.
+   *
+   * | Public key X Y values (64 bytes) |
+   *
+   * @param[in] slot objectID where to store the private key
+   * @param[out] publicKey Buffer containing the public key X Y values
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int generatePrivateKey(int slot, byte publicKey[]);
+
+  /** generatePublicKey
+   *
+   * Reads ECCurve_NIST_P256 public key from KeyID. Public key X Y values will be available
+   * inside publicKey buffer that should be at least 64 bytes long.
+   *
+   * | Public key X Y values (64 bytes) |
+   *
+   * @param[in] slot objectID where is stored the keypair
+   * @param[out] pubkey Buffer containing the public key X Y values
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int generatePublicKey(int slot, byte publicKey[]);
 
+  /** ecdsaVerify
+   *
+   * Verify ECDSA signature using public key.
+   *
+   *                               Input SHA256
+   *                                             ? Match ?
+   * Signature -> public Key -> Original SHA256
+   *
+   * @param[in] message Input SHA256 used to compute the signature 32 bytes
+   * @param[in] sig Input buffer containint the signature R S values 64bytes
+   * @param[in] pubkey Public key X Y values 64bytes
+   *
+   * @return 0 on Failure (Not match) 1 on Success (Match)
+   */
   int ecdsaVerify(const byte message[], const byte signature[], const byte pubkey[]);
+
+  /** ecSign
+   *
+   * Computes ECDSA signature using key stored in KeyID SE050 object.
+   * Output signature buffer is filled with the signature R S values
+   * and should be at least 64 bytes long:
+   *
+   * | R values 32 bytes | S values 32 bytes |
+   *
+   * SHA256 -> private Key -> Signature
+   *
+   * @param[in] slot object ID containing the key
+   * @param[in] message Input SHA256 used to compute the signature 32 bytes
+   * @param[out] signature Output buffer containint the signature 64 bytes
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int ecSign(int slot, const byte message[], byte signature[]);
 
+  /** SHA256
+   *
+   * One-shot SHA256
+   *
+   * @param[in] buffer Input data buffer
+   * @param[in] size Input data length
+   * @param[out] digest Output buffer should be at least 32 bytes long
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int SHA256(const uint8_t *buffer, size_t size, uint8_t *digest);
 
+  /** readSlot
+   *
+   * Reads binary data from Software AT Secure Element object.
+   *
+   * @param[in] slot object ID containing data
+   * @param[out] data Output data buffer
+   * @param[in] length Number of bytes to read
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int readSlot(int slot, byte data[], int length);
+
+  /** writeSlot
+   *
+   * Writes binary data into Software AT Secure Element object.
+   *
+   * @param[in] slot object ID
+   * @param[in] data Input data buffer
+   * @param[in] length Number of bytes to write
+   *
+   * @return 0 on Failure 1 on Success
+   */
   int writeSlot(int slot, const byte data[], int length);
 
   inline int locked() { return 1; }
