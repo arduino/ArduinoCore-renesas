@@ -22,6 +22,10 @@
 
 using namespace std;
 
+static uint8_t constexpr SATSE_SHA256_LENGTH = 32;
+static uint8_t constexpr SATSE_EC256_SIGNATURE_LENGTH = 64;
+static uint8_t constexpr SATSE_EC256_PUB_KEY_LENGTH = 64;
+
 SoftwareATSEClass::SoftwareATSEClass() {
 
 }
@@ -124,9 +128,9 @@ int SoftwareATSEClass::generatePrivateKey(int keyID, byte publicKey[])
     if (publicKey != nullptr) {
         modem.read_using_size();
         if (modem.write(string(PROMPT(_SOFTSE_PRI_KEY)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_PRI_KEY), keyID)) {
-            if (res.size() >= 64) {
-                memcpy(publicKey, (uint8_t*)&res[0], 64);
-                return 64;
+            if (res.size() == SATSE_EC256_PUB_KEY_LENGTH) {
+                memcpy(publicKey, (uint8_t*)&res[0], SATSE_EC256_PUB_KEY_LENGTH);
+                return 1;
             }
         }
     }
@@ -139,9 +143,9 @@ int SoftwareATSEClass::generatePublicKey(int keyID, byte publicKey[])
     if (publicKey != nullptr) {
         modem.read_using_size();
         if (modem.write(string(PROMPT(_SOFTSE_PUB_KEY)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_PUB_KEY), keyID)) {
-            if (res.size() >= 64) {
-                memcpy(publicKey, (uint8_t*)&res[0], 64);
-                return 64;
+            if (res.size() == SATSE_EC256_PUB_KEY_LENGTH) {
+                memcpy(publicKey, (uint8_t*)&res[0], SATSE_EC256_PUB_KEY_LENGTH);
+                return 1;
             }
         }
     }
@@ -152,8 +156,8 @@ int SoftwareATSEClass::ecSign(int slot, const byte message[], byte signature[])
 {
     string res = "";
     if ( message != nullptr) {
-        modem.write_nowait(string(PROMPT(_SOFTSE_S_V_BUF_SET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_S_V_BUF_SET), 32);
-        if(!modem.passthrough((uint8_t *)message, 32)) {
+        modem.write_nowait(string(PROMPT(_SOFTSE_S_V_BUF_SET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_S_V_BUF_SET), SATSE_SHA256_LENGTH);
+        if(!modem.passthrough(message, SATSE_SHA256_LENGTH)) {
             return 0;
         }
     }
@@ -161,9 +165,9 @@ int SoftwareATSEClass::ecSign(int slot, const byte message[], byte signature[])
     if (signature != nullptr) {
         modem.read_using_size();
         if (modem.write(string(PROMPT(_SOFTSE_SIGN_GET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_SIGN_GET), slot)) {
-            if (res.size() == 64) {
-                memcpy(signature, (uint8_t*)&res[0], 64);
-                return 64;
+            if (res.size() == SATSE_EC256_SIGNATURE_LENGTH) {
+                memcpy(signature, (uint8_t*)&res[0], SATSE_EC256_SIGNATURE_LENGTH);
+                return 1;
             }
         }
     }
@@ -174,12 +178,13 @@ int SoftwareATSEClass::ecdsaVerify(const byte message[], const byte signature[],
 {
     string res = "";
     if ( message != nullptr && signature!= nullptr) {
-        byte tmp[256];
-        memcpy(tmp, message,32);
-        memcpy(&tmp[32], signature, 64);
-        memcpy(&tmp[32+64], pubkey, 64);
-        modem.write_nowait(string(PROMPT(_SOFTSE_S_V_BUF_SET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_S_V_BUF_SET), 32+64+64);
-        if(!modem.passthrough((uint8_t *)tmp, 32+64+64)) {
+        static const byte len = SATSE_SHA256_LENGTH + SATSE_EC256_SIGNATURE_LENGTH + SATSE_EC256_PUB_KEY_LENGTH;
+        byte tmp[len];
+        memcpy(tmp, message, SATSE_SHA256_LENGTH);
+        memcpy(&tmp[SATSE_SHA256_LENGTH], signature, SATSE_EC256_SIGNATURE_LENGTH);
+        memcpy(&tmp[SATSE_SHA256_LENGTH + SATSE_EC256_SIGNATURE_LENGTH], pubkey, SATSE_EC256_PUB_KEY_LENGTH);
+        modem.write_nowait(string(PROMPT(_SOFTSE_S_V_BUF_SET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_S_V_BUF_SET), len);
+        if(!modem.passthrough(tmp, len)) {
             return 0;
         }
     }
@@ -196,7 +201,7 @@ int SoftwareATSEClass::SHA256(const uint8_t *buffer, size_t size, uint8_t *diges
     string res = "";
     if ( buffer != nullptr) {
         modem.write_nowait(string(PROMPT(_SOFTSE_S_V_BUF_SET)), res, "%s%d\r\n", CMD_WRITE(_SOFTSE_S_V_BUF_SET), size);
-        if(!modem.passthrough((uint8_t *)buffer, size)) {
+        if(!modem.passthrough(buffer, size)) {
             return 0;
         }
     }
@@ -204,9 +209,9 @@ int SoftwareATSEClass::SHA256(const uint8_t *buffer, size_t size, uint8_t *diges
     if (digest != nullptr) {
         modem.read_using_size();
         if (modem.write(string(PROMPT(_SOFTSE_SHA256_GET)), res, "%s", CMD(_SOFTSE_SHA256_GET))) {
-            if (res.size() == 32) {
-                memcpy(digest, (uint8_t*)&res[0], 32);
-                return 32;
+            if (res.size() == SATSE_SHA256_LENGTH) {
+                memcpy(digest, (uint8_t*)&res[0], SATSE_SHA256_LENGTH);
+                return 1;
             }
         }
     }
@@ -222,7 +227,7 @@ int SoftwareATSEClass::readSlot(int slot, byte data[], int length)
             if (res.size()) {
                 int len = res.size() > length ? length : res.size();
                 memcpy(data, (uint8_t*)&res[0], len);
-                return len;
+                return 1;
             }
         }
     }
@@ -234,8 +239,8 @@ int SoftwareATSEClass::writeSlot(int slot, const byte data[], int length)
     string res = "";
     if ( data != nullptr && length > 0) {
         modem.write_nowait(string(PROMPT(_SOFTSE_WRITE_SLOT)), res, "%s%d,%d\r\n", CMD_WRITE(_SOFTSE_WRITE_SLOT), slot, length);
-        if(modem.passthrough((uint8_t *)data, length)) {
-            return length;
+        if(modem.passthrough(data, length)) {
+            return 1;
         }
     }
     return 0;
