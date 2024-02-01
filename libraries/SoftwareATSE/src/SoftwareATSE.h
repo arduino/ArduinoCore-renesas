@@ -32,6 +32,8 @@ public:
   int begin(const char * name = "se", bool readOnly = false, const char* partition_label = NULL);
   void end();
 
+  void debug(Stream  &u, uint8_t level = 0);
+
   String serialNumber();
 
   long random(long min, long max);

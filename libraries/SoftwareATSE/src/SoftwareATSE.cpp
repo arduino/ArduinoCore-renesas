@@ -34,7 +34,6 @@ int SoftwareATSEClass::begin(const char * name, bool readOnly, const char* parti
 {
     string res = "";
     modem.begin();
-    modem.debug(Serial,2);
     if (name != nullptr && strlen(name) > 0) {
         if (modem.write(string(PROMPT(_SOFTSE_BEGIN)), res, "%s%s,%d,%s\r\n", CMD_WRITE(_SOFTSE_BEGIN), name, readOnly, partition_label != NULL ? partition_label : "")) {
             return atoi(res.c_str());
@@ -47,6 +46,11 @@ void SoftwareATSEClass::end()
 {
     string res = "";
     modem.write(string(PROMPT(_SOFTSE_END)), res, "%s", CMD(_SOFTSE_END));
+}
+
+void SoftwareATSEClass::debug(Stream  &u, uint8_t level)
+{
+    modem.debug(u,level);
 }
 
 String SoftwareATSEClass::serialNumber()
