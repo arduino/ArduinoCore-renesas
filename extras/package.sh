@@ -75,7 +75,7 @@ cat package_renesas_${VERSION}_index.json.tmp |
 sed "s/%%VERSION%%/${VERSION}/" |
 sed "s/%%FILENAME_UNO%%/${FILENAME}/" |
 sed "s/%%CHECKSUM_UNO%%/${CHKSUM}/" |
-sed "s/%%SIZE_UNO%%/${SIZE}/" > package_renesas_${VERSION}_index.json
+sed "s/%%SIZE_UNO%%/${SIZE}/" > package_renesas_${VERSION}_index.json.tmp
 
 # SparkFun Thing Plus RA6M5
 
@@ -103,7 +103,7 @@ mv ../$FILENAME .
 CHKSUM=`sha256sum $FILENAME | awk '{ print $1 }'`
 SIZE=`wc -c $FILENAME | awk '{ print $1 }'`
 
-cat extras.package_index.json.tmp |
+cat package_renesas_${VERSION}_index.json.tmp |
 # sed "s/%%BUILD_NUMBER%%/${BUILD_NUMBER}/" |
 # sed "s/%%BUILD_NUMBER%%/${CURR_TIME_SED}/" |
 sed "s/%%VERSION%%/${VERSION}/" |
