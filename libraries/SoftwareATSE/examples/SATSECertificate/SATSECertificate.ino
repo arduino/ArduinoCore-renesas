@@ -67,10 +67,11 @@ void setup() {
   }
 
   byte buf[512];
-  int len = 0;
+  int ret = 0;
 
-  if((len = SATSE.readSlot(certId, buf, sizeof(buf))) > 0) {
+  if((ret = SATSE.readSlot(certId, buf, sizeof(buf))) > 0) {
     Serial.print("Readback data is:                ");
+    int len = (buf[2] << 8) + buf[3] + 4;
     printBufferHex(buf, len);
   } else {
     Serial.println("Failed to read data");
