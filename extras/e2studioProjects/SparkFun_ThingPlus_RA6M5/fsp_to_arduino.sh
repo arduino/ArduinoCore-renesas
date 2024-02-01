@@ -34,7 +34,7 @@ LIBRARY=`find . | grep "\.a$"`
 echo Copying ${LIBRARY} to ${CORE_PATH}/variants/${TARGET}/libs/libfsp.a
 if [ ! -d ${CORE_PATH}/variants/${TARGET}/libs ]
 then
-    mkdir ${CORE_PATH}/variants/${TARGET}/libs
+    mkdir -p ${CORE_PATH}/variants/${TARGET}/libs
 fi
 cp ${LIBRARY} ${CORE_PATH}/variants/${TARGET}/libs/libfsp.a
 
@@ -48,7 +48,7 @@ LINKER_SCRIPTS=`find . | grep "\.ld$"`
 #------------------------------------------------------------------------
 if [ ! -d ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files ]
 then
-    mkdir ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files
+    mkdir -p ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files
 fi
 
 cp ./ra_gen/*.c ${CORE_PATH}/variants/${TARGET}/tmp_gen_c_files/
@@ -107,7 +107,7 @@ echo ${INCLUDES[@]}
 
 if [ ! -d ${CORE_PATH}/variants/${TARGET}/includes/ ]
 then
-    mkdir ${CORE_PATH}/variants/${TARGET}/includes/
+    mkdir -p ${CORE_PATH}/variants/${TARGET}/includes/
 else
     rm -r ${CORE_PATH}/variants/${TARGET}/includes/*
 fi

@@ -327,7 +327,7 @@ FSP Configuration
     
   Module "I2C Master (r_sci_i2c)"
     Parameter Checking: Default (BSP)
-    DTC on Transmission and Reception: Disabled
+    DTC on Transmission and Reception: Enabled
     10-bit slave addressing: Disabled
     
   HAL
@@ -877,5 +877,5 @@ FSP Configuration
       Bit Rate Modulation: Enable
       Callback: sci_i2c_master_callback
       Interrupt Priority Level: Priority 12
-      RX Interrupt Priority Level [Only used when DTC is enabled]: Disabled
+      RX Interrupt Priority Level [Only used when DTC is enabled]: Priority 12
       
