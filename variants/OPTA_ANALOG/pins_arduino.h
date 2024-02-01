@@ -103,8 +103,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define EXT_INTERRUPTS_HOWMANY 2
 
-#define AVCC_MEASURE_PIN        20
-#define AVCC_MULTIPLY_FACTOR    8.33
+
 
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0071)
