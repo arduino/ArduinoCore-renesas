@@ -68,6 +68,17 @@ void WiFiSSLClient::setCACert(const char* root_ca, size_t size) {
 }
 
 /* -------------------------------------------------------------------------- */
+void WiFiSSLClient::setEccSlot(int ecc508KeySlot, const byte cert[], int certLength) {
+/* -------------------------------------------------------------------------- */
+   getSocket();
+   string res = "";
+   if(certLength > 0) {
+      modem.write_nowait(string(PROMPT(_SETECCSLOT)),res, "%s%d,%d,%d\r\n" , CMD_WRITE(_SETECCSLOT), _sock, ecc508KeySlot, certLength);
+      modem.passthrough((uint8_t *)cert, certLength);
+   }
+}
+
+/* -------------------------------------------------------------------------- */
 size_t WiFiSSLClient::write(uint8_t b){
 /* -------------------------------------------------------------------------- */   
    return write(&b, 1);
