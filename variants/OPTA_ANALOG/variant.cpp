@@ -127,12 +127,12 @@ void initVariant() {
   digitalWrite(LED_7, LED_OFF);
   pinMode(LED_8, OUTPUT);
   digitalWrite(LED_8, LED_OFF);
-  pinMode(LED_RED, OUTPUT);
+  pinMode(OPTA_LED_RED, OUTPUT);
   digitalWrite(LED_RED, LED_RGB_OFF);
-  pinMode(LED_BLUE, OUTPUT);
+  pinMode(OPTA_LED_BLUE, OUTPUT);
   digitalWrite(LED_BLUE, LED_RGB_OFF);
-  pinMode(LED_GREEN, OUTPUT);
-  digitalWrite(LED_GREEN, LED_RGB_OFF);
+  pinMode(OPTA_LED_GREEN, OUTPUT);
+  digitalWrite(OPTA_LED_GREEN, LED_RGB_OFF);
 
   /* TO BE VERIFIED !! */
   FspTimer::set_initial_timer_channel_as_pwm(

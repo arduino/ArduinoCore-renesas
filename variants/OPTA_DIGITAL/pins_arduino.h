@@ -65,9 +65,9 @@ extern "C" unsigned int PINCOUNT_fn();
 #define D6                       (6u)
 #define D7                       (7u)
 /* ++++++++++++++++++++++++++++++++++ LEDS +++++++++++++++++++++++++++++++++ */
-#define LED_RED                    (8u)
-#define LED_BLUE                   (9u)
-#define LED_GREEN                  (10u)
+#define OPTA_LED_RED             (8u)
+#define OPTA_LED_BLUE            (9u)
+#define OPTA_LED_GREEN           (10u)
 
 #define LED_RGB_ON                 LOW
 #define LED_RGB_OFF                HIGH

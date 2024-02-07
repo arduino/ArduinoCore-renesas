@@ -38,9 +38,9 @@ extern "C" unsigned int PINCOUNT_fn();
 #define LED_ON                     HIGH
 #define LED_OFF                    LOW
 
-#define LED_RED                    (18u)
-#define LED_BLUE                   (19u)
-#define LED_GREEN                  (20u)
+#define OPTA_LED_RED               (18u)
+#define OPTA_LED_BLUE              (19u)
+#define OPTA_LED_GREEN             (20u)
 
 #define LED_RGB_ON                 LOW
 #define LED_RGB_OFF                HIGH
