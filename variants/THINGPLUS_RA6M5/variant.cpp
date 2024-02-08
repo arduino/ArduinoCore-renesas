@@ -1,33 +1,6 @@
 #include "Arduino.h"
 #include "pinmux.inc"
 
-// pins not yet handled by the script
-const uint16_t P208[] = { LAST_ITEM_GUARD };
-
-const uint16_t P209[] = { LAST_ITEM_GUARD };
-
-const uint16_t P210[] = {
-    PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B|LAST_ITEM_GUARD,
-};
-
-const uint16_t P211[] = { LAST_ITEM_GUARD };
-
-const uint16_t P214[] = { LAST_ITEM_GUARD };
-
-
-const uint16_t P015_b[] = {
-    PIN_DAC|CHANNEL_1,
-    PIN_ANALOG|CHANNEL_13|ADC_0,
-    PIN_INTERRUPT|CHANNEL_13|LAST_ITEM_GUARD
-};
-#define P015 P015_b
-
-const uint16_t P014_b[] = {
-    PIN_DAC|CHANNEL_0,
-    PIN_ANALOG|CHANNEL_12|ADC_0|LAST_ITEM_GUARD
-};
-#define P014 P014_b
-
 extern "C" const PinMuxCfg_t g_pin_cfg[] = { 
 
     // Thing Plus Form Factor
@@ -125,6 +98,22 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, INPUT);
+
+  // Set internal gpio pins.
+  // Disable SD Card Power
+  pinMode(SD_NEN, OUTPUT_OPENDRAIN);
+  digitalWrite(SD_NEN, HIGH);
+
+  // Turn on VREF.
+  pinMode(VREF_EN, OUTPUT_OPENDRAIN);
+  digitalWrite(VREF_EN, HIGH);
+
+  // Configure Battery Power Mode Status Pin
+  pinMode(PWR_STAT, INPUT_PULLUP);
+
+  // Take BLE out of reset.
+  pinMode(BLE_NRST, OUTPUT_OPENDRAIN);
+  digitalWrite(BLE_NRST, HIGH);
 
   // We're using an extenal reference voltage, so set that here. NOTE: AREF = 3.3V
   analogReference(AR_EXTERNAL);

@@ -126,26 +126,27 @@ static const uint8_t PICO = PIN_SPI_MOSI;
 /****** SDCARD CORE DEFINES *******/
 #define SDCARD_HOWMANY     1
 
-
-#define EXT_INTERRUPTS_HOWMANY 14
-
 #define USE_4BIT_SDCARD   1
 
+/****** USB CORE DEFINES ******/
 #define USB_VID           (0x1b4f)
 #define USB_PID           (0x0036)
 #define USB_NAME          "SparkFun Thing Plus RA6M5"
 
+/****** FLASH DEFINES ******/
 #define ARDUINO_FLASH_TYPE  HP_FLASH
 #define FLASH_BASE_ADDRESS  0x08000000
 #define FLASH_TOTAL_SIZE    0x2000
 #define FLASH_BLOCK_SIZE    0x40
 
-#define PIN_QSPI_CLK     (40u)
-#define PIN_QSPI_SS      (41u)
-#define PIN_QSPI_D0      (42u)
-#define PIN_QSPI_D1      (43u)
-#define PIN_QSPI_D2      (44u)
-#define PIN_QSPI_D3      (45u)
+/****** QSPI CORE DEFINES ******/
+
+#define PIN_QSPI_CLK     (40)
+#define PIN_QSPI_SS      (41)
+#define PIN_QSPI_D0      (42)
+#define PIN_QSPI_D1      (43)
+#define PIN_QSPI_D2      (44)
+#define PIN_QSPI_D3      (45)
 
 #define HAS_QSPI
 
@@ -154,15 +155,23 @@ static const uint8_t PICO = PIN_SPI_MOSI;
 #define QSPI_ERASE_BLOCK_SIZE (0x1000)
 #define QSPI_WRITE_BLOCK_SIZE (0x1)
 
+/****** MISC GPIO CORE DEFINES ******/
+#define EXT_INTERRUPTS_HOWMANY 14
+
+#define SD_NEN            (35)
+#define BLE_NRST          (36)
+#define VREF_EN           (37)
+#define PWR_STAT          (38)
+
 #define HAS_SDHI
 
-#define PIN_SDHI_CLK (22u)
-#define PIN_SDHI_CMD (23u)
-#define PIN_SDHI_D0  (24u)
-#define PIN_SDHI_D1  (25u)
-#define PIN_SDHI_D2  (26u)
-#define PIN_SDHI_D3  (27u)
-#define PIN_SDHI_CD  (28u)  
-#define PIN_SDHI_WP  (29u)
+#define PIN_SDHI_CLK (22)
+#define PIN_SDHI_CMD (23)
+#define PIN_SDHI_D0  (24)
+#define PIN_SDHI_D1  (25)
+#define PIN_SDHI_D2  (26)
+#define PIN_SDHI_D3  (27)
+#define PIN_SDHI_CD  (28)  
+#define PIN_SDHI_WP  (29)
 
 #define RTC_CLOCK_SOURCE    RTC_CLOCK_SOURCE_SUBCLK

@@ -404,3 +404,29 @@ const uint16_t P014[] = {
 PIN_ANALOG|CHANNEL_12|ADC_0|LAST_ITEM_GUARD
 };
 
+// pins not yet handled by the script
+const uint16_t P208[] = { LAST_ITEM_GUARD };
+
+const uint16_t P209[] = { LAST_ITEM_GUARD };
+
+const uint16_t P210[] = {
+    PIN_PWM_AGT|CHANNEL_5|PWM_CHANNEL_B|LAST_ITEM_GUARD,
+};
+
+const uint16_t P211[] = { LAST_ITEM_GUARD };
+
+const uint16_t P214[] = { LAST_ITEM_GUARD };
+
+
+const uint16_t P015_b[] = {
+    PIN_DAC|CHANNEL_1,
+    PIN_ANALOG|CHANNEL_13|ADC_0,
+    PIN_INTERRUPT|CHANNEL_13|LAST_ITEM_GUARD
+};
+#define P015 P015_b
+
+const uint16_t P014_b[] = {
+    PIN_DAC|CHANNEL_0,
+    PIN_ANALOG|CHANNEL_12|ADC_0|LAST_ITEM_GUARD
+};
+#define P014 P014_b
