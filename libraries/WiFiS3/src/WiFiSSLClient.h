@@ -64,9 +64,6 @@ private:
    void getSocket();
    int _read();
    void read_if_needed(size_t s);
-
-private:
-   void upload_default_Cert();
 };
 
 #endif /* WIFISSLCLIENT_H */
