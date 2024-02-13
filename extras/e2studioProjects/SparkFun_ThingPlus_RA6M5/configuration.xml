@@ -515,7 +515,7 @@
       <property id="module.driver.sdmmc.bus_width" value="module.driver.sdmmc.bus_width.bus_width_4_bits"/>
       <property id="module.driver.sdmmc.block_size" value="512"/>
       <property id="module.driver.sdmmc.card_detect" value="module.driver.sdmmc.card_detect.card_detect_cd"/>
-      <property id="module.driver.sdmmc.write_protect" value="module.driver.sdmmc.write_protect.write_protect_none"/>
+      <property id="module.driver.sdmmc.write_protect" value="module.driver.sdmmc.write_protect.write_protect_wp"/>
       <property id="module.driver.sdmmc.p_callback" value="NULL"/>
       <property id="module.driver.sdmmc.access_ipl" value="board.icu.common.irq.priority12"/>
       <property id="module.driver.sdmmc.card_ipl" value="_disabled"/>
@@ -1147,6 +1147,8 @@
       <configSetting altId="p409.gpio_mode.gpio_mode_peripheral" configurationId="p409.gpio_mode"/>
       <configSetting altId="p410.sdhi0.dat1" configurationId="p410"/>
       <configSetting altId="p410.gpio_mode.gpio_mode_peripheral" configurationId="p410.gpio_mode"/>
+      <configSetting altId="p414.sdhi0.wp" configurationId="p414"/>
+      <configSetting altId="p414.gpio_mode.gpio_mode_peripheral" configurationId="p414.gpio_mode"/>
       <configSetting altId="p501.qspi0.qssl" configurationId="p501"/>
       <configSetting altId="p501.gpio_mode.gpio_mode_peripheral" configurationId="p501.gpio_mode"/>
       <configSetting altId="p502.asel" configurationId="p502"/>
@@ -1186,8 +1188,9 @@
       <configSetting altId="sdhi0.dat1.p410" configurationId="sdhi0.dat1"/>
       <configSetting altId="sdhi0.dat2.p206" configurationId="sdhi0.dat2"/>
       <configSetting altId="sdhi0.dat3.p205" configurationId="sdhi0.dat3"/>
-      <configSetting altId="sdhi0.mode.custom.b" configurationId="sdhi0.mode"/>
-      <configSetting altId="sdhi0.pairing.b" configurationId="sdhi0.pairing"/>
+      <configSetting altId="sdhi0.mode.sd_mmc4mbit.free" configurationId="sdhi0.mode"/>
+      <configSetting altId="sdhi0.pairing.free" configurationId="sdhi0.pairing"/>
+      <configSetting altId="sdhi0.wp.p414" configurationId="sdhi0.wp"/>
       <configSetting altId="spi0.miso.p110" configurationId="spi0.miso"/>
       <configSetting altId="spi0.mode.custom.free" configurationId="spi0.mode"/>
       <configSetting altId="spi0.mosi.p109" configurationId="spi0.mosi"/>

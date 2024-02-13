@@ -93,6 +93,7 @@
       <configSetting altId="sdhi0.dat1.p410" configurationId="sdhi0.dat1" isUsedByDriver="true"/>
       <configSetting altId="sdhi0.dat2.p206" configurationId="sdhi0.dat2" isUsedByDriver="true"/>
       <configSetting altId="sdhi0.dat3.p205" configurationId="sdhi0.dat3" isUsedByDriver="true"/>
+      <configSetting altId="sdhi0.wp.p414" configurationId="sdhi0.wp" isUsedByDriver="true"/>
       <configSetting altId="spi0.miso.p110" configurationId="spi0.miso" isUsedByDriver="true"/>
       <configSetting altId="spi0.rspck.p111" configurationId="spi0.rspck" isUsedByDriver="true"/>
       <configSetting altId="spi0.ssl0.p112" configurationId="spi0.ssl0" isUsedByDriver="true"/>

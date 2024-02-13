@@ -47,6 +47,7 @@
             <slot name="P408" secure="true"/>
             <slot name="P409" secure="true"/>
             <slot name="P410" secure="true"/>
+            <slot name="P414" secure="true"/>
         </peripheral>
         <peripheral name="PORT5" group="PORT">
             <slot name="P501" secure="true"/>

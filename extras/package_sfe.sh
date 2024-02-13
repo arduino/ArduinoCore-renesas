@@ -38,7 +38,7 @@ mv ../$FILENAME .
 CHKSUM=`sha256sum $FILENAME | awk '{ print $1 }'`
 SIZE=`wc -c $FILENAME | awk '{ print $1 }'`
 
-cat extras.package_index.json.tmp |
+cat extras/package_index.json.template |
 # sed "s/%%BUILD_NUMBER%%/${BUILD_NUMBER}/" |
 # sed "s/%%BUILD_NUMBER%%/${CURR_TIME_SED}/" |
 sed "s/%%VERSION%%/${VERSION}/" |
@@ -46,4 +46,5 @@ sed "s/%%FILENAME_THINGPLUS%%/${FILENAME}/" |
 sed "s/%%CHECKSUM_THINGPLUS%%/${CHKSUM}/" |
 sed "s/%%SIZE_THINGPLUS%%/${SIZE}/" > package_renesas_${VERSION}_index.json
 
-
+git checkout boards.txt
+git checkout platform.txt

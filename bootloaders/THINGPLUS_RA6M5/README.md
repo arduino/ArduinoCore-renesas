@@ -21,7 +21,7 @@ The board will enumerate as Renesas RA USB Boot.
 
 Then flash the bootloader with [`rfp-cli`](https://www.renesas.com/us/en/software-tool/renesas-flash-programmer-programming-gui#download)
 ```
-rfp-cli -device ra -port $portname -p dfu_c33.hex
+rfp-cli -device ra -tool e2 -if swd -p dfu.hex
 ```
 
 Otherwise, the same hex file can be loaded through the SWD port (using a Jlink for example)

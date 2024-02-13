@@ -39,7 +39,7 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 
     // SDCARD
     { BSP_IO_PORT_02_PIN_14,  P214 }, /*   D22    |   SDHI CLK  */
-    { BSP_IO_PORT_02_PIN_12,  P211 }, /*   D23    |   SDHI CMD  */
+    { BSP_IO_PORT_02_PIN_11,  P211 }, /*   D23    |   SDHI CMD  */
     { BSP_IO_PORT_02_PIN_08,  P208 }, /*   D24    |   SDHI D0   */
     { BSP_IO_PORT_04_PIN_10,  P410 }, /*   D25    |   SDHI D1   */
     { BSP_IO_PORT_02_PIN_06,  P206 }, /*   D26    |   SDHI D2   */
