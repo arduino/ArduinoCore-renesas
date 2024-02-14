@@ -96,6 +96,7 @@ jobs:
               - libraries/OTAUpdate
               - libraries/OPAMP
               - libraries/SoftwareATSE
+              - libraries/Preferences
           - board:
               fqbn: "arduino-git:renesas:minima"
             additional-sketch-paths: |
