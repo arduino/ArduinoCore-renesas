@@ -43,8 +43,6 @@ private:
    IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
 
 
-
-
 public:
     CWifi();
 
@@ -53,6 +51,11 @@ public:
      */
     static const char* firmwareVersion();
 
+    /*
+     * PING
+     */
+    float ping(IPAddress ip, unsigned int count = 5);
+    float ping(const char* host, unsigned int count = 5);
 
     /*
      * Start WiFi connection for OPEN networks
