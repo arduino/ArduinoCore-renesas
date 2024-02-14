@@ -29,13 +29,7 @@ void WiFiSSLClient::getSocket() {
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::connect(IPAddress ip, uint16_t port) {
 /* -------------------------------------------------------------------------- */
-   getSocket();
-
-   string res = "";
-   if(modem.write(string(PROMPT(_SSLCLIENTCONNECTIP)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTIP), _sock, ip.toString(), port)) {
-      return 1;
-   }
-   return 0;
+   return connect(ip.toString().c_str(), port);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,8 +40,14 @@ int WiFiSSLClient::connect(const char* host, uint16_t port) {
       setCACert();
    }
    string res = "";
+   if (_connectionTimeout) {
+      if(modem.write(string(PROMPT(_SSLCLIENTCONNECT)),res, "%s%d,%s,%d,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECT), _sock, host,port, _connectionTimeout)) {
+         return 1;
+      }
+   } else {
    if(modem.write(string(PROMPT(_SSLCLIENTCONNECTNAME)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTNAME), _sock, host, port)) {
       return 1;
+   }
    }
    return 0;
 }
