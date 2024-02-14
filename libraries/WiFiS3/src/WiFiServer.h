@@ -37,6 +37,7 @@ public:
   WiFiServer();
   WiFiServer(int p);
   WiFiClient available();
+  WiFiClient accept();
   void begin(int port);
   void begin();
   virtual size_t write(uint8_t);
