@@ -95,6 +95,7 @@ jobs:
               - libraries/WiFiS3
               - libraries/OTAUpdate
               - libraries/OPAMP
+              - libraries/SoftwareATSE
           - board:
               fqbn: "arduino-git:renesas:minima"
             additional-sketch-paths: |
