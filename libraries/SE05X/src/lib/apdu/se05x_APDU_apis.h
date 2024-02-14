@@ -1104,6 +1104,84 @@ smStatus_t Se05x_API_DigestOneShot(pSe05xSession_t session_ctx,
     uint8_t *hashValue,
     size_t *phashValueLen);
 
+
+/** Se05x_API_MACOneShot_G
+ *
+ * Generate.  See @ref Se05x_API_MACOneShot_V for Verfiication.
+ *
+ * Performs a MAC operation in one shot (without keeping state).
+ *
+ * The 4-byte identifier of the key must refer to an AESKey, DESKey or HMACKey.
+ *
+ * # Command to Applet
+ *
+ * @rst
+ * +---------+------------------------+---------------------------------------------+
+ * | Field   | Value                  | Description                                 |
+ * +=========+========================+=============================================+
+ * | CLA     | 0x80                   |                                             |
+ * +---------+------------------------+---------------------------------------------+
+ * | INS     | INS_CRYPTO             | :cpp:type:`SE05x_INS_t`                     |
+ * +---------+------------------------+---------------------------------------------+
+ * | P1      | P1_MAC                 | See :cpp:type:`SE05x_P1_t`                  |
+ * +---------+------------------------+---------------------------------------------+
+ * | P2      | P2_GENERATE_ONESHOT or | See :cpp:type:`SE05x_P2_t`                  |
+ * |         | P2_VALIDATE_ONESHOT    |                                             |
+ * +---------+------------------------+---------------------------------------------+
+ * | Lc      | #(Payload)             |                                             |
+ * +---------+------------------------+---------------------------------------------+
+ * | Payload | TLV[TAG_1]             | 4-byte identifier of the key object.        |
+ * +---------+------------------------+---------------------------------------------+
+ * |         | TLV[TAG_2]             | 1-byte :cpp:type:`MACAlgoRef`               |
+ * +---------+------------------------+---------------------------------------------+
+ * |         | TLV[TAG_3]             | Byte array containing data to be taken as   |
+ * |         |                        | input to MAC.                               |
+ * +---------+------------------------+---------------------------------------------+
+ * |         | TLV[TAG_5]             | MAC to verify (when P2=P2_VALIDATE_ONESHOT) |
+ * +---------+------------------------+---------------------------------------------+
+ * | Le      | 0x00                   | Expecting MAC or Result.                    |
+ * +---------+------------------------+---------------------------------------------+
+ * @endrst
+ *
+ * # R-APDU Body
+ *
+ * @rst
+ * +------------+---------------------------------------+
+ * | Value      | Description                           |
+ * +============+=======================================+
+ * | TLV[TAG_1] | MAC value (P2=P2_GENERATE_ONESHOT) or |
+ * |            | :cpp:type:`SE05x_Result_t` (when      |
+ * |            | p2=P2_VALIDATE_ONESHOT).              |
+ * +------------+---------------------------------------+
+ * @endrst
+ *
+ * # R-APDU Trailer
+ *
+ * @rst
+ * +-------------+--------------------------------------+
+ * | SW          | Description                          |
+ * +=============+======================================+
+ * | SW_NO_ERROR | The command is handled successfully. |
+ * +-------------+--------------------------------------+
+ * @endrst
+ *
+ * @param[in] session_ctx Session Context [0:kSE05x_pSession]
+ * @param[in] objectID objectID [1:kSE05x_TAG_1]
+ * @param[in] macOperation macOperation [2:kSE05x_TAG_2]
+ * @param[in] inputData inputData [3:kSE05x_TAG_3]
+ * @param[in] inputDataLen Length of inputData
+ * @param[out] macValue  [0:kSE05x_TAG_1]
+ * @param[in,out] pmacValueLen Length for macValue
+ */
+smStatus_t Se05x_API_MACOneShot_G(pSe05xSession_t session_ctx,
+    uint32_t objectID,
+    uint8_t macOperation,
+    const uint8_t *inputData,
+    size_t inputDataLen,
+    uint8_t *macValue,
+    size_t *pmacValueLen);
+
+
 /** Se05x_API_CreateCryptoObject
  *
  * Creates a Crypto Object on the SE05X . Once the Crypto Object is created, it

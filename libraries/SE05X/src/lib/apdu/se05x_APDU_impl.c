@@ -854,6 +854,62 @@ cleanup:
     return retStatus;
 }
 
+
+smStatus_t Se05x_API_MACOneShot_G(pSe05xSession_t session_ctx,
+    uint32_t objectID,
+    uint8_t macOperation,
+    const uint8_t *inputData,
+    size_t inputDataLen,
+    uint8_t *macValue,
+    size_t *pmacValueLen)
+{
+    smStatus_t retStatus = SM_NOT_OK;
+    tlvHeader_t hdr      = {{kSE05x_CLA, kSE05x_INS_CRYPTO, kSE05x_P1_MAC, kSE05x_P2_GENERATE_ONESHOT}};
+    size_t cmdbufLen                       = 0;
+    uint8_t *pCmdbuf                       = NULL;
+    int tlvRet                             = 0;
+    uint8_t *pRspbuf                       = NULL;
+    size_t rspbufLen                       = 0;
+
+    ENSURE_OR_GO_CLEANUP(session_ctx != NULL);
+
+    SMLOG_D("APDU - Se05x_API_MACOneShot_G [] \n");
+
+    pCmdbuf = &session_ctx->apdu_buffer[0];
+    pRspbuf   = &session_ctx->apdu_buffer[0];
+    rspbufLen = sizeof(session_ctx->apdu_buffer);
+
+    tlvRet = TLVSET_U32("objectID", &pCmdbuf, &cmdbufLen, kSE05x_TAG_1, objectID);
+    if (0 != tlvRet) {
+        goto cleanup;
+    }
+    tlvRet = TLVSET_U8("macOperation", &pCmdbuf, &cmdbufLen, kSE05x_TAG_2, macOperation);
+    if (0 != tlvRet) {
+        goto cleanup;
+    }
+    tlvRet = TLVSET_u8bufOptional("inputData", &pCmdbuf, &cmdbufLen, kSE05x_TAG_3, inputData, inputDataLen);
+    if (0 != tlvRet) {
+        goto cleanup;
+    }
+    retStatus = DoAPDUTxRx(session_ctx, &hdr, session_ctx->apdu_buffer, cmdbufLen, pRspbuf, &rspbufLen, 0);
+
+    if (retStatus == SM_OK) {
+        retStatus = SM_NOT_OK;
+        size_t rspIndex = 0;
+        tlvRet    = tlvGet_u8buf(pRspbuf, &rspIndex, rspbufLen, kSE05x_TAG_1, macValue, pmacValueLen);
+        if (0 != tlvRet) {
+            goto cleanup;
+        }
+        if ((rspIndex + 2) == rspbufLen) {
+            retStatus = (smStatus_t)((pRspbuf[rspIndex] << 8) | (pRspbuf[rspIndex + 1]));
+        }
+    }
+
+cleanup:
+    return retStatus;
+}
+
+
 smStatus_t Se05x_API_CreateCryptoObject(pSe05xSession_t session_ctx,
     SE05x_CryptoObjectID_t cryptoObjectID,
     SE05x_CryptoContext_t cryptoContext,
