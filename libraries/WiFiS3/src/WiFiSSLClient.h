@@ -61,10 +61,14 @@ public:
 
 private:
    int _sock;
-   bool _custom_root = false;
    void getSocket();
    int _read();
    void read_if_needed(size_t s);
+   const char* _root_ca = nullptr;
+   int _ecc_slot = -1;
+   const byte* _ecc_cert = nullptr;
+   int _ecc_cert_len = 0;
+
 };
 
 #endif /* WIFISSLCLIENT_H */
