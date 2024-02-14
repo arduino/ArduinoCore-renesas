@@ -30,13 +30,13 @@ class CAccessPoint {
 
 
 class CWifi {
-private: 
+private:
    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
    unsigned long _timeout;
    std::vector<CAccessPoint> access_points;
    std::string ssid;
    std::string apssid;
-   
+
 
    IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
    IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
@@ -54,13 +54,18 @@ public:
     static const char* firmwareVersion();
 
 
-    /* 
-     * Start WiFi connection for OPEN networks 
+    /*
+     * Start WiFi connection for OPEN networks
      * param ssid: Pointer to the SSID string.
      */
     int begin(const char* ssid);
 
-    
+    /*
+     * PING
+     */
+    float ping(IPAddress ip, unsigned int count = 5);
+    float ping(const char* host, unsigned int count = 5);
+
 
     /* Start WiFi connection with passphrase
      * the most secure supported mode will be automatically selected
@@ -107,7 +112,7 @@ public:
         * param subnet:    Static Subnet mask
         */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-    
+
     /* Change DNS IP configuration
      *
      * param dns_server1: IP configuration for DNS server 1
@@ -143,8 +148,8 @@ public:
      * Get the interface MAC address.
      *
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
-     * 
-     * the value returned by this function is meaningfull only if called 
+     *
+     * the value returned by this function is meaningfull only if called
      * afert a begin (both begin or beginAP) or a ScanNetwork function
      * otherwise an empty mac address is returned
      */
@@ -233,8 +238,8 @@ public:
     *
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
 
-    
-      
+
+
      */
     uint8_t encryptionType(uint8_t networkItem);
     uint8_t encryptionType();
@@ -278,7 +283,7 @@ public:
 
     void setTimeout(unsigned long timeout);
 
-    
+
 };
 
 extern CWifi WiFi;

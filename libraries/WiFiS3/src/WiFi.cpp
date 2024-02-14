@@ -20,7 +20,7 @@ const char* CWifi::firmwareVersion() {
       return fw_version;
    }
    return "99.99.99";
-   
+
 }
 
 
@@ -36,7 +36,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    string res = "";
    modem.begin();
    modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 1);
-   
+
    if(passphrase == nullptr) {
       if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s\r\n" , CMD_WRITE(_BEGINSTA), ssid)) {
          return WL_CONNECT_FAILED;
@@ -52,7 +52,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    while(millis() - start_time < 10000){
       if(status() == WL_CONNECTED) {
          return WL_CONNECTED;
-      } 
+      }
    }
   return WL_CONNECT_FAILED;
 }
@@ -78,7 +78,7 @@ uint8_t CWifi::beginAP(const char *ssid, const char* passphrase) {
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::beginAP(const char *ssid, const char* passphrase, uint8_t channel) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    string res = "";
    modem.begin();
    modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 2);
@@ -116,7 +116,7 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPA
    string gw  = to_string(gateway[0]) + ".";
           gw += to_string(gateway[1]) + ".";
           gw += to_string(gateway[2]) + ".";
-          gw += to_string(gateway[3]);       
+          gw += to_string(gateway[3]);
 
    string nm  = to_string(subnet[0]) + ".";
           nm += to_string(subnet[1]) + ".";
@@ -127,18 +127,18 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPA
           _dns1 += to_string(dns1[1]) + ".";
           _dns1 += to_string(dns1[2]) + ".";
           _dns1 += to_string(dns1[3]);
-   
+
    string _dns2  = to_string(dns2[0]) + ".";
           _dns2 += to_string(dns2[1]) + ".";
           _dns2 += to_string(dns2[2]) + ".";
-          _dns2 += to_string(dns2[3]);              
+          _dns2 += to_string(dns2[3]);
 
    ip_ap = local_ip;
    gw_ap = gateway;
    nm_ap = subnet;
 
    modem.write(PROMPT(_SOFTAPCONFIG),res, "%s%s,%s,%s\r\n" , CMD_WRITE(_SOFTAPCONFIG), ip.c_str(), ip.c_str(), nm.c_str());
-   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str(),_dns1.c_str(),_dns2.c_str());   
+   modem.write(string(PROMPT(_SETIP)),res, "%s%s,%s,%s,%s,%s\r\n" , CMD_WRITE(_SETIP), ip.c_str(), gw.c_str(), nm.c_str(),_dns1.c_str(),_dns2.c_str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -152,32 +152,32 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
-/* -------------------------------------------------------------------------- */  
-   
+/* -------------------------------------------------------------------------- */
+
    IPAddress _sm(255,255,255,0);
    IPAddress dns(0,0,0,0);
-   return _config(local_ip, gateway, _sm,dns_server,dns); 
+   return _config(local_ip, gateway, _sm,dns_server,dns);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
-   
+
    IPAddress dns(0,0,0,0);
-   return _config(local_ip, gateway, subnet,dns_server,dns); 
+   return _config(local_ip, gateway, subnet,dns_server,dns);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1) {
 /* -------------------------------------------------------------------------- */
    IPAddress dns(0,0,0,0);
-   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns);  
+   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 /* -------------------------------------------------------------------------- */
-   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns_server2); 
+   return _config(localIP(), gatewayIP(), subnetMask(),dns_server1,dns_server2);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -189,20 +189,20 @@ void CWifi::setHostname(const char* name) {
 
 /* -------------------------------------------------------------------------- */
 int CWifi::disconnect() {
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
    string res = "";
    modem.begin();
 
    if(modem.write(string(PROMPT(_DISCONNECT)),res,CMD(_DISCONNECT))) {
       return 1;
-   }      
+   }
    return 0;
 
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::end(void) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    string res = "";
    modem.begin();
 
@@ -211,7 +211,7 @@ void CWifi::end(void) {
 
 
 static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
-   if(mac_in[2] != ':' || 
+   if(mac_in[2] != ':' ||
       mac_in[5] != ':' ||
       mac_in[8] != ':' ||
       mac_in[11] != ':' ||
@@ -230,7 +230,7 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
 
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::macAddress(uint8_t* _mac) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
   string res = "";
   modem.begin();
   if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
@@ -280,7 +280,7 @@ int8_t CWifi::scanNetworks() {
             ap.encryption_mode = tokens[4];
             access_points.push_back(ap);
          }
-      } 
+      }
    }
 
    return (int8_t)access_points.size();
@@ -317,7 +317,7 @@ IPAddress CWifi::dnsIP(int n) {
          return dns_IP;
       }
    }
-   return IPAddress(0,0,0,0);  
+   return IPAddress(0,0,0,0);
 }
 
 
@@ -334,14 +334,14 @@ IPAddress CWifi::localIP() {
       if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
          if(atoi(res.c_str()) == 1) {
             if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
-               
+
                local_IP.fromString(res.c_str());
-               
+
             }
          }
          else if(atoi(res.c_str()) == 2) {
             if(modem.write(string(PROMPT(_IPSOFTAP)),res,  CMD(_IPSOFTAP))) {
-               
+
                local_IP.fromString(res.c_str());
             }
          }
@@ -383,20 +383,20 @@ IPAddress CWifi::gatewayIP() {
 const char* CWifi::SSID(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
   if(networkItem < access_points.size()) {
-      return access_points[networkItem].ssid.c_str();   
+      return access_points[networkItem].ssid.c_str();
   }
   return nullptr;
 }
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 int32_t CWifi::RSSI(uint8_t networkItem) {
   if(networkItem < access_points.size()) {
-      return atoi(access_points[networkItem].rssi.c_str());   
+      return atoi(access_points[networkItem].rssi.c_str());
   }
   return -1000;
 }
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 
 static uint8_t Encr2wl_enc(string e) {
    if (e == string("open")) {
@@ -423,12 +423,12 @@ static uint8_t Encr2wl_enc(string e) {
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    scanNetworks();
    string myssid(SSID());
    for(unsigned int i = 0; i < access_points.size(); i++) {
       if(myssid ==  access_points[i].ssid) {
-         return Encr2wl_enc(access_points[i].encryption_mode); 
+         return Encr2wl_enc(access_points[i].encryption_mode);
       }
    }
    return ENC_TYPE_UNKNOWN;
@@ -438,11 +438,11 @@ uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType(uint8_t networkItem) {
   if(networkItem < access_points.size()) {
-      return Encr2wl_enc(access_points[networkItem].encryption_mode);   
+      return Encr2wl_enc(access_points[networkItem].encryption_mode);
   }
   return 0;
 }
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
@@ -450,22 +450,22 @@ uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
       for(int i = 0; i < 6; i++) {
          *(bssid + i) = access_points[networkItem].uint_bssid[i];
       }
-      return bssid;   
+      return bssid;
    }
   return nullptr;
 }
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-uint8_t CWifi::channel(uint8_t networkItem) { 
+uint8_t CWifi::channel(uint8_t networkItem) {
    if(networkItem < access_points.size()) {
-      return atoi(access_points[networkItem].channel.c_str());   
+      return atoi(access_points[networkItem].channel.c_str());
    }
    return 0;
 }
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 const char* CWifi::SSID() {
 /* -------------------------------------------------------------------------- */
    string res = "";
@@ -486,9 +486,9 @@ const char* CWifi::SSID() {
    return "";
 }
 
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t* bssid) {
-/* -------------------------------------------------------------------------- */    
+/* -------------------------------------------------------------------------- */
    string res = "";
    if(modem.write(string(PROMPT(_GETBSSID)), res, CMD_READ(_GETBSSID))) {
       macStr2macArray(bssid, res.c_str());
@@ -497,7 +497,7 @@ uint8_t* CWifi::BSSID(uint8_t* bssid) {
    return nullptr;
 }
 
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 int32_t CWifi::RSSI() {
 /* -------------------------------------------------------------------------- */
    string res = "";
@@ -507,9 +507,9 @@ int32_t CWifi::RSSI() {
    return 0;
 }
 
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 const char* CWifi::softAPSSID() {
-/* -------------------------------------------------------------------------- */    
+/* -------------------------------------------------------------------------- */
    string res = "";
    if(modem.write(string(PROMPT(_GETSOFTAPSSID)), res, CMD_READ(_GETSOFTAPSSID))) {
       apssid = res;
@@ -520,7 +520,7 @@ const char* CWifi::softAPSSID() {
 
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::status() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_GETSTATUS)), res, CMD_READ(_GETSTATUS))) {
@@ -532,7 +532,7 @@ uint8_t CWifi::status() {
 
 /* -------------------------------------------------------------------------- */
 int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
    if(modem.write(string(PROMPT(_GETHOSTBYNAME)),res, "%s%s\r\n" , CMD_WRITE(_GETHOSTBYNAME), aHostname)) {
@@ -555,9 +555,33 @@ unsigned long CWifi::getTime() {
 
 
 void CWifi::setTimeout(unsigned long timeout) {
-   (void)(timeout);  
+   (void)(timeout);
 }
 
+/* -------------------------------------------------------------------------- */
+float CWifi::ping(IPAddress ip, unsigned int count) {
+/* -------------------------------------------------------------------------- */
+  modem.begin();
+  string res = "";
+
+  if(modem.write(string(PROMPT(_PINGIP)),res, "%s,%s,%d\r\n", CMD_WRITE(_PINGIP), ip.toString().c_str(), count )) {
+    String rsl = res.c_str();
+    return rsl.toFloat();
+  }
+  return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+float CWifi::ping(const char* host, unsigned int count) {
+/* -------------------------------------------------------------------------- */
+  modem.begin();
+  string res = "";
+  if (modem.write(string(PROMPT(_PINGNAME)),res, "%s,%s,%d\r\n", CMD_WRITE(_PINGNAME), host, count)) {
+    String rsl = res.c_str();
+    return rsl.toFloat();
+  }
+  return 0;
+}
 
 CWifi WiFi;
 
