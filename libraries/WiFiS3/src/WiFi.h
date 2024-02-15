@@ -282,7 +282,17 @@ public:
      */
     int hostByName(const char* aHostname, IPAddress& aResult);
 
-    unsigned long getTime();
+    /*
+     * Provide Timezone information upfront setTZ().
+     * Use POSIX timezone format https://developer.ibm.com/articles/au-aix-posix/
+     * You can choose your time zone also from this list
+     * https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+     *
+     *  The output can be formatted according the strftime() function
+     *  see : https://cplusplus.com/reference/ctime/strftime/
+     */
+    void setTZ(const char * tz);
+    const char * getTime(const char * format = "%d-%b-%y, %H:%M:%S");
 
     void setTimeout(unsigned long timeout);
 

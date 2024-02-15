@@ -22,6 +22,7 @@ enum {
 
 #define _PINGIP                  "+PINGIP"
 #define _PINGNAME                "+PINGNAME"
+#define _GETTIME                 "+GETTIME"
 
 #define _RESET                   "+RESET"
 #define _RESTART_BOOTLOADER      "+RESTARTBOOTLOADER"
