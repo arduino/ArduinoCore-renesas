@@ -6,7 +6,6 @@ basePath = "esp-hosted/esp_hosted_fg/esp/esp_driver/network_adapter/"
 
 booloaderData = open(basePath + "build/bootloader/bootloader.bin", "rb").read()
 partitionData = open(basePath + "build/partition_table/partition-table.bin", "rb").read()
-otaData = open(basePath + "build/ota_data_initial.bin", "rb").read()
 networkData = open(basePath + "build/network_adapter.bin", "rb").read()
 
 # 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 network_adapter.bin
@@ -26,9 +25,6 @@ for i in range(0, len(booloaderData)):
 
 for i in range(0, len(partitionData)):
 	outputData[0x8000 + i] = partitionData[i]
-
-for i in range(0, len(otaData)):
-        outputData[0xd000 + i] = otaData[i]
 
 for i in range(0, len(networkData)):
 	outputData[0x10000 + i] = networkData[i]
