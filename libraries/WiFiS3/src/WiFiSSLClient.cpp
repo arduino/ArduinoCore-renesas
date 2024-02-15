@@ -36,8 +36,13 @@ int WiFiSSLClient::connect(IPAddress ip, uint16_t port) {
 int WiFiSSLClient::connect(const char* host, uint16_t port) {
 /* -------------------------------------------------------------------------- */
    getSocket();
-   if (!_custom_root) {
+   if (_root_ca != nullptr) {
+      setCACert(_root_ca);
+   } else {
       setCACert();
+   }
+   if ((_ecc_slot != -1) && (_ecc_cert != nullptr) && (_ecc_cert_len != 0)) {
+      setEccSlot(_ecc_slot, _ecc_cert, _ecc_cert_len);
    }
    string res = "";
    if (_connectionTimeout) {
@@ -60,10 +65,24 @@ void WiFiSSLClient::setCACert(const char* root_ca, size_t size) {
    if(size > 0) {
       modem.write_nowait(string(PROMPT(_SETCAROOT)),res, "%s%d,%d\r\n" , CMD_WRITE(_SETCAROOT), _sock, size);
       if(modem.passthrough((uint8_t *)root_ca, size)) {
-         _custom_root = true;
+         _root_ca = root_ca;
       }
    } else {
       modem.write(string(PROMPT(_SETCAROOT)),res, "%s%d\r\n" , CMD_WRITE(_SETCAROOT), _sock);
+   }
+}
+
+/* -------------------------------------------------------------------------- */
+void WiFiSSLClient::setEccSlot(int ecc508KeySlot, const byte cert[], int certLength) {
+/* -------------------------------------------------------------------------- */
+   getSocket();
+   string res = "";
+   if(certLength > 0) {
+      modem.write_nowait(string(PROMPT(_SETECCSLOT)),res, "%s%d,%d,%d\r\n" , CMD_WRITE(_SETECCSLOT), _sock, ecc508KeySlot, certLength);
+      modem.passthrough((uint8_t *)cert, certLength);
+      _ecc_slot = ecc508KeySlot;
+      _ecc_cert = cert;
+      _ecc_cert_len = certLength;
    }
 }
 
