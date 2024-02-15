@@ -33,7 +33,7 @@ public:
    ~WiFiSSLClient();
    virtual int connect(IPAddress ip, uint16_t port);
    virtual int connect(const char* host, uint16_t port);
-   void setCACert(const char* root_ca = NULL, size_t size = 0); 
+   void setCACert(const char* root_ca);
    void setEccSlot(int ecc508KeySlot, const byte cert[], int certLength);
    virtual size_t write(uint8_t);
    virtual size_t write(const uint8_t *buf, size_t size);
