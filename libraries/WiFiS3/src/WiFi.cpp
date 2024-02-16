@@ -558,6 +558,30 @@ void CWifi::setTimeout(unsigned long timeout) {
    (void)(timeout);  
 }
 
+/* -------------------------------------------------------------------------- */
+float CWifi::ping(IPAddress ip, unsigned int count) {
+/* -------------------------------------------------------------------------- */
+  modem.begin();
+  string res = "";
+
+  if(modem.write(string(PROMPT(_PINGIP)),res, "%s,%s,%d\r\n", CMD_WRITE(_PINGIP), ip.toString().c_str(), count )) {
+    String rsl = res.c_str();
+    return rsl.toFloat();
+  }
+  return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+float CWifi::ping(const char* host, unsigned int count) {
+/* -------------------------------------------------------------------------- */
+  modem.begin();
+  string res = "";
+  if (modem.write(string(PROMPT(_PINGNAME)),res, "%s,%s,%d\r\n", CMD_WRITE(_PINGNAME), host, count)) {
+    String rsl = res.c_str();
+    return rsl.toFloat();
+  }
+  return 0;
+}
 
 CWifi WiFi;
 
