@@ -547,18 +547,23 @@ int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
 uint8_t CWifi::reasonCode() {
   return 0;
 }
+/* ----------------------------------------------*/
+unsigned long CWifi::getTime() {
+/* ----------------------------------------------*/
+  modem.begin();
+  string res = "";
+  unsigned long tt = 0;
 
-static char TimeZone[35] = {0};
-/* ----------------------------------------------*/
-void CWifi::setTZ(const char * tz) {
-/* ----------------------------------------------*/
-  memset(TimeZone,0x00,35);
-  strncpy(TimeZone,tz,sizeof(TimeZone)-1);
+  if(modem.write(string(PROMPT(_GETTIME)),res,"%s\r\n", CMD_WRITE(_GETTIME))) {
+    tt = strtol(res.c_str(), NULL, 10);
+  }
+
+  return tt;
 }
 
-/* ----------------------------------------------*/
+/* ----------------------------------------------* /
 const char * CWifi::getTime(const char * format) {
-/* ----------------------------------------------*/
+/* ----------------------------------------------* /
   modem.begin();
   string res = "";
 
@@ -572,7 +577,15 @@ const char * CWifi::getTime(const char * format) {
   return NULL;
 }
 
+static char TimeZone[35] = {0};
+/* ----------------------------------------------* /
+void CWifi::setTZ(const char * tz) {
+/* ----------------------------------------------* /
+  memset(TimeZone,0x00,35);
+  strncpy(TimeZone,tz,sizeof(TimeZone)-1);
+}
 
+*/
 
 void CWifi::setTimeout(unsigned long timeout) {
    (void)(timeout);  

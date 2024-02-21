@@ -1,58 +1,45 @@
 /*
-  Get local time from NTP server
-
-  This sketch will obtain the correct local time from the NTP-servers.
-
-  In order to get the correct time, taking in account the daylightsavings, a POSIX
-  formatted timezone string MUST be provided before doing getTime().
-
-  There are a large number of good articles on the internet
-  https://github.com/G6EJD/ESP32-Time-Services-and-SETENV-variable/blob/master/README.md
-  https://developer.ibm.com/articles/au-aix-posix/
-  A pre-formatted timezone list : https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-
-  The output can be formatted according the strftime() function.
-  The default format, if nothing provided is "%d-%b-%y, %H:%M:%S"
-  More information on: https://cplusplus.com/reference/ctime/strftime/
-
-  There are 2 calls:
-  void setTZ(const char * tz);
-  const char * getTime(const char * format = "%d-%b-%y, %H:%M:%S");
-
-  Usage
-  Set the Timezone information one time in setup(): void WiFi.setTZ("TZ_INFO");
-  and then just call WiFi.getTime() or call WiFi.getTime("FORMAT").
+  Get the time in seconds since January 1st, 1970. 
+  
+  The time is retrieved with the WiFi module by fetching the NTP time from an NTP server.
 
   It requires the latest USB Wifi bridge firmware level and WiFiS3 library.
 
   This example is written for a network using WPA encryption. For
   WEP or WPA, change the WiFi.begin() call accordingly.
 
-  created 15 February 2024
-  by paulvha
+  created 21 february 2024
 
- */
+*/
 
 #include "WiFiS3.h"
 #include "arduino_secrets.h"
+#include "RTC.h"
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;    // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;             // your network key index number (needed only for WEP)
 
+/// set offsets to GMT from local 
+#define GMTOffset_hour  1     // # hours difference to GMT
+#define DayLightSaving  0     // 1 = daylight saving is active
+
 int status = WL_IDLE_STATUS;
 
 /* -------------------------------------------------------------------------- */
 void setup() {
 /* -------------------------------------------------------------------------- */
+
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  
+  RTC.begin();
 
-  // check for the WiFi module:
+   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed. freeze !");
     // don't continue
@@ -83,63 +70,37 @@ void setup() {
 /* -------------------------------------------------------------------------- */
 void loop() {
 /* -------------------------------------------------------------------------- */
-  const char *tt;
 
-  //=========================================================//
+  unsigned long EpochTime;
+  
+  EpochTime = WiFi.getTime();
 
-  // this could be in setup() - this is Europe / London
-  WiFi.setTZ("GMT0BST,M3.5.0/01,M10.5.0/02");
-
-  // using the default format.
-  // Output looks like: 15-Feb-24, 17:02:48
-  tt = WiFi.getTime();
-
-  if (strlen(tt) > 0) {
-    Serial.print("Current time in London ");
-    Serial.println(tt);
+  if (EpochTime > 0) {
+    UpdateRTC(EpochTime);
   }
   else {
-    Serial.println("Error during reading London.");
-  }
-
-  //=========================================================//
-
-  // this could be in setup() - this is Europe / Amsterdam
-  WiFi.setTZ("CET-1CEST,M3.5.0/2,M10.5.0/3");
-
-  // user defined format definition,
-  // Output looks like 06:02PM.
-  // see https://cplusplus.com/reference/ctime/strftime/
-  tt = WiFi.getTime("%I:%M%p.");
-
-  if (strlen(tt) > 0) {
-    Serial.print("Current time in Amsterdam ");
-    Serial.println(tt);
-  }
-  else {
-    Serial.println("Error during reading Amsterdam.");
-  }
-
-  //=========================================================//
-
-  // this could be in setup() - this is Eastern Standard Time
-  WiFi.setTZ("EST5EDT,M3.2.0/2,M11.1.0");
-
-  // user defined format definition,
-  // Output looks like 12:02:37.
-  // see https://cplusplus.com/reference/ctime/strftime/
-  tt = WiFi.getTime("%H:%M:%S");
-
-  if (strlen(tt) > 0) {
-    Serial.print("Current time US (EST) Time ");
-    Serial.println(tt);
-  }
-  else {
-    Serial.println("Error during reading US (EST) Time.");
+    Serial.println("Error during reading epoch time.");
   }
 
   Serial.println();
-  delay(5000);
+  delay(10000);
+}
+
+/* -------------------------------------------------------------------------- */
+void UpdateRTC(time_t EpochTime) {
+/* -------------------------------------------------------------------------- */
+
+  auto timeZoneOffsetHours = GMTOffset_hour + DayLightSaving;
+  auto unixTime = EpochTime + (timeZoneOffsetHours * 3600);
+  Serial.print("Unix time = ");
+  Serial.println(unixTime);
+  RTCTime timeToSet = RTCTime(unixTime);
+  RTC.setTime(timeToSet);
+
+  // Retrieve the date and time from the RTC and print them
+  RTCTime currentTime;
+  RTC.getTime(currentTime); 
+  Serial.println("The RTC was just set to: " + String(currentTime));
 }
 
 /* -------------------------------------------------------------------------- */
