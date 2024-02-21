@@ -561,31 +561,6 @@ unsigned long CWifi::getTime() {
   return tt;
 }
 
-/* ----------------------------------------------* /
-const char * CWifi::getTime(const char * format) {
-/* ----------------------------------------------* /
-  modem.begin();
-  string res = "";
-
-  // if Timezone or format is missing
-  if (strlen(TimeZone) == 0 || strlen(format) == 0)  return NULL;
-
-  if(modem.write(string(PROMPT(_GETTIME)),res,"%s,\"%s\",\"%s\"\r\n", CMD_WRITE(_GETTIME), TimeZone, format )) {
-    return res.c_str();
-  }
-
-  return NULL;
-}
-
-static char TimeZone[35] = {0};
-/* ----------------------------------------------* /
-void CWifi::setTZ(const char * tz) {
-/* ----------------------------------------------* /
-  memset(TimeZone,0x00,35);
-  strncpy(TimeZone,tz,sizeof(TimeZone)-1);
-}
-
-*/
 
 void CWifi::setTimeout(unsigned long timeout) {
    (void)(timeout);  
