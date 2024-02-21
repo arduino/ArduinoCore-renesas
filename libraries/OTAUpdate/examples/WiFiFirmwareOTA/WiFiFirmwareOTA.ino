@@ -28,6 +28,31 @@ OTAUpdate ota;
 static char const OTA_FILE_LOCATION[] = "https://downloads.arduino.cc/ota/UNOR4USBBridge.ino.ota";
 
 /* -------------------------------------------------------------------------- */
+bool waitResponse() {
+/* -------------------------------------------------------------------------- */
+  bool confirmation = false;
+  while (confirmation == false) {
+    if (Serial.available()) {
+      char choice = Serial.read();
+      switch (choice) {
+        case 'y':
+        case 'Y':
+          confirmation = true;
+          return true;
+          break;
+        case 'n':
+        case 'N':
+          confirmation = true;
+          return false;
+          break;
+        default:
+          continue;
+      }
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 void setup() {
 /* -------------------------------------------------------------------------- */
   //Initialize serial and wait for port to open:
@@ -63,6 +88,13 @@ void setup() {
   }
 
   printWiFiStatus();
+
+  Serial.println("\nWARNING! Running the sketch a test version of the WiFi firmware will be flashed on your board.");
+  Serial.println("Do you want to proceed? Y/[n]");
+
+  if (false == waitResponse()) {
+    return;
+  }
 
   int ret = ota.begin();
   if(ret != OTAUpdate::OTA_ERROR_NONE) {
@@ -108,7 +140,7 @@ void loop() {
 /* -------------------------------------------------------------------------- */
 
   String fv = WiFi.firmwareVersion();
-  Serial.print("Updated Wi-Fi firmware version: ");
+  Serial.print("Wi-Fi firmware version: ");
   Serial.println(fv);
   delay(1000);
 }
