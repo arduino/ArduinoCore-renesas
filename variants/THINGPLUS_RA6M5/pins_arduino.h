@@ -95,7 +95,7 @@ static const uint8_t D6 = PIN_D6;
 #define PIN_SPI_MOSI      18
 #define PIN_SPI_MISO      17
 #define PIN_SPI_SCK       19
-#define PIN_SPI_CS        6
+#define PIN_SPI_CS        0
 #define FORCE_SPI_MODE    (MODE_SCI)
 
 static const uint8_t MOSI = PIN_SPI_MOSI;
