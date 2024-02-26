@@ -76,7 +76,6 @@
         <peripheral name="SCI9" group="SCI" security=""/>
         <peripheral name="SPI0" group="SPI" security=""/>
         <peripheral name="DMA_DMAC0" group="DMA_DMAC" security=""/>
-        <peripheral name="GPT0" group="GPT" security=""/>
         <peripheral name="AGT0" group="AGT" security=""/>
         <peripheral name="ICU">
             <slot name="IRQ0" secure="true"/>
