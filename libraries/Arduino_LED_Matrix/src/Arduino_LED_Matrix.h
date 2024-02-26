@@ -265,10 +265,6 @@ public:
     // display the drawing
     void endDraw() {
       ArduinoGraphics::endDraw();
-      // clear first line (no idea why it gets filled with random bits, probably some math not working fine for super small displays)
-      for (int i = 0; i < canvasWidth; i++) {
-        _canvasBuffer[0][i] = 0;
-      }
       renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
     }
 

@@ -29,42 +29,60 @@ void WiFiSSLClient::getSocket() {
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::connect(IPAddress ip, uint16_t port) {
 /* -------------------------------------------------------------------------- */
-   getSocket();
-
-   string res = "";
-   if(modem.write(string(PROMPT(_SSLCLIENTCONNECTIP)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTIP), _sock, ip.toString(), port)) {
-      return 1;
-   }
-   return 0;
+   return connect(ip.toString().c_str(), port);
 }
 
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::connect(const char* host, uint16_t port) {
 /* -------------------------------------------------------------------------- */
    getSocket();
-   if (!_custom_root) {
-      setCACert();
-   }
+
+   /* if _root_ca is NULL it configures default root ca bundle */
    string res = "";
-   if(modem.write(string(PROMPT(_SSLCLIENTCONNECTNAME)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTNAME), _sock, host, port)) {
-      return 1;
+   if(_root_ca != nullptr) {
+      size_t size = strlen(_root_ca);
+      modem.write_nowait(string(PROMPT(_SETCAROOT)),res, "%s%d,%d\r\n" , CMD_WRITE(_SETCAROOT), _sock, size);
+      if(!modem.passthrough((uint8_t *)_root_ca, size)) {
+         return 0;
+      }
+   } else {
+      if(!modem.write(string(PROMPT(_SETCAROOT)),res, "%s%d\r\n" , CMD_WRITE(_SETCAROOT), _sock)) {
+         return 0;
+      }
+   }
+
+   /* if needed configure software SE for mTLS */
+   if((_ecc_cert_len > 0) && (_ecc_cert != nullptr) && (_ecc_slot >= 0)) {
+      modem.write_nowait(string(PROMPT(_SETECCSLOT)),res, "%s%d,%d,%d\r\n" , CMD_WRITE(_SETECCSLOT), _sock, _ecc_slot, _ecc_cert_len);
+      if(!modem.passthrough((uint8_t *)_ecc_cert, _ecc_cert_len)) {
+         return 0;
+      }
+   }
+
+   if (_connectionTimeout) {
+      if(modem.write(string(PROMPT(_SSLCLIENTCONNECT)),res, "%s%d,%s,%d,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECT), _sock, host,port, _connectionTimeout)) {
+         return 1;
+      }
+   } else {
+      if(modem.write(string(PROMPT(_SSLCLIENTCONNECTNAME)),res, "%s%d,%s,%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTNAME), _sock, host, port)) {
+         return 1;
+      }
    }
    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-void WiFiSSLClient::setCACert(const char* root_ca, size_t size) {
+void WiFiSSLClient::setCACert(const char* root_ca) {
 /* -------------------------------------------------------------------------- */
-   getSocket();
-   string res = "";
-   if(size > 0) {
-      modem.write_nowait(string(PROMPT(_SETCAROOT)),res, "%s%d,%d\r\n" , CMD_WRITE(_SETCAROOT), _sock, size);
-      if(modem.passthrough((uint8_t *)root_ca, size)) {
-         _custom_root = true;
-      }
-   } else {
-      modem.write(string(PROMPT(_SETCAROOT)),res, "%s%d\r\n" , CMD_WRITE(_SETCAROOT), _sock);
-   }
+   _root_ca = root_ca;
+}
+
+/* -------------------------------------------------------------------------- */
+void WiFiSSLClient::setEccSlot(int ecc508KeySlot, const byte cert[], int certLength) {
+/* -------------------------------------------------------------------------- */
+   _ecc_slot = ecc508KeySlot;
+   _ecc_cert = cert;
+   _ecc_cert_len = certLength;
 }
 
 /* -------------------------------------------------------------------------- */

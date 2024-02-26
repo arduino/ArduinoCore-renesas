@@ -22,35 +22,35 @@ using namespace std;
 
 OTAUpdate::OTAUpdate() {}
 
-OTAUpdate::Error OTAUpdate::setCACert(const char* root_ca) {
+int OTAUpdate::setCACert(const char* root_ca) {
   string res = "";
   if ( root_ca != nullptr && strlen(root_ca) > 0) {
     modem.write_nowait(string(PROMPT(_OTA_SETCAROOT)), res, "%s%d\r\n", CMD_WRITE(_OTA_SETCAROOT), strlen(root_ca));
     if(modem.passthrough((uint8_t *)root_ca, strlen(root_ca))) {
-      return Error::None;
+      return static_cast<int>(Error::None);
     }
-    return Error::Modem;
+    return static_cast<int>(Error::Modem);
   }
-  return Error::Library;
+  return static_cast<int>(Error::Library);
 }
 
-OTAUpdate::Error OTAUpdate::begin() {
+int OTAUpdate::begin() {
   string res = "";
   if (modem.write(string(PROMPT(_OTA_BEGIN)), res, "%s", CMD(_OTA_BEGIN))) {
-    return static_cast<OTAUpdate::Error>(atoi(res.c_str()));
+    return atoi(res.c_str());
   }
-  return Error::Modem;
+  return static_cast<int>(Error::Modem);
 }
 
-OTAUpdate::Error OTAUpdate::begin(const char* file_path) {
+int OTAUpdate::begin(const char* file_path) {
   string res = "";
   if ( file_path != nullptr && strlen(file_path) > 0) {
     if (modem.write(string(PROMPT(_OTA_BEGIN)), res, "%s%s\r\n", CMD_WRITE(_OTA_BEGIN), file_path)) {
-      return static_cast<OTAUpdate::Error>(atoi(res.c_str()));
+      return atoi(res.c_str());
     }
-    return Error::Modem;
+    return static_cast<int>(Error::Modem);
   }
-  return Error::Library;
+  return static_cast<int>(Error::Library);
 }
 
 int OTAUpdate::download(const char* url) {
@@ -87,37 +87,37 @@ int OTAUpdate::download(const char* url, const char* file_path) {
   return ret;
 }
 
-OTAUpdate::Error OTAUpdate::verify() {
+int OTAUpdate::verify() {
   string res = "";
   if (modem.write(string(PROMPT(_OTA_VERIFY)), res, "%s", CMD(_OTA_VERIFY))) {
-    return static_cast<OTAUpdate::Error>(atoi(res.c_str()));
+    return atoi(res.c_str());
   }
-  return Error::Modem;
+  return static_cast<int>(Error::Modem);
 }
 
-OTAUpdate::Error OTAUpdate::update() {
+int OTAUpdate::update() {
   string res = "";
   if (modem.write(string(PROMPT(_OTA_UPDATE)), res, "%s", CMD(_OTA_UPDATE))) {
-    return static_cast<OTAUpdate::Error>(atoi(res.c_str()));
+    return atoi(res.c_str());
   }
-  return Error::Modem;
+  return static_cast<int>(Error::Modem);
 }
 
-OTAUpdate::Error OTAUpdate::update(const char* file_path) {
+int OTAUpdate::update(const char* file_path) {
   string res = "";
   if ( file_path != nullptr && strlen(file_path) > 0) {
     if (modem.write(string(PROMPT(_OTA_UPDATE)), res, "%s%s\r\n", CMD_WRITE(_OTA_UPDATE), file_path)) {
-      return Error::None;
+      return atoi(res.c_str());
     }
-    return Error::Modem;
+    return static_cast<int>(Error::Modem);
   }
-  return Error::Library;
+  return static_cast<int>(Error::Library);
 }
 
-OTAUpdate::Error OTAUpdate::reset() {
+int OTAUpdate::reset() {
   string res = "";
   if (modem.write(string(PROMPT(_OTA_RESET)), res, "%s", CMD(_OTA_RESET))) {
-    return Error::None;
+    return static_cast<int>(Error::None);
   }
-  return Error::Modem;
+  return static_cast<int>(Error::Modem);
 }
