@@ -1,8 +1,8 @@
 /*
   TLS WiFi Web client
 
-  Remember to update the CA certificates using CertificateUploader sketch
-  before using this sketch.
+  Board CA Root certificate bundle is embedded inside WiFi firmware:
+  https://github.com/arduino/uno-r4-wifi-usb-bridge/blob/main/certificates/cacrt_all.pem
 
   Find the full UNO R4 WiFi Network documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-web-client-ssl
