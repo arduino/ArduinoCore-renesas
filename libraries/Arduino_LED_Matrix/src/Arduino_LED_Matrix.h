@@ -169,14 +169,19 @@ public:
     void off(size_t pin) {
         turnLed(pin, false);
     }
-    int begin() {
+    bool begin() {
+        bool rv = true;
         uint8_t type;
         uint8_t ch = FspTimer::get_available_timer(type);
+        if(ch == -1) {
+            return false;
+        }
         // TODO: avoid passing "this" argument to remove autoscroll
-        _ledTimer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
-        _ledTimer.setup_overflow_irq();
-        _ledTimer.open();
-        _ledTimer.start();
+        rv &= _ledTimer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
+        rv &= _ledTimer.setup_overflow_irq();
+        rv &= _ledTimer.open();
+        rv &= _ledTimer.start();
+        return rv;
     }
     void next() {
         uint32_t frame[3];
