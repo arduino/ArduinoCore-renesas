@@ -64,6 +64,9 @@ extern "C" unsigned int PINCOUNT_fn();
 #define SPI_CK                     (33u)
 #define SPI_CS_1                   (34u)
 #define SPI_CS_2                   (35u)
+/* +++++++++++++++++++++++++++++++++ SPI +++++++++++++++++++++++++++++++++++ */
+#define LDAC1                      (36u)
+#define LDAC2                      (37u)
 
 /* ************************** UART CORE DEFINES **************************** */
 #define SERIAL_HOWMANY		        1

@@ -64,6 +64,10 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
     {BSP_IO_PORT_01_PIN_02, P102}, /* (33) SPI_CK */
     {BSP_IO_PORT_01_PIN_03, P103}, /* (34) SPI_CS_1 */
     {BSP_IO_PORT_01_PIN_04, P104}, /* (35) SPI_CS_2 */
+    /* +++++++++++++++++++++++++++++++++ SPI ++++++++++++++++++++++++++++++++ */
+    {BSP_IO_PORT_01_PIN_12, P112}, /* (36) LDAC1 */
+    {BSP_IO_PORT_03_PIN_03, P303}, /* (37) LDAC2 */
+    
 };
 
 extern "C" const size_t g_pin_cfg_size = sizeof(g_pin_cfg);
@@ -105,6 +109,10 @@ void initVariant() {
   digitalWrite(DIO_RTD_SWITCH_1,LOW);
   digitalWrite(DIO_RTD_SWITCH_2,LOW);
 
+  pinMode(LDAC1,OUTPUT);
+  pinMode(LDAC2,OUTPUT);
+  digitalWrite(LDAC1,HIGH);
+  digitalWrite(LDAC2,HIGH);
   
 
 
