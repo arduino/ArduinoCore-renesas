@@ -100,9 +100,9 @@ void initVariant() {
   pinMode(LED_BUILTIN, INPUT);
 
   // Set internal gpio pins.
-  // Disable SD Card Power
+  // Enable SD Card Power
   pinMode(SD_NEN, OUTPUT_OPENDRAIN);
-  digitalWrite(SD_NEN, HIGH);
+  digitalWrite(SD_NEN, LOW);
 
   // Turn on VREF.
   pinMode(VREF_EN, OUTPUT_OPENDRAIN);
