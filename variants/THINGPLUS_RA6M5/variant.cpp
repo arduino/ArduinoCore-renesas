@@ -49,31 +49,32 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
 
     // Other GPIO
     { BSP_IO_PORT_03_PIN_04,  P304 }, /*   D30    |   FREE/IRQ  */
+    { BSP_IO_PORT_04_PIN_15,  P415 }, /*   D31    | !USRBTN/IRQ */
 
     /// ###### FROM HERE, INTERNAL STUFF ONLY
 
     // DA14531 BLE UART
-    { BSP_IO_PORT_06_PIN_02,  P602 }, /*   D31    |     TX1     */
-    { BSP_IO_PORT_06_PIN_01,  P601 }, /*   D32    |     RX1     */
-    { BSP_IO_PORT_03_PIN_01,  P301 }, /*   D33    |     RTS1    */
-    { BSP_IO_PORT_03_PIN_03,  P303 }, /*   D34    |     CTS1    */
+    { BSP_IO_PORT_06_PIN_02,  P602 }, /*   D32    |     TX1     */
+    { BSP_IO_PORT_06_PIN_01,  P601 }, /*   D33    |     RX1     */
+    { BSP_IO_PORT_03_PIN_01,  P301 }, /*   D34    |     RTS1    */
+    { BSP_IO_PORT_03_PIN_03,  P303 }, /*   D35    |     CTS1    */
 
     // Dedicated GPIO pins
-    { BSP_IO_PORT_07_PIN_08,  P708 }, /*   D35    |    !SDEN    */
-    { BSP_IO_PORT_01_PIN_15,  P115 }, /*   D36    |  BLE !RESET */
-    { BSP_IO_PORT_05_PIN_00,  P500 }, /*   D37    |   VREF_EN   */
-    { BSP_IO_PORT_00_PIN_01,  P001 }, /*   D38    |  PWR_STATUS */
+    { BSP_IO_PORT_07_PIN_08,  P708 }, /*   D36    |    !SDEN    */
+    { BSP_IO_PORT_01_PIN_15,  P115 }, /*   D37    |  BLE !RESET */
+    { BSP_IO_PORT_05_PIN_00,  P500 }, /*   D38    |   VREF_EN   */
+    { BSP_IO_PORT_00_PIN_01,  P001 }, /*   D39    |  PWR_STATUS */
     
     // Onboard Interrupts
-    { BSP_IO_PORT_00_PIN_00,  P000 }, /*   D39    | !FUEL_GAUGE/IRQ */
+    { BSP_IO_PORT_00_PIN_00,  P000 }, /*   D40    | !FUEL_GAUGE/IRQ */
 
     // QSPI
-    { BSP_IO_PORT_01_PIN_00,  P100 }, /*   D40    |   QSPI CLK  */
-    { BSP_IO_PORT_05_PIN_01,  P501 }, /*   D41    |   QSPI SS   */
-    { BSP_IO_PORT_01_PIN_02,  P102 }, /*   D42    |   QSPI IO0  */
-    { BSP_IO_PORT_01_PIN_01,  P101 }, /*   D43    |   QSPI IO1  */
-    { BSP_IO_PORT_01_PIN_04,  P104 }, /*   D44    |   QSPI IO2  */
-    { BSP_IO_PORT_01_PIN_03,  P103 }, /*   D45    |   QSPI IO3  */
+    { BSP_IO_PORT_01_PIN_00,  P100 }, /*   D41    |   QSPI CLK  */
+    { BSP_IO_PORT_05_PIN_01,  P501 }, /*   D42    |   QSPI SS   */
+    { BSP_IO_PORT_01_PIN_02,  P102 }, /*   D43    |   QSPI IO0  */
+    { BSP_IO_PORT_01_PIN_01,  P101 }, /*   D44    |   QSPI IO1  */
+    { BSP_IO_PORT_01_PIN_04,  P104 }, /*   D45    |   QSPI IO2  */
+    { BSP_IO_PORT_01_PIN_03,  P103 }, /*   D46    |   QSPI IO3  */
 };
 
 extern "C" {
@@ -98,6 +99,9 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
 void initVariant() {
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, INPUT);
+
+  // Setup user button
+  pinMode(USER_BTN, INPUT_PULLUP);
 
   // Set internal gpio pins.
   // Enable SD Card Power

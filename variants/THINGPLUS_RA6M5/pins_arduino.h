@@ -68,6 +68,9 @@ static const uint8_t D6 = PIN_D6;
 #define LED_BUILTIN PIN_LED
 #define LED_RGB     (13u)
 
+/******  BUTTON DEFINES  *******/
+#define USR_BTN     (31u)
+
 
 /****** RTC CORE DEFINES *******/
 #define RTC_HOWMANY       1
@@ -77,10 +80,10 @@ static const uint8_t D6 = PIN_D6;
 #define SERIAL_HOWMANY	    2
 #define UART1_TX_PIN        20
 #define UART1_RX_PIN        21
-#define UART2_TX_PIN        31
-#define UART2_RX_PIN        32
-#define UART2_RTS_PIN       33
-#define UART2_CTS_PIN       34
+#define UART2_TX_PIN        32
+#define UART2_RX_PIN        33
+#define UART2_RTS_PIN       34
+#define UART2_CTS_PIN       35
 
 /****** WIRE CORE DEFINES ******/
 
@@ -141,12 +144,12 @@ static const uint8_t PICO = PIN_SPI_MOSI;
 
 /****** QSPI CORE DEFINES ******/
 
-#define PIN_QSPI_CLK     (40)
-#define PIN_QSPI_SS      (41)
-#define PIN_QSPI_D0      (42)
-#define PIN_QSPI_D1      (43)
-#define PIN_QSPI_D2      (44)
-#define PIN_QSPI_D3      (45)
+#define PIN_QSPI_CLK     (41)
+#define PIN_QSPI_SS      (42)
+#define PIN_QSPI_D0      (43)
+#define PIN_QSPI_D1      (44)
+#define PIN_QSPI_D2      (45)
+#define PIN_QSPI_D3      (46)
 
 #define HAS_QSPI
 
@@ -156,12 +159,12 @@ static const uint8_t PICO = PIN_SPI_MOSI;
 #define QSPI_WRITE_BLOCK_SIZE (0x1)
 
 /****** MISC GPIO CORE DEFINES ******/
-#define EXT_INTERRUPTS_HOWMANY 14
+#define EXT_INTERRUPTS_HOWMANY 15
 
-#define SD_NEN            (35)
-#define BLE_NRST          (36)
-#define VREF_EN           (37)
-#define PWR_STAT          (38)
+#define SD_NEN            (36)
+#define BLE_NRST          (37)
+#define VREF_EN           (38)
+#define PWR_STAT          (39)
 
 #define HAS_SDHI
 
