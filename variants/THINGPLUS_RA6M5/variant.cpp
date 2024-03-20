@@ -101,7 +101,7 @@ void initVariant() {
   pinMode(LED_BUILTIN, INPUT);
 
   // Setup user button
-  pinMode(USER_BTN, INPUT_PULLUP);
+  pinMode(USR_BTN, INPUT_PULLUP);
 
   // Set internal gpio pins.
   // Enable SD Card Power
