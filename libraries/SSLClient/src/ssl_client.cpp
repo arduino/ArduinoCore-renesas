@@ -52,23 +52,30 @@ static int _handle_error(int err, const char * file, int line)
  */
 static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
     //}
+    if(client->available() == 0) {
+        log_d("Want to read %u", len);
+        return MBEDTLS_ERR_SSL_WANT_READ;
+    }
 
     int result = client->read(buf, len);
     log_d("SSL client RX res=%d len=%d", result, len);
 
-    if (result > 0) {
-        //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
+    if(result < 0) {
+        return MBEDTLS_ERR_SSL_WANT_READ;
     }
-    
+    // if (result > 0) {
+        //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
+    // }
+
     return result;
 }
 
@@ -121,20 +128,20 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
  */
 static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
     //}
-    
+
     //esp_log_buffer_hexdump_internal("SSL.WR", buf, (uint16_t)len, ESP_LOG_VERBOSE);
-    
+
     int result = client->write(buf, len);
-    
+
     log_d("SSL client TX res=%d len=%d", result, len);
     return result;
 }
@@ -307,7 +314,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
 
     log_v("Setting up IO callbacks...");
     mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, ssl_client->client,
-                        client_net_send, NULL, client_net_recv_timeout );
+                        client_net_send, client_net_recv, NULL );
 
     log_v("Performing the SSL/TLS handshake...");
     unsigned long handshake_start_time=millis();

@@ -8,7 +8,7 @@ class WiFiUDP : public lwipUDP {
    public:
    WiFiUDP() {}
    virtual uint8_t begin(uint16_t port) override {
-      CNetIf *ni = CLwipIf::getInstance().get(NI_WIFI_STATION);
+      CNetIf *ni = &WiFiStation;
       if(ni != nullptr) {
          return lwipUDP::begin(IPAddress(ni->getIpAdd()), port);
       }

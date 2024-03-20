@@ -5,10 +5,18 @@
 #include <functional>
 
 #include "CNetIf.h"
-#include "lwipMem.h"
-#include "lwipTypes.h"
 
 #define UDP_TX_PACKET_MAX_SIZE 24
+
+/* UDP structure */
+struct udp_struct {
+    struct udp_pcb* pcb; /* pointer on the current udp_pcb */
+    struct pbuf* p;
+    uint16_t pbuf_offset;
+    ip_addr_t ip; // the remote IP address from which the packet was received
+    u16_t port; // the remote port from which the packet was received
+    std::function<void()> onDataArrival;
+};
 
 class lwipUDP : public UDP {
 private:

@@ -32,13 +32,14 @@
 
 
 #include "CCtrlWrapper.h"
+#include <functional>
 
 #define RESPONSE_TABLE_DIM                  (CTRL_RESP_MAX - CTRL_RESP_BASE) 
 #define EVENT_TABLE_DIM                     (CTRL_EVENT_MAX - CTRL_EVENT_BASE) 
 #define TOTAL_TABLE_DIM                     RESPONSE_TABLE_DIM + EVENT_TABLE_DIM
 
 
-using EspCallback_f    = int (*)(CCtrlMsgWrapper *resp);
+using EspCallback_f    = std::function<int(CCtrlMsgWrapper *resp)>;
 
 
 

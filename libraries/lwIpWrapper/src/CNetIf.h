@@ -1,7 +1,5 @@
-#ifndef _ARDUINO_LWIP_NETIF_H_
-#define _ARDUINO_LWIP_NETIF_H_
+#pragma once
 
-// #define LWIP_USE_TIMER
 #define UNUSED(x) (void)(x)
 
 #define USE_LWIP_AS_LIBRARY
@@ -12,6 +10,8 @@
 #include "IPAddress.h"
 #include "EthernetDriver.h"
 #include <string>
+#include <interface.h>
+
 #ifdef USE_LWIP_AS_LIBRARY
 #include "lwip/include/lwip/dhcp.h"
 #include "lwip/include/lwip/dns.h"
@@ -42,17 +42,6 @@
 #define WIFI_INIT_TIMEOUT_MS 10000
 
 #define WL_MAC_ADDR_LENGTH 6
-
-/* DEFAULT ADDRESS FOR ETHERNET CONFIGURATION */
-
-#define ETH_IFNAME0 'e'
-#define ETH_IFNAME1 't'
-
-#define WST_IFNAME0 'w'
-#define WST_IFNAME1 'f'
-
-#define WSA_IFNAME0 'w'
-#define WSA_IFNAME1 'a'
 
 typedef enum {
     WL_NO_SHIELD = 255,
@@ -90,15 +79,21 @@ typedef enum {
     NI_ETHERNET
 } NetIfType_t;
 
-#define MAX_CLIENT 32
+enum LinkStatus {
+    Unknown,
+    LinkON,
+    LinkOFF
+};
+
+enum EthernetHardwareStatus {
+    EthernetNoHardware,
+    EthernetLwip = 7
+};
+
+#define MAX_CLIENT MEMP_NUM_TCP_PCB
 #define MAX_DHCP_TRIES 4
 #define TIMEOUT_DNS_REQUEST 10000U
 
-class CNetIf;
-
-using NetIfRxCb_f = int (*)(CNetIf*);
-using LwipInit_f = err_t (*)(struct netif* netif);
-using LwipInput_f = err_t (*)(struct pbuf* p, struct netif* inp);
 
 #define DHCP_CHECK_NONE (0)
 #define DHCP_CHECK_RENEW_FAIL (1)
@@ -111,77 +106,56 @@ using LwipInput_f = err_t (*)(struct pbuf* p, struct netif* inp);
 #define TRUNCATED -3
 #define INVALID_RESPONSE -4
 
-typedef enum {
-    DHCP_IDLE_STATUS,
-    DHCP_START_STATUS,
-    DHCP_WAIT_STATUS,
-    DHCP_GOT_STATUS,
-    DHCP_RELEASE_STATUS,
-    DHCP_STOP_STATUS
-} DhcpSt_t;
-
-ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr);
-
-uint32_t ip_addr_to_u32(ip_addr_t* ipaddr);
+class CLwipIf;
 
 /* Base class implements DHCP, derived class will switch it on or off */
-/* -------------------------------------------------------------------------- */
-class CNetIf {
-    /* -------------------------------------------------------------------------- */
-protected:
-    int id;
-    struct netif ni;
-#if LWIP_NETIF_HOSTNAME
-    char hostname[MAX_HOSTNAME_DIM];
-#endif
-
-    ip_addr_t ip;
-    ip_addr_t nm;
-    ip_addr_t gw;
-
-    /* these can be overridden by a config() function called before begin() */
-    static IPAddress default_ip;
-    static IPAddress default_nm;
-    static IPAddress default_gw;
-    static IPAddress default_dhcp_server_ip;
-
-    unsigned long dhcp_timeout;
-    DhcpSt_t dhcp_st;
-    bool dhcp_started;
-    volatile bool dhcp_acquired;
-    uint8_t _dhcp_lease_state;
-    void dhcp_task();
-    void dhcp_reset();
-    bool dhcp_request();
-    uint8_t dhcp_get_lease_state();
-
-    IPAddress _dnsServerAddress;
-
+class CNetIf: public NetworkInterface {
 public:
-    CNetIf();
-    virtual ~CNetIf();
+    CNetIf(NetworkDriver *driver=nullptr);
+    virtual ~CNetIf() {}
+    /*
+     * The begin function is called by the user in the sketch to initialize the network interface
+     * that he is planning on using in the sketch.
+     */
+    virtual int begin(
+        const IPAddress &ip = INADDR_NONE,
+        const IPAddress &nm = INADDR_NONE,
+        const IPAddress &gw = INADDR_NONE);
+
+    /*
+     * This method performs interface specific tasks (if any)
+     */
+    virtual void task();
+
+#ifdef LWIP_DHCP
     /* --------------
      * DHCP functions
      * -------------- */
-    bool DhcpIsStarted() { return dhcp_started; }
-    void DhcpSetTimeout(unsigned long t);
-    /* stops DHCP */
-    void DhcpStop();
-    /* tells DHCP is not used on that interface */
-    void DhcpNotUsed();
-    /* starts DHCP and tries to acquire addresses, return true if acquired, false otherwise */
-    bool DhcpStart();
-    /* tells if DHCP has acquired addresses or not */
+    // starts DHCP and tries to acquire addresses, return true if request was made successfully (ususally memory issues)
+    bool dhcpStart();
+    // stops DHCP
+    void dhcpStop();
+    // tells DHCP server that the interface uses a statically provided ip address
+    void dhcpNotUsed();
+    // force DHCP renewal, returns false on error (ususally memory issues)
+    bool dhcpRenew();
+    // force DHCP release, usually called before dhcp stop (ususally memory issues)
+    bool dhcpRelease();
+    // tells if DHCP has acquired addresses or not
     bool isDhcpAcquired();
-    int checkLease();
+#endif
 
     virtual void setLinkUp();
     virtual void setLinkDown();
-    bool isLinkUp() { return (bool)netif_is_link_up(&ni); }
 
-    /* getters / setters */
-    void setId(int _id) { id = _id; }
-    int getId() { return id; }
+    virtual void up();
+    virtual void down();
+
+    inline int disconnect() { this->down(); return 0; }
+
+    inline LinkStatus linkStatus() { return netif_is_link_up(&ni) ? LinkON : LinkOFF; }
+
+    bool isLinkUp() { return (bool)netif_is_link_up(&ni); }
 
     struct netif* getNi() { return &ni; }
 
@@ -189,244 +163,296 @@ public:
     uint32_t getNmAdd() { return ip4_addr_get_u32(&(ni.netmask)); }
     uint32_t getGwAdd() { return ip4_addr_get_u32(&(ni.gw)); }
 
-    void setHostname(const char* name)
-    {
-        memset(hostname, 0x00, MAX_HOSTNAME_DIM);
-        memcpy(hostname, name, strlen(name) < MAX_HOSTNAME_DIM ? strlen(name) : MAX_HOSTNAME_DIM);
-    }
+    // FIXME when dhcp has not provided an ip address yet return IPADDR_NONE
+    IPAddress localIP()     { return IPAddress(this->getIpAdd()); }
+    IPAddress subnetMask()  { return IPAddress(this->getNmAdd()); }
+    IPAddress gatewayIP()   { return IPAddress(this->getGwAdd()); }
+    IPAddress dnsServerIP();
 
-    /* add */
-    virtual void begin(IPAddress _ip,
-        IPAddress _gw,
-        IPAddress _nm)
-        = 0;
-    virtual void task() = 0;
+    void config(IPAddress _ip, IPAddress _gw, IPAddress _nm);
 
     virtual int getMacAddress(uint8_t* mac) = 0;
+    virtual int setMacAddress(uint8_t* mac) = 0;
 
-    /* default dummy implementation because ethernet does not have that */
-    virtual const char* getSSID() { return nullptr; }
-    virtual uint8_t* getBSSID(uint8_t* bssid) { return nullptr; }
-    virtual int32_t getRSSI() { return 0; }
-    virtual uint8_t getEncryptionType() { return 0; }
-
-   friend class CWifi;
-};
-
-/* -------------------------------------------------------------------------- */
-class CEth : public CNetIf {
-    /* -------------------------------------------------------------------------- */
+    friend CLwipIf;
 protected:
+    struct netif ni;
+
+#ifdef LWIP_DHCP
+    volatile bool dhcp_acquired;
+#endif
+
     /*
      * this function is used to initialize the netif structure of lwip
      */
-    static err_t init(struct netif* ni);
+    virtual err_t init(struct netif* ni) = 0;
 
     /*
      * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
      */
-    static err_t output(struct netif* ni, struct pbuf* p);
-public:
-    CEth();
-    virtual ~CEth();
-    virtual void begin(IPAddress _ip,
-        IPAddress _gw,
-        IPAddress _nm) override;
-    virtual void task() override;
+    virtual err_t output(struct netif* ni, struct pbuf* p) = 0;
 
-    virtual int getMacAddress(uint8_t* mac)
-    {
-        UNUSED(mac);
+    // the following functions are used to call init and output from lwip in the object context in the C code
+    friend err_t _netif_init(struct netif* ni);
+    friend err_t _netif_output(struct netif* ni, struct pbuf* p);
+
+    // IPAddress _dnsServerAddress;
+
+    // Driver interface pointer
+    NetworkDriver *driver = nullptr;
+
+    void linkDownCallback();
+    void linkUpCallback();
+};
+
+class CEth : public CNetIf {
+public:
+    CEth(NetworkDriver *driver=nullptr);
+    // virtual ~CEth();
+    virtual int begin(
+        const IPAddress &ip = INADDR_NONE,
+        const IPAddress &nm = INADDR_NONE,
+        const IPAddress &gw = INADDR_NONE,
+        const IPAddress &dns = INADDR_NONE);
+
+    // The following are overloaded begin methods kept for retrocompatibility with other Arduino cores
+    // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
+    // configuration through DHCP.
+    // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
+    virtual int begin(
+        uint8_t *mac_address,
+        const IPAddress &local_ip           = INADDR_NONE,
+        const IPAddress &dns_server         = INADDR_NONE,
+        const IPAddress &gateway            = INADDR_NONE,
+        const IPAddress &subnet             = INADDR_NONE,
+        const unsigned long timeout         = 60000,
+        const unsigned long responseTimeout = 4000);
+
+    virtual int begin(
+        uint8_t *mac_address,
+        const unsigned long timeout         = 60000,
+        const unsigned long responseTimeout = 4000);
+
+
+    virtual int getMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
         return 1;
     }
 
-    virtual void handleEthRx();
-};
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
+    }
 
-/* -------------------------------------------------------------------------- */
-class CWifiStation : public CNetIf {
-    /* -------------------------------------------------------------------------- */
+
+    int maintain() {} // Deprecated method for retrocompatibility
+    void schedule(void) {} // Deprecated method for retrocompatibility
+
+    inline EthernetHardwareStatus hardwareStatus() { return EthernetLwip; }
 protected:
     /*
      * this function is used to initialize the netif structure of lwip
      */
-    static err_t init(struct netif* ni);
+    err_t init(struct netif* ni) override;
 
     /*
      * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
      */
-    static err_t output(struct netif* ni, struct pbuf* p);
+    err_t output(struct netif* ni, struct pbuf* p) override;
+
+    static const char eth_ifname[];
+private:
+    /*
+     * This function is passed to the driver class and it is meant to
+     * take a pointer to a buffer, and pass it to lwip to process it
+     */
+    void consume_callback(uint8_t* buffer, uint32_t len);
+};
+
+class CWifiStation : public CNetIf {
 public:
     CWifiStation();
     virtual ~CWifiStation();
-    virtual void begin(IPAddress _ip,
-        IPAddress _gw,
-        IPAddress _nm) override;
-    virtual void task() override;
+    virtual int begin(
+        const IPAddress &ip = INADDR_NONE,
+        const IPAddress &nm = INADDR_NONE,
+        const IPAddress &gw = INADDR_NONE) override;
 
-    virtual int getMacAddress(uint8_t* mac) override;
-
-    virtual const char* getSSID() override;
-    virtual uint8_t* getBSSID(uint8_t* bssid) override;
-    virtual int32_t getRSSI() override;
-    virtual uint8_t getEncryptionType() override;
-};
-
-/* -------------------------------------------------------------------------- */
-class CWifiSoftAp : public CNetIf {
-    /* -------------------------------------------------------------------------- */
-protected:
-    /*
-     * this function is used to initialize the netif structure of lwip
-     */
-    static err_t init(struct netif* ni);
-
-    /*
-     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
-     */
-    static err_t output(struct netif* ni, struct pbuf* p);
-public:
-    CWifiSoftAp();
-    virtual ~CWifiSoftAp();
-    virtual void begin(IPAddress _ip,
-        IPAddress _gw,
-        IPAddress _nm) override;
-    virtual void task() override;
-
-    virtual int getMacAddress(uint8_t* mac) override;
-
-    virtual const char* getSSID() override;
-    virtual uint8_t* getBSSID(uint8_t* bssid) override;
-    virtual int32_t getRSSI() override;
-    virtual uint8_t getEncryptionType() override;
-};
-
-/* -------------------------------------------------------------------------- */
-class CLwipIf {
-    /* -------------------------------------------------------------------------- */
-private:
-    bool eth_initialized;
-
-    int dns_num;
-    bool willing_to_start_sync_req;
-    bool async_requests_ongoing;
-
-    friend CWifiStation;
-    friend CWifiSoftAp;
-    static CNetIf* net_ifs[NETWORK_INTERFACES_MAX_NUM];
-    static WifiStatus_t wifi_status;
-
-    /* initialize lwIP and timer */
-    CLwipIf();
-
-/* timer */
-#ifdef LWIP_USE_TIMER
-    static FspTimer timer;
-    static void timer_cb(timer_callback_args_t* arg);
-#endif
-
-    std::vector<AccessPoint_t> access_points;
-    WifiApCfg_t access_point_cfg;
-
-    SoftApCfg_t soft_ap_cfg;
-
-    static bool wifi_hw_initialized;
-    static bool connected_to_access_point;
-    static int initEventCb(CCtrlMsgWrapper* resp);
-    static bool initWifiHw(bool asStation);
-
-    static bool pending_eth_rx;
-
-    static int disconnectEventcb(CCtrlMsgWrapper* resp);
-
-    static void dns_callback(const char* name, const ip_addr_t* ipaddr, void* callback_arg);
-    int8_t get_ip_address_from_hostname(const char* hostname, uint32_t* ipaddr);
-    int inet2aton(const char* aIPAddrString, IPAddress& aResult);
-
-public:
-    static CLwipIf& getInstance();
-    CLwipIf(CLwipIf const&) = delete;
-    void operator=(CLwipIf const&) = delete;
-    ~CLwipIf();
-
-    bool isEthInitialized() { return eth_initialized; }
-
-    void startSyncRequest()
-    {
-        if (async_requests_ongoing) {
-            synchronized
-            {
-                willing_to_start_sync_req = true;
-            }
-            while (willing_to_start_sync_req) {
-                delay(1);
-            }
-        }
-    }
-
-    void restartAsyncRequest()
-    {
-        async_requests_ongoing = true;
-        delay(10);
-        timer.enable_overflow_irq();
-    }
-
-    /* --------------
-     * DNS functions
-     * -------------- */
-
-    int getHostByName(const char* aHostname, IPAddress& aResult);
-    void beginDns(IPAddress aDNSServer);
-    void addDns(IPAddress aDNSServer);
-    IPAddress getDns(int _num = 0);
-
-    /* when you 'get' a network interface, you get a pointer to one of the pointers
-       held by net_ifs array
-       if the array element then an attempt to set up the network interface is made
-       this function actually calls the private function setUp... and that ones
-       call the private _get */
-
-    CNetIf* get(NetIfType_t type,
-        IPAddress _ip = INADDR_NONE,
-        IPAddress _gw = INADDR_NONE,
-        IPAddress _nm = INADDR_NONE);
-
-    static void ethLinkUp();
-    static void ethLinkDown();
-
-    /* this function set the mac address of the corresponding interface to mac
-       and set this value for lwip */
-    bool setMacAddress(NetIfType_t type, uint8_t* mac = nullptr);
-    int getMacAddress(NetIfType_t type, uint8_t* mac);
-
+    int connectToAP(const char* ssid, const char *passphrase=nullptr);
+    int disconnectFromAp();
     int scanForAp();
-    int getApNum();
+
+    virtual void task() override;
+
+    virtual int getMacAddress(uint8_t* mac) override {
+        // FIXME not implemented
+    }
+
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
+    }
+
+    virtual const char* getSSID();
+    virtual uint8_t* getBSSID(uint8_t* bssid);
+    virtual int32_t getRSSI();
+    virtual uint8_t getEncryptionType();
+    virtual uint8_t getChannel();
+
     const char* getSSID(uint8_t i);
     int32_t getRSSI(uint8_t i);
     uint8_t getEncrType(uint8_t i);
     uint8_t* getBSSID(uint8_t i, uint8_t* bssid);
     uint8_t getChannel(uint8_t i);
-    int connectToAp(const char* ssid, const char* pwd);
-    int disconnectFromAp();
-    const char* getSSID();
-    uint8_t* getBSSID(uint8_t* bssid);
-    uint32_t getRSSI();
-    uint8_t getEncrType();
 
-    WifiStatus_t getWifiStatus() { return wifi_status; }
-
-    int startSoftAp(const char* ssid, const char* passphrase, uint8_t channel);
     int setLowPowerMode();
     int resetLowPowerMode();
 
-    const char* getSSID(NetIfType_t type);
-    uint8_t* getBSSID(NetIfType_t type, uint8_t* bssid);
-    int32_t getRSSI(NetIfType_t type);
-    uint8_t getEncryptionType(NetIfType_t type);
+    inline WifiStatus_t status() {
+        return wifi_status;
+    }
+protected:
+    static const char wifistation_ifname[];
 
-    int setWifiMode(WifiMode_t mode);
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    err_t init(struct netif* ni) override;
 
-    void lwip_task();
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    err_t output(struct netif* ni, struct pbuf* p) override;
+
+private:
+    std::vector<AccessPoint_t> access_points;
+    WifiApCfg_t access_point_cfg;
+    bool hw_init; // TODO this should be moved to the wifi driver class
+    WifiStatus_t wifi_status = WL_IDLE_STATUS; // TODO this should be moved to the wifi driver class
 };
 
+class CWifiSoftAp : public CNetIf {
+public:
+    CWifiSoftAp();
+    virtual ~CWifiSoftAp();
+    virtual int begin(
+        const IPAddress &ip = INADDR_NONE,
+        const IPAddress &nm = INADDR_NONE,
+        const IPAddress &gw = INADDR_NONE) override;
+    virtual void task() override;
+
+    int startSoftAp(const char* ssid, const char* passphrase=nullptr, uint8_t channel=0);
+    int stopSoftAp();
+
+    virtual int getMacAddress(uint8_t* mac) override {
+        // FIXME not implemented
+    }
+
+    virtual int setMacAddress(uint8_t* mac) override {
+        UNUSED(mac); // FIXME not implemented
+        return 1;
+    }
+
+    virtual const char* getSSID();
+    virtual uint8_t* getBSSID(uint8_t* bssid);
+    virtual uint8_t getEncryptionType();
+    virtual uint8_t getChannel();
+
+    int setLowPowerMode();
+    int resetLowPowerMode();
+protected:
+    static const char softap_ifname[];
+    /*
+     * this function is used to initialize the netif structure of lwip
+     */
+    err_t init(struct netif* ni);
+
+    /*
+     * This function is passed to lwip and used to send a buffer to the driver in order to transmit it
+     */
+    err_t output(struct netif* ni, struct pbuf* p);
+
+private:
+    std::vector<AccessPoint_t> access_points;
+    SoftApCfg_t soft_ap_cfg;
+    bool hw_init; // TODO this should be moved to the wifi driver class
+};
+
+class CLwipIf {
+public:
+    CLwipIf(CLwipIf const&) = delete;
+    void operator=(CLwipIf const&) = delete;
+
+
+    static CLwipIf& getInstance() {
+        //FIXME this doesn't to seem good
+        static CLwipIf instance; // this is private in case we need to synch the access to the singleton
+        return instance;
+    }
+
+    // run polling tasks from all the LWIP Network Interfaces
+    // this needs to be called in the loop() if we are not running it
+    // with a timer
+    void task();
+
+    // Function that provides a Client of the correct kind given the protocol provided in url
+    // Client* connect(std::string url);
+    // void request(std::string url, std::function<void(uint8_t*, size_t)>);
+
+    // function for setting an iface as default
+    void setDefaultIface(CNetIf* iface);
+    // TODO get iface method
+
+    // functions that handle DNS resolution
+    // DNS servers are also set by dhcp
+#if LWIP_DNS
+    // add a dns server, priority set to 0 means it is the first being queried, -1 means the last
+    uint8_t addDnsServer(const IPAddress& aDNSServer, int8_t priority=-1);
+    void clearDnsServers();
+
+    IPAddress getDns(int n);
+
+    // DNS resolution works with a callback if the resolution doesn't return immediately
+    int getHostByName(const char* aHostname, IPAddress& aResult, bool execute_task=false); // blocking call
+    int getHostByName(const char* aHostname, std::function<void(const IPAddress&)> cbk); // callback version
 #endif
+private:
+    CLwipIf();
+    ~CLwipIf();
+
+    // TODO define a Timer for calling tasks
+
+    std::vector<CNetIf*> ifaces;
+
+    virtual void add_iface(CNetIf* iface);
+    // virtual void del_iface(CNetIf* iface);
+
+    // lwip stores the netif in a linked list called: netif_list
+
+    friend class CNetIf;
+    friend class CWifiSoftAp;
+    friend class CWifiStation;
+public:
+#ifdef LWIP_USE_TIMER
+    FspTimer timer;
+
+    inline void syncTimer() {
+        timer.disable_overflow_irq();
+        this->task();
+    }
+
+    inline void enableTimer() {
+        timer.enable_overflow_irq();
+    }
+#else // LWIP_USE_TIMER
+    inline void syncTimer() {
+        this->task();
+    }
+
+    inline void enableTimer() { }
+#endif // LWIP_USE_TIMER
+};
+
+extern CEth Ethernet;
+extern CWifiStation WiFiStation;
+extern CWifiSoftAp WiFiSoftAP;

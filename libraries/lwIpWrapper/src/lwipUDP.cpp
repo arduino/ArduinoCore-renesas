@@ -5,6 +5,8 @@
 
 #include "lwip/include/lwip/igmp.h"
 #include "lwip/include/lwip/ip_addr.h"
+#include "utils.h"
+#include "lwippbuf.h"
 
 #if LWIP_UDP
 /**
@@ -25,12 +27,13 @@ void udp_receive_callback(void* arg, struct udp_pcb* pcb, struct pbuf* p,
     /* Send data to the application layer */
     if ((udp_arg != NULL) && (udp_arg->pcb == pcb)) {
         // Free the old p buffer if not read
-        if (udp_arg->data.p != NULL) {
-            pbuf_free(udp_arg->data.p);
+        if (udp_arg->p != NULL) {
+            pbuf_free(udp_arg->p);
+            udp_arg->p = NULL;
         }
 
-        udp_arg->data.p = p;
-        udp_arg->data.available = p->len;
+        udp_arg->p = p;
+        udp_arg->pbuf_offset = 0;
 
         ip_addr_copy(udp_arg->ip, *addr);
         udp_arg->port = port;
@@ -64,7 +67,8 @@ uint8_t lwipUDP::begin(IPAddress ip, uint16_t port, bool multicast)
 
     ip_addr_t ipaddr;
     err_t err;
-    u8_to_ip_addr(rawIPAddress(ip), &ipaddr);
+    ipaddr = fromArduinoIP(ip);
+
     if (multicast) {
         err = udp_bind(_udp.pcb, IP_ADDR_ANY, port);
     } else {
@@ -86,7 +90,7 @@ uint8_t lwipUDP::begin(IPAddress ip, uint16_t port, bool multicast)
     _port = port;
     _remaining = 0;
 
-    CLwipIf::getInstance().lwip_task();
+    CLwipIf::getInstance().task();
 
     return 1;
 }
@@ -107,7 +111,7 @@ void lwipUDP::stop()
         _udp.pcb = NULL;
     }
 
-    CLwipIf::getInstance().lwip_task();
+    CLwipIf::getInstance().task();
 }
 
 int lwipUDP::beginPacket(const char* host, uint16_t port)
@@ -135,7 +139,7 @@ int lwipUDP::beginPacket(IPAddress ip, uint16_t port)
     _sendtoPort = port;
 
     udp_recv(_udp.pcb, &udp_receive_callback, &_udp);
-    CLwipIf::getInstance().lwip_task();
+    CLwipIf::getInstance().task();
 
     return 1;
 }
@@ -145,18 +149,24 @@ int lwipUDP::endPacket()
     if ((_udp.pcb == NULL) || (_data == NULL)) {
         return 0;
     }
-
-    ip_addr_t ipaddr;
-    if (ERR_OK != udp_sendto(_udp.pcb, _data, u8_to_ip_addr(rawIPAddress(_sendtoIP), &ipaddr), _sendtoPort)) {
+    /*
+     * FIXME in this way, the derived classes for wifi and ethernet won't send data through the correct iface
+     *       the solution to this issue is by using udp_sendto_if, by this needs further rework
+     */
+    ip_addr_t ipaddr = fromArduinoIP(_sendtoIP);
+    if (ERR_OK != udp_sendto(
+            _udp.pcb, _data,
+            &ipaddr,
+            _sendtoPort)) {
         __disable_irq();
-        _data = pbuffer_free_data(_data);
+        pbuf_free(_data);
         __enable_irq();
         return 0;
     }
 
     _data = NULL;
 
-    CLwipIf::getInstance().lwip_task();
+    CLwipIf::getInstance().task();
 
     return 1;
 }
@@ -169,11 +179,20 @@ size_t lwipUDP::write(uint8_t byte)
 size_t lwipUDP::write(const uint8_t* buffer, size_t size)
 {
     __disable_irq();
-    _data = pbuffer_put_data(_data, buffer, size);
-    __enable_irq();
-    if (_data == NULL) {
+    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_RAM);
+
+    if(p == NULL) {
         return 0;
     }
+    pbuf_take(p, buffer, size);
+
+    if(_data == NULL) {
+        _data = p;
+    } else {
+        // no need to increment the reference count of the pbuf, since it is already 1
+        pbuf_cat(_data, p);
+    }
+    __enable_irq();
 
     return size;
 }
@@ -188,12 +207,12 @@ int lwipUDP::parsePacket()
     //   read();
     // }
 
-    CLwipIf::getInstance().lwip_task();
+    CLwipIf::getInstance().task();
 
-    if (_udp.data.available > 0) {
-        _remoteIP = IPAddress(ip_addr_to_u32(&(_udp.ip)));
+    if (_udp.p == nullptr? 0: _udp.p->tot_len) {
+        _remoteIP = toArduinoIP(&_udp.ip);
         _remotePort = _udp.port;
-        _remaining = _udp.data.available;
+        _remaining = _udp.p->tot_len;
 
         return _remaining;
     }
@@ -205,7 +224,7 @@ int lwipUDP::read()
 {
     uint8_t byte;
 
-    if (_udp.data.p == NULL) {
+    if (_udp.p == NULL) {
         return -1;
     }
 
@@ -221,25 +240,19 @@ int lwipUDP::read()
 
 int lwipUDP::read(unsigned char* buffer, size_t len)
 {
-    if (_udp.data.p == NULL) {
+    if (_udp.p == NULL) {
         return -1;
     }
 
     if (_remaining > 0) {
-        int got;
+        __disable_irq();
+        int got = pbuf_copy_partial(
+            _udp.p,
+            buffer,
+            _remaining < len ? _remaining : len, _udp.pbuf_offset);
 
-        if (_remaining <= len) {
-            // data should fit in the buffer
-            __disable_irq();
-            got = (int)pbuffer_get_data(&(_udp.data), (uint8_t*)buffer, _remaining);
-            __enable_irq();
-        } else {
-            // too much data for the buffer,
-            // grab as much as will fit
-            __disable_irq();
-            got = (int)pbuffer_get_data(&(_udp.data), (uint8_t*)buffer, len);
-            __enable_irq();
-        }
+        _udp.p = free_pbuf_chain(_udp.p, got, &_udp.pbuf_offset);
+        __enable_irq();
 
         if (got > 0) {
             _remaining -= got;
@@ -260,7 +273,7 @@ int lwipUDP::peek()
     if (!_remaining) {
         return -1;
     }
-    b = pbuf_get_at(_udp.data.p, 0);
+    b = pbuf_get_at(_udp.p, 0);
     return b;
 }
 

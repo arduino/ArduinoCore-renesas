@@ -1,5 +1,4 @@
-#ifndef ARDUINO_C_ETHERNET_H
-#define ARDUINO_C_ETHERNET_H
+#pragma once
 
 #ifndef ARDUINO_PORTENTA_C33
 // force discovering wth shield library
@@ -13,65 +12,16 @@
 
 #include "EthernetClient.h"
 #include "EthernetServer.h"
+#include "EthernetDriver.h"
 
 #include "CNetIf.h"
-#include "lwipMem.h"
 
-enum EthernetLinkStatus {
-  Unknown,
-  LinkON,
-  LinkOFF
-};
+#ifdef ARDUINO_PORTENTA_C33
 
-enum EthernetHardwareStatus {
-  EthernetNoHardware,
-  EthernetLwip = 7
-};
+// TODO Instantiate the drivers for ethernet with default configuration parameters
+inline EthernetC33Driver EthernetDriver(2, 2, mem_malloc, 1536);
 
-class CEthernet {
+// FIXME Instantiate a global variable from CEth, calling it Ethernet
+inline CEth Ethernet(&EthernetDriver);
 
-  private:
-    CNetIf *ni;
-    
-    uint8_t mac_address[6];
-  public:
-    // Initialise the Ethernet with the internal provided MAC address and gain the rest of the
-    // configuration through DHCP.
-    // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
-    int begin(unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-    EthernetLinkStatus linkStatus();
-    int begin(IPAddress local_ip);
-    int begin(IPAddress local_ip, IPAddress dns_server);
-    int begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
-    int begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-    // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
-    // configuration through DHCP.
-    // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
-    int begin(uint8_t *mac_address, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-    int begin(uint8_t *mac_address, IPAddress local_ip);
-    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server);
-    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
-    int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-    EthernetHardwareStatus hardwareStatus();
-
-    void setDNS(IPAddress dns_server); 
-
-    int disconnect(void);
-    int maintain();
-    void schedule(void);
-
-   
-    uint8_t *MACAddress(void);
-    void MACAddress(uint8_t *mac);
-    IPAddress localIP();
-    IPAddress subnetMask();
-    IPAddress gatewayIP();
-    IPAddress dnsServerIP();
-
-    friend class EthernetClient;
-    friend class EthernetServer;
-};
-
-extern CEthernet Ethernet;
-
-#endif
+#endif // ARDUINO_PORTENTA_C33
