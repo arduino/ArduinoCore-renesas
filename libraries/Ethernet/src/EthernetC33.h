@@ -41,9 +41,9 @@ class CEthernet {
     int begin(unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
     EthernetLinkStatus linkStatus();
     int begin(IPAddress local_ip);
-    int begin(IPAddress local_ip, IPAddress subnet);
-    int begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway);
-    int begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server);
+    int begin(IPAddress local_ip, IPAddress dns_server);
+    int begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
+    int begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
     // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
     // configuration through DHCP.
     // Returns 0 if the DHCP configuration failed, and 1 if it succeeded

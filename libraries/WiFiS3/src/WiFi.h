@@ -8,13 +8,17 @@
 #include "WiFiTypes.h"
 #include "Modem.h"
 
+#include "WiFiClient.h"
+#include "WiFiServer.h"
+#include "WiFiUdp.h"
+#include "WiFiSSLClient.h"
 
 #define DEFAULT_IP_AP_ADDRESS           IPAddress(192,168,4,1)
 #define DEFAULT_GW_AP_ADDRESS           IPAddress(192,168,1,1)
 #define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
 
 
-#define WIFI_FIRMWARE_LATEST_VERSION "0.3.0"
+#define WIFI_FIRMWARE_LATEST_VERSION "0.4.1"
 
 class CAccessPoint {
    public:

@@ -62,12 +62,17 @@ public:
   virtual IPAddress remoteIP();
   virtual uint16_t remotePort();
 
+  void setConnectionTimeout(int timeout) {
+    _connectionTimeout = timeout;
+  }
+
   friend class WiFiServer;
   
   using Print::write;
 
 protected:
   int _sock;
+  int _connectionTimeout = 0;
   void getSocket();
   std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>> rx_buffer;
   int _read();

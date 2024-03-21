@@ -198,6 +198,8 @@ typedef enum
     kSE05x_P2_DH              = 0x0F,
     kSE05x_P2_ENCRYPT_ONESHOT = 0x37,
     kSE05x_P2_DECRYPT_ONESHOT = 0x38,
+    kSE05x_P2_GENERATE_ONESHOT = 0x45,
+    kSE05x_P2_VALIDATE_ONESHOT = 0x46,
     kSE05x_P2_RANDOM          = 0x49,
     kSE05x_P2_SCP             = 0x52,
 } SE05x_P2_t;

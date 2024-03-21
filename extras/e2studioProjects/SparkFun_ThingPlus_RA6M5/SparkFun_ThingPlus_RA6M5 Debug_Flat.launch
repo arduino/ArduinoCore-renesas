@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.renesas.cdt.launch.dsf.gdbremote.launchConfigurationType">
+    <booleanAttribute key=".setStepMode" value="false"/>
+    <stringAttribute key="com.renesas.cdt.core.additionalServerArgs" value=""/>
+    <intAttribute key="com.renesas.cdt.core.connectionTimeout" value="30"/>
+    <stringAttribute key="com.renesas.cdt.core.initCommands" value=""/>
+    <stringAttribute key="com.renesas.cdt.core.ipAddress" value="localhost"/>
+    <stringAttribute key="com.renesas.cdt.core.jtagDeviceId" value="com.renesas.hardwaredebug.arm.e2"/>
+    <listAttribute key="com.renesas.cdt.core.listGDBExe">
+        <listEntry value="arm-none-eabi-gdb"/>
+    </listAttribute>
+    <listAttribute key="com.renesas.cdt.core.listGDBLaunchName">
+        <listEntry value="main"/>
+    </listAttribute>
+    <listAttribute key="com.renesas.cdt.core.listGDBPort">
+        <listEntry value="61234"/>
+    </listAttribute>
+    <stringAttribute key="com.renesas.cdt.core.optionInitCommands" value="monitor force_rtos_off&#10;&#10;"/>
+    <intAttribute key="com.renesas.cdt.core.portNumber" value="61234"/>
+    <stringAttribute key="com.renesas.cdt.core.runCommands" value=""/>
+    <stringAttribute key="com.renesas.cdt.core.secondGDBExe" value="green_dsp-elf-gdb"/>
+    <booleanAttribute key="com.renesas.cdt.core.secondGDBSupport" value="false"/>
+    <intAttribute key="com.renesas.cdt.core.secondGdbPortNumber" value="61237"/>
+    <stringAttribute key="com.renesas.cdt.core.serverParam" value="-g E2 -t R7FA6M5AH -uConnectionTimeout= 30 -uClockSrc= &quot;0&quot; -uAllowClockSourceInternal= 1 -uInteface= &quot;SWD&quot; -uIfSpeed= &quot;auto&quot; -w &quot;1&quot; -z &quot;33&quot; -uResetCon= 1 -uLowPower= 1 -uEnableSciBoot=  1 -uSWOclockDiv= &quot;4&quot; -uresetOnReload= 1 -n &quot;0&quot; -uFlashBp= 0 -uhookWorkRamSize= &quot;0x400&quot; -ueraseRomOnDownload= 0 -ueraseDataRomOnDownload= 0 -uTraceMTB=  0 -uTraceSizeMTB=  &quot;1024&quot; -uProgReWriteIRom= 0 -uProgReWriteDFlash= 0 -uOSRestriction= 0 -uTimeMeasurementEnable= 1 -uDWTEnable= 0"/>
+    <booleanAttribute key="com.renesas.cdt.core.setResume" value="true"/>
+    <booleanAttribute key="com.renesas.cdt.core.startServer" value="true"/>
+    <stringAttribute key="com.renesas.cdt.core.targetDevice" value="R7FA6M5AH"/>
+    <booleanAttribute key="com.renesas.cdt.core.useRemoteTarget" value="true"/>
+    <stringAttribute key="com.renesas.cdt.launch.dsf.IO_MAP" value="${support_area_loc}"/>
+    <booleanAttribute key="com.renesas.cdt.launch.dsf.USE_DEFAULT_IO_MAP" value="true"/>
+    <listAttribute key="com.renesas.cdt.launch.dsf.downloadImages">
+        <listEntry value="|true|true|true||true|No core|INTERNAL_MEMORY||false"/>
+    </listAttribute>
+    <booleanAttribute key="com.renesas.cdt.launch.dsf.downloadImagesUpgradedV30" value="true"/>
+    <listAttribute key="com.renesas.cdt.launch.dsf.externalFlashDestinationAddresses"/>
+    <listAttribute key="com.renesas.cdt.launch.dsf.externalFlashDownloadModules"/>
+    <stringAttribute key="com.renesas.cdt.launch.dsf.launchSeqType" value="com.renesas.cdt.launch.dsf.launchSequence.e2GdbServer"/>
+    <stringAttribute key="com.renesas.cdt.launch.dsf.serverPath" value="${renesas.support.targetLoc:com.renesas.ide.supportfiles.ra.debug.debugSupportFileTarget}\e2-server-gdb"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.allow.clock.source.internal" value="true"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.break.useFlashBreakpoints" value="false"/>
+    <intAttribute key="com.renesas.hardwaredebug.arm.e2.clock_source" value="0"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.connection.id_code.format.big_endian" value="false"/>
+    <intAttribute key="com.renesas.hardwaredebug.arm.e2.connection.id_code.input_type" value="0"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.connection.id_code2" value="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.connection.resetCon" value="true"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.connection.type" value="SWD"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.enable.hot.plug" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.enable_dwt" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.eraseDataRomOnDownload" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.eraseRomOnDownload" value="false"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.hook_Stop_func" value=""/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.hook_enable_Stop" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.hook_enable_start" value="false"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.hook_start_func" value=""/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.hook_work_ram_Addr" value=""/>
+    <intAttribute key="com.renesas.hardwaredebug.arm.e2.hook_work_ram_Size" value="1024"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.inputclock" value=""/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.interface.speed" value="auto"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.lowPowerHandling" value="true"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.memory.isLittleEndian" value="true"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.operating.freq" value=""/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.options.ArmE2DebugToolSettingsTree.resetAfterReload" value="true"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.prog_rewrite_dflash" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.prog_rewrite_irom" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.pwr" value="true"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.rtosIntegrationInDebugView" value="false"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.rtosintegrationthreadsrunning" value="false"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.serial_number" value=""/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.setTZBoundaries" value="true"/>
+    <intAttribute key="com.renesas.hardwaredebug.arm.e2.supply.power.via" value="1"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.supply.voltage" value="3.3"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.swvFrequencyDivision" value="16"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2.traceMTB" value="false"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2.traceSizeMTB" value="1024"/>
+    <booleanAttribute key="com.renesas.hardwaredebug.arm.e2com.renesas.hardwaredebug.timemeasurement" value="true"/>
+    <stringAttribute key="com.renesas.hardwaredebug.arm.e2workRam.startAddr" value=""/>
+    <booleanAttribute key="com.renesas.hardwaredebug.timemeasurement" value="true"/>
+    <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.delay" value="3"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doHalt" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doReset" value="false"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value="C:\Users\alex.brudner\Documents\GitHub\ArduinoCore-renesas\extras\e2studioProjects\SparkFun_ThingPlus_RA6M5\Debug\SparkFun_ThingPlus_RA6M5.elf"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.initCommands" value=""/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="true"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadSymbols" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.pcRegister" value=""/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.runCommands" value=""/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setPcRegister" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setResume" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setStopAt" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.stopAt" value="main"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value="C:\Users\alex.brudner\Documents\GitHub\ArduinoCore-renesas\extras\e2studioProjects\SparkFun_ThingPlus_RA6M5\Debug\SparkFun_ThingPlus_RA6M5.elf"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsOffset" value=""/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForImage" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForSymbols" value="false"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForImage" value="true"/>
+    <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForSymbols" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="arm-none-eabi-gdb"/>
+    <booleanAttribute key="org.eclipse.cdt.dsf.gdb.NON_STOP" value="true"/>
+    <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/SparkFun_ThingPlus_RA6M5.elf"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="SparkFun_ThingPlus_RA6M5"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/SparkFun_ThingPlus_RA6M5"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+    <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+</launchConfiguration>

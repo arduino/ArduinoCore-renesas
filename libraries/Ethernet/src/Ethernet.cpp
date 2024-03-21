@@ -28,29 +28,32 @@ int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(IPAddress local_ip) {
 /* -------------------------------------------------------------------------- */
-  IPAddress subnet(255, 255, 255, 0);
-  return begin(local_ip, subnet);
+  // Assume the DNS server will be the machine on the same network as the local IP
+  // but with last octet being '1'
+  IPAddress dns_server = local_ip;
+  dns_server[3] = 1;
+  return begin(local_ip, dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
-int CEthernet::begin(IPAddress local_ip, IPAddress subnet) {
+int CEthernet::begin(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   // Assume the gateway will be the machine on the same network as the local IP
   // but with last octet being '1'
   IPAddress gateway = local_ip;
   gateway[3] = 1;
-  return begin(local_ip, subnet, gateway);
+  return begin(local_ip, dns_server, gateway);
 }
 
 /* -------------------------------------------------------------------------- */
-int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway) {
+int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) {
 /* -------------------------------------------------------------------------- */  
-  // Assume the DNS server will be the same machine than gateway
-  return begin(local_ip, subnet, gateway, gateway);
+  IPAddress subnet(255, 255, 255, 0);
+  return begin(local_ip, dns_server, gateway, subnet);
 }
 
 /* -------------------------------------------------------------------------- */
-int CEthernet::begin(IPAddress local_ip, IPAddress subnet, IPAddress gateway, IPAddress dns_server) {
+int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */  
   
   ni = CLwipIf::getInstance().get(NI_ETHERNET,  local_ip, gateway, subnet);
@@ -73,9 +76,8 @@ void CEthernet::setDNS(IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  int ret = (int)CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
-  begin(timeout, responseTimeout);
-  return ret;
+  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
+  return begin(timeout, responseTimeout);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -108,8 +110,8 @@ int CEthernet::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_ser
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
-  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac_address);
-  return begin(local_ip, subnet, gateway, dns_server);
+  CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
+  return begin(local_ip, dns_server, gateway, subnet);
 }
 
 /* -------------------------------------------------------------------------- */

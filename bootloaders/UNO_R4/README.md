@@ -45,7 +45,7 @@ stty -F $portname 2400
 
 Then flash the bootloader with [`rfp-cli`](https://www.renesas.com/us/en/software-tool/renesas-flash-programmer-programming-gui#download)
 ```
-rfp-cli -device ra -port $portname -p dfu_wifi.hex
+rfp-cli -device ra -dtr -port $portname -p dfu_wifi.hex
 ```
 
 :rocket: `How to load bootloader (UNO R4 Minima)`

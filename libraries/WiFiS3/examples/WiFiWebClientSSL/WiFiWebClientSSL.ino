@@ -1,7 +1,7 @@
 /*
   TLS WiFi Web client
 
-  Remeber to update the CA certificates using CertificateUploader sketch
+  Remember to update the CA certificates using CertificateUploader sketch
   before using this sketch.
 
   Find the full UNO R4 WiFi Network documentation here:

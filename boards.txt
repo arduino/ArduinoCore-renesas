@@ -46,6 +46,12 @@ portenta_c33.upload.native_usb=true
 portenta_c33.upload.maximum_size=2097152
 portenta_c33.upload.maximum_data_size=523624
 
+portenta_c33.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
+portenta_c33.debug.server.openocd.scripts.1={programmer.transport_script}
+portenta_c33.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA6M5BH.cfg
+portenta_c33.debug.svd_file={runtime.platform.path}/svd/R7FA6M5BH.svd
+
+
 ##############################################################
 
 minima.name=Arduino UNO R4 Minima
@@ -94,6 +100,11 @@ minima.upload.native_usb=true
 minima.upload.maximum_size=262144
 minima.upload.maximum_data_size=32768
 
+minima.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
+minima.debug.server.openocd.scripts.1={programmer.transport_script}
+minima.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA4M1AB.cfg
+minima.debug.svd_file={runtime.platform.path}/svd/R7FA4M1AB.svd
+
 ##############################################################
 
 unor4wifi.name=Arduino UNO R4 WiFi
@@ -139,6 +150,11 @@ unor4wifi.upload.wait_for_upload_port=false
 unor4wifi.upload.native_usb=true
 unor4wifi.upload.maximum_size=262144
 unor4wifi.upload.maximum_data_size=32768
+
+unor4wifi.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
+unor4wifi.debug.server.openocd.scripts.1={programmer.transport_script}
+unor4wifi.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA4M1AB.cfg
+unor4wifi.debug.svd_file={runtime.platform.path}/svd/R7FA4M1AB.svd
 
 ##############################################################
 
@@ -188,5 +204,53 @@ muxto.upload.wait_for_upload_port=false
 muxto.upload.native_usb=true
 muxto.upload.maximum_size=262144
 muxto.upload.maximum_data_size=32768
+
+##############################################################
+
+thingplus_ra6m5.name=SparkFun Thing Plus RA6M5
+thingplus_ra6m5.build.core=arduino
+thingplus_ra6m5.build.crossprefix=arm-none-eabi-
+thingplus_ra6m5.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+
+thingplus_ra6m5.build.variant=THINGPLUS_RA6M5
+thingplus_ra6m5.build.mcu=cortex-m33
+thingplus_ra6m5.build.architecture=cortex-m33
+thingplus_ra6m5.build.fpu=-mfpu=fpv5-sp-d16
+thingplus_ra6m5.build.float-abi=-mfloat-abi=hard
+
+thingplus_ra6m5.build.board=THINGPLUS_RA6M5
+thingplus_ra6m5.build.defines=-DF_CPU=200000000
+thingplus_ra6m5.vid.0=0x1b4f
+thingplus_ra6m5.pid.0=0x0036
+thingplus_ra6m5.vid.1=0x1b4f
+thingplus_ra6m5.pid.1=0x0037
+thingplus_ra6m5.upload_port.0.vid=0x1b4f
+thingplus_ra6m5.upload_port.0.pid=0x0036
+thingplus_ra6m5.upload_port.1.vid=0x1b4f
+thingplus_ra6m5.upload_port.1.pid=0x0037
+
+thingplus_ra6m5.compiler.fsp.defines={build.variant.path}/defines.txt
+thingplus_ra6m5.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+thingplus_ra6m5.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
+thingplus_ra6m5.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
+thingplus_ra6m5.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+thingplus_ra6m5.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+thingplus_ra6m5.compiler.fsp.includes={build.variant.path}/includes.txt
+thingplus_ra6m5.compiler.fsp.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+thingplus_ra6m5.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+
+thingplus_ra6m5.upload.tool=dfu-util
+thingplus_ra6m5.upload.tool.default=dfu-util
+thingplus_ra6m5.upload.protocol=
+thingplus_ra6m5.upload.transport=
+thingplus_ra6m5.upload.vid=0x1b4f
+thingplus_ra6m5.upload.pid=0x0036
+thingplus_ra6m5.upload.address=0x00010000
+thingplus_ra6m5.upload.interface=0
+thingplus_ra6m5.upload.use_1200bps_touch=false
+thingplus_ra6m5.upload.wait_for_upload_port=false
+thingplus_ra6m5.upload.native_usb=true
+thingplus_ra6m5.upload.maximum_size=2097152
+thingplus_ra6m5.upload.maximum_data_size=523624
 
 ##############################################################

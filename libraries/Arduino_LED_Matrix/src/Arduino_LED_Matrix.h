@@ -250,7 +250,7 @@ public:
 
 #ifdef MATRIX_WITH_ARDUINOGRAPHICS
     virtual void set(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
-      if (y >= canvasHeight || x >= canvasWidth) {
+      if (y >= canvasHeight || x >= canvasWidth || y < 0 || x < 0) {
         return;
       }
       // the r parameter is (mis)used to set the character to draw with
@@ -265,10 +265,6 @@ public:
     // display the drawing
     void endDraw() {
       ArduinoGraphics::endDraw();
-      // clear first line (no idea why it gets filled with random bits, probably some math not working fine for super small displays)
-      for (int i = 0; i < canvasWidth; i++) {
-        _canvasBuffer[0][i] = 0;
-      }
       renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
     }
 
