@@ -12,6 +12,7 @@
 #define SDCARD_CARD_PRIORITY       12
 #define EXTERNAL_PIN_PRIORITY      12
 #define UART_SCI_PRIORITY          12
+#define UART_SCI_RX_PRIORITY       10
 #define USB_PRIORITY               12
 #define AGT_PRIORITY               14
 #define RTC_PRIORITY               12
@@ -487,14 +488,14 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
             last_interrupt_index++;
 
             /* RX interrupt */
-            p_cfg->rxi_ipl = UART_SCI_PRIORITY;
+            p_cfg->rxi_ipl = UART_SCI_RX_PRIORITY;
             p_cfg->rxi_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_rxi_isr;
             set_sci_rx_link_event(last_interrupt_index, p_cfg->channel);
             last_interrupt_index++;
 
             /* RX-ERROR interrupt */
-            p_cfg->eri_ipl = UART_SCI_PRIORITY;
+            p_cfg->eri_ipl = UART_SCI_RX_PRIORITY;
             p_cfg->eri_irq = (IRQn_Type)last_interrupt_index;
             *(irq_ptr + last_interrupt_index) = (uint32_t)sci_uart_eri_isr;
             set_sci_eri_link_event(last_interrupt_index, p_cfg->channel);
@@ -1672,7 +1673,7 @@ void IRQManager::set_can_tx_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_error_link_event(int li, int ch)
+void IRQManager::set_canfd_error_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_CHERR
@@ -1687,7 +1688,7 @@ void IRQManager::set_canfd_error_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_rx_link_event(int li, int ch)
+void IRQManager::set_canfd_rx_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_COMFRX
@@ -1702,7 +1703,7 @@ void IRQManager::set_canfd_rx_link_event(int li, int ch)
 #endif
 }
 
-void IRQManager::set_canfd_tx_link_event(int li, int ch)
+void IRQManager::set_canfd_tx_link_event(__attribute__((unused)) int li, __attribute__((unused)) int ch)
 {
   if (0) {}
 #ifdef ELC_EVENT_CAN0_TX
