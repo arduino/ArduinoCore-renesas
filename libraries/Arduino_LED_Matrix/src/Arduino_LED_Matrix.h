@@ -169,7 +169,7 @@ public:
     void off(size_t pin) {
         turnLed(pin, false);
     }
-    int begin() {
+    void begin() {
         uint8_t type;
         uint8_t ch = FspTimer::get_available_timer(type);
         // TODO: avoid passing "this" argument to remove autoscroll
