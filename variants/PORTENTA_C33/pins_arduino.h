@@ -161,6 +161,7 @@ static const uint8_t SS  =  PIN_SPI_CS;
 /****** SDCARD CORE DEFINES *******/
 #define SDCARD_HOWMANY     1
 
+#define I2S_HOWMANY        1
 
 #define EXT_INTERRUPTS_HOWMANY 8
 
