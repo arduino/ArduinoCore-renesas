@@ -33,7 +33,7 @@
 
 #include "se05x_mbedtls.h"
 //#include "se05x_APDU_apis.h"
-#include <SE05X.h>
+#include <SE05XDebug.h>
 
 extern int mbedtls_ecdsa_sign_o(mbedtls_ecp_group *grp,
     mbedtls_mpi *r,

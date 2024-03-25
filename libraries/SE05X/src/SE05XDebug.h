@@ -1,5 +1,5 @@
 /*
-  sm_port.cpp
+  SE05XDebug.h
   Copyright (c) 2023 Arduino SA.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -17,29 +17,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "../../platform/arduino/sm_port.h"
+#ifndef _SE05X_DEBUG_H_
+#define _SE05X_DEBUG_H_
 
-#if defined __has_include
-  #if __has_include (<Arduino_DebugUtils.h>)
-    #include <Arduino_DebugUtils.h>
-    #define SE05X_DEBUG_ENABLE 1
-  #else
-    #define SE05X_DEBUG_ENABLE 0
-  #endif
-#else
-  #define SE05X_DEBUG_ENABLE 0
-#endif
+#include "lib/platform/arduino/sm_port.h"
 
-void smlog_print(int const lvl, const char *fmt, ...) {
-#if SE05X_DEBUG_ENABLE
-    va_list args;
-    va_start(args, fmt);
-    Debug.newlineOff();
-    Debug.print(lvl, fmt, args);
-    Debug.newlineOn();
-    va_end(args);
-#else
-    (void)lvl;
-    (void)fmt;
 #endif
-}
