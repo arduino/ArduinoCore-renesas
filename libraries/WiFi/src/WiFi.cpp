@@ -89,6 +89,7 @@ void CWifi::config(IPAddress local_ip) {
    _gw[3] = 1;
 
    _config(local_ip, _gw, _nm);
+   setDNS(_gw);
 }
 
 extern uint8_t *IpAddress2uint8(IPAddress a);
