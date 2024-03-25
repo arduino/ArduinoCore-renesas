@@ -8,7 +8,6 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient()
-    : _tcp_client(NULL)
 {
 }
 /* -------------------------------------------------------------------------- */
@@ -17,7 +16,6 @@ lwipClient::lwipClient()
 sketches but sock is ignored. */
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient(uint8_t sock)
-    : _tcp_client(NULL)
 {
 }
 /* -------------------------------------------------------------------------- */
@@ -25,7 +23,10 @@ lwipClient::lwipClient(uint8_t sock)
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient(struct tcp_struct* tcpClient)
 {
-    _tcp_client = tcpClient;
+    if (tcpClient == NULL)
+        return;
+    _tcp_client.reset(tcpClient,
+            [](struct tcp_struct *tcp_client) { (void) tcp_client; } ); // empty deleter
 }
 /* -------------------------------------------------------------------------- */
 
@@ -49,7 +50,8 @@ int lwipClient::connect(IPAddress ip, uint16_t port)
     /* -------------------------------------------------------------------------- */
     if (_tcp_client == NULL) {
         /* Allocates memory for client */
-        _tcp_client = (struct tcp_struct*)mem_malloc(sizeof(struct tcp_struct));
+        _tcp_client.reset((struct tcp_struct*)mem_malloc(sizeof(struct tcp_struct)),
+                [](struct tcp_struct *tcp_client) { mem_free(tcp_client); } );
 
         if (_tcp_client == NULL) {
             return 0;
@@ -69,7 +71,7 @@ int lwipClient::connect(IPAddress ip, uint16_t port)
 
     uint32_t startTime = millis();
     ip_addr_t ipaddr;
-    tcp_arg(_tcp_client->pcb, _tcp_client);
+    tcp_arg(_tcp_client->pcb, _tcp_client.get());
     if (ERR_OK != tcp_connect(_tcp_client->pcb, u8_to_ip_addr(rawIPAddress(ip), &ipaddr), port, &tcp_connected_callback)) {
         stop();
         return 0;
@@ -215,7 +217,7 @@ void lwipClient::stop()
 
     // close tcp connection if not closed yet
     if (status() != TCP_CLOSING) {
-        tcp_connection_close(_tcp_client->pcb, _tcp_client);
+        tcp_connection_close(_tcp_client->pcb, _tcp_client.get());
     }
 }
 
