@@ -30,11 +30,10 @@
 #include "Modem.h"
 #include "FifoBuffer.h"
 
-#define RX_BUFFER_DIM 1461
-
 class WiFiUDP : public UDP {
 private:
   int _sock; 
+  static constexpr uint32_t RX_BUFFER_DIM = 1461;
   FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
 
 protected:
