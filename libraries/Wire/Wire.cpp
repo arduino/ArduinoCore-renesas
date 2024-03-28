@@ -405,19 +405,6 @@ void TwoWire::_begin(void) {
          init_ok = false;
       }
   }
-
-  if (init_ok) {
-    // inspired by https://community.element14.com/products/roadtest/b/blog/posts/using-i2c-spi-and-dma-on-renesas-ra2l1-part-1
-    // abort previous transactions
-    if (!is_sci) {
-      for (int i = 0; i < 20; i++) {
-        m_i2c_ctrl.p_reg->ICCR1_b.CLO = 1;
-        while (m_i2c_ctrl.p_reg->ICCR1_b.CLO) {
-        }
-      }
-    }
-    m_abort(&m_i2c_ctrl);
-  }
 }
 
 /* -------------------------------------------------------------------------- */
