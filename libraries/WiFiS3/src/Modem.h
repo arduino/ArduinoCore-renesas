@@ -24,8 +24,8 @@ public:
 
   void begin(int badurate = 115200);
   void end();
-  bool write(const std::string &cmd, std::string &str, char * fmt, ...);
-  void write_nowait(const std::string &cmd, std::string &str, char * fmt, ...);
+  bool write(const std::string &cmd, std::string &str, const char * fmt, ...);
+  void write_nowait(const std::string &cmd, std::string &str, const char * fmt, ...);
 
   bool passthrough(const uint8_t *data, size_t size);
   void avoid_trim_results() {
