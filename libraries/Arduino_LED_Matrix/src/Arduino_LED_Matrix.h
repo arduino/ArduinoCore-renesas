@@ -172,7 +172,7 @@ public:
     bool begin() {
         bool rv = true;
         uint8_t type;
-        uint8_t ch = FspTimer::get_available_timer(type);
+        int8_t ch = FspTimer::get_available_timer(type);
         if(ch == -1) {
             return false;
         }
