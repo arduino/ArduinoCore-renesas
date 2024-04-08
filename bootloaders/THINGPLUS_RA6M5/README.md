@@ -16,12 +16,15 @@ TINYUSB_ROOT=$PWD/../tinyusb make -f Makefile.thingplus
 :rocket: `How to load bootloader`
 ====================================
 
-Hold the boot button down and plug in the Thing Plus RA6M5.
+Pull the boot test point low and plug in the Thing Plus RA6M5.
 The board will enumerate as Renesas RA USB Boot.
 
 Then flash the bootloader with [`rfp-cli`](https://www.renesas.com/us/en/software-tool/renesas-flash-programmer-programming-gui#download)
 ```
-rfp-cli -device ra -tool e2 -if swd -p dfu.hex
+rfp-cli -device ra -port COM# -p dfu.hex
 ```
 
-Otherwise, the same hex file can be loaded through the SWD port (using a Jlink for example)
+Otherwise, the same hex file can be loaded through the SWD port (using a Jlink or E2 Emulator for example)
+```
+rfp-cli -device ra -tool e2 -if swd -p dfu.hex
+```

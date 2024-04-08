@@ -220,14 +220,14 @@ thingplus_ra6m5.build.float-abi=-mfloat-abi=hard
 
 thingplus_ra6m5.build.board=THINGPLUS_RA6M5
 thingplus_ra6m5.build.defines=-DF_CPU=200000000
-thingplus_ra6m5.vid.0=0x2341
-thingplus_ra6m5.pid.0=0x0068
-thingplus_ra6m5.vid.1=0x2341
-thingplus_ra6m5.pid.1=0x0368
-thingplus_ra6m5.upload_port.0.vid=0x2341
-thingplus_ra6m5.upload_port.0.pid=0x0068
-thingplus_ra6m5.upload_port.1.vid=0x2341
-thingplus_ra6m5.upload_port.1.pid=0x0368
+thingplus_ra6m5.vid.0=0x1b4f
+thingplus_ra6m5.pid.0=0x0037
+thingplus_ra6m5.vid.1=0x1b4f
+thingplus_ra6m5.pid.1=0x0036
+thingplus_ra6m5.upload_port.0.vid=0x1b4f
+thingplus_ra6m5.upload_port.0.pid=0x0037
+thingplus_ra6m5.upload_port.1.vid=0x1b4f
+thingplus_ra6m5.upload_port.1.pid=0x0036
 
 thingplus_ra6m5.compiler.fsp.defines={build.variant.path}/defines.txt
 thingplus_ra6m5.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
@@ -243,8 +243,8 @@ thingplus_ra6m5.upload.tool=dfu-util
 thingplus_ra6m5.upload.tool.default=dfu-util
 thingplus_ra6m5.upload.protocol=
 thingplus_ra6m5.upload.transport=
-thingplus_ra6m5.upload.vid=0x2341
-thingplus_ra6m5.upload.pid=0x0368
+thingplus_ra6m5.upload.vid=0x1b4f
+thingplus_ra6m5.upload.pid=0x0036
 thingplus_ra6m5.upload.address=0x00010000
 thingplus_ra6m5.upload.interface=0
 thingplus_ra6m5.upload.use_1200bps_touch=false

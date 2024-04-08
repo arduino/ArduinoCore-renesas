@@ -132,8 +132,8 @@ static const uint8_t PICO = PIN_SPI_MOSI;
 #define USE_4BIT_SDCARD   1
 
 /****** USB CORE DEFINES ******/
-#define USB_VID           (0x2341)
-#define USB_PID           (0x0068)
+#define USB_VID           (0x1b4f)
+#define USB_PID           (0x0037)
 #define USB_NAME          "SparkFun Thing Plus RA6M5"
 
 /****** FLASH DEFINES ******/

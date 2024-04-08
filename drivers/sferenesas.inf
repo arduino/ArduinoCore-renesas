@@ -1,0 +1,63 @@
+;
+;
+; Installs WinUsb
+;
+
+[Strings]
+ManufacturerName="SparkFun Electronics"
+ClassName="Universal Serial Bus devices"
+REG_MULTI_SZ = 0x00010000
+DeviceNameThingPlusRA6M5 = "Thing Plus RA6M5 Firmware Upgrade"
+DeviceNameThingPlusRA6M5DFU = "Thing Plus RA6M5 (Upgrade)"
+VendorName = "SparkFun Electronics"
+SourceName = "SparkFun Renesas Firmware Upgrade Install Disk"
+DeviceIDThingPlusRA6M5   = "VID_1B4F&PID_0037&Rev_0100&MI_02"
+DeviceIDThingPlusRA6M5DFU= "VID_1B4F&PID_0036&Rev_0100"
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = USBDevice
+ClassGUID   = {88BAE032-5A81-49f0-BC3D-A4FF138216D6}
+Provider    = %ManufacturerName%
+CatalogFile = sferenesas.cat
+DriverVer = 04/06/2024,16.32.52.384
+
+; ========== Manufacturer/Models sections ===========
+
+[Manufacturer]
+%ManufacturerName% = Standard,NTamd64
+
+[Standard.NTamd64]
+%DeviceNameThingPlusRA6M5% =USB_Install, USB\%DeviceIDThingPlusRA6M5%
+%DeviceNameThingPlusRA6M5DFU% =USB_Install, USB\%DeviceIDThingPlusRA6M5DFU%
+
+; ========== Class definition ===========
+
+[ClassInstall32]
+AddReg = ClassInstall_AddReg
+
+[ClassInstall_AddReg]
+HKR,,,,%ClassName%
+HKR,,NoInstallClass,,1
+HKR,,IconPath,%REG_MULTI_SZ%,"%systemroot%\system32\setupapi.dll,-20"
+HKR,,LowerLogoVersion,,5.2
+
+; =================== Installation ===================
+
+[USB_Install]
+Include = winusb.inf
+Needs   = WINUSB.NT
+
+[USB_Install.Services]
+Include = winusb.inf
+Needs   = WINUSB.NT.Services
+
+[USB_Install.HW]
+AddReg=Dev_AddReg
+
+[Dev_AddReg]
+HKR,,DeviceInterfaceGUIDs,0x10000,"{51de5bfa-d59d-4f3e-9b36-0b4b210dd53f}"
+
+; [DestinationDirs]
+; If your INF needs to copy files, you must not use the DefaultDestDir directive here.  
+; You must explicitly reference all file-list-section names in this section.
