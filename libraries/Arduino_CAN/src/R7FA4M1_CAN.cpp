@@ -138,6 +138,11 @@ R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
 
 bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
 {
+  return begin(static_cast<uint32_t>(can_bitrate)); 
+}
+
+bool R7FA4M1_CAN::begin(uint32_t const can_bitrate)
+{
   bool init_ok = true;
 
   /* Configure the pins for CAN.
@@ -156,7 +161,7 @@ bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
 
   /* Calculate the CAN bitrate based on the value of this functions parameter.
    */
-  static uint32_t const F_CAN_CLK_Hz = 24*1000*1000UL;
+  static uint32_t const F_CAN_CLK_Hz = 24*1000*1000UL;  
   static uint32_t const TQ_MIN     = 8;
   static uint32_t const TQ_MAX     = 25;
   static uint32_t const TSEG_1_MIN = 4;
@@ -167,7 +172,7 @@ bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
   auto [is_valid_baudrate, baud_rate_prescaler, time_segment_1, time_segment_2] =
     util::calc_can_bit_timing(can_bitrate, F_CAN_CLK_Hz, TQ_MIN, TQ_MAX, TSEG_1_MIN, TSEG_1_MAX, TSEG_2_MIN, TSEG_2_MAX);
   init_ok &= is_valid_baudrate;
-
+  
   if (is_valid_baudrate) {
     _can_bit_timing_cfg.baud_rate_prescaler = baud_rate_prescaler;
     _can_bit_timing_cfg.time_segment_1 = time_segment_1;
@@ -182,6 +187,7 @@ bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
   return init_ok;
 }
 
+////////////////////////
 void R7FA4M1_CAN::end()
 {
   R_CAN_Close(&_can_ctrl);
