@@ -61,13 +61,13 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       case UART_EVENT_TX_COMPLETE:
       case UART_EVENT_TX_DATA_EMPTY:
       {
-		  if(uart_ptr->txBuffer.available()){
-			  static char txc;
-			  txc = uart_ptr->txBuffer.read_char();
-			  R_SCI_UART_Write(&(uart_ptr->uart_ctrl), (uint8_t*)&txc , 1);
-		  } else {
-			  uart_ptr->tx_done = true;
-		  }
+          if(uart_ptr->txBuffer.available()){
+              static char txc;
+              txc = uart_ptr->txBuffer.read_char();
+              R_SCI_UART_Write(&(uart_ptr->uart_ctrl), (uint8_t*)&txc , 1);
+          } else {
+        	  uart_ptr->tx_done = true;
+          }
         break;
       }
       case UART_EVENT_RX_CHAR:
@@ -112,31 +112,31 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 /* -------------------------------------------------------------------------- */
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
-	if(init_ok) {
-		while(txBuffer.isFull()){;}
-		txBuffer.store_char(c);
-		if(tx_done){
-			tx_done = false;
-			txc = txBuffer.read_char();  // clear out the char we just added and send it to start transmission. 
-			R_SCI_UART_Write(&uart_ctrl, (uint8_t*)&txc , 1);		
-		} 
-		return 1;
-	}
-	else {
-		return 0;
-	}
+  if(init_ok) {
+	  while(txBuffer.isFull()){;}
+	  txBuffer.store_char(c);
+	  if(tx_done){
+		  tx_done = false;
+		  txc = txBuffer.read_char();  // clear out the char we just added and send it to start transmission.
+		  R_SCI_UART_Write(&uart_ctrl, (uint8_t*)&txc , 1);
+	  }
+	  return 1;
+  }
+  else {
+	  return 0;
+  }
 }
 
 size_t  UART::write(uint8_t* c, size_t len) {
-	if(init_ok) {
-		for(int i = 0; i<len; i++){
+  if(init_ok) {
+	  for(int i = 0; i<len; i++){
 		  write(c[i]);
-		}
-		return len;
-    }
-    else {
-    	return 0;
-    }
+	  }
+	  return len;
+  }
+  else {
+	  return 0;
+  }
 }
 
 /* -------------------------------------------------------------------------- */
