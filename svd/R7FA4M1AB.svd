@@ -16080,39 +16080,665 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00</resetValue>
                     <resetMask>0xFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS">
-                    <dim>8</dim>
-                    <dimIncrement>0x4</dimIncrement>
-                    <dimIndex>0-7</dimIndex>
-                    <name>P10%sPFS</name>
-                    <description>P10%s Pin Function Control Register</description>
+                <register>
+                    <name>P100PFS</name>
+                    <description>P100 Pin Function Control Register</description>
                     <addressOffset>0x040</addressOffset>
                     <size>32</size>
                     <access>read-write</access>
                     <resetValue>0x00000000</resetValue>
                     <resetMask>0xFFFFFFFD</resetMask>
+                    <fields>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>29</lsb>
+                            <msb>31</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PSEL</name>
+                            <description>Port Function Select
+These bits select the peripheral function. For individual pin functions, see the MPC table</description>
+                            <lsb>24</lsb>
+                            <msb>28</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 0000000. The write value should be 0000000.</description>
+                            <lsb>17</lsb>
+                            <msb>23</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PMR</name>
+                            <description>Port Mode Control</description>
+                            <lsb>16</lsb>
+                            <msb>16</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Uses the pin as a general I/O pin. </description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Uses the pin as an I/O port for peripheral functions.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>ASEL</name>
+                            <description>Analog Input enable</description>
+                            <lsb>15</lsb>
+                            <msb>15</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Used other than as analog pin</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Used as analog pin</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>ISEL</name>
+                            <description>IRQ input enable</description>
+                            <lsb>14</lsb>
+                            <msb>14</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Not used as IRQn input pin</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Used as IRQn input pin</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>EOF</name>
+                            <description>Event on Falling</description>
+                            <lsb>13</lsb>
+                            <msb>13</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Do not care</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Detect falling edge</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>EOR</name>
+                            <description>Event on Rising</description>
+                            <lsb>12</lsb>
+                            <msb>12</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Do not care</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Detect rising edge</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>11</lsb>
+                            <msb>11</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>DSCR</name>
+                            <description>Port Drive Capability</description>
+                            <lsb>10</lsb>
+                            <msb>10</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low drive</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Middle drive.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>7</lsb>
+                            <msb>9</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>NCODR</name>
+                            <description>N-Channel Open Drain Control</description>
+                            <lsb>6</lsb>
+                            <msb>6</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>CMOS output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>NMOS open-drain output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>5</lsb>
+                            <msb>5</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PCR</name>
+                            <description>Pull-up Control</description>
+                            <lsb>4</lsb>
+                            <msb>4</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Disables an input pull-up.</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Enables an input pull-up.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>3</lsb>
+                            <msb>3</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PDR</name>
+                            <description>Port Direction</description>
+                            <lsb>2</lsb>
+                            <msb>2</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Input (Functions as an input pin.)</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Output (Functions as an output pin.)</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PIDR</name>
+                            <description>Port Input Data</description>
+                            <lsb>1</lsb>
+                            <msb>1</msb>
+                            <access>read-only</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low input</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High input</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PODR</name>
+                            <description>Port Output Data</description>
+                            <lsb>0</lsb>
+                            <msb>0</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                    </fields>
                 </register>
-                <register derivedFrom="P000PFS_HA">
-                    <dim>8</dim>
-                    <dimIncrement>0x4</dimIncrement>
-                    <dimIndex>0-7</dimIndex>
-                    <name>P10%sPFS_HA</name>
-                    <description>P10%s Pin Function Control Register</description>
-                    <alternateRegister>P10%sPFS</alternateRegister>
+                <register>
+                    <name>P100PFS_HA</name>
+                    <description>P100 Pin Function Control Register</description>
                     <addressOffset>0x042</addressOffset>
                     <size>16</size>
                     <access>read-write</access>
                     <resetValue>0x0000</resetValue>
                     <resetMask>0xFFFD</resetMask>
+                    <fields>
+                        <field>
+                            <name>ASEL</name>
+                            <description>Analog Input enable</description>
+                            <lsb>15</lsb>
+                            <msb>15</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Used other than as analog pin</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Used as analog pin</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>ISEL</name>
+                            <description>IRQ input enable</description>
+                            <lsb>14</lsb>
+                            <msb>14</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Not used as IRQn input pin</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Used as IRQn input pin</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>EOF</name>
+                            <description>Event on Falling</description>
+                            <lsb>13</lsb>
+                            <msb>13</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Do not care</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Detect falling edge</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>EOR</name>
+                            <description>Event on Rising</description>
+                            <lsb>12</lsb>
+                            <msb>12</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Do not care</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Detect rising edge</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>11</lsb>
+                            <msb>11</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>DSCR</name>
+                            <description>Port Drive Capability</description>
+                            <lsb>10</lsb>
+                            <msb>10</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low drive</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Middle drive.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>7</lsb>
+                            <msb>9</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>NCODR</name>
+                            <description>N-Channel Open Drain Control</description>
+                            <lsb>6</lsb>
+                            <msb>6</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>CMOS output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>NMOS open-drain output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>5</lsb>
+                            <msb>5</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PCR</name>
+                            <description>Pull-up Control</description>
+                            <lsb>4</lsb>
+                            <msb>4</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Disables an input pull-up.</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Enables an input pull-up.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>3</lsb>
+                            <msb>3</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PDR</name>
+                            <description>Port Direction</description>
+                            <lsb>2</lsb>
+                            <msb>2</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Input (Functions as an input pin.)</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Output (Functions as an output pin.)</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PIDR</name>
+                            <description>Port Input Data</description>
+                            <lsb>1</lsb>
+                            <msb>1</msb>
+                            <access>read-only</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low input</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High input</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PODR</name>
+                            <description>Port Output Data</description>
+                            <lsb>0</lsb>
+                            <msb>0</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                    </fields>
                 </register>
-                <register derivedFrom="P000PFS_BY">
-                    <dim>8</dim>
+                <register>
+                    <name>P100PFS_BY</name>
+                    <description>P100 Pin Function Control Register</description>
+                    <addressOffset>0x043</addressOffset>
+                    <size>8</size>
+                    <access>read-write</access>
+                    <resetValue>0x00</resetValue>
+                    <resetMask>0xFD</resetMask>
+                    <fields>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>7</lsb>
+                            <msb>7</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>NCODR</name>
+                            <description>N-Channel Open Drain Control</description>
+                            <lsb>6</lsb>
+                            <msb>6</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>CMOS output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>NMOS open-drain output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>5</lsb>
+                            <msb>5</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PCR</name>
+                            <description>Pull-up Control</description>
+                            <lsb>4</lsb>
+                            <msb>4</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Disables an input pull-up.</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Enables an input pull-up.</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>Reserved</name>
+                            <description>This bit is read as 0. The write value should be 0.</description>
+                            <lsb>3</lsb>
+                            <msb>3</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>PDR</name>
+                            <description>Port Direction</description>
+                            <lsb>2</lsb>
+                            <msb>2</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Input (Functions as an input pin.)</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>Output (Functions as an output pin.)</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PIDR</name>
+                            <description>Port Input Data</description>
+                            <lsb>1</lsb>
+                            <msb>1</msb>
+                            <access>read-only</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low input</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High input</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                        <field>
+                            <name>PODR</name>
+                            <description>Port Output Data</description>
+                            <lsb>0</lsb>
+                            <msb>0</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>0</name>
+                                    <description>Low output</description>
+                                    <value>#0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>1</name>
+                                    <description>High output</description>
+                                    <value>#1</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+                    </fields>
+                </register>
+                <register derivedFrom="P100PFS">
+                    <dim>7</dim>
                     <dimIncrement>0x4</dimIncrement>
-                    <dimIndex>0-7</dimIndex>
+                    <dimIndex>1-7</dimIndex>
+                    <name>P10%sPFS</name>
+                    <description>P10%s Pin Function Control Register</description>
+                    <addressOffset>0x044</addressOffset>
+                    <size>32</size>
+                    <access>read-write</access>
+                    <resetValue>0x00000000</resetValue>
+                    <resetMask>0xFFFFFFFD</resetMask>
+                </register>
+                <register derivedFrom="P100PFS_HA">
+                    <dim>7</dim>
+                    <dimIncrement>0x4</dimIncrement>
+                    <dimIndex>1-7</dimIndex>
+                    <name>P10%sPFS_HA</name>
+                    <description>P10%s Pin Function Control Register</description>
+                    <alternateRegister>P10%sPFS</alternateRegister>
+                    <addressOffset>0x046</addressOffset>
+                    <size>16</size>
+                    <access>read-write</access>
+                    <resetValue>0x0000</resetValue>
+                    <resetMask>0xFFFD</resetMask>
+                </register>
+                <register derivedFrom="P100PFS_BY">
+                    <dim>7</dim>
+                    <dimIncrement>0x4</dimIncrement>
+                    <dimIndex>1-7</dimIndex>
                     <name>P10%sPFS_BY</name>
                     <description>P10%s Pin Function Control Register</description>
                     <alternateRegister>P10%sPFS</alternateRegister>
-                    <addressOffset>0x043</addressOffset>
+                    <addressOffset>0x047</addressOffset>
                     <size>8</size>
                     <access>read-write</access>
                     <resetValue>0x00</resetValue>
@@ -17403,7 +18029,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x10</resetValue>
                     <resetMask>0xFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS">
+                <register derivedFrom="P100PFS">
                     <dim>5</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>11-15</dimIndex>
@@ -17415,7 +18041,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00000000</resetValue>
                     <resetMask>0xFFFFFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_HA">
+                <register derivedFrom="P100PFS_HA">
                     <dim>5</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>11-15</dimIndex>
@@ -17428,7 +18054,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x0000</resetValue>
                     <resetMask>0xFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_BY">
+                <register derivedFrom="P100PFS_BY">
                     <dim>5</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>11-15</dimIndex>
@@ -17441,7 +18067,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00</resetValue>
                     <resetMask>0xFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS">
+                <register derivedFrom="P100PFS">
                     <name>P200PFS</name>
                     <description>P200 Pin Function Control Register</description>
                     <addressOffset>0x080</addressOffset>
@@ -17450,7 +18076,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00000000</resetValue>
                     <resetMask>0xFFFFFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_HA">
+                <register derivedFrom="P100PFS_HA">
                     <name>P200PFS_HA</name>
                     <description>P200 Pin Function Control Register</description>
                     <alternateRegister>P200PFS</alternateRegister>
@@ -17460,7 +18086,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x0000</resetValue>
                     <resetMask>0xFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_BY">
+                <register derivedFrom="P100PFS_BY">
                     <name>P200PFS_BY</name>
                     <description>P200 Pin Function Control Register</description>
                     <alternateRegister>P200PFS</alternateRegister>
@@ -17617,7 +18243,7 @@ These bits select the peripheral function. For individual pin functions, see the
                                 </enumeratedValue>
                                 <enumeratedValue>
                                     <name>1</name>
-                                    <description>High drive</description>
+                                    <description>Middle drive</description>
                                     <value>#1</value>
                                 </enumeratedValue>
                             </enumeratedValues>
@@ -17847,7 +18473,7 @@ These bits select the peripheral function. For individual pin functions, see the
                                 </enumeratedValue>
                                 <enumeratedValue>
                                     <name>1</name>
-                                    <description>High drive</description>
+                                    <description>Middle drive</description>
                                     <value>#1</value>
                                 </enumeratedValue>
                             </enumeratedValues>
@@ -18931,7 +19557,7 @@ These bits select the peripheral function. For individual pin functions, see the
                         </field>
                     </fields>
                 </register>
-                <register derivedFrom="P000PFS">
+                <register derivedFrom="P100PFS">
                     <name>P409PFS</name>
                     <description>P409 Pin Function Control Register</description>
                     <addressOffset>0x124</addressOffset>
@@ -18940,7 +19566,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00000000</resetValue>
                     <resetMask>0xFFFFFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_HA">
+                <register derivedFrom="P100PFS_HA">
                     <name>P409PFS_HA</name>
                     <description>P409 Pin Function Control Register</description>
                     <alternateRegister>P409PFS</alternateRegister>
@@ -18950,7 +19576,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x0000</resetValue>
                     <resetMask>0xFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_BY">
+                <register derivedFrom="P100PFS_BY">
                     <name>P409PFS_BY</name>
                     <description>P409 Pin Function Control Register</description>
                     <alternateRegister>P409PFS</alternateRegister>
@@ -18960,7 +19586,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00</resetValue>
                     <resetMask>0xFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS">
+                <register derivedFrom="P100PFS">
                     <dim>6</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>10-15</dimIndex>
@@ -18972,7 +19598,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x00000000</resetValue>
                     <resetMask>0xFFFFFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_HA">
+                <register derivedFrom="P100PFS_HA">
                     <dim>6</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>10-15</dimIndex>
@@ -18985,7 +19611,7 @@ These bits select the peripheral function. For individual pin functions, see the
                     <resetValue>0x0000</resetValue>
                     <resetMask>0xFFFD</resetMask>
                 </register>
-                <register derivedFrom="P000PFS_BY">
+                <register derivedFrom="P100PFS_BY">
                     <dim>6</dim>
                     <dimIncrement>0x4</dimIncrement>
                     <dimIndex>10-15</dimIndex>
