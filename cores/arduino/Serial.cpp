@@ -334,13 +334,7 @@ void UART::flush() {
 }
 
 /* -------------------------------------------------------------------------- */
-//size_t UART::write_raw(uint8_t* c, size_t len) {
-///* -------------------------------------------------------------------------- */
-//  size_t i = 0;
-//  while (i < len) {
-//    uart_ctrl.p_reg->TDR = *(c+i);
-//    while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
-//    i++;
-//  }
-//  return len;
-//}
+size_t UART::write_raw(uint8_t* c, size_t len) {
+/* -------------------------------------------------------------------------- */
+  return write(c, len);
+}
