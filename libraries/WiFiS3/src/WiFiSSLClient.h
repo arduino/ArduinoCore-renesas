@@ -45,7 +45,7 @@ public:
    virtual void stop();
    virtual uint8_t connected();
    virtual operator bool() {
-     return _sock != -1;
+      return _sock != -1;
    }
    virtual bool operator==(const WiFiSSLClient&);
    virtual bool operator!=(const WiFiSSLClient& whs)

@@ -67,7 +67,7 @@ public:
   }
 
   friend class WiFiServer;
-  
+
   using Print::write;
 
 protected:
