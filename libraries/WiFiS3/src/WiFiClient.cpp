@@ -210,6 +210,8 @@ void WiFiClient::stop() {
       modem.write(string(PROMPT(_CLIENTCLOSE)),res, "%s%d\r\n" , CMD_WRITE(_CLIENTCLOSE), _sock);
       _sock = -1;
    }
+
+   rx_buffer->clear();
 }
 
 /* -------------------------------------------------------------------------- */

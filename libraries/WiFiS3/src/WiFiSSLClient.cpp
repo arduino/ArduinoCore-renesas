@@ -227,6 +227,8 @@ void WiFiSSLClient::stop() {
       modem.write(string(PROMPT(_SSLCLIENTCLOSE)),res, "%s%d\r\n" , CMD_WRITE(_SSLCLIENTCLOSE), _sock);
       _sock = -1;
    }
+
+   rx_buffer->clear();
 }
 
 /* -------------------------------------------------------------------------- */
