@@ -3,9 +3,8 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-WiFiSSLClient::WiFiSSLClient() : _sock(-1) {
+WiFiSSLClient::WiFiSSLClient() {
 /* -------------------------------------------------------------------------- */
-   rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 
 /* -------------------------------------------------------------------------- */

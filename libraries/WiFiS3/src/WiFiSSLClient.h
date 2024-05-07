@@ -60,7 +60,6 @@ public:
    using Print::write;
 
 private:
-   int _sock;
    void getSocket();
    int _read();
    void read_if_needed(size_t s);
