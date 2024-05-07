@@ -132,7 +132,7 @@ int WiFiSSLClient::available(){
 int WiFiSSLClient::_read() {
 /* -------------------------------------------------------------------------- */
    int rv = -1;
-   if(_sock >= 0) {
+   if(_sock >= 0 && rx_buffer != nullptr) {
       string res = "";
       uint32_t size = rx_buffer->freePositions() - 1;
       modem.begin();
