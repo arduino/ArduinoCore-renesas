@@ -16,6 +16,12 @@ WiFiSSLClient::~WiFiSSLClient() {
 /* -------------------------------------------------------------------------- */
 void WiFiSSLClient::getSocket() {
 /* -------------------------------------------------------------------------- */
+   if(_sock >= 0 && !connected()) {
+      // if sock >= 0 -> it means we were connected, but something happened and we need
+      // to reset this socket in order to be able to connect again
+      stop();
+   }
+
    if(_sock == -1) {
       string res = "";
       modem.begin();
