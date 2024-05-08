@@ -253,6 +253,16 @@ public:
         _callBack = callBack;
     }
 
+    void clear() {
+        const uint32_t fullOff[] = {
+        	0x00000000,
+        	0x00000000,
+        	0x00000000
+        };
+        loadFrame(fullOff);
+    }
+
+
 #ifdef MATRIX_WITH_ARDUINOGRAPHICS
     virtual void set(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
       if (y >= canvasHeight || x >= canvasWidth || y < 0 || x < 0) {

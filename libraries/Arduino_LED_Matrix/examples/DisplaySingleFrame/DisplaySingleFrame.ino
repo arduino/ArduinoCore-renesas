@@ -34,6 +34,10 @@ void loop() {
   matrix.loadFrame(LEDMATRIX_HEART_BIG);
   delay(500);
 
+  // Turn off the display
+  matrix.clear();
+  delay(1000);
+
   // Print the current value of millis() to the serial monitor
   Serial.println(millis());
 }
