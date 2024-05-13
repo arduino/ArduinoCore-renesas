@@ -939,6 +939,31 @@ end_config:
     return rv;
 }
 
+/*
+    The implementer should update the value of last_interrupt once done
+    eg:
+
+    bool config_my_funky_peripheral(unsigned int* last_interrupt, volatile uint32_t *irq_ptr, void* config) {
+        funky_peripheral_cfg_t* cfg = (funky_peripheral_cfg_t*)config;
+        *(irq_ptr + *last_interrupt) = (uint32_t)cfg->irq_callback;
+        cfg->interrupt = *last_interrupt;
+        // increase the interrupt count
+        *last_interrupt++;
+        return true;
+    }
+
+    and then use as:
+
+    funky_peripheral_cfg_t funky_cfg;
+    IRQManager::getInstance().addCustomPeripheral(config_my_funky_peripheral, &funky_cfg);
+*/
+bool IRQManager::addCustomPeripheral(bool (*cb)(unsigned int* last_interrupt, volatile uint32_t *irq_ptr, void* conf), void* conf) {
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    irq_ptr += FIXED_IRQ_NUM;
+
+    return cb(&last_interrupt_index, irq_ptr, conf);
+}
+
 bool IRQManager::set_adc_end_link_event(int li, int ch){
     bool rv = false;
     if (0) {}

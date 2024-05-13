@@ -190,6 +190,8 @@ using Irq_f          = void (*)(void);
 class IRQManager {
     public:
     bool addPeripheral(Peripheral_t p, void *cfg);
+    bool addCustomPeripheral(bool (*cb)(unsigned int* last_interrupt, volatile uint32_t *irq_ptr, void* conf), void* conf);
+
     static IRQManager& getInstance();
     
 #ifdef HAS_DMAC
