@@ -169,7 +169,7 @@ public:
     void off(size_t pin) {
         turnLed(pin, false);
     }
-    bool begin() {
+    int begin() {
         bool rv = true;
         uint8_t type;
         int8_t ch = FspTimer::get_available_timer(type);
