@@ -57,7 +57,7 @@ template <size_t N> struct ss_descr_t {
     fsp_dma_t dma;
     fsp_pin_t pin;
     int irq_chan;
-    ::RingBuffer<char> ringbuf;
+    ::RingBuffer<uint8_t> ringbuf;
     uint32_t dmabuf[N][SS_MAX_FRAME_SIZE] __attribute__((aligned(4)));
     ss_descr_t(size_t bufsize): irq_chan(-1), ringbuf(bufsize) {
     }
