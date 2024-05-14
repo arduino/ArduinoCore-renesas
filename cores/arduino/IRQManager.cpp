@@ -45,7 +45,7 @@ bool IRQManager::addGenericInterrupt(GenericIrqCfg_t &cfg, Irq_f fnc /*= nullptr
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = false;
     
-    if(cfg.irq == FSP_INVALID_VECTOR) {
+    if((cfg.irq == FSP_INVALID_VECTOR) && (last_interrupt_index < PROG_IRQ_NUM)) {
     	if(fnc != nullptr){
     		R_ICU->IELSR[last_interrupt_index] = cfg.event;
     		*(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
