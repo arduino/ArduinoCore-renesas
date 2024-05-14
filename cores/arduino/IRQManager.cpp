@@ -38,6 +38,28 @@ IRQManager& IRQManager::getInstance() {
     return instance;
 }
 
+bool IRQManager::addGenericInterrupt(GenericIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/){
+    /* getting the address of the current location of the irq vector table */
+    volatile uint32_t *irq_ptr = (volatile uint32_t *)SCB->VTOR;
+    /* set the displacement to the "programmable" part of the table */
+    irq_ptr += FIXED_IRQ_NUM;
+    bool rv = false;
+    
+    if(cfg.irq == FSP_INVALID_VECTOR) {
+    	if(fnc != nullptr){
+    		R_ICU->IELSR[last_interrupt_index] = cfg.event;
+    		*(irq_ptr + last_interrupt_index) = (uint32_t)fnc;
+    		R_BSP_IrqDisable((IRQn_Type)last_interrupt_index);
+    		R_BSP_IrqStatusClear((IRQn_Type)last_interrupt_index);
+    		NVIC_SetPriority((IRQn_Type)last_interrupt_index, cfg.ipl);
+    		R_BSP_IrqEnable ((IRQn_Type)last_interrupt_index);
+    		cfg.irq = (IRQn_Type)last_interrupt_index;
+    		last_interrupt_index++;
+    		rv = true;
+    	}
+    }
+	return rv;
+}
 
 bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* getting the address of the current location of the irq vector table */
