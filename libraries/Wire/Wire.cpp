@@ -30,8 +30,8 @@ extern "C" {
 
 #include "Wire.h"
 
-TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS] = {nullptr};
-TwoWire *TwoWire::g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
+TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
+TwoWire *TwoWire::g_I2CWires[TWOWIRE_MAX_I2C_CHANNELS] = {nullptr};
 
 /* -------------------------------------------------------------------------- */
 void TwoWire::setBusStatus(WireStatus_t ws) {
