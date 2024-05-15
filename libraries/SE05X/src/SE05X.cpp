@@ -18,6 +18,8 @@
 */
 
 #include "SE05X.h"
+#include "SE05XDebug.h"
+
 
 /**
  * 26 bytes see ecc_der_header_nist256
