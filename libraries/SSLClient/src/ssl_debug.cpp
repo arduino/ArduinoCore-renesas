@@ -23,7 +23,7 @@ void ssl_debug_print(const char *format, ...) {
     char debug_buf[1024];   
     va_list argptr;
     va_start(argptr, format);
-    vsprintf(debug_buf, format, argptr);
+    vsnprintf(debug_buf, sizeof(debug_buf), format, argptr);
     va_end(argptr);
     Serial.print(debug_buf);
 }
@@ -32,7 +32,7 @@ void ssl_debug_println(const char *format, ...) {
     char debug_buf[1024];   
     va_list argptr;
     va_start(argptr, format);
-    vsprintf(debug_buf, format, argptr);
+    vsnprintf(debug_buf, sizeof(debug_buf), format, argptr);
     va_end(argptr);
     Serial.println(debug_buf);
 }

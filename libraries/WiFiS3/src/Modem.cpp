@@ -88,10 +88,9 @@ bool ModemClass::passthrough(const uint8_t *data, size_t size) {
 /* -------------------------------------------------------------------------- */
 void ModemClass::write_nowait(const string &cmd, string &str, char * fmt, ...) {
 /* -------------------------------------------------------------------------- */   
-   memset(tx_buff,0x00,MAX_BUFF_SIZE);
    va_list va;
    va_start (va, fmt);
-   vsprintf ((char *)tx_buff, fmt, va);
+   vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
    va_end (va);
    
    if(_serial_debug && _debug_level >= 2) { 
@@ -109,10 +108,9 @@ void ModemClass::write_nowait(const string &cmd, string &str, char * fmt, ...) {
 bool ModemClass::write(const string &prompt, string &data_res, char * fmt, ...){
 /* -------------------------------------------------------------------------- */  
    data_res.clear();
-   memset(tx_buff,0x00,MAX_BUFF_SIZE);
    va_list va;
    va_start (va, fmt);
-   vsprintf ((char *)tx_buff, fmt, va);
+   vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
    va_end (va);
   
    if(_serial_debug) {
