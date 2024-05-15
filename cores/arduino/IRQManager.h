@@ -125,6 +125,11 @@ typedef struct timer {
     agt_extended_cfg_t *agt_ext_cfg;
 } TimerIrqCfg_t;
 
+typedef struct genericIrq {
+	IRQn_Type irq;
+	uint8_t ipl;
+	elc_event_t event;
+} GenericIrqCfg_t;
 
 
 #ifdef __cplusplus
@@ -199,7 +204,8 @@ class IRQManager {
        it returns true if the interrupt is correctly added */
     bool addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc = nullptr);
 #endif
-
+    
+    bool addGenericInterrupt(GenericIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
     bool addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc = nullptr);
