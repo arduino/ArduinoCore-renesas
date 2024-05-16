@@ -437,25 +437,28 @@ void TwoWire::end(void) {
   if(init_ok) {
     if(is_master) {
       if(m_close != nullptr) {
-        m_close(&m_i2c_ctrl);
         R_BSP_IrqDisable (m_i2c_cfg.txi_irq);
         R_BSP_IrqDisable (m_i2c_cfg.rxi_irq);
         R_BSP_IrqDisable (m_i2c_cfg.tei_irq);
         R_BSP_IrqDisable (m_i2c_cfg.eri_irq);
-          
+        m_close(&m_i2c_ctrl);  
       }
     }
     else {
       if(s_close != nullptr) {
-        s_close(&s_i2c_ctrl);
         R_BSP_IrqDisable (s_i2c_cfg.txi_irq);
         R_BSP_IrqDisable (s_i2c_cfg.rxi_irq);
         R_BSP_IrqDisable (s_i2c_cfg.tei_irq);
         R_BSP_IrqDisable (s_i2c_cfg.eri_irq);
+        s_close(&s_i2c_ctrl);
         
       }
     }
   }
+  /* fix for slave that create a sort of lock on the I2C bus when end is called and the master
+     is not more able to get the I2C buse working */
+  R_IOPORT_PinCfg(NULL, g_pin_cfg[sda_pin].pin, IOPORT_CFG_PORT_DIRECTION_INPUT | IOPORT_CFG_PULLUP_ENABLE);
+  R_IOPORT_PinCfg(NULL, g_pin_cfg[scl_pin].pin, IOPORT_CFG_PORT_DIRECTION_INPUT | IOPORT_CFG_PULLUP_ENABLE);
   init_ok = false;
 }
 
