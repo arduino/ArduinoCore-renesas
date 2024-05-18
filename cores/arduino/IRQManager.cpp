@@ -67,8 +67,10 @@ bool IRQManager::addADCScanEnd(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if (adc->cfg.scan_end_irq == FSP_INVALID_VECTOR) {
         if(set_adc_end_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_irq = (IRQn_Type)last_interrupt_index;
@@ -101,8 +103,10 @@ bool IRQManager::addADCScanEndB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-
-    if (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if (adc->cfg.scan_end_b_irq == FSP_INVALID_VECTOR) {
         if(set_adc_end_b_link_event(last_interrupt_index, adc->cfg.unit)) {
             adc->cfg.scan_end_b_ipl = TIMER_PRIORITY;
             adc->cfg.scan_end_b_irq = (IRQn_Type)last_interrupt_index;
@@ -125,8 +129,10 @@ bool IRQManager::addADCWinCmpA(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if( ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if( ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq == FSP_INVALID_VECTOR) {
         if(set_adc_win_a_link_event(last_interrupt_index, adc->cfg.unit)) {
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_ipl = TIMER_PRIORITY;
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_a_irq = (IRQn_Type)last_interrupt_index;
@@ -150,8 +156,10 @@ bool IRQManager::addADCWinCmpB(ADC_Container *adc, Irq_f fnc /*= nullptr*/) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if (((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq == FSP_INVALID_VECTOR) {
         if(set_adc_win_b_link_event(last_interrupt_index, adc->cfg.unit)) {
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_ipl = TIMER_PRIORITY;
             ((adc_extended_cfg_t *)(adc->cfg.p_extend))->window_b_irq = (IRQn_Type)last_interrupt_index;
@@ -177,8 +185,10 @@ bool IRQManager::addTimerOverflow(TimerIrqCfg_t &cfg, Irq_f fnc /* = nullptr */)
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-
-    if (cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if (cfg.base_cfg->cycle_end_irq == FSP_INVALID_VECTOR) {
         if(cfg.gpt_ext_cfg != nullptr) {
             if(set_gpt_over_link_event(last_interrupt_index, cfg.base_cfg->channel)) {
                 cfg.base_cfg->cycle_end_ipl = TIMER_PRIORITY;
@@ -224,7 +234,7 @@ bool IRQManager::addTimerUnderflow(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullptr*/) 
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if(cfg.agt_ext_cfg != nullptr) {
+    if((cfg.agt_ext_cfg != nullptr) || (last_interrupt_index >= PROG_IRQ_NUM)) {
         /* not supported for AGT  */
         rv = false;
     }
@@ -258,7 +268,7 @@ bool IRQManager::addTimerCompareCaptureA(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if(cfg.agt_ext_cfg != nullptr) {
+    if((cfg.agt_ext_cfg != nullptr) || (last_interrupt_index >= PROG_IRQ_NUM)) {
         /* not supported for AGT  */
         rv = false;
     }
@@ -292,7 +302,7 @@ bool IRQManager::addTimerCompareCaptureB(TimerIrqCfg_t &cfg, Irq_f fnc /*= nullp
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
     
-    if(cfg.agt_ext_cfg != nullptr) {
+    if((cfg.agt_ext_cfg != nullptr) || (last_interrupt_index >= PROG_IRQ_NUM)) {
         /* not supported for AGT  */
         rv = false;
     }
@@ -326,8 +336,10 @@ bool IRQManager::addDMA(dmac_extended_cfg_t &cfg, Irq_f fnc /* = nullptr */) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
-    
-    if (cfg.irq == FSP_INVALID_VECTOR) {
+    if (last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+    }
+    else if (cfg.irq == FSP_INVALID_VECTOR) {
         /* to check correctness of the channel */
         if(set_dma_link_event(last_interrupt_index, cfg.channel)) {
             cfg.ipl = DMA_PRIORITY;
@@ -356,6 +368,11 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
     /* set the displacement to the "programmable" part of the table */
     irq_ptr += FIXED_IRQ_NUM;
     bool rv = true;
+
+    if(last_interrupt_index >= PROG_IRQ_NUM){
+        rv = false;
+        goto end_config;
+    }
 
     __disable_irq();
     /* **********************************************************************
