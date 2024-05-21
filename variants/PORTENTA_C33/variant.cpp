@@ -216,58 +216,8 @@ int32_t getPinIndex(bsp_io_port_pin_t p) {
   return rv;
 }
 
-#include "FspTimer.h"
-
-#define AGT_TIMER_CHANNEL 3
-#define ETHERNET_CLK_PIN  BSP_IO_PORT_06_PIN_00
-
-agt_instance_ctrl_t TIMER_ETHERNET_ctrl;
-agt_extended_cfg_t TIMER_ETHERNET_extend;
-timer_cfg_t TIMER_ETHERNET_cfg;
-
-
-fsp_err_t startETHClock() {
-  pinPeripheral(ETHERNET_CLK_PIN, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
-  
-  TIMER_ETHERNET_extend.count_source = AGT_CLOCK_PCLKB;
-  TIMER_ETHERNET_extend.agto = AGT_PIN_CFG_START_LEVEL_LOW;
-  TIMER_ETHERNET_extend.agtoab_settings_b.agtoa = AGT_PIN_CFG_DISABLED;
-  TIMER_ETHERNET_extend.agtoab_settings_b.agtob = AGT_PIN_CFG_DISABLED;
-  TIMER_ETHERNET_extend.measurement_mode = AGT_MEASURE_DISABLED;
-  TIMER_ETHERNET_extend.agtio_filter = AGT_AGTIO_FILTER_NONE;
-  TIMER_ETHERNET_extend.enable_pin = AGT_ENABLE_PIN_NOT_USED;
-  TIMER_ETHERNET_extend.trigger_edge = AGT_TRIGGER_EDGE_RISING;
-  
-  TIMER_ETHERNET_cfg.mode = TIMER_MODE_PERIODIC;
-  TIMER_ETHERNET_cfg.period_counts = (uint32_t) 0x1;
-  TIMER_ETHERNET_cfg.duty_cycle_counts = 0x00;
-  TIMER_ETHERNET_cfg.source_div = (timer_source_div_t) 0;
-  TIMER_ETHERNET_cfg.channel = AGT_TIMER_CHANNEL; 
-  TIMER_ETHERNET_cfg.p_callback = NULL;
-  TIMER_ETHERNET_cfg.p_context  = NULL;
-  TIMER_ETHERNET_cfg.p_extend = &TIMER_ETHERNET_extend;
-  TIMER_ETHERNET_cfg.cycle_end_ipl = (BSP_IRQ_DISABLED);
-  TIMER_ETHERNET_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
-  
-  fsp_err_t err = R_AGT_Open(&TIMER_ETHERNET_ctrl,&TIMER_ETHERNET_cfg);
-  if (err != FSP_SUCCESS) {
-    return err;
-  }
-  err = R_AGT_Enable(&TIMER_ETHERNET_ctrl);
-  if (err != FSP_SUCCESS) {
-    return err;
-  }
-  err = R_AGT_Start(&TIMER_ETHERNET_ctrl);
-  if (err != FSP_SUCCESS) {
-    return err;
-  }
-
-  FspTimer::set_timer_is_used(AGT_TIMER, AGT_TIMER_CHANNEL);
-  return err;
-}
-
 void initVariant() {
-  startETHClock();
+
   // bootloader configures LED_BUILTIN as PWM output, deconfigure it to avoid spurious signals
   pinMode(LED_BUILTIN, INPUT);
 }

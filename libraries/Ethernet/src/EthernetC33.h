@@ -13,6 +13,7 @@
 
 #include "EthernetClient.h"
 #include "EthernetServer.h"
+#include "EthernetClock.h"
 
 #include "CNetIf.h"
 #include "lwipMem.h"
@@ -68,8 +69,11 @@ class CEthernet {
     IPAddress gatewayIP();
     IPAddress dnsServerIP();
 
+
     friend class EthernetClient;
     friend class EthernetServer;
+  private:
+    EthernetClock * ethernetTimer;
 };
 
 extern CEthernet Ethernet;
