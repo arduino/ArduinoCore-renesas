@@ -52,6 +52,7 @@ public:
 
 
   bool begin(CanBitRate const can_bitrate) override;
+  bool begin(uint32_t const can_bitrate);
   void end() override;
 
   void setFilterMask_Standard(uint32_t const mask);

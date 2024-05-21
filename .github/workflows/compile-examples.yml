@@ -87,11 +87,13 @@ jobs:
           - board:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
+              - libraries/Arduino_LED_Matrix
               - libraries/WiFiS3
               - libraries/OTAUpdate
           - board:
               fqbn: "arduino-git:renesas:unor4wifi"
             additional-sketch-paths: |
+              - libraries/Arduino_LED_Matrix
               - libraries/WiFiS3
               - libraries/OTAUpdate
               - libraries/OPAMP
@@ -157,6 +159,7 @@ jobs:
             - name: ArduinoDMX
             - name: ArduinoRS485
             - name: ArduinoIoTCloud
+            - name: ArduinoGraphics
           platforms: |
             # Use Board Manager to install the latest release of Arduino Renesas Boards to get the toolchain
             - name: "arduino:renesas_uno"

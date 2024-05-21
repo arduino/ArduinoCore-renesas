@@ -138,6 +138,11 @@ R7FA4M1_CAN::R7FA4M1_CAN(int const can_tx_pin, int const can_rx_pin)
 
 bool R7FA4M1_CAN::begin(CanBitRate const can_bitrate)
 {
+  return begin(static_cast<uint32_t>(can_bitrate)); 
+}
+
+bool R7FA4M1_CAN::begin(uint32_t const can_bitrate)
+{
   bool init_ok = true;
 
   /* Configure the pins for CAN.
