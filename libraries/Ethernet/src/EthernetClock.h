@@ -4,10 +4,6 @@
 
 #include "FspTimer.h"
 
-#define AGT_TIMER_CHANNEL 3
-#define ETHERNET_CLK_PIN  BSP_IO_PORT_06_PIN_00
-
-
 class EthernetClock {
     public:
         EthernetClock();

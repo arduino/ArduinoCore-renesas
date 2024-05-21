@@ -1,6 +1,7 @@
 #include "EthernetClock.h"
+#include "pins_arduino.h"
 
-
+#if defined(ETHERNET_CLK_PIN)
 
 EthernetClock::EthernetClock() {
   pinPeripheral(ETHERNET_CLK_PIN, (uint32_t) (IOPORT_CFG_PERIPHERAL_PIN | IOPORT_PERIPHERAL_AGT));
@@ -18,7 +19,7 @@ EthernetClock::EthernetClock() {
   this->TIMER_ETHERNET_cfg.period_counts = (uint32_t) 0x1;
   this->TIMER_ETHERNET_cfg.duty_cycle_counts = 0x00;
   this->TIMER_ETHERNET_cfg.source_div = (timer_source_div_t) 0;
-  this->TIMER_ETHERNET_cfg.channel = AGT_TIMER_CHANNEL;
+  this->TIMER_ETHERNET_cfg.channel = ETHERNET_AGT_TIMER_CHANNEL;
   this->TIMER_ETHERNET_cfg.p_callback = NULL;
   this->TIMER_ETHERNET_cfg.p_context  = NULL;
   this->TIMER_ETHERNET_cfg.p_extend = &TIMER_ETHERNET_extend;
@@ -40,7 +41,7 @@ fsp_err_t EthernetClock::start() {
     return err;
   }
 
-  FspTimer::set_timer_is_used(AGT_TIMER, AGT_TIMER_CHANNEL);
+  FspTimer::set_timer_is_used(AGT_TIMER, ETHERNET_AGT_TIMER_CHANNEL);
   return err;
 }
 
@@ -60,3 +61,18 @@ fsp_err_t EthernetClock::stop() {
     }
   }
 }
+
+#else
+
+EthernetClock::EthernetClock() {
+}
+
+fsp_err_t EthernetClock::start() {
+  return FSP_SUCCESS;
+}
+
+fsp_err_t EthernetClock::stop() {
+  return FSP_SUCCESS;
+}
+
+#endif
