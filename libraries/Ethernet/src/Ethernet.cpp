@@ -1,5 +1,5 @@
 #include <EthernetC33.h>
-
+#include <EthernetClock.h>
 /*
  * The old implementation of the begin set a default mac address:
  * this does not make any sense.
@@ -12,9 +12,14 @@
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
+    
+  ethernetTimer = new EthernetClock();
+  ethernetTimer->start();
+  delay(2);
   (void)responseTimeout;
 
   int rv = 0;
+
 
   ni = CLwipIf::getInstance().get(NI_ETHERNET);
   if(ni != nullptr) {
@@ -55,6 +60,10 @@ int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */  
+  
+  ethernetTimer = new EthernetClock();
+  ethernetTimer->start();
+  delay(2);
   
   if (ni != nullptr) {
     ni->config(local_ip, gateway, subnet);
@@ -136,6 +145,9 @@ EthernetHardwareStatus CEthernet::hardwareStatus() {
 /* -------------------------------------------------------------------------- */
 int CEthernet::disconnect() {
 /* -------------------------------------------------------------------------- */
+  ethernetTimer->stop();
+  delete(ethernetTimer);
+  ethernetTimer = NULL;
   return 1;
 }
 
