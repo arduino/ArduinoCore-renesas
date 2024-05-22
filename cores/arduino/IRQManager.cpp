@@ -609,7 +609,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         mcfg->ipl = I2C_MASTER_PRIORITY;
         
         if (mcfg->txi_irq  == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + WIRE_MASTER_INTERRUPT_COUNT >= PROG_IRQ_NUM){
+            if (last_interrupt_index + WIRE_MASTER_INTERRUPT_COUNT > PROG_IRQ_NUM){
                 rv = false;
                 goto end_config;
             } 
@@ -658,7 +658,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         i2c_master_cfg_t *mcfg = (i2c_master_cfg_t *)p_cfg->mcfg;
         mcfg->ipl = I2C_MASTER_PRIORITY;
         if (mcfg->txi_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + WIRE_SCI_MASTER_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + WIRE_SCI_MASTER_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             }
@@ -707,7 +707,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         scfg->eri_ipl = I2C_SLAVE_PRIORITY;
 
         if (scfg->txi_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + WIRE_SLAVE_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + WIRE_SLAVE_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             }
@@ -773,7 +773,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         uint8_t const hw_channel = reinterpret_cast<SpiMasterIrqReq_t *>(cfg)->hw_channel;
 
         if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + SPI_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + SPI_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             } 
@@ -825,7 +825,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         uint8_t const hw_channel = reinterpret_cast<SciSpiMasterIrqReq_t *>(cfg)->hw_channel;
 
         if (p_cfg->txi_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + SPI_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + SPI_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             } 
@@ -878,7 +878,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
         if (p_cfg->error_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + CAN_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + CAN_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             } 
@@ -936,7 +936,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         p_cfg->ipl = CAN_PRIORITY; /* All interrupts share the same priority. */
 
         if (p_cfg->error_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + CANFD_INTERRUPT_COUNT >= PROG_IRQ_NUM) {
+            if (last_interrupt_index + CANFD_INTERRUPT_COUNT > PROG_IRQ_NUM) {
                 rv = false;
                 goto end_config;
             }   
@@ -975,7 +975,7 @@ bool IRQManager::addPeripheral(Peripheral_t p, void *cfg) {
         sdmmc_cfg_t *sd_cfg = (sdmmc_cfg_t *)cfg;
         /* SDCARD_ACCESS */
         if(sd_cfg->access_irq == FSP_INVALID_VECTOR) {
-            if (last_interrupt_index + SD_INTERRUPT_COUNT >= PROG_IRQ_NUM){
+            if (last_interrupt_index + SD_INTERRUPT_COUNT > PROG_IRQ_NUM){
                 rv = false;
                 goto end_config;
             }   
