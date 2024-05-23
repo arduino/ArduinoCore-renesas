@@ -653,7 +653,11 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
     
     if(is_initialized) {
         onRtcInterrupt();
-        setRtcAlarmClbk(fnc);
+
+        if(fnc != nullptr) {
+            setRtcAlarmClbk(fnc);
+        }
+
         rtc_alarm_time_t at;
         at.min_match = false;               
         at.sec_match = false;                
@@ -682,6 +686,10 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
         }
     }
     return false;
+}
+
+bool RTClock::setAlarm(RTCTime &t, AlarmMatch &m) {
+    return this->setAlarmCallback(nullptr, t, m);
 }
 
 bool RTClock::isRunning() {
