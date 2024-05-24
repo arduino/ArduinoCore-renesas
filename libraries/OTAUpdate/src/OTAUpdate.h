@@ -42,6 +42,12 @@ public:
   int begin(const char* file_path);
   int download(const char* url);
   int download(const char* url, const char* file_path);
+
+  int startDownload(const char* url);
+  int startDownload(const char* url, const char* file_path);
+
+  int downloadProgress();
+
   int verify();
   int update();
   int update(const char* file_path);
