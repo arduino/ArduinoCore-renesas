@@ -181,6 +181,8 @@ class RTClock {
 
     bool setPeriodicCallback(rtc_cbk_t fnc, Period p);
     bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m);
+    bool setAlarm(RTCTime &t, AlarmMatch &m);
+    
     bool isRunning();
     bool setTime(RTCTime &t); 
     bool setTimeIfNotRunning(RTCTime &t);
