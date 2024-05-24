@@ -12,6 +12,7 @@
 
 #if SERIAL_HOWMANY > 0
 #include "r_uart_api.h"
+#define UART_INTERRUPT_COUNT 4
 #endif
 
 #if EXT_INTERRUPTS_HOWMANY > 0
@@ -78,6 +79,9 @@ typedef struct i2c_irq_req {
     i2c_master_cfg_t *mcfg;
     i2c_slave_cfg_t  *scfg;
 } I2CIrqReq_t;
+#define WIRE_MASTER_INTERRUPT_COUNT 4
+#define WIRE_SLAVE_INTERRUPT_COUNT 4
+#define WIRE_SCI_MASTER_INTERRUPT_COUNT 3
 #endif
 
 #if SPI_HOWMANY > 0
@@ -95,6 +99,7 @@ typedef struct sci_spi_master_irq {
     spi_cfg_t * cfg;
     uint8_t hw_channel;
 } SciSpiMasterIrqReq_t;
+#define SPI_INTERRUPT_COUNT 4
 #endif
 
 #if CAN_HOWMANY > 0
@@ -103,6 +108,7 @@ typedef struct can_irq {
   can_instance_ctrl_t * ctrl;
   can_cfg_t * cfg;
 } CanIrqReq_t;
+#define CAN_INTERRUPT_COUNT 3
 #endif /* CAN_HOWMANY > 0 */
 
 #if CANFD_HOWMANY > 0
@@ -111,7 +117,10 @@ typedef struct canfd_irq {
   canfd_instance_ctrl_t * ctrl;
   can_cfg_t * cfg;
 } CanFdIrqReq_t;
+#define CANFD_INTERRUPT_COUNT 3
 #endif /* CANFD_HOWMANY > 0 */
+
+#define SD_INTERRUPT_COUNT 2
 
 typedef struct usb {
     uint32_t num_of_irqs_required;
