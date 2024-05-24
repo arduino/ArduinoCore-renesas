@@ -90,6 +90,7 @@ static const uint8_t D13 = PIN_D13;
 static const uint8_t D14 = PIN_D14;
 static const uint8_t D15 = PIN_D15;
 
+#define digitalPinHasPWM(p) (IS_PIN_PWM(getPinCfgs(p, PIN_CFG_REQ_PWM)[0]))
 // LEDs
 // ----
 #define PIN_LED     (13u)
