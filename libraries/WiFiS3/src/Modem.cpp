@@ -207,6 +207,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       while( _serial->available() ){
          char c = _serial->read();
          data_res += c;
+
          
          if(_serial_debug  && _debug_level >= 1) {
             _serial_debug->print(c);
