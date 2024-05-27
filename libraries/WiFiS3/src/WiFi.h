@@ -57,6 +57,14 @@ public:
      * Get firmware version
      */
     static const char* firmwareVersion();
+    /*
+     * Get firmware version U32
+     *
+     * Since version is made in a semver fashion, thus in an integer it will be represented as
+     *  byte 1 (MSB) | byte 2 | byte 3 | byte 4
+     *             0 | MAJOR  | MINOR  | PATCH
+     */
+    uint32_t firmwareVersionU32();
 
     /*
      * PING
