@@ -22,6 +22,22 @@ const char* CWifi::firmwareVersion() {
    return "99.99.99";
 }
 
+/*
+ * Since version is made in a semver fashion, thus in an integer it will be represented as
+ *  byte 1 (MSB) | byte 2 | byte 3 | byte 4
+ *             0 | MAJOR  | MINOR  | PATCH
+ */
+/* -------------------------------------------------------------------------- */
+uint32_t CWifi::firmwareVersionU32() {
+/* -------------------------------------------------------------------------- */
+   uint8_t ret[4];
+   string res = "";
+   modem.begin();
+   if(modem.write(string(PROMPT(_FWVERSION_U32)), res, CMD_READ(_FWVERSION_U32))) {
+      return res[0] << 16| res[1] << 8 | res[2];
+   }
+   return 0x636363;
+}
 
 /* -------------------------------------------------------------------------- */
 int CWifi::begin(const char* ssid) {

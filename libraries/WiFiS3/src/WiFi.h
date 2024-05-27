@@ -56,6 +56,7 @@ public:
      * Get firmware version
      */
     static const char* firmwareVersion();
+    uint32_t firmwareVersionU32();
 
 
     /*
