@@ -3,9 +3,8 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-WiFiSSLClient::WiFiSSLClient() : _sock(-1) {
+WiFiSSLClient::WiFiSSLClient() {
 /* -------------------------------------------------------------------------- */
-   rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -17,13 +16,19 @@ WiFiSSLClient::~WiFiSSLClient() {
 /* -------------------------------------------------------------------------- */
 void WiFiSSLClient::getSocket() {
 /* -------------------------------------------------------------------------- */
+   if(_sock >= 0 && !connected()) {
+      // if sock >= 0 -> it means we were connected, but something happened and we need
+      // to reset this socket in order to be able to connect again
+      stop();
+   }
+
    if(_sock == -1) {
       string res = "";
       modem.begin();
       if(modem.write(string(PROMPT(_SSLBEGINCLIENT)),res, "%s" , CMD(_SSLBEGINCLIENT))) {
          _sock = atoi(res.c_str());
       }
-   }   
+   }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,7 +92,7 @@ void WiFiSSLClient::setEccSlot(int ecc508KeySlot, const byte cert[], int certLen
 
 /* -------------------------------------------------------------------------- */
 size_t WiFiSSLClient::write(uint8_t b){
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    return write(&b, 1);
 }
 
@@ -101,7 +106,7 @@ size_t WiFiSSLClient::write(const uint8_t *buf, size_t size){
       if(modem.passthrough(buf,size)) {
          return size;
       }
-      
+
    }
    return 0;
 
@@ -109,7 +114,7 @@ size_t WiFiSSLClient::write(const uint8_t *buf, size_t size){
 
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::available(){
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    int rv = 0;
    if(_sock >= 0 && rx_buffer != nullptr) {
       if(rx_buffer->available() > 0) {
@@ -123,7 +128,7 @@ int WiFiSSLClient::available(){
             if (rv < 0) {
                return 0;
             }
-         }  
+         }
       }
    }
    return rv;
@@ -131,13 +136,13 @@ int WiFiSSLClient::available(){
 
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::_read() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    int rv = -1;
-   if(_sock >= 0) {
+   if(_sock >= 0 && rx_buffer != nullptr) {
       string res = "";
       uint32_t size = rx_buffer->freePositions() - 1;
       modem.begin();
-      
+
       /* important - it works one shot */
       modem.avoid_trim_results();
       modem.read_using_size();
@@ -154,11 +159,11 @@ int WiFiSSLClient::_read() {
       }
    }
    return rv;
-}  
+}
 
 /* -------------------------------------------------------------------------- */
 void WiFiSSLClient::read_if_needed(size_t s) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    if((size_t)rx_buffer->available() < s) {
       _read();
    }
@@ -166,12 +171,12 @@ void WiFiSSLClient::read_if_needed(size_t s) {
 
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::read() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    uint8_t b;
    if(read(&b, 1) == 1) {
       return b;
    }
-  return -1;
+   return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -190,19 +195,19 @@ int WiFiSSLClient::read(uint8_t *buf, size_t size) {
          go_on = false;
       }
    }
-   return rv; 
+   return rv;
 }
 
 /* -------------------------------------------------------------------------- */
 int WiFiSSLClient::peek() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    int rv = -1;
    if(_sock >= 0) {
       string res = "";
       modem.begin();
       if(modem.write(string(PROMPT(_SSLPEEK)),res, "%s%d\r\n" , CMD_WRITE(_SSLPEEK), _sock)) {
          rv = atoi(res.c_str());
-      }  
+      }
    }
    return rv;
 }
@@ -210,7 +215,7 @@ int WiFiSSLClient::peek() {
 
 /* -------------------------------------------------------------------------- */
 void WiFiSSLClient::flush() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    if(_sock >= 0) {
       string res = "";
       modem.begin();
@@ -220,31 +225,33 @@ void WiFiSSLClient::flush() {
 
 /* -------------------------------------------------------------------------- */
 void WiFiSSLClient::stop() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    if(_sock >= 0) {
       string res = "";
       modem.begin();
       modem.write(string(PROMPT(_SSLCLIENTCLOSE)),res, "%s%d\r\n" , CMD_WRITE(_SSLCLIENTCLOSE), _sock);
       _sock = -1;
    }
+
+   rx_buffer->clear();
 }
 
 /* -------------------------------------------------------------------------- */
 uint8_t WiFiSSLClient::connected() {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    uint8_t rv = 0;
    if(_sock >= 0) {
       string res = "";
       modem.begin();
       if(modem.write(string(PROMPT(_SSLCLIENTCONNECTED)),res, "%s%d\r\n" , CMD_WRITE(_SSLCLIENTCONNECTED), _sock)) {
          rv = atoi(res.c_str());
-      }  
+      }
    }
    return rv;
 }
-bool WiFiSSLClient::operator==(const WiFiSSLClient& whs)
-{
-       return _sock == whs._sock;
+
+bool WiFiSSLClient::operator==(const WiFiSSLClient& whs) {
+   return _sock == whs._sock;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -257,14 +264,14 @@ IPAddress WiFiSSLClient::remoteIP() {
       if(modem.write(string(PROMPT(_SSLREMOTEIP)),res, "%s%d\r\n" , CMD_WRITE(_SSLREMOTEIP), _sock)) {
          ip.fromString(res.c_str());
          return ip;
-      }  
+      }
    }
    return IPAddress(0,0,0,0);
 }
 
 /* -------------------------------------------------------------------------- */
 uint16_t WiFiSSLClient::remotePort(){
-/* -------------------------------------------------------------------------- */  
+/* -------------------------------------------------------------------------- */
    uint16_t rv = 0;
    if(_sock >= 0) {
       string res = "";
@@ -272,7 +279,7 @@ uint16_t WiFiSSLClient::remotePort(){
       if(modem.write(string(PROMPT(_SSLREMOTEPORT)),res, "%s%d\r\n" , CMD_WRITE(_SSLREMOTEPORT), _sock)) {
          rv = atoi(res.c_str());
          return rv;
-      }  
+      }
    }
-   return rv; 
+   return rv;
 }

@@ -45,7 +45,7 @@ public:
    virtual void stop();
    virtual uint8_t connected();
    virtual operator bool() {
-     return _sock != -1;
+      return _sock != -1;
    }
    virtual bool operator==(const WiFiSSLClient&);
    virtual bool operator!=(const WiFiSSLClient& whs)
@@ -60,7 +60,6 @@ public:
    using Print::write;
 
 private:
-   int _sock;
    void getSocket();
    int _read();
    void read_if_needed(size_t s);
