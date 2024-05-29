@@ -65,8 +65,6 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       }
       case UART_EVENT_TX_DATA_EMPTY: // This is called when the buffer is empty
       {
-        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
-        //while (to_enqueue) {
         uart_ptr->tx_empty = true;
         break;
       }
