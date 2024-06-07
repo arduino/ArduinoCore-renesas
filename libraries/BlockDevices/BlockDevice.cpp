@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef ARDUINO_PORTENTA_C33
+#if defined(ARDUINO_PORTENTA_C33) || defined(ARDUINO_THINGPLUS_RA6M5)
 
 #include <QSPIFlashBlockDevice.h>
 

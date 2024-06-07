@@ -1,0 +1,12 @@
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/inc
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra_gen
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/inc/api
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/inc/instances
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/src/r_sce_protected/crypto_procedures_protected/src/sce9/private/inc
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/THINGPLUS_RA6M5/includes/ra_cfg/driver
