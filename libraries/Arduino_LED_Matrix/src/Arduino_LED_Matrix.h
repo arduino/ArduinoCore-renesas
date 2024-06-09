@@ -260,6 +260,7 @@ public:
         	0x00000000
         };
         loadFrame(fullOff);
+        memset(_canvasBuffer, 0, sizeof(_canvasBuffer));
     }
 
 
