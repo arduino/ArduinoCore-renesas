@@ -260,6 +260,9 @@ public:
         	0x00000000
         };
         loadFrame(fullOff);
+#ifdef MATRIX_WITH_ARDUINOGRAPHICS
+        memset(_canvasBuffer, 0, sizeof(_canvasBuffer));
+#endif
     }
 
 
