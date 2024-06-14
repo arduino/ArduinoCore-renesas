@@ -8,7 +8,7 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient()
-    : _tcp_client(NULL)
+    : _tcp_client(NULL), _provided_tcp_client(false)
 {
 }
 /* -------------------------------------------------------------------------- */
@@ -17,16 +17,47 @@ lwipClient::lwipClient()
 sketches but sock is ignored. */
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient(uint8_t sock)
-    : _tcp_client(NULL)
+    : _tcp_client(NULL), _provided_tcp_client(false)
+
 {
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 lwipClient::lwipClient(struct tcp_struct* tcpClient)
+    : _tcp_client(tcpClient), _provided_tcp_client(true)
+
 {
-    _tcp_client = tcpClient;
 }
+
+/* -------------------------------------------------------------------------- */
+lwipClient::lwipClient(lwipClient&& c) noexcept
+    :_tcp_client(std::move(c._tcp_client)), _provided_tcp_client(c._provided_tcp_client), _timeout(c._timeout)
+{
+
+}
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+lwipClient::~lwipClient() 
+{
+    stop();
+
+    if(!_provided_tcp_client) {
+        mem_free(_tcp_client); 
+    }
+}
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+lwipClient& lwipClient::operator=(lwipClient&& c) {
+    this->_tcp_client = std::move(c._tcp_client);
+    this->_provided_tcp_client = c._provided_tcp_client;
+    this->_timeout = c._timeout;
+
+    return *this;
+}
+
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -158,9 +189,13 @@ int lwipClient::read()
     uint8_t b;
     if ((_tcp_client != NULL) && (_tcp_client->data.p != NULL)) {
         __disable_irq();
-        pbuffer_get_data(&(_tcp_client->data), &b, 1);
+        int rv = pbuffer_get_data(&(_tcp_client->data), &b, 1);
         __enable_irq();
-        return b;
+        if(rv == 1) {
+            return b;
+        } else {
+            return -1;
+        }
     }
     // No data available
     return -1;
@@ -224,7 +259,7 @@ uint8_t lwipClient::connected()
 {
     /* -------------------------------------------------------------------------- */
     uint8_t s = status();
-    return ((available() && (s == TCP_CLOSING)) || (s == TCP_CONNECTED) || (s == TCP_ACCEPTED));
+    return s != TCP_DISCONNECTED && ((available() && (s == TCP_CLOSING)) || (s == TCP_CONNECTED) || (s == TCP_ACCEPTED));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -251,6 +286,13 @@ bool lwipClient::operator==(const lwipClient& rhs)
 {
     /* -------------------------------------------------------------------------- */
     return _tcp_client == rhs._tcp_client && _tcp_client->pcb == rhs._tcp_client->pcb;
+}
+
+/* -------------------------------------------------------------------------- */
+bool lwipClient::operator!=(const lwipClient& rhs)
+{
+    /* -------------------------------------------------------------------------- */
+    return _tcp_client != rhs._tcp_client || _tcp_client->pcb != rhs._tcp_client->pcb;
 }
 
 /* This function is not a function defined by Arduino. This is a function
