@@ -29,6 +29,7 @@
 #undef Serial
 #endif
 
+
 UART * UART::g_uarts[MAX_UARTS] = {nullptr};
 
 void uart_callback(uart_callback_args_t __attribute((unused)) *p_args)
@@ -56,21 +57,160 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       case UART_EVENT_ERR_OVERFLOW:
       case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
       {
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
           break;
       }
-      case UART_EVENT_TX_COMPLETE:
       case UART_EVENT_TX_DATA_EMPTY:
       {
-        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
-        //while (to_enqueue) {
-        uart_ptr->tx_done = true;
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
+        if (uart_ptr->txBuffer.available() == 0) {
+          uart_ptr->tx_fsi_state = TX_FSI_WAITING_TE;  // maybe...
+          uart_ptr->save_tx_info(0x40); // top nibble bits 0100
+        } else {
+          size_t cb = 0;
+          while (cb < sizeof(tx_fsi_buffer)) {
+            int ch = uart_ptr->txBuffer.read_char();
+            if (ch == -1) break;
+            uart_ptr->tx_fsi_buffer[cb++] = ch;            
+          }
+          uart_ptr->tx_fsi_state = TX_FSI_ACTIVE;
+          //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+          // See if we can simply stuff out the new buffer and count
+          // Maybe special case if we get here and TDR is already empty
+          // maybe different test for FIFO.
+          if (uart_ptr->uart_ctrl.p_reg->SSR_b.TDRE) {
+            uart_ptr->save_tx_info(cb | 0xA0); // top nibble bits 1010
+            R_SCI_UART_Write(&(uart_ptr->uart_ctrl), uart_ptr->tx_fsi_buffer, cb);
+          } else {
+            uart_ptr->save_tx_info(cb | 0x60); // top nibble bits 0110
+
+            uart_ptr->uart_ctrl.tx_src_bytes = cb;
+            uart_ptr->uart_ctrl.p_tx_src     =  uart_ptr->tx_fsi_buffer;
+  
+            // and reenable the TIE and not TEIE
+            uart_ptr->uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TEIE_Msk); // don't wait on transer end interrupt.
+            uart_ptr->uart_ctrl.p_reg->SCR |= (uint8_t)R_SCI0_SCR_TIE_Msk;
+          }
+        }
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
+        break;
+      }
+      case UART_EVENT_TX_COMPLETE:
+      {
+        // 
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
+        uart_ptr->tx_fsi_state = TX_FSI_COMPLETE;
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
+        uart_ptr->save_tx_info(0x80); // top nibble bits 0110
         break;
       }
       case UART_EVENT_RX_CHAR:
       {
+
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
         if (uart_ptr->rxBuffer.availableForStore()) {
           uart_ptr->rxBuffer.store_char(p_args->data);
         }
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+        break;
+      }
+      case UART_EVENT_BREAK_DETECT:
+      {
+          break;
+      }
+  }
+
+}
+
+/* -------------------------------------------------------------------------- */
+void UART::WrapperCallbackFIFO(uart_callback_args_t *p_args) {
+/* -------------------------------------------------------------------------- */  
+
+  uint32_t channel = p_args->channel;
+  
+  UART *uart_ptr = UART::g_uarts[channel];
+
+  if(uart_ptr == nullptr) {
+    return;
+  }
+  
+
+  switch (p_args->event){
+      case UART_EVENT_ERR_PARITY:
+      case UART_EVENT_ERR_FRAMING:
+      case UART_EVENT_ERR_OVERFLOW:
+      case UART_EVENT_RX_COMPLETE: // This is called when all the "expected" data are received
+      {
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, HIGH);
+        //digitalWrite(DEBUG_PIN_CALLBACK_ERROR, LOW);
+          break;
+      }
+      case UART_EVENT_TX_DATA_EMPTY:
+      {
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, HIGH);
+        if (uart_ptr->txBuffer.available() == 0) {
+          uart_ptr->tx_fsi_state = TX_FSI_WAITING_TE;  // maybe...
+          uart_ptr->save_tx_info(0x40); // top nibble bits 0100
+        } else {
+          size_t cb = 0;
+          while (cb < sizeof(tx_fsi_buffer)) {
+            int ch = uart_ptr->txBuffer.read_char();
+            if (ch == -1) break;
+            uart_ptr->tx_fsi_buffer[cb++] = ch;            
+          }
+          uart_ptr->tx_fsi_state = TX_FSI_ACTIVE;
+          //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+          // we are losing chars.  See if the UART is full, before and see if waiting helps
+          // two cases with or without fifo.
+          // but don't see any way we can get here without...
+          // See if we can simply stuff out the new buffer and count
+          // Maybe special case if we get here and TDR is already empty
+          // maybe different test for FIFO.
+          if (((uart_ptr->uart_ctrl.fifo_depth == 0) && (uart_ptr->uart_ctrl.p_reg->SSR_b.TDRE)) 
+              /*|| ((uart_ptr->uart_ctrl.fifo_depth > 0) && (uart_ptr->uart_ctrl.p_reg->FDR_b.T ==0))*/) {
+            uart_ptr->save_tx_info(cb | 0xA0); // top nibble bits 1010
+            R_SCI_UART_Write(&(uart_ptr->uart_ctrl), uart_ptr->tx_fsi_buffer, cb);
+          } else {
+            uart_ptr->save_tx_info(cb | 0x60); // top nibble bits 0110
+
+            uart_ptr->uart_ctrl.tx_src_bytes = cb;
+            uart_ptr->uart_ctrl.p_tx_src     =  uart_ptr->tx_fsi_buffer;
+  
+            // and reenable the TIE and not TEIE
+            uart_ptr->uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TEIE_Msk); // don't wait on transfer end interrupt.
+            uart_ptr->uart_ctrl.p_reg->SCR |= (uint8_t)R_SCI0_SCR_TIE_Msk;
+          }
+
+        }
+        //digitalWrite(DEBUG_PIN_CALLBACK_TXDE, LOW);
+        break;
+      }
+      case UART_EVENT_TX_COMPLETE:
+      {
+        // 
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, HIGH);
+        uart_ptr->tx_fsi_state = TX_FSI_COMPLETE;
+        //digitalWrite(DEBUG_PIN_CALLBACK_TE, LOW);
+        uart_ptr->save_tx_info(0x80); // top nibble bits 0110
+        break;
+      }
+      case UART_EVENT_RX_CHAR:
+      {
+        // See if we can minimize the callbacks, by checking ourself if there is
+        // more data in the FIFO...
+        // Don't look to see if there is room, as the store_char does the same
+        // and in either case we toss it anyway
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
+        uart_ptr->rxBuffer.store_char(p_args->data);
+        //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+
+        while (uart_ptr->uart_ctrl.p_reg->FDR_b.R > 0U) {
+          //digitalWrite(DEBUG_PIN_CALLBACK_RX, HIGH);
+          uart_ptr->rxBuffer.store_char( uart_ptr->uart_ctrl.p_reg->FRDRHL & 0xff);
+          //digitalWrite(DEBUG_PIN_CALLBACK_RX, LOW);
+        }
+
         break;
       }
       case UART_EVENT_BREAK_DETECT:
@@ -108,22 +248,81 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 /* -------------------------------------------------------------------------- */
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
-  if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, &c, 1);
-    while (!tx_done) {}
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  return write(&c, 1);
 }
 
-size_t  UART::write(uint8_t* c, size_t len) {
-  if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, c, len);
-    while (!tx_done) {}
+size_t  UART::write(const uint8_t* c, size_t len) {
+  if(init_ok && (len > 0)) {
+    //digitalWrite(DEBUG_PIN_WRITE_CALL, HIGH);
+    size_t cb_left = len;
+
+    // If there is no transfer active, try to bypass putting stuff into
+    // the txBuffer, just to pull it out again, for up to the size
+    // of our temporary buffer.
+    if (tx_fsi_state == TX_FSI_COMPLETE) {
+      size_t cb_copy = len;
+      if (cb_copy > sizeof(tx_fsi_buffer)) cb_copy = sizeof(tx_fsi_buffer);
+      memcpy(tx_fsi_buffer, c, cb_copy);
+      cb_left -= cb_copy;
+      c += cb_copy;
+      tx_fsi_state = TX_FSI_ACTIVE;
+      //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+      save_tx_info(cb_copy); // top nibble bits 0010
+      R_SCI_UART_Write(&(uart_ctrl), tx_fsi_buffer, cb_copy);
+    }
+
+    while (cb_left) {
+      // Put as much of data into txBuffer as will fit
+      while(cb_left && !txBuffer.isFull()) {
+        txBuffer.store_char(*c++);
+        cb_left--;
+      }
+
+      // was active, see if we can always make the callback handle setting up the next transfer
+#if 1
+      if (tx_fsi_state != TX_FSI_ACTIVE) {
+        // Does not have an active buffer so we need to send a new one.
+        // need to setup the next buffer... Unsure yet how much we should do.
+        uint16_t cb_copy = txBuffer.available();
+        if (cb_copy > sizeof(tx_fsi_buffer)) cb_copy = sizeof(tx_fsi_buffer);
+        for (uint16_t i = 0; i < cb_copy; i++) tx_fsi_buffer[i] = txBuffer.read_char();
+        tx_fsi_state = TX_FSI_ACTIVE;
+        //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+
+        // we were losing chars.  See if the UART is full, before and see if waiting helps
+        // two cases with or without fifo.
+        // but don't see any way we can get here without...
+        uint32_t start_time = micros();
+        if (uart_ctrl.fifo_depth) {
+          // Hopefully they don't completely fill the FIFO before calling us.
+        } else {
+          // Uart does not have FIFO so check TDRE..
+          while ((((uint32_t)micros() - start_time) < 250) && !uart_ctrl.p_reg->SSR_b.TDRE) {
+            //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+          }
+        }
+        save_tx_info(cb_copy | 0x20); // top nibble bits 0010
+        R_SCI_UART_Write(&(uart_ctrl), tx_fsi_buffer, cb_copy);
+      }
+#else
+      synchronized {
+        do_R_SCI_UART_Write = txBuffer.available() && (tx_fsi_state != TX_FSI_ACTIVE);
+        if (txBuffer.available()) {
+          tx_fsi_state = TX_FSI_ACTIVE;
+
+          // if the TIE is enabled already, nothing to do.
+          if ((uart_ctrl.p_reg->SCR & R_SCI0_SCR_TIE_Msk) == 0) {
+            // probably in the case of either not active or waiting for TEIE so reset to
+            // looking for TIE
+            uart_ctrl.p_reg->SCR &= (uint8_t) ~(R_SCI0_SCR_TEIE_Msk); // don't wait on transer end interrupt.
+            uart_ctrl.p_reg->SCR |= (uint8_t)R_SCI0_SCR_TIE_Msk;
+          }            
+        }
+      }
+#endif    
+      //digitalToggle(DEBUG_PIN_WRITE_TOGGLE);
+    }
+    //digitalWrite(DEBUG_PIN_WRITE_CALL, LOW);
     return len;
   }
   else {
@@ -212,7 +411,8 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     uart_cfg_extend.clock                         = SCI_UART_CLOCK_INT;
     uart_cfg_extend.rx_edge_start                 = SCI_UART_START_BIT_FALLING_EDGE;
     uart_cfg_extend.noise_cancel                  = SCI_UART_NOISE_CANCELLATION_DISABLE;
-    uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
+    //uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_MAX;
+    uart_cfg_extend.rx_fifo_trigger               = SCI_UART_RX_FIFO_TRIGGER_DEFAULT;
     uart_cfg_extend.p_baud_setting                = &uart_baud;
     uart_cfg_extend.flow_control                  = SCI_UART_FLOW_CONTROL_RTS;
     uart_cfg_extend.flow_control_pin              = (bsp_io_port_pin_t) UINT16_MAX;
@@ -263,6 +463,7 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
     }
     
     uart_cfg.p_callback = UART::WrapperCallback;
+    tx_fsi_state = TX_FSI_COMPLETE;
   }
   else {
     return;
@@ -278,10 +479,19 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   if (uart_baud.mddr == 0) {
     err = R_SCI_UART_BaudCalculate(baudrate, false, err_rate, &uart_baud);
   }
+
+  // TODO: Do you really want to hang the processor if it fails to open the Serial port?
+  // or set the Baud rate?
   err = R_SCI_UART_Open (&uart_ctrl, &uart_cfg);
   if(err != FSP_SUCCESS) while(1);
   err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &uart_baud);
   if(err != FSP_SUCCESS) while(1);
+
+  // Set a different callback if the uart has a FIFO so we don't have to keep
+  // checking it
+  if (uart_ctrl.fifo_depth > 0) {
+    R_SCI_UART_CallbackSet (&uart_ctrl, UART::WrapperCallbackFIFO, nullptr, nullptr);
+  }
 
   rxBuffer.clear();
   txBuffer.clear();
@@ -322,8 +532,19 @@ int UART::read() {
 /* -------------------------------------------------------------------------- */
 void UART::flush() {
 /* -------------------------------------------------------------------------- */  
-  while(txBuffer.available());
+  // wait until our software queue is not empty and we are not at TEND.
+//  while(txBuffer.available());
+//  while ((uart_ctrl.p_reg->SSR_b.TEND == 0) || (uart_ctrl.p_reg->SSR_b.TDRE == 0)) {}
+  while(tx_fsi_state != TX_FSI_COMPLETE) ;
+
 }
+
+/* -------------------------------------------------------------------------- */
+int UART::availableForWrite() {
+/* -------------------------------------------------------------------------- */  
+  return txBuffer.availableForStore();
+}
+
 
 /* -------------------------------------------------------------------------- */
 size_t UART::write_raw(uint8_t* c, size_t len) {
