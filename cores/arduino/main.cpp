@@ -64,6 +64,7 @@ void unsecure_registers() {
 #define str(s) #s
 
 extern "C" void Stacktrace_Handler(void);
+extern "C" __attribute__((weak)) void eventually_start_scheduler_and_sketch_task() {}
 
 void arduino_main(void)
 {
@@ -111,6 +112,7 @@ void arduino_main(void)
    Serial.begin(115200);
 #endif
    startAgt();
+   eventually_start_scheduler_and_sketch_task();
    setup();
    while (1)
    {
