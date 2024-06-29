@@ -62,9 +62,8 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       case UART_EVENT_TX_DATA_EMPTY:
       {
           if(uart_ptr->txBuffer.available()){
-              static char txc;
-              txc = uart_ptr->txBuffer.read_char();
-              R_SCI_UART_Write(&(uart_ptr->uart_ctrl), (uint8_t*)&txc , 1);
+              uart_ptr->txc = uart_ptr->txBuffer.read_char();
+              R_SCI_UART_Write(&(uart_ptr->uart_ctrl), (uint8_t*)&(uart_ptr->txc) , 1);
           } else {
         	  uart_ptr->tx_done = true;
           }
