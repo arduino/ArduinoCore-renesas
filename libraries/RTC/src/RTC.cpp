@@ -16,13 +16,13 @@
 #define MATCH_DAYOFWEEK_POS (6)
 /* no more than 32 */
 
-#define IS_MATCH_SET(reg,pos)  ((reg & (1<<pos)) >> pos)  
+#define IS_MATCH_SET(reg,pos)  ((reg & (1<<pos)) >> pos)
 #define SET_MATCH(reg,pos)     reg |= (1<<pos)
 #define RESET_MATCH(reg,pos)   reg &= ~(1<<pos)
 
 /* -------------------------------------------------------------------------- */
 AlarmMatch::AlarmMatch() : match{0} { }
-AlarmMatch::~AlarmMatch() {}    
+AlarmMatch::~AlarmMatch() {}
 
 void AlarmMatch::addMatchSecond()       { SET_MATCH(match,MATCH_SECOND_POS); }
 void AlarmMatch::addMatchMinute()       { SET_MATCH(match,MATCH_MINUTE_POS); }
@@ -85,39 +85,39 @@ int yday(int year, int month)
 
 int Month2int(Month m) {
     switch(m) {
-        case Month::JANUARY: return 1; 
-        case Month::FEBRUARY: return 2; 
-        case Month::MARCH: return 3; 
-        case Month::APRIL: return 4; 
-        case Month::MAY: return 5; 
-        case Month::JUNE: return 6; 
-        case Month::JULY: return 7; 
-        case Month::AUGUST: return 8; 
-        case Month::SEPTEMBER: return 9; 
-        case Month::OCTOBER: return 10; 
+        case Month::JANUARY: return 1;
+        case Month::FEBRUARY: return 2;
+        case Month::MARCH: return 3;
+        case Month::APRIL: return 4;
+        case Month::MAY: return 5;
+        case Month::JUNE: return 6;
+        case Month::JULY: return 7;
+        case Month::AUGUST: return 8;
+        case Month::SEPTEMBER: return 9;
+        case Month::OCTOBER: return 10;
         case Month::NOVEMBER: return 11;
-        case Month::DECEMBER: return 12; 
-        default:         return 1;    
+        case Month::DECEMBER: return 12;
+        default:         return 1;
     }
-    return 1;    
+    return 1;
 }
 
 
 int Month2tm(Month m) {
     switch(m) {
-        case Month::JANUARY: return 0; 
-        case Month::FEBRUARY: return 1; 
-        case Month::MARCH: return 2; 
-        case Month::APRIL: return 3; 
-        case Month::MAY: return 4; 
-        case Month::JUNE: return 5; 
-        case Month::JULY: return 6; 
-        case Month::AUGUST: return 7; 
-        case Month::SEPTEMBER: return 8; 
-        case Month::OCTOBER: return 9; 
+        case Month::JANUARY: return 0;
+        case Month::FEBRUARY: return 1;
+        case Month::MARCH: return 2;
+        case Month::APRIL: return 3;
+        case Month::MAY: return 4;
+        case Month::JUNE: return 5;
+        case Month::JULY: return 6;
+        case Month::AUGUST: return 7;
+        case Month::SEPTEMBER: return 8;
+        case Month::OCTOBER: return 9;
         case Month::NOVEMBER: return 10;
-        case Month::DECEMBER: return 11; 
-        default:         return 0;    
+        case Month::DECEMBER: return 11;
+        default:         return 0;
     }
     return 0;
 }
@@ -141,7 +141,7 @@ int DayOfWeek2tm(DayOfWeek dow) {
         case DayOfWeek::THURSDAY:  return 4;
         case DayOfWeek::FRIDAY:    return 5;
         case DayOfWeek::SATURDAY:  return 6;
-        default:                   return 0;   
+        default:                   return 0;
     }
     return 0;
 }
@@ -159,8 +159,8 @@ int DayOfWeek2int(DayOfWeek dow, bool sunday_first) {
             case DayOfWeek::THURSDAY:  return 4;
             case DayOfWeek::FRIDAY:    return 5;
             case DayOfWeek::SATURDAY:  return 6;
-            default:                   return 1; 
-        }  
+            default:                   return 1;
+        }
     }
     return 1;
 }
@@ -210,22 +210,22 @@ RTCTime::RTCTime(struct tm &t)  {
     setTM(t);
 }
 
-RTCTime::RTCTime() : day{1}, 
-                     month{Month::JANUARY}, 
-                     year{2000}, 
-                     hours{0}, 
-                     minutes{0}, 
-                     seconds{0}, 
-                     day_of_week{DayOfWeek::SATURDAY}, 
+RTCTime::RTCTime() : day{1},
+                     month{Month::JANUARY},
+                     year{2000},
+                     hours{0},
+                     minutes{0},
+                     seconds{0},
+                     day_of_week{DayOfWeek::SATURDAY},
                      save_light{SaveLight::SAVING_TIME_INACTIVE} { }
 
-RTCTime::RTCTime(int _day, 
-                 Month _m, 
-                 int _year, 
-                 int _hours, 
-                 int _minutes, 
-                 int _seconds, 
-                 DayOfWeek _dof, 
+RTCTime::RTCTime(int _day,
+                 Month _m,
+                 int _year,
+                 int _hours,
+                 int _minutes,
+                 int _seconds,
+                 DayOfWeek _dof,
                  SaveLight _sl) : RTCTime() {
     setDayOfMonth(_day);
     setMonthOfYear(_m);
@@ -237,7 +237,7 @@ RTCTime::RTCTime(int _day,
     setSaveLight(_sl);
 }
 RTCTime::~RTCTime() { }
-    
+
 /* setters */
 void RTCTime::setTM(struct tm &t) {
     setDayOfMonth(t.tm_mday);
@@ -251,7 +251,7 @@ void RTCTime::setTM(struct tm &t) {
 
 }
 
- 
+
 
 rtc_periodic_irq_select_t Periodic2RtcPeriodic(Period p) {
     switch(p) {
@@ -265,7 +265,7 @@ rtc_periodic_irq_select_t Periodic2RtcPeriodic(Period p) {
         case Period::N64_TIMES_EVERY_SEC: return RTC_PERIODIC_IRQ_SELECT_1_DIV_BY_64_SECOND;
         case Period::N128_TIMES_EVERY_SEC: return RTC_PERIODIC_IRQ_SELECT_1_DIV_BY_128_SECOND;
         case Period::N256_TIMES_EVERY_SEC: return RTC_PERIODIC_IRQ_SELECT_1_DIV_BY_256_SECOND;
-        default: return RTC_PERIODIC_IRQ_SELECT_1_SECOND; 
+        default: return RTC_PERIODIC_IRQ_SELECT_1_SECOND;
     }
     return RTC_PERIODIC_IRQ_SELECT_1_SECOND;
 }
@@ -362,7 +362,7 @@ time_t RTCTime::getUnixTime()  { return mktime ( (struct tm *)&stime ); }
 struct tm RTCTime::getTmTime() { return (struct tm)stime; }
 
 arduino::String RTCTime::toString() const {
-     String formattedTime = "";
+    String formattedTime = "";
 
     // Year
     formattedTime += String(getYear());
@@ -411,30 +411,26 @@ RTCTime::operator String() const{
 /*                             RTClass                                        */
 /* -------------------------------------------------------------------------- */
 
- using rtc_simple_cbk_t = void (*)();
+using rtc_simple_cbk_t = void (*)();
 
 rtc_simple_cbk_t alarm_func = nullptr;
 rtc_simple_cbk_t periodic_func = nullptr;
 
 void setRtcPeriodicClbk(rtc_simple_cbk_t f) {
-  periodic_func = f;
+    periodic_func = f;
 }
 void setRtcAlarmClbk(rtc_simple_cbk_t f) {
-  alarm_func = f;
+    alarm_func = f;
 }
 
 void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {
-  if(p_args->event == RTC_EVENT_ALARM_IRQ) {
-    if(alarm_func != nullptr) {
-      alarm_func();
+    if(p_args->event == RTC_EVENT_ALARM_IRQ && alarm_func != nullptr) {
+        alarm_func();
     }
-  }
 
-  if(p_args->event == RTC_EVENT_PERIODIC_IRQ) {
-    if(periodic_func != nullptr) {
-      periodic_func();
+    if(p_args->event == RTC_EVENT_PERIODIC_IRQ && periodic_func != nullptr) {
+        periodic_func();
     }
-  }
 }
 
 rtc_instance_ctrl_t rtc_ctrl = {
@@ -445,18 +441,18 @@ rtc_instance_ctrl_t rtc_ctrl = {
 #define RTC_CLOCK_SOURCE RTC_CLOCK_SOURCE_LOCO
 #endif
 
-const rtc_error_adjustment_cfg_t rtc_err_cfg = { 
+const rtc_error_adjustment_cfg_t rtc_err_cfg = {
     .adjustment_mode = RTC_ERROR_ADJUSTMENT_MODE_AUTOMATIC,
     .adjustment_period = RTC_ERROR_ADJUSTMENT_PERIOD_10_SECOND,
     .adjustment_type = RTC_ERROR_ADJUSTMENT_NONE,
     .adjustment_value = 0, };
-rtc_cfg_t rtc_cfg  = { 
+rtc_cfg_t rtc_cfg  = {
     .clock_source = RTC_CLOCK_SOURCE,
-    .freq_compare_value_loco = 255, 
-    .p_err_cfg = &rtc_err_cfg, 
-    .alarm_ipl = (12), 
+    .freq_compare_value_loco = 255,
+    .p_err_cfg = &rtc_err_cfg,
+    .alarm_ipl = (12),
     .alarm_irq = FSP_INVALID_VECTOR,
-    .periodic_ipl = (12), 
+    .periodic_ipl = (12),
     .periodic_irq = FSP_INVALID_VECTOR,
     .carry_ipl = (12),
     .carry_irq = FSP_INVALID_VECTOR,
@@ -469,33 +465,33 @@ extern "C" {
 #endif
 
 static void rtc_init(void) {
-  if(!rtc_ctrl.open) {
-    R_RTC_Open(&rtc_ctrl, &rtc_cfg);
-  }
+    if(!rtc_ctrl.open) {
+        R_RTC_Open(&rtc_ctrl, &rtc_cfg);
+    }
 }
 
 static int rtc_isenabled(void) {
-  rtc_info_t rtc_info;
-  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
-  if (rtc_info.status == RTC_STATUS_RUNNING) {
-    return 1;
-  }
-  return 0;
+    rtc_info_t rtc_info;
+    R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
+    if (rtc_info.status == RTC_STATUS_RUNNING) {
+        return 1;
+    }
+    return 0;
 }
 
 static time_t rtc_read(void) {
-  rtc_time_t time_read;
-  rtc_init();
-  R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read);
-  time_t rv = mktime ( (struct tm *) &time_read);
-  return rv;
+    rtc_time_t time_read;
+    rtc_init();
+    R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read);
+    time_t rv = mktime ( (struct tm *) &time_read);
+    return rv;
 }
 
 static void rtc_write(time_t t) {
-  rtc_init();
-  struct tm * timeinfo;
-  timeinfo = localtime (&t);
-  R_RTC_CalendarTimeSet(&rtc_ctrl, timeinfo);
+    rtc_init();
+    struct tm * timeinfo;
+    timeinfo = localtime (&t);
+    R_RTC_CalendarTimeSet(&rtc_ctrl, timeinfo);
 }
 
 static void (*_rtc_init)(void) = rtc_init;
@@ -527,7 +523,7 @@ int gettimeofday(struct timeval *tv, void __attribute__((unused)) *tz)
     if (_rtc_read != NULL) {
         t = _rtc_read();
     }
-    
+
     tv->tv_sec  = t;
     tv->tv_usec = 0;
     return 0;
@@ -545,62 +541,60 @@ void set_time(time_t t)
 #endif
 
 bool openRtc() {
-  if(!rtc_ctrl.open) {
-    if(FSP_SUCCESS == R_RTC_Open(&rtc_ctrl, &rtc_cfg)) {
-      return true;
+    if(!rtc_ctrl.open && FSP_SUCCESS == R_RTC_Open(&rtc_ctrl, &rtc_cfg)) {
+        return true;
     }
-  }
-  else {
-    return true;
-  }
-  return false;
+    else {
+        return true;
+    }
+    return false;
 }
 
 bool setRtcTime(rtc_time_t time) {
-  if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&rtc_ctrl, &time) ) {
-    return true;
-  }
-  return false;
+    if(FSP_SUCCESS == R_RTC_CalendarTimeSet(&rtc_ctrl, &time) ) {
+        return true;
+    }
+    return false;
 }
 
 bool isRtcRunning() {
-  rtc_info_t rtc_info;
-  R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
-  if (rtc_info.status == RTC_STATUS_RUNNING) {
-    return true;
-  }
-  return false;
+    rtc_info_t rtc_info;
+    R_RTC_InfoGet(&rtc_ctrl, &rtc_info);
+    if (rtc_info.status == RTC_STATUS_RUNNING) {
+        return true;
+    }
+    return false;
 }
 
 bool getRtcTime(struct tm &t) {
-  rtc_time_t time_read;
-  if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read)) {
-    memcpy(&t,&time_read,sizeof(struct tm));
-    return true;
-  }
-  return false;
+    rtc_time_t time_read;
+    if(FSP_SUCCESS == R_RTC_CalendarTimeGet(&rtc_ctrl, &time_read)) {
+        memcpy(&t,&time_read,sizeof(struct tm));
+        return true;
+    }
+    return false;
 }
 
 void onRtcInterrupt() {
-  rtc_ctrl.p_callback = rtc_callback;
+    rtc_ctrl.p_callback = rtc_callback;
 }
 
 bool setRtcPeriodicInterrupt(rtc_periodic_irq_select_t period) {
-  
-  if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&rtc_ctrl, period)) {
-    return true;
-  }
-  return false;
+
+    if(FSP_SUCCESS == R_RTC_PeriodicIrqRateSet(&rtc_ctrl, period)) {
+        return true;
+    }
+    return false;
 }
 
 bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
-  if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&rtc_ctrl, &alarm_time) ) {
-    return true;
-  }
-  return false;
+    if(FSP_SUCCESS == R_RTC_CalendarAlarmSet(&rtc_ctrl, &alarm_time) ) {
+        return true;
+    }
+    return false;
 }
 
-RTClock::RTClock() : is_initialized{false} {     
+RTClock::RTClock() : is_initialized{false} {
 }
 
 RTClock::~RTClock() { }
@@ -627,7 +621,7 @@ bool RTClock::getTime(RTCTime &t) {
 }
 
 bool RTClock::setPeriodicCallback(rtc_cbk_t fnc, Period p) {
-    
+
     RTCIrqCfg_t rtc_irq_cfg;
 
     rtc_irq_cfg.req = RTC_PERIODIC;
@@ -638,19 +632,19 @@ bool RTClock::setPeriodicCallback(rtc_cbk_t fnc, Period p) {
         onRtcInterrupt();
         setRtcPeriodicClbk(fnc);
         if(IRQManager::getInstance().addPeripheral(IRQ_RTC,&rtc_irq_cfg)) {
-            return setRtcPeriodicInterrupt(Periodic2RtcPeriodic(p)); 
+            return setRtcPeriodicInterrupt(Periodic2RtcPeriodic(p));
         }
     }
     return false;
 }
 
 bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
-    
+
     RTCIrqCfg_t rtc_irq_cfg;
     rtc_irq_cfg.req = RTC_ALARM;
     rtc_irq_cfg.cfg = &rtc_cfg;
     rtc_irq_cfg.ctrl = &rtc_ctrl;
-    
+
     if(is_initialized) {
         onRtcInterrupt();
 
@@ -659,18 +653,18 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
         }
 
         rtc_alarm_time_t at;
-        at.min_match = false;               
-        at.sec_match = false;                
-        at.hour_match = false;               
-        at.mday_match = false;              
-        at.mon_match = false;                
-        at.year_match = false;               
-        at.dayofweek_match = false; 
+        at.min_match = false;
+        at.sec_match = false;
+        at.hour_match = false;
+        at.mday_match = false;
+        at.mon_match = false;
+        at.year_match = false;
+        at.dayofweek_match = false;
 
         struct tm alrm = t.getTmTime();
-        
+
         size_t cpy_size = (sizeof(at.time) <= sizeof(struct tm)) ? sizeof(at.time) : sizeof(struct tm);
-        
+
         memcpy(&at.time, &alrm, cpy_size);
 
         at.sec_match = m.isMatchingSecond();
@@ -680,7 +674,7 @@ bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
         at.mon_match = m.isMatchingMonth();
         at.year_match = m.isMatchingYear();
         at.dayofweek_match = m.isMatchingDayOfWeek();
-        
+
         if(IRQManager::getInstance().addPeripheral(IRQ_RTC,&rtc_irq_cfg)) {
             return setRtcAlarm(at);
         }
