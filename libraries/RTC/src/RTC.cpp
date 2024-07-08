@@ -540,8 +540,13 @@ void set_time(time_t t)
 }
 #endif
 
+bool isRtcRunning();
+
 bool openRtc() {
     if(!rtc_ctrl.open && FSP_SUCCESS == R_RTC_Open(&rtc_ctrl, &rtc_cfg)) {
+        if(!isRtcRunning()) {
+            R_RTC_ClockSourceSet(&rtc_ctrl);
+        }
         return true;
     }
     else {
