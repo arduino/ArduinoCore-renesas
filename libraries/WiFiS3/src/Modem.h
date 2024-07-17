@@ -36,18 +36,18 @@ public:
 
   void read_using_size() {
     read_by_size = true;
-  } 
+  }
   bool beginned;
 
   /* calling this function with no argument will enable debug message to be printed
      on Serial
-     use first parameter UART *u to redirect debug output to a different serial 
+     use first parameter UART *u to redirect debug output to a different serial
 
      level from 0 defaul to 2 (maximum) */
 
   void debug(Stream  &u, uint8_t level = 0) {
     _serial_debug = &u;
-    
+
     if(level > 2) {
       level = 2;
     }
