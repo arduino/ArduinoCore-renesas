@@ -66,7 +66,14 @@ public:
   void timeout(size_t timeout_ms) {_timeout = timeout_ms;}
 
 private:
-  bool buf_read(const std::string &cmd, std::string &data_res);
+  enum ParseResult {
+    Ok,
+    Error,
+    ParseError,
+    Timeout
+  };
+
+  ParseResult buf_read(const std::string &cmd, std::string &data_res);
   bool delete_serial;
   UART * _serial;
   unsigned long _timeout;
