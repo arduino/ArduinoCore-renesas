@@ -9,96 +9,77 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 ModemClass::ModemClass(int tx, int rx) : beginned(false), delete_serial(false), _timeout(MODEM_TIMEOUT), trim_results(true), read_by_size(false) {
 /* -------------------------------------------------------------------------- */
-  _serial = new UART(tx,rx);
+   _serial = new UART(tx,rx);
 }
 
 /* -------------------------------------------------------------------------- */
 ModemClass::ModemClass(UART * serial) : beginned(false) , delete_serial(true) , _serial(serial), _timeout(MODEM_TIMEOUT), trim_results(true), read_by_size(false) {
-/* -------------------------------------------------------------------------- */ 
+/* -------------------------------------------------------------------------- */
 }
 
 /* -------------------------------------------------------------------------- */
 ModemClass::~ModemClass() {
-/* -------------------------------------------------------------------------- */   
-  if(_serial != nullptr &&  !delete_serial){
+/* -------------------------------------------------------------------------- */
+   if(_serial != nullptr &&  !delete_serial){
       delete _serial;
       _serial = nullptr;
-  }
+   }
 }
 
 /* -------------------------------------------------------------------------- */
 void ModemClass::begin(int badurate){
-/* -------------------------------------------------------------------------- */   
-  if(_serial != nullptr && !beginned) {
+/* -------------------------------------------------------------------------- */
+   if(_serial != nullptr && !beginned) {
       _serial->begin(badurate);
       beginned = true;
       string res = "";
       _serial->flush();
       modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
-  }
+   }
 }
 
 /* -------------------------------------------------------------------------- */
 void ModemClass::end(){
-/* -------------------------------------------------------------------------- */   
- _serial->end();
+/* -------------------------------------------------------------------------- */
+   _serial->end();
 }
 
 /* -------------------------------------------------------------------------- */
 bool ModemClass::passthrough(const uint8_t *data, size_t size) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    _serial->write(data,size);
-   bool res = false;
-   bool found = false;
-   string data_res = "";
-   
-   unsigned long start_time = millis();
-   while(millis() - start_time < _timeout && !found){
-      while(_serial->available()){
-         char c = _serial->read();
-         data_res += c;
-         
-         if(string::npos != data_res.rfind(RESULT_OK)){
-            found = true;
-            res = true;
-            break;
-         } 
-         else if (string::npos != data_res.rfind(RESULT_ERROR)) {
-            found = true;
-            res = false;
-            break;
-         }
-      }
-   }  
-   
-   if(_serial_debug && _debug_level >= 2) {       
-      _serial_debug->print("   ANSWER (passthrough): ");
-      _serial_debug->println(data_res.c_str());
-      if(res) {
-         _serial_debug->println("   Result: OK");
-      }
-      else {
-         _serial_debug->println("   Result: FAILED");
-      }  
-   }     
-   
+
+   std::string tmp, data_res; // FIXME
+   bool res = buf_read(tmp, data_res);
+
+   // if(_serial_debug && _debug_level >= 2) {
+   //    _serial_debug->print("   ANSWER (passthrough): ");
+   //    _serial_debug->println(data_res.c_str());
+   //    if(res) {
+   //       _serial_debug->println("   Result: OK");
+   //    }
+   //    else {
+   //       _serial_debug->println("   Result: FAILED");
+   //    }
+   // }
+
    return res;
 }
 
 /* -------------------------------------------------------------------------- */
 void ModemClass::write_nowait(const string &cmd, string &str, const char * fmt, ...) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    va_list va;
    va_start (va, fmt);
    vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
    va_end (va);
-   
-   if(_serial_debug && _debug_level >= 2) { 
+
+   if(_serial_debug && _debug_level >= 2) {
       _serial_debug->print("REQUEST (passthrough): ");
       _serial_debug->write(tx_buff,strlen((char *)tx_buff));
       _serial_debug->println();
    }
-   
+
    _serial->write(tx_buff,strlen((char *)tx_buff));
    return;
 }
@@ -106,13 +87,13 @@ void ModemClass::write_nowait(const string &cmd, string &str, const char * fmt, 
 
 /* -------------------------------------------------------------------------- */
 bool ModemClass::write(const string &prompt, string &data_res, const char * fmt, ...){
-/* -------------------------------------------------------------------------- */  
+/* -------------------------------------------------------------------------- */
    data_res.clear();
    va_list va;
    va_start (va, fmt);
    vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
    va_end (va);
-  
+
    if(_serial_debug) {
       _serial_debug->println();
       _serial_debug->print("REQUEST: ");
@@ -121,7 +102,7 @@ bool ModemClass::write(const string &prompt, string &data_res, const char * fmt,
    }
 
    _serial->write(tx_buff,strlen((char *)tx_buff));
-   return buf_read(prompt,data_res);;
+   return buf_read(prompt, data_res);;
 }
 
 
@@ -134,7 +115,7 @@ typedef enum {
 
 /* -------------------------------------------------------------------------- */
 bool ModemClass::read_by_size_finished(string &rx) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    bool rv = false;
    static bool first_call = true;
    static ReadBySizeSt_t st = IDLE;
@@ -194,7 +175,7 @@ bool ModemClass::read_by_size_finished(string &rx) {
 
 /* -------------------------------------------------------------------------- */
 bool ModemClass::buf_read(const string &prompt, string &data_res) {
-/* -------------------------------------------------------------------------- */   
+/* -------------------------------------------------------------------------- */
    bool res = false;
    bool found = false;
    
@@ -271,6 +252,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
          }
       }
    }
+
    if(trim_results) {
       trim(data_res);
    }
@@ -282,7 +264,7 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       _serial_debug->println();
    }
 
-   if(_serial_debug) {       
+   if(_serial_debug) {
       _serial_debug->print("   ANSWER: ");
       _serial_debug->println(data_res.c_str());
       if(res) {
@@ -290,15 +272,14 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
       }
       else {
          _serial_debug->println("   Result: FAILED");
-      }  
-   }      
-
+      }
+   }
 
    return res;
 }
 
 #ifdef ARDUINO_UNOWIFIR4
-  ModemClass modem = ModemClass(&Serial2);
+   ModemClass modem = ModemClass(&Serial2);
 #else
-  ModemClass modem = ModemClass(D24,D25);
+   ModemClass modem = ModemClass(D24,D25);
 #endif
