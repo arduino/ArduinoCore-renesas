@@ -48,8 +48,8 @@ public:
   void debug(Stream  &u, uint8_t level = 0) {
     _serial_debug = &u;
 
-    if(level > 2) {
-      level = 2;
+    if(level > 3) {
+      level = 3;
     }
     _debug_level = level;
   }
