@@ -10,13 +10,13 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-ModemClass::ModemClass(int tx, int rx) : beginned(false), delete_serial(false), _timeout(MODEM_TIMEOUT), trim_results(true), read_by_size(false) {
+ModemClass::ModemClass(int tx, int rx) : beginned(false), delete_serial(false), _timeout(MODEM_TIMEOUT), trim_results(true) {
 /* -------------------------------------------------------------------------- */
    _serial = new UART(tx,rx);
 }
 
 /* -------------------------------------------------------------------------- */
-ModemClass::ModemClass(UART * serial) : beginned(false) , delete_serial(true) , _serial(serial), _timeout(MODEM_TIMEOUT), trim_results(true), read_by_size(false) {
+ModemClass::ModemClass(UART * serial) : beginned(false) , delete_serial(true) , _serial(serial), _timeout(MODEM_TIMEOUT), trim_results(true) {
 /* -------------------------------------------------------------------------- */
 }
 
