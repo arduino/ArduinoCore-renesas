@@ -35,7 +35,7 @@ public:
   }
 
   void read_using_size() {
-    read_by_size = true;
+    // read_by_size = true; // deprecated
   }
   bool beginned;
 
@@ -79,8 +79,6 @@ private:
   unsigned long _timeout;
   uint8_t tx_buff[MAX_BUFF_SIZE];
   bool trim_results;
-  bool read_by_size;
-  bool read_by_size_finished(std::string &rx);
   Stream * _serial_debug;
   uint8_t _debug_level = 0;
 };
