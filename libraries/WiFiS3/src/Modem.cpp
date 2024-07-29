@@ -34,6 +34,20 @@ void ModemClass::begin(int badurate){
 /* -------------------------------------------------------------------------- */
    if(_serial != nullptr && !beginned) {
       _serial->begin(badurate);
+
+      if(_serial_debug && _debug_level >= 2) {
+         _serial_debug->println("Baudrate autodetection started");
+      }
+      // auto baudrate detection algorithm
+      do {
+         _serial->write(0x55);
+         // delay(1);
+      } while(!_serial->available() || _serial->read() != 0x55); // TODO put timeout
+
+      if(_serial_debug && _debug_level >= 2) {
+         _serial_debug->print("Baudrate autodetection terminated");
+      }
+
       beginned = true;
       string res = "";
       _serial->flush();
