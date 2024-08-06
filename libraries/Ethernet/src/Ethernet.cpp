@@ -30,23 +30,6 @@ int CEthernet::begin(unsigned long timeout, unsigned long responseTimeout) {
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */  
-int CEthernet::configureStaticIP(const IPAddress& local_ip, const IPAddress& dns_server, const IPAddress& gateway, const IPAddress& subnet) {
-/* -------------------------------------------------------------------------- */  
-    initializeTimer();
-    
-    if (ni) {
-        ni->config(local_ip, gateway, subnet);
-    } else {
-        ni = CLwipIf::getInstance().get(NI_ETHERNET, local_ip, gateway, subnet);
-        if (!ni) return 0;
-    }
-
-    ni->DhcpNotUsed();
-    CLwipIf::getInstance().addDns(dns_server);
-    return 1;
-}
-
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(const IPAddress& local_ip) {
 /* -------------------------------------------------------------------------- */
@@ -203,6 +186,23 @@ IPAddress CEthernet::gatewayIP() const {
 IPAddress CEthernet::dnsServerIP() const {
 /* -------------------------------------------------------------------------- */
     return CLwipIf::getInstance().getDns();
+}
+
+/* -------------------------------------------------------------------------- */  
+int CEthernet::configureStaticIP(const IPAddress& local_ip, const IPAddress& dns_server, const IPAddress& gateway, const IPAddress& subnet) {
+/* -------------------------------------------------------------------------- */  
+    initializeTimer();
+    
+    if (ni) {
+        ni->config(local_ip, gateway, subnet);
+    } else {
+        ni = CLwipIf::getInstance().get(NI_ETHERNET, local_ip, gateway, subnet);
+        if (!ni) return 0;
+    }
+
+    ni->DhcpNotUsed();
+    CLwipIf::getInstance().addDns(dns_server);
+    return 1;
 }
 
 CEthernet Ethernet;
