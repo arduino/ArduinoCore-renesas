@@ -168,58 +168,26 @@ class AlarmMatch {
 };
 
 class RTClock {
-private:
+    private:
     bool is_initialized;
 
-public:
-    inline RTClock() : is_initialized(false) {}
-    inline ~RTClock() {}
+    public:
+    RTClock();
+    ~RTClock();
 
-    inline bool begin() {
-        if(openRtc()) {
-            is_initialized = true;
-        } else {
-            is_initialized = false;
-        }
-        return is_initialized;
-    }
+    bool begin();
 
-    inline bool getTime(RTCTime &t) {
-        struct tm present;
-        if(is_initialized) {
-            if( getRtcTime(present) ) {
-                t.setTM(present);
-                return true;
-            }
-        }
-        return false;
-    }
+    bool getTime(RTCTime &t);
 
     bool setPeriodicCallback(rtc_cbk_t fnc, Period p);
     bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m);
-    
-    inline bool setAlarm(RTCTime &t, AlarmMatch &m) {
-        return setAlarmCallback(nullptr, t, m);
-    }
+    bool setAlarm(RTCTime &t, AlarmMatch &m);
 
-    inline bool isRunning() {
-        return isRtcRunning();
-    }
-
+    bool isRunning();
     bool setTime(RTCTime &t);
+    bool setTimeIfNotRunning(RTCTime &t);
 
-    inline bool setTimeIfNotRunning(RTCTime &t) {
-        if(!isRunning()) {
-            return setTime(t);
-        }
-        return false;
-    }
 };
-
-
-#if RTC_HOWMANY > 0
-extern RTClock RTC;
-#endif
 
 extern RTClock RTC;
 
