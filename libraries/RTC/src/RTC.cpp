@@ -295,6 +295,9 @@ bool RTCTime::setYear(int _y) {
     if (_y >= TM_YEAR_OFFSET) {
         _y -= TM_YEAR_OFFSET;
     }
+    if (_y < 0 || _y > 99) {  // Valid range for RTC is 2000-2099
+       return false;
+    }
     year = _y;
     stime.tm_year = _y;
     //stime.tm_yday = day + yday(year, Month2tm(month));
@@ -345,6 +348,9 @@ bool RTCTime::setSaveLight(SaveLight sl) {
 bool RTCTime::setUnixTime(time_t time) {
     struct tm *t;
     t = localtime(&time);
+    if (t->tm_year < 100 || t->tm_year > 199) {  
+        return false;
+    }
     setTM(*t);
     return true;
 }
@@ -714,5 +720,4 @@ bool RTClock::setTimeIfNotRunning(RTCTime &t) {
 #if RTC_HOWMANY > 0
 RTClock RTC;
 #endif
-
 
