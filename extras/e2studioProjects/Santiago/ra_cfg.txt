@@ -198,7 +198,7 @@ FSP Configuration
     
   Module "Realtime Clock (r_rtc)"
     Parameter Checking: Default (BSP)
-    Set Source Clock in Open: Enabled
+    Set Source Clock in Open: Disabled
     
   Module "Timer, General PWM (r_gpt)"
     Parameter Checking: Default (BSP)

@@ -47,11 +47,11 @@ int Month2int(Month m);
 
 enum class DayOfWeek : uint8_t {
     MONDAY = 1,
-    TUESDAY = 2, 
-    WEDNESDAY = 3, 
-    THURSDAY = 4, 
-    FRIDAY = 5, 
-    SATURDAY = 6, 
+    TUESDAY = 2,
+    WEDNESDAY = 3,
+    THURSDAY = 4,
+    FRIDAY = 5,
+    SATURDAY = 6,
     SUNDAY = 0
 };
 
@@ -84,7 +84,7 @@ class RTCTime {
     RTCTime(struct tm &t);
     RTCTime(int _day, Month _m, int _year, int _hours, int _minutes, int _seconds, DayOfWeek _dof, SaveLight _sl);
     ~RTCTime();
-    
+
     /* setters */
     bool setDayOfMonth(int day); /* day from 1 to 31 */
     bool setMonthOfYear(Month m); /* month from 1 (January) to 12 (December) */
@@ -104,17 +104,17 @@ class RTCTime {
     int getHour() const;
     int getMinutes() const;
     int getSeconds() const;
-    DayOfWeek getDayOfWeek() const;    
+    DayOfWeek getDayOfWeek() const;
     time_t getUnixTime();
     struct tm getTmTime();
 
     /**
      * @brief Returns the ISO 8601 string representation of the date and time.
-     * 
+     *
      * @return String The date and time in the format YYYY-MM-DDTHH:MM:SS.
      */
-    arduino::String toString() const;  
-    
+    arduino::String toString() const;
+
     /**
      * @brief Returns the ISO 8601 string representation of the date and time
      * by calling the toString() method.
@@ -142,7 +142,7 @@ class AlarmMatch {
 
     public:
     AlarmMatch();
-    ~AlarmMatch();    
+    ~AlarmMatch();
     void addMatchSecond();
     void addMatchMinute();
     void addMatchHour();
@@ -164,7 +164,7 @@ class AlarmMatch {
     bool isMatchingMonth();
     bool isMatchingYear();
     bool isMatchingDayOfWeek();
-    
+
 };
 
 class RTClock {
@@ -182,9 +182,9 @@ class RTClock {
     bool setPeriodicCallback(rtc_cbk_t fnc, Period p);
     bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m);
     bool setAlarm(RTCTime &t, AlarmMatch &m);
-    
+
     bool isRunning();
-    bool setTime(RTCTime &t); 
+    bool setTime(RTCTime &t);
     bool setTimeIfNotRunning(RTCTime &t);
 
 };
