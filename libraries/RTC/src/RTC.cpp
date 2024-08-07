@@ -348,6 +348,8 @@ bool RTCTime::setSaveLight(SaveLight sl) {
 bool RTCTime::setUnixTime(time_t time) {
     struct tm *t;
     t = localtime(&time);
+    if (t->tm_year < 100 || t->tm_year > 199) {  
+        return false;
     setTM(*t);
     return true;
 }
