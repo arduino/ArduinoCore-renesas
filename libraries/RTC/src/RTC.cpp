@@ -350,6 +350,7 @@ bool RTCTime::setUnixTime(time_t time) {
     t = localtime(&time);
     if (t->tm_year < 100 || t->tm_year > 199) {  
         return false;
+    }
     setTM(*t);
     return true;
 }
