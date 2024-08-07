@@ -295,6 +295,9 @@ bool RTCTime::setYear(int _y) {
     if (_y >= TM_YEAR_OFFSET) {
         _y -= TM_YEAR_OFFSET;
     }
+    if (_y < 0 || _y > 99) {  // Valid range for RTC is 2000-2099
+       return false;
+    }
     year = _y;
     stime.tm_year = _y;
     //stime.tm_yday = day + yday(year, Month2tm(month));
