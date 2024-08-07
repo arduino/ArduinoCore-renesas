@@ -605,12 +605,12 @@ bool setRtcAlarm(rtc_alarm_time_t alarm_time) {
     return false;
 }
 
-RTClock() : is_initialized{false} {
+RTClock::RTClock() : is_initialized{false} {
 }
 
-~RTClock() { }
+RTClock::~RTClock() { }
 
-bool begin() {
+bool RTClock::begin() {
     if(openRtc()) {
         is_initialized = true;
     }
@@ -620,7 +620,7 @@ bool begin() {
     return is_initialized;
 }
 
-bool getTime(RTCTime &t) {
+bool RTClock::getTime(RTCTime &t) {
     struct tm present;
     if(is_initialized) {
         if( getRtcTime(present) ) {
@@ -631,7 +631,7 @@ bool getTime(RTCTime &t) {
     return false;
 }
 
-bool setPeriodicCallback(rtc_cbk_t fnc, Period p) {
+bool RTClock::setPeriodicCallback(rtc_cbk_t fnc, Period p) {
 
     RTCIrqCfg_t rtc_irq_cfg;
 
@@ -649,7 +649,7 @@ bool setPeriodicCallback(rtc_cbk_t fnc, Period p) {
     return false;
 }
 
-bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
+bool RTClock::setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
 
     RTCIrqCfg_t rtc_irq_cfg;
     rtc_irq_cfg.req = RTC_ALARM;
@@ -693,15 +693,15 @@ bool setAlarmCallback(rtc_cbk_t fnc, RTCTime &t, AlarmMatch &m) {
     return false;
 }
 
-bool setAlarm(RTCTime &t, AlarmMatch &m) {
+bool RTClock::setAlarm(RTCTime &t, AlarmMatch &m) {
     return this->setAlarmCallback(nullptr, t, m);
 }
 
-bool isRunning() {
+bool RTClock::isRunning() {
     return isRtcRunning();
 }
 
-bool setTime(RTCTime &t) {
+bool RTClock::setTime(RTCTime &t) {
     if(is_initialized) {
         if(setRtcTime((rtc_time_t)t.getTmTime())) {
             return true;
@@ -710,7 +710,7 @@ bool setTime(RTCTime &t) {
     return false;
 }
 
-bool setTimeIfNotRunning(RTCTime &t) {
+bool RTClock::setTimeIfNotRunning(RTCTime &t) {
     if(!isRunning()) {
         return setTime(t);
     }
@@ -720,5 +720,4 @@ bool setTimeIfNotRunning(RTCTime &t) {
 #if RTC_HOWMANY > 0
 RTClock RTC;
 #endif
-
 
