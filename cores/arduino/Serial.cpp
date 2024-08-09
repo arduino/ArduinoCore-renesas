@@ -58,12 +58,22 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       {
           break;
       }
-      case UART_EVENT_TX_COMPLETE:
-      case UART_EVENT_TX_DATA_EMPTY:
+      case UART_EVENT_TX_COMPLETE:  // TEI interrupt
       {
-        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
-        //while (to_enqueue) {
-        uart_ptr->tx_done = true;
+          if(uart_ptr->txBuffer.available()){
+              int idx = 0;
+              while (uart_ptr->txBuffer.available() && (idx < 16)){
+                uart_ptr->txc[idx++] = uart_ptr->txBuffer.read_char();
+              }
+              R_SCI_UART_Write(&(uart_ptr->uart_ctrl), (uint8_t*)(uart_ptr->txc) , idx);
+          } 
+          else {
+        	  uart_ptr->tx_done = true;
+          } 
+        break;
+      }
+      case UART_EVENT_TX_DATA_EMPTY: // TXI interrupt had no more data to write
+      {          
         break;
       }
       case UART_EVENT_RX_CHAR:
@@ -109,25 +119,30 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
   if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, &c, 1);
-    while (!tx_done) {}
-    return 1;
+	  while(txBuffer.isFull()){;}
+    if (tx_done) {
+      tx_done = false;
+      txc[0] = c;
+      R_SCI_UART_Write(&uart_ctrl, (uint8_t*)txc , 1);
+    } else {
+      txBuffer.store_char(c);
+    }
+	  return 1;
   }
   else {
-    return 0;
+	  return 0;
   }
 }
 
 size_t  UART::write(uint8_t* c, size_t len) {
   if(init_ok) {
-    tx_done = false;
-    R_SCI_UART_Write(&uart_ctrl, c, len);
-    while (!tx_done) {}
-    return len;
+	  for(int i = 0; i<len; i++){
+		  write(c[i]);
+	  }
+	  return len;
   }
   else {
-    return 0;
+	  return 0;
   }
 }
 
@@ -308,6 +323,12 @@ int UART::available() {
 }
 
 /* -------------------------------------------------------------------------- */
+int UART::availableForWrite() {
+/* -------------------------------------------------------------------------- */  
+  return txBuffer.availableForStore();
+}
+
+/* -------------------------------------------------------------------------- */
 int UART::peek() {
 /* -------------------------------------------------------------------------- */  
   return rxBuffer.peek();
@@ -328,11 +349,5 @@ void UART::flush() {
 /* -------------------------------------------------------------------------- */
 size_t UART::write_raw(uint8_t* c, size_t len) {
 /* -------------------------------------------------------------------------- */
-  size_t i = 0;
-  while (i < len) {
-    uart_ctrl.p_reg->TDR = *(c+i);
-    while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
-    i++;
-  }
-  return len;
+  return write(c, len);
 }
