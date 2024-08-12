@@ -190,7 +190,7 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
 }
 
 void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
-    attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
+    attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, nullptr);
 }
 
 int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
