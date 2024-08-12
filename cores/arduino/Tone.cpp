@@ -27,7 +27,7 @@ public:
     }
 
     void start(void) {
-        if ((frequency != 0) && (channel != -1)) {
+        if (frequency != 0 && channel != -1) {
             tone_timer.start();
         }
         if (duration != 0) {
@@ -44,7 +44,7 @@ public:
     }
 
     void stop(void) {
-        if ((frequency != 0) && (channel != -1)) {
+        if (frequency != 0 && channel != -1) {
             tone_timer.stop();
         }
         digitalWrite(pin, LOW);
