@@ -43,13 +43,11 @@ class IrqPool {
   public:
   IrqPool() {}
   ~IrqPool() {
-    for(int i = 0; i < MAX_IRQ_CHANNEL; i++) {
-      if(irqs[i] != nullptr){
-        delete irqs[i];
-        irqs[i] = nullptr;
-      }
+   for (auto& irq : irqs) {
+    delete irq;
+    irq = nullptr;
     }
-  }
+   }
   CIrq *get(int index, bool make) { 
     if(index < MAX_IRQ_CHANNEL) {
         if(irqs[index] == nullptr && make) {
