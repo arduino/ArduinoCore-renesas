@@ -119,7 +119,7 @@ void detachInterrupt(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
     CIrq *irq_context = nullptr;
-    int ch = pin2IrqChannel(pinNumber);
+    const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,false);
@@ -138,7 +138,7 @@ void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus
 /* -------------------------------------------------------------------------- */    
 
     CIrq *irq_context = nullptr;
-    int ch = pin2IrqChannel(pinNumber);
+    const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,true);
@@ -195,7 +195,7 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
 
 int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
     CIrq *irq_context = nullptr;
-    int ch = pin2IrqChannel(pinNumber);
+    const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,true);
@@ -249,7 +249,7 @@ int detachIrq2Link(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
     CIrq *irq_context = nullptr;
-    int ch = pin2IrqChannel(pinNumber);
+    const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,false);
