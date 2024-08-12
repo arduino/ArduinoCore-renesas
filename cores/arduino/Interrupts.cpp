@@ -24,8 +24,7 @@
 #if EXT_INTERRUPTS_HOWMANY > 0
 
 extern const PinMuxCfg_t g_pin_cfg[];
-
-#define MAX_IRQ_CHANNEL (15)
+constexpr int MAX_IRQ_CHANNEL = 15;
 
 using IrqFuncVoid_f          = void (*)();
 using IrqFuncParam_f         = void (*)(void *);
