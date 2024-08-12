@@ -66,7 +66,7 @@ public:
             }
         }
     }
-};
+}
 
 FspTimer Tone::tone_timer;
 int Tone::channel = -1;
@@ -89,7 +89,7 @@ void tone(pin_size_t pin, unsigned int frequency, unsigned long duration = 0) {
 	Tone* t = new Tone(pin, frequency, duration);
 	active_tone = t;
 	t->start();
-};
+}
 
 void noTone(pin_size_t __attribute__((unused)) pin) {
 	if (active_tone) {
@@ -97,4 +97,4 @@ void noTone(pin_size_t __attribute__((unused)) pin) {
 		delete active_tone;
 		active_tone = nullptr;
 	}
-};
+}
