@@ -70,7 +70,7 @@ public:
 
 FspTimer Tone::tone_timer;
 int Tone::channel = -1;
-static Tone* active_tone = NULL;
+static Tone* active_tone = nullptr;
 
 void tone_timer_callback(timer_callback_args_t __attribute__((unused)) *args) {
     active_tone->toggle();
@@ -93,6 +93,6 @@ void noTone(pin_size_t __attribute__((unused)) pin) {
 	if (active_tone) {
 		active_tone->stop();
 		delete active_tone;
-		active_tone = NULL;
+		active_tone = nullptr;
 	}
 };
