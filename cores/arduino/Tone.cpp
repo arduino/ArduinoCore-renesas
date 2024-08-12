@@ -76,7 +76,7 @@ void tone_timer_callback(timer_callback_args_t __attribute__((unused)) *args) {
     active_tone->toggle();
 }
 
-void tone(pin_size_t pin, unsigned int frequency, unsigned long duration) {
+void tone(pin_size_t pin, unsigned int frequency, unsigned long duration = 0) {
 	if (active_tone) {
 		if (active_tone->pin == pin && active_tone->frequency == frequency && active_tone->duration == 0) {
 			// infinite duration notes do not need to be restarted
