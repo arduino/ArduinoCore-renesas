@@ -37,7 +37,7 @@ public:
 
     void toggle() {
     	digitalWrite(pin, status);
-        status = !!!status;
+        status = !status;
         if (millis() > limit) {
             stop();
         }
