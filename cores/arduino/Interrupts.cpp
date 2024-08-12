@@ -95,7 +95,7 @@ static void IrqCallback(external_irq_callback_args_t * p_args) {
     void * param = (void *)p_args->p_context;
     uint32_t ch = p_args->channel;
 
-    CIrq *irq_context = nullptr;
+    auto *irq_context = nullptr;
 
     if(ch < MAX_IRQ_CHANNEL) {
         irq_context = IrqChannel.get(ch,false);
@@ -118,7 +118,7 @@ static void IrqCallback(external_irq_callback_args_t * p_args) {
 void detachInterrupt(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_context = nullptr;
+    auto *irq_context = nullptr;
     const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
@@ -137,7 +137,7 @@ void detachInterrupt(pin_size_t pinNumber) {
 void attachInterruptParam(pin_size_t pinNumber, voidFuncPtrParam func, PinStatus mode, void* param) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_context = nullptr;
+    auto *irq_context = nullptr;
     const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
@@ -194,7 +194,7 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
 }
 
 int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
-    CIrq *irq_context = nullptr;
+    auto *irq_context = nullptr;
     const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
@@ -248,7 +248,7 @@ int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
 int detachIrq2Link(pin_size_t pinNumber) {
 /* -------------------------------------------------------------------------- */    
 
-    CIrq *irq_context = nullptr;
+    auto *irq_context = nullptr;
     const int ch = pin2IrqChannel(pinNumber);
     
     if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
