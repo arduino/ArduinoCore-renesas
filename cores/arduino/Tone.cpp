@@ -73,7 +73,9 @@ int Tone::channel = -1;
 static Tone* active_tone = nullptr;
 
 void tone_timer_callback(timer_callback_args_t __attribute__((unused)) *args) {
-    active_tone->toggle();
+    if (active_tone) {
+        active_tone->toggle();
+    }
 }
 
 void tone(pin_size_t pin, unsigned int frequency, unsigned long duration = 0) {
