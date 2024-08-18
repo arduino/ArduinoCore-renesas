@@ -3,12 +3,15 @@
  * Copyright (c) 2014 by Paul Stoffregen <paul@pjrc.com> (Transaction API)
  * Copyright (c) 2014 by Matthijs Kooijman <matthijs@stdin.nl> (SPISettings AVR)
  * Copyright (c) 2014 by Andrew J. Kroll <xxxajk@gmail.com> (atomicity fixes)
+ * Copyright (c) 2024 by Mitchell C. Nelson, PhD <drmcnelsonlab@gmai.com>
  * SPI Master library for arduino.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
  * or the GNU Lesser General Public License version 2.1, both as
  * published by the Free Software Foundation.
+ *
+ *
  */
 
 /**************************************************************************************
@@ -203,7 +206,102 @@ uint8_t ArduinoSPI::transfer(uint8_t data)
   return rxbuf;
 }
 
+/* This provides true 16 bit transfers
+ */
 uint16_t ArduinoSPI::transfer16(uint16_t data)
+{
+    uint16_t rxbuf;
+
+    if (_is_sci) {
+        _spi_cb_event[_cb_event_idx] = SPI_EVENT_TRANSFER_ABORTED;
+
+        _write_then_read(&_spi_sci_ctrl, &data, &rxbuf, 1, SPI_BIT_WIDTH_16_BITS);
+
+        for (auto const start = millis();
+            (SPI_EVENT_TRANSFER_COMPLETE != _spi_cb_event[_cb_event_idx]) && (millis() - start < 1000); )
+        {
+            __NOP();
+        }
+        if (SPI_EVENT_TRANSFER_ABORTED == _spi_cb_event[_cb_event_idx])
+        {
+            end();
+            return 0;
+        }
+    }
+    else
+    {
+      _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+      _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+      _spi_ctrl.p_regs->SPCMD_b[0].SPB = 0x0F; /* spi bit width = 16 */
+      _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+
+      while (!_spi_ctrl.p_regs->SPSR_b.SPTEF){}
+
+      _spi_ctrl.p_regs->SPDR = data;
+
+      while (!_spi_ctrl.p_regs->SPSR_b.SPRF){}
+      
+      rxbuf = _spi_ctrl.p_regs->SPDR;
+
+
+      _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+      _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+      _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+      _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+    }
+
+  return rxbuf;
+}
+
+/* Use these three functions when you need to loop over a device
+   such as an ADC or DAC where you need to pulse a pin between
+   each access.  Call transfer16_setup() before the loop, then
+   call tansfer16_transfer() inside the loop, and then when you
+   are done you may choose to call transfer16_cleanup() to restore
+   the default 8 bit setup.
+*/
+
+uint16_t ArduinoSPI::transfer16_setup()
+{
+  if (!_is_sci) {
+    _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+    _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPLW_Msk; /* SPI word access */
+    _spi_ctrl.p_regs->SPCMD_b[0].SPB = 0x0F; /* spi bit width = 16 */
+    _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+  }
+}
+
+uint16_t ArduinoSPI::transfer16_transfer(uint16_t data)
+{
+  uint16_t rxbuf;
+  if (_is_sci) {
+    return transfer16(data);
+  }
+  else {
+    while (!_spi_ctrl.p_regs->SPSR_b.SPTEF){}
+
+    _spi_ctrl.p_regs->SPDR = data;
+      
+    while (!_spi_ctrl.p_regs->SPSR_b.SPRF){}
+      
+    rxbuf = _spi_ctrl.p_regs->SPDR;
+  }
+}
+
+uint16_t ArduinoSPI::transfer16_cleanup()
+{
+  _spi_ctrl.p_regs->SPCR_b.SPE = 0; /* disable SPI unit */
+  _spi_ctrl.p_regs->SPDCR = R_SPI0_SPDCR_SPBYT_Msk; /* SPI byte access */
+  _spi_ctrl.p_regs->SPCMD_b[0].SPB = 7; /* spi bit width = 8 */
+  _spi_ctrl.p_regs->SPCR_b.SPE = 1; /* enable SPI unit */
+}
+
+
+/* This is the original 16 bit transfer as two bytes, with an
+   extra 1.4 usecs between the two bytes.
+ */
+
+uint16_t ArduinoSPI::transfer16_asbytes(uint16_t data)
 {
   union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
   t.val = data;
