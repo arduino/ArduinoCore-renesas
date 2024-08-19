@@ -69,6 +69,10 @@ public:
 
     virtual uint8_t transfer(uint8_t data);
     virtual uint16_t transfer16(uint16_t data);
+    virtual uint16_t transfer16_setup();
+    virtual uint16_t transfer16_transfer(uint16_t data);
+    virtual uint16_t transfer16_cleanup();
+    virtual uint16_t transfer16_asbytes(uint16_t data);
     virtual void transfer(void *buf, size_t count);
 
     // Transaction Functions
