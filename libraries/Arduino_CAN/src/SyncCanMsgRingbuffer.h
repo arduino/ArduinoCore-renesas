@@ -36,7 +36,7 @@ public:
   SyncCanMsgRingbuffer() : _can_msg_buf{} { }
 
 
-  bool isFull() const { synchronized { _can_msg_buf.isFull(); } }
+  bool isFull() const { synchronized { return _can_msg_buf.isFull(); } }
   void enqueue(CanMsg const & msg) { synchronized { _can_msg_buf.enqueue(msg); } }
 
   bool isEmpty() const { synchronized { return _can_msg_buf.isEmpty(); } }
