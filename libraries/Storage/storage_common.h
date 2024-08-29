@@ -85,7 +85,7 @@ static inline void rns_storage_dbg(const char *format, ...) {
     (void)format;
 }
 
-static inline void _rns_storage_dbg_mem(uint8_t *b, uint32_t _size) {
+static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size) {
     (void)b;
     (void)_size;
 }
