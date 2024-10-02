@@ -290,6 +290,7 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
     if (fsp_tim_config(&tx_descr.tim, config.baudrate, false) != 0) {
         return 0;
     }
+
     if (fsp_dma_config(&tx_descr.dma, SS_DMA_CHANNEL_TX,
         fsp_tim_to_elc_event(tx_descr.tim.get_channel()), tx_descr.dmabuf[0],
         (void *) &tx_port->PCNTR3, config.nsamples, dma_tx_callback, this) != 0) {
@@ -301,6 +302,7 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
     if (fsp_tim_config(&rx_descr.tim, config.baudrate, true) != 0) {
         return 0;
     }
+
     if (fsp_dma_config(&rx_descr.dma, SS_DMA_CHANNEL_RX,
         fsp_tim_to_elc_event(rx_descr.tim.get_channel()), rx_descr.dmabuf[0],
         (void *) &rx_port->PCNTR2, config.nsamples, dma_rx_callback, this) != 0) {
@@ -359,17 +361,20 @@ size_t __attribute__((optimize("O2"))) SoftwareSerial::write(uint8_t byte)
        tx_descr.dmabuf[0][config.databits + 1] = parity;
     }
 
-    // Reconfigure DMA transfer.
-    R_DMAC_Reconfigure(&tx_descr.dma.ctrl, tx_descr.dma.cfg.p_info);
+    // Restart DMA transfer.
+    R_DMAC_Reset(&tx_descr.dma.ctrl, tx_descr.dma.cfg.p_info->p_src,
+            tx_descr.dma.cfg.p_info->p_dest, tx_descr.dma.cfg.p_info->length);
 
     // Start the DMA transfer.
     tx_descr.tim.reset();
     tx_descr.tim.start();
 
-    // TODO check if transfer is running on next write.
+    // Wait for the DMA transfer to finish.
     while (tx_descr.dma.ctrl.p_reg->DMCNT) {
-        // Wait for DMA transfer to finish.
     }
+
+    // Stop the trigger timer.
+    tx_descr.tim.stop();
     return 1;
 }
 
@@ -382,9 +387,10 @@ void __attribute__((optimize("O2"))) SoftwareSerial::rx_process()
 {
     static uint32_t bufidx = 0;
 
-    // Reconfigure DMA transfer.
+    // Restart DMA transfer.
     rx_descr.dma.cfg.p_info->p_dest =  rx_descr.dmabuf[bufidx ^ 1];
-    R_DMAC_Reconfigure(&rx_descr.dma.ctrl, rx_descr.dma.cfg.p_info);
+    R_DMAC_Reset(&rx_descr.dma.ctrl, rx_descr.dma.cfg.p_info->p_src,
+            rx_descr.dma.cfg.p_info->p_dest, rx_descr.dma.cfg.p_info->length);
 
     // Process the current DMA buffer.
     uint8_t data = 0;
@@ -434,9 +440,12 @@ void __attribute__((optimize("O2"))) SoftwareSerial::rx_process()
 
 void dma_tx_callback(dmac_callback_args_t *args)
 {
-    // Disable the DMA trigger timer as soon as the transfer is complete.
-    // Note the timer will be cleared and restarted on next write.
-    ((SoftwareSerial *) args->p_context)->tx_descr.tim.stop();
+    // Wait for the cycle to finish to keep the GPIO high enough for the last stop bit.
+    fsp_tim_t *tim = &(((SoftwareSerial *) args->p_context)->tx_descr.tim);
+    volatile R_GPT0_Type *regs = R_GPT0 + (tim->get_channel() * (R_GPT1 - R_GPT0));
+    regs->GTST_b.TCFPO = 0;
+    while (!regs->GTST_b.TCFPO) {
+    }
 }
 
 void dma_rx_callback(dmac_callback_args_t *args)
