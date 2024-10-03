@@ -98,7 +98,7 @@ static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size) {
 
 #ifdef STORAGE_ASSERT
     #define MBED_ASSERT(expr)  do { if (!(expr)) { \
-        debug("ASSERT FAILED at line %d in file %s",__LINE__,__FILE__); }} while(0)
+        rns_storage_dbg("ASSERT FAILED at line %d in file %s",__LINE__,__FILE__); }} while(0)
 #else
     #define MBED_ASSERT(expr)
 #endif 
