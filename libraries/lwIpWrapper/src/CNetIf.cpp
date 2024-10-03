@@ -185,6 +185,7 @@ bool CLwipIf::initWifiHw(bool asStation)
         if (CEspControl::getInstance().initSpiDriver() == 0) {
             wifi_status = WL_NO_SSID_AVAIL;
         }
+        delay(2000);
 
         if (wifi_status == WL_NO_SSID_AVAIL) {
             int time_num = 0;
