@@ -380,13 +380,11 @@ bool FspTimer::set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch) {
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB) >> timer_cfg.source_div;
     }
     
-    uint32_t pulse_counts_ms = (uint32_t) ((uint64_t) freq_hz/1000 * ms);
+    uint32_t pulse_counts_ms = (uint32_t) ((uint64_t) (freq_hz * ms)/1000);
     if(!set_duty_cycle(pulse_counts_ms, pwm_ch)) {
         return false;
     }
-    
-    return true;  
-      
+    return true;   
 }
 
 /* -------------------------------------------------------------------------- */
@@ -399,12 +397,11 @@ bool FspTimer::set_pulse_us(double us,TimerPWMChannel_t pwm_ch) {
     else if(type == AGT_TIMER){
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB) >> timer_cfg.source_div;
     }
-    
-    uint32_t pulse_counts_us = (uint32_t) ((uint64_t) freq_hz/1000000 * us);
+
+    uint32_t pulse_counts_us = (uint32_t) ((uint64_t) (freq_hz * us)/1000000 );
     if(!set_duty_cycle(pulse_counts_us, pwm_ch)) {
         return false;
     }
-    
     return true;  
 }
 
