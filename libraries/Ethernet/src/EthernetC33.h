@@ -56,6 +56,7 @@ class CEthernet {
     EthernetHardwareStatus hardwareStatus();
 
     void setDNS(IPAddress dns_server); 
+    void setDNS(IPAddress dns_server1, IPAddress dns_server2);
 
     int disconnect(void);
     int maintain();
