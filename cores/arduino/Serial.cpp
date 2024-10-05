@@ -260,6 +260,11 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
           uart_cfg.parity = UART_PARITY_ODD;
           uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
+      case SERIAL_9N1:
+          uart_cfg.data_bits = UART_DATA_BITS_9;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
+          break;
     }
     
     uart_cfg.p_callback = UART::WrapperCallback;
@@ -331,6 +336,30 @@ size_t UART::write_raw(uint8_t* c, size_t len) {
   size_t i = 0;
   while (i < len) {
     uart_ctrl.p_reg->TDR = *(c+i);
+    while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
+    i++;
+  }
+  return len;
+}
+
+/* -------------------------------------------------------------------------- */
+size_t UART::write_9bit(uint8_t c, bool wake) {
+/* -------------------------------------------------------------------------- */
+  uint16_t bit = 0x00;
+  if (wake) {bit = 0x100;}
+  uart_ctrl.p_reg->TDRHL = 0xFC00 + bit + c;
+  while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
+  return 1;
+}
+
+/* -------------------------------------------------------------------------- */
+size_t UART::write_9bit(uint8_t* c, bool wake, size_t len) {
+/* -------------------------------------------------------------------------- */
+  size_t i = 0;
+  uint16_t bit = 0x00;
+  if (wake) {bit = 0x100;}
+  while (i < len) {
+    uart_ctrl.p_reg->TDRHL = *(c+i) + 0xFC00 + bit; 
     while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
     i++;
   }
