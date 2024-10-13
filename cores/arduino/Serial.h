@@ -64,8 +64,6 @@ class UART : public arduino::HardwareSerial {
     size_t write(uint8_t c);
     size_t write(uint8_t* c, size_t len);
     size_t write_raw(uint8_t* c, size_t len);
-    size_t write_9bit(uint8_t c, bool wake);
-    size_t write_9bit(uint8_t* c, bool wake, size_t len);
     using Print::write; 
     operator bool(); // { return true; }
 
