@@ -341,27 +341,3 @@ size_t UART::write_raw(uint8_t* c, size_t len) {
   }
   return len;
 }
-
-/* -------------------------------------------------------------------------- */
-size_t UART::write_9bit(uint8_t c, bool wake) {
-/* -------------------------------------------------------------------------- */
-  uint16_t bit = 0x00;
-  if (wake) {bit = 0x100;}
-  uart_ctrl.p_reg->TDRHL = 0xFC00 + bit + c;
-  while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
-  return 1;
-}
-
-/* -------------------------------------------------------------------------- */
-size_t UART::write_9bit(uint8_t* c, bool wake, size_t len) {
-/* -------------------------------------------------------------------------- */
-  size_t i = 0;
-  uint16_t bit = 0x00;
-  if (wake) {bit = 0x100;}
-  while (i < len) {
-    uart_ctrl.p_reg->TDRHL = *(c+i) + 0xFC00 + bit; 
-    while (uart_ctrl.p_reg->SSR_b.TEND == 0) {}
-    i++;
-  }
-  return len;
-}
