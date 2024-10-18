@@ -69,7 +69,6 @@
                                              SE05X_EC_SIGNATURE_RAW_LENGTH
 
 #define SE05X_SHA256_LENGTH              32
-#define SE05X_SN_LENGTH                  18
 
 #define SE05X_TEMP_OBJECT                9999
 
@@ -108,22 +107,30 @@ void SE05XClass::end()
     Se05x_API_SessionClose(&_se05x_session);
 }
 
+int SE05XClass::serialNumber(byte sn[], size_t length)
+{
+    size_t uidLen = length;
+    const int kSE05x_AppletResID_UNIQUE_ID = 0x7FFF0206;
+    smStatus_t status;
+
+    status = Se05x_API_ReadObject(&_se05x_session, kSE05x_AppletResID_UNIQUE_ID, 0, length, sn, &uidLen);
+    if (status != SM_OK || length != uidLen) {
+        SMLOG_E("Error in Se05x_API_ReadObject \n");
+        return 0;
+    }
+    return 1;
+}
+
 String SE05XClass::serialNumber()
 {
     String result = (char*)NULL;
     byte UID[SE05X_SN_LENGTH];
-    size_t uidLen = SE05X_SN_LENGTH;
-    const int kSE05x_AppletResID_UNIQUE_ID = 0x7FFF0206,
 
-    status = Se05x_API_ReadObject(&_se05x_session, kSE05x_AppletResID_UNIQUE_ID, 0, uidLen, UID, &uidLen);
-    if (status != SM_OK) {
-        SMLOG_E("Error in Se05x_API_ReadObject \n");
-        return "";
-    }
+    serialNumber(UID, sizeof(UID));
 
-    result.reserve(uidLen * 2);
+    result.reserve(SE05X_SN_LENGTH * 2);
 
-    for (size_t i = 0; i < uidLen; i++) {
+    for (size_t i = 0; i < SE05X_SN_LENGTH; i++) {
         byte b = UID[i];
 
         if (b < 16) {
