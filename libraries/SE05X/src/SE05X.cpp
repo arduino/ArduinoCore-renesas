@@ -175,11 +175,11 @@ int SE05XClass::random(byte data[], size_t length)
     smStatus_t status;
     uint16_t   offset = 0;
     uint16_t   left = length;
-    
+
     while (left > 0) {
         uint16_t chunk     = (left > SE05X_MAX_CHUNK_SIZE) ? SE05X_MAX_CHUNK_SIZE : left;
         size_t max_buffer  = chunk;
-        
+
         status = Se05x_API_GetRandom(&_se05x_session, chunk, (data + offset), &max_buffer);
         if (status != SM_OK) {
             SMLOG_E("Error in Se05x_API_GetRandom \n");
@@ -344,7 +344,7 @@ int SE05XClass::beginSHA256()
 {
     smStatus_t      status;
     SE05x_CryptoModeSubType_t subtype;
-    
+
     subtype.digest = kSE05x_DigestMode_SHA256;
 
     status = Se05x_API_CreateCryptoObject(&_se05x_session, kSE05x_CryptoObject_DIGEST_SHA256, kSE05x_CryptoContext_DIGEST, subtype);
@@ -364,7 +364,7 @@ int SE05XClass::beginSHA256()
 int SE05XClass::updateSHA256(const byte in[], size_t inLen)
 {
     smStatus_t      status;
-    
+
     status = Se05x_API_DigestUpdate(&_se05x_session, kSE05x_CryptoObject_DIGEST_SHA256, in, inLen);
     if (status != SM_OK) {
         SMLOG_E("Error in Se05x_API_DigestUpdate \n");
@@ -381,7 +381,7 @@ int SE05XClass::endSHA256(byte out[], size_t* outLen)
     if (*outLen < SE05X_SHA256_LENGTH) {
         SMLOG_E("Error in endSHA256 \n");
         *outLen = 0;
-        return 0;  
+        return 0;
     }
 
     status = Se05x_API_DigestFinal(&_se05x_session, kSE05x_CryptoObject_DIGEST_SHA256, NULL, 0, out, outLen);
@@ -537,7 +537,7 @@ int SE05XClass::ecdsaVerify(const byte message[], const byte signature[], const 
     }
 
     if (!deleteBinaryObject(SE05X_TEMP_OBJECT)) {
-        SMLOG_E("ecdsaVerify failure deleting temporary object\n");     
+        SMLOG_E("ecdsaVerify failure deleting temporary object\n");
         return 0;
     }
 
@@ -581,7 +581,7 @@ int SE05XClass::readBinaryObject(int objectId, byte data[], size_t dataMaxLen, s
     while (left > 0) {
         uint16_t chunk     = (left > SE05X_MAX_CHUNK_SIZE) ? SE05X_MAX_CHUNK_SIZE : left;
         size_t max_buffer  = chunk;
-        
+
         status = Se05x_API_ReadObject(&_se05x_session, objectId, offset, chunk, (data + offset), &max_buffer);
         if (status != SM_OK) {
             SMLOG_E("Error in Se05x_API_ReadObject \n");
@@ -783,9 +783,9 @@ int SE05XClass::getECKeyXyValuesFromDER(byte* derKey, size_t derLen, byte* rawKe
     if(*rawLen < SE05X_EC_KEY_RAW_LENGTH) {
         SMLOG_E("Error in getECKeyXyValuesFromDER \n");
         *rawLen = 0;
-        return 0;    
+        return 0;
     }
-    
+
     /* XY values are stored in the last 64 bytes of DER buffer */
     *rawLen = SE05X_EC_KEY_RAW_LENGTH;
     memcpy(rawKey, &derKey[derLen - SE05X_EC_KEY_RAW_LENGTH], SE05X_EC_KEY_RAW_LENGTH);
@@ -798,15 +798,15 @@ int SE05XClass::setECKeyXyVauesInDER(const byte* rawKey, size_t rawLen, byte* de
     if(rawLen != SE05X_EC_KEY_RAW_LENGTH) {
         SMLOG_E("Error in setECKeyXyVauesInDER invalid raw key\n");
         *derLen = 0;
-        return 0;    
+        return 0;
     }
 
     if(*derLen < SE05X_EC_KEY_DER_LENGTH) {
         SMLOG_E("Error in setECKeyXyVauesInDER buffer too small\n");
         *derLen = 0;
-        return 0;    
+        return 0;
     }
-    
+
     /* Copy header byte from 0 to 25 */
     memcpy(&derKey[0], &ecc_der_header_nist256[0], SE05X_EC_KEY_DER_HEADER_LENGTH);
     /* Add format byte */
@@ -826,13 +826,13 @@ int SE05XClass::getECSignatureRsValuesFromDER(byte* derSignature, size_t derLen,
     if ((derLen < SE05X_EC_SIGNATURE_MIN_DER_LENGTH) || (derLen > SE05X_EC_SIGNATURE_MAX_DER_LENGTH)) {
         SMLOG_E("Error in getECSignatureRsValuesFromDER invalid signature\n");
         *rawLen = 0;
-        return 0;  
+        return 0;
     }
 
     if (*rawLen < SE05X_EC_SIGNATURE_RAW_LENGTH) {
         SMLOG_E("Error in getECSignatureRsValuesFromDER buffer too small\n");
         *rawLen = 0;
-        return 0;  
+        return 0;
     }
 
     rLen = derSignature[3];
@@ -867,7 +867,7 @@ int SE05XClass::setECSignatureRsValuesInDER(const byte* rawSignature, size_t raw
 {
     /**
      * Always consider worst case with padding
-     * 
+     *
      * | 0x30 0x46 0x02 0x21 0x00 | R values 32 bytes | 0x02 0x21 0x00 | S values 32 bytes |
      *
      */

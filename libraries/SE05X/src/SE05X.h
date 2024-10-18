@@ -68,7 +68,7 @@ public:
      * @return 0 on Failure 1 on Success
      */
     int generatePrivateKey(int keyID, byte keyBuf[], size_t keyBufMaxLen, size_t* keyLen);
-    
+
     /** generatePublicKey
      *
      * Reads ECCurve_NIST_P256 public key from KeyID. Public key will be available
@@ -117,7 +117,7 @@ public:
      * @param[in] inLen Input data length
      *
      * @return 0 on Failure 1 on Success
-     */    
+     */
     int updateSHA256(const byte in[], size_t inLen);
 
     /** endSHA256
@@ -128,9 +128,9 @@ public:
      * @param[in,out] outLen Size of output data buffer, SHA256 length
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int endSHA256(byte out[], size_t* outLen);
-    
+
     /** SHA256
      *
      * One-shot SHA256
@@ -142,15 +142,15 @@ public:
      * @param[out] outLen SHA256 length
      *
      * @return 0 on Failure 1 on Success
-     */      
+     */
     int SHA256(const byte in[], size_t inLen, byte out[], size_t outMaxLen, size_t* outLen);
 
     /** Sign
      *
      * Computes ECDSA signature using key stored in KeyID SE050 object.
      * Output buffer is filled with the signature in DER format:
-     * 
-     * | 0x30 | payloadsize 1 byte | 0x02 | R length 1 byte | padding 0x00 (if length 0x21) | R values 32 bytes 
+     *
+     * | 0x30 | payloadsize 1 byte | 0x02 | R length 1 byte | padding 0x00 (if length 0x21) | R values 32 bytes
      *                             | 0x02 | S length 1 byte | padding 0x00 (if length 0x21) | S values 32 bytes
      *
      * SHA256 -> private Key -> Signature
@@ -163,7 +163,7 @@ public:
      * @param[out] sigLen signature length
      *
      * @return 0 on Failure 1 on Success
-     */     
+     */
     int Sign(int keyID, const byte hash[], size_t hashLen, byte sig[], size_t maxSigLen, size_t* sigLen);
 
     /** Verify
@@ -173,7 +173,7 @@ public:
      *                               Input SHA256
      *                                             ? Match ?
      * Signature -> public Key -> Original SHA256
-     * 
+     *
      * @param[in] keyID SE050 object ID containing the key
      * @param[in] hash Input SHA256 used to compute the signature
      * @param[in] hashLen SHA256 length
@@ -181,20 +181,20 @@ public:
      * @param[in] sigLen signature length
      *
      * @return 0 on Failure (Not match) 1 on Success (Match)
-     */     
+     */
     int Verify(int keyID, const byte hash[], size_t hashLen, const byte sig[],size_t sigLen);
 
     /** readBinaryObject
      *
      * Reads binary data from SE050 object.
-     * 
+     *
      * @param[in] ObjectId SE050 object ID containing data
      * @param[out] data Output data buffer
      * @param[in] dataMaxLen Output data buffer size
      * @param[out] sig Binary object size
      *
      * @return 0 on Failure 1 on Success
-     */    
+     */
     int readBinaryObject(int ObjectId, byte data[], size_t dataMaxLen, size_t* length);
 
     /** AES_ECB_encrypt
@@ -268,43 +268,43 @@ public:
     /** writeBinaryObject
      *
      * Writes binary data into SE050 object.
-     * 
+     *
      * @param[in] ObjectId SE050 object ID
      * @param[in] data Input data buffer
      * @param[in] length Input data buffer size
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int writeBinaryObject(int ObjectId, const byte data[], size_t length);
 
     /** existsBinaryObject
      *
      * Checks if Object exist
-     * 
+     *
      * @param[in] ObjectId SE050 object ID
      *
      * @return 0 on Failure (Not exist) 1 on Success (Exists)
-     */ 
+     */
     int existsBinaryObject(int objectId);
 
     /** deleteBinaryObject
      *
      * Deletes SE050 object
-     * 
+     *
      * @param[in] ObjectId SE050 object ID
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int deleteBinaryObject(int objectId);
 
     /** deleteBinaryObject
      *
      * Deletes all SE050 user objects
-     * 
+     *
      * @param[in] ObjectId SE050 object ID
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int deleteAllObjects();
 
     /* ECCX08 legacy API*/
@@ -344,20 +344,20 @@ public:
      *                               Input SHA256
      *                                             ? Match ?
      * Signature -> public Key -> Original SHA256
-     * 
+     *
      * @param[in] message Input SHA256 used to compute the signature 32 bytes
      * @param[in] sig Input buffer containint the signature R S values 64bytes
      * @param[in] pubkey Public key X Y values 64bytes
      *
      * @return 0 on Failure (Not match) 1 on Success (Match)
-     */ 
+     */
     int ecdsaVerify(const byte message[], const byte signature[], const byte pubkey[]);
 
     /** ecSign
      *
      * Computes ECDSA signature using key stored in KeyID SE050 object.
      * Output buffer is filled with the signature R S values:
-     * 
+     *
      * | R values 32 bytes | S values 32 bytes |
      *
      * SHA256 -> private Key -> Signature
@@ -367,31 +367,31 @@ public:
      * @param[out] signature Output buffer containint the signature 64 bytes
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int ecSign(int slot, const byte message[], byte signature[]);
 
     /** readSlot
      *
      * Reads binary data from SE050 object.
-     * 
+     *
      * @param[in] ObjecslottId SE050 object ID containing data
      * @param[out] data Output data buffer
      * @param[in] length Number of bytes to read
      *
      * @return 0 on Failure 1 on Success
-     */  
+     */
     int readSlot(int slot, byte data[], int length);
 
     /** writeSlot
      *
      * Writes binary data into SE050 object.
-     * 
+     *
      * @param[in] ObjectId SE050 object ID
      * @param[in] data Input data buffer
      * @param[in] length Number of bytes to write
      *
      * @return 0 on Failure 1 on Success
-     */ 
+     */
     int writeSlot(int slot, const byte data[], int length);
 
     inline int locked() { return 1; }
