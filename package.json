@@ -1,6 +1,6 @@
 {
   "name": "framework-arduinorenesas-uno",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Arduino Wiring-based Framework for Renesas MCUs (UNOR4 core)",
   "keywords": [
     "framework",
@@ -10,6 +10,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/arduino/ArduinoCore-renesas.git"
+    "url": "https://github.com/vashadow/ArduinoCore-renesas.git"
   }
 }
