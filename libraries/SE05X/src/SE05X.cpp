@@ -628,8 +628,6 @@ int SE05XClass::writeAESKey(int objectId, const byte data[], size_t length)
 {
     smStatus_t      status;
     SE05x_Result_t  result;
-    uint16_t        offset = 0;
-    uint16_t        size;
 
     status = Se05x_API_CheckObjectExists(&_se05x_session, objectId, &result);
     if (status != SM_OK) {
@@ -642,9 +640,7 @@ int SE05XClass::writeAESKey(int objectId, const byte data[], size_t length)
         return 0;
     }
 
-    uint16_t left = length;
-
-    status = Se05x_API_WriteSymmKey(&_se05x_session, NULL, 3, objectId, NULL, data, length, kSE05x_INS_NA, kSE05x_SymmKeyType_AES);
+    status = Se05x_API_WriteSymmKey(&_se05x_session, NULL, 3, objectId, SE05x_KeyID_KEK_NONE, data, length, kSE05x_INS_NA, kSE05x_SymmKeyType_AES);
 
     if (status != SM_OK) {
         SMLOG_E("Error in Se05x_API_WriteSymmKey \n");
@@ -657,9 +653,6 @@ int SE05XClass::writeHMACKey(int objectId, const byte data[], size_t length)
 {
     smStatus_t      status;
     SE05x_Result_t  result;
-    uint8_t         exists = 0;
-    uint16_t        offset = 0;
-    uint16_t        size;
 
     status = Se05x_API_CheckObjectExists(&_se05x_session, objectId, &result);
     if (status != SM_OK) {
@@ -669,7 +662,6 @@ int SE05XClass::writeHMACKey(int objectId, const byte data[], size_t length)
 
     if (result == kSE05x_Result_SUCCESS) {
         SMLOG_E("Object exists \n");
-        exists = 1;
     }
 
     status = Se05x_API_WriteSymmKey(&_se05x_session, NULL, 0, objectId, SE05x_KeyID_KEK_NONE, data, length, kSE05x_INS_NA, kSE05x_SymmKeyType_HMAC);
