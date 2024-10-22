@@ -107,6 +107,11 @@ void SE05XClass::end()
     Se05x_API_SessionClose(&_se05x_session);
 }
 
+int SE05XClass::serialNumber(byte sn[])
+{
+    return serialNumber(sn, SE05X_SN_LENGTH);
+}
+
 int SE05XClass::serialNumber(byte sn[], size_t length)
 {
     size_t uidLen = length;

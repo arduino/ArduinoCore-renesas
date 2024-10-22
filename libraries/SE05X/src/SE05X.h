@@ -44,6 +44,7 @@ public:
     int begin();
     void end();
 
+    int serialNumber(byte sn[]);
     int serialNumber(byte sn[], size_t length);
 #if defined (ARDUINO)
     String serialNumber();
