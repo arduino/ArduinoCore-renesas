@@ -1,5 +1,7 @@
 #include "WiFi.h"
 
+#define SSID_MAX_COUNT 12
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
@@ -257,6 +259,42 @@ uint8_t* CWifi::macAddress(uint8_t* _mac) {
 }
 
 /* -------------------------------------------------------------------------- */
+void CWifi::_sortAPlist(uint8_t num) {
+/* -------------------------------------------------------------------------- */
+   for(uint8_t i = 0; i < num; i++) {
+      for(uint8_t j = i+1; j < num; j++) {
+         if(access_points[j].rssi > access_points[i].rssi) {
+            CAccessPoint temp = access_points[i];
+            access_points[i] = access_points[j];
+            access_points[j] = temp;
+         }
+      }
+   }
+}
+
+static uint8_t Encr2wl_enc(string e) {
+   if (e == string("open")) {
+      return ENC_TYPE_NONE;
+   } else if (e == string("WEP")) {
+      return ENC_TYPE_WEP;
+   } else if (e == string("WPA")) {
+      return ENC_TYPE_WPA;
+   } else if (e == string("WPA2")) {
+      return ENC_TYPE_WPA2;
+   } else if (e == string("WPA+WPA2")) {
+      return ENC_TYPE_WPA2;
+   } else if (e == string("WPA2-EAP")) {
+      return ENC_TYPE_WPA2_ENTERPRISE;
+   } else if (e == string("WPA2+WPA3")) {
+      return ENC_TYPE_WPA3;
+   } else if (e == string("WPA3")) {
+      return ENC_TYPE_WPA3;
+   } else {
+      return ENC_TYPE_UNKNOWN;
+   }
+}
+
+/* -------------------------------------------------------------------------- */
 int8_t CWifi::scanNetworks() {
 /* -------------------------------------------------------------------------- */
    modem.begin();
@@ -264,30 +302,56 @@ int8_t CWifi::scanNetworks() {
    modem.avoid_trim_results();
    modem.read_using_size();
 
-   access_points.clear();
+   memset(access_points,0x00,sizeof(access_points));
+   _apsFound = 0;
    string res;
-
-   vector<string> aps;
    if(modem.write(string(PROMPT(_WIFISCAN)),res,CMD(_WIFISCAN))) {
-
-      split(aps, res, string("\r\n"));
-      for(uint16_t i = 0; i < aps.size(); i++) {
+      char *startAp = (char*)res.c_str();
+      char *endAP = strstr(startAp, "\r\n");
+      for(; endAP != NULL; startAp = endAP, endAP = strstr(startAp, "\r\n")) {
          CAccessPoint ap;
-         vector<string> tokens;
-         split(tokens, aps[i], string("|"));
-         if(tokens.size() >= 5) {
-            ap.ssid            = tokens[0];
-            ap.bssid           = tokens[1];
-            macStr2macArray(ap.uint_bssid, ap.bssid.c_str());
-            ap.rssi            = tokens[2];
-            ap.channel         = tokens[3];
-            ap.encryption_mode = tokens[4];
-            access_points.push_back(ap);
+         char *token[5];
+         *endAP++ = '\0'; // Replace \r with \0
+         endAP++;
+         char *startToken = startAp;
+         char *endToken = strstr(startAp, " | ");
+         uint8_t i = 0;
+         for(; i < 5 && endToken != NULL; i++){
+            token[i] = startToken;
+            *endToken++ = '\0';
+            endToken = endToken + 2;
+            startToken = endToken;
+            endToken = strstr(startToken, " | ");
+            if(endToken == NULL){
+               token[++i] = startToken;
+            }
+         }
+
+         if(i>=5) {
+            if(strlen(token[0]) > WL_SSID_MAX_LENGTH || strlen(token[1]) != WL_MAX_BSSID_LENGTH){
+               continue;
+            }
+            strcpy(ap.ssid, token[0]);
+            macStr2macArray(ap.uint_bssid, token[1]);
+            ap.rssi = atoi(token[2]);
+            ap.channel = atoi(token[3]);
+            ap.encryption_mode = Encr2wl_enc(token[4]);
+            // insert in list
+            if( _apsFound < WL_MAX_AP_LIST ){
+               access_points[_apsFound] = ap;
+               _apsFound++;
+               _sortAPlist(_apsFound);
+            }else{
+               if (ap.rssi > access_points[WL_MAX_AP_LIST-1].rssi){
+                  access_points[WL_MAX_AP_LIST-1] = ap;
+                  _sortAPlist(WL_MAX_AP_LIST);
+               }
+            }
          }
       }
    }
 
-   return (int8_t)access_points.size();
+   return _apsFound;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -376,8 +440,8 @@ IPAddress CWifi::gatewayIP() {
 /* -------------------------------------------------------------------------- */
 const char* CWifi::SSID(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
-   if(networkItem < access_points.size()) {
-      return access_points[networkItem].ssid.c_str();
+   if(networkItem < _apsFound) {
+      return access_points[networkItem].ssid;
    }
    return nullptr;
 }
@@ -385,32 +449,10 @@ const char* CWifi::SSID(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
 int32_t CWifi::RSSI(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
-   if(networkItem < access_points.size()) {
-      return atoi(access_points[networkItem].rssi.c_str());
+   if(networkItem < _apsFound) {
+      return access_points[networkItem].rssi;
    }
    return -1000;
-}
-
-static uint8_t Encr2wl_enc(string e) {
-   if (e == string("open")) {
-      return ENC_TYPE_NONE;
-   } else if (e == string("WEP")) {
-      return ENC_TYPE_WEP;
-   } else if (e == string("WPA")) {
-      return ENC_TYPE_WPA;
-   } else if (e == string("WPA2")) {
-      return ENC_TYPE_WPA2;
-   } else if (e == string("WPA+WPA2")) {
-      return ENC_TYPE_WPA2;
-   } else if (e == string("WPA2-EAP")) {
-      return ENC_TYPE_WPA2_ENTERPRISE;
-   } else if (e == string("WPA2+WPA3")) {
-      return ENC_TYPE_WPA3;
-   } else if (e == string("WPA3")) {
-      return ENC_TYPE_WPA3;
-   } else {
-      return ENC_TYPE_UNKNOWN;
-   }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -418,9 +460,9 @@ uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */
    scanNetworks();
    string myssid(SSID());
-   for(unsigned int i = 0; i < access_points.size(); i++) {
+   for(unsigned int i = 0; i < _apsFound; i++) {
       if(myssid ==  access_points[i].ssid) {
-         return Encr2wl_enc(access_points[i].encryption_mode);
+         return access_points[i].encryption_mode;
       }
    }
    return ENC_TYPE_UNKNOWN;
@@ -429,8 +471,8 @@ uint8_t CWifi::encryptionType() {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::encryptionType(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
-   if(networkItem < access_points.size()) {
-      return Encr2wl_enc(access_points[networkItem].encryption_mode);
+   if(networkItem < _apsFound) {
+      return access_points[networkItem].encryption_mode;
    }
    return 0;
 }
@@ -438,7 +480,7 @@ uint8_t CWifi::encryptionType(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
 uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */
-   if(networkItem < access_points.size()) {
+   if(networkItem < _apsFound) {
       for(int i = 0; i < 6; i++) {
          *(bssid + i) = access_points[networkItem].uint_bssid[i];
       }
@@ -450,8 +492,8 @@ uint8_t* CWifi::BSSID(uint8_t networkItem, uint8_t* bssid) {
 /* -------------------------------------------------------------------------- */
 uint8_t CWifi::channel(uint8_t networkItem) {
 /* -------------------------------------------------------------------------- */
-   if(networkItem < access_points.size()) {
-      return atoi(access_points[networkItem].channel.c_str());
+   if(networkItem < _apsFound) {
+      return access_points[networkItem].channel;
    }
    return 0;
 }

@@ -19,24 +19,43 @@
 
 #define WIFI_FIRMWARE_LATEST_VERSION "0.5.2"
 
+#define WL_MAX_AP_LIST 10
+#define WL_MAX_BSSID_LENGTH 17
+#define WL_MAX_SSID_LENGHT_S WL_SSID_MAX_LENGTH + 1 // +1 for null terminator
+
 class CAccessPoint {
 public:
-    std::string ssid;
-    std::string bssid;
+    CAccessPoint() {}
+    CAccessPoint(const CAccessPoint &obj)
+    {
+        strcpy(ssid, obj.ssid);
+        rssi = obj.rssi;
+        channel = obj.channel;
+        encryption_mode = obj.encryption_mode;
+        memcpy(uint_bssid, obj.uint_bssid, sizeof(uint_bssid));
+    }
+    CAccessPoint &operator=(const CAccessPoint &obj) {
+        strcpy(ssid, obj.ssid);
+        rssi = obj.rssi;
+        channel = obj.channel;
+        encryption_mode = obj.encryption_mode;
+        memcpy(uint_bssid, obj.uint_bssid, sizeof(uint_bssid));
+    }
+    char ssid[WL_MAX_SSID_LENGHT_S];
     uint8_t uint_bssid[6];
-    std::string rssi;
-    std::string channel;
-    std::string encryption_mode;
+    int rssi;
+    uint8_t channel;
+    uint8_t encryption_mode;
 };
-
-
 
 
 class CWifi {
 private:
     void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
+    void _sortAPlist(uint8_t num);
     unsigned long _timeout;
-    std::vector<CAccessPoint> access_points;
+    CAccessPoint access_points[WL_MAX_AP_LIST];
+    uint8_t _apsFound = 0;
     std::string ssid;
     std::string apssid;
 
