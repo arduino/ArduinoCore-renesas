@@ -187,7 +187,7 @@ size_t Preferences::putBytes(const char* key, const void* value, size_t len) {
 PreferenceType Preferences::getType(const char* key) {
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s\r\n", CMD_WRITE(_PREF_PUT), key)) {
+        if (modem.write(string(PROMPT(_PREF_TYPE)), res, "%s%s\r\n", CMD_WRITE(_PREF_TYPE), key)) {
             return static_cast<PreferenceType>(atoi(res.c_str()));
         }
     }
