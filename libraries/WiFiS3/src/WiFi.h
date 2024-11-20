@@ -19,6 +19,7 @@
 
 
 #define WIFI_FIRMWARE_LATEST_VERSION "0.4.1"
+#define WL_MAC_ADDR_LENGTH 6
 
 class CAccessPoint {
    public:
