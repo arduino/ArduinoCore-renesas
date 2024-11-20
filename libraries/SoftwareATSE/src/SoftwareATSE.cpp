@@ -57,6 +57,20 @@ void SoftwareATSEClass::debug(Stream  &u, uint8_t level)
     modem.debug(u,level);
 }
 
+int SoftwareATSEClass::serialNumber(byte sn[])
+{
+    string res = "";
+    modem.read_using_size();
+    if (modem.write(string(PROMPT(_SOFTSE_SERIAL)), res, "%s", CMD(_SOFTSE_SERIAL))) {
+        if (res.size()) {
+            String result = (char*)NULL;
+            memcpy(sn, (uint8_t*)&res[0], 6);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 String SoftwareATSEClass::serialNumber()
 {
     string res = "";
