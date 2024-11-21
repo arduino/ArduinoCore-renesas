@@ -551,11 +551,10 @@ unsigned long CWifi::getTime() {
 /* ----------------------------------------------*/
    modem.begin();
    string res = "";
-   unsigned long tt = 0;
    if(modem.write(string(PROMPT(_GETTIME)),res,"%s\r\n", CMD_WRITE(_GETTIME))) {
-      tt = strtol(res.c_str(), NULL, 10);
+      return strtol(res.c_str(), NULL, 10);
    }
-   return tt;
+   return 0;
 }
 
 void CWifi::setTimeout(unsigned long timeout) {
