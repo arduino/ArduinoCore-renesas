@@ -1,0 +1,13 @@
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/inc
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra_gen
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/private/inc
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/public/inc
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/primitive
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_sce/common
+-iwithprefixbefore/variants/OPTA_ANALOG/includes/ra/fsp/src/r_sce

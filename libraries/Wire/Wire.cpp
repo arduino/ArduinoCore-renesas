@@ -489,10 +489,6 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
   if(bus_status == WIRE_STATUS_RX_COMPLETED) {
     return length;
   }
-
-  if(bus_status == WIRE_STATUS_UNSET) {
-    m_abort(&m_i2c_ctrl);
-  }
   
   return 0; /* ???????? return value ??????? */
 }
@@ -525,7 +521,6 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
     }
     else if(bus_status == WIRE_STATUS_UNSET) {
       rv = END_TX_TIMEOUT;
-      m_abort(&m_i2c_ctrl);
     }
     /* as far as I know is impossible to distinguish between NACK on ADDRESS and
       NACK on DATA */

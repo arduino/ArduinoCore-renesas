@@ -1,7 +1,7 @@
 /*
   Test RTC
 
-  A test sketch showcasing all RTC showcasing various functionalities related to the RTC module,
+  A test sketch showcasing all RTC functionalities related to the RTC module,
   including setting the time, handling interrupts, and reading time values.
 
   Find the full UNO R4 WiFi RTC documentation here:
@@ -45,16 +45,10 @@ void setup() {
   // Set a specific initial time (August 25, 2022, 14:37:00 Thursday)
   RTCTime mytime(25, Month::AUGUST, 2022, 14, 37, 00, DayOfWeek::THURSDAY, SaveLight::SAVING_TIME_ACTIVE);
 
-  RTCTime savedTime;
-  RTC.getTime(savedTime);
-
-  // Set the initial time if RTC is not running
+  // Set the initial time if RTC is not running.
+  // The RTC may be still running if the board was reset, or if VRTC pin was powered
   if (!RTC.isRunning()) {
-    if (savedTime.getYear() != 2000) {
-      RTC.setTime(mytime);
-    } else {
-      RTC.setTime(savedTime);
-    }
+    RTC.setTime(mytime);
   }
 
   // Create an alarm time set to 35 seconds

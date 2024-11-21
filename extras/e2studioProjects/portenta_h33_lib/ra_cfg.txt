@@ -341,8 +341,8 @@ FSP Configuration
     Reception: FIFOs: FIFO 7: Interrupt Threshold: 1/2 full
     Reception: FIFOs: FIFO 7: Payload Size: 8 bytes
     Reception: FIFOs: FIFO 7: Depth: 16 stages
-    Reception: Acceptance Filtering: Channel 0 Rule Count: 1
-    Reception: Acceptance Filtering: Channel 1 Rule Count: 1
+    Reception: Acceptance Filtering: Channel 0 Rule Count: 2
+    Reception: Acceptance Filtering: Channel 1 Rule Count: 2
     
   Module "I2C Master (r_iic_master)"
     Parameter Checking: Default (BSP)
@@ -408,7 +408,7 @@ FSP Configuration
     
   Module "Flash (r_flash_hp)"
     Parameter Checking: Default (BSP)
-    Code Flash Programming Enable: Disabled
+    Code Flash Programming Enable: Enabled
     Data Flash Programming Enable: Enabled
     
   Module "USB PCDC (r_usb_pcdc)"
@@ -442,7 +442,7 @@ FSP Configuration
     
   Module "Realtime Clock (r_rtc)"
     Parameter Checking: Default (BSP)
-    Set Source Clock in Open: Enabled
+    Set Source Clock in Open: Disabled
     
   Module "Timer, General PWM (r_gpt)"
     Parameter Checking: Default (BSP)

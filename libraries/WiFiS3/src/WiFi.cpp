@@ -3,7 +3,7 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-CWifi::CWifi() : _timeout(50000){
+CWifi::CWifi() : _timeout(10000){
 }
 /* -------------------------------------------------------------------------- */
 
@@ -36,7 +36,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    string res = "";
    modem.begin();
    modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 1);
-   
+
    if(passphrase == nullptr) {
       if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s\r\n" , CMD_WRITE(_BEGINSTA), ssid)) {
          return WL_CONNECT_FAILED;
@@ -49,10 +49,10 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    }
 
    unsigned long start_time = millis();
-   while(millis() - start_time < 10000){
+   while(millis() - start_time < _timeout){
       if(status() == WL_CONNECTED) {
          return WL_CONNECTED;
-      } 
+      }
    }
   return WL_CONNECT_FAILED;
 }
@@ -219,7 +219,7 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
       return false;
    }
 
-   for(int i = 0; i < 6; i++) {
+   for(int i = 0; i < WL_MAC_ADDR_LENGTH; i++) {
       std::string str_num(mac_in+(i*3),2);
       *(mac_out+i) = std::stoul(str_num,nullptr,16);
    }
@@ -555,7 +555,7 @@ unsigned long CWifi::getTime() {
 
 
 void CWifi::setTimeout(unsigned long timeout) {
-   (void)(timeout);  
+   _timeout = timeout;
 }
 
 

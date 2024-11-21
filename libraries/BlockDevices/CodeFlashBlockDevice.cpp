@@ -19,6 +19,9 @@
 
 #include "CodeFlashBlockDevice.h"
 
+#define debug_if rns_storage_dbg_if
+#define debug_mem rns_storage_dbg_mem
+
 // To enable debug set CF_DBG to 1 and make sure STORAGE_DEBUG is defined
 // in Storage/storage_common.h
 #define CF_DBG     0
