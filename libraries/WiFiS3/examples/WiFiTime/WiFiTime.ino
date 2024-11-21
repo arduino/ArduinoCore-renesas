@@ -3,7 +3,7 @@
 
   The time is retrieved with the WiFi module by fetching the NTP time from an NTP server.
 
-  It requires the latest USB Wifi bridge firmware level and WiFiS3 library.
+  It requires at least version 0.5.0 of USB Wifi bridge firmware and WiFiS3 library.
 
   This example is written for a network using WPA encryption. For
   WEP or WPA, change the WiFi.begin() call accordingly.
@@ -80,6 +80,7 @@ void loop() {
   }
   else {
     Serial.println("Error during reading epoch time.");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.5.0");
   }
 
   Serial.println();
