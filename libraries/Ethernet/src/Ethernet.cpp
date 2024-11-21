@@ -76,15 +76,22 @@ int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway
 
   /* If there is a local DHCP informs it of our manual IP configuration to prevent IP conflict */
   ni->DhcpNotUsed();
-  CLwipIf::getInstance().addDns(dns_server);
+  CLwipIf::getInstance().setDns(0, dns_server);
   return 1;
 }
 
 /* -------------------------------------------------------------------------- */
 void CEthernet::setDNS(IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
-  CLwipIf::getInstance().addDns(dns_server);
+  CLwipIf::getInstance().setDns(0, dns_server);
 } 
+
+/* -------------------------------------------------------------------------- */
+void CEthernet::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
+/* -------------------------------------------------------------------------- */
+   CLwipIf::getInstance().setDns(0, dns_server1);
+   CLwipIf::getInstance().setDns(1, dns_server2);
+}
 
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout) {
