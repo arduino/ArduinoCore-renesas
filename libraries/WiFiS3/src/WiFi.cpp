@@ -564,19 +564,19 @@ void CWifi::setTimeout(unsigned long timeout) {
 /* -------------------------------------------------------------------------- */
 float CWifi::ping(IPAddress ip, unsigned int count) {
 /* -------------------------------------------------------------------------- */
-  return ping(ip.toString().c_str(), count);
+   return ping(ip.toString().c_str(), count);
 }
 
 /* -------------------------------------------------------------------------- */
 float CWifi::ping(const char* host, unsigned int count) {
 /* -------------------------------------------------------------------------- */
-  modem.begin();
-  string res = "";
-  if (modem.write(string(PROMPT(_PINGNAME)),res, "%s,%s,%d\r\n", CMD_WRITE(_PINGNAME), host, count)) {
-    String rsl = res.c_str();
-    return rsl.toFloat();
-  }
-  return 0;
+   modem.begin();
+   string res = "";
+   if (modem.write(string(PROMPT(_PING)), res, "%s,%s,%d\r\n", CMD_WRITE(_PING), host, count)) {
+      String rsl = res.c_str();
+      return rsl.toFloat();
+   }
+   return 0;
 }
 
 CWifi WiFi;
