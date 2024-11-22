@@ -95,6 +95,8 @@ static const uint8_t D7 = PIN_D7;
 #define UART5_RTS_PIN       94
 #define UART5_CTS_PIN       95
 
+#define SERIAL_PORT_HARDWARE Serial1
+
 /****** WIRE CORE DEFINES ******/
 
 #define WIRE_HOWMANY      4
