@@ -225,6 +225,28 @@ static void prvTaskExitError(void);
 
 #endif
 
+void loop_thread_func(void* arg) {
+    setup();
+    while (1)
+    {
+        loop();
+    }
+}
+
+static TaskHandle_t loop_task;
+void eventually_start_scheduler_and_sketch_task() {
+    xTaskCreate(
+      (TaskFunction_t)loop_thread_func,
+      "Loop Thread",
+      4096 / 4,   /* usStackDepth in words */
+      NULL,   /* pvParameters */
+      4,         /* uxPriority */
+      &loop_task /* pxCreatedTask */
+    );
+
+    vTaskStartScheduler();
+}
+
 /* Arduino specific overrides */
 void delay(uint32_t ms) {
     if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING) {
