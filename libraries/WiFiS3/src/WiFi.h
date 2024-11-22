@@ -61,8 +61,8 @@ public:
     /*
      * PING
      */
-    float ping(IPAddress ip, unsigned int count = 5);
-    float ping(const char* host, unsigned int count = 5);
+    int ping(IPAddress ip, uint8_t ttl = 128, uint8_t count = 1);
+    int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
 
     /* 
      * Start WiFi connection for OPEN networks 

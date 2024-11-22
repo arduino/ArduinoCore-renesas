@@ -71,11 +71,11 @@ void loop() {
   Serial.print("Trying to ping github.com on IP: ");
   Serial.println(remote_ip);
 
-  // using default ping count of 5
-  float res = WiFi.ping(remote_ip);
+  // using default ping count of 1
+  int res = WiFi.ping(remote_ip);
 
-  if (res != 0) {
-    Serial.print("Pin average response time: ");
+  if (res > 0) {
+    Serial.print("Ping response time: ");
     Serial.print(res);
     Serial.println(" ms");
   }
@@ -88,11 +88,11 @@ void loop() {
   Serial.print("Trying to ping host: ");
   Serial.println(remote_host);
 
-  // setting ping count to 10 instead of default 5
-  float res1 = WiFi.ping(remote_host,10);
+  // setting ttl to 128 and ping count to 10
+  int res1 = WiFi.ping(remote_host, 128, 10);
 
-  if (res1 != 0) {
-    Serial.print("Pin average response time: ");
+  if (res1 > 0) {
+    Serial.print("Ping average response time: ");
     Serial.print(res1);
     Serial.println(" ms");
   }
