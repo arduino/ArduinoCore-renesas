@@ -572,10 +572,13 @@ int CWifi::ping(const char* host, uint8_t ttl, uint8_t count) {
 /* -------------------------------------------------------------------------- */
    int ret = WL_PING_ERROR;
    modem.begin();
+   /* ping timeout is 1s and interval another 1s */
+   modem.timeout((count * 2000) + MODEM_TIMEOUT);
    string res = "";
    if (modem.write(string(PROMPT(_PING)), res, "%s,%s,%d,%d\r\n", CMD_WRITE(_PING), host, ttl, count)) {
       ret = atoi(res.c_str());
    }
+   modem.timeout(MODEM_TIMEOUT);
    return ret;
 }
 
