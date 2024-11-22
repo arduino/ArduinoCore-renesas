@@ -62,6 +62,7 @@ public:
      * PING
      */
     int ping(IPAddress ip, uint8_t ttl = 128, uint8_t count = 1);
+    int ping(const String &hostname, uint8_t ttl = 128, uint8_t count = 1);
     int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
 
     /* 

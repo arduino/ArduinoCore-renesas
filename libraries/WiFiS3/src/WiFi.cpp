@@ -568,6 +568,13 @@ int CWifi::ping(IPAddress ip, uint8_t ttl, uint8_t count) {
 }
 
 /* -------------------------------------------------------------------------- */
+int CWifi::ping(const String &hostname, uint8_t ttl, uint8_t count)
+/* -------------------------------------------------------------------------- */
+{
+	return ping(hostname.c_str(), ttl);
+}
+
+/* -------------------------------------------------------------------------- */
 int CWifi::ping(const char* host, uint8_t ttl, uint8_t count) {
 /* -------------------------------------------------------------------------- */
    int ret = WL_PING_ERROR;
