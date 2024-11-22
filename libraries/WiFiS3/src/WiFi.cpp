@@ -1,5 +1,7 @@
 #include "WiFi.h"
 
+#define SSID_MAX_COUNT 12
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
@@ -265,7 +267,7 @@ int8_t CWifi::scanNetworks() {
 
    vector<string> aps;
    if(modem.write(string(PROMPT(_WIFISCAN)),res,CMD(_WIFISCAN))) {
-
+      
       split(aps, res, string("\r\n"));
       for(uint16_t i = 0; i < aps.size(); i++) {
          CAccessPoint ap;
@@ -278,7 +280,26 @@ int8_t CWifi::scanNetworks() {
             ap.rssi            = tokens[2];
             ap.channel         = tokens[3];
             ap.encryption_mode = tokens[4];
-            access_points.push_back(ap);
+            
+            if(access_points.size() == 0) {
+               access_points.push_back(ap);
+            }
+            else {
+               if(RSSI(access_points.size()-1) < atoi(ap.rssi.c_str())) {
+                  if(access_points.size() < SSID_MAX_COUNT){
+                     std::vector<CAccessPoint>::reverse_iterator rit = access_points.rbegin();
+                     access_points.insert(rit.base(), ap);
+                  }
+                  else {
+                     access_points.pop_back();
+                     access_points.push_back(ap);
+                  }
+               }else{
+                  if(access_points.size() < SSID_MAX_COUNT){
+                     access_points.push_back(ap);
+                  }
+               }
+            }
          }
       } 
    }
