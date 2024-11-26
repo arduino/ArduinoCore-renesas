@@ -16,3 +16,14 @@ idf.py build
 cd ../../../../../
 python combine.py
 ```
+# How to flash the firmware
+
+```
+espflash write-bin 0x0 ESP32-C3.bin
+```
+
+or
+
+```
+esptool.py --chip esp32c3 -p /dev/ttyACM0 -b 230400 --before=default_reset --after=hard_reset --no-stub write_flash --flash_mode dio --flash_freq 80m --flash_size 2MB 0x0 ESP32-C3.bin
+```
