@@ -2,9 +2,11 @@
 
 import sys;
 
-booloaderData = open("bootloader.bin", "rb").read()
-partitionData = open("partition-table.bin", "rb").read()
-networkData = open("network_adapter.bin", "rb").read()
+basePath = "esp-hosted/esp_hosted_fg/esp/esp_driver/network_adapter/"
+
+booloaderData = open(basePath + "build/bootloader/bootloader.bin", "rb").read()
+partitionData = open(basePath + "build/partition_table/partition-table.bin", "rb").read()
+networkData = open(basePath + "build/network_adapter.bin", "rb").read()
 
 # 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 network_adapter.bin
 
