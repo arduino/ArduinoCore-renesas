@@ -542,17 +542,20 @@ int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
    return 0;
 }
 
-
-
 uint8_t CWifi::reasonCode() {
   return 0;
 }
 
+/* ----------------------------------------------*/
 unsigned long CWifi::getTime() {
-  return 0;
+/* ----------------------------------------------*/
+   modem.begin();
+   string res = "";
+   if(modem.write(string(PROMPT(_GETTIME)),res,"%s\r\n", CMD_WRITE(_GETTIME))) {
+      return strtol(res.c_str(), NULL, 10);
+   }
+   return 0;
 }
-
-
 
 void CWifi::setTimeout(unsigned long timeout) {
    _timeout = timeout;
