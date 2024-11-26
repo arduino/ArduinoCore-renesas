@@ -27,9 +27,28 @@
 class WiFiFileSystem {
 
 public:
+   /**
+    * Initializes objects of the `WiFiFileSystem` class.
+    */
    WiFiFileSystem();
+
+   /**
+    * Mounts the file system.
+    * If `format_on_fault` is set to `true`,
+    * the file system will be formatted if a fault occurs during mounting.
+    */
    void mount(bool format_on_fault = false);
+
+   /**
+    * Writes data to a file in the file system.
+    */
    size_t writefile(const char* name, const char* data, size_t size, int operation = WIFI_FILE_WRITE);
+   
+   /**
+    * Reads data from a file in the file system.
+    * It takes a `const char* name` parameter,
+    * which specifies the name of the file to be read.
+    */
    void readfile(const char* name);
 
 };
