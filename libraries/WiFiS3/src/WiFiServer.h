@@ -34,14 +34,42 @@ private:
   WiFiClient client;
   
 public:
+  /**
+   * Initializes a `WiFiServer` object.
+   */
   WiFiServer();
   WiFiServer(int p);
+
+  /**
+   * Checks if there are any incoming client connections waiting to be accepted.
+   * It returns a `WiFiClient` object representing the next client connection that is available
+   * for processing.
+   */
   WiFiClient available();
+
+  /**
+   * Accepts and returns a new client connection that is waiting to be processed.
+   * When called, it will accept the next incoming client connection and
+   * return a `WiFiClient` object representing that connection.
+   */
   WiFiClient accept();
+
+  /**
+   * Initializes the WiFi server on a specific port.
+   * When this function is called with a port number as an argument,
+   * it sets up the server to listen for incoming client connections on that specified port.
+   */
   void begin(int port);
+  
   void begin();
   virtual size_t write(uint8_t);
   virtual size_t write(const uint8_t *buf, size_t size);
+
+  /**
+   * Closes the server and release any resources associated with it.
+   * When you call `end()`, it stops the server from listening for incoming client connections
+   * and cleans up any allocated memory or resources.
+   */
   void end();
   explicit operator bool();
   virtual bool operator==(const WiFiServer&);
