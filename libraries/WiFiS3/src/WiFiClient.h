@@ -124,20 +124,6 @@ public:
   virtual int read();
 
   /**
- * @brief Reads multiple bytes of data from the server into a buffer.
- *
- * This function retrieves data from the server's receive buffer and stores it 
- * into the provided array. It attempts to read up to the specified number of 
- * bytes (`size`). The function stops reading if no more data is available or 
- * if an error occurs.
- *
- * @param[out] buf Pointer to the buffer where the data will be stored.
- * @param[in] size Maximum number of bytes to read.
- * @return The number of bytes successfully read into the buffer. 
- * Returns `0` if no data is available or if the socket is invalid.
- */
-
-  /**
    * @brief Reads multiple bytes of data from the server into a buffer.
    *
    * This function retrieves data from the server's receive buffer and stores it 
@@ -151,27 +137,33 @@ public:
    * Returns `0` if no data is available or if the socket is invalid.
    */
   virtual int read(uint8_t *buf, size_t size);
-  
+
   /**
    * @brief Peeks at the next byte of incoming data without removing it from the internal buffer.
+   * 
+   * @return The next byte as an `int` (0–255). Returns `-1` if no data is available 
+   * or if the socket is invalid.
    */
   virtual int peek();
 
   /**
-   * @brief Clears any buffered outgoing data that has not been sent to the connected client.
+   * @brief Flushes the write buffer of the client.
+   * 
+   * This function ensures that any data buffered for transmission is sent to the
+   * connected server. If there is any pending data in the send buffer, it is 
+   * transmitted over the network.
    */
   virtual void flush();
 
   /**
-   * @brief Closes the connection to the remote server
-   * and releases any resources associated with it.
+   * @brief Closes the connection to the server and clears the receive buffer.
    */
   virtual void stop();
 
   /**
-   * @brief Checks whether the client is currently connected to a remote server.
+   * @brief Checks if the client is connected to a server.
    * 
-   * @return Returns a `uint8_t` value indicating the connection status of the client.
+   * @return Returns 1 if the client is connected, 0 otherwise.
    */
   virtual uint8_t connected();
 
@@ -185,19 +177,23 @@ public:
   };
 
   /**
-   * @return Returns the IP address of the remote server to which the client is connected.
+   * @brief Retrieves the remote IP address of the server the client is connected to.
+   * 
+   * @return The IP address of the remote server. If not connected, returns IPAddress(0, 0, 0, 0).
    */
   virtual IPAddress remoteIP();
 
   /**
-   * @return Returns the port number of the remote server for the connetec client.
+   * @brief Retrieves the remote port number of the server the client is connected to.
+   * 
+   * @return Returns the port number of the remote server. If not connected, returns 0.
    */
   virtual uint16_t remotePort();
 
   /**
-   * @brief Sets the connection timeout value for the client.
-   * @param It takes an integer `timeout` as a parameter which determines how long the
-   * client will wait for a connection to be established before timing out.
+   * @brief Sets the connection timeout for the client.
+   * 
+   * @param `timeout` is the timeout value in milliseconds.
    */
   void setConnectionTimeout(int timeout) {
     _connectionTimeout = timeout;
