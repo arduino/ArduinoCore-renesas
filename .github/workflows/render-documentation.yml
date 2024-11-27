@@ -1,0 +1,28 @@
+name: Render Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/render-documentation.ya?ml"
+      - "examples/**"
+      - "src/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/render-documentation.ya?ml"
+      - "examples/**"
+      - "src/**"
+  workflow_dispatch:
+      
+jobs:
+  render-docs:
+    permissions:
+      contents: write
+    uses: arduino/render-docs-github-action/.github/workflows/render-docs.yml@main
+    with:
+      source-path: './libraries/WiFiS3/src'
+      target-path: './libraries/WiFiS3/docs/api.md'
+      commit: ${{ github.event_name != 'pull_request' }} # Only commit changes if not a PR
