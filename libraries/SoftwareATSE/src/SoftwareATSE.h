@@ -34,6 +34,7 @@ public:
 
   void debug(Stream  &u, uint8_t level = 0);
 
+  int serialNumber(byte sn[]);
   String serialNumber();
 
   long random(long min, long max);

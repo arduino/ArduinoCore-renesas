@@ -219,7 +219,7 @@ static bool macStr2macArray(uint8_t *mac_out, const char *mac_in) {
       return false;
    }
 
-   for(int i = 0; i < 6; i++) {
+   for(int i = 0; i < WL_MAC_ADDR_LENGTH; i++) {
       std::string str_num(mac_in+(i*3),2);
       *(mac_out+i) = std::stoul(str_num,nullptr,16);
    }
@@ -542,17 +542,20 @@ int CWifi::hostByName(const char* aHostname, IPAddress& aResult) {
    return 0;
 }
 
-
-
 uint8_t CWifi::reasonCode() {
   return 0;
 }
 
+/* ----------------------------------------------*/
 unsigned long CWifi::getTime() {
-  return 0;
+/* ----------------------------------------------*/
+   modem.begin();
+   string res = "";
+   if(modem.write(string(PROMPT(_GETTIME)),res,"%s\r\n", CMD_WRITE(_GETTIME))) {
+      return strtol(res.c_str(), NULL, 10);
+   }
+   return 0;
 }
-
-
 
 void CWifi::setTimeout(unsigned long timeout) {
    _timeout = timeout;
