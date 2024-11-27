@@ -58,8 +58,7 @@ void split(std::vector<std::string> &res, std::string &str, const std::string &d
  * This function attempts to remove the first occurrence of the specified substring 
  * (`what`) from the beginning of the string (`str`). Before performing the removal, 
  * it trims leading whitespace from the string. If the substring is found at the 
- * beginning of the string, it is removed, and the function returns `true`. If the 
- * substring is not found at the beginning, the string remains unchanged, and the 
+ * beginning of the string, it is removed, and the function returns `true`. Otherwise the 
  * function returns `false`.
  *
  * @param `str` is a reference to the string from which the substring will be removed. 
