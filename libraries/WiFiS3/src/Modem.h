@@ -103,7 +103,6 @@ public:
     _serial_debug = nullptr;
   }
 
-  /*NOT SURE*/
   #ifdef SELECTABLE_MODEM_DEBUG
   bool enable_dbg = false;
   void debug(bool e) {enable_dbg = e;}
