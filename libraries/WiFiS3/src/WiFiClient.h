@@ -57,8 +57,8 @@ public:
   /**
    * @brief Establishes a connection to a server using an IP address and port.
    *
-   * @param Using `ip` as the IP address of the server to connect to.
-   * And `port` as the port number on the server to connect to.
+   * @param `ip` as the IP address of the server to connect to.
+   * @param `port` as the port number on the server to connect to.
    * 
    * @return `1` on a successful connection, `0` on failure.
    */
@@ -68,7 +68,7 @@ public:
    * @brief Establishes a connection to a server using a hostname and port.
    * 
    * @param `host` is a pointer to a null-terminated string containing the hostname of the server.
-   * And `port` is the port number on the server to connect to.
+   * @param `port` is the port number on the server to connect to.
    * 
    * @return `1` if the connection was successful, `0` otherwise.
    */
