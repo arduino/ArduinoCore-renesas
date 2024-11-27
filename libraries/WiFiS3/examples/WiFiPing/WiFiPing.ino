@@ -5,7 +5,7 @@
   using the WiFi module. By default the attempt is performed 5 times, but can
   be changed to max. 255
 
-  It requires the latest USB Wifi bridge firmware level and WiFiS3 library.
+  It requires at least version 0.5.0 of USB Wifi bridge firmware and WiFiS3 library.
 
   This example is written for a network using WPA encryption. For
   WEP or WPA, change the WiFi.begin() call accordingly.
@@ -81,6 +81,7 @@ void loop() {
   }
   else {
     Serial.println("Timeout on IP!");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.5.0");
   }
 
   // Ping Host
@@ -98,6 +99,7 @@ void loop() {
   }
   else {
     Serial.println("Timeout on host!");
+    Serial.println("Make sure your WiFi firmware version is greater than 0.5.0");
   }
 
   Serial.println();
