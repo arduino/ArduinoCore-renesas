@@ -40,64 +40,68 @@ public:
   ~WiFiClient();
 
   /**
-   * Establish a connection to a remote server using the specified IP address and port number.
+   * @brief Establish a connection to a remote server using the specified IP address and port number.
    */
   virtual int connect(IPAddress ip, uint16_t port);
 
   /**
-   * Establish a connection to a remote server
-   * using the specified host (domain name or IP address) and port number.
+   * @brief Establish a connection to a remote server.
+   * 
+   * @param Uses the specified domain name or IP address `host` and `port` for port number.
    */
   virtual int connect(const char *host, uint16_t port);
   
   /** 
-   * Writes a single byte of data to the connected client.
+   * @brief Writes a single byte of data to the connected client.
    */
   virtual size_t write(uint8_t);
 
   /** 
-   * Writes a buffer of data to the connected client.
-   * Takes a pointer to a buffer `buf` containing the data to be written
+   * @brief Writes a buffer of data to the connected client.
+   * 
+   * @param Takes a pointer to a buffer `buf` containing the data to be written
    * and the size of the buffer `size` as parameters.
-   * The function writes the data in the buffer to the connected client
+   * 
+   * @return The function writes the data in the buffer to the connected client
    * and returns the number of bytes written.
    */
   virtual size_t write(const uint8_t *buf, size_t size);
 
   /**
-   * Checks how many bytes are available for reading from the connected client.
+   * @brief Checks how many bytes are available for reading from the connected client.
    */
   virtual int available();
 
   /**
-   * Reads a single byte of data from the connected client.
+   * @brief Reads a single byte of data from the connected client.
    */
   virtual int read();
 
   /**
-   * Reads a specified number of bytes from the connected client into a buffer.
+   * @brief Reads a specified number of bytes from the connected client into a buffer.
    */
   virtual int read(uint8_t *buf, size_t size);
   
   /**
-   * Peeks at the next byte of incoming data without removing it from the internal buffer.
+   * @brief Peeks at the next byte of incoming data without removing it from the internal buffer.
    */
   virtual int peek();
 
   /**
-   * Clears any buffered outgoing data that has not been sent to the connected client.
+   * @brief Clears any buffered outgoing data that has not been sent to the connected client.
    */
   virtual void flush();
 
   /**
-   * Closes the connection to the remote server.
-   * Terminates the connection and release any resources associated with it.
+   * @brief Closes the connection to the remote server
+   * and releases any resources associated with it.
    */
   virtual void stop();
 
   /**
-   * Checks whether the client is currently connected to a remote server.
-   * Returns a `uint8_t` value indicating the connection status of the client.
+   * @brief Checks whether the client is currently connected to a remote server.
+   * 
+   * @return Returns a `uint8_t` value indicating the connection status of the client.
    */
   virtual uint8_t connected();
 
@@ -111,19 +115,19 @@ public:
   };
 
   /**
-   * Returns the IP address of the remote server to which the client is connected.
+   * @return Returns the IP address of the remote server to which the client is connected.
    */
   virtual IPAddress remoteIP();
 
   /**
-   * Returns the port number of the remote server for the connetec client.
+   * @return Returns the port number of the remote server for the connetec client.
    */
   virtual uint16_t remotePort();
 
   /**
-   * Sets the connection timeout value for the client.
-   * It takes an integer `timeout` as a parameter which determines how long the client will wait
-   * for a connection to be established before timing out.
+   * @brief Sets the connection timeout value for the client.
+   * @param It takes an integer `timeout` as a parameter which determines how long the
+   * client will wait for a connection to be established before timing out.
    */
   void setConnectionTimeout(int timeout) {
     _connectionTimeout = timeout;

@@ -19,7 +19,7 @@ class ModemClass {
 
 public:
   /** 
-   * Initializes an instance of the `ModemClass` class with
+   * @param Initializes an instance of the `ModemClass` class with
    * specific transmit (tx) and receive (rx) pins for communication.
    */
   ModemClass(int tx, int rx);
@@ -27,35 +27,39 @@ public:
   ~ModemClass();
 
   /**
-   * Initializes the modem communication with a specified baud rate. By default,
-   * the baud rate is set to 115200. Call function after creating an instance of the 
+   * @brief Initializes the modem communication with a specified baud rate.
+   * 
+   * @param The baud rate is set to 115200. Call function after creating an instance of the 
    * `ModemClass` to set up the communication parameters before sending or receiving data.
    */
   void begin(int badurate = 115200);
 
   /** 
-   * Shutts down the modem communication and releases any resources that were allocated during the 
-   * communication process.
+   * @brief Shutts down the modem communication and releases any
+   * resources that were allocated during the communication process.
    */
   void end();
 
   /**
-   * Sends a command to the modem and waits for a response.
-   * It takes a command string `cmd`, a string `str` where the response will be stored 
+   * @brief Sends a command to the modem and waits for a response.
+   * 
+   * @param It takes a command string `cmd`, a string `str` where the response will be stored 
    * and a format string `fmt` along with additional arguments.
    */
   bool write(const std::string &cmd, std::string &str, const char * fmt, ...);
 
   /**
-   * Used to send a command to the modem without waiting for a response.
-   * It takes a command string `cmd`, a string `str` where the response will be stored,
+   * @brief Used to send a command to the modem without waiting for a response.
+   * 
+   * @param It takes a command string `cmd`, a string `str` where the response will be stored,
    * and a format string `fmt` along with additional arguments.
    */
   void write_nowait(const std::string &cmd, std::string &str, const char * fmt, ...);
 
   /**
-   * Sends binary data directly to the modem without any processing or interpretation.
-   * It takes a pointer to the binary `data` and the `size` of the data as arguments.
+   * @brief Sends binary data directly to the modem without any processing or interpretation.
+   * 
+   * @param It takes a pointer to the binary `data` and the `size` of the data as arguments.
    * Used for sending raw binary commands or data to the modem for operations that 
    * require direct communication without any additional formatting or parsing.
    */
@@ -69,8 +73,8 @@ public:
 
 
   /**
-   * When this function is called, it enables a specific mode of reading 
-   * where the size of the data to be read is considered for processing.
+   * @brief Enables a specific mode of reading where the size of the data
+   * to be read is considered for processing.
    */
   void read_using_size() {
     read_by_size = true;
@@ -93,7 +97,7 @@ public:
   }
 
   /**
-   * Used to disable debugging output for the modem communication.
+   * @brief Used to disable debugging output for the modem communication.
    */
   void noDebug() {
     _serial_debug = nullptr;
@@ -106,8 +110,9 @@ public:
   #endif
 
   /**
-   * Sets the timeout value for communication operations.
-   * Can be called with a specified timeout value in milliseconds.
+   * @brief Sets the timeout value for communication operations.
+   * 
+   * @param Can be called with a specified timeout value in milliseconds.
    */
   void timeout(size_t timeout_ms) {_timeout = timeout_ms;}
 
