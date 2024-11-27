@@ -22,30 +22,30 @@
 #define WL_MAC_ADDR_LENGTH 6
 
 class CAccessPoint {
-   public:
-      std::string ssid;
-      std::string bssid;
-      uint8_t uint_bssid[6];
-      std::string rssi;
-      std::string channel;
-      std::string encryption_mode;
+public:
+    std::string ssid;
+    std::string bssid;
+    uint8_t uint_bssid[6];
+    std::string rssi;
+    std::string channel;
+    std::string encryption_mode;
 };
 
 
 
 
 class CWifi {
-private: 
-   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
-   unsigned long _timeout;
-   std::vector<CAccessPoint> access_points;
-   std::string ssid;
-   std::string apssid;
-   
+private:
+    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
+    unsigned long _timeout;
+    std::vector<CAccessPoint> access_points;
+    std::string ssid;
+    std::string apssid;
 
-   IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
-   IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
-   IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
+
+    IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
+    IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
+    IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
 
 
 
@@ -57,6 +57,14 @@ public:
      * Get firmware version
      */
     static const char* firmwareVersion();
+    /*
+     * Get firmware version U32
+     *
+     * Since version is made in a semver fashion, thus in an integer it will be represented as
+     *  byte 1 (MSB) | byte 2 | byte 3 | byte 4
+     *             0 | MAJOR  | MINOR  | PATCH
+     */
+    uint32_t firmwareVersionU32();
 
     /*
      * PING
@@ -65,13 +73,13 @@ public:
     int ping(const String &hostname, uint8_t ttl = 128, uint8_t count = 1);
     int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
 
-    /* 
-     * Start WiFi connection for OPEN networks 
+    /*
+     * Start WiFi connection for OPEN networks
      * param ssid: Pointer to the SSID string.
      */
     int begin(const char* ssid);
 
-    
+
 
     /* Start WiFi connection with passphrase
      * the most secure supported mode will be automatically selected
@@ -118,7 +126,7 @@ public:
         * param subnet:    Static Subnet mask
         */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-    
+
     /* Change DNS IP configuration
      *
      * param dns_server1: IP configuration for DNS server 1
@@ -154,8 +162,8 @@ public:
      * Get the interface MAC address.
      *
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
-     * 
-     * the value returned by this function is meaningfull only if called 
+     *
+     * the value returned by this function is meaningfull only if called
      * afert a begin (both begin or beginAP) or a ScanNetwork function
      * otherwise an empty mac address is returned
      */
@@ -180,9 +188,9 @@ public:
      *
      * return: gateway IP address value
      */
-   IPAddress gatewayIP();
+    IPAddress gatewayIP();
 
-   IPAddress dnsIP(int n = 0);
+    IPAddress dnsIP(int n = 0);
 
     /*
      * Get the interface the AP IP address.
@@ -244,8 +252,8 @@ public:
     *
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
 
-    
-      
+
+
      */
     uint8_t encryptionType(uint8_t networkItem);
     uint8_t encryptionType();
@@ -289,7 +297,7 @@ public:
 
     void setTimeout(unsigned long timeout);
 
-    
+
 };
 
 extern CWifi WiFi;
