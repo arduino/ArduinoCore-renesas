@@ -36,14 +36,7 @@ void setup() {
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed. freeze !");
-    // don't continue
-    while (true);
-  }
-
-  String fv = WiFi.firmwareVersion();
-  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
-    Serial.println("Please upgrade to the WiFi USB bridge firmware. freeze !");
+    Serial.println("Communication with WiFi module failed.");
     // don't continue
     while (true);
   }
