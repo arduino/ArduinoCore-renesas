@@ -37,17 +37,29 @@ public:
   /**
    * @brief Initializes the modem communication with a specified baud rate.
    * 
-   * @param The baud rate is set to 115200. Call function after creating an instance of the 
-   * `ModemClass` to set up the communication parameters before sending or receiving data.
+   * @param[in] `badurate` sets the baud rate for the serial connection.
    */
   void begin(int badurate = 115200);
 
   /** 
-   * @brief Shutts down the modem communication and releases any
-   * resources that were allocated during the communication process.
+   * @brief Ends the modem communication.
    */
   void end();
 
+
+  /**
+ * @brief Sends a formatted command string to a device and stores the response.
+ *
+ * This function formats a command string using the provided format and arguments, 
+ * sends it to a device, and waits for a response, which is stored in the `str` string.
+ *
+ * @param cmd A string representing the command to be sent to the device.
+ * @param str A reference to a string that will hold the device's response.
+ * @param fmt A format string for constructing the command.
+ * 
+ * @return `true` if the command was successfully sent and a response was received, 
+ *         `false` otherwise.
+ */
   /**
    * @brief Sends a command to the modem and waits for a response.
    * 
