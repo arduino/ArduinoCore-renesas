@@ -19,10 +19,18 @@ class ModemClass {
 
 public:
   /** 
+   * @brief Constructor for the ModemClass, which initializes the modem with the specified transmit (TX) and receive (RX) pins.
+   * 
    * @param Initializes an instance of the `ModemClass` class with
-   * specific transmit (tx) and receive (rx) pins for communication.
+   * specific transmit `tx` and receive `rx` pins for communication.
    */
   ModemClass(int tx, int rx);
+
+  /**
+   * @brief Constructor for the ModemClass, which initializes the modem with the specified UART interface.
+   *
+   * @param `_serial` is a pointer to the UART object that will be used for communication with the modem.
+   */
   ModemClass(UART * _serial);
   ~ModemClass();
 

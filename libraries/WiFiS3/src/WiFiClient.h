@@ -54,20 +54,6 @@ public:
   WiFiClient(const WiFiClient& c);
   ~WiFiClient();
 
-
-  /**
- * @brief Establishes a connection to a server using an IP address and port.
- *
- * This function initiates a connection to a server using the specified IP address 
- * and port. Internally, it converts the IP address to a string and delegates 
- * the connection task to the `connect(const char*, uint16_t)` method.
- *
- * @param ip The IP address of the server to connect to.
- * @param port The port number on the server to connect to.
- * 
- * @return `1` on a successful connection, `0` on failure.
- */
-
   /**
    * @brief Establishes a connection to a server using an IP address and port.
    *
