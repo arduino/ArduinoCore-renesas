@@ -35,21 +35,21 @@ public:
   }
 
   void read_using_size() {
-    read_by_size = true;
-  } 
+    // read_by_size = true; // deprecated
+  }
   bool beginned;
 
   /* calling this function with no argument will enable debug message to be printed
      on Serial
-     use first parameter UART *u to redirect debug output to a different serial 
+     use first parameter UART *u to redirect debug output to a different serial
 
      level from 0 defaul to 2 (maximum) */
 
   void debug(Stream  &u, uint8_t level = 0) {
     _serial_debug = &u;
-    
-    if(level > 2) {
-      level = 2;
+
+    if(level > 3) {
+      level = 3;
     }
     _debug_level = level;
   }
@@ -66,14 +66,19 @@ public:
   void timeout(size_t timeout_ms) {_timeout = timeout_ms;}
 
 private:
-  bool buf_read(const std::string &cmd, std::string &data_res);
+  enum ParseResult {
+    Ok,
+    Error,
+    ParseError,
+    Timeout
+  };
+
+  ParseResult buf_read(const std::string &cmd, std::string &data_res);
   bool delete_serial;
   UART * _serial;
   unsigned long _timeout;
   uint8_t tx_buff[MAX_BUFF_SIZE];
   bool trim_results;
-  bool read_by_size;
-  bool read_by_size_finished(std::string &rx);
   Stream * _serial_debug;
   uint8_t _debug_level = 0;
 };
