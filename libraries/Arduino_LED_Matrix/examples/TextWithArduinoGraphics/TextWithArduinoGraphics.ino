@@ -1,6 +1,6 @@
 // TextAnimation works only when ArduinoGraphics is installed and used.
-// ArduinoGraphics is an external library and needs to be installed manually
-// using library manager.
+// ArduinoGraphics is an external library and needs to be installed using
+// Library Manager.
 // To use ArduinoGraphics APIs, please include BEFORE Arduino_LED_Matrix
 #include "ArduinoGraphics.h"
 #include "Arduino_LED_Matrix.h"
