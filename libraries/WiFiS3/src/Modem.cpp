@@ -75,6 +75,9 @@ bool ModemClass::passthrough(const uint8_t *data, size_t size) {
 /* -------------------------------------------------------------------------- */
 void ModemClass::write_nowait(const string &cmd, string &str, const char * fmt, ...) {
 /* -------------------------------------------------------------------------- */
+   (void)cmd;
+   (void)str;
+
    va_list va;
    va_start (va, fmt);
    vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
