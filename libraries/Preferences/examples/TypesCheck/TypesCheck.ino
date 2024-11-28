@@ -390,7 +390,7 @@ int testString() {
   value = prefs.getString("string", value);
   if (strcmp(data, value.c_str()) != 0) {
     Serial.println("getString Error");
-    Serial.println("Make sure your WiFi firmware version is greater than 0.5.0");
+    Serial.println("Make sure your WiFi firmware version is at least 0.5.0");
     return 0;
   } else {
     Serial.println("getString OK");
