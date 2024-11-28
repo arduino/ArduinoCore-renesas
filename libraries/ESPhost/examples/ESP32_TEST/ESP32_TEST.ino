@@ -297,7 +297,7 @@ void connectAccessPoint() {
     int i = stoi(ap_str);
     
     Serial.println(">>> [APP]: Connecting to Access Point");
-    WifiApCfg_t ap;
+    WifiApCfg_t ap{};
     memcpy(ap.ssid,access_point_list[i].ssid,SSID_LENGTH);
     memcpy(ap.pwd,pwd.c_str(),pwd.size());
     memcpy(ap.bssid,access_point_list[i].bssid,BSSID_LENGTH);
