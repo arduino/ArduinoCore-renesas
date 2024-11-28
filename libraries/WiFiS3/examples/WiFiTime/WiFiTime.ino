@@ -73,7 +73,7 @@ void loop() {
   }
   else {
     Serial.println("Error during reading epoch time.");
-    Serial.println("Make sure your WiFi firmware version is greater than 0.5.0");
+    Serial.println("Make sure your WiFi firmware version is at least 0.5.0");
   }
 
   Serial.println();
