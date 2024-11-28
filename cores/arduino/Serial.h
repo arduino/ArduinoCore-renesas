@@ -65,6 +65,7 @@ class UART : public arduino::HardwareSerial {
     size_t write(uint8_t* c, size_t len);
     size_t write_raw(uint8_t* c, size_t len);
     using Print::write; 
+    int availableForWrite();
     operator bool(); // { return true; }
 
   private:          
@@ -78,7 +79,8 @@ class UART : public arduino::HardwareSerial {
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
-    volatile bool tx_done;
+    volatile bool tx_done = true;
+    volatile char txc[BSP_FEATURE_SCI_UART_FIFO_DEPTH];
 
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
