@@ -321,6 +321,7 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
          if(c == '\n') {
             state = at_parse_state_t::Res;
          }
+         /* fall through */
 
          /*
           * break is volountary not present, to cover for cases where the response status is in the
