@@ -25,7 +25,6 @@ const char* CWifi::firmwareVersion() {
 /* -------------------------------------------------------------------------- */
 uint32_t CWifi::firmwareVersionU32() {
 /* -------------------------------------------------------------------------- */
-   uint8_t ret[4];
    string res = "";
    modem.begin();
    if(modem.write(string(PROMPT(_FWVERSION_U32)), res, CMD_READ(_FWVERSION_U32))) {
