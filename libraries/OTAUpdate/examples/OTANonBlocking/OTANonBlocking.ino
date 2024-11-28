@@ -4,6 +4,8 @@
   This sketch demonstrates how to make an OTA Update on the UNO R4 WiFi.
   Upload the sketch and wait for the invasion!
 
+  It requires at least version 0.5.0 of USB Wifi bridge firmware
+
 */
 
 
@@ -75,6 +77,7 @@ void setup() {
   if(ota_size <= 0) {
     Serial.println("ota.startDownload() error: ");
     Serial.println(ota_size);
+    Serial.println("Make sure your WiFi firmware version is at least 0.5.0");
     return;
   }
 
