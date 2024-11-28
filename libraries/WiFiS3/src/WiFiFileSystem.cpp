@@ -20,6 +20,7 @@ size_t WiFiFileSystem::writefile(const char* name, const char* data, size_t size
    if(modem.passthrough((uint8_t *)data, size)) {
       return size;
    }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */

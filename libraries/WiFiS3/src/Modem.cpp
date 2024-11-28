@@ -75,6 +75,9 @@ bool ModemClass::passthrough(const uint8_t *data, size_t size) {
 /* -------------------------------------------------------------------------- */
 void ModemClass::write_nowait(const string &cmd, string &str, const char * fmt, ...) {
 /* -------------------------------------------------------------------------- */
+   (void)cmd;
+   (void)str;
+
    va_list va;
    va_start (va, fmt);
    vsnprintf((char *)tx_buff, MAX_BUFF_SIZE, fmt, va);
@@ -318,6 +321,7 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
          if(c == '\n') {
             state = at_parse_state_t::Res;
          }
+         /* fall through */
 
          /*
           * break is volountary not present, to cover for cases where the response status is in the
