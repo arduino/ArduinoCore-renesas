@@ -576,7 +576,7 @@ int CWifi::ping(IPAddress ip, uint8_t ttl, uint8_t count) {
 int CWifi::ping(const String &hostname, uint8_t ttl, uint8_t count)
 /* -------------------------------------------------------------------------- */
 {
-	return ping(hostname.c_str(), ttl);
+	return ping(hostname.c_str(), ttl, count);
 }
 
 /* -------------------------------------------------------------------------- */
