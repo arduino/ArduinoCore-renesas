@@ -89,6 +89,8 @@ UART::UART(int _pin_tx, int _pin_rx, int _pin_rts, int _pin_cts):
   rx_pin(_pin_rx),
   rts_pin(_pin_rts),
   cts_pin(_pin_cts),
+  tx_empty(true),
+  tx_complete(true),
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
   uart_cfg.txi_irq = FSP_INVALID_VECTOR;
