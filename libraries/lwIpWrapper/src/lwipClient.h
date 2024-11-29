@@ -16,6 +16,10 @@ public:
     lwipClient();
     lwipClient(uint8_t sock);
     lwipClient(struct tcp_struct* tcpClient);
+    lwipClient(lwipClient&& c);
+    virtual ~lwipClient();
+
+    lwipClient& operator=(lwipClient&& c);
 
     uint8_t status();
     virtual int connect(IPAddress ip, uint16_t port);
@@ -39,10 +43,7 @@ public:
         return bool() != value;
     }
     virtual bool operator==(const lwipClient&);
-    virtual bool operator!=(const lwipClient& rhs)
-    {
-        return !this->operator==(rhs);
-    };
+    virtual bool operator!=(const lwipClient& rhs);
     uint8_t getSocketNumber();
     virtual uint16_t localPort()
     {
@@ -68,6 +69,8 @@ public:
 private:
     struct tcp_struct* _tcp_client;
     uint16_t _timeout = 10000;
+
+    bool _provided_tcp_client;
 };
 
 #endif
