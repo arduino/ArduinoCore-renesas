@@ -27,7 +27,6 @@
 
 namespace arduino {
 
-
 #define FIFO_DEFAULT_SIZE 64
 
 template <typename T, uint32_t size = FIFO_DEFAULT_SIZE>
@@ -38,28 +37,30 @@ class FifoBuffer
       synchronized {
         return (uint32_t)(index + 1) % size;
       }
+      return 0; // Fallback return
     }
+
     inline bool isEmpty() const { return (_numElems == 0); }
-    T _aucBuffer[size] ;
-    uint32_t _iHead ;
-    uint32_t _iTail ;
+    T _aucBuffer[size];
+    uint32_t _iHead;
+    uint32_t _iTail;
     uint32_t _numElems;
+
   public:
     /* ---------------------------------------------------------------------- */
-    FifoBuffer( void ) {
-      memset( _aucBuffer, 0, size * sizeof(T) ) ;
+    FifoBuffer(void) {
+      memset(_aucBuffer, 0, size * sizeof(T));
       clear();
     }
     /* ---------------------------------------------------------------------- */
-    bool store( T c ) {
+    bool store(T c) {
       bool rv = true;
       synchronized {
         if (!isFull()) {
-          _aucBuffer[_iHead] = c ;
+          _aucBuffer[_iHead] = c;
           _iHead = nextIndex(_iHead);
           _numElems++;
-        }
-        else {
+        } else {
           rv = false;
         }
       }
@@ -72,36 +73,39 @@ class FifoBuffer
       _numElems = 0;
     }
     /* ---------------------------------------------------------------------- */
-    T read(bool *read_ok) {
+    T read(bool* read_ok) {
       *read_ok = true;
       if (isEmpty()) {
         *read_ok = false;
-        return _aucBuffer[0];
+        return T(); // Return default-constructed object
       }
       synchronized {
         T value = _aucBuffer[_iTail];
         _iTail = nextIndex(_iTail);
         _numElems--;
-      
+
         return value;
       }
+      return T(); // Fallback return
     }
     /* ---------------------------------------------------------------------- */
     int available() {
       synchronized {
         return _numElems;
       }
+      return 0; // Fallback return
     }
     /* ---------------------------------------------------------------------- */
     int freePositions() {
       synchronized {
         return (size - _numElems);
       }
+      return 0; // Fallback return
     }
     /* ---------------------------------------------------------------------- */
     T peek() {
       if (isEmpty())
-        return -1;
+        return T(); // Return default-constructed object
 
       return _aucBuffer[_iTail];
     }
@@ -110,15 +114,13 @@ class FifoBuffer
       synchronized {
         return (_numElems == size);
       }
+      return false; // Fallback return
     }
     /* ---------------------------------------------------------------------- */
-    uint32_t lenght()  const { return size; }
-
-  
+    uint32_t lenght() const { return size; }
 };
 
-
-} //namespace arduino
+} // namespace arduino
 
 #endif /* _ARDUINO_FIFO_BUFFER_DH_ */
 #endif /* __cplusplus */
