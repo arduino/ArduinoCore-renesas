@@ -175,7 +175,8 @@ public:
      * return: IP address value
      */
     IPAddress localIP();
-
+    IPAddress localIPNonBlocking(unsigned long timeoutMs);
+    
     /*
      * Get the interface subnet mask address.
      *
