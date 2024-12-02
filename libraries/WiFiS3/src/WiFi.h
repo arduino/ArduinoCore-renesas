@@ -51,35 +51,85 @@ private:
 
 
 public:
+    /**
+     * @brief Default constructor for the CWifi class.
+     */
     CWifi();
 
-    /*
-     * Get firmware version
+    /**
+     * @brief Get firmware version
      */
     static const char* firmwareVersion();
 
-
-    /* 
-     * Start WiFi connection for OPEN networks 
-     * param ssid: Pointer to the SSID string.
+    /** 
+     * @brief Start WiFi connection for OPEN networks.
+     * 
+     * @param `ssid` a pointer to the SSID string.
      */
     int begin(const char* ssid);
 
-    
-
-    /* Start WiFi connection with passphrase
-     * the most secure supported mode will be automatically selected
+    /** 
+     * @brief start WiFi connection with passphrase the most secure
+     * supported mode will be automatically selected.
      *
-     * param ssid: Pointer to the SSID string.
-     * param passphrase: Passphrase. Valid characters in a passphrase
-     *        must be between ASCII 32-126 (decimal).
+     * @param `ssid` Pointer to the SSID string.
+     * @param `passphrase` Passphrase. Valid characters in a passphrase
+     * must be between ASCII 32-126 (decimal).
      */
     int begin(const char* ssid, const char *passphrase);
 
-    /* connect as Access Point with  a standard passphrase */
+    /**
+     * @brief Starts a Wi-Fi Access Point with the specified SSID.
+     *
+     * This function initializes a Wi-Fi Access Point (AP) with the given SSID.
+     * It defaults to an open network (no password) and uses channel 1 for the AP.
+     *
+     * @param `ssid` The SSID (network name) of the Access Point.
+     * 
+     * @return 1 if the Access Point is successfully started. 0 if the Access Point initialization failed.
+     */
     uint8_t beginAP(const char *ssid);
+    uint8_t beginAP(const char *ssid);
+
+    /**
+     * @brief Starts a Wi-Fi Access Point (AP) with the specified SSID and channel.
+     *
+     * This function initializes a Wi-Fi Access Point (AP) with the provided SSID 
+     * and channel. It defaults to using no password (open network).
+     *
+     * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
+     * @param `channel` The channel on which the Access Point will operate.
+     * 
+     * @return 1 if the Access Point is successfully started. 0 if the Access Point failed to start.
+     */
     uint8_t beginAP(const char *ssid, uint8_t channel);
+
+    /**
+     * @brief Starts a Wi-Fi Access Point (AP) with the specified SSID and passphrase.
+     *
+     * This function initializes a Wi-Fi Access Point (AP) using the provided SSID 
+     * and passphrase, defaulting to channel 1.
+     *
+     * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
+     * @param `passphrase` The passphrase for securing the Access Point. If empty, the 
+     * network will be open (no password).
+     * 
+     * @return 1 if the Access Point is successfully started. 0 if the Access Point failed to start.
+     */
     uint8_t beginAP(const char *ssid, const char* passphrase);
+
+    /**
+     * @brief Initializes a Wi-Fi Access Point (AP) with the specified SSID, passphrase, and channel.
+     *
+     * This function configures the device as a Wi-Fi Access Point (AP) with the provided parameters. 
+     * It sets the mode to AP and attempts to start the network.
+     *
+     * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
+     * @param `passphrase` The passphrase for securing the Access Point. If empty, the network will be open.
+     * @param `channel` The Wi-Fi channel on which the Access Point will operate (1-14, depending on region).
+     * 
+     * @return WL_AP_LISTENING if the Access Point is successfully started. WL_AP_FAILED if the Access Point failed to start.
+     */
     uint8_t beginAP(const char *ssid, const char* passphrase, uint8_t channel);
 
 
