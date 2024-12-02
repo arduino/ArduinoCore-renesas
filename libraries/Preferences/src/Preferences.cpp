@@ -178,8 +178,8 @@ size_t Preferences::putBytes(const char* key, const void* value, size_t len) {
     string res = "";
     if ( key != nullptr && strlen(key) > 0 && value != nullptr && len > 0) {
         modem.write_nowait(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%d\r\n", CMD_WRITE(_PREF_PUT), key, PT_BLOB, len);
-        if(modem.passthrough((uint8_t *)value, len)) {
-            return len;
+        if(modem.passthrough((uint8_t *)value, len, &res)) {
+            return atoi(res.c_str());
         }
     }
     return 0;
