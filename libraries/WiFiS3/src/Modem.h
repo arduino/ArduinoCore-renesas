@@ -27,7 +27,7 @@ public:
   bool write(const std::string &cmd, std::string &str, const char * fmt, ...);
   void write_nowait(const std::string &cmd, std::string &str, const char * fmt, ...);
 
-  bool passthrough(const uint8_t *data, size_t size);
+  bool passthrough(const uint8_t *data, size_t size, std::string *response=nullptr);
   void avoid_trim_results() {
     /* one shot - it works only 1 time the it is necessary to call again this
        funtion */

@@ -48,12 +48,16 @@ void ModemClass::end(){
 }
 
 /* -------------------------------------------------------------------------- */
-bool ModemClass::passthrough(const uint8_t *data, size_t size) {
+bool ModemClass::passthrough(const uint8_t *data, size_t size, std::string *response) {
 /* -------------------------------------------------------------------------- */
    _serial->write(data,size);
 
    std::string prompt = DO_NOT_CHECK_CMD, data_res;
    auto res = buf_read(prompt, data_res);
+
+   if(response != nullptr) {
+      *response = data_res;
+   }
 
    if(_serial_debug && _debug_level >= 2) {
       _serial_debug->print("   ANSWER (passthrough): ");
