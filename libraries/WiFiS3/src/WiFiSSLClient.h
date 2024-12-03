@@ -25,7 +25,13 @@
 #include "Modem.h"
 #include "WiFiFileSystem.h"
 
-
+/**
+ * @brief A specialized client class for secure SSL/TLS connections.
+ * 
+ * The `WiFiSSLClient` class extends the functionality of the `WiFiClient` class to provide secure
+ * communication over SSL/TLS protocols. It ensures encrypted and authenticated communication
+ * between the client and a remote server.
+ */
 class WiFiSSLClient : public WiFiClient {
 
 public:
@@ -156,10 +162,36 @@ public:
     * @return uint8_t Returns 1 if the client is connected, 0 otherwise.
     */
    virtual uint8_t connected();
+
+   /**
+    * @brief Implicit conversion operator to check if the SSL client is connected.
+    * 
+    * @return `true` if the socket is valid (i.e., connected), `false` otherwise.
+    */
    virtual operator bool() {
       return _sock != -1;
    }
+
+   /**
+    * @brief Comparison operator to check equality between two `WiFiSSLClient` objects.
+    * 
+    * @param `WiFiSSLClient` object to compare.
+    * 
+    * @return `true` if both `WiFiSSLClient` objects are equivalent (i.e., they have the same socket),
+    * `false` otherwise.
+    */
    virtual bool operator==(const WiFiSSLClient&);
+
+   /**
+    * @brief Inequality operator to compare two `WiFiSSLClient` objects.
+    * 
+    * This operator compares the current `WiFiSSLClient` object with another `WiFiSSLClient` object
+    * to determine if they are not equal, based on their underlying socket or connection.
+    * 
+    * @param `whs` The WiFiSSLClient object to compare with.
+    * @return `true` if the two `WiFiSSLClient` objects do not represent the same connection (i.e., have different sockets),
+    * `false` otherwise.
+    */
    virtual bool operator!=(const WiFiSSLClient& whs)
    {
       return !this->operator==(whs);
@@ -187,8 +219,21 @@ public:
     */
    virtual uint16_t remotePort();
 
+
+   /**
+    * @brief Declares `WiFiServer` as a friend class.
+    * 
+    * This allows the `WiFiServer` class to access private and protected members 
+    * of the `WiFiSSLClient` class.
+    */
    friend class WiFiServer;
 
+   /**
+    * @brief Inherits the `write` method from the `Print` class.
+    * 
+    * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+    * `Print` class.
+    */
    using Print::write;
 
 private:

@@ -24,6 +24,12 @@
 #include "WiFiCommands.h"
 #include "Modem.h"
 
+/**
+ * @brief Class that handles the WiFi file system operations.
+ * 
+ * This class provides functionality for managing files on a WiFi-connected 
+ * device, including mounting, reading, writing, and configuring the file system. 
+ */
 class WiFiFileSystem {
 
 public:

@@ -30,6 +30,17 @@
 #include "FifoBuffer.h"
 #include <memory>
 
+
+/**
+ * @brief Represents a Wi-Fi client that connects to a remote server over a Wi-Fi network.
+ * 
+ * The `WiFiClient` class allows for network communication over Wi-Fi, providing methods 
+ * for establishing connections, sending and receiving data, and managing the client’s 
+ * socket state. This class is used to manage client connections in a Wi-Fi network, 
+ * either for communication or for network data transfer.
+ * 
+ * It inherits from the `Client` class, providing basic socket communication functionality.
+ */
 class WiFiClient : public Client {
 
 public:
@@ -52,6 +63,10 @@ public:
    * @param `c` is the `WiFiClient` object to copy.
    */
   WiFiClient(const WiFiClient& c);
+
+  /**
+   * @brief Destructor for the WiFiClient class.
+   */
   ~WiFiClient();
 
   /**
@@ -153,10 +168,40 @@ public:
    */
   virtual uint8_t connected();
 
+  /**
+   * @brief Implicit conversion operator to `bool`.
+   * 
+   * Converts the `WiFiClient` object to a `bool` value indicating whether the client 
+   * is connected or not.
+   * 
+   * @return `true` if the client socket is open and valid, `false` otherwise.
+   */
   virtual operator bool() {
     return _sock != -1;
   }
+
+  /**
+   * @brief Equality operator for comparing two `WiFiClient` objects.
+   * 
+   * Compares the current `WiFiClient` object with another `WiFiClient` object
+   * to determine if they represent the same socket connection.
+   * 
+   * @param The `WiFiClient` object to compare with.
+   * @return `true` if both `WiFiClient` objects represent the same socket, 
+   * `false` otherwise.
+   */
   virtual bool operator==(const WiFiClient&);
+
+  /**
+   * @brief Inequality operator for comparing two `WiFiClient` objects.
+   * 
+   * Compares the current `WiFiClient` object with another `WiFiClient` object
+   * to determine if they represent different socket connections.
+   * 
+   * @param `whs` is the `WiFiClient` object to compare with.
+   * @return `true` if both WiFiClient objects represent different sockets, 
+   * `false` if they represent the same socket.
+   */
   virtual bool operator!=(const WiFiClient& whs)
   {
       return !this->operator==(whs);
@@ -185,8 +230,20 @@ public:
     _connectionTimeout = timeout;
   }
 
+  /**
+   * @brief Declares `WiFiServer` as a friend class.
+   * 
+   * This allows the `WiFiServer` class to access private and protected members 
+   * of the `WiFiClient` class.
+   */
   friend class WiFiServer;
 
+  /**
+   * @brief Inherits the `write` method from the `Print` class.
+   * 
+   * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+   * `Print` class.
+   */
   using Print::write;
 
 protected:

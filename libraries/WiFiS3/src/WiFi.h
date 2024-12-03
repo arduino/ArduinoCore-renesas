@@ -86,7 +86,7 @@ public:
      *
      * @param `ssid` The SSID (network name) of the Access Point.
      * 
-     * @return 1 if the Access Point is successfully started. 0 if the Access Point initialization failed.
+     * @return `1` if the Access Point is successfully started. `0` if the Access Point initialization failed.
      */
     uint8_t beginAP(const char *ssid);
     uint8_t beginAP(const char *ssid);
@@ -100,7 +100,7 @@ public:
      * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
      * @param `channel` The channel on which the Access Point will operate.
      * 
-     * @return 1 if the Access Point is successfully started. 0 if the Access Point failed to start.
+     * @return `1` if the Access Point is successfully started. `0` if the Access Point failed to start.
      */
     uint8_t beginAP(const char *ssid, uint8_t channel);
 
@@ -114,7 +114,7 @@ public:
      * @param `passphrase` The passphrase for securing the Access Point. If empty, the 
      * network will be open (no password).
      * 
-     * @return 1 if the Access Point is successfully started. 0 if the Access Point failed to start.
+     * @return `1` if the Access Point is successfully started. `0` if the Access Point failed to start.
      */
     uint8_t beginAP(const char *ssid, const char* passphrase);
 
@@ -128,70 +128,82 @@ public:
      * @param `passphrase` The passphrase for securing the Access Point. If empty, the network will be open.
      * @param `channel` The Wi-Fi channel on which the Access Point will operate (1-14, depending on region).
      * 
-     * @return WL_AP_LISTENING if the Access Point is successfully started. WL_AP_FAILED if the Access Point failed to start.
+     * @return `WL_AP_LISTENING` if the Access Point is successfully started. `WL_AP_FAILED` if the Access Point failed to start.
      */
     uint8_t beginAP(const char *ssid, const char* passphrase, uint8_t channel);
 
 
-    /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-        */
+    /**
+     * @brief Change IP configuration settings disabling the DHCP client
+     *
+     * @param `local_ip` The static IP address to assign to the device.
+     */
     void config(IPAddress local_ip);
 
-    /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        */
+    /**
+     * @brief Configures the network settings for the Wi-Fi connection with a specified DNS server.
+     *
+     * Sets the device's IP configuration using the specified local IP address and DNS server.
+     * The gateway and subnet mask are set to default values based on the provided local IP.
+     *
+     * @param `local_ip` The static IP address to assign to the device.
+     * @param `dns_server` The primary DNS server to use for domain name resolution.
+     */
     void config(IPAddress local_ip, IPAddress dns_server);
 
-    /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        * param gateway :  Static gateway configuration
-        */
+    /**
+     * @brief Configures the network settings for the Wi-Fi connection with a specified gateway and DNS server.
+     *
+     *
+     * @param `local_ip` The static IP address to assign to the device.
+     * @param `dns_server` The primary DNS server to use for domain name resolution.
+     * @param `gateway` The Static gateway used for configuration.
+     */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
 
-    /* Change IP configuration settings disabling the DHCP client
-        *
-        * param local_ip:  Static IP configuration
-   * param dns_server:     IP configuration for DNS server 1
-        * param gateway:   Static gateway configuration
-        * param subnet:    Static Subnet mask
-        */
+    /**
+     * @brief Configures the network settings for the Wi-Fi connection with a specified subnet mask, gateway, and DNS server.
+     *
+     *
+     * @param `local_ip` The static IP address to assign to the device.
+     * @param `dns_server` The primary DNS server to use for domain name resolution.
+     * @param `gateway` The static gateway used for configuration.
+     * @param `subnet` The static subnet mask to use for the network.
+     */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
     
-    /* Change DNS IP configuration
+    /**
+     * @brief Sets the primary DNS server for the Wi-Fi connection.
      *
-     * param dns_server1: IP configuration for DNS server 1
+     * @param `dns_server1` The primary DNS server to use for domain name resolution.
      */
     void setDNS(IPAddress dns_server1);
 
-    /* Change DNS IP configuration
+    /**
+     * @brief Sets the primary and secondary DNS servers for the Wi-Fi connection.
      *
-     * param dns_server1: IP configuration for DNS server 1
-     * param dns_server2: IP configuration for DNS server 2
-     *
+     * @param `dns_server1` sets the IP configuration for DNS server 1
+     * @param `dns_server2` sets the IP configuration for DNS server 2
      */
     void setDNS(IPAddress dns_server1, IPAddress dns_server2);
 
-
-    /* Set the hostname used for DHCP requests
+    /**
+     * @brief Sets the hostname for for DHCP requests.
      *
-     * param name: hostname to set
-     *
+     * @param `name` sets the hostname.
      */
     void setHostname(const char* name);
 
-    /*
-     * Disconnect from the network
+    /**
+     * @brief Disconnects from the current Wi-Fi network.
      *
-     * return: one value of wl_status_t enum
+     * @return `1` if the disconnection was successful, `0` otherwise.
      */
     int disconnect(void);
 
+    /**
+     * @brief Resets and disables the Wi-Fi module.
+     */
     void end(void);
 
     /*

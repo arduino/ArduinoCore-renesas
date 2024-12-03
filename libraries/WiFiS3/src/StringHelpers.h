@@ -44,10 +44,10 @@ void trim(std::string &s);
  * 
  * @param `res` is a reference to a vector of strings where the resulting tokens 
  * will be stored.
- * `str` is the string to be split. This string will be modified as it is 
+ * @param `str` is the string to be split. This string will be modified as it is 
  * split.
- * `delimiter` is the delimiter string that separates the tokens in `str`.
- * `_trim` is a boolean flag indicating whether to trim whitespace from each 
+ * @param `delimiter` is the delimiter string that separates the tokens in `str`.
+ * @param `_trim` is a boolean flag indicating whether to trim whitespace from each 
  * token. If true, leading and trailing whitespace will be removed from each token. Defaults to true.
  */
 void split(std::vector<std::string> &res, std::string &str, const std::string &delimiter, bool _trim = true);
@@ -63,10 +63,10 @@ void split(std::vector<std::string> &res, std::string &str, const std::string &d
  *
  * @param `str` is a reference to the string from which the substring will be removed. 
  * The string is modified if the substring is removed.
- * `what` is the substring to be removed from the beginning of `str`.
+ * @param `what` is the substring to be removed from the beginning of `str`.
  * 
  * @return `true` if the substring was found and removed from the beginning of 
- *         the string, `false` otherwise.
+ * the string, `false` otherwise.
  */
 bool removeAtBegin(std::string &str, const std::string &what);
 

@@ -26,7 +26,14 @@
 #include "WiFiClient.h"
 
 
-
+/**
+ * @brief A class that provides server functionality for WiFi-based communication.
+ * 
+ * The `WiFiServer` class inherits from the `Server` class and extends its functionality 
+ * to create and manage a server over a WiFi connection. This class allows for accepting 
+ * incoming client connections, handling data communication, and closing connections 
+ * in a networked environment.
+ */
 class WiFiServer : public Server {
 private:
   int _sock;
@@ -38,6 +45,12 @@ public:
    * @brief Initializes objects of the `WiFiServer` class.
    */
   WiFiServer();
+
+  /**
+   * @brief Constructs a `WiFiServer` object with the specified port.
+   * 
+   * @param `p` The port number on which the server will listen for incoming connections.
+   */
   WiFiServer(int p);
 
   /**
@@ -105,15 +118,55 @@ public:
    *
    */
   void end();
+
+  /**
+   * @brief Converts the `WiFiSSLClient` object to a boolean value.
+   * 
+   * This operator allows a `WiFiSSLClient` object to be implicitly or explicitly
+   * converted to a boolean. It checks whether the client socket is valid (i.e., 
+   * `_sock != -1`).
+   * 
+   * @return `true` if the server socket is valid (server is running), `false` otherwise.
+   */
   explicit operator bool();
+
+  /**
+   * @brief Compares two `WiFiServer` objects for equality.
+   * 
+   * This virtual operator compares the underlying socket (`_sock`) of two `WiFiServer` 
+   * objects to determine if they refer to the same server connection.
+   * 
+   * @param `WiFiServer` object to compare against.
+   * @return `true` if both `WiFiServer` objects have the same socket; `false` otherwise.
+   */
   virtual bool operator==(const WiFiServer&);
+
+  /**
+   * @brief Compares two `WiFiServer` objects for inequality.
+   * 
+   * This virtual operator compares the underlying socket (`_sock`) of two `WiFiServer` 
+   * objects. It returns `true` if the objects do not refer to the same server connection 
+   * (i.e., they have different socket values), and `false` otherwise.
+   * 
+   * @param `whs` The WiFiServer object to compare against.
+   * @return `true` if the WiFiServer objects have different sockets; `false` otherwise.
+   */
   virtual bool operator!=(const WiFiServer& whs)
   {
     return !this->operator==(whs);
   };
 
+  /**
+   * @brief Inherits the `write` method from the `Print` class.
+   * 
+   * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+   * `Print` class.
+   */
   using Print::write;
 
+  /**
+   * @brief Grants `WiFiClient` class access to private and protected members of `WiFiServer`.
+   */
   friend class WiFiClient;
 };
 
