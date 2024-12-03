@@ -30,6 +30,13 @@
 #include "Modem.h"
 #include "FifoBuffer.h"
 
+/**
+ * @brief A class for handling UDP communication over a Wi-Fi network.
+ * 
+ * The `WiFiUDP` class is an extension of the `UDP` class that enables sending and receiving UDP packets
+ * over a Wi-Fi network. It provides functions for initialization, packet transmission, and reception
+ * tailored for Wi-Fi connectivity.
+ */
 class WiFiUDP : public UDP {
 private:
   int _sock; 
