@@ -350,6 +350,8 @@ size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen) {
         if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d\r\n", CMD_WRITE(_PREF_GET), key, PT_BLOB)) {
             if (res.size() >= len && len <= maxLen) {
                 memcpy(buf, (uint8_t*)&res[0], len);
+
+                return len;
             }
         }
     }
