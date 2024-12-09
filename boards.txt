@@ -12,7 +12,7 @@ portenta_c33.build.fpu=-mfpu=fpv5-sp-d16
 portenta_c33.build.float-abi=-mfloat-abi=hard
 
 portenta_c33.build.board=PORTENTA_C33
-portenta_c33.build.defines=-DF_CPU=200000000
+portenta_c33.build.defines=-DF_CPU=200000000 -DPROVIDE_FREERTOS_HOOK
 portenta_c33.vid.0=0x2341
 portenta_c33.pid.0=0x0068
 portenta_c33.vid.1=0x2341
