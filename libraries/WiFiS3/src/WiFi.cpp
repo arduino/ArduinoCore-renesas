@@ -356,6 +356,29 @@ IPAddress CWifi::localIP() {
    return local_IP;
 }
 
+IPAddress CWifi::localIPNonBlocking(unsigned long timeoutMs) {
+    modem.begin();
+    string res = "";
+    unsigned long start = millis();
+    IPAddress local_IP(0, 0, 0, 0);
+
+    while (local_IP == IPAddress(0, 0, 0, 0) && millis() - start < timeoutMs) {
+        if (modem.write(string(PROMPT(_MODE)), res, "%s", CMD_READ(_MODE))) {
+            if (atoi(res.c_str()) == 1) {
+                if (modem.write(string(PROMPT(_IPSTA)), res, "%s%d\\r\\n", CMD_WRITE(_IPSTA), IP_ADDR)) {
+                    local_IP.fromString(res.c_str());
+                }
+            } else if (atoi(res.c_str()) == 2) {
+                if (modem.write(string(PROMPT(_IPSOFTAP)), res, CMD(_IPSOFTAP))) {
+                    local_IP.fromString(res.c_str());
+                }
+            }
+        }
+    }
+    return local_IP;
+}
+
+
 /* -------------------------------------------------------------------------- */
 IPAddress CWifi::subnetMask() {
 /* -------------------------------------------------------------------------- */
