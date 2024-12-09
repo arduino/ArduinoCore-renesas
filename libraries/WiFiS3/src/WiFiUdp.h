@@ -33,7 +33,7 @@
 /**
  * @brief A class for handling UDP communication over a Wi-Fi network.
  * 
- * The `WiFiUDP` class is an extension of the `UDP` class that enables sending and receiving UDP packets
+ * The WiFiUDP class is an extension of the UDP class that enables sending and receiving UDP packets
  * over a Wi-Fi network. It provides functions for initialization, packet transmission, and reception
  * tailored for Wi-Fi connectivity.
  */
@@ -150,9 +150,9 @@ public:
   virtual size_t write(const uint8_t *buffer, size_t size);
   
   /**
-   * @brief Inherits the `write` method from the `Print` class.
+   * @brief Inherits the `write` method from the Print class.
    * 
-   * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+   * This allows the WiFiSSLClient class to use the `write` method defined in the 
    * `Print` class.
    */
   using Print::write;

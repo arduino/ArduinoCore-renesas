@@ -34,7 +34,7 @@ class WiFiFileSystem {
 
 public:
    /**
-    * @brief Initializes objects of the `WiFiFileSystem` class.
+    * @brief Initializes objects of the WiFiFileSystem class.
     */
    WiFiFileSystem();
 

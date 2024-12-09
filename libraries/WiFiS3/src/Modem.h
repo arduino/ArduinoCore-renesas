@@ -28,7 +28,7 @@ public:
   /** 
    * @brief Constructor for the ModemClass, which initializes the modem with the specified transmit (TX) and receive (RX) pins.
    * 
-   * @param Initializes an instance of the `ModemClass` class with
+   * @param Initializes an instance of the ModemClass class with
    * specific transmit `tx` and receive `rx` pins for communication.
    */
   ModemClass(int tx, int rx);

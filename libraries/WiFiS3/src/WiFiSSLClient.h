@@ -28,7 +28,7 @@
 /**
  * @brief A specialized client class for secure SSL/TLS connections.
  * 
- * The `WiFiSSLClient` class extends the functionality of the `WiFiClient` class to provide secure
+ * The WiFiSSLClient class extends the functionality of the WiFiClient class to provide secure
  * communication over SSL/TLS protocols. It ensures encrypted and authenticated communication
  * between the client and a remote server.
  */
@@ -36,7 +36,7 @@ class WiFiSSLClient : public WiFiClient {
 
 public:
    /**
-    * @brief Initializes objects of the `WiFiSSLClient` class.
+    * @brief Initializes objects of the WiFiSSLClient class.
     */
    WiFiSSLClient();
    ~WiFiSSLClient();
@@ -58,7 +58,7 @@ public:
     * @param `host` is the hostname or IP address of the server to connect to.
     * `port` is the port number to connect to.
     * 
-    * @return Returns 1 if the connection is successfully established, 0 otherwise.
+    * @return Returns `1` if the connection is successfully established, `0` otherwise.
     */
    virtual int connect(const char* host, uint16_t port);
 
@@ -76,8 +76,8 @@ public:
     * certificate for establishing secure SSL connections.
     * 
     * @param `int ecc508KeySlot` specifies the ECC key slot to be used for the SSL connection.
-    * `const byte cert[]` is a pointer to the certificate data in the form of an array of bytes.
-    * `int certLength` specifies the length of the certificate data array.
+    * @param `const byte cert[]` is a pointer to the certificate data in the form of an array of bytes.
+    * @param `int certLength` specifies the length of the certificate data array.
     */
    void setEccSlot(int ecc508KeySlot, const byte cert[], int certLength);
    
@@ -86,8 +86,8 @@ public:
     * 
     * @param `b` is the byte to be sent.
     * 
-    * @return size_t The number of bytes successfully written. Returns 1 if the byte 
-    * was sent successfully, or 0 if an error occurred.
+    * @return The number of bytes successfully written. Returns `1` if the byte 
+    * was sent successfully, or `0` if an error occurred.
     */
    virtual size_t write(uint8_t);
 
@@ -95,10 +95,10 @@ public:
     * @brief Writes a buffer of data to the SSL connection.
     *
     * @param `buf` is a pointer to the buffer containing the data to be sent.
-    * `size` is the number of bytes to send from the buffer.
+    * @param `size` is the number of bytes to send from the buffer.
     *
     * @return Returns `size` if the data is successfully sent, 
-    * or 0 if the transmission fails or the socket is invalid.
+    * or `0` if the transmission fails or the socket is invalid.
     */
    virtual size_t write(const uint8_t *buf, size_t size);
    
@@ -113,7 +113,7 @@ public:
     * @brief Reads data from the SSL connection into the receive buffer.
     *
     * @return Returns the number of bytes successfully read into the buffer. Returns 
-    * 0 if no data is received, or -1 if the socket is invalid or an error occurs.
+    * `0` if no data is received, or `-1` if the socket is invalid or an error occurs.
     */
    virtual int read();
 
@@ -123,7 +123,7 @@ public:
     * @param `buf` is a pointer to the buffer where the read data will be stored.
     * `size` is the maximum number of bytes to read into the buffer.
     *
-    * @return The number of bytes successfully read. Returns 0 if no data is 
+    * @return The number of bytes successfully read. Returns `0` if no data is 
     * available or an error occurs.
     */
    virtual int read(uint8_t *buf, size_t size);
@@ -134,7 +134,7 @@ public:
     * This function queries the modem to retrieve the next byte available in the 
     * SSL/TLS connection, allowing the byte to remain in the buffer for future reads.
     *
-    * @return The next byte available as an integer value (0–255), or -1 if 
+    * @return The next byte available as an integer value (0–255), or `-1` if 
     * the socket is invalid or no data is available.
     */
    virtual int peek();
@@ -159,7 +159,7 @@ public:
     * the modem for the connection status. It checks the validity of the socket 
     * before proceeding with the query.
     *
-    * @return uint8_t Returns 1 if the client is connected, 0 otherwise.
+    * @return Returns `1` if the client is connected, `0` otherwise.
     */
    virtual uint8_t connected();
 
@@ -177,7 +177,7 @@ public:
     * 
     * @param `WiFiSSLClient` object to compare.
     * 
-    * @return `true` if both `WiFiSSLClient` objects are equivalent (i.e., they have the same socket),
+    * @return `true` if both WiFiSSLClient objects are equivalent (i.e., they have the same socket),
     * `false` otherwise.
     */
    virtual bool operator==(const WiFiSSLClient&);
@@ -189,7 +189,7 @@ public:
     * to determine if they are not equal, based on their underlying socket or connection.
     * 
     * @param `whs` The WiFiSSLClient object to compare with.
-    * @return `true` if the two `WiFiSSLClient` objects do not represent the same connection (i.e., have different sockets),
+    * @return `true` if the two WiFiSSLClient objects do not represent the same connection (i.e., have different sockets),
     * `false` otherwise.
     */
    virtual bool operator!=(const WiFiSSLClient& whs)
@@ -203,7 +203,7 @@ public:
     * This function queries the modem for the remote IP address associated with 
     * the current connection.
     *
-    * @return The remote IP address of the client. Returns 0.0.0.0 if the 
+    * @return The remote IP address of the client. Returns `0.0.0.0` if the 
     * socket is not valid or the query fails.
     */
    virtual IPAddress remoteIP();
@@ -214,25 +214,25 @@ public:
     * This function queries the modem to obtain the remote port number associated 
     * with the current connection.
     *
-    * @return Returns the remote port number of the client. Returns 0 if the socket 
+    * @return Returns the remote port number of the client. Returns `0` if the socket 
     * is not valid or the query fails.
     */
    virtual uint16_t remotePort();
 
 
    /**
-    * @brief Declares `WiFiServer` as a friend class.
+    * @brief Declares WiFiServer as a friend class.
     * 
-    * This allows the `WiFiServer` class to access private and protected members 
-    * of the `WiFiSSLClient` class.
+    * This allows the WiFiServer class to access private and protected members 
+    * of the WiFiSSLClient class.
     */
    friend class WiFiServer;
 
    /**
-    * @brief Inherits the `write` method from the `Print` class.
+    * @brief Inherits the `write` method from the Print class.
     * 
-    * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
-    * `Print` class.
+    * This allows the WiFiSSLClient class to use the `write` method defined in the 
+    * Print class.
     */
    using Print::write;
 

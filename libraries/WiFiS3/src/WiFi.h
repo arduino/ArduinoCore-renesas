@@ -36,7 +36,7 @@ class CAccessPoint {
 /**
  * @brief Class to manage Wi-Fi connectivity and operations.
  * 
- * The `CWifi` class provides an interface to manage Wi-Fi operations such as connecting 
+ * The CWifi class provides an interface to manage Wi-Fi operations such as connecting 
  * to networks, setting up an access point, retrieving network information, and more. 
  * It interfaces with a modem to execute commands related to Wi-Fi functionality and manages 
  * connection settings such as IP address, DNS, and other network configurations.

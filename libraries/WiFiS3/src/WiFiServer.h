@@ -29,7 +29,7 @@
 /**
  * @brief A class that provides server functionality for WiFi-based communication.
  * 
- * The `WiFiServer` class inherits from the `Server` class and extends its functionality 
+ * The WiFiServer class inherits from the Server class and extends its functionality 
  * to create and manage a server over a WiFi connection. This class allows for accepting 
  * incoming client connections, handling data communication, and closing connections 
  * in a networked environment.
@@ -42,12 +42,12 @@ private:
   
 public:
   /**
-   * @brief Initializes objects of the `WiFiServer` class.
+   * @brief Initializes objects of the WiFiServer class.
    */
   WiFiServer();
 
   /**
-   * @brief Constructs a `WiFiServer` object with the specified port.
+   * @brief Constructs a WiFiServer object with the specified port.
    * 
    * @param `p` The port number on which the server will listen for incoming connections.
    */
@@ -61,7 +61,7 @@ public:
    * the client. It uses the modem to query the server for an available client 
    * socket and accepts the connection if a valid client is found.
    *
-   * @return Returns a `WiFiClient` object representing the next client connection that is available
+   * @return Returns a WiFiClient object representing the next client connection that is available
    * for processing.
    */
   WiFiClient available();
@@ -69,7 +69,7 @@ public:
   /**
    * @brief Accepts an incoming client connection on the server.
    * 
-   * @return Returns a `WiFiClient` object representing the accepted client.
+   * @return Returns a WiFiClient object representing the accepted client.
    */
   WiFiClient accept();
 
@@ -120,9 +120,9 @@ public:
   void end();
 
   /**
-   * @brief Converts the `WiFiSSLClient` object to a boolean value.
+   * @brief Converts the WiFiSSLClient object to a boolean value.
    * 
-   * This operator allows a `WiFiSSLClient` object to be implicitly or explicitly
+   * This operator allows a WiFiSSLClient object to be implicitly or explicitly
    * converted to a boolean. It checks whether the client socket is valid (i.e., 
    * `_sock != -1`).
    * 
@@ -131,20 +131,21 @@ public:
   explicit operator bool();
 
   /**
-   * @brief Compares two `WiFiServer` objects for equality.
+   * @brief Compares two WiFiServer objects for equality.
    * 
    * This virtual operator compares the underlying socket (`_sock`) of two `WiFiServer` 
    * objects to determine if they refer to the same server connection.
    * 
-   * @param `WiFiServer` object to compare against.
-   * @return `true` if both `WiFiServer` objects have the same socket; `false` otherwise.
+   * @param WiFiServer object to compare against.
+   * 
+   * @return `true` if both WiFiServer objects have the same socket; `false` otherwise.
    */
   virtual bool operator==(const WiFiServer&);
 
   /**
-   * @brief Compares two `WiFiServer` objects for inequality.
+   * @brief Compares two WiFiServer objects for inequality.
    * 
-   * This virtual operator compares the underlying socket (`_sock`) of two `WiFiServer` 
+   * This virtual operator compares the underlying socket (`_sock`) of two WiFiServer
    * objects. It returns `true` if the objects do not refer to the same server connection 
    * (i.e., they have different socket values), and `false` otherwise.
    * 
@@ -159,13 +160,13 @@ public:
   /**
    * @brief Inherits the `write` method from the `Print` class.
    * 
-   * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+   * This allows the WiFiSSLClient class to use the `write` method defined in the 
    * `Print` class.
    */
   using Print::write;
 
   /**
-   * @brief Grants `WiFiClient` class access to private and protected members of `WiFiServer`.
+   * @brief Grants WiFiClient class access to private and protected members of WiFiServer.
    */
   friend class WiFiClient;
 };

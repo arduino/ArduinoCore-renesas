@@ -34,12 +34,12 @@
 /**
  * @brief Represents a Wi-Fi client that connects to a remote server over a Wi-Fi network.
  * 
- * The `WiFiClient` class allows for network communication over Wi-Fi, providing methods 
+ * The WiFiClient class allows for network communication over Wi-Fi, providing methods 
  * for establishing connections, sending and receiving data, and managing the client’s 
  * socket state. This class is used to manage client connections in a Wi-Fi network, 
  * either for communication or for network data transfer.
  * 
- * It inherits from the `Client` class, providing basic socket communication functionality.
+ * It inherits from the Client class, providing basic socket communication functionality.
  */
 class WiFiClient : public Client {
 
@@ -231,17 +231,17 @@ public:
   }
 
   /**
-   * @brief Declares `WiFiServer` as a friend class.
+   * @brief Declares WiFiServer as a friend class.
    * 
-   * This allows the `WiFiServer` class to access private and protected members 
-   * of the `WiFiClient` class.
+   * This allows the WiFiServer class to access private and protected members 
+   * of the WiFiClient class.
    */
   friend class WiFiServer;
 
   /**
    * @brief Inherits the `write` method from the `Print` class.
    * 
-   * This allows the `WiFiSSLClient` class to use the `write` method defined in the 
+   * This allows the WiFiSSLClient class to use the `write` method defined in the 
    * `Print` class.
    */
   using Print::write;
