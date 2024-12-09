@@ -78,7 +78,7 @@ std::string encryption_mode
 
 Class to manage Wi-Fi connectivity and operations.
 
-The `[CWifi](#class_c_wifi)` class provides an interface to manage Wi-Fi operations such as connecting to networks, setting up an access point, retrieving network information, and more. It interfaces with a modem to execute commands related to Wi-Fi functionality and manages connection settings such as IP address, DNS, and other network configurations.
+The [CWifi](#class_c_wifi) class provides an interface to manage Wi-Fi operations such as connecting to networks, setting up an access point, retrieving network information, and more. It interfaces with a modem to execute commands related to Wi-Fi functionality and manages connection settings such as IP address, DNS, and other network configurations.
 
 ## Summary
 
@@ -726,7 +726,7 @@ ModemClass(int tx, int rx)
 Constructor for the [ModemClass](#class_modem_class), which initializes the modem with the specified transmit (TX) and receive (RX) pins.
 
 #### Parameters
-* `Initializes` an instance of the `[ModemClass](#class_modem_class)` class with specific transmit `tx` and receive `rx` pins for communication.
+* `Initializes` an instance of the [ModemClass](#class_modem_class) class with specific transmit `tx` and receive `rx` pins for communication.
 <hr />
 
 ### `ModemClass` <a id="class_modem_class_1af222286fa398b86d02bd6230e0c42039" class="anchor"></a>
@@ -888,7 +888,7 @@ Represents a Wi-Fi client that connects to a remote server over a Wi-Fi network.
 
 The [WiFiClient](#class_wi_fi_client) class allows for network communication over Wi-Fi, providing methods for establishing connections, sending and receiving data, and managing the client’s socket state. This class is used to manage client connections in a Wi-Fi network, either for communication or for network data transfer.
 
-It inherits from the `Client` class, providing basic socket communication functionality.
+It inherits from the Client class, providing basic socket communication functionality.
 
 ## Summary
 
@@ -1208,7 +1208,7 @@ This class provides functionality for managing files on a WiFi-connected device,
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-| [`WiFiFileSystem`](#class_wi_fi_file_system_1af4d9123dd9631c69853070498afb41a2) | Initializes objects of the `[WiFiFileSystem](#class_wi_fi_file_system)` class. |
+| [`WiFiFileSystem`](#class_wi_fi_file_system_1af4d9123dd9631c69853070498afb41a2) | Initializes objects of the [WiFiFileSystem](#class_wi_fi_file_system) class. |
 | [`mount`](#class_wi_fi_file_system_1aa5baed674db176f774488b50fa35c3d1) | Mounts the file system and optionally formats it on failure. |
 | [`writefile`](#class_wi_fi_file_system_1a0121ce8d9a1b9d4a53e7b7ea7ecc4c1c) | Writes data to a file in the file system. |
 | [`readfile`](#class_wi_fi_file_system_1acd3d52b7a20f5f65b7ca28dbb7b04343) | Reads a file from the file system and prints its content. |
@@ -1221,7 +1221,7 @@ This class provides functionality for managing files on a WiFi-connected device,
 WiFiFileSystem()
 ```
 
-Initializes objects of the `[WiFiFileSystem](#class_wi_fi_file_system)` class.
+Initializes objects of the [WiFiFileSystem](#class_wi_fi_file_system) class.
 
 <hr />
 
@@ -1275,14 +1275,14 @@ class WiFiServer
 
 A class that provides server functionality for WiFi-based communication.
 
-The `[WiFiServer](#class_wi_fi_server)` class inherits from the `Server` class and extends its functionality to create and manage a server over a WiFi connection. This class allows for accepting incoming client connections, handling data communication, and closing connections in a networked environment.
+The [WiFiServer](#class_wi_fi_server) class inherits from the Server class and extends its functionality to create and manage a server over a WiFi connection. This class allows for accepting incoming client connections, handling data communication, and closing connections in a networked environment.
 
 ## Summary
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-| [`WiFiServer`](#class_wi_fi_server_1acfa8226decf3a818dfbd45ec7940280a) | Initializes objects of the `[WiFiServer](#class_wi_fi_server)` class. |
-| [`WiFiServer`](#class_wi_fi_server_1a63b71b18a7011b40fb86d893bc4c72fd) | Constructs a `[WiFiServer](#class_wi_fi_server)` object with the specified port. |
+| [`WiFiServer`](#class_wi_fi_server_1acfa8226decf3a818dfbd45ec7940280a) | Initializes objects of the [WiFiServer](#class_wi_fi_server) class. |
+| [`WiFiServer`](#class_wi_fi_server_1a63b71b18a7011b40fb86d893bc4c72fd) | Constructs a [WiFiServer](#class_wi_fi_server) object with the specified port. |
 | [`available`](#class_wi_fi_server_1abfd839b75fa3c40bd5e22c4a122ed800) | Checks if there are any incoming client connections waiting to be accepted. |
 | [`accept`](#class_wi_fi_server_1ad29b9a043c87bad43140cc3066210088) | Accepts an incoming client connection on the server. |
 | [`begin`](#class_wi_fi_server_1a52e68fa8b767579e5055de9ff072f08c) | Starts the Wi-Fi server and binds it to the specified port. |
@@ -1290,9 +1290,9 @@ The `[WiFiServer](#class_wi_fi_server)` class inherits from the `Server` class a
 | [`write`](#class_wi_fi_server_1ad3d206415f9733dee2170f136b909e54) | Writes a single byte to all connected clients. |
 | [`write`](#class_wi_fi_server_1a6bef9499519bcedd59379024c4e7b360) | Writes data to all connected clients. |
 | [`end`](#class_wi_fi_server_1a26d44e7107a4121589f96b505c73593d) | Ends the Wi-Fi server and closes the server socket. |
-| [`operator bool`](#class_wi_fi_server_1a1cca17be23aad6b7dce5fc2315226e5d) | Converts the `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to a boolean value. |
-| [`operator==`](#class_wi_fi_server_1a6e3fc602a5e129d19e6fa5076419511f) | Compares two `[WiFiServer](#class_wi_fi_server)` objects for equality. |
-| [`operator!=`](#class_wi_fi_server_1a3b34f02716dd23e22b85585b4d648169) | Compares two `[WiFiServer](#class_wi_fi_server)` objects for inequality. |
+| [`operator bool`](#class_wi_fi_server_1a1cca17be23aad6b7dce5fc2315226e5d) | Converts the [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to a boolean value. |
+| [`operator==`](#class_wi_fi_server_1a6e3fc602a5e129d19e6fa5076419511f) | Compares two [WiFiServer](#class_wi_fi_server) objects for equality. |
+| [`operator!=`](#class_wi_fi_server_1a3b34f02716dd23e22b85585b4d648169) | Compares two [WiFiServer](#class_wi_fi_server) objects for inequality. |
 
 ## Members
 
@@ -1302,7 +1302,7 @@ The `[WiFiServer](#class_wi_fi_server)` class inherits from the `Server` class a
 WiFiServer()
 ```
 
-Initializes objects of the `[WiFiServer](#class_wi_fi_server)` class.
+Initializes objects of the [WiFiServer](#class_wi_fi_server) class.
 
 <hr />
 
@@ -1312,7 +1312,7 @@ Initializes objects of the `[WiFiServer](#class_wi_fi_server)` class.
 WiFiServer(int p)
 ```
 
-Constructs a `[WiFiServer](#class_wi_fi_server)` object with the specified port.
+Constructs a [WiFiServer](#class_wi_fi_server) object with the specified port.
 
 #### Parameters
 * `p` The port number on which the server will listen for incoming connections.
@@ -1329,7 +1329,7 @@ Checks if there are any incoming client connections waiting to be accepted.
 This function queries the server to check if there is a client waiting to be accepted. If a client is available, it returns a `[WiFiClient](#class_wi_fi_client)` object representing the client. It uses the modem to query the server for an available client socket and accepts the connection if a valid client is found.
 
 #### Returns
-Returns a `[WiFiClient](#class_wi_fi_client)` object representing the next client connection that is available for processing.
+Returns a [WiFiClient](#class_wi_fi_client) object representing the next client connection that is available for processing.
 <hr />
 
 ### `accept` <a id="class_wi_fi_server_1ad29b9a043c87bad43140cc3066210088" class="anchor"></a>
@@ -1341,7 +1341,7 @@ WiFiClient accept()
 Accepts an incoming client connection on the server.
 
 #### Returns
-Returns a `[WiFiClient](#class_wi_fi_client)` object representing the accepted client.
+Returns a [WiFiClient](#class_wi_fi_client) object representing the accepted client.
 <hr />
 
 ### `begin` <a id="class_wi_fi_server_1a52e68fa8b767579e5055de9ff072f08c" class="anchor"></a>
@@ -1413,9 +1413,9 @@ This function terminates the server by sending a command to the modem to close t
 explicit operator bool()
 ```
 
-Converts the `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to a boolean value.
+Converts the [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to a boolean value.
 
-This operator allows a `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to be implicitly or explicitly converted to a boolean. It checks whether the client socket is valid (i.e., `_sock != -1`).
+This operator allows a [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to be implicitly or explicitly converted to a boolean. It checks whether the client socket is valid (i.e., `_sock != -1`).
 
 #### Returns
 `true` if the server socket is valid (server is running), `false` otherwise.
@@ -1427,15 +1427,15 @@ This operator allows a `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to be
 virtual bool operator==(const WiFiServer &)
 ```
 
-Compares two `[WiFiServer](#class_wi_fi_server)` objects for equality.
+Compares two [WiFiServer](#class_wi_fi_server) objects for equality.
 
 This virtual operator compares the underlying socket (`_sock`) of two `[WiFiServer](#class_wi_fi_server)` objects to determine if they refer to the same server connection.
 
 #### Parameters
-* `WiFiServer` object to compare against. 
+* `[WiFiServer](#class_wi_fi_server)` object to compare against.
 
 #### Returns
-`true` if both `[WiFiServer](#class_wi_fi_server)` objects have the same socket; `false` otherwise.
+`true` if both [WiFiServer](#class_wi_fi_server) objects have the same socket; `false` otherwise.
 <hr />
 
 ### `operator!=` <a id="class_wi_fi_server_1a3b34f02716dd23e22b85585b4d648169" class="anchor"></a>
@@ -1444,9 +1444,9 @@ This virtual operator compares the underlying socket (`_sock`) of two `[WiFiServ
 inline virtual bool operator!=(const WiFiServer & whs)
 ```
 
-Compares two `[WiFiServer](#class_wi_fi_server)` objects for inequality.
+Compares two [WiFiServer](#class_wi_fi_server) objects for inequality.
 
-This virtual operator compares the underlying socket (`_sock`) of two `[WiFiServer](#class_wi_fi_server)` objects. It returns `true` if the objects do not refer to the same server connection (i.e., they have different socket values), and `false` otherwise.
+This virtual operator compares the underlying socket (`_sock`) of two [WiFiServer](#class_wi_fi_server) objects. It returns `true` if the objects do not refer to the same server connection (i.e., they have different socket values), and `false` otherwise.
 
 #### Parameters
 * `whs` The [WiFiServer](#class_wi_fi_server) object to compare against. 
@@ -1464,13 +1464,13 @@ class WiFiSSLClient
 
 A specialized client class for secure SSL/TLS connections.
 
-The `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` class extends the functionality of the `[WiFiClient](#class_wi_fi_client)` class to provide secure communication over SSL/TLS protocols. It ensures encrypted and authenticated communication between the client and a remote server.
+The [WiFiSSLClient](#class_wi_fi_s_s_l_client) class extends the functionality of the [WiFiClient](#class_wi_fi_client) class to provide secure communication over SSL/TLS protocols. It ensures encrypted and authenticated communication between the client and a remote server.
 
 ## Summary
 
  Members                        | Descriptions                                
 --------------------------------|---------------------------------------------
-| [`WiFiSSLClient`](#class_wi_fi_s_s_l_client_1aeecf408e130c75ca84c9e41f7cf708aa) | Initializes objects of the `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` class. |
+| [`WiFiSSLClient`](#class_wi_fi_s_s_l_client_1aeecf408e130c75ca84c9e41f7cf708aa) | Initializes objects of the [WiFiSSLClient](#class_wi_fi_s_s_l_client) class. |
 | [`~WiFiSSLClient`](#class_wi_fi_s_s_l_client_1afe721b778749143fe61fdfff259218af) |  |
 | [`connect`](#class_wi_fi_s_s_l_client_1a82ed27a660bb90559c0467920182c947) | Establishes a secure SSL connection to a specified IP address and port. |
 | [`connect`](#class_wi_fi_s_s_l_client_1a46375064a7f581ba072e67bdc68be494) | Establishes a secure SSL connection to a specified host and port. |
@@ -1499,7 +1499,7 @@ The `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` class extends the functionality
 WiFiSSLClient()
 ```
 
-Initializes objects of the `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` class.
+Initializes objects of the [WiFiSSLClient](#class_wi_fi_s_s_l_client) class.
 
 <hr />
 
@@ -1538,7 +1538,7 @@ Establishes a secure SSL connection to a specified host and port.
 * `host` is the hostname or IP address of the server to connect to. `port` is the port number to connect to.
 
 #### Returns
-Returns 1 if the connection is successfully established, 0 otherwise.
+Returns `1` if the connection is successfully established, `0` otherwise.
 <hr />
 
 ### `setCACert` <a id="class_wi_fi_s_s_l_client_1ad97df1f2253445c9fec5f4471afcdbf1" class="anchor"></a>
@@ -1562,7 +1562,11 @@ void setEccSlot(int ecc508KeySlot, const byte cert, int certLength)
 Sets the ECC (Elliptic Curve Cryptography) key slot and certificate for establishing secure SSL connections.
 
 #### Parameters
-* `int` ecc508KeySlot specifies the ECC key slot to be used for the SSL connection. `const byte cert[]` is a pointer to the certificate data in the form of an array of bytes. `int certLength` specifies the length of the certificate data array.
+* `int` ecc508KeySlot specifies the ECC key slot to be used for the SSL connection. 
+
+* `const` byte cert[] is a pointer to the certificate data in the form of an array of bytes. 
+
+* `int` certLength specifies the length of the certificate data array.
 <hr />
 
 ### `write` <a id="class_wi_fi_s_s_l_client_1aa998458d525200ce36277d637008f87c" class="anchor"></a>
@@ -1577,7 +1581,7 @@ Writes a single byte of data to the SSL connection.
 * `b` is the byte to be sent.
 
 #### Returns
-size_t The number of bytes successfully written. Returns 1 if the byte was sent successfully, or 0 if an error occurred.
+The number of bytes successfully written. Returns `1` if the byte was sent successfully, or `0` if an error occurred.
 <hr />
 
 ### `write` <a id="class_wi_fi_s_s_l_client_1afa24293a9551bbcca1b565da2607eb2b" class="anchor"></a>
@@ -1589,10 +1593,12 @@ virtual size_t write(const uint8_t * buf, size_t size)
 Writes a buffer of data to the SSL connection.
 
 #### Parameters
-* `buf` is a pointer to the buffer containing the data to be sent. `size` is the number of bytes to send from the buffer.
+* `buf` is a pointer to the buffer containing the data to be sent. 
+
+* `size` is the number of bytes to send from the buffer.
 
 #### Returns
-Returns `size` if the data is successfully sent, or 0 if the transmission fails or the socket is invalid.
+Returns `size` if the data is successfully sent, or `0` if the transmission fails or the socket is invalid.
 <hr />
 
 ### `available` <a id="class_wi_fi_s_s_l_client_1ae52872cae6f3aa8b53c50ebe2373eb81" class="anchor"></a>
@@ -1616,7 +1622,7 @@ virtual int read()
 Reads data from the SSL connection into the receive buffer.
 
 #### Returns
-Returns the number of bytes successfully read into the buffer. Returns 0 if no data is received, or -1 if the socket is invalid or an error occurs.
+Returns the number of bytes successfully read into the buffer. Returns `0` if no data is received, or `-1` if the socket is invalid or an error occurs.
 <hr />
 
 ### `read` <a id="class_wi_fi_s_s_l_client_1a163b81ae7656797ed010cdcb0b576e58" class="anchor"></a>
@@ -1631,7 +1637,7 @@ Reads a specified number of bytes from the SSL connection into a buffer.
 * `buf` is a pointer to the buffer where the read data will be stored. `size` is the maximum number of bytes to read into the buffer.
 
 #### Returns
-The number of bytes successfully read. Returns 0 if no data is available or an error occurs.
+The number of bytes successfully read. Returns `0` if no data is available or an error occurs.
 <hr />
 
 ### `peek` <a id="class_wi_fi_s_s_l_client_1aafdaf6405d3cbc7807b0ac04fc511061" class="anchor"></a>
@@ -1645,7 +1651,7 @@ Peeks at the next byte available from the SSL connection without removing it.
 This function queries the modem to retrieve the next byte available in the SSL/TLS connection, allowing the byte to remain in the buffer for future reads.
 
 #### Returns
-The next byte available as an integer value (0–255), or -1 if the socket is invalid or no data is available.
+The next byte available as an integer value (0–255), or `-1` if the socket is invalid or no data is available.
 <hr />
 
 ### `flush` <a id="class_wi_fi_s_s_l_client_1ae894698f8e8b90ebd298fa66fedadd32" class="anchor"></a>
@@ -1680,7 +1686,7 @@ Checks if the SSL/TLS connection is active.
 This function determines if the SSL/TLS client is still connected by querying the modem for the connection status. It checks the validity of the socket before proceeding with the query.
 
 #### Returns
-uint8_t Returns 1 if the client is connected, 0 otherwise.
+Returns `1` if the client is connected, `0` otherwise.
 <hr />
 
 ### `operator bool` <a id="class_wi_fi_s_s_l_client_1a46888795cc1562c33fad408b57d2ad40" class="anchor"></a>
@@ -1707,7 +1713,7 @@ Comparison operator to check equality between two `[WiFiSSLClient](#class_wi_fi_
 * `WiFiSSLClient` object to compare.
 
 #### Returns
-`true` if both `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects are equivalent (i.e., they have the same socket), `false` otherwise.
+`true` if both [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects are equivalent (i.e., they have the same socket), `false` otherwise.
 <hr />
 
 ### `operator!=` <a id="class_wi_fi_s_s_l_client_1a2cdd8020168fae9e08d3c6d00b30b065" class="anchor"></a>
@@ -1724,7 +1730,7 @@ This operator compares the current `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` 
 * `whs` The [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to compare with. 
 
 #### Returns
-`true` if the two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects do not represent the same connection (i.e., have different sockets), `false` otherwise.
+`true` if the two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects do not represent the same connection (i.e., have different sockets), `false` otherwise.
 <hr />
 
 ### `remoteIP` <a id="class_wi_fi_s_s_l_client_1acff0aa8078124dff0c0ff3bfee7cfd83" class="anchor"></a>
@@ -1738,7 +1744,7 @@ Retrieves the remote IP address of the WiFi SSL client.
 This function queries the modem for the remote IP address associated with the current connection.
 
 #### Returns
-The remote IP address of the client. Returns 0.0.0.0 if the socket is not valid or the query fails.
+The remote IP address of the client. Returns `0.0.0.0` if the socket is not valid or the query fails.
 <hr />
 
 ### `remotePort` <a id="class_wi_fi_s_s_l_client_1aea76ab94b3cdfec17ab6e73c7b169da7" class="anchor"></a>
@@ -1752,7 +1758,7 @@ Retrieves the remote port number of the WiFi SSL client.
 This function queries the modem to obtain the remote port number associated with the current connection.
 
 #### Returns
-Returns the remote port number of the client. Returns 0 if the socket is not valid or the query fails.
+Returns the remote port number of the client. Returns `0` if the socket is not valid or the query fails.
 <hr />
 
 # class `WiFiUDP` <a id="class_wi_fi_u_d_p" class="anchor"></a>
@@ -1764,7 +1770,7 @@ class WiFiUDP
 
 A class for handling UDP communication over a Wi-Fi network.
 
-The `[WiFiUDP](#class_wi_fi_u_d_p)` class is an extension of the `UDP` class that enables sending and receiving UDP packets over a Wi-Fi network. It provides functions for initialization, packet transmission, and reception tailored for Wi-Fi connectivity.
+The [WiFiUDP](#class_wi_fi_u_d_p) class is an extension of the UDP class that enables sending and receiving UDP packets over a Wi-Fi network. It provides functions for initialization, packet transmission, and reception tailored for Wi-Fi connectivity.
 
 ## Summary
 
