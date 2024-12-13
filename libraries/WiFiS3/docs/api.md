@@ -68,7 +68,7 @@ WiFiClient(int s)
 Constructor to initialize a [WiFiClient](#class_wi_fi_client) object with a specific socket.
 
 #### Parameters
-* `<tt>s</tt>` is the socket descriptor to associate with this client.
+* `s` is the socket descriptor to associate with this client.
 <hr />
 
 ### `WiFiClient` <a id="class_wi_fi_client_1a1b176d034c1239bdcffa6db13ef5e485" class="anchor"></a>
@@ -80,7 +80,7 @@ WiFiClient(const WiFiClient & c)
 Copy constructor for the [WiFiClient](#class_wi_fi_client) class.
 
 #### Parameters
-* `<tt>c</tt>` is the `[WiFiClient](#class_wi_fi_client)` object to copy.
+* `c` is the `[WiFiClient](#class_wi_fi_client)` object to copy.
 <hr />
 
 ### `~WiFiClient` <a id="class_wi_fi_client_1a6410fb12d526d541c436136b18faa0db" class="anchor"></a>
@@ -102,9 +102,9 @@ virtual int connect(IPAddress ip, uint16_t port)
 Establishes a connection to a server using an IP address and port.
 
 #### Parameters
-* `<tt>ip</tt>` as the IP address of the server to connect to. 
+* `ip` as the IP address of the server to connect to. 
 
-* `<tt>port</tt>` as the port number on the server to connect to.
+* `port` as the port number on the server to connect to.
 
 #### Returns
 `1` on a successful connection, `0` on failure.
@@ -119,9 +119,9 @@ virtual int connect(const char * host, uint16_t port)
 Establishes a connection to a server using a hostname and port.
 
 #### Parameters
-* `<tt>host</tt>` is a pointer to a null-terminated string containing the hostname of the server. 
+* `host` is a pointer to a null-terminated string containing the hostname of the server. 
 
-* `<tt>port</tt>` is the port number on the server to connect to.
+* `port` is the port number on the server to connect to.
 
 #### Returns
 `1` if the connection was successful, `0` otherwise.
@@ -136,7 +136,7 @@ virtual size_t write(uint8_t)
 Sends a single byte of data to the connected server.
 
 #### Parameters
-* `<tt>b</tt>` being the byte of data to send.
+* `b` being the byte of data to send.
 
 #### Returns
 The number of bytes successfully written, which is `1` on success or `0` on failure.
@@ -192,9 +192,9 @@ Reads multiple bytes of data from the server into a buffer.
 This function retrieves data from the server's receive buffer and stores it into the provided array. It attempts to read up to the specified number of bytes (`size`).
 
 #### Parameters
-* `<tt>buf</tt>` is a pointer to the buffer where the data will be stored. 
+* `buf` is a pointer to the buffer where the data will be stored. 
 
-* `<tt>size</tt>` is the maximum number of bytes to read.
+* `size` is the maximum number of bytes to read.
 
 #### Returns
 The number of bytes successfully read into the buffer. Returns `0` if no data is available or if the socket is invalid.
@@ -287,7 +287,7 @@ Inequality operator for comparing two `[WiFiClient](#class_wi_fi_client)` object
 Compares the current `[WiFiClient](#class_wi_fi_client)` object with another `[WiFiClient](#class_wi_fi_client)` object to determine if they represent different socket connections.
 
 #### Parameters
-* `<tt>whs</tt>` is the `[WiFiClient](#class_wi_fi_client)` object to compare with. 
+* `whs` is the `[WiFiClient](#class_wi_fi_client)` object to compare with. 
 
 #### Returns
 `true` if both [WiFiClient](#class_wi_fi_client) objects represent different sockets, `false` if they represent the same socket.
@@ -326,7 +326,7 @@ inline void setConnectionTimeout(int timeout)
 Sets the connection timeout for the client.
 
 #### Parameters
-* `<tt>timeout</tt>` is the timeout value in milliseconds.
+* `timeout` is the timeout value in milliseconds.
 <hr />
 
 # class `WiFiFileSystem` <a id="class_wi_fi_file_system" class="anchor"></a>
@@ -377,7 +377,7 @@ size_t writefile(const char * name, const char * data, size_t size, int operatio
 Writes data to a file in the file system.
 
 #### Parameters
-* `<tt>name</tt>` is the name of the file to which the data will be written. A pointer `data` to the data that will be written to the file. `size` is the number of bytes to write from the provided data buffer. `operation` determines the type of file operation to perform (e.g., create, overwrite).
+* `name` is the name of the file to which the data will be written. A pointer `data` to the data that will be written to the file. `size` is the number of bytes to write from the provided data buffer. `operation` determines the type of file operation to perform (e.g., create, overwrite).
 
 #### Returns
 Returns the number of bytes successfully written. Returns 0 if the operation fails.
@@ -394,7 +394,7 @@ Reads a file from the file system and prints its content.
 It sends the read request to the modem, which fetches the data. The content is printed to the serial output in chunks, with each chunk being processed until the entire file is read.
 
 #### Parameters
-* `<tt>name</tt>` is the name of the file to be read from the file system.
+* `name` is the name of the file to be read from the file system.
 <hr />
 
 # class `WiFiServer` <a id="class_wi_fi_server" class="anchor"></a>
@@ -446,7 +446,7 @@ WiFiServer(int p)
 Constructs a [WiFiServer](#class_wi_fi_server) object with the specified port.
 
 #### Parameters
-* `<tt>p</tt>` The port number on which the server will listen for incoming connections.
+* `p` The port number on which the server will listen for incoming connections.
 <hr />
 
 ### `available` <a id="class_wi_fi_server_1abfd839b75fa3c40bd5e22c4a122ed800" class="anchor"></a>
@@ -484,7 +484,7 @@ void begin(int port)
 Starts the Wi-Fi server and binds it to the specified port.
 
 #### Parameters
-* `<tt>port</tt>` is the port number which the server will listen to for incoming connections.
+* `port` is the port number which the server will listen to for incoming connections.
 <hr />
 
 ### `begin` <a id="class_wi_fi_server_1a953b3d2a3ea0b0582be9535b6aa908d9" class="anchor"></a>
@@ -507,7 +507,7 @@ virtual size_t write(uint8_t)
 Writes a single byte to all connected clients.
 
 #### Parameters
-* `<tt>b</tt>` is the byte to be sent to the clients.
+* `b` is the byte to be sent to the clients.
 <hr />
 
 ### `write` <a id="class_wi_fi_server_1a6bef9499519bcedd59379024c4e7b360" class="anchor"></a>
@@ -521,7 +521,7 @@ Writes data to all connected clients.
 This function sends a buffer of data to all clients connected to the server. It writes the specified number of bytes to the server socket and returns the count of successfully written bytes.
 
 #### Parameters
-* `<tt>buf</tt>` is a pointer to the buffer containing the data to be sent. `size` is the number of bytes to write from the buffer.
+* `buf` is a pointer to the buffer containing the data to be sent. `size` is the number of bytes to write from the buffer.
 
 #### Returns
 The number of bytes successfully written. Returns 0 if the data could not be sent.
@@ -580,7 +580,7 @@ Compares two [WiFiServer](#class_wi_fi_server) objects for inequality.
 This virtual operator compares the underlying socket (`_sock`) of two [WiFiServer](#class_wi_fi_server) objects. It returns `true` if the objects do not refer to the same server connection (i.e., they have different socket values), and `false` otherwise.
 
 #### Parameters
-* `<tt>whs</tt>` The [WiFiServer](#class_wi_fi_server) object to compare against. 
+* `whs` The [WiFiServer](#class_wi_fi_server) object to compare against. 
 
 #### Returns
 `true` if the [WiFiServer](#class_wi_fi_server) objects have different sockets; `false` otherwise.
@@ -666,7 +666,7 @@ virtual int connect(const char * host, uint16_t port)
 Establishes a secure SSL connection to a specified host and port.
 
 #### Parameters
-* `<tt>host</tt>` is the hostname or IP address of the server to connect to. `port` is the port number to connect to.
+* `host` is the hostname or IP address of the server to connect to. `port` is the port number to connect to.
 
 #### Returns
 Returns `1` if the connection is successfully established, `0` otherwise.
@@ -681,7 +681,7 @@ void setCACert(const char * root_ca)
 Sets the Certificate Authority (CA) for SSL/TLS verification.
 
 #### Parameters
-* `<tt>root_ca</tt>` is a pointer to a null-terminated string containing the root CA certificate in PEM format. If set to `nullptr`, the default root CA bundle will be used.
+* `root_ca` is a pointer to a null-terminated string containing the root CA certificate in PEM format. If set to `nullptr`, the default root CA bundle will be used.
 <hr />
 
 ### `setEccSlot` <a id="class_wi_fi_s_s_l_client_1a9720117b29a35bc2a43c133f76fd8f8e" class="anchor"></a>
@@ -693,11 +693,11 @@ void setEccSlot(int ecc508KeySlot, const byte cert, int certLength)
 Sets the ECC (Elliptic Curve Cryptography) key slot and certificate for establishing secure SSL connections.
 
 #### Parameters
-* `<tt>int` ecc508KeySlot specifies the ECC key slot to be used for the SSL connection. 
+* `int` ecc508KeySlot specifies the ECC key slot to be used for the SSL connection. 
 
-* `<tt>const` byte cert[] is a pointer to the certificate data in the form of an array of bytes. 
+* `const` byte cert[] is a pointer to the certificate data in the form of an array of bytes. 
 
-* `<tt>int` certLength specifies the length of the certificate data array.
+* `int` certLength specifies the length of the certificate data array.
 <hr />
 
 ### `write` <a id="class_wi_fi_s_s_l_client_1aa998458d525200ce36277d637008f87c" class="anchor"></a>
@@ -709,7 +709,7 @@ virtual size_t write(uint8_t)
 Writes a single byte of data to the SSL connection.
 
 #### Parameters
-* `<tt>b</tt>` is the byte to be sent.
+* `b` is the byte to be sent.
 
 #### Returns
 The number of bytes successfully written. Returns `1` if the byte was sent successfully, or `0` if an error occurred.
@@ -724,9 +724,9 @@ virtual size_t write(const uint8_t * buf, size_t size)
 Writes a buffer of data to the SSL connection.
 
 #### Parameters
-* `<tt>buf</tt>` is a pointer to the buffer containing the data to be sent. 
+* `buf` is a pointer to the buffer containing the data to be sent. 
 
-* `<tt>size</tt>` is the number of bytes to send from the buffer.
+* `size` is the number of bytes to send from the buffer.
 
 #### Returns
 Returns `size` if the data is successfully sent, or `0` if the transmission fails or the socket is invalid.
@@ -765,7 +765,7 @@ virtual int read(uint8_t * buf, size_t size)
 Reads a specified number of bytes from the SSL connection into a buffer.
 
 #### Parameters
-* `<tt>buf</tt>` is a pointer to the buffer where the read data will be stored. `size` is the maximum number of bytes to read into the buffer.
+* `buf` is a pointer to the buffer where the read data will be stored. `size` is the maximum number of bytes to read into the buffer.
 
 #### Returns
 The number of bytes successfully read. Returns `0` if no data is available or an error occurs.
@@ -841,7 +841,7 @@ virtual bool operator==(const WiFiSSLClient &)
 Comparison operator to check equality between two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects.
 
 #### Parameters
-* `<tt>WiFiSSLClient</tt>` object to compare.
+* `WiFiSSLClient` object to compare.
 
 #### Returns
 `true` if both [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects are equivalent (i.e., they have the same socket), `false` otherwise.
@@ -858,7 +858,7 @@ Inequality operator to compare two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` 
 This operator compares the current `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object with another `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to determine if they are not equal, based on their underlying socket or connection.
 
 #### Parameters
-* `<tt>whs</tt>` The [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to compare with. 
+* `whs` The [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to compare with. 
 
 #### Returns
 `true` if the two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects do not represent the same connection (i.e., have different sockets), `false` otherwise.
@@ -951,7 +951,7 @@ virtual uint8_t begin(uint16_t)
 Starts a UDP socket on the specified local port.
 
 #### Parameters
-* `<tt>uint16_t</tt>` The local port number to bind the UDP socket to.
+* `uint16_t` The local port number to bind the UDP socket to.
 
 #### Returns
 Returns `1` if the socket is successfully opened, or `0` if the socket is already in use or could not be opened.
@@ -966,9 +966,9 @@ virtual uint8_t begin(IPAddress a, uint16_t p)
 Starts a UDP socket bound to a specific IP address and port.
 
 #### Parameters
-* `<tt>a</tt>` The local IP address to bind the UDP socket to. 
+* `a` The local IP address to bind the UDP socket to. 
 
-* `<tt>p</tt>` The local port number to bind the UDP socket to.
+* `p` The local port number to bind the UDP socket to.
 
 #### Returns
 Returns `1` if the socket is successfully opened, or `0` if the socket is already in use or could not be opened.
@@ -983,9 +983,9 @@ virtual uint8_t beginMulticast(IPAddress, uint16_t)
 Starts a UDP multicast socket bound to a specific IP address and port.
 
 #### Parameters
-* `<tt>IPAddress</tt>` The multicast IP address to bind the UDP socket to. 
+* `IPAddress` The multicast IP address to bind the UDP socket to. 
 
-* `<tt>uint16_t</tt>` The port number to bind the UDP socket to.
+* `uint16_t` The port number to bind the UDP socket to.
 
 #### Returns
 Returns `1` if the socket is successfully opened, or `0` if the socket is already in use or could not be opened.
@@ -1022,9 +1022,9 @@ virtual int beginPacket(IPAddress ip, uint16_t port)
 Begins constructing a UDP packet for sending to a specific IP address and port.
 
 #### Parameters
-* `<tt>ip</tt>` The destination IP address as an `IPAddress` object. 
+* `ip` The destination IP address as an `IPAddress` object. 
 
-* `<tt>port</tt>` The destination port number.
+* `port` The destination port number.
 
 #### Returns
 Returns `1` if the packet preparation is successful. Or `0` if there is an error or the socket is not initialized.
@@ -1039,9 +1039,9 @@ virtual int beginPacket(const char * host, uint16_t port)
 Begins constructing a UDP packet for sending to a specific hostname and port.
 
 #### Parameters
-* `<tt>host</tt>` The destination hostname as a null-terminated string. 
+* `host` The destination hostname as a null-terminated string. 
 
-* `<tt>port</tt>` The destination port number.
+* `port` The destination port number.
 
 #### Returns
 Returns `1` if the packet preparation is successful. Or `0` if there is an error or the socket is not initialized.
@@ -1068,7 +1068,7 @@ virtual size_t write(uint8_t)
 Sends a single byte of data to the currently opened UDP packet.
 
 #### Parameters
-* `<tt>b</tt>` The byte of data to send.
+* `b` The byte of data to send.
 
 #### Returns
 Returns `1` if the byte was successfully written. Or `0` if there was an error or the packet was not properly initialized.
@@ -1083,9 +1083,9 @@ virtual size_t write(const uint8_t * buffer, size_t size)
 Sends a buffer of data to the currently opened UDP packet.
 
 #### Parameters
-* `<tt>buffer</tt>` A pointer to the buffer containing the data to send. 
+* `buffer` A pointer to the buffer containing the data to send. 
 
-* `<tt>size</tt>` The number of bytes from the buffer to write.
+* `size` The number of bytes from the buffer to write.
 
 #### Returns
 Returns the number of bytes successfully written if the operation is successful. Or `0` if the data was not successfully written, or if the packet was not properly initialized.
@@ -1136,9 +1136,9 @@ virtual int read(unsigned char * buffer, size_t len)
 Reads data from the UDP receive buffer into a provided buffer.
 
 #### Parameters
-* `<tt>buffer</tt>` A pointer to the buffer where the received data will be stored. 
+* `buffer` A pointer to the buffer where the received data will be stored. 
 
-* `<tt>size</tt>` The number of bytes to read from the UDP buffer.
+* `size` The number of bytes to read from the UDP buffer.
 
 #### Returns
 The number of bytes successfully read into the buffer. If less than `size` bytes are read, it indicates that the buffer was exhausted early.
@@ -1153,9 +1153,9 @@ inline virtual int read(char * buffer, size_t len)
 Reads data from the UDP receive buffer into a character buffer.
 
 #### Parameters
-* `<tt>buffer</tt>` A pointer to the character buffer where the received data will be stored. 
+* `buffer` A pointer to the character buffer where the received data will be stored. 
 
-* `<tt>len</tt>` The number of bytes to read from the UDP buffer.
+* `len` The number of bytes to read from the UDP buffer.
 
 #### Returns
 The number of bytes successfully read into the buffer. If less than `len` bytes are read, it indicates that the buffer was exhausted early.
@@ -1194,7 +1194,7 @@ Compares two [WiFiUDP](#class_wi_fi_u_d_p) objects for equality.
 This function compares two `[WiFiUDP](#class_wi_fi_u_d_p)` objects by checking if their associated socket values (`_sock`) are the same.
 
 #### Parameters
-* `<tt>WiFiUDP&</tt>` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object.
+* `WiFiUDP&` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object.
 
 #### Returns
 `true` if the socket values are equal, `false` otherwise.
@@ -1211,7 +1211,7 @@ Compares two [WiFiUDP](#class_wi_fi_u_d_p) objects for inequality.
 This function compares two `[WiFiUDP](#class_wi_fi_u_d_p)` objects by checking if their associated socket values (`_sock`) are different.
 
 #### Parameters
-* `<tt>whs</tt>` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object. 
+* `whs` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object. 
 
 #### Returns
 `true` if the socket values are different, `false` otherwise.
