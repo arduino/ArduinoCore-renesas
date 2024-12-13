@@ -41,8 +41,8 @@ It inherits from the Client class, providing basic socket communication function
 | [`stop`](#class_wi_fi_client_1acb61f8e0ecd50e40ce6cbcb7106ce1b1) | Closes the connection to the server and clears the receive buffer. |
 | [`connected`](#class_wi_fi_client_1af083fe27b94aebec37f140c0b973f974) | Checks if the client is connected to a server. |
 | [`operator bool`](#class_wi_fi_client_1adaf93736006b5bb2426e9816de4207eb) | Implicit conversion operator to `bool`. |
-| [`operator==`](#class_wi_fi_client_1ac1e068fb2468d84536e93f6e1b51b099) | Equality operator for comparing two `[WiFiClient](#class_wi_fi_client)` objects. |
-| [`operator!=`](#class_wi_fi_client_1a31b6e43ab5ab9d6fe511778a5a1f173c) | Inequality operator for comparing two `[WiFiClient](#class_wi_fi_client)` objects. |
+| [`operator==`](#class_wi_fi_client_1ac1e068fb2468d84536e93f6e1b51b099) | Equality operator for comparing two [WiFiClient](#class_wi_fi_client) objects. |
+| [`operator!=`](#class_wi_fi_client_1a31b6e43ab5ab9d6fe511778a5a1f173c) | Inequality operator for comparing two [WiFiClient](#class_wi_fi_client) objects. |
 | [`remoteIP`](#class_wi_fi_client_1a46d45c8d326b62256f85d55eaa337df0) | Retrieves the remote IP address of the server the client is connected to. |
 | [`remotePort`](#class_wi_fi_client_1a38ca1399ebf6570d2c852c9062ec92d8) | Retrieves the remote port number of the server the client is connected to. |
 | [`setConnectionTimeout`](#class_wi_fi_client_1af32938f36f09c9121e85e38338d432d7) | Sets the connection timeout for the client. |
@@ -80,7 +80,7 @@ WiFiClient(const WiFiClient & c)
 Copy constructor for the [WiFiClient](#class_wi_fi_client) class.
 
 #### Parameters
-* `c` is the `[WiFiClient](#class_wi_fi_client)` object to copy.
+* `c` is the [WiFiClient](#class_wi_fi_client) object to copy.
 <hr />
 
 ### `~WiFiClient` <a id="class_wi_fi_client_1a6410fb12d526d541c436136b18faa0db" class="anchor"></a>
@@ -253,7 +253,7 @@ inline virtual operator bool()
 
 Implicit conversion operator to `bool`.
 
-Converts the `[WiFiClient](#class_wi_fi_client)` object to a `bool` value indicating whether the client is connected or not.
+Converts the [WiFiClient](#class_wi_fi_client) object to a `bool` value indicating whether the client is connected or not.
 
 #### Returns
 `true` if the client socket is open and valid, `false` otherwise.
@@ -265,15 +265,15 @@ Converts the `[WiFiClient](#class_wi_fi_client)` object to a `bool` value indica
 virtual bool operator==(const WiFiClient &)
 ```
 
-Equality operator for comparing two `[WiFiClient](#class_wi_fi_client)` objects.
+Equality operator for comparing two [WiFiClient](#class_wi_fi_client) objects.
 
-Compares the current `[WiFiClient](#class_wi_fi_client)` object with another `[WiFiClient](#class_wi_fi_client)` object to determine if they represent the same socket connection.
+Compares the current [WiFiClient](#class_wi_fi_client) object with another [WiFiClient](#class_wi_fi_client) object to determine if they represent the same socket connection.
 
 #### Parameters
-* `The` `[WiFiClient](#class_wi_fi_client)` object to compare with. 
+* `The` [WiFiClient](#class_wi_fi_client) object to compare with. 
 
 #### Returns
-`true` if both `[WiFiClient](#class_wi_fi_client)` objects represent the same socket, `false` otherwise.
+`true` if both [WiFiClient](#class_wi_fi_client) objects represent the same socket, `false` otherwise.
 <hr />
 
 ### `operator!=` <a id="class_wi_fi_client_1a31b6e43ab5ab9d6fe511778a5a1f173c" class="anchor"></a>
@@ -282,12 +282,12 @@ Compares the current `[WiFiClient](#class_wi_fi_client)` object with another `[W
 inline virtual bool operator!=(const WiFiClient & whs)
 ```
 
-Inequality operator for comparing two `[WiFiClient](#class_wi_fi_client)` objects.
+Inequality operator for comparing two [WiFiClient](#class_wi_fi_client) objects.
 
-Compares the current `[WiFiClient](#class_wi_fi_client)` object with another `[WiFiClient](#class_wi_fi_client)` object to determine if they represent different socket connections.
+Compares the current [WiFiClient](#class_wi_fi_client) object with another [WiFiClient](#class_wi_fi_client) object to determine if they represent different socket connections.
 
 #### Parameters
-* `whs` is the `[WiFiClient](#class_wi_fi_client)` object to compare with. 
+* `whs` is the [WiFiClient](#class_wi_fi_client) object to compare with. 
 
 #### Returns
 `true` if both [WiFiClient](#class_wi_fi_client) objects represent different sockets, `false` if they represent the same socket.
@@ -457,7 +457,7 @@ WiFiClient available()
 
 Checks if there are any incoming client connections waiting to be accepted.
 
-This function queries the server to check if there is a client waiting to be accepted. If a client is available, it returns a `[WiFiClient](#class_wi_fi_client)` object representing the client. It uses the modem to query the server for an available client socket and accepts the connection if a valid client is found.
+This function queries the server to check if there is a client waiting to be accepted. If a client is available, it returns a [WiFiClient](#class_wi_fi_client) object representing the client. It uses the modem to query the server for an available client socket and accepts the connection if a valid client is found.
 
 #### Returns
 Returns a [WiFiClient](#class_wi_fi_client) object representing the next client connection that is available for processing.
@@ -560,10 +560,10 @@ virtual bool operator==(const WiFiServer &)
 
 Compares two [WiFiServer](#class_wi_fi_server) objects for equality.
 
-This virtual operator compares the underlying socket (`_sock`) of two `[WiFiServer](#class_wi_fi_server)` objects to determine if they refer to the same server connection.
+This virtual operator compares the underlying socket (`_sock`) of two [WiFiServer](#class_wi_fi_server) objects to determine if they refer to the same server connection.
 
 #### Parameters
-* `[WiFiServer](#class_wi_fi_server)` object to compare against.
+* [WiFiServer](#class_wi_fi_server) object to compare against.
 
 #### Returns
 `true` if both [WiFiServer](#class_wi_fi_server) objects have the same socket; `false` otherwise.
@@ -617,8 +617,8 @@ The [WiFiSSLClient](#class_wi_fi_s_s_l_client) class extends the functionality o
 | [`stop`](#class_wi_fi_s_s_l_client_1a66113af6fbc85f0dbb73f8d276b8a77a) | Terminates the SSL/TLS connection and clears the receive buffer. |
 | [`connected`](#class_wi_fi_s_s_l_client_1a5e993c746855bb67c744d27baa6cf1bb) | Checks if the SSL/TLS connection is active. |
 | [`operator bool`](#class_wi_fi_s_s_l_client_1a46888795cc1562c33fad408b57d2ad40) | Implicit conversion operator to check if the SSL client is connected. |
-| [`operator==`](#class_wi_fi_s_s_l_client_1aa0bdf11dd3e6ef48133967dc0a036004) | Comparison operator to check equality between two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects. |
-| [`operator!=`](#class_wi_fi_s_s_l_client_1a2cdd8020168fae9e08d3c6d00b30b065) | Inequality operator to compare two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects. |
+| [`operator==`](#class_wi_fi_s_s_l_client_1aa0bdf11dd3e6ef48133967dc0a036004) | Comparison operator to check equality between two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects. |
+| [`operator!=`](#class_wi_fi_s_s_l_client_1a2cdd8020168fae9e08d3c6d00b30b065) | Inequality operator to compare two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects. |
 | [`remoteIP`](#class_wi_fi_s_s_l_client_1acff0aa8078124dff0c0ff3bfee7cfd83) | Retrieves the remote IP address of the WiFi SSL client. |
 | [`remotePort`](#class_wi_fi_s_s_l_client_1aea76ab94b3cdfec17ab6e73c7b169da7) | Retrieves the remote port number of the WiFi SSL client. |
 
@@ -838,7 +838,7 @@ Implicit conversion operator to check if the SSL client is connected.
 virtual bool operator==(const WiFiSSLClient &)
 ```
 
-Comparison operator to check equality between two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects.
+Comparison operator to check equality between two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects.
 
 #### Parameters
 * `WiFiSSLClient` object to compare.
@@ -853,9 +853,9 @@ Comparison operator to check equality between two `[WiFiSSLClient](#class_wi_fi_
 inline virtual bool operator!=(const WiFiSSLClient & whs)
 ```
 
-Inequality operator to compare two `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` objects.
+Inequality operator to compare two [WiFiSSLClient](#class_wi_fi_s_s_l_client) objects.
 
-This operator compares the current `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object with another `[WiFiSSLClient](#class_wi_fi_s_s_l_client)` object to determine if they are not equal, based on their underlying socket or connection.
+This operator compares the current [WiFiSSLClient](#class_wi_fi_s_s_l_client) object with another [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to determine if they are not equal, based on their underlying socket or connection.
 
 #### Parameters
 * `whs` The [WiFiSSLClient](#class_wi_fi_s_s_l_client) object to compare with. 
@@ -1191,7 +1191,7 @@ virtual bool operator==(const WiFiUDP &)
 
 Compares two [WiFiUDP](#class_wi_fi_u_d_p) objects for equality.
 
-This function compares two `[WiFiUDP](#class_wi_fi_u_d_p)` objects by checking if their associated socket values (`_sock`) are the same.
+This function compares two [WiFiUDP](#class_wi_fi_u_d_p) objects by checking if their associated socket values (`_sock`) are the same.
 
 #### Parameters
 * `WiFiUDP&` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object.
@@ -1208,7 +1208,7 @@ inline virtual bool operator!=(const WiFiUDP & whs)
 
 Compares two [WiFiUDP](#class_wi_fi_u_d_p) objects for inequality.
 
-This function compares two `[WiFiUDP](#class_wi_fi_u_d_p)` objects by checking if their associated socket values (`_sock`) are different.
+This function compares two [WiFiUDP](#class_wi_fi_u_d_p) objects by checking if their associated socket values (`_sock`) are different.
 
 #### Parameters
 * `whs` The [WiFiUDP](#class_wi_fi_u_d_p) object to compare with the current object. 
@@ -1226,7 +1226,7 @@ virtual IPAddress remoteIP()
 Retrieves the remote IP address of the host who sent the current incoming packet.
 
 #### Returns
-An `IPAddress` object representing the remote IP address. If the socket is not valid or the address cannot be retrieved, it returns `IPAddress(0, 0, 0, 0)`.
+An `IPAddress` object representing the remote IP address. If the socket is not valid or the address cannot be retrieved, it returns `IPAddress(0, 0, 0, 0).
 <hr />
 
 ### `remotePort` <a id="class_wi_fi_u_d_p_1a2ebb4b0e8fc1c4c147bd5936ff7ab250" class="anchor"></a>
