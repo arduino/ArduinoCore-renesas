@@ -26,10 +26,6 @@ available	KEYWORD2
 read	KEYWORD2
 isError	KEYWORD2
 clearError	KEYWORD2
-setFilterMask_Standard
-setFilterMask_Extended
-setFilterId_Standard
-setFilterId_Extended
 
 getStandardId	KEYWORD2
 getExtendedId	KEYWORD2
@@ -45,5 +41,3 @@ BR_125k	LITERAL1
 BR_250k	LITERAL1
 BR_500k	LITERAL1
 BR_1000k	LITERAL1
-CAN_MAX_NO_STANDARD_MAILBOXES	LITERAL1
-CAN_MAX_NO_EXTENDED_MAILBOXES	LITERAL1

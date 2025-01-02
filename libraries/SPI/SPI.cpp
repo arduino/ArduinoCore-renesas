@@ -444,7 +444,7 @@ void ArduinoSPI::configSpi(arduino::SPISettings const & settings)
 
     /* register undocumented for the RA4M1 but found to be working and necessary */
     /* BYSW - Byte Swap Operating Mode Select - 1 = Byte Swap ON - essential for 32 bit transfers */
-    _spi_ctrl.p_regs->SPDCR2_b.BYSW = ~bit_order;
+    _spi_ctrl.p_regs->SPDCR2_b.BYSW = 1;
 
     _spi_ctrl.p_regs->SPCKD = 0;
 
@@ -568,10 +568,11 @@ void sci_spi_callback(spi_callback_args_t *p_args)
 #define FORCE_SPI1_MODE MODE_DONTCARE
 #endif
 
+// 2024.02.24 プログラムで入力して、SPIとSPI1を選択できるように変更
 #if SPI_HOWMANY > 0
-ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, FORCE_SPI_MODE);
+//ArduinoSPI SPI(PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_SCK, FORCE_SPI_MODE);
 #endif
 
 #if SPI_HOWMANY > 1
-ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, FORCE_SPI1_MODE);
+//ArduinoSPI SPI1(PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SCK, FORCE_SPI1_MODE);
 #endif

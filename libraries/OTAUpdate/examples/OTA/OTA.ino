@@ -54,33 +54,33 @@ void setup() {
 
   printWiFiStatus();
 
-  int ret = ota.begin("/update.bin");
-  if(ret != OTAUpdate::OTA_ERROR_NONE) {
+  OTAUpdate::Error ret = OTAUpdate::Error::None;
+  ret = ota.begin("/update.bin");
+  if(ret != OTAUpdate::Error::None) {
     Serial.println("ota.begin() error: ");
     Serial.println((int)ret);
     return;
   }
   ret = ota.setCACert(root_ca);
-  if(ret != OTAUpdate::OTA_ERROR_NONE) {
+  if(ret != OTAUpdate::Error::None) {
     Serial.println("ota.setCACert() error: ");
     Serial.println((int)ret);
     return;
   }
-  int ota_size = ota.download(OTA_FILE_LOCATION, "/update.bin");
-  if(ota_size <= 0) {
+  if(ota.download(OTA_FILE_LOCATION, "/update.bin") <= 0) {
     Serial.println("ota.download() error: ");
-    Serial.println(ota_size);
+    Serial.println((int)ret);
     return;
   }
   ret = ota.verify();
-  if(ret != OTAUpdate::OTA_ERROR_NONE) {
+  if(ret != OTAUpdate::Error::None) {
     Serial.println("ota.verify() error: ");
     Serial.println((int)ret);
     return;
   }
 
   ret = ota.update("/update.bin");
-  if(ret != OTAUpdate::OTA_ERROR_NONE) {
+  if(ret != OTAUpdate::Error::None) {
     Serial.println("ota.update() error: ");
     Serial.println((int)ret);
     return;

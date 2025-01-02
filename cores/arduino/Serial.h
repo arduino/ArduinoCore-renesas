@@ -78,8 +78,7 @@ class UART : public arduino::HardwareSerial {
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
-    volatile bool tx_empty;
-    volatile bool tx_complete;
+    volatile bool tx_done;
 
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;

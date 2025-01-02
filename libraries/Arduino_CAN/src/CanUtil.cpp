@@ -28,7 +28,7 @@ namespace util
  **************************************************************************************/
 
 std::tuple<bool, uint32_t, uint32_t, uint32_t>
-  calc_can_bit_timing(uint32_t const can_bitrate,
+  calc_can_bit_timing(CanBitRate const can_bitrate,
                       uint32_t const can_clock_Hz,
                       uint32_t const tq_min,
                       uint32_t const tq_max,

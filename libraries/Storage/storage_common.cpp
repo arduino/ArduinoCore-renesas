@@ -3,7 +3,7 @@
 
 #ifdef STORAGE_DEBUG
 
-char rns_storage_dbg_buf[STORAGE_BUFF_DIM];
+char debug_buffer[STORAGE_BUFF_DIM];
 
 #endif
 

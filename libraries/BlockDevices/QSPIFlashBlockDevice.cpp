@@ -19,9 +19,6 @@
 /* ########################################################################## */
 #include "QSPIFlashBlockDevice.h"
 
-#define debug_if rns_storage_dbg_if
-#define debug_mem rns_storage_dbg_mem
-
 #ifdef HAS_QSPI
 
 // To enable debug set QSPIF_DBG to 1 and make sure STORAGE_DEBUG is defined

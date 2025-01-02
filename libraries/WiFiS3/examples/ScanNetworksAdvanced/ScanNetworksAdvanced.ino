@@ -6,14 +6,14 @@
   BSSID and WiFi channel are printed
 
   Circuit:
-  * Uno R4 WiFi
+  * Board with NINA module (Arduino MKR WiFi 1010, MKR VIDOR 4000 and Uno WiFi Rev.2)
 
   This example is based on ScanNetworks
 
   created 1 Mar 2017
   by Arturo Guadalupi
 
-  Find the full UNO R4 WiFi Network documentation here:
+  Find the full UNO R4 WiFi RTC documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#scan-networks-advanced
 */
 
@@ -130,14 +130,14 @@ void print2Digits(byte thisByte) {
 }
 
 void printMacAddress(byte mac[]) {
-  for (int i = 0; i < 6; i++) {
-    if (i > 0) {
-      Serial.print(":");
-    }
+  for (int i = 5; i >= 0; i--) {
     if (mac[i] < 16) {
       Serial.print("0");
     }
     Serial.print(mac[i], HEX);
+    if (i > 0) {
+      Serial.print(":");
+    }
   }
   Serial.println();
 }

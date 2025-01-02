@@ -33,21 +33,6 @@ WiFiClient WiFiServer::available() {
 }
   
 /* -------------------------------------------------------------------------- */
-WiFiClient WiFiServer::accept() {
-/* -------------------------------------------------------------------------- */
-   if(_sock != -1) {
-      string res = "";
-      modem.begin();
-      /* call the server accept on esp so that the accept is performed */
-      if(modem.write(string(PROMPT(_SERVERACCEPT)),res, "%s%d\r\n" , CMD_WRITE(_SERVERACCEPT), _sock)) {
-         int client_sock = atoi(res.c_str());
-         return WiFiClient(client_sock);
-      }
-   }
-   return WiFiClient();
-}
-
-/* -------------------------------------------------------------------------- */
 void WiFiServer::begin(int port) {
 /* -------------------------------------------------------------------------- */   
    if(_sock == -1) {
@@ -97,11 +82,6 @@ void WiFiServer::end() {
       modem.write(string(PROMPT(_SERVEREND)),res, "%s%d\r\n" , CMD_WRITE(_SERVEREND), _sock);
       _sock = -1;
    }
-}
-
-WiFiServer::operator bool()
-{
-   return (_sock != -1);
 }
 
 bool WiFiServer::operator==(const WiFiServer& whs)

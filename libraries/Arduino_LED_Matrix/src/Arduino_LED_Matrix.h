@@ -1,8 +1,5 @@
-#pragma once
-
 #include "Arduino.h"
 #include "FspTimer.h"
-#include "gallery.h"
 
 #define NUM_LEDS    96
 
@@ -141,10 +138,8 @@ static uint32_t reverse(uint32_t x)
 }
 
 // TODO: this is dangerous, use with care
-#define loadSequence(frames)                    loadWrapper(frames, sizeof(frames))
-#define renderBitmap(bitmap, rows, columns)     loadPixels(&bitmap[0][0], rows*columns)
-#define endTextAnimation(scrollDirection, anim) endTextToAnimationBuffer(scrollDirection, anim ## _buf, sizeof(anim ## _buf), anim ## _buf_used)
-#define loadTextAnimationSequence(anim)         loadWrapper(anim ## _buf, anim ## _buf_used)
+#define loadSequence(frames)                loadWrapper(frames, sizeof(frames))
+#define renderBitmap(bitmap, rows, columns) loadPixels(&bitmap[0][0], rows*columns)
 
 static uint8_t __attribute__((aligned)) framebuffer[NUM_LEDS / 8];
 
@@ -172,18 +167,13 @@ public:
         turnLed(pin, false);
     }
     int begin() {
-        bool rv = true;
         uint8_t type;
-        int8_t ch = FspTimer::get_available_timer(type);
-        if(ch == -1) {
-            return false;
-        }
+        uint8_t ch = FspTimer::get_available_timer(type);
         // TODO: avoid passing "this" argument to remove autoscroll
-        rv &= _ledTimer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
-        rv &= _ledTimer.setup_overflow_irq();
-        rv &= _ledTimer.open();
-        rv &= _ledTimer.start();
-        return rv;
+        _ledTimer.begin(TIMER_MODE_PERIODIC, type, ch, 10000.0, 50.0, turnOnLedISR, this);
+        _ledTimer.setup_overflow_irq();
+        _ledTimer.open();
+        _ledTimer.start();
     }
     void next() {
         uint32_t frame[3];
@@ -229,11 +219,11 @@ public:
         return false;
     }
 
-    static void loadPixelsToBuffer(uint8_t* arr, size_t size, uint32_t* dst) {
+    void loadPixels(uint8_t *arr, size_t size){
         uint32_t partialBuffer = 0;
         uint8_t pixelIndex = 0;
         uint8_t *frameP = arr;
-        uint32_t *frameHolderP = dst;
+        uint32_t *frameHolderP = _frameHolder;
         while (pixelIndex < size) {
             partialBuffer |= *frameP++;
             if ((pixelIndex + 1) % 32 == 0) {
@@ -242,10 +232,6 @@ public:
             partialBuffer = partialBuffer << 1;
             pixelIndex++;
         }
-    }
-
-    void loadPixels(uint8_t *arr, size_t size){
-        loadPixelsToBuffer(arr, size, _frameHolder);
         loadFrame(_frameHolder);
     };
 
@@ -259,22 +245,9 @@ public:
         _callBack = callBack;
     }
 
-    void clear() {
-        const uint32_t fullOff[] = {
-            0x00000000,
-            0x00000000,
-            0x00000000
-        };
-        loadFrame(fullOff);
-#ifdef MATRIX_WITH_ARDUINOGRAPHICS
-        memset(_canvasBuffer, 0, sizeof(_canvasBuffer));
-#endif
-    }
-
-
 #ifdef MATRIX_WITH_ARDUINOGRAPHICS
     virtual void set(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
-      if (y >= canvasHeight || x >= canvasWidth || y < 0 || x < 0) {
+      if (y >= canvasHeight || x >= canvasWidth) {
         return;
       }
       // the r parameter is (mis)used to set the character to draw with
@@ -286,48 +259,20 @@ public:
       renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
     }
 
-    // display the drawing or capture it to buffer when rendering dynamic anymation
+    // display the drawing
     void endDraw() {
       ArduinoGraphics::endDraw();
-
-      if (!captureAnimation) {
-        renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
-      } else {
-        if (captureAnimationHowManyRemains >= 4) {
-          loadPixelsToBuffer(&_canvasBuffer[0][0], sizeof(_canvasBuffer), captureAnimationFrame);
-          captureAnimationFrame[3] = _textScrollSpeed;
-          captureAnimationFrame += 4;
-          captureAnimationHowManyRemains -= 16;
-        }
+      // clear first line (no idea why it gets filled with random bits, probably some math not working fine for super small displays)
+      for (int i = 0; i < canvasWidth; i++) {
+        _canvasBuffer[0][i] = 0;
       }
-    }
-
-    void endTextToAnimationBuffer(int scrollDirection, uint32_t frames[][4], uint32_t howManyMax, uint32_t& howManyUsed) {
-      captureAnimationFrame = &frames[0][0];
-      captureAnimationHowManyRemains = howManyMax;
-
-      captureAnimation = true;
-      ArduinoGraphics::textScrollSpeed(0);
-      ArduinoGraphics::endText(scrollDirection);
-      ArduinoGraphics::textScrollSpeed(_textScrollSpeed);
-      captureAnimation = false;
-        
-      howManyUsed = howManyMax - captureAnimationHowManyRemains;
-    }
-
-    void textScrollSpeed(unsigned long speed) {
-      ArduinoGraphics::textScrollSpeed(speed);
-      _textScrollSpeed = speed;
+      renderBitmap(_canvasBuffer, canvasHeight, canvasWidth);
     }
 
   private:
-    uint32_t* captureAnimationFrame = nullptr;
-    uint32_t captureAnimationHowManyRemains = 0;
-    bool captureAnimation = false;
     static const byte canvasWidth = 12;
     static const byte canvasHeight = 8;
     uint8_t _canvasBuffer[canvasHeight][canvasWidth] = {{0}};
-    unsigned long _textScrollSpeed = 100;
 #endif
 
 private:

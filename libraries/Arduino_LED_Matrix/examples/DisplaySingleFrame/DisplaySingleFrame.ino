@@ -8,7 +8,7 @@
 */
 
 #include "Arduino_LED_Matrix.h"   // Include the LED_Matrix library
-#include "frames.h"               // Include a header file containing some custom icons
+#include "frames.h"               // Include a header file containing frame data
 
 ArduinoLEDMatrix matrix;          // Create an instance of the ArduinoLEDMatrix class
 
@@ -30,13 +30,9 @@ void loop() {
   matrix.loadFrame(happy);
   delay(500);
 
-  // Load and display the "big heart" frame provided by the library
-  matrix.loadFrame(LEDMATRIX_HEART_BIG);
+  // Load and display the "heart" frame on the LED matrix
+  matrix.loadFrame(heart);
   delay(500);
-
-  // Turn off the display
-  matrix.clear();
-  delay(1000);
 
   // Print the current value of millis() to the serial monitor
   Serial.println(millis());

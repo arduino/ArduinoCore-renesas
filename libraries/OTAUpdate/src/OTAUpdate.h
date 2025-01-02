@@ -28,30 +28,35 @@ class OTAUpdate {
 
 public:
 
-  enum class Error: int {
-    None      =  0,
-    Library   = -25,
-    Modem     = -26,
+  enum class Error:  int {
+    None                 =  0,
+    StorageConfig        = -1,
+    NoOtaStorage         = -2,
+    OtaStorageInit       = -3,
+    OtaStorageEnd        = -4,
+    UrlParseError        = -5,
+    ServerConnectError   = -6,
+    HttpHeaderError      = -7,
+    ParseHttpHeader      = -8,
+    OtaHeaderLength      = -9,
+    OtaHeaderCrc         = -10,
+    OtaHeaderMagicNumber = -11,
+    OtaDownload          = -12,
+    OtaFlash             = -13,
+    Library              = -14,
+    Modem                = -15,
   };
 
-  constexpr static const int OTA_ERROR_NONE = static_cast<int>(Error::None);
-
   OTAUpdate();
-  int setCACert(const char* root_ca);
-  int begin();
-  int begin(const char* file_path);
+  OTAUpdate::Error setCACert(const char* root_ca);
+  OTAUpdate::Error begin();
+  OTAUpdate::Error begin(const char* file_path);
   int download(const char* url);
   int download(const char* url, const char* file_path);
-
-  int startDownload(const char* url);
-  int startDownload(const char* url, const char* file_path);
-
-  int downloadProgress();
-
-  int verify();
-  int update();
-  int update(const char* file_path);
-  int reset();
+  OTAUpdate::Error verify();
+  OTAUpdate::Error update();
+  OTAUpdate::Error update(const char* file_path);
+  OTAUpdate::Error reset();
 
 };
 

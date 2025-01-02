@@ -33,8 +33,7 @@ public:
    ~WiFiSSLClient();
    virtual int connect(IPAddress ip, uint16_t port);
    virtual int connect(const char* host, uint16_t port);
-   void setCACert(const char* root_ca);
-   void setEccSlot(int ecc508KeySlot, const byte cert[], int certLength);
+   void setCACert(const char* root_ca = NULL, size_t size = 0); 
    virtual size_t write(uint8_t);
    virtual size_t write(const uint8_t *buf, size_t size);
    virtual int available();
@@ -45,7 +44,7 @@ public:
    virtual void stop();
    virtual uint8_t connected();
    virtual operator bool() {
-      return _sock != -1;
+     return _sock != -1;
    }
    virtual bool operator==(const WiFiSSLClient&);
    virtual bool operator!=(const WiFiSSLClient& whs)
@@ -60,14 +59,14 @@ public:
    using Print::write;
 
 private:
+   int _sock;
+   bool _custom_root = false;
    void getSocket();
    int _read();
    void read_if_needed(size_t s);
-   const char* _root_ca = nullptr;
-   int _ecc_slot = -1;
-   const byte* _ecc_cert = nullptr;
-   int _ecc_cert_len = 0;
 
+private:
+   void upload_default_Cert();
 };
 
 #endif /* WIFISSLCLIENT_H */

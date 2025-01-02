@@ -8,7 +8,7 @@
   a formula for converting MIDI note numbers (0-127) to pitches. This sketch
   reduces that to the notes 21 - 108, which are the 88 keys found on a piano:
 
-     frequency =  440 * 2^((noteNumber - 69) / 12.0)
+     frequency =  440 * ((noteNumber - 69) / 12.0)^2
 
   You can see this applied in the code below. 
 

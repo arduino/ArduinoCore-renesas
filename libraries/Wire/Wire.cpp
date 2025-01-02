@@ -30,8 +30,8 @@ extern "C" {
 
 #include "Wire.h"
 
-TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
-TwoWire *TwoWire::g_I2CWires[TWOWIRE_MAX_I2C_CHANNELS] = {nullptr};
+TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS] = {nullptr};
+TwoWire *TwoWire::g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
 
 /* -------------------------------------------------------------------------- */
 void TwoWire::setBusStatus(WireStatus_t ws) {
@@ -274,16 +274,6 @@ done:
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(void) {
 /* -------------------------------------------------------------------------- */  
-  end();
-  is_master = true;
-  _begin();
-
-}
-
-
-/* -------------------------------------------------------------------------- */
-void TwoWire::_begin(void) {
-/* -------------------------------------------------------------------------- */  
   init_ok = true;
   int max_index = PINS_COUNT;
 
@@ -378,11 +368,15 @@ void TwoWire::_begin(void) {
     return;
   }
 
-  I2CIrqReq_t irq_req;
-  irq_req.mcfg = &m_i2c_cfg; 
-  irq_req.scfg = &s_i2c_cfg;
-  
-  if(is_master) {    
+  if(is_master) {
+      I2CIrqMasterReq_t irq_req;
+      irq_req.ctrl = &m_i2c_ctrl; 
+      irq_req.cfg = &m_i2c_cfg;
+      /* see note in the cfg_pins
+           the IRQ manager need to know the HW channel that in case of SCI 
+           peripheral is not the one in the cfg structure but the one in 
+           the Wire channel, so copy it in the request */
+      irq_req.hw_channel = channel;
       if(is_sci) {
         init_ok &= IRQManager::getInstance().addPeripheral(IRQ_SCI_I2C_MASTER,&irq_req);
       }
@@ -397,7 +391,7 @@ void TwoWire::_begin(void) {
       }
   }
   else {
-      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_SLAVE,&irq_req);
+      init_ok &= IRQManager::getInstance().addPeripheral(IRQ_I2C_SLAVE,&s_i2c_cfg);
       if(FSP_SUCCESS == s_open(&s_i2c_ctrl,&s_i2c_cfg)) {
          init_ok &= true;
       }
@@ -410,23 +404,26 @@ void TwoWire::_begin(void) {
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(uint16_t address) {
 /* -------------------------------------------------------------------------- */  
-  end();
   is_master = false;
   slave_address = address;
   /* Address is set inside begin() using slave_address member variable */
-  _begin();
+  begin();
   
 }
 
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(int address) {
 /* -------------------------------------------------------------------------- */  
+  is_master = false;
+  slave_address = (uint16_t)address;
   begin((uint16_t)address);
 }
 
 /* -------------------------------------------------------------------------- */
 void TwoWire::begin(uint8_t address) {
 /* -------------------------------------------------------------------------- */  
+  is_master = false;
+  slave_address = (uint16_t)address;
   begin((uint16_t)address);
 }
 
@@ -437,28 +434,15 @@ void TwoWire::end(void) {
   if(init_ok) {
     if(is_master) {
       if(m_close != nullptr) {
-        R_BSP_IrqDisable (m_i2c_cfg.txi_irq);
-        R_BSP_IrqDisable (m_i2c_cfg.rxi_irq);
-        R_BSP_IrqDisable (m_i2c_cfg.tei_irq);
-        R_BSP_IrqDisable (m_i2c_cfg.eri_irq);
         m_close(&m_i2c_ctrl);  
       }
     }
     else {
       if(s_close != nullptr) {
-        R_BSP_IrqDisable (s_i2c_cfg.txi_irq);
-        R_BSP_IrqDisable (s_i2c_cfg.rxi_irq);
-        R_BSP_IrqDisable (s_i2c_cfg.tei_irq);
-        R_BSP_IrqDisable (s_i2c_cfg.eri_irq);
         s_close(&s_i2c_ctrl);
-        
       }
     }
   }
-  /* fix for slave that create a sort of lock on the I2C bus when end is called and the master
-     is not more able to get the I2C buse working */
-  R_IOPORT_PinCfg(NULL, g_pin_cfg[sda_pin].pin, IOPORT_CFG_PORT_DIRECTION_INPUT | IOPORT_CFG_PULLUP_ENABLE);
-  R_IOPORT_PinCfg(NULL, g_pin_cfg[scl_pin].pin, IOPORT_CFG_PORT_DIRECTION_INPUT | IOPORT_CFG_PULLUP_ENABLE);
   init_ok = false;
 }
 
@@ -480,8 +464,8 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    timeout_ms = millis() + timeout_ms;
+    while(millis() < timeout_ms && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
   }
@@ -508,8 +492,8 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    timeout_ms = millis() + timeout_ms;
+    while(millis() < timeout_ms && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
 

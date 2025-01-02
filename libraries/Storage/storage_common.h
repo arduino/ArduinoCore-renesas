@@ -18,21 +18,21 @@ extern "C" {
 #define STORAGE_BUFF_DIM 512
 #define PRINT_SIZE        32
 
-extern char rns_storage_dbg_buf[STORAGE_BUFF_DIM];
+extern char debug_buffer[STORAGE_BUFF_DIM];
 
 /** Output a debug message
  *
  * @param format printf-style format string, followed by variables
  */
-static inline void rns_storage_dbg(const char *fmt, ...)
+static inline void debug(const char *fmt, ...)
 {
-    memset(rns_storage_dbg_buf,0x00,256);
+    memset(debug_buffer,0x00,256);
     va_list va;
     va_start (va, fmt);
-    vsnprintf (rns_storage_dbg_buf,STORAGE_BUFF_DIM, fmt, va);
+    vsnprintf (debug_buffer,STORAGE_BUFF_DIM, fmt, va);
     va_end (va);
     if(Serial)
-        Serial.println(rns_storage_dbg_buf);
+        Serial.println(debug_buffer);
 }
 
 
@@ -44,20 +44,20 @@ static inline void rns_storage_dbg(const char *fmt, ...)
  * @param condition output only if condition is true (!= 0)
  * @param format printf-style format string, followed by variables
  */
-static inline void rns_storage_dbg_if(int condition, const char *fmt, ...)
+static inline void debug_if(int condition, const char *fmt, ...)
 {
     if (condition) {
-        memset(rns_storage_dbg_buf,0x00,256);
+        memset(debug_buffer,0x00,256);
         va_list va;
         va_start (va, fmt);
-        vsnprintf (rns_storage_dbg_buf,STORAGE_BUFF_DIM, fmt, va);
+        vsnprintf (debug_buffer,STORAGE_BUFF_DIM, fmt, va);
         va_end (va);
         if(Serial)
-            Serial.println(rns_storage_dbg_buf);
+            Serial.println(debug_buffer);
     }
 }
 
-static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size)
+static inline void debug_mem(uint8_t *b, uint32_t _size)
 {
     if (b != nullptr) {
         Serial.println("");
@@ -76,16 +76,16 @@ static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size)
 
 #else
 
-static inline void rns_storage_dbg_if(int condition, const char *format, ...) {
+static inline void debug_if(int condition, const char *format, ...) {
     (void)condition;
     (void)format;
 }
 
-static inline void rns_storage_dbg(const char *format, ...) {
+static inline void debug(const char *format, ...) {
     (void)format;
 }
 
-static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size) {
+static inline void debug_mem(uint8_t *b, uint32_t _size) {
     (void)b;
     (void)_size;
 }
@@ -98,7 +98,7 @@ static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size) {
 
 #ifdef STORAGE_ASSERT
     #define MBED_ASSERT(expr)  do { if (!(expr)) { \
-        rns_storage_dbg("ASSERT FAILED at line %d in file %s",__LINE__,__FILE__); }} while(0)
+        debug("ASSERT FAILED at line %d in file %s",__LINE__,__FILE__); }} while(0)
 #else
     #define MBED_ASSERT(expr)
 #endif 

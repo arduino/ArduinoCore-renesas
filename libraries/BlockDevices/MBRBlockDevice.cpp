@@ -19,9 +19,6 @@
 #include <algorithm>
 #include <string.h>
 
-#define debug_if rns_storage_dbg_if
-#define debug_mem rns_storage_dbg_mem
-
 // To enable debug set MBR_DBG to 1 and make sure STORAGE_DEBUG is defined
 // in Storage/storage_common.h
 #define MBR_DBG     0

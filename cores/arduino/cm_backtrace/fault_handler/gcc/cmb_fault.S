@@ -26,8 +26,6 @@
  * Created on: 2016-12-16
  */
 
-#ifdef BACKTRACE_SUPPORT
-
 .syntax unified
 .thumb
 .text
@@ -43,5 +41,3 @@ HardFault_Handler:
 
 Fault_Loop:
     BL      Fault_Loop              /* while(1) */
-
-#endif

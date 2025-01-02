@@ -11,7 +11,7 @@ bool FspTimer::force_pwm_reserved = false;
 TimerAvail_t FspTimer::gpt_used_channel[GPT_HOWMANY] = { TIMER_FREE };
 TimerAvail_t FspTimer::agt_used_channel[AGT_HOWMANY] = { TIMER_FREE };
 
-FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER), _period_buffer(true) {
+FspTimer::FspTimer(): init_ok(false), agt_timer(nullptr), gpt_timer(nullptr), type(GPT_TIMER) {
     // AGT0 is always used for timekeeping (millis() and micros())
     // agt_used_channel[0] = TIMER_USED;
     timer_cfg.cycle_end_irq = FSP_INVALID_VECTOR;
@@ -380,11 +380,13 @@ bool FspTimer::set_pulse_ms(double ms,TimerPWMChannel_t pwm_ch) {
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB) >> timer_cfg.source_div;
     }
     
-    uint32_t pulse_counts_ms = (uint32_t) ((uint64_t) (freq_hz * ms)/1000);
+    uint32_t pulse_counts_ms = (uint32_t) ((uint64_t) freq_hz/1000 * ms);
     if(!set_duty_cycle(pulse_counts_ms, pwm_ch)) {
         return false;
     }
-    return true;   
+    
+    return true;  
+      
 }
 
 /* -------------------------------------------------------------------------- */
@@ -397,11 +399,12 @@ bool FspTimer::set_pulse_us(double us,TimerPWMChannel_t pwm_ch) {
     else if(type == AGT_TIMER){
         freq_hz = R_FSP_SystemClockHzGet(FSP_PRIV_CLOCK_PCLKB) >> timer_cfg.source_div;
     }
-
-    uint32_t pulse_counts_us = (uint32_t) ((uint64_t) (freq_hz * us)/1000000 );
+    
+    uint32_t pulse_counts_us = (uint32_t) ((uint64_t) freq_hz/1000000 * us);
     if(!set_duty_cycle(pulse_counts_us, pwm_ch)) {
         return false;
     }
+    
     return true;  
 }
 
@@ -450,51 +453,14 @@ bool FspTimer::set_period(uint32_t p) {
 /* -------------------------------------------------------------------------- */    
 
     if(type == GPT_TIMER && gpt_timer != nullptr) {
-        if (_period_buffer) {
         if (R_GPT_PeriodSet(&(gpt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;
-        }
-    }
-        else {
-            // Not buffered set it directly
-            gpt_timer->ctrl.p_reg->GTPR = p;
         }
     }
     else if(type == AGT_TIMER && agt_timer != nullptr) {
         if (R_AGT_PeriodSet(&(agt_timer->ctrl), p) != FSP_SUCCESS) {
             return false;
         }
-    }
-    else {
-        return false;
-    }
-    return true;
-}
-
-
-
-/* -------------------------------------------------------------------------- */
-bool FspTimer::set_period_buffer(bool period_buffer) {
-/* -------------------------------------------------------------------------- */    
-
-    if (_period_buffer == (uint8_t)period_buffer) {
-        return true;
-    }
-
-    _period_buffer = (uint8_t)period_buffer;
-    if(type == GPT_TIMER && gpt_timer != nullptr) {
-
-        if (period_buffer) {
-            gpt_timer->ctrl.p_reg->GTBER_b.PR = 1;
-            gpt_timer->ctrl.p_reg->GTBER_b.BD1 = 0;
-        }
-        else {
-            gpt_timer->ctrl.p_reg->GTBER_b.PR = 0;
-            gpt_timer->ctrl.p_reg->GTBER_b.BD1 = 1;
-        } 
-    }
-    else if(type == AGT_TIMER && agt_timer != nullptr) {
-        // not buffered..
     }
     else {
         return false;

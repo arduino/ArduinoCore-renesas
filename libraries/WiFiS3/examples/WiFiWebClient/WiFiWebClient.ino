@@ -16,7 +16,7 @@
   modified 31 May 2012
   by Tom Igoe
 
-  Find the full UNO R4 WiFi Network documentation here:
+  Find the full UNO R4 WiFi RTC documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-web-client
  */
 

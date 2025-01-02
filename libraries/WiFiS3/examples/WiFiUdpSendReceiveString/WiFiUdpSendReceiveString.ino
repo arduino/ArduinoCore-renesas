@@ -7,7 +7,7 @@
   created 30 December 2012
   by dlf (Metodo2 srl)
 
-  Find the full UNO R4 WiFi Network documentation here:
+  Find the full UNO R4 WiFi RTC documentation here:
   https://docs.arduino.cc/tutorials/uno-r4-wifi/wifi-examples#wi-fi-udp-send-receive-string
  */
 

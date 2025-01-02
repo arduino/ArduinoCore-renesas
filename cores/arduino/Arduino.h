@@ -121,6 +121,10 @@ float analogReference();
 #define IOPORT_PRV_PORT_OFFSET            (8U)
 #define BSP_IO_PRV_8BIT_MASK              (0xFF)
 
+#ifndef SDCARD_SPI
+  #define SDCARD_SPI SPI
+#endif
+  
 #include "pins_arduino.h"
 #include "usb/USB.h"
 

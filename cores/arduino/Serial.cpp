@@ -58,14 +58,12 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       {
           break;
       }
-      case UART_EVENT_TX_COMPLETE: // This is call when the transmission is complete
+      case UART_EVENT_TX_COMPLETE:
+      case UART_EVENT_TX_DATA_EMPTY:
       {
-        uart_ptr->tx_complete = true;
-        break;
-      }
-      case UART_EVENT_TX_DATA_EMPTY: // This is called when the buffer is empty
-      {                              // Last byte is transmitting, but ready for more data
-        uart_ptr->tx_empty = true;
+        //uint8_t to_enqueue = uart_ptr->txBuffer.available() < uart_ptr->uart_ctrl.fifo_depth ? uart_ptr->txBuffer.available() : uart_ptr->uart_ctrl.fifo_depth;
+        //while (to_enqueue) {
+        uart_ptr->tx_done = true;
         break;
       }
       case UART_EVENT_RX_CHAR:
@@ -89,8 +87,6 @@ UART::UART(int _pin_tx, int _pin_rx, int _pin_rts, int _pin_cts):
   rx_pin(_pin_rx),
   rts_pin(_pin_rts),
   cts_pin(_pin_cts),
-  tx_empty(true),
-  tx_complete(true),
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
   uart_cfg.txi_irq = FSP_INVALID_VECTOR;
@@ -113,10 +109,9 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 size_t UART::write(uint8_t c) {
 /* -------------------------------------------------------------------------- */  
   if(init_ok) {
-    tx_empty = false;
-    tx_complete = false;
+    tx_done = false;
     R_SCI_UART_Write(&uart_ctrl, &c, 1);
-    while (!tx_empty) {}
+    while (!tx_done) {}
     return 1;
   }
   else {
@@ -126,10 +121,9 @@ size_t UART::write(uint8_t c) {
 
 size_t  UART::write(uint8_t* c, size_t len) {
   if(init_ok) {
-    tx_empty = false;
-    tx_complete = false;
+    tx_done = false;
     R_SCI_UART_Write(&uart_ctrl, c, len);
-    while (!tx_empty) {}
+    while (!tx_done) {}
     return len;
   }
   else {
@@ -328,7 +322,7 @@ int UART::read() {
 /* -------------------------------------------------------------------------- */
 void UART::flush() {
 /* -------------------------------------------------------------------------- */  
-  while(!tx_complete);
+  while(txBuffer.available());
 }
 
 /* -------------------------------------------------------------------------- */

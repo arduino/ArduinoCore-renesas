@@ -152,14 +152,12 @@ class TwoWire : public arduino::HardwareI2C {
 
   private:
     
-    static TwoWire *g_SCIWires[TWOWIRE_MAX_SCI_CHANNELS];
-    static TwoWire *g_I2CWires[TWOWIRE_MAX_I2C_CHANNELS];
+    static TwoWire *g_SCIWires[TWOWIRE_MAX_I2C_CHANNELS];
+    static TwoWire *g_I2CWires[TWOWIRE_MAX_SCI_CHANNELS];
     
     static void WireSCIMasterCallback(i2c_master_callback_args_t *);
     static void WireMasterCallback(i2c_master_callback_args_t *);
     static void WireSlaveCallback(i2c_slave_callback_args_t *);
-
-    void _begin();
     
     int scl_pin;
     int sda_pin;
