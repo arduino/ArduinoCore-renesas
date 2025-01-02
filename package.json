@@ -1,7 +1,7 @@
 {
   "name": "framework-arduinorenesas-uno",
-  "version": "1.2.2",
-  "description": "Arduino Wiring-based Framework for Renesas MCUs (UNOR4 core)",
+  "version": "1.1.1",
+  "description": "Arduino RMC-RA4M1(rev.2.0)",
   "keywords": [
     "framework",
     "arduino",
