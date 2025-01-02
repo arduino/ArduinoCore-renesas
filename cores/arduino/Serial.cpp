@@ -266,6 +266,11 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
           uart_cfg.parity = UART_PARITY_ODD;
           uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
+      case SERIAL_9N1:
+          uart_cfg.data_bits = UART_DATA_BITS_9;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
+          break;
     }
     
     uart_cfg.p_callback = UART::WrapperCallback;
