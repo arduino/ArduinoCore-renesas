@@ -185,15 +185,11 @@ int WiFiClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */
 int WiFiClient::peek() {
 /* -------------------------------------------------------------------------- */
-   int rv = -1;
-   if(_sock >= 0) {
-      string res = "";
-      modem.begin();
-      if(modem.write(string(PROMPT(_PEEK)),res, "%s%d\r\n" , CMD_WRITE(_PEEK), _sock)) {
-         rv = atoi(res.c_str());
-      }
+   read_if_needed(1);
+   if(_sock >= 0 && rx_buffer != nullptr) {
+      return rx_buffer->peek();
    }
-   return rv;
+   return -1;
 }
 
 
