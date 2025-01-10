@@ -2,7 +2,6 @@
 #include <functional>
 #include "lwip/include/lwip/raw.h"
 #include "lwip/include/lwip/icmp.h"
-#include "lwip/include/lwip/raw.h"
 #include "lwip/include/lwip/ip_addr.h"
 #include "lwip/include/lwip/inet_chksum.h"
 
