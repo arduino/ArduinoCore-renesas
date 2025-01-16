@@ -55,6 +55,8 @@ class CEthernet {
     int begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
     EthernetHardwareStatus hardwareStatus();
 
+    void setHostname(const char* hostname);
+    void setDnsServerIP(const IPAddress dns_server); // legacy Ethernet API
     void setDNS(IPAddress dns_server); 
 
     int disconnect(void);
@@ -63,11 +65,15 @@ class CEthernet {
 
    
     uint8_t *MACAddress(void);
-    void MACAddress(uint8_t *mac);
+    void MACAddress(uint8_t *mac); // legacy Ethernet API
+    uint8_t* macAddress(uint8_t* mac);
     IPAddress localIP();
     IPAddress subnetMask();
     IPAddress gatewayIP();
-    IPAddress dnsServerIP();
+    IPAddress dnsServerIP(); // legacy Ethernet API
+    IPAddress dnsIP(int n = 0);
+
+    int hostByName(const char* hostname, IPAddress& result);
 
 
     friend class EthernetClient;
