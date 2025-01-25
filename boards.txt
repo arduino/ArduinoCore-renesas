@@ -316,7 +316,7 @@ rmc_ra4m1_20.build.fpu=-mfpu=fpv4-sp-d16
 rmc_ra4m1_20.build.float-abi=-mfloat-abi=hard
 
 rmc_ra4m1_20.build.board=rmc_ra4m1_20
-rmc_ra4m1_20.build.defines=-DF_CPU=48000000 -DARDUINO_UNOR4_MINIMA
+rmc_ra4m1_20.build.defines=-DF_CPU=48000000 -DRMC-RA4M1_REV2.0
 rmc_ra4m1_20.vid.0=0x2341
 rmc_ra4m1_20.pid.0=0x0069
 rmc_ra4m1_20.vid.1=0x2341
