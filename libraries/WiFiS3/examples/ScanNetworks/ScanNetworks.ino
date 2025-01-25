@@ -91,7 +91,7 @@ void printEncryptionType(int thisType) {
       Serial.println("WPA2");
       break;
     case ENC_TYPE_WPA3:
-      Serial.print("WPA3");
+      Serial.println("WPA3");
       break;   
     case ENC_TYPE_NONE:
       Serial.println("None");
