@@ -56,6 +56,7 @@ extern "C" const PinMuxCfg_t g_pin_cfg[] = {
   { BSP_IO_PORT_04_PIN_00,    P400   }, /* (26) QWIIK SCL  */
   { BSP_IO_PORT_04_PIN_01,    P401   }, /* (27) QWIIK SDA  */
 
+  { BSP_IO_PORT_05_PIN_00,    P500   }, /* (28) 3V3 enable  */
 };
 
 extern "C" {

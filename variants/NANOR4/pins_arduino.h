@@ -174,6 +174,11 @@ static const uint8_t SS  =  PIN_SPI_CS;
 
 #define VUSB_LDO_ENABLE     1
 
+// Use this define to shutdown the 3V3 regulator
+// pinMode(ENABLE_3V3, OUTPUT);
+// digitalWrite(ENABLE_3V3, LOW);
+#define ENABLE_3V3          28
+
 /* EEPROM DEFINES */
 
 #define ARDUINO_FLASH_TYPE  LP_FLASH
