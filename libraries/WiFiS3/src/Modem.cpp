@@ -36,7 +36,9 @@ void ModemClass::begin(int badurate){
       _serial->begin(badurate);
       string res = "";
       _serial->flush();
+      modem.timeout(500);
       beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
+      modem.timeout(MODEM_TIMEOUT);
    }
 }
 
