@@ -34,10 +34,9 @@ void ModemClass::begin(int badurate){
 /* -------------------------------------------------------------------------- */
    if(_serial != nullptr && !beginned) {
       _serial->begin(badurate);
-      beginned = true;
       string res = "";
       _serial->flush();
-      modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
+      beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
    }
 }
 
