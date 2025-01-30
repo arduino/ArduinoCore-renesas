@@ -30,14 +30,17 @@ ModemClass::~ModemClass() {
 }
 
 /* -------------------------------------------------------------------------- */
-void ModemClass::begin(int badurate){
+void ModemClass::begin(int badurate, int retry){
 /* -------------------------------------------------------------------------- */
    if(_serial != nullptr && !beginned) {
       _serial->begin(badurate);
       string res = "";
       _serial->flush();
       modem.timeout(500);
-      beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
+      while(!beginned && retry > 0) {
+         beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
+         retry -= 1;
+      }
       modem.timeout(MODEM_TIMEOUT);
    }
 }
