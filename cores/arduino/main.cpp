@@ -112,8 +112,10 @@ void arduino_main(void)
    Serial.begin(115200);
 #endif
    startAgt();
-   start_freertos_on_header_inclusion();
    setup();
+#ifdef PROVIDE_FREERTOS_HOOK
+   start_freertos_on_header_inclusion();
+#endif
    while (1)
    {
       loop();
