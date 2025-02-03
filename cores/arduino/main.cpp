@@ -64,6 +64,7 @@ void unsecure_registers() {
 #define str(s) #s
 
 extern "C" void Stacktrace_Handler(void);
+extern "C" __attribute__((weak)) void start_freertos_on_header_inclusion() {}
 
 void arduino_main(void)
 {
@@ -112,6 +113,9 @@ void arduino_main(void)
 #endif
    startAgt();
    setup();
+#ifdef PROVIDE_FREERTOS_HOOK
+   start_freertos_on_header_inclusion();
+#endif
    while (1)
    {
       loop();

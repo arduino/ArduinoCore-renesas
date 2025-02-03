@@ -22,13 +22,13 @@
 #define WL_MAC_ADDR_LENGTH 6
 
 class CAccessPoint {
-   public:
-      std::string ssid;
-      std::string bssid;
-      uint8_t uint_bssid[6];
-      std::string rssi;
-      std::string channel;
-      std::string encryption_mode;
+public:
+    std::string ssid;
+    std::string bssid;
+    uint8_t uint_bssid[6];
+    std::string rssi;
+    std::string channel;
+    std::string encryption_mode;
 };
 
 
@@ -42,17 +42,17 @@ class CAccessPoint {
  * connection settings such as IP address, DNS, and other network configurations.
  */
 class CWifi {
-private: 
-   void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
-   unsigned long _timeout;
-   std::vector<CAccessPoint> access_points;
-   std::string ssid;
-   std::string apssid;
-   
+private:
+    void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
+    unsigned long _timeout;
+    std::vector<CAccessPoint> access_points;
+    std::string ssid;
+    std::string apssid;
 
-   IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
-   IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
-   IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
+
+    IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
+    IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
+    IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
 
 
 
@@ -67,6 +67,14 @@ public:
      * @brief Get firmware version
      */
     static const char* firmwareVersion();
+    /*
+     * Get firmware version U32
+     *
+     * Since version is made in a semver fashion, thus in an integer it will be represented as
+     *  byte 1 (MSB) | byte 2 | byte 3 | byte 4
+     *             0 | MAJOR  | MINOR  | PATCH
+     */
+    uint32_t firmwareVersionU32();
 
     /** 
      * @brief Start WiFi connection for OPEN networks.
@@ -75,9 +83,21 @@ public:
      */
     int begin(const char* ssid);
 
-    /** 
-     * @brief start WiFi connection with passphrase the most secure
-     * supported mode will be automatically selected.
+    /*
+     * PING
+     */
+    int ping(IPAddress ip, uint8_t ttl = 128, uint8_t count = 1);
+    int ping(const String &hostname, uint8_t ttl = 128, uint8_t count = 1);
+    int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
+
+    /*
+     * Start WiFi connection for OPEN networks
+     * param ssid: Pointer to the SSID string.
+     */
+    int begin(const char* ssid);
+
+    /* Start WiFi connection with passphrase
+     * the most secure supported mode will be automatically selected
      *
      * @param `ssid` Pointer to the SSID string.
      * @param `passphrase` Passphrase. Valid characters in a passphrase
@@ -178,7 +198,7 @@ public:
      * @param `subnet` The static subnet mask to use for the network.
      */
     void config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
-    
+
     /**
      * @brief Sets the primary DNS server for the Wi-Fi connection.
      *
@@ -213,7 +233,6 @@ public:
      */
     void end(void);
 
-
     /**
      * @brief Retrieves the MAC address of the device.
      * 
@@ -224,7 +243,7 @@ public:
      * 
      * @param `_mac` A pointer to a uint8_t array where the MAC address will be stored.
      * 
-     * @return uint8_t* The pointer to the array containing the MAC address.
+     * @return uint8_t* The pointer to the array with length WL_MAC_ADDR_LENGTH.
      */
     uint8_t* macAddress(uint8_t* mac);
 
@@ -268,7 +287,6 @@ public:
     * @return `IPAddress` The DNS IP address as an `IPAddress` object, or `0.0.0.0` if not found.
     */
    IPAddress dnsIP(int n = 0);
-
 
     /**
      * @brief Retrieves the IP address of the soft access point (AP).
@@ -423,7 +441,7 @@ public:
      */
     void setTimeout(unsigned long timeout);
 
-    
+
 };
 
 /**

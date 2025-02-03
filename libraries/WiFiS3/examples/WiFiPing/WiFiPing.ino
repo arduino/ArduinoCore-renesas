@@ -1,45 +1,40 @@
 /*
-  Get the time in seconds since January 1st, 1970.
+  Web ICMP Ping
 
-  The time is retrieved with the WiFi module by fetching the NTP time from an NTP server.
+  This sketch pings a device based on the IP address or the hostname
+  using the WiFi module. By default the attempt is performed 5 times, but can
+  be changed to max. 255
 
   It requires at least version 0.5.0 of USB Wifi bridge firmware and WiFiS3 library.
 
   This example is written for a network using WPA encryption. For
   WEP or WPA, change the WiFi.begin() call accordingly.
 
-  created 21 february 2024
+  created 14 February 2024
+  by paulvha
 
-*/
+ */
 
 #include "WiFiS3.h"
 #include "arduino_secrets.h"
-#include "RTC.h"
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;    // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;             // your network key index number (needed only for WEP)
 
-/// set offsets to GMT from local
-#define GMTOffset_hour  1     // # hours difference to GMT
-#define DayLightSaving  0     // 1 = daylight saving is active
-
 int status = WL_IDLE_STATUS;
 
 /* -------------------------------------------------------------------------- */
 void setup() {
 /* -------------------------------------------------------------------------- */
-
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  RTC.begin();
-
-   // check for the WiFi module:
+  // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed.");
     // don't continue
@@ -64,37 +59,44 @@ void setup() {
 void loop() {
 /* -------------------------------------------------------------------------- */
 
-  unsigned long EpochTime;
+  // Ping IP
+  const IPAddress remote_ip(140,82,121,4);
+  Serial.print("Trying to ping github.com on IP: ");
+  Serial.println(remote_ip);
 
-  EpochTime = WiFi.getTime();
+  // using default ping count of 1
+  int res = WiFi.ping(remote_ip);
 
-  if (EpochTime > 0) {
-    UpdateRTC(EpochTime);
+  if (res > 0) {
+    Serial.print("Ping response time: ");
+    Serial.print(res);
+    Serial.println(" ms");
   }
   else {
-    Serial.println("Error during reading epoch time.");
+    Serial.println("Timeout on IP!");
+    Serial.println("Make sure your WiFi firmware version is at least 0.5.0");
+  }
+
+  // Ping Host
+  const char* remote_host = "www.google.com";
+  Serial.print("Trying to ping host: ");
+  Serial.println(remote_host);
+
+  // setting ttl to 128 and ping count to 10
+  int res1 = WiFi.ping(remote_host, 128, 10);
+
+  if (res1 > 0) {
+    Serial.print("Ping average response time: ");
+    Serial.print(res1);
+    Serial.println(" ms");
+  }
+  else {
+    Serial.println("Timeout on host!");
     Serial.println("Make sure your WiFi firmware version is at least 0.5.0");
   }
 
   Serial.println();
-  delay(10000);
-}
-
-/* -------------------------------------------------------------------------- */
-void UpdateRTC(time_t EpochTime) {
-/* -------------------------------------------------------------------------- */
-
-  auto timeZoneOffsetHours = GMTOffset_hour + DayLightSaving;
-  auto unixTime = EpochTime + (timeZoneOffsetHours * 3600);
-  Serial.print("Unix time = ");
-  Serial.println(unixTime);
-  RTCTime timeToSet = RTCTime(unixTime);
-  RTC.setTime(timeToSet);
-
-  // Retrieve the date and time from the RTC and print them
-  RTCTime currentTime;
-  RTC.getTime(currentTime);
-  Serial.println("The RTC was just set to: " + String(currentTime));
+  delay(1000);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -162,8 +162,9 @@ size_t Preferences::putBool(const char* key, const bool value) {
 size_t Preferences::putString(const char* key, const char* value) {
     string res = "";
     if (key != nullptr && strlen(key) > 0 && value != nullptr && strlen(value) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%s\r\n", CMD_WRITE(_PREF_PUT), key, PT_STR, value)) {
-            return atoi(res.c_str());
+        modem.write_nowait(string(PROMPT(_PREF_PUT)), res, "%s%s,%d,%d\r\n", CMD_WRITE(_PREF_PUT), key, PT_STR, strlen(value));
+        if(modem.passthrough((uint8_t *)value, strlen(value))) {
+            return strlen(value);
         }
     }
     return 0;
@@ -187,7 +188,7 @@ size_t Preferences::putBytes(const char* key, const void* value, size_t len) {
 PreferenceType Preferences::getType(const char* key) {
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
-        if (modem.write(string(PROMPT(_PREF_PUT)), res, "%s%s\r\n", CMD_WRITE(_PREF_PUT), key)) {
+        if (modem.write(string(PROMPT(_PREF_TYPE)), res, "%s%s\r\n", CMD_WRITE(_PREF_TYPE), key)) {
             return static_cast<PreferenceType>(atoi(res.c_str()));
         }
     }
@@ -307,9 +308,11 @@ bool Preferences::getBool(const char* key, const bool defaultValue) {
 size_t Preferences::getString(const char* key, char* value, const size_t maxLen) {
     string res = "";
     if (key != nullptr && strlen(key) > 0 && value != nullptr) {
+        modem.read_using_size();
         if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d\r\n", CMD_WRITE(_PREF_GET), key, PT_STR)) {
-            if (res.length() < maxLen) {
+            if (res.length()+1 < maxLen) { // take into account \0 at the end
                 strncpy(value, res.c_str(), res.length());
+                value[res.length()] = '\0';
                 return res.length();
             }
         }
@@ -320,6 +323,7 @@ size_t Preferences::getString(const char* key, char* value, const size_t maxLen)
 String Preferences::getString(const char* key, const String defaultValue) {
     string res = "";
     if (key != nullptr && strlen(key) > 0) {
+        modem.read_using_size();
         if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d,%s\r\n", CMD_WRITE(_PREF_GET), key, PT_STR, defaultValue.c_str())) {
             return String(res.c_str());
         }
@@ -346,6 +350,8 @@ size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen) {
         if (modem.write(string(PROMPT(_PREF_GET)), res, "%s%s,%d\r\n", CMD_WRITE(_PREF_GET), key, PT_BLOB)) {
             if (res.size() >= len && len <= maxLen) {
                 memcpy(buf, (uint8_t*)&res[0], len);
+
+                return len;
             }
         }
     }
