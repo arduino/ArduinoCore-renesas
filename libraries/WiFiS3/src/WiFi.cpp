@@ -1,7 +1,5 @@
 #include "WiFi.h"
 
-#define SSID_MAX_COUNT 12
-
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
