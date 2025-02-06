@@ -38,19 +38,26 @@ jobs:
         - libraries/RTC/examples/Test_RTC
         - libraries/SoftwareSerial
         - libraries/WDT
+      SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
       fail-fast: false
 
       matrix:
-        board: [
-          {"fqbn": "arduino:renesas_portenta:portenta_c33"},
-          {"fqbn": "arduino:renesas_uno:minima"},
-          {"fqbn": "arduino:renesas_uno:unor4wifi"},
-          {"fqbn": "arduino-git:renesas:portenta_c33"},
-          {"fqbn": "arduino-git:renesas:minima"},
-          {"fqbn": "arduino-git:renesas:unor4wifi"},
-        ]
+        board:
+          - fqbn: arduino:renesas_portenta:portenta_c33
+            id: c33
+          - fqbn: arduino:renesas_uno:minima
+            id: minima
+          - fqbn: arduino:renesas_uno:unor4wifi
+            id: wifi
+          - fqbn: arduino-git:renesas:portenta_c33
+            id: git_c33
+          - fqbn: arduino-git:renesas:minima
+            id: git_minima
+          - fqbn: arduino-git:renesas:unor4wifi
+            id: git_wifi
+
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -173,9 +180,10 @@ jobs:
           enable-deltas-report: 'false'
           verbose: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save memory usage change report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sketches-reports
-          path: sketches-reports
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: ${{ env.SKETCHES_REPORTS_PATH }}-${{ matrix.board.id }}
