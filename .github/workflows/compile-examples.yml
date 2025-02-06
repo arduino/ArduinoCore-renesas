@@ -106,11 +106,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: arduino/ArduinoCore-API
           path: extras/ArduinoCore-API
@@ -125,7 +125,7 @@ jobs:
         if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Checkout Basic examples
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: arduino/arduino-examples
           path: examples
