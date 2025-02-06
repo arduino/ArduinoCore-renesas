@@ -175,7 +175,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save memory usage change report as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sketches-reports
           path: sketches-reports
