@@ -186,4 +186,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-          name: ${{ env.SKETCHES_REPORTS_PATH }}-${{ matrix.board.id }}
+          name: sketches-reports-${{ matrix.board.id }}
