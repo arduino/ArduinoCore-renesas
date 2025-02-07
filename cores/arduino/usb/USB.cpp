@@ -456,3 +456,7 @@ extern "C"  __attribute((weak))  int32_t tud_msc_scsi_cb (uint8_t lun, uint8_t c
     (void) bufsize;
     return -1;
 }
+
+extern "C" uint32_t tusb_time_millis_api(void) {
+  return millis();
+}
