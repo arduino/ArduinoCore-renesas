@@ -22,7 +22,7 @@ public:
   ModemClass(UART * _serial);
   ~ModemClass();
 
-  void begin(int badurate = 115200);
+  void begin(int badurate = 115200, int retry = 3);
   void end();
   bool write(const std::string &cmd, std::string &str, const char * fmt, ...);
   void write_nowait(const std::string &cmd, std::string &str, const char * fmt, ...);
