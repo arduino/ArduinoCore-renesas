@@ -329,9 +329,9 @@ IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
-   int attempts = 0;
    IPAddress local_IP(0,0,0,0);
 
+   unsigned long start_time = millis();
    do {
       delay(100);
       if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
@@ -349,9 +349,8 @@ IPAddress CWifi::localIP() {
             }
          }
       }
-      attempts++;
    }
-   while(local_IP == IPAddress(0,0,0,0) && attempts < 50);
+   while((local_IP == IPAddress(0,0,0,0)) && (millis() - start_time < _timeout));
 
    return local_IP;
 }
