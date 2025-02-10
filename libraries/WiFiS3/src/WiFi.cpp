@@ -333,7 +333,6 @@ IPAddress CWifi::localIP() {
 
    unsigned long start_time = millis();
    do {
-      delay(100);
       if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
          if(atoi(res.c_str()) == 1) {
             if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
