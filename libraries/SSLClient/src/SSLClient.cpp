@@ -147,12 +147,12 @@ int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, co
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port, const char *pskIdent, const char *psKey) {
-    return connect(ip.toString().c_str(), port,_pskIdent, _psKey);
+    return connect(ip.toString().c_str(), port, pskIdent, psKey);
 }
 
 int SSLClient::connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey) {
     log_v("start_ssl_client with PSK");
-    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, NULL, _pskIdent, _psKey, _use_insecure);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, NULL, pskIdent, psKey, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);
