@@ -38,6 +38,7 @@ static int _handle_error(int err, const char * file, int line)
 
 #define handle_error(e) _handle_error(e, __FUNCTION__, __LINE__)
 
+#if defined(SSL_CLIENT_RECV_DISABLE_TIMEOUT)
 /**
  * \brief          Read at most 'len' characters. If no error occurs,
  *                 the actual amount read is returned.
@@ -71,8 +72,8 @@ static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
 
     return result;
 }
-
-int client_net_recv_timeout( void *ctx, unsigned char *buf,
+#else
+static int client_net_recv_timeout( void *ctx, unsigned char *buf,
                              size_t len, uint32_t timeout ) {
     Client *client = (Client*)ctx;
     if (!client) {
@@ -105,7 +106,7 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
 
     return result;
 }
-
+#endif
 
 /**
  * \brief          Write at most 'len' characters. If no error occurs,
