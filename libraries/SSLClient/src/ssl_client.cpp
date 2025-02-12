@@ -52,11 +52,11 @@ static int _handle_error(int err, const char * file, int line)
  */
 static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
@@ -68,14 +68,14 @@ static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     if (result > 0) {
         //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
     }
-    
+
     return result;
 }
 
 int client_net_recv_timeout( void *ctx, unsigned char *buf,
                              size_t len, uint32_t timeout ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
@@ -90,9 +90,9 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
             delay(1);
         } else break;
     } while (millis() < tms);
-    
+
     int result = client->read(buf, len);
-    
+
     // lwIP interface return -1 if there is no data to read
     // report without throwing errors or block
     if (result <= 0) return MBEDTLS_ERR_SSL_WANT_READ;
@@ -102,7 +102,7 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
     if (result > 0) {
         //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
     }
-    
+
     return result;
 }
 
@@ -121,20 +121,20 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
  */
 static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
     //}
-    
+
     //esp_log_buffer_hexdump_internal("SSL.WR", buf, (uint16_t)len, ESP_LOG_VERBOSE);
-    
+
     int result = client->write(buf, len);
-    
+
     log_d("SSL client TX res=%d len=%d", result, len);
     return result;
 }
@@ -342,7 +342,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
     } else {
         log_v("Certificate verified.");
     }
-    
+
     if ((rootCABuff != NULL) || ((rootCAPath != NULL))) {
         log_d("free buffer");
         mbedtls_x509_crt_free(&ssl_client->ca_cert);
@@ -354,7 +354,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
 
     if (cli_key != NULL) {
         mbedtls_pk_free(&ssl_client->client_key);
-    }    
+    }
 
     //return ssl_client->socket;
     return 1;
