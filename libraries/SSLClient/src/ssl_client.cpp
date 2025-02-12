@@ -153,7 +153,7 @@ void ssl_init(sslclient_context *ssl_client, Client *client, const char * ca_pat
     mbedtls_ssl_conf_ciphersuites(&ssl_client->ssl_conf, mbedtls_ssl_list_ciphersuites());
 
     mbedtls_ssl_conf_dbg(&ssl_client->ssl_conf, mbedtls_debug_print, NULL);
-    mbedtls_debug_set_threshold(DEBUG_LEVEL);
+    mbedtls_debug_set_threshold(SSL_DEBUG_LEVEL);
 
     mbedtls_fs_init(ca_path);
 }
