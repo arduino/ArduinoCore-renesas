@@ -336,7 +336,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         memset(buf, 0, sizeof(buf));
         mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
         log_e("Failed to verify peer certificate! verification info: %s", buf);
-        stop_ssl_socket(ssl_client, rootCABuff, cli_cert, cli_key);  //It's not safe continue.
+        stop_ssl_socket(ssl_client);  //It's not safe continue.
 
         return handle_error(ret);
     } else {
@@ -361,7 +361,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
 }
 
 
-void stop_ssl_socket(sslclient_context *ssl_client, const char *rootCABuff, const char *cli_cert, const char *cli_key)
+void stop_ssl_socket(sslclient_context *ssl_client)
 {
     log_v("Cleaning SSL connection.");
 

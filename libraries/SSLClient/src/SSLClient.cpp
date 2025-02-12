@@ -102,7 +102,7 @@ void SSLClient::stop()
         _connected = false;
         _peek = -1;
     }
-    stop_ssl_socket(sslclient, _CA_cert, _cert, _private_key);
+    stop_ssl_socket(sslclient);
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port)
