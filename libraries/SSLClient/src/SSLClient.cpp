@@ -97,12 +97,9 @@ void SSLClient::setClient(Client& client)
 
 void SSLClient::stop()
 {
-    if (sslclient->client >= 0) {
-        //sslclient->client->stop();
-        _connected = false;
-        _peek = -1;
-    }
     stop_ssl_socket(sslclient);
+    _connected = false;
+    _peek = -1;
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port)
