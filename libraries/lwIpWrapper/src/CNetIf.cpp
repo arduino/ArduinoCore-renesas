@@ -228,7 +228,7 @@ CNetIf* CLwipIf::get(NetIfType_t type,
     bool isStation = true;
     bool isEth = false;
 
-    if (type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
+    if (type == NI_WIFI_STATION || type == NI_WIFI_SOFTAP || type == NI_ETHERNET) {
         if (net_ifs[type] == nullptr) {
             switch (type) {
             case NI_WIFI_STATION:
