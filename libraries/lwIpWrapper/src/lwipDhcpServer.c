@@ -311,6 +311,7 @@ struct pbuf * dhcps_pbuf_alloc(uint16_t len)
 *******************************************************************************/
 static void send_offer(struct dhcps_msg *msg, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
@@ -380,6 +381,7 @@ static void send_offer(struct dhcps_msg *msg, uint16_t len)
 *******************************************************************************/
 static void send_nak(struct dhcps_msg *m, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
@@ -446,6 +448,7 @@ static void send_nak(struct dhcps_msg *m, uint16_t len)
 *******************************************************************************/
 static void send_ack(struct dhcps_msg *m, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
@@ -627,6 +630,10 @@ static void handle_dhcp(void *arg,
                         const ip_addr_t *addr,
                         uint16_t port)
 {
+    (void)arg;
+    (void)pcb;
+    (void)addr;
+    (void)port;
     struct dhcps_msg *pmsg_dhcps = NULL;
     int16_t tlen, malloc_len;
     uint8_t *p_dhcps_msg = NULL;
