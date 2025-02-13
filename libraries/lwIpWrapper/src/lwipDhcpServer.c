@@ -74,13 +74,6 @@ static struct netif   *dhcps_netif = NULL;
 static struct udp_pcb *dhcps_pcb;
 static DHCP_Address dhcp_address;
 
-
-static uint8_t xid[4];
-
-
-//static list_node *plist = NULL;
-static bool renew = false;
-
 static dhcps_lease_t dhcps_poll;
 static dhcps_time_t dhcps_lease_time = DHCPS_LEASE_TIME_DEF;  //minute
 static dhcps_offer_t dhcps_offer = 0xFF;
@@ -350,9 +343,7 @@ static void send_offer(struct dhcps_msg *msg, uint16_t len)
     struct pbuf *p, *q;
     uint8_t *data;
     uint16_t cnt = 0;
-		uint8_t CopyFinished=0;
     uint16_t i;
-		uint32_t  endptr , dataptr = NULL;
 		#if DHCPS_DEBUG
     err_t SendOffer_err_t;
 		#endif
@@ -666,8 +657,6 @@ static void handle_dhcp(void *arg,
 {
     struct dhcps_msg *pmsg_dhcps = NULL;
     int16_t tlen, malloc_len;
-    uint16_t i;
-    uint16_t dhcps_msg_cnt = 0;
     uint8_t *p_dhcps_msg = NULL;
 	struct pbuf  *q;
 
