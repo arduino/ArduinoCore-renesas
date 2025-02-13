@@ -435,6 +435,11 @@ void __attribute__((weak)) rtc_callback(rtc_callback_args_t *p_args) {
 
 rtc_instance_ctrl_t rtc_ctrl = {
     .open = 0,
+    .p_cfg = nullptr,
+    .carry_isr_triggered = false,
+    .p_callback = nullptr,
+    .p_callback_memory = nullptr,
+    .p_context = nullptr,
 };
 
 #ifndef RTC_CLOCK_SOURCE
@@ -458,6 +463,7 @@ rtc_cfg_t rtc_cfg  = {
     .carry_irq = FSP_INVALID_VECTOR,
     .p_callback = rtc_callback,
     .p_context = NULL,
+    .p_extend = NULL,
 };
 
 #ifdef __cplusplus
