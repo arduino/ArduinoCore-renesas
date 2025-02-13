@@ -1024,11 +1024,11 @@ uint8_t CLwipIf::getEncryptionType(NetIfType_t type)
 
 /* -------------------------------------------------------------------------- */
 CNetIf::CNetIf()
-    : dhcp_timeout(30000)
+    : id(0)
+    , dhcp_timeout(30000)
+    , dhcp_st(DHCP_IDLE_STATUS)
     , dhcp_started(false)
     , dhcp_acquired(false)
-    , id(0)
-    , dhcp_st(DHCP_IDLE_STATUS)
     , _dhcp_lease_state(DHCP_CHECK_NONE)
 {
     /* -------------------------------------------------------------------------- */
