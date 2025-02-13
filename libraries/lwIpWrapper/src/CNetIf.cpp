@@ -224,7 +224,6 @@ CNetIf* CLwipIf::get(NetIfType_t type,
     IPAddress _nm)
 {
     /* -------------------------------------------------------------------------- */
-    static int id = 0;
     CNetIf* rv = nullptr;
     bool isStation = true;
     bool isEth = false;
