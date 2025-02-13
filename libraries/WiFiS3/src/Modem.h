@@ -45,12 +45,13 @@ public:
    */
   ~ModemClass();
 
+
   /**
    * @brief Initializes the modem communication with a specified baud rate.
    * 
    * @param[in] `badurate` sets the baud rate for the serial connection.
    */
-  void begin(int badurate = 115200);
+  void begin(int badurate = 115200, int retry = 3);
 
   /** 
    * @brief Ends the modem communication.
