@@ -443,6 +443,7 @@ void CMsg::debug_print(const char* title) {
 /* -------------------------------------------------------------------------- */
 bool CMsg::store_rx_buffer(const uint8_t *buffer, uint32_t d) {
 /* -------------------------------------------------------------------------- */   
+   (void)d;
    /* rx_payload_len is TLV + PROTO (tlv can be present or not) */
    uint16_t rx_payload_len = verify_payload_header(buffer);
    
