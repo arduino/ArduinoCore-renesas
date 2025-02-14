@@ -204,6 +204,7 @@ CMsg& CMsg::operator=(CMsg&& m) {
       Serial.println(" bad!");
       #endif
    }
+   return *this;
 }
 
 
