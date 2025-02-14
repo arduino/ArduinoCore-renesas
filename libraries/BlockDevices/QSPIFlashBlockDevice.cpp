@@ -328,7 +328,7 @@ int QSPIFlashBlockDevice::erase(bd_addr_t add, bd_size_t _size) {
 
    uint32_t num_of_blocks = (_size / erase_block_size);
 
-   for(int i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
+   for(uint32_t i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
       /* set bank */
       uint32_t bank = add / READ_PAGE_SIZE;  
       uint32_t address = base_address + ((add + i * erase_block_size) % READ_PAGE_SIZE);  
