@@ -85,16 +85,16 @@ void CMsg::reset_without_delete() {
 
 
 /* -------------------------------------------------------------------------- */
-CMsg::CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0}, tlv_size(esp_tlv_header_size) {
+CMsg::CMsg() : buf{nullptr}, dim{0}, proto_dim{0}, payload_header{nullptr}, tlv_size(esp_tlv_header_size) {
    
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-CMsg::CMsg(uint16_t proto_size, bool use_tlv /*= true*/) : buf{nullptr}, 
-                                                  dim{0}, 
-                                                  payload_header{nullptr}, 
-                                                  proto_dim{proto_size} {
+CMsg::CMsg(uint16_t proto_size, bool use_tlv /*= true*/) : buf{nullptr},
+                                                  dim{0},
+                                                  proto_dim{proto_size},
+                                                  payload_header{nullptr} {
 /* -------------------------------------------------------------------------- */      
    uint16_t request_size = 0;
    if(use_tlv) {
