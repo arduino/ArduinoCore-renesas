@@ -166,7 +166,6 @@ SDCardBlockDevice::~SDCardBlockDevice() {
 /*                               CALLBACK                                     */
 /* -------------------------------------------------------------------------- */
 void SDCardBlockDevice::SDCardBlockDeviceCbk(sdmmc_callback_args_t *arg) {
-   int open_status = -1;
    if(arg != nullptr) {
       sdmmc_event_t event = arg->event;
 
