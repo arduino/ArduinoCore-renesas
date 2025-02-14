@@ -287,7 +287,7 @@ int QSPIFlashBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _si
       R_QSPI_BankSet(&ctrl, bank);
       rv = R_QSPI_Write(&ctrl, (uint8_t *)(buffer), (uint8_t*)address, chunk);
       address += chunk;
-      buffer += chunk;
+      buffer = (uint8_t *)(buffer) + chunk;
 
       if(rv == FSP_SUCCESS) {
          rv = get_flash_status();
