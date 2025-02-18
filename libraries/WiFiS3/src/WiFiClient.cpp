@@ -3,13 +3,13 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-WiFiClient::WiFiClient() : _sock(-1), destroy_at_distructor(true), rx_buffer(nullptr) {
+WiFiClient::WiFiClient() : _sock(-1), rx_buffer(nullptr) {
    rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-WiFiClient::WiFiClient(int s) : _sock(s), destroy_at_distructor(false), rx_buffer(nullptr) {
+WiFiClient::WiFiClient(int s) : _sock(s), rx_buffer(nullptr) {
    rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
