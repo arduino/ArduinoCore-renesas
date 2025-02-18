@@ -53,7 +53,8 @@ void setup() {
 
   if (true == waitResponse()) {
     MBRBlockDevice::partition(root, 1, 0x0B, 0, 5 * 1024 * 1024);
-    MBRBlockDevice::partition(root, 2, 0x0B, 5 * 1024 * 1024, 16 * 1024 * 1024);
+    MBRBlockDevice::partition(root, 2, 0x0B, 5 * 1024 * 1024, 15 * 1024 * 1024);
+    MBRBlockDevice::partition(root, 3, 0x0B, 15 * 1024 * 1024, 16 * 1024 * 1024);
 
     int err = sys_fs.reformat(&sys_bd);
     if (err) {
