@@ -131,10 +131,10 @@ ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr);
 
 uint32_t ip_addr_to_u32(ip_addr_t* ipaddr);
 
-struct ping_data{
-    uint32_t endMillis;
-    icmp_echo_hdr echo_req;
-    struct raw_pcb* s;
+struct recv_callback_data{
+    u32_t startMillis;
+    u32_t endMillis;
+    u16_t seqNum;
 };
 
 /* Base class implements DHCP, derived class will switch it on or off */

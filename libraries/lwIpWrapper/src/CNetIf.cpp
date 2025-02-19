@@ -18,30 +18,30 @@ bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
 
-u8_t icmp_receive_callback(void* arg, struct raw_pcb* pcb, struct pbuf* p, const ip_addr_t* addr)
+static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
 {
-    struct ping_data *d = (struct ping_data*)arg;
-    struct __attribute__((__packed__)) {
-        struct ip_hdr ipHeader;
-        struct icmp_echo_hdr header;
-    } response;
+    struct icmp_echo_hdr *iecho;
+    (void)(pcb);
+    (void)(addr);
+    LWIP_ASSERT("p != NULL", p != NULL);
 
-    if(d->s == pcb) {
-        if(p->len < sizeof(response)) {
+    recv_callback_data* request = (recv_callback_data*)arg;
+
+    if ((p->tot_len >= (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) &&
+        pbuf_remove_header(p, PBUF_IP_HLEN) == 0) {
+        iecho = (struct icmp_echo_hdr *)p->payload;
+
+        if ((iecho->id == 0xAFAF) && (iecho->seqno == lwip_htons(request->seqNum))) {
+            /* do some ping result processing */
+            request->endMillis = millis();
             pbuf_free(p);
-            return 1;
+            return 1; /* eat the packet */
         }
-
-        pbuf_copy_partial(p, &response, sizeof(response), 0);
-
-        if(response.header.id == d->echo_req.id && response.header.seqno == d->echo_req.seqno) {
-            d->endMillis = millis();
-        }
-        pbuf_free(p);
-        return 1;
+        /* not eaten, restore original packet */
+        pbuf_add_header(p, PBUF_IP_HLEN);
     }
 
-    return 0;
+    return 0; /* don't eat the packet */
 }
 
 ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
@@ -150,79 +150,68 @@ void CLwipIf::lwip_task()
     }
 }
 
+
 int CLwipIf::ping(IPAddress ip, uint8_t ttl)
 {
-    uint32_t result = -1;
-    uint32_t timeout = 5000;
-    uint32_t sendTime = 0;
-    uint32_t startWait = 0;
-    struct pbuf *p;
-    struct raw_pcb* s;
-    struct ping_data *d = new ping_data;
-    if (!d){
-        goto exit;
-    }
-
-    //Create a raw socket
-    s = raw_new(IP_PROTO_ICMP);
-    if(!s) {
-        goto exit;
-    }    
-
-    struct __attribute__((__packed__)) {
-        struct icmp_echo_hdr header;
-        uint8_t data[32];
-    } request;
-
-    ICMPH_TYPE_SET(&request.header, ICMP_ECHO);
-    ICMPH_CODE_SET(&request.header, 0);
-    request.header.chksum = 0;
-    request.header.id = 0xAFAF;
-    request.header.seqno = random(0xffff);
-    
-    d->echo_req = request.header;
-
-    for (size_t i = 0; i < sizeof(request.data); i++) {
-        request.data[i] = i;
-    }
-
-    request.header.chksum = inet_chksum(&request, sizeof(request));
-
+    /* ttl is not supported. Default value used is 255 */
+    (void)ttl;
     ip_addr_t addr;
     addr.addr = ip;
+    recv_callback_data requestCbkData = { 0, 0, (uint16_t)random(0xffff) };
 
-    d->endMillis = 0;
+    //Create a raw socket
+    struct raw_pcb* s = raw_new(IP_PROTO_ICMP);
+    if (!s) {
+        return -1;
+    }
 
-    raw_recv(s, icmp_receive_callback, d);
+    raw_recv(s, icmp_receive_callback, (void*)&requestCbkData);
+    raw_bind(s, IP_ADDR_ANY);
 
-    // Build the packet
-    p = pbuf_alloc(PBUF_IP, sizeof(request), PBUF_RAM);
+    struct pbuf *p;
+    struct icmp_echo_hdr *iecho;
+    size_t ping_size = sizeof(struct icmp_echo_hdr) + 32;
+
+    p = pbuf_alloc(PBUF_IP, (u16_t)ping_size, PBUF_RAM);
     if (!p) {
-        goto exit;
+        raw_remove(s);
+        return -1;
     }
 
-    //Load payload into buffer
-    pbuf_take(p, &request, sizeof(request));
+    if ((p->len == p->tot_len) && (p->next == NULL)) {
+        iecho = (struct icmp_echo_hdr *)p->payload;
 
-    // Send the echo request
-    sendTime = millis();
-    raw_sendto(s, p, &addr);    
+        size_t i;
+        size_t data_len = ping_size - sizeof(struct icmp_echo_hdr);
 
-    // Wait for response
-    startWait = millis();
-    do {
-        lwip_task();
-    } while (d->endMillis == 0 && (millis() - startWait) < timeout);  
-    
-    if (d->endMillis != 0) {
-        result = d->endMillis - sendTime;
+        ICMPH_TYPE_SET(iecho, ICMP_ECHO);
+        ICMPH_CODE_SET(iecho, 0);
+        iecho->chksum = 0;
+        iecho->id     = 0xAFAF;
+        iecho->seqno  = lwip_htons(requestCbkData.seqNum);
+
+        /* fill the additional data buffer with some data */
+        for(i = 0; i < data_len; i++) {
+            ((char*)iecho)[sizeof(struct icmp_echo_hdr) + i] = (char)i;
+        }
+
+        iecho->chksum = inet_chksum(iecho, ping_size);
+        requestCbkData.startMillis = millis();
+        raw_sendto(s, p, &addr);
+
+    }
+    pbuf_free(p);
+
+    bool timeout = false;
+    while (!requestCbkData.endMillis && !timeout) {
+        timeout = (millis() - requestCbkData.startMillis) > 5000;
     }
 
-exit:
-    pbuf_free(p);    
-    delete d;
-    raw_remove(s);
-    return result;
+    if (timeout) {
+        return -1;
+    }
+
+    return requestCbkData.endMillis - requestCbkData.startMillis;
 }
 
 /* -------------------------------------------------------------------------- */
