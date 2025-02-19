@@ -225,7 +225,6 @@ static void prvTaskExitError(void);
 
 #endif
 
-#ifdef PROVIDE_FREERTOS_HOOK
 void loop_thread_func(void* arg) {
     while (1)
     {
@@ -246,7 +245,6 @@ void start_freertos_on_header_inclusion() {
 
     vTaskStartScheduler();
 }
-#endif
 
 /* Arduino specific overrides */
 void delay(uint32_t ms) {
