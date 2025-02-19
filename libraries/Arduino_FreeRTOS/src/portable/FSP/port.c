@@ -226,6 +226,7 @@ static void prvTaskExitError(void);
 #endif
 
 void loop_thread_func(void* arg) {
+    setup();
     while (1)
     {
         loop();
