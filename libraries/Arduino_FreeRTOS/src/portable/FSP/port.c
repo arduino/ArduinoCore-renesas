@@ -226,6 +226,8 @@ static void prvTaskExitError(void);
 
 #endif
 
+extern void setup(void);
+extern void loop(void);
 
 static void sketch_thread_func(void* arg) {
     bool early_start = (bool)arg;
