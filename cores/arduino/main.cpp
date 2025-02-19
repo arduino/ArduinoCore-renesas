@@ -64,6 +64,8 @@ void unsecure_registers() {
 #define str(s) #s
 
 extern "C" void Stacktrace_Handler(void);
+extern "C" __attribute__((weak)) void start_freertos_on_header_inclusion() {}
+extern "C" __attribute__((weak)) void early_start_freertos_on_header_inclusion() {}
 
 void arduino_main(void)
 {
@@ -111,7 +113,9 @@ void arduino_main(void)
    Serial.begin(115200);
 #endif
    startAgt();
+   early_start_freertos_on_header_inclusion();
    setup();
+   start_freertos_on_header_inclusion();
    while (1)
    {
       loop();

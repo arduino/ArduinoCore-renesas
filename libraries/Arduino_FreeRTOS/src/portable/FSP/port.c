@@ -32,6 +32,7 @@
 #include "FreeRTOSConfig.h"
 #include "../../lib/FreeRTOS-Kernel-v10.5.1/FreeRTOS.h"
 #include "../../lib/FreeRTOS-Kernel-v10.5.1/task.h"
+#include "portmacro.h"
 
 #if BSP_TZ_NONSECURE_BUILD
  #include "tz_context.h"
@@ -224,6 +225,33 @@ static void prvPortStartFirstTask(void);
 static void prvTaskExitError(void);
 
 #endif
+
+
+static void sketch_thread_func(void* arg) {
+    bool early_start = (bool)arg;
+    if (early_start) {
+        setup();
+    }
+    while (1)
+    {
+        loop();
+    }
+}
+
+void _start_freertos_on_header_inclusion_impl(bool early_start) {
+    static TaskHandle_t sketch_task;
+    if (xTaskGetSchedulerState() != taskSCHEDULER_RUNNING) {
+        xTaskCreate(
+        (TaskFunction_t)sketch_thread_func,
+        "Sketch Thread",
+        4096 / 4,   /* usStackDepth in words */
+        (void*)early_start,   /* pvParameters */
+        4,         /* uxPriority */
+        &sketch_task /* pxCreatedTask */
+        );
+        vTaskStartScheduler();
+    }
+}
 
 /* Arduino specific overrides */
 void delay(uint32_t ms) {
