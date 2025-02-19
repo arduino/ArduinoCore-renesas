@@ -113,9 +113,7 @@ void arduino_main(void)
 #endif
    startAgt();
    setup();
-#ifdef PROVIDE_FREERTOS_HOOK
    start_freertos_on_header_inclusion();
-#endif
    while (1)
    {
       loop();
