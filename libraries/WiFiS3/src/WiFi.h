@@ -17,9 +17,7 @@
 #define DEFAULT_GW_AP_ADDRESS           IPAddress(192,168,1,1)
 #define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
 
-
 #define WIFI_FIRMWARE_LATEST_VERSION "0.4.1"
-#define WL_MAC_ADDR_LENGTH 6
 
 class CAccessPoint {
 public:

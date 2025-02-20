@@ -537,17 +537,17 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac)
         MAC.mode = WIFI_MODE_STA;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else if (type == NI_WIFI_SOFTAP) {
         MAC.mode = WIFI_MODE_AP;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else {
         eth_get_mac_address(mac);
-        rv = MAC_ADDRESS_DIM;
+        rv = WL_MAC_ADDR_LENGTH;
     }
 
     CLwipIf::getInstance().restartAsyncRequest();
