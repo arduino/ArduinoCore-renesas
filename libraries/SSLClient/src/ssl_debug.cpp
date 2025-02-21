@@ -20,7 +20,7 @@
 #include "ssl_debug.h"
 
 void ssl_debug_print(const char *format, ...) {
-    char debug_buf[1024];   
+    char debug_buf[1024];
     va_list argptr;
     va_start(argptr, format);
     vsnprintf(debug_buf, sizeof(debug_buf), format, argptr);
@@ -29,7 +29,7 @@ void ssl_debug_print(const char *format, ...) {
 }
 
 void ssl_debug_println(const char *format, ...) {
-    char debug_buf[1024];   
+    char debug_buf[1024];
     va_list argptr;
     va_start(argptr, format);
     vsnprintf(debug_buf, sizeof(debug_buf), format, argptr);
@@ -43,6 +43,7 @@ void ssl_debug_none(const char *format, ...) {
 
 void mbedtls_debug_print(void *ctx, int level, const char *file, int line, const char *str)
 {
+    ((void) ctx);
     ((void) level);
     ssl_debug_print("%s:%04d: %s", file, line, str);
 }

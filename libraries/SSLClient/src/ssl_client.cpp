@@ -38,6 +38,7 @@ static int _handle_error(int err, const char * file, int line)
 
 #define handle_error(e) _handle_error(e, __FUNCTION__, __LINE__)
 
+#if defined(SSL_CLIENT_RECV_DISABLE_TIMEOUT)
 /**
  * \brief          Read at most 'len' characters. If no error occurs,
  *                 the actual amount read is returned.
@@ -52,11 +53,11 @@ static int _handle_error(int err, const char * file, int line)
  */
 static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
@@ -68,31 +69,31 @@ static int client_net_recv( void *ctx, unsigned char *buf, size_t len ) {
     if (result > 0) {
         //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
     }
-    
+
     return result;
 }
-
-int client_net_recv_timeout( void *ctx, unsigned char *buf,
+#else
+static int client_net_recv_timeout( void *ctx, unsigned char *buf,
                              size_t len, uint32_t timeout ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
     unsigned long start = millis();
     unsigned long tms = start + timeout;
-    int pending = client->available();
+    uint16_t pending = client->available();
     // If there is data in the client, wait for message completion
     if((pending > 0) && (pending < len))
     do {
-        int pending = client->available();
+        uint16_t pending = client->available();
         if (pending < len && timeout > 0) {
             delay(1);
         } else break;
     } while (millis() < tms);
-    
+
     int result = client->read(buf, len);
-    
+
     // lwIP interface return -1 if there is no data to read
     // report without throwing errors or block
     if (result <= 0) return MBEDTLS_ERR_SSL_WANT_READ;
@@ -102,10 +103,10 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
     if (result > 0) {
         //esp_log_buffer_hexdump_internal("SSL.RD", buf, (uint16_t)result, ESP_LOG_VERBOSE);
     }
-    
+
     return result;
 }
-
+#endif
 
 /**
  * \brief          Write at most 'len' characters. If no error occurs,
@@ -121,20 +122,20 @@ int client_net_recv_timeout( void *ctx, unsigned char *buf,
  */
 static int client_net_send( void *ctx, const unsigned char *buf, size_t len ) {
     Client *client = (Client*)ctx;
-    if (!client) { 
+    if (!client) {
         log_e("Uninitialised!");
         return -1;
     }
-    
+
     //if (!client->connected()) {
     //    log_e("Not connected!");
     //    return -2;
     //}
-    
+
     //esp_log_buffer_hexdump_internal("SSL.WR", buf, (uint16_t)len, ESP_LOG_VERBOSE);
-    
+
     int result = client->write(buf, len);
-    
+
     log_d("SSL client TX res=%d len=%d", result, len);
     return result;
 }
@@ -152,7 +153,7 @@ void ssl_init(sslclient_context *ssl_client, Client *client, const char * ca_pat
     mbedtls_ssl_conf_ciphersuites(&ssl_client->ssl_conf, mbedtls_ssl_list_ciphersuites());
 
     mbedtls_ssl_conf_dbg(&ssl_client->ssl_conf, mbedtls_debug_print, NULL);
-    mbedtls_debug_set_threshold(DEBUG_LEVEL);
+    mbedtls_debug_set_threshold(SSL_DEBUG_LEVEL);
 
     mbedtls_fs_init(ca_path);
 }
@@ -225,7 +226,7 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         }
         unsigned char psk[MBEDTLS_PSK_MAX_LEN];
         size_t psk_len = strlen(psKey)/2;
-        for (int j=0; j<strlen(psKey); j+= 2) {
+        for (size_t j=0; j<strlen(psKey); j+= 2) {
             char c = psKey[j];
             if (c >= '0' && c <= '9') c -= '0';
             else if (c >= 'A' && c <= 'F') c -= 'A' - 10;
@@ -336,13 +337,13 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
         memset(buf, 0, sizeof(buf));
         mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
         log_e("Failed to verify peer certificate! verification info: %s", buf);
-        stop_ssl_socket(ssl_client, rootCABuff, cli_cert, cli_key);  //It's not safe continue.
+        stop_ssl_socket(ssl_client);  //It's not safe continue.
 
         return handle_error(ret);
     } else {
         log_v("Certificate verified.");
     }
-    
+
     if ((rootCABuff != NULL) || ((rootCAPath != NULL))) {
         log_d("free buffer");
         mbedtls_x509_crt_free(&ssl_client->ca_cert);
@@ -354,14 +355,14 @@ int start_ssl_client(sslclient_context *ssl_client, const char *host, uint32_t p
 
     if (cli_key != NULL) {
         mbedtls_pk_free(&ssl_client->client_key);
-    }    
+    }
 
     //return ssl_client->socket;
     return 1;
 }
 
 
-void stop_ssl_socket(sslclient_context *ssl_client, const char *rootCABuff, const char *cli_cert, const char *cli_key)
+void stop_ssl_socket(sslclient_context *ssl_client)
 {
     log_v("Cleaning SSL connection.");
 

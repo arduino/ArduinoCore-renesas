@@ -29,33 +29,33 @@
  * 4: DEBUG
  * 5: VERBOSE
  */
-#define DEBUG_LEVEL 1
+#define SSL_DEBUG_LEVEL 1
 
-#if DEBUG_LEVEL > 0
+#if SSL_DEBUG_LEVEL > 0
     #define log_e ssl_debug_println
 #else
     #define log_e ssl_debug_none
 #endif
 
-#if DEBUG_LEVEL > 1
+#if SSL_DEBUG_LEVEL > 1
     #define log_w ssl_debug_println
 #else
     #define log_w ssl_debug_none
 #endif
 
-#if DEBUG_LEVEL > 2
+#if SSL_DEBUG_LEVEL > 2
     #define log_i ssl_debug_println
 #else
     #define log_i ssl_debug_none
 #endif
 
-#if DEBUG_LEVEL > 3
+#if SSL_DEBUG_LEVEL > 3
     #define log_d ssl_debug_println
 #else
     #define log_d ssl_debug_none
 #endif
-    
-#if DEBUG_LEVEL > 4
+
+#if SSL_DEBUG_LEVEL > 4
     #define log_v ssl_debug_println
 #else
     #define log_v ssl_debug_none
