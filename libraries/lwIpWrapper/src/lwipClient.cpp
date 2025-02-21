@@ -19,6 +19,7 @@ sketches but sock is ignored. */
 lwipClient::lwipClient(uint8_t sock)
     : _tcp_client(NULL)
 {
+    (void)sock;
 }
 /* -------------------------------------------------------------------------- */
 
