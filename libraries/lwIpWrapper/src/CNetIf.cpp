@@ -1,5 +1,9 @@
 #include "CNetIf.h"
 #include <functional>
+#include "lwip/include/lwip/raw.h"
+#include "lwip/include/lwip/icmp.h"
+#include "lwip/include/lwip/ip_addr.h"
+#include "lwip/include/lwip/inet_chksum.h"
 
 IPAddress CNetIf::default_ip("192.168.0.10");
 IPAddress CNetIf::default_nm("255.255.255.0");
@@ -13,6 +17,32 @@ WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
 bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
+
+u8_t icmp_receive_callback(void* arg, struct raw_pcb* pcb, struct pbuf* p, const ip_addr_t* addr)
+{
+    struct ping_data *d = (struct ping_data*)arg;
+    struct __attribute__((__packed__)) {
+        struct ip_hdr ipHeader;
+        struct icmp_echo_hdr header;
+    } response;
+
+    if(d->s == pcb) {
+        if(p->len < sizeof(response)) {
+            pbuf_free(p);
+            return 1;
+        }
+
+        pbuf_copy_partial(p, &response, sizeof(response), 0);
+
+        if(response.header.id == d->echo_req.id && response.header.seqno == d->echo_req.seqno) {
+            d->endMillis = millis();
+        }
+        pbuf_free(p);
+        return 1;
+    }
+
+    return 0;
+}
 
 ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
 {
@@ -118,6 +148,81 @@ void CLwipIf::lwip_task()
         willing_to_start_sync_req = false;
         async_requests_ongoing = false;
     }
+}
+
+int CLwipIf::ping(IPAddress ip, uint8_t ttl)
+{
+    uint32_t result = -1;
+    uint32_t timeout = 5000;
+    uint32_t sendTime = 0;
+    uint32_t startWait = 0;
+    struct pbuf *p;
+    struct raw_pcb* s;
+    struct ping_data *d = new ping_data;
+    if (!d){
+        goto exit;
+    }
+
+    //Create a raw socket
+    s = raw_new(IP_PROTO_ICMP);
+    if(!s) {
+        goto exit;
+    }    
+
+    struct __attribute__((__packed__)) {
+        struct icmp_echo_hdr header;
+        uint8_t data[32];
+    } request;
+
+    ICMPH_TYPE_SET(&request.header, ICMP_ECHO);
+    ICMPH_CODE_SET(&request.header, 0);
+    request.header.chksum = 0;
+    request.header.id = 0xAFAF;
+    request.header.seqno = random(0xffff);
+    
+    d->echo_req = request.header;
+
+    for (size_t i = 0; i < sizeof(request.data); i++) {
+        request.data[i] = i;
+    }
+
+    request.header.chksum = inet_chksum(&request, sizeof(request));
+
+    ip_addr_t addr;
+    addr.addr = ip;
+
+    d->endMillis = 0;
+
+    raw_recv(s, icmp_receive_callback, d);
+
+    // Build the packet
+    p = pbuf_alloc(PBUF_IP, sizeof(request), PBUF_RAM);
+    if (!p) {
+        goto exit;
+    }
+
+    //Load payload into buffer
+    pbuf_take(p, &request, sizeof(request));
+
+    // Send the echo request
+    sendTime = millis();
+    raw_sendto(s, p, &addr);    
+
+    // Wait for response
+    startWait = millis();
+    do {
+        lwip_task();
+    } while (d->endMillis == 0 && (millis() - startWait) < timeout);  
+    
+    if (d->endMillis != 0) {
+        result = d->endMillis - sendTime;
+    }
+
+exit:
+    pbuf_free(p);    
+    delete d;
+    raw_remove(s);
+    return result;
 }
 
 /* -------------------------------------------------------------------------- */
