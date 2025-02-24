@@ -223,4 +223,27 @@ IPAddress CEthernet::dnsServerIP() {
   return CLwipIf::getInstance().getDns();
 }
 
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(IPAddress ip, uint8_t ttl) {
+/* -------------------------------------------------------------------------- */
+   return CLwipIf::getInstance().ping(ip, ttl);
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(const String &hostname, uint8_t ttl)
+/* -------------------------------------------------------------------------- */
+{
+	return ping(hostname.c_str(), ttl);
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(const char* host, uint8_t ttl) {
+/* -------------------------------------------------------------------------- */
+   IPAddress ip;
+   if(CLwipIf::getInstance().getHostByName(host,ip)) {
+      return CLwipIf::getInstance().ping(ip, ttl);
+   }
+   return -1;
+}
+
 CEthernet Ethernet;

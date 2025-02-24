@@ -131,6 +131,12 @@ ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr);
 
 uint32_t ip_addr_to_u32(ip_addr_t* ipaddr);
 
+struct ping_data{
+    uint32_t endMillis;
+    icmp_echo_hdr echo_req;
+    struct raw_pcb* s;
+};
+
 /* Base class implements DHCP, derived class will switch it on or off */
 /* -------------------------------------------------------------------------- */
 class CNetIf {
@@ -436,6 +442,10 @@ public:
     int setWifiMode(WifiMode_t mode);
 
     void lwip_task();
+    /*
+     * PING
+     */
+    int ping(IPAddress ip, uint8_t ttl = 128);
 };
 
 #endif
