@@ -76,6 +76,7 @@ jobs:
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
               - libraries/SFU
+              - libraries/KVStore/examples/StartCounter
           - board:
               fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
@@ -91,6 +92,7 @@ jobs:
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
               - libraries/SFU
+              - libraries/KVStore/examples/StartCounter
           - board:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
