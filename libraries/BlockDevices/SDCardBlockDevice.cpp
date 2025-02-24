@@ -368,7 +368,8 @@ int SDCardBlockDevice::read(void *buffer, bd_addr_t add, bd_size_t _size) {
          uint32_t start_add_of_block = (add / read_block_size);
          rv = FSP_SUCCESS;
          for(uint32_t i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-            rv = R_SDHI_Read (&ctrl, (uint8_t *)((uint8_t *)buffer + (i * read_block_size)), start_add_of_block + i, 1);
+           uint8_t *buf = (uint8_t *)buffer;
+            rv = R_SDHI_Read (&ctrl, buf + (i * read_block_size), start_add_of_block + i, 1);
             if(rv == FSP_SUCCESS) {
                rv = wait_for_completition();
             }
