@@ -405,7 +405,8 @@ int SDCardBlockDevice::write(const void *buffer, bd_addr_t add, bd_size_t _size)
          uint32_t start_block_number = (add / write_block_size);
          rv = FSP_SUCCESS;
          for(uint32_t i = 0; i < num_of_blocks && rv == FSP_SUCCESS; i++) {
-            rv = R_SDHI_Write (&ctrl, (uint8_t *)((uint8_t *)buffer + (i * write_block_size)), start_block_number + i, 1);
+            uint8_t *buf = (uint8_t *)buffer;
+            rv = R_SDHI_Write (&ctrl, buf + (i * write_block_size), start_block_number + i, 1);
             if(rv == FSP_SUCCESS) {
                rv = wait_for_completition();
             }
