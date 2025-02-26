@@ -11,8 +11,8 @@
 // Include the RTC library
 #include "RTC.h"
 
-// Define the interrupt pin for LED control during interrupts
-const int LED_ON_INTERRUPT  = 22;
+// Define the pin to toggle on interrupt
+const int PIN_ON_INTERRUPT  = D7;
 
 bool periodicFlag = false;
 bool alarmFlag = false;
@@ -37,7 +37,7 @@ void setup() {
 
   // Set LED pins as outputs
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LED_ON_INTERRUPT, OUTPUT);
+  pinMode(PIN_ON_INTERRUPT, OUTPUT);
 
   // Initialize the RTC
   RTC.begin();
@@ -83,10 +83,10 @@ void loop() {
 
     // Toggle the LED based on callback state
     if (clb_st) {
-      digitalWrite(LED_ON_INTERRUPT, HIGH);
+      digitalWrite(PIN_ON_INTERRUPT, HIGH);
     }
     else {
-      digitalWrite(LED_ON_INTERRUPT, LOW);
+      digitalWrite(PIN_ON_INTERRUPT, LOW);
     }
 
     clb_st = !clb_st;  // Toggle callback state
