@@ -74,13 +74,6 @@ public:
      */
     uint32_t firmwareVersionU32();
 
-    /** 
-     * @brief Start WiFi connection for OPEN networks.
-     * 
-     * @param `ssid` a pointer to the SSID string.
-     */
-    int begin(const char* ssid);
-
     /*
      * PING
      */
@@ -88,9 +81,10 @@ public:
     int ping(const String &hostname, uint8_t ttl = 128, uint8_t count = 1);
     int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
 
-    /*
-     * Start WiFi connection for OPEN networks
-     * param ssid: Pointer to the SSID string.
+    /** 
+     * @brief Start WiFi connection for OPEN networks.
+     * 
+     * @param `ssid` a pointer to the SSID string.
      */
     int begin(const char* ssid);
 
@@ -113,7 +107,6 @@ public:
      * 
      * @return `1` if the Access Point is successfully started. `0` if the Access Point initialization failed.
      */
-    uint8_t beginAP(const char *ssid);
     uint8_t beginAP(const char *ssid);
 
     /**
