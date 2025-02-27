@@ -1,7 +1,6 @@
 #ifndef ARDUINO_WiFi_S3_H
 #define ARDUINO_WiFi_S3_H
 
-
 #include <vector>
 
 #include "WiFiCommands.h"
@@ -13,13 +12,14 @@
 #include "WiFiUdp.h"
 #include "WiFiSSLClient.h"
 
-#define DEFAULT_IP_AP_ADDRESS           IPAddress(192,168,4,1)
-#define DEFAULT_GW_AP_ADDRESS           IPAddress(192,168,1,1)
-#define DEFAULT_NM_AP_ADDRESS           IPAddress(255,255,255,0)
+#define DEFAULT_IP_AP_ADDRESS IPAddress(192, 168, 4, 1)
+#define DEFAULT_GW_AP_ADDRESS IPAddress(192, 168, 1, 1)
+#define DEFAULT_NM_AP_ADDRESS IPAddress(255, 255, 255, 0)
 
 #define WIFI_FIRMWARE_LATEST_VERSION "0.5.2"
 
-class CAccessPoint {
+class CAccessPoint
+{
 public:
     std::string ssid;
     std::string bssid;
@@ -29,17 +29,16 @@ public:
     std::string encryption_mode;
 };
 
-
-
 /**
  * @brief Class to manage Wi-Fi connectivity and operations.
- * 
- * The CWifi class provides an interface to manage Wi-Fi operations such as connecting 
- * to networks, setting up an access point, retrieving network information, and more. 
- * It interfaces with a modem to execute commands related to Wi-Fi functionality and manages 
+ *
+ * The CWifi class provides an interface to manage Wi-Fi operations such as connecting
+ * to networks, setting up an access point, retrieving network information, and more.
+ * It interfaces with a modem to execute commands related to Wi-Fi functionality and manages
  * connection settings such as IP address, DNS, and other network configurations.
  */
-class CWifi {
+class CWifi
+{
 private:
     void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
     unsigned long _timeout;
@@ -47,13 +46,9 @@ private:
     std::string ssid;
     std::string apssid;
 
-
     IPAddress ip_ap = DEFAULT_IP_AP_ADDRESS;
     IPAddress gw_ap = DEFAULT_GW_AP_ADDRESS;
     IPAddress nm_ap = DEFAULT_NM_AP_ADDRESS;
-
-
-
 
 public:
     /**
@@ -64,7 +59,7 @@ public:
     /**
      * @brief Get firmware version
      */
-    static const char* firmwareVersion();
+    static const char *firmwareVersion();
     /*
      * Get firmware version U32
      *
@@ -74,25 +69,19 @@ public:
      */
     uint32_t firmwareVersionU32();
 
-    /** 
-     * @brief Start WiFi connection for OPEN networks.
-     * 
-     * @param `ssid` a pointer to the SSID string.
-     */
-    int begin(const char* ssid);
-
     /*
      * PING
      */
     int ping(IPAddress ip, uint8_t ttl = 128, uint8_t count = 1);
     int ping(const String &hostname, uint8_t ttl = 128, uint8_t count = 1);
-    int ping(const char* host, uint8_t ttl = 128, uint8_t count = 1);
+    int ping(const char *host, uint8_t ttl = 128, uint8_t count = 1);
 
-    /*
-     * Start WiFi connection for OPEN networks
-     * param ssid: Pointer to the SSID string.
+    /**
+     * @brief Start WiFi connection for OPEN networks.
+     *
+     * @param `ssid` a pointer to the SSID string.
      */
-    int begin(const char* ssid);
+    int begin(const char *ssid);
 
     /* Start WiFi connection with passphrase
      * the most secure supported mode will be automatically selected
@@ -101,7 +90,7 @@ public:
      * @param `passphrase` Passphrase. Valid characters in a passphrase
      * must be between ASCII 32-126 (decimal).
      */
-    int begin(const char* ssid, const char *passphrase);
+    int begin(const char *ssid, const char *passphrase);
 
     /**
      * @brief Starts a Wi-Fi Access Point with the specified SSID.
@@ -110,21 +99,20 @@ public:
      * It defaults to an open network (no password) and uses channel 1 for the AP.
      *
      * @param `ssid` The SSID (network name) of the Access Point.
-     * 
+     *
      * @return `1` if the Access Point is successfully started. `0` if the Access Point initialization failed.
      */
-    uint8_t beginAP(const char *ssid);
     uint8_t beginAP(const char *ssid);
 
     /**
      * @brief Starts a Wi-Fi Access Point (AP) with the specified SSID and channel.
      *
-     * This function initializes a Wi-Fi Access Point (AP) with the provided SSID 
+     * This function initializes a Wi-Fi Access Point (AP) with the provided SSID
      * and channel. It defaults to using no password (open network).
      *
      * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
      * @param `channel` The channel on which the Access Point will operate.
-     * 
+     *
      * @return `1` if the Access Point is successfully started. `0` if the Access Point failed to start.
      */
     uint8_t beginAP(const char *ssid, uint8_t channel);
@@ -132,31 +120,30 @@ public:
     /**
      * @brief Starts a Wi-Fi Access Point (AP) with the specified SSID and passphrase.
      *
-     * This function initializes a Wi-Fi Access Point (AP) using the provided SSID 
+     * This function initializes a Wi-Fi Access Point (AP) using the provided SSID
      * and passphrase, defaulting to channel 1.
      *
      * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
-     * @param `passphrase` The passphrase for securing the Access Point. If empty, the 
+     * @param `passphrase` The passphrase for securing the Access Point. If empty, the
      * network will be open (no password).
-     * 
+     *
      * @return `1` if the Access Point is successfully started. `0` if the Access Point failed to start.
      */
-    uint8_t beginAP(const char *ssid, const char* passphrase);
+    uint8_t beginAP(const char *ssid, const char *passphrase);
 
     /**
      * @brief Initializes a Wi-Fi Access Point (AP) with the specified SSID, passphrase, and channel.
      *
-     * This function configures the device as a Wi-Fi Access Point (AP) with the provided parameters. 
+     * This function configures the device as a Wi-Fi Access Point (AP) with the provided parameters.
      * It sets the mode to AP and attempts to start the network.
      *
      * @param `ssid` The SSID (name) of the Wi-Fi Access Point.
      * @param `passphrase` The passphrase for securing the Access Point. If empty, the network will be open.
      * @param `channel` The Wi-Fi channel on which the Access Point will operate (1-14, depending on region).
-     * 
+     *
      * @return `WL_AP_LISTENING` if the Access Point is successfully started. `WL_AP_FAILED` if the Access Point failed to start.
      */
-    uint8_t beginAP(const char *ssid, const char* passphrase, uint8_t channel);
-
+    uint8_t beginAP(const char *ssid, const char *passphrase, uint8_t channel);
 
     /**
      * @brief Change IP configuration settings disabling the DHCP client
@@ -217,7 +204,7 @@ public:
      *
      * @param `name` sets the hostname.
      */
-    void setHostname(const char* name);
+    void setHostname(const char *name);
 
     /**
      * @brief Disconnects from the current Wi-Fi network.
@@ -233,86 +220,86 @@ public:
 
     /**
      * @brief Retrieves the MAC address of the device.
-     * 
+     *
      * This function retrieves the MAC address of the device based on its current operating mode.
-     * The value returned by this function is meaningfull only if called afert a 
-     * begin (both begin or beginAP) or a ScanNetwork function otherwise 
+     * The value returned by this function is meaningfull only if called afert a
+     * begin (both begin or beginAP) or a ScanNetwork function otherwise
      * an empty mac address is returned.
-     * 
+     *
      * @param `_mac` A pointer to a uint8_t array where the MAC address will be stored.
-     * 
+     *
      * @return uint8_t* The pointer to the array with length WL_MAC_ADDR_LENGTH.
      */
-    uint8_t* macAddress(uint8_t* mac);
+    uint8_t *macAddress(uint8_t *mac);
 
     /**
      * @brief Retrieves the local IP address of the device.
-     * 
-     * This function retrieves the local IP address of the device. It checks the current mode (station or soft AP) 
+     *
+     * This function retrieves the local IP address of the device. It checks the current mode (station or soft AP)
      * and retrieves the appropriate IP address based on the mode.
-     * 
+     *
      * @return `IPAddress` The local IP address of the device.
      */
     IPAddress localIP();
 
     /**
      * @brief Retrieves the subnet mask of the device.
-     * 
-     * This function retrieves the subnet mask of the device by querying the modem for the subnet information. 
+     *
+     * This function retrieves the subnet mask of the device by querying the modem for the subnet information.
      * It sends a command to the modem to fetch the subnet mask and returns it as an `IPAddress` object.
-     * 
+     *
      * @return `IPAddress` The subnet mask address value of the device.
      */
     IPAddress subnetMask();
 
-   /**
-    * @brief Retrieves the gateway IP address of the device.
-    * 
-    * This function retrieves the gateway IP address of the device by querying the modem for the gateway 
-    * information. It sends a command to the modem to fetch the gateway IP address and returns it as an 
-    * `IPAddress` object.
-    * 
-    * @return `IPAddress` The gateway IP address value of the device.
-    */
-   IPAddress gatewayIP();
+    /**
+     * @brief Retrieves the gateway IP address of the device.
+     *
+     * This function retrieves the gateway IP address of the device by querying the modem for the gateway
+     * information. It sends a command to the modem to fetch the gateway IP address and returns it as an
+     * `IPAddress` object.
+     *
+     * @return `IPAddress` The gateway IP address value of the device.
+     */
+    IPAddress gatewayIP();
 
-   /**
-    * @brief Retrieves the DNS IP address.
-    * 
-    * @param `n` The index of the DNS server to retrieve, `0` for the primary DNS server 
-    * and `1` for the secondary DNS server.
-    * 
-    * @return `IPAddress` The DNS IP address as an `IPAddress` object, or `0.0.0.0` if not found.
-    */
-   IPAddress dnsIP(int n = 0);
+    /**
+     * @brief Retrieves the DNS IP address.
+     *
+     * @param `n` The index of the DNS server to retrieve, `0` for the primary DNS server
+     * and `1` for the secondary DNS server.
+     *
+     * @return `IPAddress` The DNS IP address as an `IPAddress` object, or `0.0.0.0` if not found.
+     */
+    IPAddress dnsIP(int n = 0);
 
     /**
      * @brief Retrieves the IP address of the soft access point (AP).
-     * 
+     *
      * @return `IPAddress` The IP address of the soft AP as an `IPAddress` object, or `0.0.0.0` if not found.
      */
     IPAddress softAPIP();
 
     /**
      * @brief Retrieves the SSID of the current Wi-Fi connection or SoftAP.
-     * 
+     *
      * @return The SSID of the current Wi-Fi connection or SoftAP as a string.
      * If unable to retrieve the SSID, returns an empty string.
      */
-    const char* SSID();
+    const char *SSID();
 
     /**
      * @brief Retrieves the BSSID (MAC address) of the currently connected Wi-Fi network.
-     * 
+     *
      * @param `bssid` A pointer to an array where the BSSID will be stored. The array must be large enough to hold the MAC address.
-     * 
+     *
      * @return A pointer to the `bssid` array containing the retrieved BSSID. If the BSSID cannot be retrieved, returns `nullptr`.
      */
-    uint8_t* BSSID(uint8_t* bssid);
+    uint8_t *BSSID(uint8_t *bssid);
 
     /**
      * @brief Retrieves the RSSI (Received Signal Strength Indicator) of the currently connected Wi-Fi network.
-     * 
+     *
      * @return The RSSI value representing the signal strength. A higher (less negative) value indicates a stronger signal.
      * If the RSSI cannot be retrieved, returns 0.
      */
@@ -320,46 +307,46 @@ public:
 
     /**
      * @brief Retrieves the SSID (Service Set Identifier) of the SoftAP (Software Access Point) mode.
-     * 
+     *
      * @return The SSID of the SoftAP. If the SSID cannot be retrieved, an empty string is returned.
      */
-    const char* softAPSSID();
+    const char *softAPSSID();
 
     /**
      * @brief Scans for available Wi-Fi networks and stores the information in the `access_points` list.
-     * 
-     * This function initiates a scan for nearby Wi-Fi networks and retrieves details such as SSID, BSSID, 
+     *
+     * This function initiates a scan for nearby Wi-Fi networks and retrieves details such as SSID, BSSID,
      * RSSI (signal strength), channel, and encryption mode for each detected access point.
-     * 
+     *
      * @return The number of networks found during the scan. Returns a negative value in case of an error.
      */
     int8_t scanNetworks();
 
     /**
      * @brief Retrieves the SSID of a specific Wi-Fi network from the scan results.
-     * 
+     *
      * @param `networkItem` The index of the network in the list of scanned access points.
-     * 
+     *
      * @return The SSID of the specified network, or `nullptr` if the index is out of bounds.
      */
-    const char*   SSID(uint8_t networkItem);
+    const char *SSID(uint8_t networkItem);
 
     /**
      * @brief Returns the encryption type for a specified network.
-     * 
+     *
      * This function retrieves the encryption type of a specific Wi-Fi access point
      * based on its index in the list of scanned networks.
-     * 
+     *
      * @param `networkItem` The index of the network in the list of available access points.
-     * 
-     * @return The encryption type in numeric form (e.g., 0 for no encryption, 
+     *
+     * @return The encryption type in numeric form (e.g., 0 for no encryption,
      * 1 for WEP, 2 for WPA, etc.). Returns 0 if the network item index is invalid.
      */
     uint8_t encryptionType(uint8_t networkItem);
 
     /**
      * @brief Returns the encryption type of the currently connected Wi-Fi network.
-     * 
+     *
      * @return The encryption type in numeric form (e.g., 0 for no encryption, 1 for WEP, 2 for WPA, etc.).
      * Returns `ENC_TYPE_UNKNOWN` if the encryption type cannot be determined.
      */
@@ -367,42 +354,42 @@ public:
 
     /**
      * @brief Retrieves the BSSID of a specific Wi-Fi network.
-     * 
+     *
      * This function retrieves the BSSID (MAC address) of the Wi-Fi network at the specified
-     * index from the list of available networks. The BSSID is stored in the provided 
+     * index from the list of available networks. The BSSID is stored in the provided
      * array of 6 bytes.
-     * 
+     *
      * @param `networkItem` The index of the Wi-Fi network in the list of available networks.
      * @param `bssid` A pointer to a byte array (of size 6) where the BSSID will be stored.
-     * 
-     * @return A pointer to the `bssid` array if the BSSID is successfully retrieved, 
+     *
+     * @return A pointer to the `bssid` array if the BSSID is successfully retrieved,
      * or `nullptr` if the network index is out of range.
      */
-    uint8_t* BSSID(uint8_t networkItem, uint8_t* bssid);
+    uint8_t *BSSID(uint8_t networkItem, uint8_t *bssid);
 
     /**
      * @brief Retrieves the channel number of a specific Wi-Fi network.
-     * 
+     *
      * @param `networkItem` The index of the Wi-Fi network in the list of available networks.
-     * 
-     * @return The channel number of the specified network, or `0` if the network index 
+     *
+     * @return The channel number of the specified network, or `0` if the network index
      * is out of range.
      */
     uint8_t channel(uint8_t networkItem);
 
     /**
      * @brief Retrieves the RSSI (Received Signal Strength Indicator) of the networks discovered during the scanNetworks.
-     * 
+     *
      * @param `networkItem` The index of the Wi-Fi network in the list of available networks.
-     * 
-     * @return The RSSI value of the specified network in dBm, or `-1000` if the network index 
+     *
+     * @return The RSSI value of the specified network in dBm, or `-1000` if the network index
      * is out of range.
      */
     int32_t RSSI(uint8_t networkItem);
 
     /**
      * @brief Retrieves the current connection status of the Wi-Fi connection.
-     * 
+     *
      * @return One of the values defined in wl_status_t
      */
     uint8_t status();
@@ -416,42 +403,36 @@ public:
 
     /**
      * @brief Resolves a hostname to an IP address.
-     * 
+     *
      * @param `aHostname` The hostname to resolve (e.g., "www.example.com").
-     * @param `aResult` IPAddress structure to store the returned IP address result: 
+     * @param `aResult` IPAddress structure to store the returned IP address result:
      * 1 if aIPAddrString was successfully converted to an IP address, else error code
-     * 
+     *
      * @return Returns `1` if the hostname was successfully resolved, `0` otherwise.
      */
-    int hostByName(const char* aHostname, IPAddress& aResult);
+    int hostByName(const char *aHostname, IPAddress &aResult);
 
     /**
      * @brief Retrieves the current time from the modem.
-     * 
+     *
      * @return The current time value in seconds, or `0` if the time could not be retrieved.
      */
     unsigned long getTime();
 
     /**
      * @brief Sets the timeout value for the WiFi connection.
-     * 
+     *
      * @param `timeout` The timeout value in milliseconds.
      */
     void setTimeout(unsigned long timeout);
-
-
 };
 
 /**
  * @brief Global instance of the CWifi class.
- * 
- * This external declaration provides access to a global instance of the `CWifi` class, which 
+ *
+ * This external declaration provides access to a global instance of the `CWifi` class, which
  * facilitates interaction with the WiFi module.
  */
 extern CWifi WiFi;
 
-
-
-
 #endif
-
