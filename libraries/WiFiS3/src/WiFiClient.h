@@ -248,7 +248,6 @@ public:
 
 protected:
   int _sock;
-  bool destroy_at_distructor;
   int _connectionTimeout = 0;
   void getSocket();
   static constexpr uint32_t RX_BUFFER_DIM = 1024;

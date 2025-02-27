@@ -34,14 +34,21 @@
 #endif
 
 #define MAX_SOFAT_CONNECTION_DEF 5
-
-#define MAC_ADDRESS_DIM 6
 #define NETWORK_INTERFACES_MAX_NUM 3
 #define MAX_HOSTNAME_DIM 253
 
 #define WIFI_INIT_TIMEOUT_MS 10000
 
+// Maximum size of a SSID
+#define WL_SSID_MAX_LENGTH 32
+// Length of passphrase. Valid lengths are 8-63.
+#define WL_WPA_KEY_MAX_LENGTH 63
+// Length of key in bytes. Valid values are 5 and 13.
+#define WL_WEP_KEY_MAX_LENGTH 13
+// Size of a MAC-address or BSSID
 #define WL_MAC_ADDR_LENGTH 6
+// Size of a IP4 address
+#define WL_IPV4_LENGTH 4
 
 /* DEFAULT ADDRESS FOR ETHERNET CONFIGURATION */
 
@@ -208,7 +215,7 @@ public:
 
     /* default dummy implementation because ethernet does not have that */
     virtual const char* getSSID() { return nullptr; }
-    virtual uint8_t* getBSSID(uint8_t* bssid) { return nullptr; }
+    virtual uint8_t* getBSSID(uint8_t* bssid) { (void)bssid; return nullptr; }
     virtual int32_t getRSSI() { return 0; }
     virtual uint8_t getEncryptionType() { return 0; }
 

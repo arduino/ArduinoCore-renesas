@@ -7,8 +7,8 @@
 extern "C" {
 #endif
 
-//#define STORAGE_DEBUG
-//#define STORAGE_ASSERT
+#define STORAGE_DEBUG
+#define STORAGE_ASSERT
 
 /* -------------------------------------------------------------------------- */
 /*                                 STORAGE DEBUG                              */
@@ -61,7 +61,7 @@ static inline void rns_storage_dbg_mem(uint8_t *b, uint32_t _size)
 {
     if (b != nullptr) {
         Serial.println("");
-        for(int i = 0; i < _size; i++) {
+        for(uint32_t i = 0; i < _size; i++) {
             if(i != 0 && i % PRINT_SIZE == 0) {
                 if(i != 0)
                     Serial.println();

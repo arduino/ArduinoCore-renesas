@@ -156,7 +156,10 @@ void CWifi::setHostname(const char* name) {
 /* -------------------------------------------------------------------------- */
 int CWifi::disconnect() {
 /* -------------------------------------------------------------------------- */   
-   CLwipIf::getInstance().disconnectFromAp();
+   if(CLwipIf::getInstance().disconnectFromAp() == ESP_CONTROL_OK) {
+      return 1;
+   }
+   return 0;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -224,12 +224,11 @@ CNetIf* CLwipIf::get(NetIfType_t type,
     IPAddress _nm)
 {
     /* -------------------------------------------------------------------------- */
-    static int id = 0;
     CNetIf* rv = nullptr;
     bool isStation = true;
     bool isEth = false;
 
-    if (type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
+    if (type == NI_WIFI_STATION || type == NI_WIFI_SOFTAP || type == NI_ETHERNET) {
         if (net_ifs[type] == nullptr) {
             switch (type) {
             case NI_WIFI_STATION:
@@ -537,17 +536,17 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac)
         MAC.mode = WIFI_MODE_STA;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else if (type == NI_WIFI_SOFTAP) {
         MAC.mode = WIFI_MODE_AP;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else {
         eth_get_mac_address(mac);
-        rv = MAC_ADDRESS_DIM;
+        rv = WL_MAC_ADDR_LENGTH;
     }
 
     CLwipIf::getInstance().restartAsyncRequest();
@@ -1025,11 +1024,11 @@ uint8_t CLwipIf::getEncryptionType(NetIfType_t type)
 
 /* -------------------------------------------------------------------------- */
 CNetIf::CNetIf()
-    : dhcp_timeout(30000)
+    : id(0)
+    , dhcp_timeout(30000)
+    , dhcp_st(DHCP_IDLE_STATUS)
     , dhcp_started(false)
     , dhcp_acquired(false)
-    , id(0)
-    , dhcp_st(DHCP_IDLE_STATUS)
     , _dhcp_lease_state(DHCP_CHECK_NONE)
 {
     /* -------------------------------------------------------------------------- */

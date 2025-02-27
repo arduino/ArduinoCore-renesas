@@ -85,16 +85,16 @@ void CMsg::reset_without_delete() {
 
 
 /* -------------------------------------------------------------------------- */
-CMsg::CMsg() : buf{nullptr}, dim{0}, payload_header{nullptr}, proto_dim{0}, tlv_size(esp_tlv_header_size) {
+CMsg::CMsg() : buf{nullptr}, dim{0}, proto_dim{0}, payload_header{nullptr}, tlv_size(esp_tlv_header_size) {
    
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-CMsg::CMsg(uint16_t proto_size, bool use_tlv /*= true*/) : buf{nullptr}, 
-                                                  dim{0}, 
-                                                  payload_header{nullptr}, 
-                                                  proto_dim{proto_size} {
+CMsg::CMsg(uint16_t proto_size, bool use_tlv /*= true*/) : buf{nullptr},
+                                                  dim{0},
+                                                  proto_dim{proto_size},
+                                                  payload_header{nullptr} {
 /* -------------------------------------------------------------------------- */      
    uint16_t request_size = 0;
    if(use_tlv) {
@@ -204,6 +204,7 @@ CMsg& CMsg::operator=(CMsg&& m) {
       Serial.println(" bad!");
       #endif
    }
+   return *this;
 }
 
 
@@ -442,6 +443,7 @@ void CMsg::debug_print(const char* title) {
 /* -------------------------------------------------------------------------- */
 bool CMsg::store_rx_buffer(const uint8_t *buffer, uint32_t d) {
 /* -------------------------------------------------------------------------- */   
+   (void)d;
    /* rx_payload_len is TLV + PROTO (tlv can be present or not) */
    uint16_t rx_payload_len = verify_payload_header(buffer);
    
@@ -498,6 +500,7 @@ bool CMsg::add_msg(CMsg &msg) {
          return false;
       }
    }
+   return true;
 } 
 
 /* -------------------------------------------------------------------------- */
