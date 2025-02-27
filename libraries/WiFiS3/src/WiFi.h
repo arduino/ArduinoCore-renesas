@@ -19,9 +19,9 @@
 
 #define WIFI_FIRMWARE_LATEST_VERSION "0.5.2"
 
-#define WL_MAX_AP_LIST 10
-#define WL_MAX_BSSID_LENGTH 17
-#define WL_MAX_SSID_LENGHT_S WL_SSID_MAX_LENGTH + 1 // +1 for null terminator
+#ifndef WIFI_MAX_SSID_COUNT
+  #define WIFI_MAX_SSID_COUNT 10
+#endif
 
 class CAccessPoint {
 public:
@@ -41,7 +41,7 @@ public:
         encryption_mode = obj.encryption_mode;
         memcpy(uint_bssid, obj.uint_bssid, sizeof(uint_bssid));
     }
-    char ssid[WL_MAX_SSID_LENGHT_S];
+    char ssid[WL_SSID_MAX_LENGTH + 1]; // +1 for null terminator
     uint8_t uint_bssid[6];
     int rssi;
     uint8_t channel;
@@ -54,7 +54,7 @@ private:
     void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
     void _sortAPlist(uint8_t num);
     unsigned long _timeout;
-    CAccessPoint access_points[WL_MAX_AP_LIST];
+    CAccessPoint access_points[WIFI_MAX_SSID_COUNT];
     uint8_t _apsFound = 0;
     std::string ssid;
     std::string apssid;

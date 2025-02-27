@@ -1,5 +1,7 @@
 #include "WiFi.h"
 
+#define WIFI_MAX_BSSID_STRING_LENGTH 17
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
@@ -306,44 +308,48 @@ int8_t CWifi::scanNetworks() {
    if(modem.write(string(PROMPT(_WIFISCAN)),res,CMD(_WIFISCAN))) {
       char *startAp = (char*)res.c_str();
       char *endAP = strstr(startAp, "\r\n");
-      for(; endAP != NULL; startAp = endAP, endAP = strstr(startAp, "\r\n")) {
-         CAccessPoint ap;
+      for(; endAP != NULL; startAp = endAP + 2, endAP = strstr(startAp, "\r\n")) {
+         /* split the modem response in multiple lines and parse once at time.
+          * The output will be something like:
+          * SSID | BSSID | RSSI | CHANNEL | SECURITY
+          */
+         *endAP = '\0'; // Replace \r with \0
+
          char *token[5];
-         *endAP++ = '\0'; // Replace \r with \0
-         endAP++;
-         char *startToken = startAp;
-         char *endToken = strstr(startAp, " | ");
-         uint8_t i = 0;
-         for(; i < 5 && endToken != NULL; i++){
-            token[i] = startToken;
-            *endToken++ = '\0';
-            endToken = endToken + 2;
-            startToken = endToken;
-            endToken = strstr(startToken, " | ");
+         uint8_t i = 1;
+         token[0] = startAp;
+         for(; i < 5; i++){
+            char *endToken = strstr(token[i-1], " | ");
             if(endToken == NULL){
-               token[++i] = startToken;
+               break;
             }
+            memset(endToken, '\0', 3);
+            token[i] = endToken + 3;
          }
 
-         if(i>=5) {
-            if(strlen(token[0]) > WL_SSID_MAX_LENGTH || strlen(token[1]) != WL_MAX_BSSID_LENGTH){
-               continue;
-            }
-            strcpy(ap.ssid, token[0]);
-            macStr2macArray(ap.uint_bssid, token[1]);
-            ap.rssi = atoi(token[2]);
-            ap.channel = atoi(token[3]);
-            ap.encryption_mode = Encr2wl_enc(token[4]);
-            // insert in list
-            if( _apsFound < WL_MAX_AP_LIST ){
-               access_points[_apsFound] = ap;
-               _apsFound++;
-               _sortAPlist(_apsFound);
-            }else{
-               if (ap.rssi > access_points[WL_MAX_AP_LIST-1].rssi){
-                  access_points[WL_MAX_AP_LIST-1] = ap;
-                  _sortAPlist(WL_MAX_AP_LIST);
-               }
+         if(i < 5 || strlen(token[0]) == 0 || strlen(token[0]) > WL_SSID_MAX_LENGTH ||
+         strlen(token[1]) != WIFI_MAX_BSSID_STRING_LENGTH ||
+         strlen(token[2]) == 0 || strlen(token[3]) == 0 || strlen(token[4]) == 0){
+         /* Skip the row and process the next one */
+         continue;
+         }
+
+         CAccessPoint ap;
+         strcpy(ap.ssid, token[0]);
+         macStr2macArray(ap.uint_bssid, token[1]);
+         ap.rssi = atoi(token[2]);
+         ap.channel = atoi(token[3]);
+         ap.encryption_mode = Encr2wl_enc(token[4]);
+
+         // insert in list
+         if( _apsFound < WIFI_MAX_SSID_COUNT ){
+            access_points[_apsFound] = ap;
+            _apsFound++;
+            _sortAPlist(_apsFound);
+         }else{
+            if (ap.rssi > access_points[WIFI_MAX_SSID_COUNT-1].rssi){
+               access_points[WIFI_MAX_SSID_COUNT-1] = ap;
+               _sortAPlist(WIFI_MAX_SSID_COUNT);
             }
          }
       }
