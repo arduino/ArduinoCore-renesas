@@ -26,22 +26,24 @@ static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p
     LWIP_ASSERT("p != NULL", p != NULL);
 
     recv_callback_data* request = (recv_callback_data*)arg;
-
-    if ((p->tot_len >= (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) &&
-        pbuf_remove_header(p, PBUF_IP_HLEN) == 0) {
-        iecho = (struct icmp_echo_hdr *)p->payload;
-
-        if ((iecho->id == 0xAFAF) && (iecho->seqno == lwip_htons(request->seqNum))) {
-            /* do some ping result processing */
-            request->endMillis = millis();
-            pbuf_free(p);
-            return 1; /* eat the packet */
-        }
-        /* not eaten, restore original packet */
-        pbuf_add_header(p, PBUF_IP_HLEN);
+    if ((p->tot_len < (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) ||
+        pbuf_remove_header(p, PBUF_IP_HLEN) != 0) {
+            return 0; /* don't consume the packet */
     }
 
-    return 0; /* don't eat the packet */
+    iecho = (struct icmp_echo_hdr *)p->payload;
+
+    if(iecho->id != 0xAFAF || iecho->seqno != lwip_htons(request->seqNum)) {
+        /* not eaten, restore original packet */
+        pbuf_add_header(p, PBUF_IP_HLEN);
+        return 0;
+    }
+
+    /* do some ping result processing */
+    request->endMillis = millis();
+    pbuf_free(p);
+    return 1; /* consume the packet */
+
 }
 
 ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
@@ -202,12 +204,17 @@ int CLwipIf::ping(IPAddress ip, uint8_t ttl)
     }
     pbuf_free(p);
 
-    bool timeout = false;
-    while (!requestCbkData.endMillis && !timeout) {
-        timeout = (millis() - requestCbkData.startMillis) > 5000;
+    CLwipIf::getInstance().startSyncRequest();
+
+    while (!requestCbkData.endMillis && (millis() - requestCbkData.startMillis) <= 5000) {
+        CLwipIf::getInstance().lwip_task();
     }
 
-    if (timeout) {
+    CLwipIf::getInstance().restartAsyncRequest();
+
+    raw_remove(s);
+
+    if (!requestCbkData.endMillis) {
         return -1;
     }
 

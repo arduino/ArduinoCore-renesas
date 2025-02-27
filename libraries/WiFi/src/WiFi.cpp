@@ -335,7 +335,7 @@ int CWifi::ping(IPAddress ip, uint8_t ttl) {
 int CWifi::ping(const String &hostname, uint8_t ttl)
 /* -------------------------------------------------------------------------- */
 {
-	return ping(hostname.c_str(), ttl);
+   return ping(hostname.c_str(), ttl);
 }
 
 /* -------------------------------------------------------------------------- */
