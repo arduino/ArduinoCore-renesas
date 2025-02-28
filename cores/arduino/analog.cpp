@@ -645,7 +645,7 @@ void analogReadResolution(int bits) {
     default:
       _analogRequestedReadResolution = 12; 
       adc.cfg.resolution = ADC_RESOLUTION_12_BIT;
-      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_12_BIT;
       break;
   }
 
