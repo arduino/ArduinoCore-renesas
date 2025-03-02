@@ -81,6 +81,20 @@ int CEthernet::begin(IPAddress local_ip, IPAddress dns_server, IPAddress gateway
 }
 
 /* -------------------------------------------------------------------------- */
+void CEthernet::setHostname(const char* hostname) {
+/* -------------------------------------------------------------------------- */
+  if (ni != nullptr) {
+    ni->setHostname(hostname);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+void CEthernet::setDnsServerIP(IPAddress dns_server) {
+/* -------------------------------------------------------------------------- */
+  setDNS(dns_server);
+}
+
+/* -------------------------------------------------------------------------- */
 void CEthernet::setDNS(IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */  
   CLwipIf::getInstance().addDns(dns_server);
@@ -198,6 +212,11 @@ void CEthernet::MACAddress(uint8_t *mac) {
   CLwipIf::getInstance().getMacAddress(NI_ETHERNET, mac);
 }
 
+uint8_t* CEthernet::macAddress(uint8_t *mac) {
+  CLwipIf::getInstance().getMacAddress(NI_ETHERNET, mac);
+  return mac;
+}
+
 IPAddress CEthernet::localIP() {
   if(ni != nullptr) {
       return IPAddress(ni->getIpAdd());   
@@ -221,6 +240,16 @@ IPAddress CEthernet::gatewayIP() {
 
 IPAddress CEthernet::dnsServerIP() {
   return CLwipIf::getInstance().getDns();
+}
+
+IPAddress CEthernet::dnsIP(int n) {
+   return CLwipIf::getInstance().getDns(n);
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::hostByName(const char* hostname, IPAddress& result) {
+/* -------------------------------------------------------------------------- */
+   return CLwipIf::getInstance().getHostByName(hostname, result);
 }
 
 CEthernet Ethernet;
