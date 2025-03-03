@@ -277,7 +277,7 @@
  * (requires the LWIP_RAW option)
  */
 #ifndef MEMP_NUM_RAW_PCB
-#define MEMP_NUM_RAW_PCB                0
+#define MEMP_NUM_RAW_PCB                1
 #endif
 
 /**
@@ -642,7 +642,7 @@
  * LWIP_RAW==1: Enable application layer to hook into the IP layer itself.
  */
 #ifndef LWIP_RAW
-#define LWIP_RAW                0
+#define LWIP_RAW                1
 #endif
 
 /*
