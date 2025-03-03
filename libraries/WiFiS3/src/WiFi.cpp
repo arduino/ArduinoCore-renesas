@@ -332,27 +332,18 @@ IPAddress CWifi::localIP() {
    int attempts = 0;
    IPAddress local_IP(0,0,0,0);
 
-   do {
-      delay(100);
-      if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
-         if(atoi(res.c_str()) == 1) {
-            if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
-
-               local_IP.fromString(res.c_str());
-
-            }
-         }
-         else if(atoi(res.c_str()) == 2) {
-            if(modem.write(string(PROMPT(_IPSOFTAP)),res,  CMD(_IPSOFTAP))) {
-
-               local_IP.fromString(res.c_str());
-            }
+   if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
+      if(atoi(res.c_str()) == 1) {
+         if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
+            local_IP.fromString(res.c_str());
          }
       }
-      attempts++;
+      else if(atoi(res.c_str()) == 2) {
+         if(modem.write(string(PROMPT(_IPSOFTAP)),res,  CMD(_IPSOFTAP))) {
+            local_IP.fromString(res.c_str());
+         }
+      }
    }
-   while(local_IP == IPAddress(0,0,0,0) && attempts < 50);
-
    return local_IP;
 }
 
