@@ -195,7 +195,6 @@ void eth_reset_due_to_ADE_bit() {
 /* -------------------------------------------------------------------------- */
 void EthernetDriver::irq_callback(ether_callback_args_t * p_args) {
 /* -------------------------------------------------------------------------- */  
-    p_args->status_ecsr;
     uint32_t reg_eesr = p_args->status_eesr;
     if(p_args->channel == ETHERNET_CHANNEL) {
         if(p_args->event == ETHER_EVENT_WAKEON_LAN) {

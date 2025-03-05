@@ -558,7 +558,10 @@ void analogReference(uint8_t mode) {
   R_ADC_Open(&adc1.ctrl, &adc1.cfg);
 }
 
+#if defined(AVCC_MEASURE_PIN)
 static float aref = 0;
+#endif
+
 float analogReference() {
     switch (adc.cfg_extend.adc_vref_control) {
       case ADC_VREF_CONTROL_1_5V_OUTPUT:
@@ -642,7 +645,7 @@ void analogReadResolution(int bits) {
     default:
       _analogRequestedReadResolution = 12; 
       adc.cfg.resolution = ADC_RESOLUTION_12_BIT;
-      adc1.cfg.resolution = ADC_RESOLUTION_10_BIT;
+      adc1.cfg.resolution = ADC_RESOLUTION_12_BIT;
       break;
   }
 

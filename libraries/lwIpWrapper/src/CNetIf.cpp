@@ -1,5 +1,9 @@
 #include "CNetIf.h"
 #include <functional>
+#include "lwip/include/lwip/raw.h"
+#include "lwip/include/lwip/icmp.h"
+#include "lwip/include/lwip/ip_addr.h"
+#include "lwip/include/lwip/inet_chksum.h"
 
 IPAddress CNetIf::default_ip("192.168.0.10");
 IPAddress CNetIf::default_nm("255.255.255.0");
@@ -13,6 +17,33 @@ WifiStatus_t CLwipIf::wifi_status = WL_IDLE_STATUS;
 bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
+
+static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
+{
+    struct icmp_echo_hdr *iecho;
+    (void)(pcb);
+    (void)(addr);
+    LWIP_ASSERT("p != NULL", p != NULL);
+
+    recv_callback_data* request = (recv_callback_data*)arg;
+    if ((p->tot_len < (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) ||
+        pbuf_remove_header(p, PBUF_IP_HLEN) != 0) {
+            return 0; /* don't consume the packet */
+    }
+
+    iecho = (struct icmp_echo_hdr *)p->payload;
+
+    if(iecho->id != 0xAFAF || iecho->seqno != lwip_htons(request->seqNum)) {
+        /* not eaten, restore original packet */
+        pbuf_add_header(p, PBUF_IP_HLEN);
+        return 0;
+    }
+
+    /* do some ping result processing */
+    request->endMillis = millis();
+    pbuf_free(p);
+    return 1; /* consume the packet */
+}
 
 ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
 {
@@ -120,6 +151,81 @@ void CLwipIf::lwip_task()
     }
 }
 
+
+int CLwipIf::ping(IPAddress ip, uint8_t ttl)
+{
+    /* ttl is not supported. Default value used is 255 */
+    (void)ttl;
+    ip_addr_t addr;
+    addr.addr = ip;
+
+    /* ICMP ping callback data structure */
+    static recv_callback_data requestCbkData;
+
+    /* initialize callback data for a new request */
+    memset(&requestCbkData, 0, sizeof(recv_callback_data));
+    requestCbkData.seqNum = (uint16_t)random(0xffff);
+
+    /* Create a raw socket */
+    struct raw_pcb* s = raw_new(IP_PROTO_ICMP);
+    if (!s) {
+        return -1;
+    }
+
+    raw_recv(s, icmp_receive_callback, (void*)&requestCbkData);
+    raw_bind(s, IP_ADDR_ANY);
+
+    struct pbuf *p;
+    struct icmp_echo_hdr *iecho;
+    size_t ping_size = sizeof(struct icmp_echo_hdr) + 32;
+
+    p = pbuf_alloc(PBUF_IP, (u16_t)ping_size, PBUF_RAM);
+    if (!p) {
+        raw_remove(s);
+        return -1;
+    }
+
+    if ((p->len == p->tot_len) && (p->next == NULL)) {
+        iecho = (struct icmp_echo_hdr *)p->payload;
+
+        size_t i;
+        size_t data_len = ping_size - sizeof(struct icmp_echo_hdr);
+
+        ICMPH_TYPE_SET(iecho, ICMP_ECHO);
+        ICMPH_CODE_SET(iecho, 0);
+        iecho->chksum = 0;
+        iecho->id     = 0xAFAF;
+        iecho->seqno  = lwip_htons(requestCbkData.seqNum);
+
+        /* fill the additional data buffer with some data */
+        for(i = 0; i < data_len; i++) {
+            ((char*)iecho)[sizeof(struct icmp_echo_hdr) + i] = (char)i;
+        }
+
+        iecho->chksum = inet_chksum(iecho, ping_size);
+        requestCbkData.startMillis = millis();
+        raw_sendto(s, p, &addr);
+
+    }
+    pbuf_free(p);
+
+    CLwipIf::getInstance().startSyncRequest();
+
+    while (!requestCbkData.endMillis && (millis() - requestCbkData.startMillis) <= 5000) {
+        CLwipIf::getInstance().lwip_task();
+    }
+
+    CLwipIf::getInstance().restartAsyncRequest();
+
+    raw_remove(s);
+
+    if (!requestCbkData.endMillis) {
+        return -1;
+    }
+
+    return requestCbkData.endMillis - requestCbkData.startMillis;
+}
+
 /* -------------------------------------------------------------------------- */
 /* GET INSTANCE SINGLETONE FUNCTION */
 /* -------------------------------------------------------------------------- */
@@ -224,12 +330,11 @@ CNetIf* CLwipIf::get(NetIfType_t type,
     IPAddress _nm)
 {
     /* -------------------------------------------------------------------------- */
-    static int id = 0;
     CNetIf* rv = nullptr;
     bool isStation = true;
     bool isEth = false;
 
-    if (type >= 0 && type < NETWORK_INTERFACES_MAX_NUM) {
+    if (type == NI_WIFI_STATION || type == NI_WIFI_SOFTAP || type == NI_ETHERNET) {
         if (net_ifs[type] == nullptr) {
             switch (type) {
             case NI_WIFI_STATION:
@@ -537,17 +642,17 @@ int CLwipIf::getMacAddress(NetIfType_t type, uint8_t* mac)
         MAC.mode = WIFI_MODE_STA;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else if (type == NI_WIFI_SOFTAP) {
         MAC.mode = WIFI_MODE_AP;
         if (CEspControl::getInstance().getWifiMacAddress(MAC) == ESP_CONTROL_OK) {
             CNetUtilities::macStr2macArray(mac, MAC.mac);
-            rv = MAC_ADDRESS_DIM;
+            rv = WL_MAC_ADDR_LENGTH;
         }
     } else {
         eth_get_mac_address(mac);
-        rv = MAC_ADDRESS_DIM;
+        rv = WL_MAC_ADDR_LENGTH;
     }
 
     CLwipIf::getInstance().restartAsyncRequest();
@@ -1025,11 +1130,11 @@ uint8_t CLwipIf::getEncryptionType(NetIfType_t type)
 
 /* -------------------------------------------------------------------------- */
 CNetIf::CNetIf()
-    : dhcp_timeout(30000)
+    : id(0)
+    , dhcp_timeout(30000)
+    , dhcp_st(DHCP_IDLE_STATUS)
     , dhcp_started(false)
     , dhcp_acquired(false)
-    , id(0)
-    , dhcp_st(DHCP_IDLE_STATUS)
     , _dhcp_lease_state(DHCP_CHECK_NONE)
 {
     /* -------------------------------------------------------------------------- */

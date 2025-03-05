@@ -3,13 +3,13 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-WiFiClient::WiFiClient() : _sock(-1), destroy_at_distructor(true), rx_buffer(nullptr) {
+WiFiClient::WiFiClient() : _sock(-1), rx_buffer(nullptr) {
    rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-WiFiClient::WiFiClient(int s) : _sock(s), destroy_at_distructor(false), rx_buffer(nullptr) {
+WiFiClient::WiFiClient(int s) : _sock(s), rx_buffer(nullptr) {
    rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
 }
 /* -------------------------------------------------------------------------- */
@@ -185,15 +185,11 @@ int WiFiClient::read(uint8_t *buf, size_t size) {
 /* -------------------------------------------------------------------------- */
 int WiFiClient::peek() {
 /* -------------------------------------------------------------------------- */
-   int rv = -1;
-   if(_sock >= 0) {
-      string res = "";
-      modem.begin();
-      if(modem.write(string(PROMPT(_PEEK)),res, "%s%d\r\n" , CMD_WRITE(_PEEK), _sock)) {
-         rv = atoi(res.c_str());
-      }
+   read_if_needed(1);
+   if(_sock >= 0 && rx_buffer != nullptr) {
+      return rx_buffer->peek();
    }
-   return rv;
+   return -1;
 }
 
 

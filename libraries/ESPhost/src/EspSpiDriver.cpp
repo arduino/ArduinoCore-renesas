@@ -124,7 +124,6 @@ static spi_event_t _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
  * ############################# */
 
 static void spi_callback(spi_callback_args_t *p_args);
-static void ext_irq_callback(void);
 
 
 /* execute SPI communication, send the content of tx_buffer to ESP32, put the
@@ -533,10 +532,4 @@ static void spi_callback(spi_callback_args_t *p_args) {
      /* Updating the flag here to capture and handle all other error events */
      _spi_cb_status = SPI_EVENT_TRANSFER_ABORTED;
    }
-}
-
-/* -------------------------------------------------------------------------- */
-static void ext_irq_callback(void) {
-/* -------------------------------------------------------------------------- */   
-  
 }

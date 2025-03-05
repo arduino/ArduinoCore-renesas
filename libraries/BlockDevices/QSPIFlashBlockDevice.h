@@ -70,25 +70,27 @@
 
 class QSPIFlashBlockDevice : public BlockDevice {
 private:
-  bool opened;
-  
-  bd_addr_t base_address;
-  bd_size_t total_size;
-  bd_size_t read_block_size;
-  bd_size_t erase_block_size;
-  bd_size_t write_block_size;
 
-  bool is_address_correct(bd_addr_t add);
-
-  qspi_instance_ctrl_t  ctrl;
-  spi_flash_cfg_t       cfg;
-  qspi_extended_cfg_t   ext_cfg;
   pin_t ck;
   pin_t cs;
   pin_t io0;
   pin_t io1;
   pin_t io2;
   pin_t io3;
+
+  bd_addr_t base_address;
+  bd_size_t total_size;
+  bd_size_t read_block_size;
+  bd_size_t erase_block_size;
+  bd_size_t write_block_size;
+
+  bool opened;
+
+  bool is_address_correct(bd_addr_t add);
+
+  qspi_instance_ctrl_t  ctrl;
+  spi_flash_cfg_t       cfg;
+  qspi_extended_cfg_t   ext_cfg;
 
   fsp_err_t get_flash_status();
 
