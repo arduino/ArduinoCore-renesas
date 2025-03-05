@@ -1,0 +1,13 @@
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/inc
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra_gen
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/private/inc
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/public/inc
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/primitive
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_sce/common
+-iwithprefixbefore/variants/rmc_ra4m1_20/includes/ra/fsp/src/r_sce
