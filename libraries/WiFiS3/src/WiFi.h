@@ -40,6 +40,7 @@ public:
         channel = obj.channel;
         encryption_mode = obj.encryption_mode;
         memcpy(uint_bssid, obj.uint_bssid, sizeof(uint_bssid));
+        return *this;
     }
     char ssid[WL_SSID_MAX_LENGTH + 1]; // +1 for null terminator
     uint8_t uint_bssid[6];
