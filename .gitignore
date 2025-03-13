@@ -9,3 +9,4 @@ cores/arduino/mydebug.cpp.donotuse
 .DS_Store?
 /.vs
 /.gitignore
+.vscode/settings.json
