@@ -397,7 +397,6 @@ IPAddress CWifi::localIP() {
 /* -------------------------------------------------------------------------- */
    modem.begin();
    string res = "";
-   int attempts = 0;
    IPAddress local_IP(0,0,0,0);
 
    if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
