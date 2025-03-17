@@ -298,6 +298,9 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
 
             sized_read_size = atoi(data_res.c_str());
             data_res.clear();
+            if (sized_read_size == 0) {
+               state = at_parse_state_t::Res;
+            }
          } else if(c == '\r') {
             state = at_parse_state_t::ResWaitLF;
          } else if(c == '\n') {
