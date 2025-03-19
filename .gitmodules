@@ -1,6 +1,6 @@
 [submodule "extras/tinyusb"]
 	path = extras/tinyusb
-	url = https://github.com/arduino/tinyusb
+	url = https://github.com/hathach/tinyusb
 [submodule "extras/uno-r4-wifi-usb-bridge"]
 	path = extras/uno-r4-wifi-usb-bridge
 	url = https://github.com/arduino/uno-r4-wifi-usb-bridge
