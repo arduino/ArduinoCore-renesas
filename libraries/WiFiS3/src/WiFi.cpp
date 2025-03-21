@@ -42,11 +42,11 @@ int CWifi::begin(const char* ssid) {
 }
 
 /* -------------------------------------------------------------------------- */
-int CWifi::begin(const char* ssid, const char *passphrase) {
+int CWifi::begin(const char* ssid, const char *passphrase, uint8_t mode) {
 /* -------------------------------------------------------------------------- */
    string res = "";
    modem.begin();
-   modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), 1);
+   modem.write(string(PROMPT(_MODE)),res, "%s%d\r\n" , CMD_WRITE(_MODE), mode);
 
    if(passphrase == nullptr) {
       if(!modem.write(string(PROMPT(_BEGINSTA)),res, "%s%s\r\n" , CMD_WRITE(_BEGINSTA), ssid)) {
@@ -400,7 +400,7 @@ IPAddress CWifi::localIP() {
    IPAddress local_IP(0,0,0,0);
 
    if(modem.write(string(PROMPT(_MODE)),res, "%s" , CMD_READ(_MODE)))  {
-      if(atoi(res.c_str()) == 1) {
+      if(atoi(res.c_str()) == 1 || atoi(res.c_str()) == 3) {
          if(modem.write(string(PROMPT(_IPSTA)),res, "%s%d\r\n" , CMD_WRITE(_IPSTA), IP_ADDR)) {
             local_IP.fromString(res.c_str());
          }
