@@ -806,6 +806,7 @@ void analogWrite(pin_size_t pinNumber, int value)
 
   if(ptr != nullptr) {
     //check the pinmux in case it's been modified by a call to pinMode()
+    if (pinNumber >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) return;  /* pinNumber > sizeof of pin table */
     bool has_peripheral_mux = R_PFS->PORT[g_pin_cfg[pinNumber].pin >> IOPORT_PRV_PORT_OFFSET].PIN[g_pin_cfg[pinNumber].pin & BSP_IO_PRV_8BIT_MASK].PmnPFS & IOPORT_CFG_PERIPHERAL_PIN;
     if (!has_peripheral_mux) {
       ptr->end();
