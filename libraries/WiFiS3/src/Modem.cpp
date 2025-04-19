@@ -36,12 +36,14 @@ void ModemClass::begin(int badurate, int retry){
       _serial->begin(badurate);
       string res = "";
       _serial->flush();
+	  
+	  unsigned long modemTimeout = _timeout;
       modem.timeout(500);
       while(!beginned && retry > 0) {
          beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));
          retry -= 1;
       }
-      modem.timeout(MODEM_TIMEOUT);
+      modem.timeout(modemTimeout);
    }
 }
 
@@ -186,7 +188,7 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
    unsigned long start_time = millis();
    while(state != at_parse_state_t::Completed) {
 
-      if(millis() - start_time > _timeout) {
+      if(millis() - start_time > _readTimeout) {
          res = Timeout;
          break;
       }
@@ -293,15 +295,15 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
           *   in data_res contains the length of the next token
           */
 
-         if(c == '|') { // sized read, the previous parameter is the length
-            sized_read_size = atoi(data_res.c_str());
-            data_res.clear();
-            if (sized_read_size != 0) {
-               state = at_parse_state_t::Sized;
-            } else {
-               state = at_parse_state_t::Res;
-            }
-         } else if(c == '\r') {
+          if(c == '|') { // sized read, the previous parameter is the length
+              sized_read_size = atoi(data_res.c_str());
+              data_res.clear();
+              if (sized_read_size != 0) {
+                  state = at_parse_state_t::Sized;
+              } else {
+                  state = at_parse_state_t::Res;
+              }
+          } else if(c == '\r') {
             state = at_parse_state_t::ResWaitLF;
          } else if(c == '\n') {
             state = at_parse_state_t::Res;

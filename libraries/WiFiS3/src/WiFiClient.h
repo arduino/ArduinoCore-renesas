@@ -229,7 +229,16 @@ public:
   void setConnectionTimeout(int timeout) {
     _connectionTimeout = timeout;
   }
-
+  
+  /**
+   * @brief Retrieves the connection timeout period
+   *
+   * @return Returns the connection timeout in milliseconds
+   */
+  int getConnectionTimeout() {
+	  return _connectionTimeout;
+  }
+  
   /**
    * @brief Declares WiFiServer as a friend class.
    * 
