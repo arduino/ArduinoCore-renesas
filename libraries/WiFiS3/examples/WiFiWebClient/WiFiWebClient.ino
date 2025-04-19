@@ -26,12 +26,17 @@
 
 #include "arduino_secrets.h" 
 
+#define MaximumConnections 1
+
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;            // your network key index number (needed only for WEP)
 
+int connectionCount = 0;
+bool clientConnected = false;
 int status = WL_IDLE_STATUS;
+
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
 //IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
@@ -46,7 +51,7 @@ WiFiClient client;
 void setup() {
 /* -------------------------------------------------------------------------- */  
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -62,30 +67,19 @@ void setup() {
   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
     Serial.println("Please upgrade the firmware");
   }
-  
-  // attempt to connect to WiFi network:
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.begin(ssid, pass);
-     
-    // wait 10 seconds for connection:
-    delay(10000);
-  }
-  
-  printWifiStatus();
- 
-  Serial.println("\nStarting connection to server...");
-  // if you get a connection, report back via serial:
-  if (client.connect(server, 80)) {
-    Serial.println("connected to server");
-    // Make a HTTP request:
-    client.println("GET /search?q=arduino HTTP/1.1");
-    client.println("Host: www.google.com");
-    client.println("Connection: close");
-    client.println();
-  }
+
+  // 3 second wait for connection
+  client.setConnectionTimeout(3000);
+}
+
+void connectToWifi() {
+  if (status != WL_IDLE_STATUS)
+    return;
+
+  Serial.print("Attempting to connect to SSID: ");
+  Serial.println(ssid);
+  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+  status = WiFi.begin(ssid, pass);
 }
 
 /* just wrap the received data up to 80 columns in the serial print*/
@@ -109,16 +103,55 @@ void read_response() {
 /* -------------------------------------------------------------------------- */
 void loop() {
 /* -------------------------------------------------------------------------- */  
-  read_response();
+  // do some processing
+  Serial.println("loop processing");
+  
+  // only allowed to connect n times
+  if (connectionCount >= MaximumConnections) {
+    delay(300);
+    return;
+  }
 
-  // if the server's disconnected, stop the client:
-  if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting from server.");
-    client.stop();
+  //connect and wait for connection to be made
+  connectToWifi();
+  status = WiFi.isConnected();
 
-    // do nothing forevermore:
-    while (true);
+  if (status == WL_CONNECTING) {
+    Serial.println("Connecting to wifi");
+    delay(200);
+  }
+
+  // If connected to Wifi then send a request to a server
+  if (status == WL_CONNECTED) {
+    Serial.println("Connected to WiFi");
+    printWifiStatus();
+ 
+    Serial.println("\nStarting connection to server...");
+    clientConnected = client.connect(server, 80);
+
+    if (clientConnected) {
+      connectionCount++;
+
+      // if you get a connection, report back via serial:
+      Serial.println("connected to server");
+      // Make a HTTP request:
+      client.println("GET /search?q=arduino HTTP/1.1");
+      client.println("Host: www.google.com");
+      client.println("Connection: close");
+      client.println();
+
+      Serial.println("Reading response");
+      read_response();
+
+      if (clientConnected) {
+        // if the server's disconnected, stop the client:
+        if (!client.connected()) {
+          Serial.println();
+          Serial.println("disconnecting from server.");
+          client.stop();
+        }
+      }
+    }
   }
 }
 
