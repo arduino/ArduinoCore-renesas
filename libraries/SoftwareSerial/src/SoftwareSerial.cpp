@@ -358,6 +358,7 @@ int SoftwareSerial::end() {
         R_ELC_Disable(&elc_ctrl);
         R_ELC_Close(&elc_ctrl);
     }
+    return 1;
 }
 
 int SoftwareSerial::read()
