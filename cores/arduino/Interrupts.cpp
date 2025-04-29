@@ -193,6 +193,21 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
     attachInterruptParam(pinNumber, (voidFuncPtrParam)func, mode, NULL);
 }
 
+
+int getIrqIndexFromPint(uint32_t pinNumber) {
+    CIrq *irq_context = nullptr;
+    int rv = -1;
+    int ch = pin2IrqChannel(pinNumber);
+    if(ch >= 0 && ch < MAX_IRQ_CHANNEL) {
+        irq_context = IrqChannel.get(ch,false);
+        if(irq_context != nullptr) {
+            rv = irq_context->cfg.irq;
+        }
+    }
+    return rv;   
+}
+
+
 int attachIrq2Link(uint32_t pinNumber, PinStatus mode) {
     CIrq *irq_context = nullptr;
     int ch = pin2IrqChannel(pinNumber);
