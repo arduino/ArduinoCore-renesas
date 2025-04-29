@@ -16,7 +16,7 @@ typedef enum {
 
 extern int attachIrq2Link(uint32_t pin, PinStatus mode);
 extern int detachIrq2Link(pin_size_t pinNumber);
-extern int getIrqIndexFromPint(uint32_t pin);
+extern int getIrqIndexFromPin(uint32_t pin);
 
 /* Wrapper class for FSP ELC 
     at the present only support the link of an external Irq to a peripheral */

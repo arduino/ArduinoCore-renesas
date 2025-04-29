@@ -48,7 +48,7 @@ void dma_tx_callback(dmac_callback_args_t *args);
 void dma_rx_callback(dmac_callback_args_t *args);
 
 extern int attachIrq2Link(uint32_t pin, PinStatus mode);
-extern int getIrqIndexFromPint(uint32_t pin);
+extern int getIrqIndexFromPin(uint32_t pin);
 typedef void (*fsp_dma_callback_t) (dmac_callback_args_t *args);
 
 static uint32_t tx_get_sample(bsp_io_port_pin_t tx, ioport_size_t value)
@@ -239,7 +239,7 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
 
     /* avoid to call attachIrq2Link if already used because it "consumes" irq
        indexes in the NVIC */
-    int irq_index = getIrqIndexFromPint(_rx_pin);
+    int irq_index = getIrqIndexFromPin(_rx_pin);
     if(irq_index == -1) {
         rx_descr.irq_chan = attachIrq2Link(_rx_pin, CHANGE); // Enable RX pin IRQ.
     } else {
@@ -343,7 +343,7 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
 }
 
 int SoftwareSerial::end() {
-    int irq_index = getIrqIndexFromPint(_rx_pin);
+    int irq_index = getIrqIndexFromPin(_rx_pin);
 
     if(irq_index != -1) {
         R_BSP_IrqDisable((IRQn_Type)irq_index);

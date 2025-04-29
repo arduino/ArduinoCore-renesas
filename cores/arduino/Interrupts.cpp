@@ -194,7 +194,7 @@ void attachInterrupt(pin_size_t pinNumber, voidFuncPtr func, PinStatus mode) {
 }
 
 
-int getIrqIndexFromPint(uint32_t pinNumber) {
+int getIrqIndexFromPin(uint32_t pinNumber) {
     CIrq *irq_context = nullptr;
     int rv = -1;
     int ch = pin2IrqChannel(pinNumber);
