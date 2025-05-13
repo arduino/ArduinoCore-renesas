@@ -219,6 +219,7 @@ public:
     void play(bool loop = false){
         _loop = loop;
         _sequenceDone = false;
+        _lastInterval = millis();
         next();
     }
     bool sequenceDone(){
