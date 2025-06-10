@@ -174,18 +174,18 @@ void flashCertificates() {
   FILE* fp = fopen("/wlan/cacert.pem", "wb");
 
   Serial.println("Flashing certificates");
-  uint32_t chunck_size = 128;
+  uint32_t chunk_size = 128;
   uint32_t byte_count = 0;
   printProgress(byte_count, cacert_pem_len, 10, true);
   while (byte_count < cacert_pem_len) {
-    if(byte_count + chunck_size > cacert_pem_len)
-      chunck_size = cacert_pem_len - byte_count;
-    int ret = fwrite(&cacert_pem[byte_count], chunck_size, 1 ,fp);
+    if(byte_count + chunk_size > cacert_pem_len)
+      chunk_size = cacert_pem_len - byte_count;
+    int ret = fwrite(&cacert_pem[byte_count], chunk_size, 1 ,fp);
     if (ret != 1) {
       Serial.println("Error writing certificates");
       break;
     }
-    byte_count += chunck_size;
+    byte_count += chunk_size;
     printProgress(byte_count, cacert_pem_len, 10, false);
   }
   fclose(fp);
