@@ -29,6 +29,7 @@
  * ######## */
 
 #include "EspSpiDriver.h"
+#include "EspChipManager.h"
 
 /* #####################
  * Configuration defines 
@@ -44,31 +45,6 @@
 #endif
 
 #define EXT_IRQ_CHANNEL (0)
-
-#ifdef USE_ESP32_C3_DEVKIT_RUST_1
-/* GPIOs */
-#define HANDSHAKE         BSP_IO_PORT_05_PIN_05  
-#define DATA_READY        BSP_IO_PORT_08_PIN_02  
-#define DATA_READY_PIN    33                     
-
-/* SPI PIN definition */
-#define ESP_MISO   BSP_IO_PORT_01_PIN_00
-#define ESP_MOSI   BSP_IO_PORT_01_PIN_01
-#define ESP_CK     BSP_IO_PORT_01_PIN_02
-#define ESP_CS     BSP_IO_PORT_01_PIN_03 
-#else
-/* GPIOs */
-#define ESP_RESET         BSP_IO_PORT_08_PIN_04
-#define HANDSHAKE         BSP_IO_PORT_08_PIN_06  
-#define DATA_READY        BSP_IO_PORT_08_PIN_03
-#define DATA_READY_PIN    100
-
-/* SPI PIN definition */
-#define ESP_MISO   BSP_IO_PORT_01_PIN_00
-#define ESP_MOSI   BSP_IO_PORT_01_PIN_01
-#define ESP_CK     BSP_IO_PORT_01_PIN_02
-#define ESP_CS     BSP_IO_PORT_01_PIN_04 
-#endif
 
 /* #################
  * PRIVATE Variables
@@ -157,15 +133,11 @@ int esp_host_spi_init(void) {
    }
 
    /* ++++++++++++++++++++++++++++++++++
-    *  GPIOs (HANDSHAKE and DATA_READY)
+    *  GPIOs (HANDSHAKE and CS)
     * ++++++++++++++++++++++++++++++++++ */
    R_IOPORT_PinCfg(NULL, HANDSHAKE, IOPORT_CFG_PORT_DIRECTION_INPUT);
-   /* DATA READY is configure in attach interrupt function below */
    //#ifdef EXPLICIT_PIN_CONFIGURATION
-   R_IOPORT_PinCfg(NULL, DATA_READY, (uint32_t) (IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT ));
-
    R_IOPORT_PinCfg(NULL, ESP_CS, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
-   R_IOPORT_PinCfg(NULL, ESP_RESET, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
    //#endif
 
    /* +++++
@@ -270,7 +242,7 @@ int esp_host_spi_init(void) {
       return ESP_HOSTED_SPI_DRIVER_SPI_FAIL_OPEN;
    }
    
-   R_IOPORT_PinWrite(NULL, ESP_RESET, BSP_IO_LEVEL_HIGH);
+   CEspChipManager::getInstance().initialize();
    spi_driver_initialized = true;
    return ESP_HOSTED_SPI_DRIVER_OK; 
 }
