@@ -1,5 +1,6 @@
 #include "CNetIf.h"
 #include <functional>
+#include <stdlib.h>
 #include "lwip/include/lwip/raw.h"
 #include "lwip/include/lwip/icmp.h"
 #include "lwip/include/lwip/ip_addr.h"
@@ -23,7 +24,9 @@ static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p
     struct icmp_echo_hdr *iecho;
     (void)(pcb);
     (void)(addr);
-    LWIP_ASSERT("p != NULL", p != NULL);
+    if(p == NULL) {
+        return 0; /* don't consume the packet */
+    }
 
     recv_callback_data* request = (recv_callback_data*)arg;
     if ((p->tot_len < (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr))) ||
@@ -164,7 +167,8 @@ int CLwipIf::ping(IPAddress ip, uint8_t ttl)
 
     /* initialize callback data for a new request */
     memset(&requestCbkData, 0, sizeof(recv_callback_data));
-    requestCbkData.seqNum = (uint16_t)random(0xffff);
+    srand(millis());
+    requestCbkData.seqNum = (uint16_t)rand()%65535;
 
     /* Create a raw socket */
     struct raw_pcb* s = raw_new(IP_PROTO_ICMP);

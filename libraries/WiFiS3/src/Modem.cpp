@@ -289,15 +289,18 @@ ModemClass::ParseResult ModemClass::buf_read(const string &prompt, string &data_
           * in case multiple parameters separated by ',' are sent, they will be present in data_res
           * - if we encounter <CR> we need to wait for <LF>
           * - if we encounter <LF> we need to parse the response status
-          * - if we encounter '|', the next token will contain binary sized data, the current value in
+          * - if we encounter '|', the next token will contain binary sized data, the current value
           *   in data_res contains the length of the next token
           */
 
          if(c == '|') { // sized read, the previous parameter is the length
-            state = at_parse_state_t::Sized;
-
             sized_read_size = atoi(data_res.c_str());
             data_res.clear();
+            if (sized_read_size != 0) {
+               state = at_parse_state_t::Sized;
+            } else {
+               state = at_parse_state_t::Res;
+            }
          } else if(c == '\r') {
             state = at_parse_state_t::ResWaitLF;
          } else if(c == '\n') {
