@@ -22,6 +22,7 @@ FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 git checkout boards.txt
 git checkout platform.txt
 
+sed -i 's/nanor4./#nanor4./g' boards.txt
 sed -i 's/minima./#minima./g' boards.txt
 sed -i 's/unor4wifi./#unor4wifi./g' boards.txt
 sed -i 's/muxto./#muxto./g' boards.txt
