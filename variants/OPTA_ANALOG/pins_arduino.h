@@ -78,7 +78,7 @@ extern "C" unsigned int PINCOUNT_fn();
 #define WIRE_SDA_PIN               I2C_SDA
 #define WIRE_SCL_PIN               I2C_SCL
 static const uint8_t SDA = WIRE_SDA_PIN;
-static const uint8_t SCL = WIRE_SDA_PIN;
+static const uint8_t SCL = WIRE_SCL_PIN;
 /* *************************** SPI CORE DEFINES **************************** */
 #define SPI_HOWMANY                1
 #define PIN_SPI_MOSI               SPI_MOSI

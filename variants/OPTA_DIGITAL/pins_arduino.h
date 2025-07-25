@@ -144,7 +144,7 @@ static const uint8_t A15 = AN15;
 #define WIRE_SCL_PIN            I2C_SCL
 
 static const uint8_t SDA = WIRE_SDA_PIN;
-static const uint8_t SCL = WIRE_SDA_PIN;
+static const uint8_t SCL = WIRE_SCL_PIN;
 
 /****** SPI CORE DEFINES ******/
 
