@@ -117,11 +117,12 @@ static const uint8_t D15 = PIN_D15;
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      2
-#define WIRE_SDA_PIN      18 /* A4 */
-#define WIRE_SCL_PIN      19 /* A5 */
-#define WIRE1_SDA_PIN     27
-#define WIRE1_SCL_PIN     26
+#define WIRE_HOWMANY            2
+#define WIRE_INTERFACES_COUNT   WIRE_HOWMANY
+#define WIRE_SDA_PIN            18 /* A4 */
+#define WIRE_SCL_PIN            19 /* A5 */
+#define WIRE1_SDA_PIN           27
+#define WIRE1_SCL_PIN           26
 
 static const uint8_t SDA = WIRE_SDA_PIN;
 static const uint8_t SCL = WIRE_SCL_PIN;
