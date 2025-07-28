@@ -145,9 +145,10 @@ static const uint8_t A6 = PIN_A6;
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      1
-#define WIRE_SDA_PIN      20
-#define WIRE_SCL_PIN      21
+#define WIRE_HOWMANY            1
+#define WIRE_INTERFACES_COUNT   WIRE_HOWMANY
+#define WIRE_SDA_PIN            20
+#define WIRE_SCL_PIN            21
 
 // TODO: removeme
 #ifdef __cplusplus
