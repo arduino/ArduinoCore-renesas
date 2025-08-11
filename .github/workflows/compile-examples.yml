@@ -57,6 +57,8 @@ jobs:
             id: git_minima
           - fqbn: arduino-git:renesas:unor4wifi
             id: git_wifi
+          - fqbn: arduino-git:renesas:nanor4
+            id: git_nanor4
 
 
         # make board type-specific customizations to the matrix jobs
@@ -110,6 +112,10 @@ jobs:
               - libraries/Preferences
           - board:
               fqbn: "arduino-git:renesas:minima"
+            additional-sketch-paths: |
+              - libraries/OPAMP
+          - board:
+              fqbn: "arduino-git:renesas:nanor4"
             additional-sketch-paths: |
               - libraries/OPAMP
 
