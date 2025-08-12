@@ -10,8 +10,8 @@
 
 #pragma once
 
-#if !defined(ARDUINO_PORTENTA_C33) && !defined(ARDUINO_MINIMA) && !defined(ARDUINO_UNOWIFIR4)
-# error "FreeRTOS is currently only supported for the Portenta C33, Arduino Uno R4 Minima and Arduino Uno R4 WiFi."
+#if !defined(ARDUINO_PORTENTA_C33) && !defined(ARDUINO_MINIMA) && !defined(ARDUINO_UNOWIFIR4) && !defined(ARDUINO_NANO_R4)
+# error "FreeRTOS is currently only supported for the Portenta C33, Arduino Uno R4 Minima, Arduino Uno R4 WiF and Arduino Nano R4."
 #endif
 
 #ifdef __cplusplus
