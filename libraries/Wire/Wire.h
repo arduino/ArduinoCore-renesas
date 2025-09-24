@@ -125,7 +125,7 @@ class TwoWire : public arduino::HardwareI2C {
 
     void setBusStatus(WireStatus_t);
     /* set timeout in ms for I2C communication */
-    void setTimeout(unsigned int t);
+    void setWireTimeout(unsigned int t);
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }

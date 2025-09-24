@@ -836,7 +836,7 @@ void TwoWire::flush(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-void TwoWire::setTimeout(unsigned int t) {
+void TwoWire::setWireTimeout(unsigned int t) {
 /* -------------------------------------------------------------------------- */
   timeout = t;
 }
