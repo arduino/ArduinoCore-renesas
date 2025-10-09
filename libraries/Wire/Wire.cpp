@@ -489,7 +489,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint3
     }
 
     uint32_t const start = micros();
-    while (((timeout_us == 0ul) || ((millis() - start) < timeout_us)) &&
+    while (((timeout_us == 0ul) || ((micros() - start) < timeout_us)) &&
                 bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
     }
     if ((err == FSP_SUCCESS) && (bus_status == WIRE_STATUS_UNSET)) {
@@ -522,7 +522,7 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
     }
 
     uint32_t const start = micros();
-    while (((timeout_us == 0ul) || ((millis() - start) < timeout_us)) && 
+    while (((timeout_us == 0ul) || ((micros() - start) < timeout_us)) && 
 		bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
     }
 
@@ -680,6 +680,7 @@ void TwoWire::clearWireTimeoutFlag(void){
 void TwoWire::handleTimeout(bool reset){
 /* -------------------------------------------------------------------------- */
   timed_out_flag = true;
+
   if (reset) { //TBD; What do we do here? like fixHungWire()?
     // TBD, Is this the way to go to reset the bus? 
     // Do we need more to handle devices that hangs the bus?
@@ -689,12 +690,15 @@ void TwoWire::handleTimeout(bool reset){
     }
     // TDB, Is this the right way to get back after reset?
     //if(m_open != nullptr) {
-    //  if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
+    //  fsp_err_t err = m_open(&m_i2c_ctrl,&m_i2c_cfg);
+    //  if(FSP_SUCCESS == err) {
     //     init_ok &= true;
     //  }
     //}
-  }
+  } 
 }
+
+
 
 
 
