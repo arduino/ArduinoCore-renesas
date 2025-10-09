@@ -30,6 +30,7 @@ extern "C" {
   #include <inttypes.h>
 }
 
+#include "Arduino.h"
 #include "Wire.h"
 
 TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
@@ -211,6 +212,8 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
       s_i2c_cfg.txi_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
+
+
 }
 
 /* -------------------------------------------------------------------------- */ 
@@ -485,12 +488,13 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint3
       }
     }
 
-    while( bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
-      uint32_t const start = micros();
-      if((timeout_us > 0ul) && ((micros() - start) > timeout_us)) {
-        handleTimeout(do_reset_on_timeout);
-        return 0;
-      }
+    uint32_t const start = micros();
+    while (((timeout_us == 0ul) || ((millis() - start) < timeout_us)) &&
+                bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    }
+    if ((err == FSP_SUCCESS) && (bus_status == WIRE_STATUS_UNSET)) {
+      handleTimeout(do_reset_on_timeout);
+      return 0;
     }
   }
 
@@ -502,7 +506,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint3
 }
 
 /* -------------------------------------------------------------------------- */    
-uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32_t timeout_us /* micros */, bool sendStop) {
+uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32_t timeout_us , bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   uint8_t rv = END_TX_OK;
   fsp_err_t err = FSP_ERR_ASSERTION;
@@ -517,12 +521,9 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
       }
     }
 
-    while( bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
-      uint32_t const start = micros();
-      if((timeout_us > 0ul) && ((micros() - start) > timeout_us)) {
-        handleTimeout(do_reset_on_timeout);
-        return END_TX_TIMEOUT;
-      }
+    uint32_t const start = micros();
+    while (((timeout_us == 0ul) || ((millis() - start) < timeout_us)) && 
+		bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
     }
 
     if(err != FSP_SUCCESS) {
@@ -530,6 +531,10 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
     }
     else if(data_too_long) {
       rv = END_TX_DATA_TOO_LONG;
+    }
+    else if(bus_status == WIRE_STATUS_UNSET) {
+      rv = END_TX_TIMEOUT;
+      handleTimeout(do_reset_on_timeout);	
     }
     /* as far as I know is impossible to distinguish between NACK on ADDRESS and
       NACK on DATA */
@@ -675,7 +680,6 @@ void TwoWire::clearWireTimeoutFlag(void){
 void TwoWire::handleTimeout(bool reset){
 /* -------------------------------------------------------------------------- */
   timed_out_flag = true;
-
   if (reset) { //TBD; What do we do here? like fixHungWire()?
     // TBD, Is this the way to go to reset the bus? 
     // Do we need more to handle devices that hangs the bus?
@@ -684,11 +688,11 @@ void TwoWire::handleTimeout(bool reset){
       fsp_err_t err = m_abort(&m_i2c_ctrl);
     }
     // TDB, Is this the right way to get back after reset?
-    if(m_open != nullptr) {
-      if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
-         init_ok &= true;
-      }
-    }
+    //if(m_open != nullptr) {
+    //  if(FSP_SUCCESS == m_open(&m_i2c_ctrl,&m_i2c_cfg)) {
+    //     init_ok &= true;
+    //  }
+    //}
   }
 }
 
