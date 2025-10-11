@@ -20,6 +20,8 @@
   Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
 
   Version 2022 for Renesas RA4 by Daniele Aimo (d.aimo@arduino.cc)
+  
+  Version 2025 by Hanz Häger (hanz.hager+arduino@gmail.com) added timeout interface
 */
 
 extern "C" {
@@ -28,6 +30,7 @@ extern "C" {
   #include <inttypes.h>
 }
 
+#include "Arduino.h"
 #include "Wire.h"
 
 TwoWire *TwoWire::g_SCIWires[TWOWIRE_MAX_SCI_CHANNELS] = {nullptr};
@@ -191,7 +194,9 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
   is_master(true),
   is_sci(false),
   address_mode(am),
-  timeout(1000),
+  timeout_us(25000),
+  timed_out_flag(false),
+  do_reset_on_timeout(false),
   transmission_begun(false),
   data_too_long(false),
   rx_index(0),
@@ -207,6 +212,8 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
       s_i2c_cfg.txi_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
+
+
 }
 
 /* -------------------------------------------------------------------------- */ 
@@ -465,7 +472,7 @@ void TwoWire::end(void) {
 
 
 /* -------------------------------------------------------------------------- */
-uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint32_t timeout_us, bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   /* ??? does this function make sense only for MASTER ???? */
   
@@ -480,21 +487,26 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
+    uint32_t const start = micros();
+    while (((timeout_us == 0ul) || ((micros() - start) < timeout_us)) &&
+                bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    }
+    if ((err == FSP_SUCCESS) && (bus_status == WIRE_STATUS_UNSET)) {
+      handleTimeout(do_reset_on_timeout);
+      return 0;
     }
   }
 
   if(bus_status == WIRE_STATUS_RX_COMPLETED) {
     return length;
   }
-  
+ 
   return 0; /* ???????? return value ??????? */
 }
 
 /* -------------------------------------------------------------------------- */    
-uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32_t timeout_us , bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   uint8_t rv = END_TX_OK;
   fsp_err_t err = FSP_ERR_ASSERTION;
@@ -508,9 +520,10 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
+    uint32_t const start = micros();
+    while (((timeout_us == 0ul) || ((micros() - start) < timeout_us)) && 
+		bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
     }
 
     if(err != FSP_SUCCESS) {
@@ -521,6 +534,7 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
     }
     else if(bus_status == WIRE_STATUS_UNSET) {
       rv = END_TX_TIMEOUT;
+      handleTimeout(do_reset_on_timeout);	
     }
     /* as far as I know is impossible to distinguish between NACK on ADDRESS and
       NACK on DATA */
@@ -602,6 +616,92 @@ void TwoWire::setClock(uint32_t freq) {
   }
 }
 
+/***
+ * Sets the I2C timeout.
+ *
+ * This limits the maximum time to wait for the I2C hardware. If more time passes, the bus is assumed
+ * to have locked up (e.g. due to noise-induced glitches or faulty slaves) and the transaction is aborted.
+ * Optionally, the I2C hardware is also reset, which can be required to allow subsequent transactions to
+ * succeed in some cases (in particular when noise has made the I2C hardware think there is a second
+ * master that has claimed the bus).
+ *
+ * When a timeout is triggered, a flag is set that can be queried with `getWireTimeoutFlag()` and is cleared
+ * when `clearWireTimeoutFlag()` or `setWireTimeoutUs()` is called.
+ *
+ * Note that this timeout can also trigger while waiting for clock stretching or waiting for a second master
+ * to complete its transaction. So make sure to adapt the timeout to accommodate for those cases if needed.
+ * A typical timeout would be 25ms (which is the maximum clock stretching allowed by the SMBus protocol),
+ * but (much) shorter values will usually also work.
+ *
+ * In the future, a timeout will be enabled by default, so if you require the timeout to be disabled, it is
+ * recommended you disable it by default using `setWireTimeoutUs(0)`, even though that is currently
+ * the default.
+ *
+ * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
+ * @param reset_with_timeout if true then I2C interface will be automatically reset on timeout
+ *                           if false then I2C interface will not be reset on timeout
+
+ */
+
+/* -------------------------------------------------------------------------- */
+void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
+/* -------------------------------------------------------------------------- */
+  timed_out_flag = false;
+  timeout_us = timeout;
+  do_reset_on_timeout = reset_with_timeout;
+}
+
+/***
+ * Returns the timeout flag.
+ *
+ * @return true if timeout has occurred since the flag was last cleared.
+ */
+bool TwoWire::getWireTimeoutFlag(void){
+  return(timed_out_flag);
+}
+
+/***
+ * Clears the timeout flag.
+ */
+/* -------------------------------------------------------------------------- */
+void TwoWire::clearWireTimeoutFlag(void){
+/* -------------------------------------------------------------------------- */
+  timed_out_flag = false;
+}
+
+/* 
+ * Function handleTimeout
+ * Desc     this gets called whenever a while loop here has lasted longer than
+ *          timeout_us microseconds. always sets timed_out_flag
+ * Input    reset: true causes this function to reset the hardware interface
+ * Output   none
+ */
+/* -------------------------------------------------------------------------- */
+void TwoWire::handleTimeout(bool reset){
+/* -------------------------------------------------------------------------- */
+  timed_out_flag = true;
+
+  if (reset) { //TBD; What do we do here? like fixHungWire()?
+    // TBD, Is this the way to go to reset the bus? 
+    // Do we need more to handle devices that hangs the bus?
+    if(m_abort != nullptr) {
+      bus_status = WIRE_STATUS_UNSET;       
+      fsp_err_t err = m_abort(&m_i2c_ctrl);
+    }
+    // TDB, Is this the right way to get back after reset?
+    //if(m_open != nullptr) {
+    //  fsp_err_t err = m_open(&m_i2c_ctrl,&m_i2c_cfg);
+    //  if(FSP_SUCCESS == err) {
+    //     init_ok &= true;
+    //  }
+    //}
+  } 
+}
+
+
+
+
+
 /*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *                           TRANSMISSION BEGIN
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
@@ -642,7 +742,7 @@ void TwoWire::beginTransmission(int address) {
 /* -------------------------------------------------------------------------- */
 uint8_t TwoWire::endTransmission(bool sendStop) {
 /* -------------------------------------------------------------------------- */  
-  uint8_t ret = write_to(master_tx_address, tx_buffer, tx_index, timeout, sendStop);
+  uint8_t ret = write_to(master_tx_address, tx_buffer, tx_index, timeout_us, sendStop);
   transmission_begun = false;
   return ret;
 }
@@ -687,7 +787,7 @@ size_t TwoWire::requestFrom(uint8_t address, size_t quantity, uint32_t iaddress,
       quantity = I2C_BUFFER_LENGTH;
     }
     // perform blocking read into buffer
-    uint8_t read = read_from(address, rx_buffer, quantity, timeout, sendStop);
+    uint8_t read = read_from(address, rx_buffer, quantity, timeout_us, sendStop);
     // set rx buffer iterator vars
     rx_index = read;
     rx_extract_index = 0;
