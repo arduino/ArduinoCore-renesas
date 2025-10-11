@@ -191,7 +191,7 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
   is_master(true),
   is_sci(false),
   address_mode(am),
-  timeout(1000),
+  timeout(1),
   transmission_begun(false),
   data_too_long(false),
   rx_index(0),
@@ -835,7 +835,11 @@ void TwoWire::flush(void) {
   while(bus_status != WIRE_STATUS_TX_COMPLETED && bus_status != WIRE_STATUS_TRANSACTION_ABORTED) {}
 }
 
-
+/* -------------------------------------------------------------------------- */
+void TwoWire::setWireTimeout(unsigned int t) {
+/* -------------------------------------------------------------------------- */
+  timeout = t;
+}
 
 
 #if WIRE_HOWMANY > 0
