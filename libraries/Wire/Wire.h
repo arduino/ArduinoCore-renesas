@@ -69,6 +69,14 @@ using I2C_onTxCallback_f        = void (*)(void);
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
+// WIRE_HAS_TIMEOUT means Wire has setWireTimeout(), getWireTimeoutFlag
+// and clearWireTimeoutFlag()
+#define WIRE_HAS_TIMEOUT 1
+
+// When not configured, these settings are used for the timeout
+#define WIRE_DEFAULT_TIMEOUT 25000
+#define WIRE_DEFAULT_RESET_WITH_TIMEOUT 0
+
 #define END_TX_OK      0
 #define END_TX_DATA_TOO_LONG 1
 #define END_TX_NACK_ON_ADD  2
@@ -103,6 +111,10 @@ class TwoWire : public arduino::HardwareI2C {
     void begin(int);
     void end();
     void setClock(uint32_t);
+
+    void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
+    bool getWireTimeoutFlag(void);
+    void clearWireTimeoutFlag(void);
 
     void beginTransmission(uint32_t);
     void beginTransmission(uint16_t);
@@ -169,7 +181,12 @@ class TwoWire : public arduino::HardwareI2C {
     bool is_sci;
     WireAddressMode_t address_mode;
 
-    unsigned int timeout;
+    uint32_t timeout_us;
+    volatile bool timed_out_flag;
+    bool do_reset_on_timeout;
+
+    void handleTimeout(bool reset);
+	
     bool transmission_begun;
     bool data_too_long; 
 
@@ -211,8 +228,8 @@ class TwoWire : public arduino::HardwareI2C {
 
     bool require_sci;
 
-    uint8_t read_from(uint8_t, uint8_t*, uint8_t, unsigned int, bool);
-    uint8_t write_to(uint8_t, uint8_t*, uint8_t, unsigned int, bool);
+    uint8_t read_from(uint8_t, uint8_t*, uint8_t, uint32_t, bool);
+    uint8_t write_to(uint8_t, uint8_t*, uint8_t, uint32_t, bool);
 
     bool cfg_pins(int max_index);
 
