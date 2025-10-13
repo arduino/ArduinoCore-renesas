@@ -72,13 +72,13 @@ void TwoWire::WireSCIMasterCallback(i2c_master_callback_args_t *arg) {
       ptr->setBusStatus(WIRE_STATUS_TX_COMPLETED);
     }
   }
-
 }
 
 /* -------------------------------------------------------------------------- */
 void TwoWire::WireMasterCallback(i2c_master_callback_args_t *arg) {
 /* -------------------------------------------------------------------------- */  
   /* +++++ MASTER I2C not SCI Callback ++++++ */
+      
   i2c_master_cfg_t *cfg = (i2c_master_cfg_t *)arg->p_context;
 
   TwoWire *ptr = nullptr; 
@@ -212,8 +212,6 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
       s_i2c_cfg.txi_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
       s_i2c_cfg.tei_irq = FSP_INVALID_VECTOR;
-
-
 }
 
 /* -------------------------------------------------------------------------- */ 
@@ -336,7 +334,7 @@ void TwoWire::_begin(void) {
         m_i2c_cfg.p_callback                  = WireMasterCallback;
 
         m_i2c_extend.timeout_mode             = IIC_MASTER_TIMEOUT_MODE_SHORT;
-        m_i2c_extend.timeout_scl_low          = IIC_MASTER_TIMEOUT_SCL_LOW_DISABLED;
+        m_i2c_extend.timeout_scl_low          = IIC_MASTER_TIMEOUT_SCL_LOW_ENABLED;
       }
 
       m_i2c_cfg.channel                     = channel;
@@ -483,7 +481,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint3
     }
     if(err == FSP_SUCCESS) {
       if(m_read != nullptr) {
-        bus_status = WIRE_STATUS_UNSET;
+        setBusStatus(WIRE_STATUS_UNSET);
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
@@ -501,7 +499,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, uint3
   if(bus_status == WIRE_STATUS_RX_COMPLETED) {
     return length;
   }
- 
+  
   return 0; /* ???????? return value ??????? */
 }
 
@@ -512,15 +510,30 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
   fsp_err_t err = FSP_ERR_ASSERTION;
   if(init_ok) {
     if(m_setSlaveAdd != nullptr) {
+      setBusStatus(WIRE_STATUS_UNSET);
       err = m_setSlaveAdd(&m_i2c_ctrl, address, m_i2c_cfg.addr_mode);
     }
-    if(err == FSP_SUCCESS) {
+    if((err == FSP_SUCCESS) && (bus_status != WIRE_STATUS_TRANSACTION_ABORTED)) {
+
       if(m_write != nullptr) {
-        bus_status = WIRE_STATUS_UNSET;
+        setBusStatus(WIRE_STATUS_UNSET);
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
-    }
+      if (err==FSP_ERR_INVALID_SIZE) {
+        rv = END_TX_DATA_TOO_LONG;
+        Serial.println(F("Invalid size when trying to write"));
+      } 
 
+    } else  // No FSP_SUCCESS in m_setSlaveAdd or WIRE_STATUS_TRANSACTION_ABORTED 
+      if (err == FSP_ERR_IN_USE) {
+        Serial.println(F("An I2C Transaction is in progress. when setting slave address"));
+      } else
+        if (bus_status == WIRE_STATUS_TRANSACTION_ABORTED){
+          rv = END_TX_NACK_ON_ADD;
+          Serial.println(F("Transaction aborted -> NACK on ADDR"));
+      }
+
+    // If FSP_SUCCESS, wait for change in bus_status or timeout
     uint32_t const start = micros();
     while (((timeout_us == 0ul) || ((micros() - start) < timeout_us)) && 
 		bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
@@ -531,6 +544,7 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
     }
     else if(data_too_long) {
       rv = END_TX_DATA_TOO_LONG;
+      Serial.println(F("Trying to write more than II2C_BUFFER_LENGTH, buffer truncated before written"));
     }
     else if(bus_status == WIRE_STATUS_UNSET) {
       rv = END_TX_TIMEOUT;
@@ -539,7 +553,8 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, uint32
     /* as far as I know is impossible to distinguish between NACK on ADDRESS and
       NACK on DATA */
     else if(bus_status == WIRE_STATUS_TRANSACTION_ABORTED) {
-      rv = END_TX_NACK_ON_ADD;
+      if (length==0) rv = END_TX_NACK_ON_ADD;
+      if (rv != END_TX_NACK_ON_ADD) rv = END_TX_NACK_ON_DATA;
     }
   }
   else {
@@ -593,13 +608,13 @@ void TwoWire::setClock(uint32_t freq) {
           m_i2c_extend.clock_settings.brh_value = 15;
           m_i2c_extend.clock_settings.cks_value = 0 + clock_divisor;
           break;
-#if BSP_FEATURE_IIC_FAST_MODE_PLUS
         case I2C_MASTER_RATE_FASTPLUS:
+#if BSP_FEATURE_IIC_FAST_MODE_PLUS
           m_i2c_extend.clock_settings.brl_value = 6;
           m_i2c_extend.clock_settings.brh_value = 5;
           m_i2c_extend.clock_settings.cks_value = 0;
-          break;
 #endif
+          break;
       }
     }
   }
@@ -640,9 +655,7 @@ void TwoWire::setClock(uint32_t freq) {
  * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
  * @param reset_with_timeout if true then I2C interface will be automatically reset on timeout
  *                           if false then I2C interface will not be reset on timeout
-
  */
-
 /* -------------------------------------------------------------------------- */
 void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
 /* -------------------------------------------------------------------------- */
@@ -680,27 +693,30 @@ void TwoWire::clearWireTimeoutFlag(void){
 void TwoWire::handleTimeout(bool reset){
 /* -------------------------------------------------------------------------- */
   timed_out_flag = true;
+  Serial.println(F("Handling TwoWire::handleTimeout()"));
 
   if (reset) { //TBD; What do we do here? like fixHungWire()?
     // TBD, Is this the way to go to reset the bus? 
     // Do we need more to handle devices that hangs the bus?
+    Serial.print(F("with reset Abort result: "));
     if(m_abort != nullptr) {
-      bus_status = WIRE_STATUS_UNSET;       
+      //setBusStatus(WIRE_STATUS_TRANSACTION_ABORTED);
       fsp_err_t err = m_abort(&m_i2c_ctrl);
+      Serial.println(err);
     }
     // TDB, Is this the right way to get back after reset?
-    //if(m_open != nullptr) {
-    //  fsp_err_t err = m_open(&m_i2c_ctrl,&m_i2c_cfg);
-    //  if(FSP_SUCCESS == err) {
-    //     init_ok &= true;
-    //  }
-    //}
+    if(m_open != nullptr) {
+      fsp_err_t err = m_open(&m_i2c_ctrl,&m_i2c_cfg);
+      if(FSP_SUCCESS == err) {
+         init_ok &= true;
+      }
+      Serial.print(F(" Open result: "));
+      Serial.println(err);
+    }
+    // Is it neccesarry to do the open after the abort?
+    // Is that more to be done after the abort to get back to same settings
   } 
 }
-
-
-
-
 
 /*  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *                           TRANSMISSION BEGIN
