@@ -191,7 +191,7 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
   is_master(true),
   is_sci(false),
   address_mode(am),
-  timeout(1),
+  timeout(1000),
   transmission_begun(false),
   data_too_long(false),
   rx_index(0),
@@ -465,7 +465,7 @@ void TwoWire::end(void) {
 
 
 /* -------------------------------------------------------------------------- */
-uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_us, bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   /* ??? does this function make sense only for MASTER ???? */
   
@@ -480,8 +480,8 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
         err = m_read(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    uint32_t const start = micros();
+    while(((micros() - start) < timeout_us) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
   }
@@ -494,7 +494,7 @@ uint8_t TwoWire::read_from(uint8_t address, uint8_t* data, uint8_t length, unsig
 }
 
 /* -------------------------------------------------------------------------- */    
-uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_ms, bool sendStop) {
+uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsigned int timeout_us, bool sendStop) {
 /* -------------------------------------------------------------------------- */  
   uint8_t rv = END_TX_OK;
   fsp_err_t err = FSP_ERR_ASSERTION;
@@ -508,8 +508,8 @@ uint8_t TwoWire::write_to(uint8_t address, uint8_t* data, uint8_t length, unsign
         err = m_write(&m_i2c_ctrl,data,length,!sendStop);
       }
     }
-    uint32_t const start = millis();
-    while(((millis() - start) < timeout_ms) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
+    uint32_t const start = micros();
+    while(((micros() - start) < timeout_us) && bus_status == WIRE_STATUS_UNSET && err == FSP_SUCCESS) {
 
     }
 
@@ -836,8 +836,9 @@ void TwoWire::flush(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-void TwoWire::setWireTimeout(unsigned int t) {
+void TwoWire::setWireTimeout(unsigned int t, bool reset_on_timeout) {
 /* -------------------------------------------------------------------------- */
+  (void)reset_on_timeout;
   timeout = t;
 }
 
