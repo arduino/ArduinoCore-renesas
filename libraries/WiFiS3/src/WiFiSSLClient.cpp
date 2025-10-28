@@ -62,6 +62,18 @@ int WiFiSSLClient::connect(const char* host, uint16_t port) {
       if(!modem.passthrough((uint8_t *)_ecc_cert, _ecc_cert_len)) {
          return 0;
       }
+   } else if(_client_cert != nullptr && _private_key != nullptr) { // TODO make sure if set certificate is called to not use the above code
+      size_t size = strlen(_client_cert);
+      modem.write_nowait(string(PROMPT(_SSLCLIENTSETCERT)),res, "%s%d,%d\r\n" , CMD_WRITE(_SSLCLIENTSETCERT), _sock, size);
+      if(!modem.passthrough((uint8_t *)_client_cert, size)) {
+         return 0;
+      }
+
+      size = strlen(_private_key);
+      modem.write_nowait(string(PROMPT(_SSLCLIENTSETPKEY)),res, "%s%d,%d\r\n" , CMD_WRITE(_SSLCLIENTSETPKEY), _sock, size);
+      if(!modem.passthrough((uint8_t *)_private_key, size)) {
+         return 0;
+      }
    }
 
    if (_connectionTimeout) {
@@ -88,6 +100,9 @@ void WiFiSSLClient::setEccSlot(int ecc508KeySlot, const byte cert[], int certLen
    _ecc_slot = ecc508KeySlot;
    _ecc_cert = cert;
    _ecc_cert_len = certLength;
+
+   _client_cert = nullptr;
+   _private_key = nullptr;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -282,4 +297,22 @@ uint16_t WiFiSSLClient::remotePort(){
       }
    }
    return rv;
+}
+
+/* -------------------------------------------------------------------------- */
+void WiFiSSLClient::setCertificate(const char* clientCert){
+/* -------------------------------------------------------------------------- */
+   _client_cert = clientCert;
+   _ecc_slot = -1;
+   _ecc_cert = nullptr;
+   _ecc_cert_len = 0;
+}
+
+/* -------------------------------------------------------------------------- */
+void WiFiSSLClient::setPrivateKey(const char* privateKey){
+/* -------------------------------------------------------------------------- */
+   _private_key = privateKey;
+   _ecc_slot = -1;
+   _ecc_cert = nullptr;
+   _ecc_cert_len = 0;
 }

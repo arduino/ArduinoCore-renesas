@@ -75,6 +75,9 @@ public:
     * @brief Sets the ECC (Elliptic Curve Cryptography) key slot and
     * certificate for establishing secure SSL connections.
     *
+    * Note that this function will disable custom certificates and private keys set with
+    * setCertificate() and setPrivateKey()
+    *
     * @param `int ecc508KeySlot` specifies the ECC key slot to be used for the SSL connection.
     * @param `const byte cert[]` is a pointer to the certificate data in the form of an array of bytes.
     * @param `int certLength` specifies the length of the certificate data array.
@@ -220,6 +223,30 @@ public:
    virtual uint16_t remotePort();
 
    /**
+    * @brief Set the public certificate for this ssl client communication
+    *
+    * This function explicitly sets the certificate to use for this client in tls
+    * communication. Note that if setEccSlot was used it will be disabled for this client.
+    * This function should be called in conjunction with setPrivateKey()
+    *
+    * @param `clientCert` client certificate in PEM format
+    *
+    */
+   void setCertificate(const char* clientCert);
+
+   /**
+    * @brief Set the private key for this ssl client communication
+    *
+    * This function explicitly sets the private key to use for this client in tls
+    * communication. Note that if setEccSlot was used it will be disabled for this client.
+    * This function should be called in conjunction with setCertificate()
+    *
+    * @param `privateKey` client private key in PEM format
+    *
+    */
+   void setPrivateKey(const char* privateKey);
+
+   /**
     * @brief Declares WiFiServer as a friend class.
     *
     * This allows the WiFiServer class to access private and protected members
@@ -240,6 +267,8 @@ private:
    int _read();
    void read_if_needed(size_t s);
    const char* _root_ca = nullptr;
+   const char* _client_cert = nullptr;
+   const char* _private_key = nullptr;
    int _ecc_slot = -1;
    const byte* _ecc_cert = nullptr;
    int _ecc_cert_len = 0;
