@@ -333,15 +333,15 @@ public:
 
 private:
     int _currentFrame = 0;
-    uint32_t _frameHolder[3];
-    uint32_t* _frames;
-    uint32_t _framesCount;
+    uint32_t _frameHolder[3] = {0, 0, 0};
+    uint32_t* _frames = nullptr;
+    uint32_t _framesCount = 0;
     uint32_t _interval = 0;
     uint32_t _lastInterval = 0;
     bool _loop = false;
     FspTimer _ledTimer;
     bool _sequenceDone = false;
-    voidFuncPtr _callBack;
+    voidFuncPtr _callBack = nullptr;
 
     static void turnOnLedISR(timer_callback_args_t *arg) {
         static volatile int i_isr = 0;
