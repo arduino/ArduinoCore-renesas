@@ -1,6 +1,7 @@
 #include "Arduino.h"
 
 void pinMode(pin_size_t pin, const PinMode mode) {
+    if (pin >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) return;  /* pinNumber > sizeof of pin table */
 	switch (mode) {
 		case INPUT:
 		case INPUT_PULLDOWN: // TODO: document the INPUT_PULLDOWN is unavailable
@@ -19,10 +20,12 @@ void pinMode(pin_size_t pin, const PinMode mode) {
 }
 
 void digitalWrite(pin_size_t pin, PinStatus val) {
+    if (pin >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) return;  /* pinNumber > sizeof of pin table */
 	R_IOPORT_PinWrite(NULL, g_pin_cfg[pin].pin, val == LOW ? BSP_IO_LEVEL_LOW : BSP_IO_LEVEL_HIGH);
 }
 
 PinStatus digitalRead(pin_size_t pin) {
+    if (pin >= (g_pin_cfg_size / sizeof(g_pin_cfg[0]))) return LOW;  /* pinNumber > sizeof of pin table */
 	bsp_io_level_t ret;
 	R_IOPORT_PinRead(NULL, g_pin_cfg[pin].pin, &ret);
 	return (ret == BSP_IO_LEVEL_LOW ? LOW : HIGH);
