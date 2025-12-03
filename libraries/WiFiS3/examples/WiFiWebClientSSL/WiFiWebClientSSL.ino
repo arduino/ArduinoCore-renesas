@@ -57,7 +57,7 @@ void setup() {
   }
 
   // 3 second wait for connection
-  modem.readTimeout(3000);
+  modem.setTimeout(3000);
 }
 
 void connectToWifi() {
@@ -115,7 +115,7 @@ void loop() {
     printWifiStatus();
  
     Serial.println("\nStarting connection to server...");
-    clientConnected = client.connect(server, 80);
+    clientConnected = client.connect(server, 443);
 
     if (clientConnected) {
       connectionCount++;

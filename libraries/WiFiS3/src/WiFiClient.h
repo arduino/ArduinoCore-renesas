@@ -236,7 +236,7 @@ public:
    * @return Returns the connection timeout in milliseconds
    */
   int getConnectionTimeout() {
-	  return _connectionTimeout;
+    return _connectionTimeout;
   }
   
   /**

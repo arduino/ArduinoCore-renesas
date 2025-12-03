@@ -69,7 +69,7 @@ void setup() {
   }
 
   // 3 second wait for connection
-  client.setConnectionTimeout(3000);
+  client.setTimeout(3000);
 }
 
 void connectToWifi() {
@@ -149,6 +149,7 @@ void loop() {
           Serial.println();
           Serial.println("disconnecting from server.");
           client.stop();
+		  status = WL_CONNECTED;
         }
       }
     }

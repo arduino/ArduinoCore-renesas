@@ -37,7 +37,7 @@ void ModemClass::begin(int badurate, int retry){
       string res = "";
       _serial->flush();
 	  
-	  unsigned long modemTimeout = _timeout;
+      unsigned long modemTimeout = _timeout;
       modem.timeout(500);
       while(!beginned && retry > 0) {
          beginned = modem.write(string(PROMPT(_SOFTRESETWIFI)),res, "%s" , CMD(_SOFTRESETWIFI));

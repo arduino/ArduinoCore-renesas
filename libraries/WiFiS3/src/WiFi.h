@@ -63,7 +63,7 @@ private:
     void _config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2);
     void _sortAPlist(uint8_t num);
     unsigned long _timeout;
-	unsigned long _start_connection_time;
+    unsigned long _start_connection_time;
     CAccessPoint access_points[WIFI_MAX_SSID_COUNT];
     uint8_t _apsFound = 0;
     std::string ssid;
@@ -449,12 +449,12 @@ public:
 
     /**
      * @brief Sets the timeout value for the WiFi connection.
-     * 
+     *
      * @param `timeout` The timeout value in milliseconds.
      */
     void setTimeout(unsigned long timeout);
 
-	/*
+	/**
 	 * @brief Retrieves the connected state
 	 * 
 	 * @return Current connection state of WL_CONNECT_FAILED, WL_CONNECTED or WL_CONNECTING
