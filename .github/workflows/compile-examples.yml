@@ -57,6 +57,8 @@ jobs:
             id: git_minima
           - fqbn: arduino-git:renesas:unor4wifi
             id: git_wifi
+          - fqbn: arduino-git:renesas:nanor4
+            id: git_nanor4
 
 
         # make board type-specific customizations to the matrix jobs
@@ -112,6 +114,10 @@ jobs:
               fqbn: "arduino-git:renesas:minima"
             additional-sketch-paths: |
               - libraries/OPAMP
+          - board:
+              fqbn: "arduino-git:renesas:nanor4"
+            additional-sketch-paths: |
+              - libraries/OPAMP
 
     steps:
       - name: Checkout repository
@@ -127,7 +133,7 @@ jobs:
       - name: Check if API should be compiled in the core
         id: checkapi
         run: |
-          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+          if [[ $(grep -r api platform.txt) ]]; then echo "IS_API=true" >> $GITHUB_OUTPUT; fi
 
       - name: Install ArduinoCore-API
         run: rm "$GITHUB_WORKSPACE/cores/arduino/api" && mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
