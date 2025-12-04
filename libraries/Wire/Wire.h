@@ -124,6 +124,16 @@ class TwoWire : public arduino::HardwareI2C {
     void onRequest( void (*)(void) );
 
     void setBusStatus(WireStatus_t);
+    /* set timeout in us for I2C communication (default is 1000 us) 
+       the second parameter has been added for compatibility but it has no effect
+
+       Please note: on uno R4 (both minima and wifi) the timeout has only effect
+       when I2C pull up are NOT mounted (if they are mounted, as they should, the
+       I2C is immediately stopped due to a NACK and so the timeout has no effect).
+       On Portenta C33 however timeout is used in both cases (with or without
+       I2C pull up) because at low level the NACK does not immediately stop the I2C
+       communication. */
+    void setWireTimeout(unsigned int _timeout_us = 1000, bool reset_on_timeout = false);
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
@@ -168,8 +178,15 @@ class TwoWire : public arduino::HardwareI2C {
     int channel;
     bool is_sci;
     WireAddressMode_t address_mode;
+    /* I2C timeout in micro seconds
 
-    unsigned int timeout;
+       Please note: on uno R4 (both minima and wifi) the timeout has only effect
+       when I2C pull up are NOT mounted (if they are mounted, as they should, the
+       I2C is immediately stopped due to a NACK and so the timeout has no effect).
+       On Portenta C33 however timeout is used in both cases (with or without
+       I2C pull up) because at low level the NACK does not immediately stop the I2C
+       communication. */
+    unsigned int timeout_us;
     bool transmission_begun;
     bool data_too_long; 
 
