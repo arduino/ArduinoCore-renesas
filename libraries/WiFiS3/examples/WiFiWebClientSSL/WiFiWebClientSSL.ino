@@ -14,7 +14,8 @@
 
 #include "arduino_secrets.h"
 
-#define MaximumConnections 1
+// maximum number of times the uri will be checked
+#define MaximumConnections 2
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
@@ -39,7 +40,7 @@ WiFiSSLClient client;
 void setup() {
 /* -------------------------------------------------------------------------- */
   //Initialize serial and wait for port to open:
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -57,7 +58,7 @@ void setup() {
   }
 
   // 3 second wait for connection
-  modem.setTimeout(3000);
+  client.setTimeout(3000);
 }
 
 void connectToWifi() {
@@ -91,56 +92,54 @@ void read_response() {
 /* -------------------------------------------------------------------------- */
 void loop() {
 /* -------------------------------------------------------------------------- */
-  // do some processing
-  Serial.println("loop processing");
-  
-  // only allowed to connect n times
-  if (connectionCount >= MaximumConnections) {
-    delay(300);
-    return;
-  }
-
-  //connect and wait for connection to be made
-  connectToWifi();
-  status = WiFi.isConnected();
-
-  if (status == WL_CONNECTING) {
-    Serial.println("Connecting to wifi");
-    delay(200);
-  }
-
-  // If connected to Wifi then send a request to a server
-  if (status == WL_CONNECTED) {
-    Serial.println("Connected to WiFi");
-    printWifiStatus();
- 
-    Serial.println("\nStarting connection to server...");
-    clientConnected = client.connect(server, 443);
-
-    if (clientConnected) {
-      connectionCount++;
-
-      // if you get a connection, report back via serial:
-      Serial.println("connected to server");
-      // Make a HTTP request:
-      client.println("GET /search?q=arduino HTTP/1.1");
-      client.println("Host: www.google.com");
-      client.println("Connection: close");
-      client.println();
-
-      Serial.println("Reading response");
-      read_response();
-
-      if (clientConnected) {
-        // if the server's disconnected, stop the client:
-        if (!client.connected()) {
-          Serial.println();
-          Serial.println("disconnecting from server.");
-          client.stop();
-        }
-      }
+    Serial.println("loop processing");
+    
+    // only allowed to connect n times
+    if (connectionCount >= MaximumConnections) {
+        delay(2000);
+        return;
     }
-  }
+
+    // Connect to WiFi if not already connected
+    connectToWifi();
+    status = WiFi.isConnected();
+
+    if (status == WL_CONNECTING) {
+        Serial.println("Connecting to wifi");
+        delay(200);
+        return; 
+    }
+
+    // If connected to Wifi then send a request to a server
+    if (status == WL_CONNECTED) {
+        Serial.println("Connected to WiFi");
+        printWifiStatus();
+     
+        Serial.println("\nStarting connection to server...");
+        
+        if (client.connect(server, 443)) {
+            connectionCount++;
+
+            Serial.println("connected to server");
+            
+            // Make HTTP request
+            client.println("GET /search?q=arduino HTTP/1.1");
+            client.println("Host: www.google.com");
+            client.println("Connection: close");
+            client.println();
+
+            Serial.println("Reading response");
+            read_response();
+            
+            Serial.println("disconnecting from server.");
+            client.stop();
+            
+            // Reset status so we don't immediately reconnect
+            status = WL_IDLE_STATUS;
+        } else {
+            Serial.println("Connection to server failed!");
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

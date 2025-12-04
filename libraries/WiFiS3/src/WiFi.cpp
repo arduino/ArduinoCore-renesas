@@ -63,8 +63,9 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
    return WL_CONNECTING;
 }
 
-
+/* -------------------------------------------------------------------------- */
 int CWifi::isConnected()
+/* -------------------------------------------------------------------------- */
 {
    uint8_t current_status = status();
    

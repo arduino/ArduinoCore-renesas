@@ -26,7 +26,7 @@
 
 #include "arduino_secrets.h" 
 
-#define MaximumConnections 1
+#define MaximumConnections 2
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
@@ -51,7 +51,7 @@ WiFiClient client;
 void setup() {
 /* -------------------------------------------------------------------------- */  
   //Initialize serial and wait for port to open:
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -108,7 +108,7 @@ void loop() {
   
   // only allowed to connect n times
   if (connectionCount >= MaximumConnections) {
-    delay(300);
+    delay(2000);
     return;
   }
 
@@ -149,7 +149,7 @@ void loop() {
           Serial.println();
           Serial.println("disconnecting from server.");
           client.stop();
-		  status = WL_CONNECTED;
+		      status = WL_IDLE_STATUS;
         }
       }
     }
