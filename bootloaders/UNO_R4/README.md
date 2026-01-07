@@ -5,7 +5,7 @@ Compiled with
 git clone https://github.com/arduino/arduino-renesas-bootloader
 git clone https://github.com/hathach/tinyusb
 cd tinyusb
-# This step is temporary
+git checkout 0.17.0
 patch -p1 < ../arduino-renesas-bootloader/0001-fix-arduino-bootloaders.patch
 python tools/get_deps.py ra
 cd ..
