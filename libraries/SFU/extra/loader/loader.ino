@@ -91,6 +91,7 @@ void setup() {
   if (app_valid) {
 #ifdef PORTENTA_C33_SFU_DEBUG_OTA
     DEBUG_INFO("Booting application @ 0x%x", SKETCH_FLASH_OFFSET + POST_APPLICATION_ADDR);
+    Serial.end();
 #endif
     boot5(SKETCH_FLASH_OFFSET + POST_APPLICATION_ADDR);
   } else {
