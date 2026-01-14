@@ -54,7 +54,6 @@ void setup() {
 
 #ifdef PORTENTA_C33_SFU_DEBUG_OTA
   Serial.begin(115200);
-  while(!Serial);
   Debug.setDebugOutputStream(&Serial);
   Debug.setDebugLevel(DBG_VERBOSE);
   DEBUG_INFO("SFU version: %d", VERSION);
