@@ -27,7 +27,7 @@
 
 // Loader is checking this "magic" string is included in the OTA file.
 // If not included OTA is aborted.
-static const char sfu_version_magic_string[] __attribute__ ((section(".rodata"), used)) = "SFU version";
+static const char sfu_version_magic_string[] __attribute__ ((section(".rodata.sfu_magic"), used)) = "SFU version";
 
 
 static const uint32_t crc_table[256] = {
