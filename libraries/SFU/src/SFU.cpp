@@ -27,7 +27,7 @@
 #define AIOT_CONFIG_PORTENTA_C33_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms (5*60*1000UL);
 
 const unsigned char SFU[0x20000] __attribute__ ((section(".second_stage_ota"), used)) = {
-	#include "c33.h"
+	#include "c33.bin"
 };
 
 /* Original code: http://stackoverflow.com/questions/2616011/easy-way-to-parse-a-url-in-c-cross-platform */
