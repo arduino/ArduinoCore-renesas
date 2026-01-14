@@ -25,6 +25,10 @@
 #include <Arduino_DebugUtils.h>
 #endif
 
+// Loader is checking this "magic" string is included in the OTA file.
+// If not included OTA is aborted.
+static const char sfu_version_magic_string[] __attribute__ ((section(".rodata"), used)) = "SFU version";
+
 
 static const uint32_t crc_table[256] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
@@ -214,7 +218,7 @@ int verify_sketch(FILE* file) {
   while (size_read < POST_APPLICATION_ADDR) {
     memset(page_buffer, 0, sizeof(char) * page_size);
     size_read += fread(page_buffer, 1, page_size, file);
-    if (memmem((const char*)page_buffer, page_size, "SFU version", 11) != NULL) {
+    if (memmem((const char*)page_buffer, page_size, sfu_version_magic_string, 11) != NULL) {
 #ifdef PORTENTA_C33_SFU_DEBUG_OTA
       DEBUG_ERROR("OTA binary signature string found\n");
 #endif
