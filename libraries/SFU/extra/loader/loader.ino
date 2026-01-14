@@ -39,7 +39,7 @@
 #define FULL_UPDATE_FILE_PATH                         "/ota/UPDATE.BIN"
 #define FULL_UPDATE_FILE_PATH_OTA                     FULL_UPDATE_FILE_PATH ".OTA"
 
-#define VERSION                                       1
+#define VERSION                                       2
 
 #ifdef PORTENTA_C33_SFU_SDCARD_OTA
 SDCardBlockDevice sd(PIN_SDHI_CLK, PIN_SDHI_CMD, PIN_SDHI_D0, PIN_SDHI_D1, PIN_SDHI_D2, PIN_SDHI_D3, PIN_SDHI_CD, PIN_SDHI_WP);
