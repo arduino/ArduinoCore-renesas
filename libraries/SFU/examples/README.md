@@ -45,7 +45,7 @@ This is a simple test application designed to be packaged as the target firmware
 
 Notice that OTAUsage.ino includes `#include "SFU.h"` at the top. **This is critical for any firmware that will be deployed via OTA.**
 
-**Why?** The SFU library embeds the second-stage bootloader binary. By including it, the linker script (see [variants/PORTENTA_C33/fsp.ld](../../variants/PORTENTA_C33/fsp.ld)) properly reserves memory for the bootloader, ensuring that your application is placed in flash *after* the bootloader—not overwriting it.
+**Why?** The SFU library embeds the second-stage bootloader binary. By including it, the linker script (see [variants/PORTENTA_C33/fsp.ld](../../../variants/PORTENTA_C33/fsp.ld)) properly reserves memory for the bootloader, ensuring that your application is placed in flash *after* the bootloader—not overwriting it.
 
 **Best Practice:** Always include `#include "SFU.h"` in sketches intended for OTA deployment.
 
