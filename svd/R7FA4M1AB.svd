@@ -2214,6 +2214,65 @@ Note: MOMCR register must be set before setting MOSTP to 0.</description>
                         </field>
                     </fields>
                 </register>
+				<register>
+                    <name>HOCOCR2</name>
+                    <description>High-Speed On-Chip Oscillator Control Register 2</description>
+                    <addressOffset>0x037</addressOffset>
+                    <size>8</size>
+                    <access>read-write</access>
+                    <resetValue>0x00</resetValue>
+                    <resetMask>0xC7</resetMask>
+                    <fields>
+                        <field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 00. The write value should be 00.</description>
+                            <lsb>6</lsb>
+                            <msb>7</msb>
+                            <access>read-write</access>
+                        </field>
+                        <field>
+                            <name>HCFRQ1</name>
+                            <description>HOCO Frequency Setting 1</description>
+                            <lsb>3</lsb>
+                            <msb>5</msb>
+                            <access>read-write</access>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>000</name>
+                                    <description>24 MHz</description>
+                                    <value>#000</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>010</name>
+                                    <description>32 MHz</description>
+                                    <value>#010</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>100</name>
+                                    <description>48 MHz</description>
+                                    <value>#100</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>101</name>
+                                    <description>64 MHz</description>
+                                    <value>#101</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>others</name>
+                                    <description>Setting prohibited</description>
+                                    <isDefault>true</isDefault>
+                                </enumeratedValue>
+                            </enumeratedValues>
+                        </field>
+						<field>
+                            <name>Reserved</name>
+                            <description>These bits are read as 000. The write value should be 000.</description>
+                            <lsb>0</lsb>
+                            <msb>2</msb>
+                            <access>read-write</access>
+                        </field>
+                    </fields>
+                </register>
                 <register>
                     <name>MOCOCR</name>
                     <description>Middle-Speed On-Chip Oscillator Control Register</description>
