@@ -15,7 +15,7 @@
 	url = https://github.com/bcmi-labs/mbedtls
 [submodule "extras/net/lwip"]
 	path = extras/net/lwip
-	url = https://git.savannah.nongnu.org/git/lwip.git
+	url = https://github.com/lwip-tcpip/lwip.git
 [submodule "libraries/WiFi/extra/esptool"]
 	path = libraries/WiFi/extra/esptool
 	url = https://github.com/espressif/esptool.git
