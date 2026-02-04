@@ -241,7 +241,14 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
        indexes in the NVIC */
     int irq_index = getIrqIndexFromPin(_rx_pin);
     if(irq_index == -1) {
-        rx_descr.irq_chan = attachIrq2Link(_rx_pin, CHANGE); // Enable RX pin IRQ.
+        if (inverted == false)
+        {
+            rx_descr.irq_chan = attachIrq2Link(_rx_pin, FALLING); // Enable RX pin IRQ on falling edge (normal polarity).
+        }
+        else
+        {
+            rx_descr.irq_chan = attachIrq2Link(_rx_pin, RISING);  // Enable RX pin IRQ on rising edge (inverted polarity).
+        }
     } else {
         R_BSP_IrqEnable ((IRQn_Type)irq_index);
     }
