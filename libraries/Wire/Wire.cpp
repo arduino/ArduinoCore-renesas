@@ -191,7 +191,7 @@ TwoWire::TwoWire(int scl, int sda, WireAddressMode_t am /*= ADDRESS_MODE_7_BITS*
   is_master(true),
   is_sci(false),
   address_mode(am),
-  timeout_us(1000),
+  timeout_us(WIRE_DEFAULT_TIMEOUT_US),
   transmission_begun(false),
   data_too_long(false),
   rx_index(0),
