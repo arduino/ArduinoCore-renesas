@@ -23,6 +23,7 @@
 #include <BlockDevice.h>
 #include <MBRBlockDevice.h>
 #include <FATFileSystem.h>
+#include <WiFiSSLClient.h>
 #include <WiFiC3.h>
 #include <Arduino_DebugUtils.h>
 #include "arduino_secrets.h" 
@@ -36,7 +37,7 @@ static char const SSID[] = SECRET_SSID;  /* your network SSID (name) */
 static char const PASS[] = SECRET_PASS;  /* your network password (use for WPA, or use as key for WEP) */
 
 #if defined(ARDUINO_PORTENTA_C33)
-static char const OTA_FILE_LOCATION[] = "http://downloads.arduino.cc/ota/OTAUsage.ino.PORTENTA_C33.ota";
+static char const OTA_FILE_LOCATION[] = "https://downloads.arduino.cc/ota/OTAUsage.ino.PORTENTA_C33.ota";
 #else
 #error "Board not supported"
 #endif
@@ -45,7 +46,7 @@ BlockDevice* block_device = BlockDevice::get_default_instance();
 MBRBlockDevice mbr(block_device, 1);
 FATFileSystem fs("ota");
 
-WiFiClient client;
+WiFiSSLClient client;
 
 /******************************************************************************
  * SETUP/LOOP
