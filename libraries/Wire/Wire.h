@@ -33,6 +33,8 @@
 #include "r_i2c_master_api.h"
 #include "r_i2c_slave_api.h"
 
+#define WIRE_DEFAULT_TIMEOUT_US  (100000)
+
 extern "C" {
   void i2c_callback(i2c_master_callback_args_t *p_args);
 }
@@ -124,7 +126,7 @@ class TwoWire : public arduino::HardwareI2C {
     void onRequest( void (*)(void) );
 
     void setBusStatus(WireStatus_t);
-    /* set timeout in us for I2C communication (default is 1000 us) 
+    /* set timeout in us for I2C communication
        the second parameter has been added for compatibility but it has no effect
 
        Please note: on uno R4 (both minima and wifi) the timeout has only effect
@@ -133,7 +135,7 @@ class TwoWire : public arduino::HardwareI2C {
        On Portenta C33 however timeout is used in both cases (with or without
        I2C pull up) because at low level the NACK does not immediately stop the I2C
        communication. */
-    void setWireTimeout(unsigned int _timeout_us = 1000, bool reset_on_timeout = false);
+    void setWireTimeout(unsigned int _timeout_us = WIRE_DEFAULT_TIMEOUT_US, bool reset_on_timeout = false);
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
