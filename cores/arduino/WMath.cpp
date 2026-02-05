@@ -48,8 +48,14 @@ extern "C" {
 static long trng()
 {
   uint32_t value[4];
-  if (HW_SCE_McuSpecificInit() != FSP_SUCCESS)
-    return -1;
+  static bool SCE_inited = false;
+  if (!SCE_inited) {
+    if (HW_SCE_McuSpecificInit() != FSP_SUCCESS) {
+      return -1;
+    }
+    SCE_inited = true;
+  }
+
   HW_SCE_RNG_Read(value);
   return (long)value[0] >= 0 ? value[0] : -value[0];
 }
