@@ -6,9 +6,8 @@
 
 __attribute__((weak)) void delay(uint32_t ms)
 {
-  auto const start = millis();
-  auto const stop = start + ms;
-  while(millis() < stop) yield();
+  uint32_t const start = millis();
+  while(millis() - start < ms) yield();
 }
 
 void delayMicroseconds(unsigned int us) {
