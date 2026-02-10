@@ -74,7 +74,7 @@ R7FA6M5_CAN::R7FA6M5_CAN(int const can_tx_pin, int const can_rx_pin)
   .p_afl              = nullptr,
   //.txmb_txi_enable    = ((1ULL << 9) | (1ULL << 0) | 0ULL),
   .txmb_txi_enable    = 0xFFFFFFFFFFFFFFFF,
-  .error_interrupts   = (R_CANFD_CFDC_CTR_EWIE_Msk | R_CANFD_CFDC_CTR_EPIE_Msk | R_CANFD_CFDC_CTR_BOEIE_Msk | R_CANFD_CFDC_CTR_BORIE_Msk | R_CANFD_CFDC_CTR_OLIE_Msk | 0U),
+  .error_interrupts   = 0U,
   .p_data_timing      = nullptr,
   .delay_compensation = (1),
   .p_global_cfg       = &_canfd_global_cfg,
