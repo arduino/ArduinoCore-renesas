@@ -112,11 +112,12 @@ public:
     /* Start WiFi connection with passphrase
      * the most secure supported mode will be automatically selected
      *
-     * @param `ssid` Pointer to the SSID string.
-     * @param `passphrase` Passphrase. Valid characters in a passphrase
-     * must be between ASCII 32-126 (decimal).
+     * param ssid: Pointer to the SSID string.
+     * param passphrase: Passphrase. Valid characters in a passphrase
+     *        must be between ASCII 32-126 (decimal).
+     * param mode: WiFi mode: STA, AP or AP_STA (mixed) 
      */
-    int begin(const char* ssid, const char *passphrase);
+    int begin(const char* ssid, const char *passphrase, uint8_t mode = 1);
 
     /**
      * @brief Starts a Wi-Fi Access Point with the specified SSID.
