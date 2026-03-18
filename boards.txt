@@ -356,3 +356,52 @@ muxto.upload.maximum_size=262144
 muxto.upload.maximum_data_size=32768
 
 ##############################################################
+
+rmc_ra4m1_20.name=Arduino RMC-RA4M1(rev.2.0)
+rmc_ra4m1_20.build.core=arduino
+rmc_ra4m1_20.build.crossprefix=arm-none-eabi-
+rmc_ra4m1_20.build.compiler_path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+
+rmc_ra4m1_20.build.variant=rmc_ra4m1_20
+rmc_ra4m1_20.build.mcu=cortex-m4
+rmc_ra4m1_20.build.architecture=cortex-m4
+rmc_ra4m1_20.build.fpu=-mfpu=fpv4-sp-d16
+rmc_ra4m1_20.build.float-abi=-mfloat-abi=hard
+
+rmc_ra4m1_20.build.board=rmc_ra4m1_20
+rmc_ra4m1_20.build.defines=-DF_CPU=48000000 -DRMC-RA4M1_REV2.0
+rmc_ra4m1_20.vid.0=0x2341
+rmc_ra4m1_20.pid.0=0x0069
+rmc_ra4m1_20.vid.1=0x2341
+rmc_ra4m1_20.pid.1=0x0369
+rmc_ra4m1_20.upload_port.0.vid=0x2341
+rmc_ra4m1_20.upload_port.0.pid=0x0069
+rmc_ra4m1_20.upload_port.1.vid=0x2341
+rmc_ra4m1_20.upload_port.1.pid=0x0369
+
+rmc_ra4m1_20.compiler.fsp.defines={build.variant.path}/defines.txt
+rmc_ra4m1_20.compiler.fsp.ldflags={build.variant.path}/ldflags.txt
+rmc_ra4m1_20.compiler.fsp.cflags=-mthumb "@{compiler.fsp.defines}"
+rmc_ra4m1_20.compiler.fsp.cxxflags=-mthumb "@{compiler.fsp.defines}"
+rmc_ra4m1_20.compiler.tinyusb.cflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+rmc_ra4m1_20.compiler.tinyusb.cxxflags=-DCFG_TUSB_MCU=OPT_MCU_RAXXX
+rmc_ra4m1_20.compiler.fsp.includes={build.variant.path}/includes.txt
+rmc_ra4m1_20.compiler.fsp.extra_ldflags=--specs=nano.specs -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+rmc_ra4m1_20.compiler.fsp="{build.variant.path}/libs/libfsp.a"
+
+rmc_ra4m1_20.upload.tool=dfu-util
+rmc_ra4m1_20.upload.tool.default=dfu-util
+rmc_ra4m1_20.upload.protocol=
+rmc_ra4m1_20.upload.transport=
+rmc_ra4m1_20.upload.vid=0x2341
+rmc_ra4m1_20.upload.pid=0x0369
+rmc_ra4m1_20.upload.address=0x00010000
+rmc_ra4m1_20.upload.interface=0
+rmc_ra4m1_20.upload.use_1200bps_touch=false
+rmc_ra4m1_20.upload.wait_for_upload_port=false
+rmc_ra4m1_20.upload.native_usb=true
+rmc_ra4m1_20.upload.maximum_size=262144
+rmc_ra4m1_20.upload.maximum_data_size=32768
+
+##############################################################
+
