@@ -139,6 +139,7 @@ void ArduinoSPI::begin()
   _sci_spi_ext_cfg.clk_div.mddr = 0;
 
   configSpiSettings(DEFAULT_SPI_SETTINGS);
+  _settings = DEFAULT_SPI_SETTINGS;
 
   /* Configure the Interrupt Controller. */
   if (_is_sci)

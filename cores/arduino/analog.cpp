@@ -814,7 +814,7 @@ void analogWrite(pin_size_t pinNumber, int value)
   }
 
   if(ptr != nullptr) {
-    ptr->pulse_perc((float)value * 100.0 / (1 << _writeResolution));
+    ptr->pulse_perc((float)value * 100.0 / ((1 << _writeResolution) - 1));
   }
 }
 

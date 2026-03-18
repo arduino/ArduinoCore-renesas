@@ -99,15 +99,16 @@ static const uint8_t D7 = PIN_D7;
 
 /****** WIRE CORE DEFINES ******/
 
-#define WIRE_HOWMANY      4
-#define WIRE_SDA_PIN      11
-#define WIRE_SCL_PIN      12
-#define WIRE1_SDA_PIN     37
-#define WIRE1_SCL_PIN     38
-#define WIRE2_SDA_PIN     39
-#define WIRE2_SCL_PIN     40
-#define WIRE3_SDA_PIN     96
-#define WIRE3_SCL_PIN     97
+#define WIRE_HOWMANY            4
+#define WIRE_INTERFACES_COUNT   WIRE_HOWMANY
+#define WIRE_SDA_PIN            11
+#define WIRE_SCL_PIN            12
+#define WIRE1_SDA_PIN           37
+#define WIRE1_SCL_PIN           38
+#define WIRE2_SDA_PIN           39
+#define WIRE2_SCL_PIN           40
+#define WIRE3_SDA_PIN           96
+#define WIRE3_SCL_PIN           97
 
 /****** SPI CORE DEFINES ******/
 

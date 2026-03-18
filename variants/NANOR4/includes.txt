@@ -1,0 +1,13 @@
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/inc
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/inc/api
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/inc/instances
+-iwithprefixbefore/variants/MINIMA/includes/ra/arm/CMSIS_5/CMSIS/Core/Include
+-iwithprefixbefore/variants/MINIMA/includes/ra_gen
+-iwithprefixbefore/variants/MINIMA/includes/ra_cfg/fsp_cfg/bsp
+-iwithprefixbefore/variants/MINIMA/includes/ra_cfg/fsp_cfg
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_usb_basic/src/driver/inc
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/private/inc
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/public/inc
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_sce/crypto_procedures/src/sce5/plainkey/primitive
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_sce/common
+-iwithprefixbefore/variants/MINIMA/includes/ra/fsp/src/r_sce

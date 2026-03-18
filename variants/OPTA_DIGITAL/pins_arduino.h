@@ -138,12 +138,13 @@ static const uint8_t A15 = AN15;
 #define UART1_RX_PIN        UART_TX
 
 /****** WIRE CORE DEFINES ******/
-#define WIRE_HOWMANY      1
-#define WIRE_SDA_PIN      I2C_SDA 
-#define WIRE_SCL_PIN      I2C_SCL 
+#define WIRE_HOWMANY            1
+#define WIRE_INTERFACES_COUNT   WIRE_HOWMANY
+#define WIRE_SDA_PIN            I2C_SDA
+#define WIRE_SCL_PIN            I2C_SCL
 
 static const uint8_t SDA = WIRE_SDA_PIN;
-static const uint8_t SCL = WIRE_SDA_PIN;
+static const uint8_t SCL = WIRE_SCL_PIN;
 
 /****** SPI CORE DEFINES ******/
 

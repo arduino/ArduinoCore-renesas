@@ -1,3 +1,6 @@
+#ifndef _LEDMATRIX_GALLERY_H_
+#define _LEDMATRIX_GALLERY_H_
+
 /* Icons */
 constexpr uint32_t LEDMATRIX_BLUETOOTH[]     = { 0x10428, 0xa4517ff0, 0x50088104, 66 };
 constexpr uint32_t LEDMATRIX_BOOTLOADER_ON[] = { 0x4015, 0x2482082, 0x81100e0, 66 };
@@ -595,3 +598,5 @@ constexpr uint32_t LEDMATRIX_ANIMATION_HOURGLASS[][4] = {
 	{ 0xe0799f87, 0xf87f87f8, 0x7f99fe07, 50  },
 	{ 0xe0799f87, 0xf83f83f8, 0x7f99fe07, 300 }
 };
+
+#endif // _LEDMATRIX_GALLERY_H_

@@ -553,6 +553,10 @@ bool openRtc() {
         if(!isRtcRunning()) {
             R_RTC_ClockSourceSet(&rtc_ctrl);
         }
+        if (R_RTC->RCR4 != (uint8_t) rtc_ctrl.p_cfg->clock_source) {
+            R_RTC->RCR4 = (uint8_t) rtc_ctrl.p_cfg->clock_source;
+            delay(200);
+        }
         return true;
     }
     else {
