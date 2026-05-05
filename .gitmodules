@@ -19,3 +19,6 @@
 [submodule "libraries/WiFi/extra/esptool"]
 	path = libraries/WiFi/extra/esptool
 	url = https://github.com/espressif/esptool.git
+[submodule "extras/Arduino_SE05X"]
+	path = extras/Arduino_SE05X
+	url = git@github.com:arduino-libraries/Arduino_SE05X.git
