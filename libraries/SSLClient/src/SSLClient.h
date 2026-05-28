@@ -46,7 +46,7 @@ public:
     SSLClient();
     SSLClient(Client* client);
     SSLClient(Client* client, String ca_path);
-    ~SSLClient();
+    virtual ~SSLClient();
 
     void setClient(Client& client);
 

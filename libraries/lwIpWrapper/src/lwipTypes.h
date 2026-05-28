@@ -14,6 +14,7 @@ typedef enum {
     TCP_SENT,
     TCP_ACCEPTED,
     TCP_CLOSING,
+    TCP_DISCONNECTED,
 } tcp_client_states;
 
 /* Struct to store received data */
