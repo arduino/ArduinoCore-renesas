@@ -266,6 +266,38 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
           uart_cfg.parity = UART_PARITY_ODD;
           uart_cfg.stop_bits = UART_STOP_BITS_2;
           break;
+      // add 7 bit support
+      case SERIAL_7N1:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
+          break;
+      case SERIAL_7N2:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_OFF;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
+          break;
+      case SERIAL_7E1:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_EVEN;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
+          break;
+      case SERIAL_7E2:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_EVEN;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
+          break;
+      case SERIAL_7O1:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_ODD;
+          uart_cfg.stop_bits = UART_STOP_BITS_1;
+          break;
+      case SERIAL_7O2:
+          uart_cfg.data_bits = UART_DATA_BITS_7;
+          uart_cfg.parity = UART_PARITY_ODD;
+          uart_cfg.stop_bits = UART_STOP_BITS_2;
+          break;
+
     }
     
     uart_cfg.p_callback = UART::WrapperCallback;
