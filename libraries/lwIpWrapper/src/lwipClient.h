@@ -9,6 +9,7 @@
 #include "lwipMem.h"
 #include "lwipTcp.h"
 #include "lwipTypes.h"
+#include <memory>
 
 class lwipClient : public Client {
 
@@ -66,7 +67,7 @@ public:
     using Print::write;
 
 private:
-    struct tcp_struct* _tcp_client;
+    std::shared_ptr<struct tcp_struct> _tcp_client;
     uint16_t _timeout = 10000;
 };
 
