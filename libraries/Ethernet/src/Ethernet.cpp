@@ -123,6 +123,8 @@ int CEthernet::begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_ser
 /* -------------------------------------------------------------------------- */
 int CEthernet::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet, unsigned long timeout, unsigned long responseTimeout) {
 /* -------------------------------------------------------------------------- */  
+  (void)responseTimeout;
+  (void)timeout;
   CLwipIf::getInstance().setMacAddress(NI_ETHERNET, mac);
   return begin(local_ip, dns_server, gateway, subnet);
 }
@@ -219,6 +221,29 @@ IPAddress CEthernet::gatewayIP() {
 
 IPAddress CEthernet::dnsServerIP() {
   return CLwipIf::getInstance().getDns();
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(IPAddress ip, uint8_t ttl) {
+/* -------------------------------------------------------------------------- */
+  return CLwipIf::getInstance().ping(ip, ttl);
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(const String &hostname, uint8_t ttl)
+/* -------------------------------------------------------------------------- */
+{
+  return ping(hostname.c_str(), ttl);
+}
+
+/* -------------------------------------------------------------------------- */
+int CEthernet::ping(const char* host, uint8_t ttl) {
+/* -------------------------------------------------------------------------- */
+  IPAddress ip;
+  if(CLwipIf::getInstance().getHostByName(host,ip)) {
+    return CLwipIf::getInstance().ping(ip, ttl);
+  }
+  return -1;
 }
 
 CEthernet Ethernet;

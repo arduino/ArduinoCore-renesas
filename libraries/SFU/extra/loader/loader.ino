@@ -9,7 +9,7 @@
   Build (debug) with arduino-cli:
     # arduino-cli compile --export-binaries --clean --verbose -b arduino-git:renesas:portenta_c33 --build-property "build.extra_flags=-DNO_USB -DPORTENTA_C33_SFU_DEBUG_OTA -DPORTENTA_C33_SFU_BUILD"
   Export loader binary:
-    # xxd -i build/arduino-git.renesas.portenta_c33/loader.ino.bin | grep -E '0x' > ../../src/c33.h
+    # xxd -i build/arduino-git.renesas.portenta_c33/loader.ino.bin | grep -E '0x' > ../../src/c33.bin
 
   This example code is in the public domain.
 */
@@ -39,7 +39,7 @@
 #define FULL_UPDATE_FILE_PATH                         "/ota/UPDATE.BIN"
 #define FULL_UPDATE_FILE_PATH_OTA                     FULL_UPDATE_FILE_PATH ".OTA"
 
-#define VERSION                                       1
+#define VERSION                                       2
 
 #ifdef PORTENTA_C33_SFU_SDCARD_OTA
 SDCardBlockDevice sd(PIN_SDHI_CLK, PIN_SDHI_CMD, PIN_SDHI_D0, PIN_SDHI_D1, PIN_SDHI_D2, PIN_SDHI_D3, PIN_SDHI_CD, PIN_SDHI_WP);
@@ -54,7 +54,6 @@ void setup() {
 
 #ifdef PORTENTA_C33_SFU_DEBUG_OTA
   Serial.begin(115200);
-  while(!Serial);
   Debug.setDebugOutputStream(&Serial);
   Debug.setDebugLevel(DBG_VERBOSE);
   DEBUG_INFO("SFU version: %d", VERSION);
@@ -92,6 +91,7 @@ void setup() {
   if (app_valid) {
 #ifdef PORTENTA_C33_SFU_DEBUG_OTA
     DEBUG_INFO("Booting application @ 0x%x", SKETCH_FLASH_OFFSET + POST_APPLICATION_ADDR);
+    Serial.end();
 #endif
     boot5(SKETCH_FLASH_OFFSET + POST_APPLICATION_ADDR);
   } else {

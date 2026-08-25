@@ -175,6 +175,8 @@ SECTIONS
         *(.dtors)
 
         *(.rodata*)
+        /* Ensure SFU magic bytes are not removed */
+        KEEP(*(.rodata.sfu_magic))
 
         KEEP(*(.eh_frame*))
 

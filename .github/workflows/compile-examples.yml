@@ -38,19 +38,28 @@ jobs:
         - libraries/RTC/examples/Test_RTC
         - libraries/SoftwareSerial
         - libraries/WDT
+      SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
       fail-fast: false
 
       matrix:
-        board: [
-          {"fqbn": "arduino:renesas_portenta:portenta_c33"},
-          {"fqbn": "arduino:renesas_uno:minima"},
-          {"fqbn": "arduino:renesas_uno:unor4wifi"},
-          {"fqbn": "arduino-git:renesas:portenta_c33"},
-          {"fqbn": "arduino-git:renesas:minima"},
-          {"fqbn": "arduino-git:renesas:unor4wifi"},
-        ]
+        board:
+          - fqbn: arduino:renesas_portenta:portenta_c33
+            id: c33
+          - fqbn: arduino:renesas_uno:minima
+            id: minima
+          - fqbn: arduino:renesas_uno:unor4wifi
+            id: wifi
+          - fqbn: arduino-git:renesas:portenta_c33
+            id: git_c33
+          - fqbn: arduino-git:renesas:minima
+            id: git_minima
+          - fqbn: arduino-git:renesas:unor4wifi
+            id: git_wifi
+          - fqbn: arduino-git:renesas:nanor4
+            id: git_nanor4
+
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -62,13 +71,15 @@ jobs:
               - libraries/UsbHostMsd
               - libraries/Storage
               - libraries/SSLClient
-              - libraries/SE05X
               - libraries/Ethernet
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
               - libraries/SFU
+              - libraries/KVStore/examples/StartCounter
+            libraries: |
+              - name: Arduino_SE05X
           - board:
               fqbn: "arduino-git:renesas:portenta_c33"
             additional-sketch-paths: |
@@ -77,13 +88,15 @@ jobs:
               - libraries/UsbHostMsd
               - libraries/Storage
               - libraries/SSLClient
-              - libraries/SE05X
               - libraries/Ethernet
               - libraries/Arduino_CAN/examples/CAN1Read
               - libraries/Arduino_CAN/examples/CAN1Write
               - libraries/RTC/examples/RTC_NTPSync
               - libraries/RTC/examples/RTC_Alarm
               - libraries/SFU
+              - libraries/KVStore/examples/StartCounter
+            libraries: |
+              - name: Arduino_SE05X
           - board:
               fqbn: "arduino:renesas_uno:unor4wifi"
             additional-sketch-paths: |
@@ -103,14 +116,18 @@ jobs:
               fqbn: "arduino-git:renesas:minima"
             additional-sketch-paths: |
               - libraries/OPAMP
+          - board:
+              fqbn: "arduino-git:renesas:nanor4"
+            additional-sketch-paths: |
+              - libraries/OPAMP
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: arduino/ArduinoCore-API
           path: extras/ArduinoCore-API
@@ -118,14 +135,14 @@ jobs:
       - name: Check if API should be compiled in the core
         id: checkapi
         run: |
-          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+          if [[ $(grep -r api platform.txt) ]]; then echo "IS_API=true" >> $GITHUB_OUTPUT; fi
 
       - name: Install ArduinoCore-API
         run: rm "$GITHUB_WORKSPACE/cores/arduino/api" && mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
         if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Checkout Basic examples
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: arduino/arduino-examples
           path: examples
@@ -160,6 +177,7 @@ jobs:
             - name: ArduinoRS485
             - name: ArduinoIoTCloud
             - name: ArduinoGraphics
+            ${{ matrix.libraries }}
           platforms: |
             # Use Board Manager to install the latest release of Arduino Renesas Boards to get the toolchain
             - name: "arduino:renesas_uno"
@@ -173,9 +191,10 @@ jobs:
           enable-deltas-report: 'false'
           verbose: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save memory usage change report as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: sketches-reports
-          path: sketches-reports
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-reports-${{ matrix.board.id }}

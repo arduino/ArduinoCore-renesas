@@ -48,6 +48,7 @@ void dma_tx_callback(dmac_callback_args_t *args);
 void dma_rx_callback(dmac_callback_args_t *args);
 
 extern int attachIrq2Link(uint32_t pin, PinStatus mode);
+extern int getIrqIndexFromPin(uint32_t pin);
 typedef void (*fsp_dma_callback_t) (dmac_callback_args_t *args);
 
 static uint32_t tx_get_sample(bsp_io_port_pin_t tx, ioport_size_t value)
@@ -192,6 +193,7 @@ SoftwareSerial::SoftwareSerial(uint8_t rx_pin, uint8_t tx_pin, size_t bufsize):
     assert(rx_pin < NUM_DIGITAL_PINS);
     _tx_pin = tx_pin;
     _rx_pin = rx_pin;
+    initialized = false;
 }
 
 SoftwareSerial::~SoftwareSerial()
@@ -228,16 +230,25 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
             IOPORT_CFG_PORT_DIRECTION_OUTPUT | IOPORT_CFG_PORT_OUTPUT_HIGH);
     #endif
 
+    /* TX pin configuration */
+
     R_IOPORT_PinCfg(&g_ioport_ctrl, tx_descr.pin, IOPORT_CFG_PORT_DIRECTION_OUTPUT
             | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_PORT_OUTPUT_HIGH);
 
-    // Enable RX pin IRQ.
-    rx_descr.irq_chan = attachIrq2Link(_rx_pin, CHANGE);
-    if (rx_descr.irq_chan != -1) {
-        // TODO: workaround for the core not setting pull-ups.
-        R_IOPORT_PinCfg(&g_ioport_ctrl, rx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT
-                | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_IRQ_ENABLE);
+    /* RX pin configuration */
+
+    /* avoid to call attachIrq2Link if already used because it "consumes" irq
+       indexes in the NVIC */
+    int irq_index = getIrqIndexFromPin(_rx_pin);
+    if(irq_index == -1) {
+        rx_descr.irq_chan = attachIrq2Link(_rx_pin, CHANGE); // Enable RX pin IRQ.
+    } else {
+        R_BSP_IrqEnable ((IRQn_Type)irq_index);
     }
+
+    R_IOPORT_PinCfg(&g_ioport_ctrl, rx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT
+                | IOPORT_CFG_PULLUP_ENABLE | IOPORT_CFG_IRQ_ENABLE);
+
 
     // Set serial configuration.
     config.bitshift = (rx_descr.pin & 0xFF);
@@ -279,32 +290,36 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
     // be calculated, and the start/stop samples can be prepopulated in the DMA TX buffer.
     config.nsamples = (1 + config.databits + (!!config.parity) + config.stopbits);
 
-    // Prepopulate start and stop bits samples.
-    tx_descr.dmabuf[0][0] = tx_get_sample(tx_descr.pin, 0);
-    for (size_t i=0; i<config.stopbits; i++) {
-        tx_descr.dmabuf[0][config.nsamples-1-i] = tx_get_sample(tx_descr.pin, 1);
-    }
+    if(!initialized) {
+        // Prepopulate start and stop bits samples.
+        tx_descr.dmabuf[0][0] = tx_get_sample(tx_descr.pin, 0);
+        for (size_t i=0; i<config.stopbits; i++) {
+            tx_descr.dmabuf[0][config.nsamples-1-i] = tx_get_sample(tx_descr.pin, 1);
+        }
 
-    // Configure the TX DMA and its tigger timer.
-    R_PORT0_Type *tx_port = SS_PORT_ADDR(((tx_descr.pin >> 8) & 0xFF));
-    if (fsp_tim_config(&tx_descr.tim, config.baudrate, false) != 0) {
-        return 0;
-    }
-    if (fsp_dma_config(&tx_descr.dma, SS_DMA_CHANNEL_TX,
-        fsp_tim_to_elc_event(tx_descr.tim.get_channel()), tx_descr.dmabuf[0],
-        (void *) &tx_port->PCNTR3, config.nsamples, dma_tx_callback, this) != 0) {
-        return 0;
-    }
+        // Configure the TX DMA and its tigger timer.
+        R_PORT0_Type *tx_port = SS_PORT_ADDR(((tx_descr.pin >> 8) & 0xFF));
+        if (fsp_tim_config(&tx_descr.tim, config.baudrate, false) != 0) {
+            return 0;
+        }
 
-    // Configure the RX DMA and its trigger timer.
-    R_PORT0_Type *rx_port = SS_PORT_ADDR(((rx_descr.pin >> 8) & 0xFF));
-    if (fsp_tim_config(&rx_descr.tim, config.baudrate, true) != 0) {
-        return 0;
-    }
-    if (fsp_dma_config(&rx_descr.dma, SS_DMA_CHANNEL_RX,
-        fsp_tim_to_elc_event(rx_descr.tim.get_channel()), rx_descr.dmabuf[0],
-        (void *) &rx_port->PCNTR2, config.nsamples, dma_rx_callback, this) != 0) {
-        return 0;
+        if (fsp_dma_config(&tx_descr.dma, SS_DMA_CHANNEL_TX,
+            fsp_tim_to_elc_event(tx_descr.tim.get_channel()), tx_descr.dmabuf[0],
+            (void *) &tx_port->PCNTR3, config.nsamples, dma_tx_callback, this) != 0) {
+            return 0;
+        }
+
+        // Configure the RX DMA and its trigger timer.
+        R_PORT0_Type *rx_port = SS_PORT_ADDR(((rx_descr.pin >> 8) & 0xFF));
+        if (fsp_tim_config(&rx_descr.tim, config.baudrate, true) != 0) {
+            return 0;
+        }
+
+        if (fsp_dma_config(&rx_descr.dma, SS_DMA_CHANNEL_RX,
+            fsp_tim_to_elc_event(rx_descr.tim.get_channel()), rx_descr.dmabuf[0],
+            (void *) &rx_port->PCNTR2, config.nsamples, dma_rx_callback, this) != 0) {
+            return 0;
+        }
     }
 
     // Configure and enable the ELC.
@@ -322,6 +337,27 @@ int SoftwareSerial::begin(uint32_t baudrate, uint32_t sconfig, bool inverted)
             tx_descr.pin, rx_descr.pin, config.bitshift, (config.polarity) ? "Inverted" : "Normal",
             config.nsamples, config.baudrate, config.databits, parity_tostr[config.parity], config.stopbits);
     #endif
+
+    initialized = true;
+    return 1;
+}
+
+int SoftwareSerial::end() {
+    int irq_index = getIrqIndexFromPin(_rx_pin);
+
+    if(irq_index != -1) {
+        R_BSP_IrqDisable((IRQn_Type)irq_index);
+        R_BSP_IrqStatusClear((IRQn_Type)irq_index);
+    }
+
+    if(initialized) {
+        // put rx and tx pin as input
+        R_IOPORT_PinCfg(&g_ioport_ctrl, tx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT);
+        R_IOPORT_PinCfg(&g_ioport_ctrl, rx_descr.pin, IOPORT_CFG_PORT_DIRECTION_INPUT);
+
+        R_ELC_Disable(&elc_ctrl);
+        R_ELC_Close(&elc_ctrl);
+    }
     return 1;
 }
 
@@ -359,17 +395,20 @@ size_t __attribute__((optimize("O2"))) SoftwareSerial::write(uint8_t byte)
        tx_descr.dmabuf[0][config.databits + 1] = parity;
     }
 
-    // Reconfigure DMA transfer.
-    R_DMAC_Reconfigure(&tx_descr.dma.ctrl, tx_descr.dma.cfg.p_info);
+    // Restart DMA transfer.
+    R_DMAC_Reset(&tx_descr.dma.ctrl, tx_descr.dma.cfg.p_info->p_src,
+            tx_descr.dma.cfg.p_info->p_dest, tx_descr.dma.cfg.p_info->length);
 
     // Start the DMA transfer.
     tx_descr.tim.reset();
     tx_descr.tim.start();
 
-    // TODO check if transfer is running on next write.
+    // Wait for the DMA transfer to finish.
     while (tx_descr.dma.ctrl.p_reg->DMCNT) {
-        // Wait for DMA transfer to finish.
     }
+
+    // Stop the trigger timer.
+    tx_descr.tim.stop();
     return 1;
 }
 
@@ -382,9 +421,10 @@ void __attribute__((optimize("O2"))) SoftwareSerial::rx_process()
 {
     static uint32_t bufidx = 0;
 
-    // Reconfigure DMA transfer.
+    // Restart DMA transfer.
     rx_descr.dma.cfg.p_info->p_dest =  rx_descr.dmabuf[bufidx ^ 1];
-    R_DMAC_Reconfigure(&rx_descr.dma.ctrl, rx_descr.dma.cfg.p_info);
+    R_DMAC_Reset(&rx_descr.dma.ctrl, rx_descr.dma.cfg.p_info->p_src,
+            rx_descr.dma.cfg.p_info->p_dest, rx_descr.dma.cfg.p_info->length);
 
     // Process the current DMA buffer.
     uint8_t data = 0;
@@ -434,9 +474,12 @@ void __attribute__((optimize("O2"))) SoftwareSerial::rx_process()
 
 void dma_tx_callback(dmac_callback_args_t *args)
 {
-    // Disable the DMA trigger timer as soon as the transfer is complete.
-    // Note the timer will be cleared and restarted on next write.
-    ((SoftwareSerial *) args->p_context)->tx_descr.tim.stop();
+    // Wait for the cycle to finish to keep the GPIO high enough for the last stop bit.
+    fsp_tim_t *tim = &(((SoftwareSerial *) args->p_context)->tx_descr.tim);
+    volatile R_GPT0_Type *regs = R_GPT0 + (tim->get_channel() * (R_GPT1 - R_GPT0));
+    regs->GTST_b.TCFPO = 0;
+    while (!regs->GTST_b.TCFPO) {
+    }
 }
 
 void dma_rx_callback(dmac_callback_args_t *args)

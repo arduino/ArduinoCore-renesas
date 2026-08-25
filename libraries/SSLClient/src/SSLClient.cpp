@@ -97,12 +97,9 @@ void SSLClient::setClient(Client& client)
 
 void SSLClient::stop()
 {
-    if (sslclient->client >= 0) {
-        //sslclient->client->stop();
-        _connected = false;
-        _peek = -1;
-    }
-    stop_ssl_socket(sslclient, _CA_cert, _cert, _private_key);
+    stop_ssl_socket(sslclient);
+    _connected = false;
+    _peek = -1;
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port)
@@ -150,12 +147,12 @@ int SSLClient::connect(const char *host, uint16_t port, const char *_CA_cert, co
 }
 
 int SSLClient::connect(IPAddress ip, uint16_t port, const char *pskIdent, const char *psKey) {
-    return connect(ip.toString().c_str(), port,_pskIdent, _psKey);
+    return connect(ip.toString().c_str(), port, pskIdent, psKey);
 }
 
 int SSLClient::connect(const char *host, uint16_t port, const char *pskIdent, const char *psKey) {
     log_v("start_ssl_client with PSK");
-    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, NULL, _pskIdent, _psKey, _use_insecure);
+    int ret = start_ssl_client(sslclient, host, port, _timeout, NULL, NULL, NULL, NULL, pskIdent, psKey, _use_insecure);
     _lastError = ret;
     if (ret < 0) {
         log_e("start_ssl_client: %d", ret);

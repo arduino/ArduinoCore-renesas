@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  core-release-from-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: 'recursive'
+
+      - name : Get the toolchain
+        run: |
+         wget -O /opt/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 https://developer.arm.com/-/media/files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
+         tar -xjf /opt/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -C /opt/
+
+      - name: Setup build tools
+        run: |
+          sudo apt-get install -y git mercurial
+
+      - name: Set core version
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Get repo name
+        run: echo "REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d "/" -f2-)" >> $GITHUB_ENV
+
+      - name: Build the core
+        run: |
+          export PATH=$PATH:/opt/gcc-arm-none-eabi-9-2019-q4-major/bin/
+          extras/package.sh $TAG_VERSION
+
+      - name: Save core packages as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ArduinoCore-renesas-packages
+          path: ./*.tar.bz2
+
+      - name: Save core json as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ArduinoCore-renesas-json
+          path: ./*.json

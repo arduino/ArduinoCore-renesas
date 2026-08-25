@@ -1,8 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-
-
-
 #include "lwipDhcpServer.h"
 #include "lwipDhcpServerPriv.h"
 
@@ -11,37 +8,12 @@ static const u32_t magic_cookie  = 0x63538263;
 
 #define BOOTP_BROADCAST 0x8000
 
-#define DHCP_REQUEST        1
-#define DHCP_REPLY          2
 #define DHCP_HTYPE_ETHERNET 1
-#define DHCP_HLEN_ETHERNET  6
-#define DHCP_MSG_LEN      236
 
 #define DHCPS_SERVER_PORT  67
 #define DHCPS_CLIENT_PORT  68
 
-#define DHCPDISCOVER  1
-#define DHCPOFFER     2
-#define DHCPREQUEST   3
-#define DHCPDECLINE   4
-#define DHCPACK       5
-#define DHCPNAK       6
-#define DHCPRELEASE   7
-
-#define DHCP_OPTION_SUBNET_MASK   1
-#define DHCP_OPTION_ROUTER        3
-#define DHCP_OPTION_DNS_SERVER    6
-#define DHCP_OPTION_REQ_IPADDR   50
-#define DHCP_OPTION_LEASE_TIME   51
-#define DHCP_OPTION_MSG_TYPE     53
-#define DHCP_OPTION_SERVER_ID    54
-#define DHCP_OPTION_INTERFACE_MTU 26
 #define DHCP_OPTION_PERFORM_ROUTER_DISCOVERY 31
-#define DHCP_OPTION_BROADCAST_ADDRESS 28
-#define DHCP_OPTION_REQ_LIST     55
-#define DHCP_OPTION_END         255
-
-
 
 #ifdef DHCPS_DEBUG
 /* function defined in CNetIf.cpp */
@@ -73,13 +45,6 @@ typedef struct{
 static struct netif   *dhcps_netif = NULL;
 static struct udp_pcb *dhcps_pcb;
 static DHCP_Address dhcp_address;
-
-
-static uint8_t xid[4];
-
-
-//static list_node *plist = NULL;
-static bool renew = false;
 
 static dhcps_lease_t dhcps_poll;
 static dhcps_time_t dhcps_lease_time = DHCPS_LEASE_TIME_DEF;  //minute
@@ -191,7 +156,7 @@ void dhcps_set_option_info(uint8_t op_id, void *opt_info, u32_t opt_len)
 *******************************************************************************/
 static uint8_t *add_msg_type(uint8_t *optptr, uint8_t type)
 {
-    *optptr++ = DHCP_OPTION_MSG_TYPE;
+    *optptr++ = DHCP_OPTION_MESSAGE_TYPE;
     *optptr++ = 1;
     *optptr++ = type;
     return optptr;
@@ -260,7 +225,7 @@ static uint8_t *add_offer_options(uint8_t *optptr)
     }
 
 
-    *optptr++ = DHCP_OPTION_INTERFACE_MTU;
+    *optptr++ = DHCP_OPTION_MTU;
     *optptr++ = 2;
     *optptr++ = 0x05;
     *optptr++ = 0xdc;
@@ -301,7 +266,7 @@ static uint8_t *add_end(uint8_t *optptr)
 *******************************************************************************/
 static void create_msg(struct dhcps_msg *m)
 {
-    m->op = DHCP_REPLY;
+    m->op = DHCP_BOOTREPLY;
 
     m->htype = DHCP_HTYPE_ETHERNET;
 
@@ -346,18 +311,17 @@ struct pbuf * dhcps_pbuf_alloc(uint16_t len)
 *******************************************************************************/
 static void send_offer(struct dhcps_msg *msg, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
     uint16_t cnt = 0;
-		uint8_t CopyFinished=0;
     uint16_t i;
-		uint32_t  endptr , dataptr = NULL;
 		#if DHCPS_DEBUG
     err_t SendOffer_err_t;
 		#endif
     create_msg(msg);
-    end = add_msg_type(&msg->options[4], DHCPOFFER);
+    end = add_msg_type(&msg->options[4], DHCP_OFFER);
     end = add_offer_options(end);
     end = add_end(end);
 
@@ -417,6 +381,7 @@ static void send_offer(struct dhcps_msg *msg, uint16_t len)
 *******************************************************************************/
 static void send_nak(struct dhcps_msg *m, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
@@ -427,7 +392,7 @@ static void send_nak(struct dhcps_msg *m, uint16_t len)
 		#endif
     create_msg(m);
 
-    end = add_msg_type(&m->options[4], DHCPNAK);
+    end = add_msg_type(&m->options[4], DHCP_NAK);
     end = add_end(end);
 
     p = dhcps_pbuf_alloc(len);
@@ -483,6 +448,7 @@ static void send_nak(struct dhcps_msg *m, uint16_t len)
 *******************************************************************************/
 static void send_ack(struct dhcps_msg *m, uint16_t len)
 {
+    (void)len;
     uint8_t *end;
     struct pbuf *p, *q;
     uint8_t *data;
@@ -491,7 +457,7 @@ static void send_ack(struct dhcps_msg *m, uint16_t len)
     err_t SendAck_err_t;
     create_msg(m);
 
-    end = add_msg_type(&m->options[4], DHCPACK);
+    end = add_msg_type(&m->options[4], DHCP_ACK);
     end = add_offer_options(end);
     end = add_end(end);
 
@@ -573,10 +539,10 @@ static uint8_t parse_options(uint8_t *OptionsPtr, int16_t len)
         DHCPS_LOG("dhcps: (int16_t)*optptr = %d\n", (int16_t)*OptionsPtr);
 				#endif
         switch ((int16_t) *OptionsPtr) {
-            case DHCP_OPTION_MSG_TYPE:	//53
+            case DHCP_OPTION_MESSAGE_TYPE://53
                 type = *(OptionsPtr + 2);
             break;
-						case DHCP_OPTION_REQ_IPADDR://50
+            case DHCP_OPTION_REQUESTED_IP://50
 									s.state = DHCPS_STATE_ACK;
             break;
             case DHCP_OPTION_END: {
@@ -592,26 +558,26 @@ static uint8_t parse_options(uint8_t *OptionsPtr, int16_t len)
     }
 
     switch (type) {
-        case DHCPDISCOVER://1
+        case DHCP_DISCOVER://1
 						#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: DHCPD_STATE_DHCPDISCOVER -- SEND_OFFER\n");
 						#endif
             s.state = DHCPS_STATE_OFFER;
         break;
-        case DHCPREQUEST://3
+        case DHCP_REQUEST://3
 						#if DHCPS_DEBUG
 						DHCPS_LOG("dhcps: DHCPD_STATE_DHCPREQUEST -- SEND_ACK\n");
 						#endif
             s.state = DHCPS_STATE_ACK;
        
         break;
-        case DHCPDECLINE://4
+        case DHCP_DECLINE://4
             s.state = DHCPS_STATE_IDLE;
 						#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: DHCPD_STATE_IDLE\n");
 						#endif
         break;
-        case DHCPRELEASE://7
+        case DHCP_RELEASE://7
             s.state = DHCPS_STATE_RELEASE;
 						#if DHCPS_DEBUG
             DHCPS_LOG("dhcps: DHCPD_STATE_IDLE\n");
@@ -664,10 +630,12 @@ static void handle_dhcp(void *arg,
                         const ip_addr_t *addr,
                         uint16_t port)
 {
+    (void)arg;
+    (void)pcb;
+    (void)addr;
+    (void)port;
     struct dhcps_msg *pmsg_dhcps = NULL;
     int16_t tlen, malloc_len;
-    uint16_t i;
-    uint16_t dhcps_msg_cnt = 0;
     uint8_t *p_dhcps_msg = NULL;
 	struct pbuf  *q;
 

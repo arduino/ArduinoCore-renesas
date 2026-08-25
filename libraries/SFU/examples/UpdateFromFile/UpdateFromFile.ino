@@ -1,20 +1,7 @@
 /*
- * This example demonstrates how to use the SFU to update the firmware of the
- * Arduino Portenta C33 using a compressed firmware image stored in the QSPI flash.
- * In real applications, you will get the file from the internet and not include it
- * in a header file like we do here for simplicity.
- *
- * Steps:
- *   1) Create a sketch for the Portenta C33 and verify
- *      that it both compiles and works on a board.
- *   2) In the IDE select: Sketch -> Export compiled Binary.
- *   3) Create an OTA update file utilising the tools 'lzss.py' and 'bin2ota.py' stored in
- *      https://github.com/arduino-libraries/ArduinoIoTCloud/tree/master/extras/tools .
- *      A) ./lzss.py --encode SKETCH.bin SKETCH.lzss
- *      B) ./bin2ota.py PORTENTA_C33 SKETCH.lzss SKETCH.ota
- *   4) Create the header file to be included in this Sketch
- *      xxd -i SKETCH.ota > update.h
- *   5) Upload this Sketch to perform the update
+ * Local/embedded OTA update: stores firmware in sketch and applies it locally.
+ * No network required; useful for testing and pre-loaded devices.
+ * See ../README.md for complete documentation and packaging instructions.
  */
 
 /******************************************************************************

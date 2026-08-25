@@ -254,7 +254,12 @@ public:
     
 
     void setTimeout(unsigned long timeout);
-
+    /*
+     * PING
+     */
+    int ping(IPAddress ip, uint8_t ttl = 128);
+    int ping(const String &hostname, uint8_t ttl = 128);
+    int ping(const char* host, uint8_t ttl = 128);
     
 };
 

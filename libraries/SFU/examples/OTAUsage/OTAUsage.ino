@@ -1,14 +1,8 @@
 /*
- This sketch can be used to generate an example binary that can be uploaded to Portenta C33 via OTA.
- It needs to be used together with UpdateFromFile.ino
-
- Steps to test OTA on Portenta C33:
- 1) Upload this sketch or any other sketch (this one lights up the RGB LED with different colours).
- 2) In the IDE select: Sketch -> Export compiled Binary
- 3) Upload the exported binary to a server
- 4) Open the related OTA_*_Portenta.ino sketch, eventually update the OTA_FILE_LOCATION
- 5) Upload the sketch UpdateFromFile.ino to perform OTA
-*/
+ * Simple test sketch for OTA updates: cycles RGB LED colors.
+ * Used as the target firmware for OTA deployment.
+ * See ../README.md for complete documentation and usage examples.
+ */
 #include "SFU.h"
 
 void setLed(int blue, int gree, int red) {

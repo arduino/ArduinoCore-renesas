@@ -31,8 +31,6 @@ extern "C" {
 #include "r_usb_basic_api.h"
 #include "r_usb_pcdc_api.h"
 
-#define USBD_ITF_CDC (0) // needs 2 interfaces
-
 #ifndef USBD_CDC_EP_CMD
 #define USBD_CDC_EP_CMD  (0x81)
 #endif
@@ -121,45 +119,73 @@ const uint8_t *tud_descriptor_configuration_cb(uint8_t index) {
 void __SetupUSBDescriptor() {
     if (!usbd_desc_cfg) {
 
-        uint8_t interface_count = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0) + (__USBInstallMSD ? 1 : 0);
+        // This tracks the next (0 based) interface number to assign, incremented after each
+        // interface descriptor is created. After all interface descriptors have been created,
+        // it represents the (1 based) number of interface descriptors that have been defined.
+        uint8_t interface_count = 0;
 
-        uint8_t cdc_desc[TUD_CDC_DESC_LEN + TUD_DFU_RT_DESC_LEN] = {
+        /*
+         * -----    CDC
+         */
+        bool install_CDC = __USBInstallSerial;
+        uint8_t cdc_desc[TUD_CDC_DESC_LEN] = {
             // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-            TUD_CDC_DESCRIPTOR(USBD_ITF_CDC, USBD_STR_CDC, USBD_CDC_EP_CMD, USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN, USBD_CDC_IN_OUT_MAX_SIZE),
-            TUD_DFU_RT_DESCRIPTOR(USBD_ITF_CDC+2, USBD_STR_DFU_RT, 0x0d, 1000, 4096),
+            TUD_CDC_DESCRIPTOR(interface_count, USBD_STR_CDC, USBD_CDC_EP_CMD, USBD_CDC_CMD_MAX_SIZE, USBD_CDC_EP_OUT, USBD_CDC_EP_IN, USBD_CDC_IN_OUT_MAX_SIZE)
         };
+        interface_count += (install_CDC ? 2 : 0);
+
+        /*
+         * -----    DFU
+         */
+        bool install_DFU = false;
+#if CFG_TUD_DFU_RUNTIME
+        install_DFU = __USBInstallSerial;
+        uint8_t dfu_desc[TUD_DFU_RT_DESC_LEN] = {
+            // Interface number, string index, attribute, timeout, xfer size
+            TUD_DFU_RT_DESCRIPTOR(interface_count, USBD_STR_DFU_RT, 0x0d, 1000, 4096)
+        };
+        interface_count += (install_DFU ? 1 : 0);
+#else
+        uint8_t dfu_desc[0] = {};
+#endif
 
         /*
          * -----    HID
-         */ 
-
+         */
+        bool install_HID = false;
         size_t hid_report_len = 0;
         if (__USBGetHIDReport) {
+            install_HID = true;
             __USBGetHIDReport(&hid_report_len);
         }
-        uint8_t hid_itf = __USBInstallSerial ? 3 : 0;
         uint8_t hid_desc[TUD_HID_DESC_LEN] = {
             // Interface number, string index, protocol, report descriptor len, EP In & Out address, size & polling interval
-            TUD_HID_DESCRIPTOR(hid_itf, 0, HID_ITF_PROTOCOL_NONE, hid_report_len, USBD_HID_EP, CFG_TUD_HID_EP_BUFSIZE, 10)
+            TUD_HID_DESCRIPTOR(interface_count, 0, HID_ITF_PROTOCOL_NONE, hid_report_len, USBD_HID_EP, CFG_TUD_HID_EP_BUFSIZE, 10)
         };
+        interface_count += (install_HID ? 1: 0);
 
         /*
          * -----    MASS STORAGE DEVICE
-         */ 
-
+         */
+        bool install_MSD = false;
 #if CFG_TUD_MSC
-        uint8_t msd_itf = (__USBInstallSerial ? 3 : 0) + (__USBGetHIDReport ? 1 : 0);
+        install_MSD = __USBInstallMSD;
         uint8_t msd_desc[TUD_MSC_DESC_LEN] = {
             // Interface number, string index, EP Out & EP In address, EP size
-            TUD_MSC_DESCRIPTOR(msd_itf, 0, USBD_MSD_EP_OUT, USBD_MSD_EP_IN, USBD_MSD_IN_OUT_SIZE)   
+            TUD_MSC_DESCRIPTOR(interface_count, 0, USBD_MSD_EP_OUT, USBD_MSD_EP_IN, USBD_MSD_IN_OUT_SIZE)   
         };
+        interface_count += (install_MSD ? 1 : 0);
 #else
         uint8_t msd_desc[0] = {};
 #endif
         
-
-        int usbd_desc_len = TUD_CONFIG_DESC_LEN + (__USBInstallSerial ? sizeof(cdc_desc) : 0) + (__USBGetHIDReport ? sizeof(hid_desc) : 0) + (__USBInstallMSD ? sizeof(msd_desc) : 0);
-
+        // Create configuration descriptor
+        int usbd_desc_len =
+            TUD_CONFIG_DESC_LEN
+            + (install_CDC ? sizeof(cdc_desc) : 0)
+            + (install_DFU ? sizeof(dfu_desc) : 0)
+            + (install_HID ? sizeof(hid_desc) : 0)
+            + (install_MSD ? sizeof(msd_desc) : 0);
         uint8_t tud_cfg_desc[TUD_CONFIG_DESC_LEN] = {
             // Config number, interface count, string index, total length, attribute, power in mA
             TUD_CONFIG_DESCRIPTOR(1, interface_count, USBD_STR_0, usbd_desc_len, TUSB_DESC_CONFIG_ATT_SELF_POWERED, 500)
@@ -172,15 +198,19 @@ void __SetupUSBDescriptor() {
             uint8_t *ptr = usbd_desc_cfg;
             memcpy(ptr, tud_cfg_desc, sizeof(tud_cfg_desc));
             ptr += sizeof(tud_cfg_desc);
-            if (__USBInstallSerial) {
+            if (install_CDC) {
                 memcpy(ptr, cdc_desc, sizeof(cdc_desc));
                 ptr += sizeof(cdc_desc);
             }
-            if (__USBGetHIDReport) {
+            if (install_DFU) {
+                memcpy(ptr, dfu_desc, sizeof(dfu_desc));
+                ptr += sizeof(dfu_desc);
+            }
+            if (install_HID) {
                 memcpy(ptr, hid_desc, sizeof(hid_desc));
                 ptr += sizeof(hid_desc);
             }
-            if (__USBInstallMSD) {
+            if (install_MSD) {
                 memcpy(ptr, msd_desc, sizeof(msd_desc));
                 ptr += sizeof(msd_desc);
             }

@@ -103,6 +103,7 @@
 
 #define CFG_TUH_MSC              1
 #define CFG_TUH_HUB              1
+#define CFG_TUH_HID              2
 #define CFG_TUH_DEVICE_MAX       (3*CFG_TUH_HUB)
 #define CFG_TUH_ENDPOINT_MAX     8
 #define CFG_TUH_API_EDPT_XFER    1

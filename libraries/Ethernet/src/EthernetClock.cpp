@@ -49,17 +49,14 @@ fsp_err_t EthernetClock::stop() {
   fsp_err_t err = R_AGT_Stop(&this->TIMER_ETHERNET_ctrl);
   if (err != FSP_SUCCESS) {
     return err;
-  } else {
-    err = R_AGT_Close(&this->TIMER_ETHERNET_ctrl);
-    if (err != FSP_SUCCESS) {
-      return err;
-    } else {
-      err = R_AGT_Disable(&this->TIMER_ETHERNET_ctrl);
-      if (err != FSP_SUCCESS) {
-        return err;
-      }
-    }
   }
+
+  err = R_AGT_Close(&this->TIMER_ETHERNET_ctrl);
+  if (err != FSP_SUCCESS) {
+    return err;
+  }
+
+  return R_AGT_Disable(&this->TIMER_ETHERNET_ctrl);
 }
 
 #else

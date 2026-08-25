@@ -60,13 +60,22 @@ enum class CmdStatus {
 
 class SDCardBlockDevice : public BlockDevice {
 private:
-  sdmmc_device_t sd_card_info;
+  pin_t ck;
+  pin_t cmd;
+  pin_t d0;
+  pin_t d1;
+  pin_t d2;
+  pin_t d3;
+  pin_t cd;
+  pin_t wp;
   bd_addr_t base_address;
   bd_size_t total_size;
   bd_size_t read_block_size;
   bd_size_t erase_block_size;
   bd_size_t write_block_size;
+  bool opened;
   sdhi_instance_ctrl_t  ctrl;
+  sdmmc_device_t sd_card_info;
   sdmmc_cfg_t           cfg;
   
   #ifdef USE_DMAC
@@ -84,14 +93,7 @@ private:
   transfer_cfg_t        dtc_cfg;
   transfer_instance_t   dtc_instance;
   #endif
-  pin_t ck;
-  pin_t cmd;
-  pin_t d0;
-  pin_t d1;
-  pin_t d2;
-  pin_t d3;
-  pin_t cd;
-  pin_t wp;
+
   static volatile bool initialized;
   static volatile bool card_inserted;
   static volatile CmdStatus st;
@@ -99,7 +101,7 @@ private:
   virtual int write(const void *buffer, bd_addr_t addr, bd_size_t size) override;
   virtual int open() override;
   virtual int close() override;
-  bool opened;
+
   fsp_err_t wait_for_completition();
 public:
 

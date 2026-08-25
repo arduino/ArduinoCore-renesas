@@ -1,15 +1,16 @@
 #!/bin/bash
 
+VERSION=$1
+
 if [ ! -f platform.txt ]; then
   echo Launch this script from the root core folder as ./extras/package.sh
   exit 2
 fi
 
 if [ ! -d ../ArduinoCore-API ]; then
-  git clone git@github.com:arduino/ArduinoCore-API.git ../ArduinoCore-API
+  git clone https://github.com/arduino/ArduinoCore-API.git ../ArduinoCore-API
 fi
 
-VERSION=`cat platform.txt | grep "version=" | cut -f2 -d"="`
 echo $VERSION
 
 #portenta
@@ -22,6 +23,8 @@ FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 git checkout boards.txt
 git checkout platform.txt
 
+sed -i "s/9.9.9/$VERSION/g" platform.txt
+sed -i 's/nanor4./#nanor4./g' boards.txt
 sed -i 's/minima./#minima./g' boards.txt
 sed -i 's/unor4wifi./#unor4wifi./g' boards.txt
 sed -i 's/muxto./#muxto./g' boards.txt
@@ -56,6 +59,7 @@ FILENAME=ArduinoCore-renesas_$VARIANT-$VERSION.tar.bz2
 git checkout boards.txt
 git checkout platform.txt
 
+sed -i "s/9.9.9/$VERSION/g" platform.txt
 sed -i 's/portenta_c33./#portenta_c33./g' boards.txt
 sed -i 's/muxto./#muxto./g' boards.txt
 sed -i 's/opta_/#opta_/g' boards.txt

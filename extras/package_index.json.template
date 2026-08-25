@@ -27,6 +27,9 @@
             },
             {
               "name": "Arduino UNO R4 WiFi"
+            },
+            {
+              "name": "Arduino Nano R4"
             }
           ],
           "toolsDependencies": [

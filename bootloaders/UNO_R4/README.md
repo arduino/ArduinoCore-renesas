@@ -1,11 +1,38 @@
 :floppy_disk: `bootloaders/UNO_R4`
 ====================================
-Compiled with
+# To compile bootloader:
+
+Download this file (https://github.com/arduino/arduino-renesas-bootloader/blob/main/compile-bootloader.sh)
+using either:
+```bash
+curl -O https://raw.githubusercontent.com/arduino/arduino-renesas-bootloader/refs/heads/main/compile-bootloader.sh
+```
+or
+```bash
+wget https://raw.githubusercontent.com/arduino/arduino-renesas-bootloader/refs/heads/main/compile-bootloader.sh
+```
+Ensure that `compile-bootloader.sh` is executable.
+If it is not run: `chmod +x compile-bootloader.sh`
+Launch the script:
+```bash
+./compile-bootloader.sh R4-wifi
+```
+for Uno R4 Wifi bootloader or 
+```bash
+./compile-bootloader.sh R4-minima
+```
+for Uno R4 Minima
+and follow the script instructions.
+
+
+# Old instructions:
+
+Bootloader was compiled with (Old compiling instructions *** DEPRECATED ***)
 ```bash
 git clone https://github.com/arduino/arduino-renesas-bootloader
 git clone https://github.com/hathach/tinyusb
 cd tinyusb
-# This step is temporary
+git checkout 0.17.0
 patch -p1 < ../arduino-renesas-bootloader/0001-fix-arduino-bootloaders.patch
 python tools/get_deps.py ra
 cd ..

@@ -14,7 +14,7 @@
 
 #include "R7FA4M1_CAN.h"
 
-#if defined(ARDUINO_MINIMA) || defined(ARDUINO_UNOWIFIR4)
+#if defined(ARDUINO_MINIMA) || defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_NANO_R4)
 
 #include <IRQManager.h>
 

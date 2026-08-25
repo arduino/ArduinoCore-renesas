@@ -70,6 +70,7 @@ class SoftwareSerial : public Stream, public arduino::Printable {
         ss_descr_t<2> rx_descr;
         uint8_t _tx_pin, _rx_pin;
         void rx_process();
+        bool initialized;
 
     public:
         using Print::write;
@@ -83,6 +84,7 @@ class SoftwareSerial : public Stream, public arduino::Printable {
         int peek();
         virtual size_t write(uint8_t byte);
         virtual int available();
+        virtual int end();
 };
 
 #endif  //__SOFTWARE_SERIAL_H__

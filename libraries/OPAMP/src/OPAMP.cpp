@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 /* Make sure this library fails to compile for unsupported boards. */
-#if !defined(ARDUINO_UNOWIFIR4) && !defined(ARDUINO_MINIMA)
+#if !defined(ARDUINO_UNOWIFIR4) && !defined(ARDUINO_MINIMA) && !defined(ARDUINO_NANO_R4)
 #error "Unsupported board for OPAMP library."
 #endif
 
