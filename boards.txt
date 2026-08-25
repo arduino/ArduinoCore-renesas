@@ -369,7 +369,7 @@ rmc_ra4m1_20.build.fpu=-mfpu=fpv4-sp-d16
 rmc_ra4m1_20.build.float-abi=-mfloat-abi=hard
 
 rmc_ra4m1_20.build.board=rmc_ra4m1_20
-rmc_ra4m1_20.build.defines=-DF_CPU=48000000 -DRMC-RA4M1_REV2.0
+rmc_ra4m1_20.build.defines=-DF_CPU=48000000 -DARDUINO_RMC_RA4M1_20
 rmc_ra4m1_20.vid.0=0x2341
 rmc_ra4m1_20.pid.0=0x0069
 rmc_ra4m1_20.vid.1=0x2341
@@ -402,6 +402,11 @@ rmc_ra4m1_20.upload.wait_for_upload_port=false
 rmc_ra4m1_20.upload.native_usb=true
 rmc_ra4m1_20.upload.maximum_size=262144
 rmc_ra4m1_20.upload.maximum_data_size=32768
+
+rmc_ra4m1_20.debug.server.openocd.scripts.0=interface/{programmer.protocol}.cfg
+rmc_ra4m1_20.debug.server.openocd.scripts.1={programmer.transport_script}
+rmc_ra4m1_20.debug.server.openocd.scripts.2={runtime.platform.path}/debugger/R7FA4M1AB.cfg
+rmc_ra4m1_20.debug.svd_file={runtime.platform.path}/svd/R7FA4M1AB.svd
 
 ##############################################################
 

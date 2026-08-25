@@ -1,6 +1,7 @@
 -mcpu=cortex-m4
 -mthumb
 -mfloat-abi=hard
+-mfpu=fpv4-sp-d16
 -fmessage-length=0
 -fsigned-char
 -ffunction-sections
