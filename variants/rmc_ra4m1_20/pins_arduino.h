@@ -362,6 +362,8 @@ static const uint8_t SS1  =  PIN_SPI1_CS;
 #define AVCC_MEASURE_PIN        20
 #define AVCC_MULTIPLY_FACTOR    8.33
 
+#define AR_INTERNAL_VOLTAGE     1.43f
+
 #define USB_VID           (0x2341)
 #define USB_PID           (0x0069)
 #define USB_NAME          "UNO R4 Minima"
