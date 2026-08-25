@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#define debug_if rns_storage_dbg_if
+
 //namespace mbed {
 
 //using namespace mbed;

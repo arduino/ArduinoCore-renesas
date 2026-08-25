@@ -105,7 +105,7 @@ bd_size_t HeapBlockDevice::get_erase_size() const
     return _erase_size;
 }
 
-bd_size_t HeapBlockDevice::get_erase_size(bd_addr_t addr) const
+bd_size_t HeapBlockDevice::get_erase_size(__attribute__((unused)) bd_addr_t addr) const
 {
     return _erase_size;
 }

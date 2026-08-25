@@ -24,7 +24,10 @@
 
 int ReadOnlyBlockDevice::open() { return BLOCK_DEVICE_OK; }
 int ReadOnlyBlockDevice::close() { return BLOCK_DEVICE_OK; }
-int ReadOnlyBlockDevice::write(const void *buffer, bd_addr_t addr, bd_size_t size) {return BLOCK_DEVICE_OK;}
+int ReadOnlyBlockDevice::write(__attribute__((unused)) const void *buffer, __attribute__((unused)) bd_addr_t addr, __attribute__((unused)) bd_size_t size) 
+{
+    return BLOCK_DEVICE_OK;
+}
 
 ReadOnlyBlockDevice::ReadOnlyBlockDevice(BlockDevice *bd)
     : _bd(bd)
@@ -57,12 +60,12 @@ int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     return _bd->read(buffer, addr, size);
 }
 
-int ReadOnlyBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+int ReadOnlyBlockDevice::program(__attribute__((unused)) const void *buffer, __attribute__((unused)) bd_addr_t addr, __attribute__((unused)) bd_size_t size)
 {
     return BD_ERROR_WRITE_PROTECTED;
 }
 
-int ReadOnlyBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int ReadOnlyBlockDevice::erase(__attribute__((unused)) bd_addr_t addr, __attribute__((unused)) bd_size_t size)
 {
     return BD_ERROR_WRITE_PROTECTED;
 }

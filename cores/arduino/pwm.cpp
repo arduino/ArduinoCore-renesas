@@ -90,6 +90,28 @@ bool PwmOut::begin(uint32_t period_width, uint32_t pulse_width, bool raw /*= fal
   return _enabled;
 }
 
+/* -------------------------------------------------------------------------- */
+bool PwmOut::begin(float freq_hz, float duty_perc) {
+/* -------------------------------------------------------------------------- */
+  _enabled = true;
+  int max_index = PINS_COUNT;
+  _enabled &= cfg_pin(max_index);
+
+  if(_enabled) {
+    _enabled &= timer.begin(TIMER_MODE_PWM, (_is_agt) ? AGT_TIMER : GPT_TIMER, timer_channel, freq_hz, duty_perc);
+  }
+
+  if(_enabled) {
+    timer.add_pwm_extended_cfg();
+    timer.enable_pwm_channel(_pwm_channel);
+
+    _enabled &= timer.open();
+    _enabled &= timer.start();
+  }
+
+  return _enabled;
+}
+
 bool PwmOut::period(int ms) {
   return timer.set_period_ms((double)ms);
 }

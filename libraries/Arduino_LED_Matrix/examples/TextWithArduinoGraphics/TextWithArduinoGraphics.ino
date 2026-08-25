@@ -1,3 +1,6 @@
+// TextAnimation works only when ArduinoGraphics is installed and used.
+// ArduinoGraphics is an external library and needs to be installed using
+// Library Manager.
 // To use ArduinoGraphics APIs, please include BEFORE Arduino_LED_Matrix
 #include "ArduinoGraphics.h"
 #include "Arduino_LED_Matrix.h"
@@ -5,22 +8,20 @@
 ArduinoLEDMatrix matrix;
 
 void setup() {
-  Serial.begin(115200);
   matrix.begin();
 
   matrix.beginDraw();
+
   matrix.stroke(0xFFFFFFFF);
-  // add some static text
-  // will only show "UNO" (not enough space on the display)
-  const char text[] = "UNO r4";
+  matrix.textScrollSpeed(100);
+
+  const char text[] = "  UNO r4  ";
   matrix.textFont(Font_4x6);
   matrix.beginText(0, 1, 0xFFFFFF);
   matrix.println(text);
-  matrix.endText();
+  matrix.endText(SCROLL_LEFT);
 
   matrix.endDraw();
-
-  delay(2000);
 }
 
 void loop() {

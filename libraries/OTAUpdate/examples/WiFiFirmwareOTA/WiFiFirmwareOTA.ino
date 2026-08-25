@@ -28,6 +28,31 @@ OTAUpdate ota;
 static char const OTA_FILE_LOCATION[] = "https://downloads.arduino.cc/ota/UNOR4USBBridge.ino.ota";
 
 /* -------------------------------------------------------------------------- */
+bool waitResponse() {
+/* -------------------------------------------------------------------------- */
+  bool confirmation = false;
+  while (confirmation == false) {
+    if (Serial.available()) {
+      char choice = Serial.read();
+      switch (choice) {
+        case 'y':
+        case 'Y':
+          confirmation = true;
+          return true;
+          break;
+        case 'n':
+        case 'N':
+          confirmation = true;
+          return false;
+          break;
+        default:
+          continue;
+      }
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 void setup() {
 /* -------------------------------------------------------------------------- */
   //Initialize serial and wait for port to open:
@@ -64,38 +89,45 @@ void setup() {
 
   printWiFiStatus();
 
-  OTAUpdate::Error ret = OTAUpdate::Error::None;
-  ret = ota.begin();
-  if(ret != OTAUpdate::Error::None) {
+  Serial.println("\nWARNING! Running the sketch a test version of the WiFi firmware will be flashed on your board.");
+  Serial.println("Do you want to proceed? Y/[n]");
+
+  if (false == waitResponse()) {
+    return;
+  }
+
+  int ret = ota.begin();
+  if(ret != OTAUpdate::OTA_ERROR_NONE) {
     Serial.println("ota.begin() error: ");
     Serial.println((int)ret);
     return;
   }
   ret = ota.setCACert(root_ca);
-  if(ret != OTAUpdate::Error::None) {
+  if(ret != OTAUpdate::OTA_ERROR_NONE) {
     Serial.println("ota.setCACert() error: ");
     Serial.println((int)ret);
     return;
   }
-  if(ota.download(OTA_FILE_LOCATION) <= 0) {
+  int ota_size = ota.download(OTA_FILE_LOCATION);
+  if(ota_size <= 0) {
     Serial.println("ota.download() error: ");
-    Serial.println((int)ret);
+    Serial.println(ota_size);
     return;
   }
   ret = ota.verify();
-  if(ret != OTAUpdate::Error::None) {
+  if(ret != OTAUpdate::OTA_ERROR_NONE) {
     Serial.println("ota.verify() error: ");
     Serial.println((int)ret);
     return;
   }
   ret = ota.update();
-  if(ret != OTAUpdate::Error::None) {
+  if(ret != OTAUpdate::OTA_ERROR_NONE) {
     Serial.println("ota.update() error: ");
     Serial.println((int)ret);
     return;
   }
   ret = ota.reset();
-  if(ret != OTAUpdate::Error::None) {
+  if(ret != OTAUpdate::OTA_ERROR_NONE) {
     Serial.println("ota.reset() error: ");
     Serial.println((int)ret);
     return;
@@ -108,7 +140,7 @@ void loop() {
 /* -------------------------------------------------------------------------- */
 
   String fv = WiFi.firmwareVersion();
-  Serial.print("Updated Wi-Fi firmware version: ");
+  Serial.print("Wi-Fi firmware version: ");
   Serial.println(fv);
   delay(1000);
 }
