@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2022 by Alexander Entinger <a.entinger@arduino.cc>
- * CAN library for Arduino.
+ * FreeRTOS library for Arduino.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
