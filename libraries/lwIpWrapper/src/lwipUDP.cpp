@@ -154,6 +154,10 @@ int lwipUDP::endPacket()
         return 0;
     }
 
+    /* udp_sendto() does not take ownership of the pbuf */
+    __disable_irq();
+    pbuf_free(_data);
+    __enable_irq();
     _data = NULL;
 
     CLwipIf::getInstance().lwip_task();
