@@ -50,7 +50,7 @@
             },
             {
               "packager": "arduino",
-              "version": "1.9.1-arduino5",
+              "version": "1.9.1-arduino6",
               "name": "bossac"
             }
           ],
@@ -96,7 +96,7 @@
             },
             {
               "packager": "arduino",
-              "version": "1.9.1-arduino5",
+              "version": "1.9.1-arduino6",
               "name": "bossac"
             }
           ],
@@ -159,49 +159,63 @@
         },
         {
           "name": "bossac",
-          "version": "1.9.1-arduino5",
+          "version": "1.9.1-arduino6",
           "systems": [
             {
-              "host": "i386-apple-darwin11",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-osx.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-osx.tar.gz",
-              "size": "47862",
-              "checksum": "SHA-256:c76eae00874a44265029b452303fb355e9ffa006e7ba214ca7ae01b1416867da"
-            },
-            {
               "host": "aarch64-linux-gnu",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-linuxaarch64.tar.gz",
-              "size": "442901",
-              "checksum": "SHA-256:f91dbbe90d57dd8074cd9b0ca7a2f5d41ee71bdf15e9bfd68bf2048a08e4a286"
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-linuxaarch64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-linuxaarch64.tar.gz",
+              "size": "98972",
+              "checksum": "SHA-256:4545c438e1446105f7a9591c02bcbd3eaeb9f72496b6717d641fb2b5a3a17393"
             },
             {
               "host": "arm-linux-gnueabihf",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linuxarm.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-linuxarm.tar.gz",
-              "size": "362365",
-              "checksum": "SHA-256:a0680ac5067ca8134f28fd7f86320d4c3099c782cefecd2e9b1edfde57f5947b"
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-linuxarm.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-linuxarm.tar.gz",
+              "size": "76664",
+              "checksum": "SHA-256:9f25a31d5968d9036d3b63240dd25b348e4528fc6da7969395a9364b0bd77c1b"
             },
             {
-              "host": "x86_64-linux-gnu",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linux64.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-linux64.tar.gz",
-              "size": "399674",
-              "checksum": "SHA-256:ef80d247c431db2686a3e6728cb4897b708b92cd67687100c125684f3c12fc80"
-            },
-            {
-              "host": "i686-linux-gnu",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-linux32.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-linux32.tar.gz",
-              "size": "385086",
-              "checksum": "SHA-256:d9c7ddab312bfc330ed7a98916ffa2c7a9c44798863ce1f4467fb240abc1830a"
+              "host": "arm64-apple-darwin",
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-osxarm64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-osxarm64.tar.gz",
+              "size": "38170",
+              "checksum": "SHA-256:31f9dbd4e8bc6db1f4d4ee3c9d884aab9e7784decdbce5bc157832ca4391d9db"
             },
             {
               "host": "i686-mingw32",
-              "url": "http://downloads.arduino.cc/tools/bossac-1.9.1-arduino5-windows.tar.gz",
-              "archiveFileName": "bossac-1.9.1-arduino5-windows.tar.gz",
-              "size": "1260650",
-              "checksum": "SHA-256:99e1982cf29600152e1c89b3389c1b4ce853201491ed52a12b4a327200cc6af0"
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-windows.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-windows.tar.gz",
+              "size": "95746",
+              "checksum": "SHA-256:f28984e72ceb26abd59b7af9e98a3a0f4179f8adcc2f1a0705ba90c2b0c97966"
+            },
+            {
+              "host": "i686-pc-linux-gnu",
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-linux32.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-linux32.tar.gz",
+              "size": "93643",
+              "checksum": "SHA-256:cb1e693d555dd6f6464ecbcb7f5547d45fbfc99841efcf98926a738f51833347"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-osx.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-osx.tar.gz",
+              "size": "37334",
+              "checksum": "SHA-256:64c6fd27a4d8c2f36cdc8280a4a8845cc10b4c8e85ce929f01993c0084533614"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-windows64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-windows64.tar.gz",
+              "size": "102078",
+              "checksum": "SHA-256:57c9c58e1e6d16f6e66ce7399d6c454e428017c78383ece17c6d948c689fa0d0"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "url": "https://downloads.arduino.cc/tools/bossac-1.9.1-arduino6-linux64.tar.gz",
+              "archiveFileName": "bossac-1.9.1-arduino6-linux64.tar.gz",
+              "size": "87553",
+              "checksum": "SHA-256:b0e5a2b19d3db64d99eb5558e72a8807eea0714edfd2d69e156384026867da24"
             }
           ]
         }
