@@ -166,6 +166,9 @@ void ArduinoSPI::begin()
 
 void ArduinoSPI::end()
 {
+  if (!_is_initialized) {
+    return;
+  }
   if (_is_sci) {
     _close(&_spi_sci_ctrl);
   } else {
