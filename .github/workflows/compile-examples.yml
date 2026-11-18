@@ -138,7 +138,7 @@ jobs:
           if [[ $(grep -r api platform.txt) ]]; then echo "IS_API=true" >> $GITHUB_OUTPUT; fi
 
       - name: Install ArduinoCore-API
-        run: rm "$GITHUB_WORKSPACE/cores/arduino/api" && mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        run: rm -rf "$GITHUB_WORKSPACE/cores/arduino/api" && mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
         if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Checkout Basic examples

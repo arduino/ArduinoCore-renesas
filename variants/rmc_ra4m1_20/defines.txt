@@ -1,0 +1,2 @@
+-D_RA_CORE=CM4
+-D_RENESAS_RA_
