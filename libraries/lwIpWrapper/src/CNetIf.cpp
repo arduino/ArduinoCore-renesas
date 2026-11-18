@@ -85,7 +85,6 @@ static uint8_t Encr2wl_enc(int enc)
 /* -------------------------------------------------------------------------- */
 CLwipIf::CLwipIf()
     : eth_initialized(false)
-    , dns_num(-1)
     , willing_to_start_sync_req(false)
     , async_requests_ongoing(true)
 {
@@ -1029,18 +1028,17 @@ int CLwipIf::inet2aton(const char* address, IPAddress& result)
 void CLwipIf::beginDns(IPAddress aDNSServer)
 {
     /* -------------------------------------------------------------------------- */
-    addDns(aDNSServer);
+    setDns(0, aDNSServer);
 }
 
 
 
 /* -------------------------------------------------------------------------- */
-void CLwipIf::addDns(IPAddress aDNSServer)
+void CLwipIf::setDns(uint8_t dns_num, IPAddress aDNSServer)
 {
     /* -------------------------------------------------------------------------- */
 #if LWIP_DNS
     ip_addr_t ip;
-    dns_num++;
     /* DNS initialized by DHCP when call dhcp_start() */
     bool dhcp_started = false;
 

@@ -113,7 +113,7 @@ void CWifi::_config(IPAddress local_ip, IPAddress gateway, IPAddress subnet) {
 void CWifi::config(IPAddress local_ip, IPAddress dns_server) {
 /* -------------------------------------------------------------------------- */   
    config(local_ip);
-   CLwipIf::getInstance().addDns(dns_server);
+   setDNS(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -121,27 +121,27 @@ void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway) 
 /* -------------------------------------------------------------------------- */   
    IPAddress _nm(255, 255, 255, 0);
    _config(local_ip, gateway, _nm);
-   CLwipIf::getInstance().addDns(dns_server);
+   setDNS(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet) {
 /* -------------------------------------------------------------------------- */
    _config(local_ip, gateway, subnet);
-   CLwipIf::getInstance().addDns(dns_server);
+   setDNS(dns_server);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1) {
 /* -------------------------------------------------------------------------- */   
-   CLwipIf::getInstance().addDns(dns_server1);
+   CLwipIf::getInstance().setDns(0, dns_server1);
 }
 
 /* -------------------------------------------------------------------------- */
 void CWifi::setDNS(IPAddress dns_server1, IPAddress dns_server2) {
 /* -------------------------------------------------------------------------- */   
-   CLwipIf::getInstance().addDns(dns_server1);
-   CLwipIf::getInstance().addDns(dns_server2);
+   CLwipIf::getInstance().setDns(0, dns_server1);
+   CLwipIf::getInstance().setDns(1, dns_server2);
    
 }
 
