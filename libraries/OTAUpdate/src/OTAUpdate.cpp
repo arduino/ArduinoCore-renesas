@@ -42,13 +42,26 @@ int OTAUpdate::begin() {
   return static_cast<int>(Error::Modem);
 }
 
-int OTAUpdate::begin(const char* file_path) {
+int OTAUpdate::begin(const char* file_path, bool formatOnFail) {
   string res = "";
+  int fwVersion = 0;
+
+  if(modem.write(string(PROMPT(_FWVERSION_U32)), res, CMD_READ(_FWVERSION_U32))) {
+    fwVersion = atoi(res.c_str());
+  }
+
   if ( file_path != nullptr && strlen(file_path) > 0) {
-    if (modem.write(string(PROMPT(_OTA_BEGIN)), res, "%s%s\r\n", CMD_WRITE(_OTA_BEGIN), file_path)) {
-      return atoi(res.c_str());
+    if(fwVersion >= 0x50) {
+      if (modem.write(string(PROMPT(_OTA_BEGIN)), res, "%s%s,%d\r\n", CMD_WRITE(_OTA_BEGIN), file_path, formatOnFail)) {
+        return atoi(res.c_str());
+      }
+      return static_cast<int>(Error::Modem);
+    } else {
+      if (modem.write(string(PROMPT(_OTA_BEGIN)), res, "%s%s\r\n", CMD_WRITE(_OTA_BEGIN), file_path)) {
+        return atoi(res.c_str());
+      }
+      return static_cast<int>(Error::Modem);
     }
-    return static_cast<int>(Error::Modem);
   }
   return static_cast<int>(Error::Library);
 }

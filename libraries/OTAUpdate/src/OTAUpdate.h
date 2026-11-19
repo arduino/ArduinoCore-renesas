@@ -39,7 +39,7 @@ public:
   OTAUpdate();
   int setCACert(const char* root_ca);
   int begin();
-  int begin(const char* file_path);
+  int begin(const char* file_path, bool formatOnFail = false);
   int download(const char* url);
   int download(const char* url, const char* file_path);
 
