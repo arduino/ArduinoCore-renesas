@@ -1,5 +1,9 @@
 #include "Serial.h"
 
 #if SERIAL_HOWMANY > 0
+#if defined(UART1_RTS_PIN) && defined(UART1_CTS_PIN)
+UART _UART1_(UART1_TX_PIN, UART1_RX_PIN, UART1_RTS_PIN, UART1_CTS_PIN);
+#else
 UART _UART1_(UART1_TX_PIN, UART1_RX_PIN);
+#endif
 #endif
