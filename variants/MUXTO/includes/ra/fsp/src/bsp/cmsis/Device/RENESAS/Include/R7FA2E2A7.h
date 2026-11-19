@@ -11119,8 +11119,8 @@ typedef struct                         /*!< (@ 0x40044200) R_WDT Structure      
  #define R_GPT0_GTICBSR_BSGTRGR_Pos        (0UL)          /*!< BSGTRGR (Bit 0)                                       */
  #define R_GPT0_GTICBSR_BSGTRGR_Msk        (0x1UL)        /*!< BSGTRGR (Bitfield-Mask: 0x01)                         */
 /* =========================================================  GTCR  ========================================================== */
- #define R_GPT0_GTCR_TPCS_Pos              (23UL)         /*!< TPCS (Bit 23)                                         */
- #define R_GPT0_GTCR_TPCS_Msk              (0x7800000UL)  /*!< TPCS (Bitfield-Mask: 0x0f)                            */
+ #define R_GPT0_GTCR_TPCS_Pos              (24UL)         /*!< TPCS (Bit 24)                                         */
+ #define R_GPT0_GTCR_TPCS_Msk              (0x7000000UL)  /*!< TPCS (Bitfield-Mask: 0x07)                            */
  #define R_GPT0_GTCR_MD_Pos                (16UL)         /*!< MD (Bit 16)                                           */
  #define R_GPT0_GTCR_MD_Msk                (0x70000UL)    /*!< MD (Bitfield-Mask: 0x07)                              */
  #define R_GPT0_GTCR_CST_Pos               (0UL)          /*!< CST (Bit 0)                                           */
