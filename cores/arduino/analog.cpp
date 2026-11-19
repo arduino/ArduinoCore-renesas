@@ -479,10 +479,10 @@ static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
     _adc->channel_cfg.scan_mask |= (1 << GET_CHANNEL(cfg_adc));
     
     R_ADC_Open(&(_adc->ctrl), &(_adc->cfg));
+    adc_status_t status;
+    
     R_ADC_ScanCfg(&(_adc->ctrl), &(_adc->channel_cfg));
     R_ADC_ScanStart(&(_adc->ctrl));
-
-    adc_status_t status;
     status.state = ADC_STATE_SCAN_IN_PROGRESS;
     while (ADC_STATE_SCAN_IN_PROGRESS == status.state)
     {
@@ -491,6 +491,17 @@ static int adcConvert(ADC_Container *_adc,uint16_t cfg_adc) {
 
     uint16_t result;
     R_ADC_Read(&(_adc->ctrl), (adc_channel_t)GET_CHANNEL(cfg_adc), &result);
+    
+#ifdef R7FA2A1AB_H
+    /* this fixes an odd behaviour on RA2A1 microcontroller: although the result
+       of the conversion is expected to be between 0 and 32767 (see pag. 935 of
+       User's manual micro) it sometime returns value around 65535 when the expected
+       value is 0 */
+    int16_t a = (int16_t)result;
+    if(a < 0) {
+      result = 0;
+    }
+#endif    
     
     result = map(result, 0, (1 << _privateGetHwAnalogResolution()), 0, (1 << _analogRequestedReadResolution));
     return (int)result;
@@ -608,6 +619,16 @@ void analogReadResolution(int bits) {
     /* use a "strange value" to signal something went wrong */
     _analogRequestedReadResolution = 0; 
   }
+
+#ifdef R7FA2A1AB_H
+  /* accept this value only for this micro - used on a Science Kit */
+  if(bits == 9) {
+    _analogRequestedReadResolution = bits;
+  }
+#endif
+
+  
+
   #else
   /* Keep this code that presume R_ADC_Open returns an error when the requested
      resolution is not set to the supported value (requested changes made to Renesas) */
@@ -685,7 +706,11 @@ int _privateGetHwAnalogResolution() {
     read_resolution = 14;
     break;
   case ADC_RESOLUTION_16_BIT:
+    #ifdef R7FA2A1AB_H
+    read_resolution = 15;
+    #else
     read_resolution = 16;
+    #endif
     break;
   case ADC_RESOLUTION_24_BIT:
     read_resolution = 24;
