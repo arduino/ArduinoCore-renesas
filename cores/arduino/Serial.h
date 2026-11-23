@@ -58,16 +58,18 @@ class UART : public arduino::HardwareSerial {
     void begin(unsigned long, uint16_t config);
     void end();
     int available(void);
+    int availableForWrite(void);
     int peek(void);
     int read(void);
     void flush(void);
     size_t write(uint8_t c);
-    size_t write(uint8_t* c, size_t len);
+    size_t write(const uint8_t* c, size_t len);
     size_t write_raw(uint8_t* c, size_t len);
     using Print::write; 
     operator bool(); // { return true; }
 
   private:          
+    void                      startTx(void);
     int                       tx_pin;
     int                       rx_pin;
     int                       rts_pin = -1;
@@ -78,8 +80,8 @@ class UART : public arduino::HardwareSerial {
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
-    volatile bool tx_empty;
-    volatile bool tx_complete;
+    volatile bool tx_in_progress;
+    uint8_t tx_chunk[64];
 
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
