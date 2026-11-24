@@ -124,7 +124,7 @@ void UART::startTx() {
   __set_PRIMASK(primask);
 
   size_t count = 0;
-  while (count < sizeof(tx_chunk) && txBuffer.available() > 0) {
+  while (count < SERIAL_TX_CHUNK_SIZE && txBuffer.available() > 0) {
     int ch = txBuffer.read_char();
     if (ch < 0) {
       break;
@@ -350,7 +350,10 @@ int UART::available() {
 /* -------------------------------------------------------------------------- */
 int UART::availableForWrite() {
 /* -------------------------------------------------------------------------- */
-  return txBuffer.availableForStore();
+  synchronized {
+    return txBuffer.availableForStore();
+  }
+  return 0;
 }
 
 /* -------------------------------------------------------------------------- */

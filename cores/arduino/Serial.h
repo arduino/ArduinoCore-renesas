@@ -40,6 +40,8 @@
 #undef SERIAL_BUFFER_SIZE
 #define SERIAL_BUFFER_SIZE 512
 
+#define SERIAL_TX_CHUNK_SIZE 64
+
 #define MAX_UARTS    10
 
 typedef enum {
@@ -81,7 +83,7 @@ class UART : public arduino::HardwareSerial {
     arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
     volatile bool tx_in_progress;
-    uint8_t tx_chunk[64];
+    uint8_t tx_chunk[SERIAL_TX_CHUNK_SIZE];
 
     sci_uart_instance_ctrl_t  uart_ctrl;
     uart_cfg_t                uart_cfg;
