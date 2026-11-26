@@ -60,12 +60,12 @@ void UART::WrapperCallback(uart_callback_args_t *p_args) {
       }
       case UART_EVENT_TX_COMPLETE: // This is call when the transmission is complete
       {
-        uart_ptr->tx_complete = true;
+        uart_ptr->tx_in_progress = false;
+        uart_ptr->startTx();
         break;
       }
       case UART_EVENT_TX_DATA_EMPTY: // This is called when the buffer is empty
       {                              // Last byte is transmitting, but ready for more data
-        uart_ptr->tx_empty = true;
         break;
       }
       case UART_EVENT_RX_CHAR:
@@ -89,8 +89,7 @@ UART::UART(int _pin_tx, int _pin_rx, int _pin_rts, int _pin_cts):
   rx_pin(_pin_rx),
   rts_pin(_pin_rts),
   cts_pin(_pin_cts),
-  tx_empty(true),
-  tx_complete(true),
+  tx_in_progress(false),
   init_ok(false) {
 /* -------------------------------------------------------------------------- */    
   uart_cfg.txi_irq = FSP_INVALID_VECTOR;
@@ -110,31 +109,64 @@ bool UART::setUpUartIrqs(uart_cfg_t &cfg) {
 } 
 
 /* -------------------------------------------------------------------------- */
-size_t UART::write(uint8_t c) {
-/* -------------------------------------------------------------------------- */  
-  if(init_ok) {
-    tx_empty = false;
-    tx_complete = false;
-    R_SCI_UART_Write(&uart_ctrl, &c, 1);
-    while (!tx_empty) {}
-    return 1;
+void UART::startTx() {
+/* -------------------------------------------------------------------------- */
+  // Minimal critical section: only acquires TX ownership
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+
+  if (tx_in_progress || txBuffer.available() == 0) {
+    __set_PRIMASK(primask);
+    return;
   }
-  else {
-    return 0;
+
+  tx_in_progress = true;
+  __set_PRIMASK(primask);
+
+  size_t count = 0;
+  while (count < SERIAL_TX_CHUNK_SIZE && txBuffer.available() > 0) {
+    int ch = txBuffer.read_char();
+    if (ch < 0) {
+      break;
+    }
+    tx_chunk[count++] = static_cast<uint8_t>(ch);
+  }
+
+  if (count > 0) {
+    if (R_SCI_UART_Write(&uart_ctrl, tx_chunk, count) != FSP_SUCCESS) {
+      tx_in_progress = false;
+    }
+  } else {
+    tx_in_progress = false;
   }
 }
 
-size_t  UART::write(uint8_t* c, size_t len) {
-  if(init_ok) {
-    tx_empty = false;
-    tx_complete = false;
-    R_SCI_UART_Write(&uart_ctrl, c, len);
-    while (!tx_empty) {}
-    return len;
-  }
-  else {
+/* -------------------------------------------------------------------------- */
+size_t UART::write(const uint8_t* c, size_t len) {
+/* -------------------------------------------------------------------------- */
+  if (!init_ok || c == nullptr || len == 0) {
     return 0;
   }
+
+  size_t written = 0;
+  while (written < len) {
+    if (txBuffer.availableForStore() > 0) {
+      txBuffer.store_char(c[written++]);
+    } else {
+      startTx();
+      // Avoid deadlock if buffer is full inside an ISR or with interrupts disabled
+      if (__get_PRIMASK() != 0 || __get_IPSR() != 0) {
+        break;
+      }
+    }
+  }
+
+  startTx();
+  return written;
+}
+
+size_t UART::write(uint8_t c) {
+  return write(&c, 1);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -289,6 +321,7 @@ void UART::begin(unsigned long baudrate, uint16_t config) {
   err = R_SCI_UART_BaudSet(&uart_ctrl, (void *) &uart_baud);
   if(err != FSP_SUCCESS) while(1);
 
+  tx_in_progress = false;
   rxBuffer.clear();
   txBuffer.clear();
 }
@@ -301,16 +334,26 @@ void UART::begin(unsigned long baudrate) {
 
 /* -------------------------------------------------------------------------- */
 void UART::end() {
-/* -------------------------------------------------------------------------- */  
-  rxBuffer.clear();
-  txBuffer.clear();
-  R_SCI_UART_Close (&uart_ctrl);
+   flush();
+   R_SCI_UART_Close(&uart_ctrl);
+   tx_in_progress = false;
+   rxBuffer.clear();
+   txBuffer.clear();
 }
 
 /* -------------------------------------------------------------------------- */
 int UART::available() {
 /* -------------------------------------------------------------------------- */  
   return rxBuffer.available();
+}
+
+/* -------------------------------------------------------------------------- */
+int UART::availableForWrite() {
+/* -------------------------------------------------------------------------- */
+  synchronized {
+    return txBuffer.availableForStore();
+  }
+  return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -328,7 +371,9 @@ int UART::read() {
 /* -------------------------------------------------------------------------- */
 void UART::flush() {
 /* -------------------------------------------------------------------------- */  
-  while(!tx_complete);
+  while (tx_in_progress || txBuffer.available() > 0) {
+      startTx();
+  }
 }
 
 /* -------------------------------------------------------------------------- */
