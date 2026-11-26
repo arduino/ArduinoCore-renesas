@@ -14402,7 +14402,20 @@ typedef struct                         /*!< (@ 0x4001E000) R_SYSTEM Structure   
             uint8_t             : 7;
         } HOCOCR_b;
     };
-    __IM uint8_t RESERVED8;
+
+    union
+    {
+        __IOM uint8_t HOCOCR2;         /*!< (@ 0x00000037) High-Speed On-Chip Oscillator Control Register
+                                        *                  2                                                          */
+
+        struct
+        {
+            __IOM uint8_t HCFRQ0 : 2;  /*!< [1..0] HOCO Frequency Setting 0                                           */
+            uint8_t              : 1;
+            __IOM uint8_t HCFRQ1 : 3;  /*!< [5..3] HOCO Frequency Setting 1                                           */
+            uint8_t              : 2;
+        } HOCOCR2_b;
+    };
 
     union
     {
@@ -25093,7 +25106,12 @@ typedef struct                         /*!< (@ 0x40060000) R_USB_HS0 Structure  
 /* ========================================================  HOCOCR  ========================================================= */
  #define R_SYSTEM_HOCOCR_HCSTP_Pos                 (0UL)          /*!< HCSTP (Bit 0)                                         */
  #define R_SYSTEM_HOCOCR_HCSTP_Msk                 (0x1UL)        /*!< HCSTP (Bitfield-Mask: 0x01)                           */
-/* ========================================================  MOCOCR  ========================================================= */
+/* ========================================================  HOCOCR2  ======================================================== */
+ #define R_SYSTEM_HOCOCR2_HCFRQ0_Pos               (0UL)          /*!< HCFRQ0 (Bit 0)                                        */
+ #define R_SYSTEM_HOCOCR2_HCFRQ0_Msk               (0x3UL)        /*!< HCFRQ0 (Bitfield-Mask: 0x03)                          */
+ #define R_SYSTEM_HOCOCR2_HCFRQ1_Pos               (3UL)          /*!< HCFRQ1 (Bit 3)                                        */
+ #define R_SYSTEM_HOCOCR2_HCFRQ1_Msk               (0x38UL)       /*!< HCFRQ1 (Bitfield-Mask: 0x07)                          */
+ /* ========================================================  MOCOCR  ========================================================= */
  #define R_SYSTEM_MOCOCR_MCSTP_Pos                 (0UL)          /*!< MCSTP (Bit 0)                                         */
  #define R_SYSTEM_MOCOCR_MCSTP_Msk                 (0x1UL)        /*!< MCSTP (Bitfield-Mask: 0x01)                           */
 /* ========================================================  FLLCR1  ========================================================= */
