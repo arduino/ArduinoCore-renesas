@@ -1,4 +1,5 @@
 #include "lwipTcp.h"
+#include "lwipClient.h"
 
 #if LWIP_TCP
 static err_t tcp_recv_callback(void* arg, struct tcp_pcb* tpcb, struct pbuf* p, err_t err);
@@ -53,7 +54,7 @@ err_t tcp_accept_callback(void* arg, struct tcp_pcb* newpcb, err_t err)
 {
     err_t ret_err;
     uint8_t accepted;
-    struct tcp_struct** tcpClient = (struct tcp_struct**)arg;
+    lwipClient* tcpClient = (lwipClient*)arg;
 
     /* set priority for the newly accepted tcp connection newpcb */
     tcp_setprio(newpcb, TCP_PRIO_MIN);
@@ -69,8 +70,8 @@ err_t tcp_accept_callback(void* arg, struct tcp_pcb* newpcb, err_t err)
 
             /* Looking for an empty socket */
             for (uint16_t i = 0; i < MAX_CLIENT; i++) {
-                if (tcpClient[i] == NULL) {
-                    tcpClient[i] = client;
+                if (!tcpClient[i]) {
+                    tcpClient[i] = lwipClient(client);
                     accepted = 1;
                     break;
                 }
